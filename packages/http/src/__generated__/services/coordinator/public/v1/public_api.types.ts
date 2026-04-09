@@ -36,6 +36,10 @@ export type paths = {
     /** Get gas usage and gas limits for either the parent organization or a sub-organization. */
     post: operations["PublicApiService_GetGasUsage"];
   };
+  "/public/v1/query/get_ip_allowlist": {
+    /** Get IP allowlist and rules for an organization. */
+    post: operations["PublicApiService_GetIpAllowlist"];
+  };
   "/public/v1/query/get_latest_boot_proof": {
     /** Get the latest boot proof for a given enclave app name. */
     post: operations["PublicApiService_GetLatestBootProof"];
@@ -55,6 +59,10 @@ export type paths = {
   "/public/v1/query/get_onramp_transaction_status": {
     /** Get the status of an on ramp transaction. */
     post: operations["PublicApiService_GetOnRampTransactionStatus"];
+  };
+  "/public/v1/query/get_organization": {
+    /** Get details about an organization. */
+    post: operations["PublicApiService_GetOrganization"];
   };
   "/public/v1/query/get_organization_configs": {
     /** Get quorum settings and features for an organization. */
@@ -79,6 +87,14 @@ export type paths = {
   "/public/v1/query/get_smart_contract_interface": {
     /** Get details about a smart contract interface. */
     post: operations["PublicApiService_GetSmartContractInterface"];
+  };
+  "/public/v1/query/get_tvc_app": {
+    /** Get details about a single TVC App */
+    post: operations["PublicApiService_GetTvcApp"];
+  };
+  "/public/v1/query/get_tvc_deployment": {
+    /** Get details about a single TVC Deployment */
+    post: operations["PublicApiService_GetTvcDeployment"];
   };
   "/public/v1/query/get_user": {
     /** Get details about a user. */
@@ -136,6 +152,14 @@ export type paths = {
     /** List supported assets for the specified network. This feature is in beta - please contact support for access. */
     post: operations["PublicApiService_ListSupportedAssets"];
   };
+  "/public/v1/query/list_tvc_app_deployments": {
+    /** List all deployments for a given TVC App */
+    post: operations["PublicApiService_GetTvcAppDeployments"];
+  };
+  "/public/v1/query/list_tvc_apps": {
+    /** List all TVC Apps within an organization. */
+    post: operations["PublicApiService_GetTvcApps"];
+  };
   "/public/v1/query/list_user_tags": {
     /** List all user tags within an organization. */
     post: operations["PublicApiService_ListUserTags"];
@@ -159,6 +183,10 @@ export type paths = {
   "/public/v1/query/list_webhook_endpoints": {
     /** List webhook endpoints within an organization. */
     post: operations["PublicApiService_ListWebhookEndpoints"];
+  };
+  "/public/v1/query/validate_tvc_image": {
+    /** Validate a container image URL and pull secret for TVC deployment */
+    post: operations["PublicApiService_ValidateTvcImage"];
   };
   "/public/v1/query/whoami": {
     /** Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users. */
@@ -227,6 +255,18 @@ export type paths = {
   "/public/v1/submit/create_sub_organization": {
     /** Create a new sub-organization. */
     post: operations["PublicApiService_CreateSubOrganization"];
+  };
+  "/public/v1/submit/create_tvc_app": {
+    /** Create a new TVC application */
+    post: operations["PublicApiService_CreateTvcApp"];
+  };
+  "/public/v1/submit/create_tvc_deployment": {
+    /** Create a new TVC Deployment */
+    post: operations["PublicApiService_CreateTvcDeployment"];
+  };
+  "/public/v1/submit/create_tvc_manifest_approvals": {
+    /** Post one or more manifest approvals for a TVC Manifest */
+    post: operations["PublicApiService_CreateTvcManifestApprovals"];
   };
   "/public/v1/submit/create_user_tag": {
     /** Create a user tag and add it to users. */
@@ -320,6 +360,10 @@ export type paths = {
     /** Authenticate a user via email. */
     post: operations["PublicApiService_EmailAuth"];
   };
+  "/public/v1/submit/eth_send_raw_transaction": {
+    /** Submit a raw transaction (serialized and signed) for broadcasting to the network. */
+    post: operations["PublicApiService_EthSendRawTransaction"];
+  };
   "/public/v1/submit/eth_send_transaction": {
     /** Submit a transaction intent describing an EVM transaction you would like to broadcast. */
     post: operations["PublicApiService_EthSendTransaction"];
@@ -396,9 +440,17 @@ export type paths = {
     /** Reject an activity. */
     post: operations["PublicApiService_RejectActivity"];
   };
+  "/public/v1/submit/remove_ip_allowlist": {
+    /** Delete IP allowlist and all associated rules for organization or API key. After removal, access will be determined by organization-level allowlist (for API keys) or allowed from all IPs (for organizations). */
+    post: operations["PublicApiService_RemoveIpAllowlist"];
+  };
   "/public/v1/submit/remove_organization_feature": {
     /** Remove an organization feature. This activity must be approved by the current root quorum. */
     post: operations["PublicApiService_RemoveOrganizationFeature"];
+  };
+  "/public/v1/submit/set_ip_allowlist": {
+    /** Create or update IP allowlist and rules for organization or API key. The IP allowlist restricts API access to specific CIDR blocks. Organization-level allowlists apply to all API keys unless overridden by a key-specific allowlist. */
+    post: operations["PublicApiService_SetIpAllowlist"];
   };
   "/public/v1/submit/set_organization_feature": {
     /** Set an organization feature. This activity must be approved by the current root quorum. */
@@ -482,6 +534,14 @@ export type paths = {
   };
   "/tkhq/api/v1/noop-codegen-anchor": {
     post: operations["PublicApiService_NOOPCodegenAnchor"];
+  };
+  "/tkhq/api/v1/refresh_feature_flags": {
+    /** Refresh feature flags by triggering a DB read to flush the in-memory cache. */
+    post: operations["PublicApiService_RefreshFeatureFlags"];
+  };
+  "/tkhq/api/v1/test_rate_limits": {
+    /** Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite. */
+    post: operations["PublicApiService_TestRateLimits"];
   };
 };
 
@@ -805,7 +865,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME"
     | "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"
     | "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"
-    | "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT";
+    | "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
+    | "ACTIVITY_TYPE_SET_IP_ALLOWLIST"
+    | "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -843,7 +905,9 @@ export type definitions = {
     | "ADDRESS_FORMAT_TON_V3R2"
     | "ADDRESS_FORMAT_TON_V4R2"
     | "ADDRESS_FORMAT_TON_V5R1"
-    | "ADDRESS_FORMAT_XRP";
+    | "ADDRESS_FORMAT_XRP"
+    | "ADDRESS_FORMAT_SPARK_MAINNET"
+    | "ADDRESS_FORMAT_SPARK_REGTEST";
   v1ApiKey: {
     /** @description A User credential that can be used to authenticate to Turnkey. */
     credential: definitions["externaldatav1Credential"];
@@ -1617,6 +1681,15 @@ export type definitions = {
     /** @description Enables network egress for this TVC app. Default if not provided: false. */
     enableEgress?: boolean;
   };
+  v1CreateTvcAppRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_TVC_APP";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateTvcAppIntent"];
+  };
   v1CreateTvcAppResult: {
     /** @description The unique identifier for the TVC application */
     appId: string;
@@ -1652,7 +1725,7 @@ export type definitions = {
     pivotContainerEncryptedPullSecret?: string;
     /** @description Optional flag to indicate whether to deploy the TVC app in debug mode, which includes additional logging and debugging tools. Default is false. */
     debugMode?: boolean;
-    /** @description Heath check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol. */
+    /** @description Health check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol. */
     healthCheckType: definitions["v1TvcHealthCheckType"];
     /**
      * Format: int64
@@ -1665,6 +1738,15 @@ export type definitions = {
      */
     publicIngressPort: number;
   };
+  v1CreateTvcDeploymentRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateTvcDeploymentIntent"];
+  };
   v1CreateTvcDeploymentResult: {
     /** @description The unique identifier for the TVC deployment */
     deploymentId: string;
@@ -1676,6 +1758,15 @@ export type definitions = {
     manifestId: string;
     /** @description List of manifest approvals */
     approvals: definitions["v1TvcManifestApproval"][];
+  };
+  v1CreateTvcManifestApprovalsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_APPROVE_TVC_DEPLOYMENT";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateTvcManifestApprovalsIntent"];
   };
   v1CreateTvcManifestApprovalsResult: {
     /** @description The unique identifier(s) for the manifest approvals */
@@ -2317,6 +2408,16 @@ export type definitions = {
       | "eip155:137"
       | "eip155:80002";
   };
+  v1EthSendRawTransactionRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1EthSendRawTransactionIntent"];
+    generateAppProofs?: boolean;
+  };
   v1EthSendRawTransactionResult: {
     /** @description The transaction hash of the sent transaction */
     transactionHash: string;
@@ -2642,6 +2743,15 @@ export type definitions = {
     /** @description The total gas usage (in USD) of all sponsored transactions processed over the last `window_duration_minutes` */
     usageUsd: string;
   };
+  v1GetIpAllowlistRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description If provided, return only the allowlist for this specific API key. If omitted, all allowlists for the organization are returned. */
+    publicKey?: string;
+  };
+  v1GetIpAllowlistResponse: {
+    allowlist: definitions["v1IpAllowlist"];
+  };
   v1GetLatestBootProofRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -2719,6 +2829,14 @@ export type definitions = {
   v1GetOrganizationConfigsResponse: {
     /** @description Organization configs including quorum settings and organization features. */
     configs: definitions["v1Config"];
+  };
+  v1GetOrganizationRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+  };
+  v1GetOrganizationResponse: {
+    /** @description Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization. */
+    organizationData: definitions["v1OrganizationData"];
   };
   v1GetPoliciesRequest: {
     /** @description Unique identifier for a given organization. */
@@ -2815,6 +2933,44 @@ export type definitions = {
     /** @description List of unique identifiers for the matching sub-organizations. */
     organizationIds: string[];
   };
+  v1GetTvcAppDeploymentsRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given TVC App. */
+    appId: string;
+  };
+  v1GetTvcAppDeploymentsResponse: {
+    /** @description List of deployments for this TVC App */
+    tvcDeployments: definitions["v1TvcDeployment"][];
+  };
+  v1GetTvcAppRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given TVC App. */
+    tvcAppId: string;
+  };
+  v1GetTvcAppResponse: {
+    /** @description Details about a single TVC App */
+    tvcApp: definitions["v1TvcApp"];
+  };
+  v1GetTvcAppsRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+  };
+  v1GetTvcAppsResponse: {
+    /** @description A list of TVC Apps. */
+    tvcApps: definitions["v1TvcApp"][];
+  };
+  v1GetTvcDeploymentRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given TVC Deployment. */
+    deploymentId: string;
+  };
+  v1GetTvcDeploymentResponse: {
+    /** @description Details about a single TVC Deployment */
+    tvcDeployment: definitions["v1TvcDeployment"];
+  };
   v1GetUserRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
@@ -2878,7 +3034,7 @@ export type definitions = {
   v1GetWalletAddressBalancesRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Address corresponding to a wallet account. */
+    /** @description Address corresponding to a wallet account. Private key addresses are not supported. */
     address: string;
     /**
      * @description CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values.
@@ -3396,6 +3552,26 @@ export type definitions = {
     createWebhookEndpointIntent?: definitions["v1CreateWebhookEndpointIntent"];
     updateWebhookEndpointIntent?: definitions["v1UpdateWebhookEndpointIntent"];
     deleteWebhookEndpointIntent?: definitions["v1DeleteWebhookEndpointIntent"];
+    setIpAllowlistIntent?: definitions["v1SetIpAllowlistIntent"];
+    removeIpAllowlistIntent?: definitions["v1RemoveIpAllowlistIntent"];
+  };
+  v1Invitation: {
+    /** @description Unique identifier for a given Invitation object. */
+    invitationId: string;
+    /** @description The name of the intended Invitation recipient. */
+    receiverUserName: string;
+    /** @description The email address of the intended Invitation recipient. */
+    receiverEmail: string;
+    /** @description A list of tags assigned to the Invitation recipient. */
+    receiverUserTags: string[];
+    /** @description The User's permissible access method(s). */
+    accessType: definitions["v1AccessType"];
+    /** @description The current processing status of a specified Invitation. */
+    status: definitions["v1InvitationStatus"];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description Unique identifier for the Sender of an Invitation. */
+    senderUserId: string;
   };
   v1InvitationParams: {
     /** @description The name of the intended Invitation recipient. */
@@ -3408,6 +3584,37 @@ export type definitions = {
     accessType: definitions["v1AccessType"];
     /** @description Unique identifier for the Sender of an Invitation. */
     senderUserId: string;
+  };
+  /** @enum {string} */
+  v1InvitationStatus:
+    | "INVITATION_STATUS_CREATED"
+    | "INVITATION_STATUS_ACCEPTED"
+    | "INVITATION_STATUS_REVOKED";
+  v1IpAllowlist: {
+    /** @description Unique identifier for the organization this allowlist belongs to. */
+    organizationId: string;
+    /** @description List of IP allowlist rules with their metadata. */
+    rules: definitions["v1IpAllowlistRule"][];
+    /** @description Public key of the API key this allowlist applies to. Null means the allowlist applies to the entire organization. */
+    publicKey?: string;
+    /** @description Whether the IP allowlist is enabled. Only present for organization-level allowlists. Null for API key-level allowlists (presence of the allowlist implies enablement). */
+    enabled?: boolean;
+    /** @description Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY. */
+    onEvaluationError?: string;
+  };
+  v1IpAllowlistIntentRule: {
+    /** @description CIDR block (e.g., '192.168.1.0/24', '2001:db8::/32'). */
+    cidr: string;
+    /** @description Optional human-readable label for this rule (e.g., 'Office VPN'). */
+    label?: string;
+  };
+  v1IpAllowlistRule: {
+    /** @description CIDR block (e.g., '192.168.1.0/24'). */
+    cidr: string;
+    /** @description Optional human-readable label for this rule. */
+    label?: string;
+    /** @description Creation timestamp as millisecond epoch string. */
+    createdAt?: string;
   };
   v1ListFiatOnRampCredentialsRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -3628,6 +3835,19 @@ export type definitions = {
     | "OPERATOR_NOT_IN"
     | "OPERATOR_CONTAINS_ONE"
     | "OPERATOR_CONTAINS_ALL";
+  v1OrganizationData: {
+    organizationId?: string;
+    name?: string;
+    users?: definitions["v1User"][];
+    policies?: definitions["v1Policy"][];
+    privateKeys?: definitions["v1PrivateKey"][];
+    invitations?: definitions["v1Invitation"][];
+    tags?: definitions["datav1Tag"][];
+    rootQuorum?: definitions["externaldatav1Quorum"];
+    features?: definitions["v1Feature"][];
+    wallets?: definitions["v1Wallet"][];
+    smartContractInterfaceReferences?: definitions["v1SmartContractInterfaceReference"][];
+  };
   v1OtpAuthIntent: {
     /** @description ID representing the result of an init OTP activity. */
     otpId: string;
@@ -3790,6 +4010,8 @@ export type definitions = {
     /** @description ID of the authenticator created. */
     authenticatorId: string[];
   };
+  v1RefreshFeatureFlagsRequest: { [key: string]: unknown };
+  v1RefreshFeatureFlagsResponse: { [key: string]: unknown };
   v1RejectActivityIntent: {
     /** @description An artifact verifying a User's action. */
     fingerprint: string;
@@ -3804,6 +4026,20 @@ export type definitions = {
     parameters: definitions["v1RejectActivityIntent"];
     generateAppProofs?: boolean;
   };
+  v1RemoveIpAllowlistIntent: {
+    /** @description The public component of an API key. If null, removes the organization-level IP allowlist. If set, removes the IP allowlist for this specific API key. */
+    publicKey?: string;
+  };
+  v1RemoveIpAllowlistRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1RemoveIpAllowlistIntent"];
+  };
+  v1RemoveIpAllowlistResult: { [key: string]: unknown };
   v1RemoveOrganizationFeatureIntent: {
     /** @description Name of the feature to remove */
     name: definitions["v1FeatureName"];
@@ -3925,6 +4161,8 @@ export type definitions = {
     createWebhookEndpointResult?: definitions["v1CreateWebhookEndpointResult"];
     updateWebhookEndpointResult?: definitions["v1UpdateWebhookEndpointResult"];
     deleteWebhookEndpointResult?: definitions["v1DeleteWebhookEndpointResult"];
+    setIpAllowlistResult?: definitions["v1SetIpAllowlistResult"];
+    removeIpAllowlistResult?: definitions["v1RemoveIpAllowlistResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -3998,6 +4236,26 @@ export type definitions = {
     operator?: definitions["v1Operator"];
     targets?: string[];
   };
+  v1SetIpAllowlistIntent: {
+    /** @description The public component of an API key. If null, the IP allowlist applies at the organization level. If set, it applies only to this specific API key. */
+    publicKey?: string;
+    /** @description Whether the IP allowlist is enabled. Only meaningful for organization-level allowlists. Omit for API key-level allowlists. */
+    enabled?: boolean;
+    /** @description List of IP allowlist rules with CIDR blocks and optional labels. */
+    rules?: definitions["v1IpAllowlistIntentRule"][];
+    /** @description Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY. */
+    onEvaluationError?: string;
+  };
+  v1SetIpAllowlistRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1SetIpAllowlistIntent"];
+  };
+  v1SetIpAllowlistResult: { [key: string]: unknown };
   v1SetOrganizationFeatureIntent: {
     /** @description Name of the feature to set */
     name: definitions["v1FeatureName"];
@@ -4118,6 +4376,11 @@ export type definitions = {
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
   };
+  v1SmartContractInterfaceReference: {
+    smartContractInterfaceId?: string;
+    smartContractAddress?: string;
+    digest?: string;
+  };
   /** @enum {string} */
   v1SmartContractInterfaceType:
     | "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM"
@@ -4212,6 +4475,18 @@ export type definitions = {
   };
   /** @enum {string} */
   v1TagType: "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
+  v1TestRateLimitsRequest: {
+    /** @description Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons. */
+    organizationId: string;
+    /** @description Whether or not to set a limit on this request. */
+    isSetLimit: boolean;
+    /**
+     * Format: int64
+     * @description Rate limit to set for org, if is_set_limit is set to true.
+     */
+    limit: number;
+  };
+  v1TestRateLimitsResponse: { [key: string]: unknown };
   v1TokenUsage: {
     /** @description Type of token usage */
     type: definitions["v1UsageType"];
@@ -4227,21 +4502,148 @@ export type definitions = {
     | "TRANSACTION_TYPE_TRON"
     | "TRANSACTION_TYPE_BITCOIN"
     | "TRANSACTION_TYPE_TEMPO";
+  v1TvcApp: {
+    /** @description Unique Identifier for this TVC App. */
+    id: string;
+    /** @description Unique Identifier of the Organization for this TVC App */
+    organizationId: string;
+    /** @description Name for this TVC App. */
+    name: string;
+    /** @description Public key for the Quorum Key associated with this TVC App */
+    quorumPublicKey: string;
+    /** @description Manifest Set (people who can approve manifests) */
+    manifestSet: definitions["v1TvcOperatorSet"];
+    /** @description Share Set (people who have a share of the Quorum Key) */
+    shareSet: definitions["v1TvcOperatorSet"];
+    /** @description Whether or not this TVC App has network egress enabled. */
+    enableEgress: boolean;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description The deployment currently designated to receive traffic. Null if no deployment for this app is deployed. */
+    liveDeploymentId?: string;
+  };
+  v1TvcContainerSpec: {
+    /** @description The URL for this container image. */
+    containerUrl: string;
+    /** @description The path (in-container) to the executable binary. */
+    path: string;
+    /** @description The arguments to pass to the executable. */
+    args: string[];
+    /** @description Whether or not this container requires a pull secret to access. */
+    hasPullSecret: boolean;
+    /** @description The type of health check to perform against this executable. */
+    healthCheckType: definitions["v1TvcHealthCheckType"];
+    /**
+     * Format: int64
+     * @description The port to use for health checks against this executable.
+     */
+    healthCheckPort: number;
+    /**
+     * Format: int64
+     * @description The port to use for public ingress to this executable.
+     */
+    publicIngressPort: number;
+  };
+  v1TvcDeployment: {
+    /** @description Unique Identifier for this TVC Deployment. */
+    id: string;
+    /** @description Unique Identifier of the Organization for this TVC Deployment */
+    organizationId: string;
+    /** @description Unique Identifier of the TVC App for this deployment */
+    appId: string;
+    /** @description Set of TVC operators who can approve this deployment */
+    manifestSet: definitions["v1TvcOperatorSet"];
+    /** @description Set of TVC operators who have a share of the Quorum Key */
+    shareSet: definitions["v1TvcOperatorSet"];
+    /** @description The manifest used for this deployment */
+    manifest: definitions["v1TvcManifest"];
+    /** @description List of operator approvals for this manifest */
+    manifestApprovals: definitions["v1TvcOperatorApproval"][];
+    /** @description QOS Version used for this deployment */
+    qosVersion: string;
+    /** @description The pivot container spec for this deployment */
+    pivotContainer: definitions["v1TvcContainerSpec"];
+    /** @description Current stage for this deployment */
+    stage: definitions["v1TvcDeploymentStage"];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description Whether or not the user wants this deployment deleted from the cluster. */
+    delete: boolean;
+  };
+  /** @enum {string} */
+  v1TvcDeploymentStage:
+    | "TVC_DEPLOYMENT_STAGE_APPROVE"
+    | "TVC_DEPLOYMENT_STAGE_PROVISION"
+    | "TVC_DEPLOYMENT_STAGE_LIVE"
+    | "TVC_DEPLOYMENT_STAGE_DELETE";
   /** @enum {string} */
   v1TvcHealthCheckType:
     | "TVC_HEALTH_CHECK_TYPE_HTTP"
     | "TVC_HEALTH_CHECK_TYPE_GRPC";
+  v1TvcManifest: {
+    /** @description Unique Identifier for this TVC Manifest. */
+    id: string;
+    /**
+     * Format: byte
+     * @description The manifest content (raw UTF-8 JSON bytes)
+     */
+    manifest: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
   v1TvcManifestApproval: {
     /** @description Unique identifier of the operator providing this approval */
     operatorId: string;
     /** @description Signature from the operator approving the manifest */
     signature: string;
   };
+  v1TvcOperator: {
+    /** @description Unique Identifier for this TVC Operator. */
+    id: string;
+    /** @description Name of this TVC Operator. */
+    name: string;
+    /** @description Public key for this TVC Operator. */
+    publicKey: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1TvcOperatorApproval: {
+    /** @description Unique ID for this approval */
+    id: string;
+    /** @description Unique Identifier of the TVC Manifest being approved */
+    manifestId: string;
+    /** @description The TVC Operator who made this approval */
+    operator: definitions["v1TvcOperator"];
+    /**
+     * Format: byte
+     * @description Signature of the operator over the deployment manifest
+     */
+    approval: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
   v1TvcOperatorParams: {
     /** @description The name for this new operator */
     name: string;
     /** @description Public key for this operator */
     publicKey: string;
+  };
+  v1TvcOperatorSet: {
+    /** @description Unique Identifier for this TVC Operator Set. */
+    id: string;
+    /** @description Name of this TVC Operator Set. */
+    name: string;
+    /** @description Unique Identifier of the Organization for this TVC Operator Set */
+    organizationId: string;
+    /** @description List of TVC Operators in this set */
+    operators: definitions["v1TvcOperator"][];
+    /**
+     * Format: int64
+     * @description Threshold number of operators required for quorum.
+     */
+    threshold: number;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
   };
   v1TvcOperatorSetParams: {
     /** @description Short description for this new operator set */
@@ -4728,6 +5130,17 @@ export type definitions = {
     /** @description A list of User Tag IDs. This field, if not needed, should be an empty array in your request body. */
     userTags: string[];
   };
+  v1ValidateTvcImageRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description URL of the container image. */
+    pivotContainerImageUrl: string;
+    /** @description HPKE-encrypted pull secret for private images. */
+    pivotContainerEncryptedPullSecret?: string;
+  };
+  v1ValidateTvcImageResponse: {
+    resolvedImageDigest?: string;
+  };
   v1VerifyOtpIntent: {
     /** @description ID representing the result of an init OTP activity. */
     otpId: string;
@@ -4877,7 +5290,7 @@ export type definitions = {
     subscriptions?: definitions["v1WebhookSubscriptionParams"][];
   };
   v1WebhookSubscriptionParams: {
-    /** @description The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_UPDATES). */
+    /** @description The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_CONFIRMED_UPDATES). */
     eventType: string;
     /** @description JSON-encoded filter criteria for this subscription. */
     filtersJson?: string;
@@ -5031,6 +5444,24 @@ export type operations = {
       };
     };
   };
+  /** Get IP allowlist and rules for an organization. */
+  PublicApiService_GetIpAllowlist: {
+    parameters: {
+      body: {
+        body: definitions["v1GetIpAllowlistRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetIpAllowlistResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get the latest boot proof for a given enclave app name. */
   PublicApiService_GetLatestBootProof: {
     parameters: {
@@ -5114,6 +5545,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetOnRampTransactionStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about an organization. */
+  PublicApiService_GetOrganization: {
+    parameters: {
+      body: {
+        body: definitions["v1GetOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetOrganizationResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -5222,6 +5671,42 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetSmartContractInterfaceResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about a single TVC App */
+  PublicApiService_GetTvcApp: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcAppRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcAppResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about a single TVC Deployment */
+  PublicApiService_GetTvcDeployment: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcDeploymentRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcDeploymentResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -5481,6 +5966,42 @@ export type operations = {
       };
     };
   };
+  /** List all deployments for a given TVC App */
+  PublicApiService_GetTvcAppDeployments: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcAppDeploymentsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcAppDeploymentsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all TVC Apps within an organization. */
+  PublicApiService_GetTvcApps: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcAppsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcAppsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** List all user tags within an organization. */
   PublicApiService_ListUserTags: {
     parameters: {
@@ -5582,6 +6103,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ListWebhookEndpointsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Validate a container image URL and pull secret for TVC deployment */
+  PublicApiService_ValidateTvcImage: {
+    parameters: {
+      body: {
+        body: definitions["v1ValidateTvcImageRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ValidateTvcImageResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -5882,6 +6421,60 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreateSubOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create a new TVC application */
+  PublicApiService_CreateTvcApp: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateTvcAppRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create a new TVC Deployment */
+  PublicApiService_CreateTvcDeployment: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateTvcDeploymentRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Post one or more manifest approvals for a TVC Manifest */
+  PublicApiService_CreateTvcManifestApprovals: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateTvcManifestApprovalsRequest"];
       };
     };
     responses: {
@@ -6309,6 +6902,24 @@ export type operations = {
       };
     };
   };
+  /** Submit a raw transaction (serialized and signed) for broadcasting to the network. */
+  PublicApiService_EthSendRawTransaction: {
+    parameters: {
+      body: {
+        body: definitions["v1EthSendRawTransactionRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Submit a transaction intent describing an EVM transaction you would like to broadcast. */
   PublicApiService_EthSendTransaction: {
     parameters: {
@@ -6651,11 +7262,47 @@ export type operations = {
       };
     };
   };
+  /** Delete IP allowlist and all associated rules for organization or API key. After removal, access will be determined by organization-level allowlist (for API keys) or allowed from all IPs (for organizations). */
+  PublicApiService_RemoveIpAllowlist: {
+    parameters: {
+      body: {
+        body: definitions["v1RemoveIpAllowlistRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Remove an organization feature. This activity must be approved by the current root quorum. */
   PublicApiService_RemoveOrganizationFeature: {
     parameters: {
       body: {
         body: definitions["v1RemoveOrganizationFeatureRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create or update IP allowlist and rules for organization or API key. The IP allowlist restricts API access to specific CIDR blocks. Organization-level allowlists apply to all API keys unless overridden by a key-specific allowlist. */
+  PublicApiService_SetIpAllowlist: {
+    parameters: {
+      body: {
+        body: definitions["v1SetIpAllowlistRequest"];
       };
     };
     responses: {
@@ -7034,6 +7681,42 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1NOOPCodegenAnchorResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Refresh feature flags by triggering a DB read to flush the in-memory cache. */
+  PublicApiService_RefreshFeatureFlags: {
+    parameters: {
+      body: {
+        body: definitions["v1RefreshFeatureFlagsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1RefreshFeatureFlagsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite. */
+  PublicApiService_TestRateLimits: {
+    parameters: {
+      body: {
+        body: definitions["v1TestRateLimitsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1TestRateLimitsResponse"];
       };
       /** An unexpected error response. */
       default: {

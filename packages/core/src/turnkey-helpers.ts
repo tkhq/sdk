@@ -532,3 +532,35 @@ export const defaultTonV4r2AccountAtIndex = (
 export const DEFAULT_TON_V4R2_ACCOUNTS: v1WalletAccountParams[] = [
   defaultTonV4r2AccountAtIndex(0),
 ];
+
+// Spark Mainnet
+export const defaultSparkMainnetAccountAtIndex = (
+  pathIndex: number,
+): v1WalletAccountParams => {
+  return {
+    curve: "CURVE_SECP256K1",
+    pathFormat: "PATH_FORMAT_BIP32",
+    path: `m/86'/0'/${pathIndex}'/0/0`,
+    addressFormat: "ADDRESS_FORMAT_SPARK_MAINNET",
+  };
+};
+
+export const DEFAULT_SPARK_MAINNET_ACCOUNTS: v1WalletAccountParams[] = [
+  defaultSparkMainnetAccountAtIndex(0),
+];
+
+// Spark Regtest
+export const defaultSparkRegtestAccountAtIndex = (
+  pathIndex: number,
+): v1WalletAccountParams => {
+  return {
+    curve: "CURVE_SECP256K1",
+    pathFormat: "PATH_FORMAT_BIP32",
+    path: `m/86'/1'/${pathIndex}'/0/0`,
+    addressFormat: "ADDRESS_FORMAT_SPARK_REGTEST",
+  };
+};
+
+export const DEFAULT_SPARK_REGTEST_ACCOUNTS: v1WalletAccountParams[] = [
+  defaultSparkRegtestAccountAtIndex(0),
+];

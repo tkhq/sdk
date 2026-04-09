@@ -75,6 +75,8 @@ import {
   DEFAULT_XLM_ACCOUNTS,
   DEFAULT_TON_V3R2_ACCOUNTS,
   DEFAULT_TON_V4R2_ACCOUNTS,
+  DEFAULT_SPARK_MAINNET_ACCOUNTS,
+  DEFAULT_SPARK_REGTEST_ACCOUNTS,
 } from "./turnkey-helpers";
 import { fromDerSignature, uncompressRawPublicKey } from "@turnkey/crypto";
 import {
@@ -348,6 +350,18 @@ export const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> =
       hashFunction: "HASH_FUNCTION_SHA256",
       defaultAccounts: DEFAULT_XRP_ACCOUNTS,
       displayName: "XRP",
+    },
+    ADDRESS_FORMAT_SPARK_MAINNET: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_SPARK_MAINNET_ACCOUNTS,
+      displayName: "Spark Mainnet",
+    },
+    ADDRESS_FORMAT_SPARK_REGTEST: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_SPARK_REGTEST_ACCOUNTS,
+      displayName: "Spark Regtest",
     },
   };
 
