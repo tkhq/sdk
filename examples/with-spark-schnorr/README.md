@@ -30,16 +30,16 @@ cd examples/with-spark-schnorr/
 cp .env.local.example .env.local
 ```
 
-| Variable | Required | Notes |
-|---|---|---|
-| `MNEMONIC` | No | Leave blank to auto-generate |
-| `SPARK_NETWORK` | No | `REGTEST` (default) or `MAINNET` |
-| `RECEIVER_SPARK_ADDRESS` | No | Spark transfer target |
-| `TRANSFER_AMOUNT_SATS` | No | Default 1000 |
-| `API_PUBLIC_KEY` / `API_PRIVATE_KEY` / `ORGANIZATION_ID` | No | For Turnkey comparison |
-| `TURNKEY_IDENTITY_ADDRESS` | No | Turnkey key that holds the same identity private key |
-| `UTXO_TXID` / `UTXO_VOUT` / `UTXO_VALUE` / `DESTINATION_ADDRESS` | No | For P2TR Bitcoin tx test |
-| `FEE_SATS` | No | Default 300 |
+| Variable                                                         | Required | Notes                                                |
+| ---------------------------------------------------------------- | -------- | ---------------------------------------------------- |
+| `MNEMONIC`                                                       | No       | Leave blank to auto-generate                         |
+| `SPARK_NETWORK`                                                  | No       | `REGTEST` (default) or `MAINNET`                     |
+| `RECEIVER_SPARK_ADDRESS`                                         | No       | Spark transfer target                                |
+| `TRANSFER_AMOUNT_SATS`                                           | No       | Default 1000                                         |
+| `API_PUBLIC_KEY` / `API_PRIVATE_KEY` / `ORGANIZATION_ID`         | No       | For Turnkey comparison                               |
+| `TURNKEY_IDENTITY_ADDRESS`                                       | No       | Turnkey key that holds the same identity private key |
+| `UTXO_TXID` / `UTXO_VOUT` / `UTXO_VALUE` / `DESTINATION_ADDRESS` | No       | For P2TR Bitcoin tx test                             |
+| `FEE_SATS`                                                       | No       | Default 300                                          |
 
 ### 3. Run
 

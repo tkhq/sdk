@@ -62,7 +62,7 @@ async function main() {
   const maxSupply = BigInt(process.env.TOKEN_SUPPLY ?? "1000000");
   const mintAmount = BigInt(process.env.MINT_AMOUNT ?? String(maxSupply));
   const transferAmount = BigInt(
-    process.env.TRANSFER_AMOUNT ?? String(mintAmount)
+    process.env.TRANSFER_AMOUNT ?? String(mintAmount),
   );
   const receiverSparkAddress = process.env.RECEIVER_SPARK_ADDRESS!;
 
@@ -78,7 +78,7 @@ async function main() {
   const signer = new TurnkeySparkSigner(
     turnkeyClient,
     process.env.TURNKEY_IDENTITY_ADDRESS!,
-    process.env.IDENTITY_PUBLIC_KEY_HEX!
+    process.env.IDENTITY_PUBLIC_KEY_HEX!,
   );
 
   // Initialize IssuerSparkWallet with Turnkey signer.
@@ -101,13 +101,11 @@ async function main() {
   const identityPubKey = await signer.getIdentityPublicKey();
   console.log(`\nSpark address:       ${sparkAddress}`);
   console.log(
-    `Identity public key: ${Buffer.from(identityPubKey).toString("hex")}`
+    `Identity public key: ${Buffer.from(identityPubKey).toString("hex")}`,
   );
 
   // Step 1: CREATE token
-  console.log(
-    `\n── Step 1: CREATE token ────────────────────────────────────`
-  );
+  console.log(`\n── Step 1: CREATE token ────────────────────────────────────`);
   console.log(`  Name:       ${tokenName}`);
   console.log(`  Ticker:     ${tokenTicker}`);
   console.log(`  Decimals:   ${tokenDecimals}`);
@@ -132,7 +130,7 @@ async function main() {
 
   // Step 2: MINT tokens
   console.log(
-    `\n── Step 2: MINT ${mintAmount.toLocaleString()} tokens ────────────────────────────`
+    `\n── Step 2: MINT ${mintAmount.toLocaleString()} tokens ────────────────────────────`,
   );
 
   const mintTxId = await wallet.mintTokens(mintAmount);
@@ -143,13 +141,13 @@ async function main() {
   const { tokenBalances } = await wallet.getBalance();
   for (const [tokenId, info] of tokenBalances) {
     console.log(
-      `   Balance: ${info.ownedBalance} ${info.tokenMetadata?.tokenTicker ?? tokenId}`
+      `   Balance: ${info.ownedBalance} ${info.tokenMetadata?.tokenTicker ?? tokenId}`,
     );
   }
 
   // Step 3: TRANSFER tokens
   console.log(
-    `\n── Step 3: TRANSFER ${transferAmount.toLocaleString()} tokens ────────────────────`
+    `\n── Step 3: TRANSFER ${transferAmount.toLocaleString()} tokens ────────────────────`,
   );
   console.log(`   To: ${receiverSparkAddress}`);
 
@@ -162,8 +160,9 @@ async function main() {
   console.log(`   Tx ID: ${transferTxId}`);
 
   // Check transaction status
-  const { tokenTransactionsWithStatus } =
-    await wallet.queryTokenTransactions({ tokenTransactionHashes: [transferTxId] });
+  const { tokenTransactionsWithStatus } = await wallet.queryTokenTransactions({
+    tokenTransactionHashes: [transferTxId],
+  });
   if (tokenTransactionsWithStatus.length > 0) {
     console.log(`   Status: ${tokenTransactionsWithStatus[0]!.status}`);
   }
@@ -173,7 +172,7 @@ async function main() {
   console.log(`\n── Final balances ─────────────────────────────────────────`);
   for (const [tokenId, info] of finalBalance.tokenBalances) {
     console.log(
-      `   ${info.tokenMetadata?.tokenTicker ?? tokenId}: ${info.ownedBalance}`
+      `   ${info.tokenMetadata?.tokenTicker ?? tokenId}: ${info.ownedBalance}`,
     );
   }
 

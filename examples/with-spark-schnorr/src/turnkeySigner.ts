@@ -45,7 +45,7 @@ function notImplemented(method: string): never {
   throw new Error(
     `TurnkeySparkSigner.${method} is not implemented. ` +
       `This method requires HD key derivation or FROST/ECIES operations ` +
-      `that are not yet expressible via Turnkey's signRawPayload API.`
+      `that are not yet expressible via Turnkey's signRawPayload API.`,
   );
 }
 
@@ -59,7 +59,7 @@ export class TurnkeySparkSigner implements SparkSigner {
   constructor(
     client: TurnkeyServerSDK,
     identityKeyAddress: string,
-    identityPublicKeyHex: string
+    identityPublicKeyHex: string,
   ) {
     this.client = client;
     this.identityKeyAddress = identityKeyAddress;
@@ -80,7 +80,7 @@ export class TurnkeySparkSigner implements SparkSigner {
    */
   async signMessageWithIdentityKey(
     message: Uint8Array,
-    _compact?: boolean
+    _compact?: boolean,
   ): Promise<Uint8Array> {
     const { r, s } = await this.client.apiClient().signRawPayload({
       signWith: this.identityKeyAddress,
@@ -119,7 +119,7 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   async validateMessageWithIdentityKey(
     message: Uint8Array,
-    signature: Uint8Array
+    signature: Uint8Array,
   ): Promise<boolean> {
     const pubKey = await this.getIdentityPublicKey();
     return secp256k1.verify(signature, message, pubKey);
@@ -131,7 +131,7 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   async createSparkWalletFromSeed(
     _seed: Uint8Array | string,
-    _accountNumber?: number
+    _accountNumber?: number,
   ): Promise<string> {
     // No key derivation needed — Turnkey holds the keys. Return the identity
     // public key hex as the default signer does, since callers use this return
@@ -166,18 +166,18 @@ export class TurnkeySparkSigner implements SparkSigner {
     return notImplemented("getRandomSigningCommitment");
   }
   getNonceForSelfCommitment(
-    _selfCommitment: SigningCommitmentWithOptionalNonce
+    _selfCommitment: SigningCommitmentWithOptionalNonce,
   ): SigningNonce | undefined {
     return notImplemented("getNonceForSelfCommitment");
   }
   async getPublicKeyFromDerivation(
-    _keyDerivation?: KeyDerivation
+    _keyDerivation?: KeyDerivation,
   ): Promise<Uint8Array> {
     return notImplemented("getPublicKeyFromDerivation");
   }
   async subtractPrivateKeysGivenDerivationPaths(
     _first: string,
-    _second: string
+    _second: string,
   ): Promise<Uint8Array> {
     return notImplemented("subtractPrivateKeysGivenDerivationPaths");
   }
@@ -185,24 +185,24 @@ export class TurnkeySparkSigner implements SparkSigner {
     _params: Omit<SplitSecretWithProofsParams, "secret"> & {
       first: KeyDerivation;
       second?: KeyDerivation | undefined;
-    }
+    },
   ): Promise<VerifiableSecretShare[]> {
     return notImplemented("subtractAndSplitSecretWithProofsGivenDerivations");
   }
   async subtractSplitAndEncrypt(
-    _params: SubtractSplitAndEncryptParams
+    _params: SubtractSplitAndEncryptParams,
   ): Promise<SubtractSplitAndEncryptResult> {
     return notImplemented("subtractSplitAndEncrypt");
   }
   async splitSecretWithProofs(
-    _params: SplitSecretWithProofsParams
+    _params: SplitSecretWithProofsParams,
   ): Promise<VerifiableSecretShare[]> {
     return notImplemented("splitSecretWithProofs");
   }
   signTransactionIndex(
     _tx: Transaction,
     _index: number,
-    _publicKey: Uint8Array
+    _publicKey: Uint8Array,
   ): void {
     notImplemented("signTransactionIndex");
   }
