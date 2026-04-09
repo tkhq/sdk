@@ -642,16 +642,6 @@ export type v1CreateApiOnlyUsersIntent = {
   apiOnlyUsers: v1ApiOnlyUserParams[];
 };
 
-export type v1CreateApiOnlyUsersRequest = {
-  type: string;
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1CreateApiOnlyUsersIntent;
-  generateAppProofs?: boolean;
-};
-
 export type v1CreateApiOnlyUsersResult = {
   /** A list of API-only User IDs. */
   userIds: string[];
@@ -5467,21 +5457,6 @@ export type TCreateApiKeysBody = {
 };
 
 export type TCreateApiKeysInput = { body: TCreateApiKeysBody };
-
-export type TCreateApiOnlyUsersResponse = {
-  activity: v1Activity;
-  /** A list of API-only User IDs. */
-  userIds: string[];
-};
-
-export type TCreateApiOnlyUsersBody = {
-  timestampMs?: string;
-  organizationId?: string;
-  /** A list of API-only Users to create. */
-  apiOnlyUsers: v1ApiOnlyUserParams[];
-};
-
-export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
 
 export type TCreateAuthenticatorsResponse = {
   activity: v1Activity;
