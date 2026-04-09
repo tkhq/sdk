@@ -125,6 +125,20 @@ export class TurnkeySparkSigner implements SparkSigner {
     return secp256k1.verify(signature, message, pubKey);
   }
 
+  async mnemonicToSeed(mnemonic: string): Promise<Uint8Array> {
+    return mnemonicToSeed(mnemonic);
+  }
+
+  async createSparkWalletFromSeed(
+    _seed: Uint8Array | string,
+    _accountNumber?: number
+  ): Promise<string> {
+    // No key derivation needed — Turnkey holds the keys. Return the identity
+    // public key hex as the default signer does, since callers use this return
+    // value to identify the wallet.
+    return this.identityPublicKeyHex;
+  }
+
   // --- Not implemented: require key material Turnkey can't expose yet ---
 
   async getDepositSigningKey(): Promise<Uint8Array> {
@@ -138,9 +152,6 @@ export class TurnkeySparkSigner implements SparkSigner {
   }
   async generateMnemonic(): Promise<string> {
     return notImplemented("generateMnemonic");
-  }
-  async mnemonicToSeed(mnemonic: string): Promise<Uint8Array> {
-    return mnemonicToSeed(mnemonic);
   }
   async signFrost(_params: SignFrostParams): Promise<Uint8Array> {
     return notImplemented("signFrost");
@@ -158,15 +169,6 @@ export class TurnkeySparkSigner implements SparkSigner {
     _selfCommitment: SigningCommitmentWithOptionalNonce
   ): SigningNonce | undefined {
     return notImplemented("getNonceForSelfCommitment");
-  }
-  async createSparkWalletFromSeed(
-    _seed: Uint8Array | string,
-    _accountNumber?: number
-  ): Promise<string> {
-    // No key derivation needed — Turnkey holds the keys. Return the identity
-    // public key hex as the default signer does, since callers use this return
-    // value to identify the wallet.
-    return this.identityPublicKeyHex;
   }
   async getPublicKeyFromDerivation(
     _keyDerivation?: KeyDerivation
