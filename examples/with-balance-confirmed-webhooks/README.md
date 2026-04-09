@@ -6,6 +6,7 @@ This example includes:
 - a webhook server endpoint at `/webhook/balance-updates`
 - a frontend that fetches balances for an address (`getWalletAddressBalances`, surfaced as `getBalances` in this example)
 - a frontend popup notification when a balance-confirmed webhook arrives
+- per-asset send buttons in the balances table so you can send either native asset or ERC-20 tokens (`sponsor: false`) to a prompted recipient address
 
 ## Getting started
 
@@ -33,6 +34,9 @@ Fill in:
 - `API_PRIVATE_KEY`
 - `ORGANIZATION_ID`
 - `WEBHOOK_URL` (public URL that points to `/webhook/balance-updates`)
+- `NEXT_PUBLIC_DEFAULT_ADDRESS` should be an address controlled by your Turnkey org if you want to test withdrawals from the UI
+  (it must have enough native balance on the selected network to cover value + gas)
+- optional `ETH_RPC_URL` if you want to force a specific RPC endpoint for unsponsored ETH sends
 
 Example:
 
@@ -74,6 +78,7 @@ This script calls:
 - Endpoint: `POST /webhook/balance-updates`
 - SSE stream to frontend: `GET /api/events`
 - Balance lookup API used by frontend: `GET /api/balances?address=<address>&caip2=<caip2>`
+- EVM send API used by table action buttons: `POST /api/eth-send` (always sends with `sponsor: false`)
 
 ## Test webhook delivery locally
 
@@ -110,8 +115,20 @@ curl -X POST http://localhost:3000/webhook/balance-updates \
 
 When this request is received, the frontend shows a popup notification and appends the event to the recent events list.
 
+## Triggering a withdrawal event from UI
+
+1. Set the sender address in the UI to an address you control in Turnkey.
+2. Keep network as an EVM CAIP-2 value (for example `eip155:8453`).
+3. Click the per-asset send button in the balances table (`Send <asset> (Native)` or `Send <asset> (ERC20)`).
+4. Enter recipient address and amount in the popup prompts.
+
+If the send is accepted and your webhook subscription is active, the resulting withdrawal event should appear under recent webhook events and the balances table will auto-refresh.
+
+Withdrawal sends from this demo only succeed when the sender address (typically your `NEXT_PUBLIC_DEFAULT_ADDRESS` from `.env`) has sufficient native asset balance for both transfer amount and gas fees.
+
 ## Notes
 
 - This is an example implementation with in-memory event storage for live UI updates.
 - Restarting the Next.js process clears event history.
 - Signature verification is not implemented in this demo endpoint; add verification before production use.
+- This demo uses unsponsored sends (`sponsor: false`), but the same webhook/event-driven balance update pattern also works for gas sponsorship flows for customers that have sponsorship enabled with Turnkey.

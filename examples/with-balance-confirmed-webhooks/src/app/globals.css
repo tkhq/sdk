@@ -144,6 +144,14 @@ body {
   cursor: not-allowed;
 }
 
+.send-result {
+  margin-top: 10px;
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
 .error-text {
   margin: 10px 0 0;
   color: #a82a2a;
@@ -161,11 +169,32 @@ body {
   border-bottom: 1px solid #e2ecff;
   text-align: left;
   padding: 10px 8px;
+  vertical-align: middle;
 }
 
 .balances-table th {
   color: var(--muted);
   font-weight: 500;
+}
+
+.table-action-button {
+  border: 1px solid #bfd4ff;
+  border-radius: 8px;
+  background: #f5f9ff;
+  color: #16417f;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.table-action-button:hover {
+  background: #e8f1ff;
+}
+
+.table-action-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .balances-empty {

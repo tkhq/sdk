@@ -11,6 +11,7 @@ type BalanceRow = {
   name?: string;
   caip19?: string;
   balance?: string;
+  decimals?: number;
   display?: {
     crypto?: string;
     usd?: string;
@@ -22,6 +23,17 @@ type BalancesApiResponse = {
   address?: string;
   caip2?: string;
   balances?: BalanceRow[];
+};
+
+type EthSendApiResponse = {
+  ok?: boolean;
+  error?: string;
+  from?: string;
+  to?: string;
+  caip2?: string;
+  amountBaseUnits?: string;
+  assetType?: "NATIVE" | "ERC20";
+  tokenContractAddress?: string;
 };
 
 const DEFAULT_ADDRESS = process.env.NEXT_PUBLIC_DEFAULT_ADDRESS ?? "";
@@ -80,6 +92,42 @@ function getEventSummary(event: BalanceWebhookEventEnvelope) {
   return `${type} • ${operation} ${amount} ${symbol} on ${caip2}`;
 }
 
+function parseAmountToBaseUnits(
+  amount: string,
+  decimals: number,
+): string | null {
+  const trimmed = amount.trim();
+  if (!/^\d+(\.\d+)?$/.test(trimmed)) {
+    return null;
+  }
+
+  const [wholePart, fractionalPart = ""] = trimmed.split(".");
+  if (fractionalPart.length > decimals) {
+    return null;
+  }
+
+  const base = BigInt("10") ** BigInt(decimals);
+  const wholeBaseUnits = BigInt(wholePart || "0") * base;
+  const paddedFraction = fractionalPart.padEnd(decimals, "0");
+  const fractionalBaseUnits = BigInt(paddedFraction || "0");
+  const totalBaseUnits = wholeBaseUnits + fractionalBaseUnits;
+
+  if (totalBaseUnits <= BigInt(0)) {
+    return null;
+  }
+
+  return totalBaseUnits.toString();
+}
+
+function extractErc20ContractFromCaip19(caip19?: string): string | null {
+  if (!caip19) {
+    return null;
+  }
+
+  const match = caip19.match(/\/erc20:(0x[a-fA-F0-9]{40})/i);
+  return match?.[1] ?? null;
+}
+
 export default function Page() {
   const [address, setAddress] = useState(DEFAULT_ADDRESS);
   const [caip2, setCaip2] = useState(DEFAULT_CAIP2);
@@ -94,6 +142,7 @@ export default function Page() {
   const [activeNotification, setActiveNotification] =
     useState<BalanceWebhookEventEnvelope | null>(null);
   const [isFetchingBalances, startBalanceTransition] = useTransition();
+  const [isSendingTx, setIsSendingTx] = useState(false);
   const notificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
@@ -250,6 +299,86 @@ export default function Page() {
     });
   }
 
+  async function handleSendAsset(balance: BalanceRow) {
+    setError(null);
+
+    const fromAddress = queriedAddress.trim();
+    const network = queriedCaip2.trim();
+
+    if (!fromAddress || !network) {
+      setError("Set both sender address and CAIP-2 before sending.");
+      return;
+    }
+
+    const toAddress = window.prompt(
+      "Recipient address (0x...)",
+      "0x0000000000000000000000000000000000000000",
+    );
+    if (!toAddress) {
+      return;
+    }
+
+    const symbol = balance.symbol || balance.name || "asset";
+    const decimals =
+      typeof balance.decimals === "number" ? balance.decimals : 18;
+    const erc20Contract = extractErc20ContractFromCaip19(balance.caip19);
+    const assetType: "NATIVE" | "ERC20" = erc20Contract ? "ERC20" : "NATIVE";
+    const amountText = window.prompt(
+      `Amount to send (${symbol})`,
+      "0.000001",
+    );
+    if (!amountText) {
+      return;
+    }
+
+    const amountBaseUnits = parseAmountToBaseUnits(amountText, decimals);
+    if (!amountBaseUnits) {
+      setError(
+        `Invalid ${symbol} amount. Use up to ${decimals} decimals and a value > 0.`,
+      );
+      return;
+    }
+
+    setIsSendingTx(true);
+
+    try {
+      const response = await fetch("/api/eth-send", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: toAddress.trim(),
+          amountBaseUnits,
+          caip2: network,
+          assetType,
+          tokenContractAddress: erc20Contract ?? undefined,
+        }),
+      });
+
+      const body = (await response.json()) as EthSendApiResponse;
+      if (!response.ok) {
+        throw new Error(body.error ?? "Failed to send Ethereum transaction");
+      }
+
+      await fetchBalancesFromApi({
+        address: fromAddress,
+        caip2: network,
+        commitQuery: true,
+        surfaceErrors: false,
+      });
+    } catch (sendError) {
+      setError(
+        sendError instanceof Error
+          ? sendError.message
+          : "Failed to send Ethereum transaction",
+      );
+    } finally {
+      setIsSendingTx(false);
+    }
+  }
+
   return (
     <main className="page">
       <section className="panel">
@@ -311,6 +440,7 @@ export default function Page() {
                 <th>Balance</th>
                 <th>USD</th>
                 <th>CAIP-19</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -321,6 +451,11 @@ export default function Page() {
                 const displayUsd = balance.display?.usd
                   ? `$${balance.display.usd}`
                   : "-";
+                const erc20Contract = extractErc20ContractFromCaip19(
+                  balance.caip19,
+                );
+                const isEvmNetwork = queriedCaip2.startsWith("eip155:");
+                const canSend = Boolean(queriedAddress) && isEvmNetwork;
 
                 return (
                   <tr key={`${balance.caip19 ?? symbol}-${index}`}>
@@ -328,6 +463,22 @@ export default function Page() {
                     <td>{displayBalance}</td>
                     <td>{displayUsd}</td>
                     <td>{balance.caip19 || "-"}</td>
+                    <td>
+                      <button
+                        className="table-action-button"
+                        type="button"
+                        disabled={!canSend || isSendingTx}
+                        onClick={() => {
+                          void handleSendAsset(balance);
+                        }}
+                      >
+                        {isSendingTx
+                          ? "Sending..."
+                          : erc20Contract
+                            ? `Send ${symbol} (ERC20)`
+                            : `Send ${symbol} (Native)`}
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
