@@ -50,7 +50,7 @@ async function main() {
     "TURNKEY_IDENTITY_ADDRESS",
     "IDENTITY_PUBLIC_KEY_HEX",
     "RECEIVER_SPARK_ADDRESS",
-  ] as const;
+  ];
 
   for (const v of requiredVars) {
     if (!process.env[v]) throw new Error(`Missing required env var: ${v}`);
@@ -176,7 +176,7 @@ async function main() {
     );
   }
 
-  console.log(`\n✅ All Phase 1 operations succeeded with Turnkey signing!\n`);
+  console.log(`\n✅ Token operations succeeded with Turnkey signing!\n`);
   wallet.cleanupConnections();
 }
 

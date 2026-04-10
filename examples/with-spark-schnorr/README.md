@@ -85,5 +85,5 @@ Identity public key: 02...
 ── Final balances ─────────────────────────────────────────
    TKT: 0
 
-✅ All Phase 1 operations succeeded with Turnkey signing!
+✅ Token operations succeeded with Turnkey signing!
 ```

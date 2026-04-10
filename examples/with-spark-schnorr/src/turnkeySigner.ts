@@ -14,10 +14,7 @@
  * Token operations additionally need:
  *   - signSchnorrWithIdentityKey()  ← Schnorr, 64-byte compact output
  *
- * Everything else (FROST, ECIES, HD key derivation) requires key material
- * that lives inside Turnkey and cannot be directly expressed through Turnkey's
- * current API surface. Those methods throw a clear "not implemented" error so
- * callers know exactly what's missing.
+ * Operations requireing FROST and ECIES are not implemented at the moment, but coming soon.
  */
 
 import { secp256k1 } from "@noble/curves/secp256k1"; // used in validateMessageWithIdentityKey
@@ -51,7 +48,7 @@ function notImplemented(method: string): never {
 
 export class TurnkeySparkSigner implements SparkSigner {
   private readonly client: TurnkeyServerSDK;
-  /** The Turnkey key ID / address used for the Spark identity key */
+  /** The Turnkey address used for the Spark identity key */
   private readonly identityKeyAddress: string;
   /** Compressed 33-byte public key (02/03 prefix) */
   private readonly identityPublicKeyHex: string;
@@ -139,7 +136,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     return this.identityPublicKeyHex;
   }
 
-  // --- Not implemented: require key material Turnkey can't expose yet ---
+  // --- Not implemented: ---
 
   async getDepositSigningKey(): Promise<Uint8Array> {
     return notImplemented("getDepositSigningKey");
