@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/paymaster-usdc-transfer",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "scripts": {
     "send-erc20": "tsx src/index.ts",

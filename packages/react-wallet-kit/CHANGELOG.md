@@ -1,5 +1,17 @@
 # @turnkey/react-wallet-kit
 
+## 1.11.1
+
+### Patch Changes
+
+- [#1257](https://github.com/tkhq/sdk/pull/1257) [`aa3e55e`](https://github.com/tkhq/sdk/commit/aa3e55e1e5adea1945647c84fe247bc2761a8f77) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Add full status response as `error.cause` on errors thrown by `pollTransactionStatus()`
+
+- [#1258](https://github.com/tkhq/sdk/pull/1258) [`6f9ceaa`](https://github.com/tkhq/sdk/commit/6f9ceaaa4c806e1014222f66df519779b9820108) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `handleXOauth()` not working on Android when the X app is installed.
+
+- Updated dependencies [[`ef66673`](https://github.com/tkhq/sdk/commit/ef6667325d210c8aa0ea4c1d11d834ff28ddb66c), [`aa3e55e`](https://github.com/tkhq/sdk/commit/aa3e55e1e5adea1945647c84fe247bc2761a8f77), [`8209887`](https://github.com/tkhq/sdk/commit/8209887d48bae7ea617645603a156aeb1cfbd2e7), [`59ebe9b`](https://github.com/tkhq/sdk/commit/59ebe9bc4a5fa3c015ed32cc6b8ab0b66523b0a4)]:
+  - @turnkey/sdk-types@0.14.0
+  - @turnkey/core@1.14.1
+
 ## 1.11.0
 
 ### Minor Changes

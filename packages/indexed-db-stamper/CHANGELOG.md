@@ -1,5 +1,12 @@
 # @turnkey/indexed-db-stamper
 
+## 1.2.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.5
+
 ## 1.2.5
 
 ### Patch Changes
