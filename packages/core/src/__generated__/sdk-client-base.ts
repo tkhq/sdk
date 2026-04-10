@@ -712,6 +712,53 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getIpAllowlist = async (
+    input: SdkTypes.TGetIpAllowlistBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetIpAllowlistResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_ip_allowlist",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetIpAllowlist = async (
+    input: SdkTypes.TGetIpAllowlistBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_ip_allowlist";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getLatestBootProof = async (
     input: SdkTypes.TGetLatestBootProofBody,
     stampWith?: StamperType,
@@ -5320,6 +5367,60 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  removeIpAllowlist = async (
+    input: SdkTypes.TRemoveIpAllowlistBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TRemoveIpAllowlistResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/remove_ip_allowlist",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST",
+      },
+      "removeIpAllowlistResult",
+      stampWith,
+    );
+  };
+
+  stampRemoveIpAllowlist = async (
+    input: SdkTypes.TRemoveIpAllowlistBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/remove_ip_allowlist";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   removeOrganizationFeature = async (
     input: SdkTypes.TRemoveOrganizationFeatureBody,
     stampWith?: StamperType,
@@ -5363,6 +5464,60 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  setIpAllowlist = async (
+    input: SdkTypes.TSetIpAllowlistBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TSetIpAllowlistResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/set_ip_allowlist",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST",
+      },
+      "setIpAllowlistResult",
+      stampWith,
+    );
+  };
+
+  stampSetIpAllowlist = async (
+    input: SdkTypes.TSetIpAllowlistBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/set_ip_allowlist";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

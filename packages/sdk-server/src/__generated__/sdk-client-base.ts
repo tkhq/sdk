@@ -396,6 +396,38 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getIpAllowlist = async (
+    input: SdkApiTypes.TGetIpAllowlistBody,
+  ): Promise<SdkApiTypes.TGetIpAllowlistResponse> => {
+    return this.request("/public/v1/query/get_ip_allowlist", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetIpAllowlist = async (
+    input: SdkApiTypes.TGetIpAllowlistBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_ip_allowlist";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getLatestBootProof = async (
     input: SdkApiTypes.TGetLatestBootProofBody,
   ): Promise<SdkApiTypes.TGetLatestBootProofResponse> => {
@@ -3824,6 +3856,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  removeIpAllowlist = async (
+    input: SdkApiTypes.TRemoveIpAllowlistBody,
+  ): Promise<SdkApiTypes.TRemoveIpAllowlistResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/remove_ip_allowlist",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST",
+      },
+      "removeIpAllowlistResult",
+    );
+  };
+
+  stampRemoveIpAllowlist = async (
+    input: SdkApiTypes.TRemoveIpAllowlistBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/remove_ip_allowlist";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   removeOrganizationFeature = async (
     input: SdkApiTypes.TRemoveOrganizationFeatureBody,
   ): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
@@ -3855,6 +3929,48 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  setIpAllowlist = async (
+    input: SdkApiTypes.TSetIpAllowlistBody,
+  ): Promise<SdkApiTypes.TSetIpAllowlistResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/set_ip_allowlist",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST",
+      },
+      "setIpAllowlistResult",
+    );
+  };
+
+  stampSetIpAllowlist = async (
+    input: SdkApiTypes.TSetIpAllowlistBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/set_ip_allowlist";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

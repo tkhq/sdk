@@ -468,7 +468,9 @@
         "ADDRESS_FORMAT_TON_V3R2",
         "ADDRESS_FORMAT_TON_V4R2",
         "ADDRESS_FORMAT_TON_V5R1",
-        "ADDRESS_FORMAT_XRP"
+        "ADDRESS_FORMAT_XRP",
+        "ADDRESS_FORMAT_SPARK_MAINNET",
+        "ADDRESS_FORMAT_SPARK_REGTEST"
       ]
     },
     "v1ApiKeyCurve": {
