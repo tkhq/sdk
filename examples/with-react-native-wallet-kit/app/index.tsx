@@ -40,7 +40,7 @@ export default function LoginScreen() {
     handleXOauth,
     handleDiscordOauth,
     handleFacebookOauth,
-    handleAppleOauth,
+    handleAppleWebOauth,
     authState,
   } = useTurnkey();
   const colorScheme = useColorScheme();
@@ -59,12 +59,12 @@ export default function LoginScreen() {
 
     setLoading(true);
 
-    const otpId = await initOtp({
+    const initOtpResult = await initOtp({
       otpType: OtpType.Email,
       contact: email,
     });
 
-    if (!otpId) {
+    if (!initOtpResult) {
       Alert.alert("Error", "Failed to initialize OTP");
       return;
     }
@@ -74,7 +74,11 @@ export default function LoginScreen() {
 
     router.push({
       pathname: "/otp",
-      params: { email, otpId },
+      params: {
+        email,
+        otpId: initOtpResult.otpId,
+        otpEncryptionTargetBundle: initOtpResult.otpEncryptionTargetBundle,
+      },
     });
   };
 
@@ -168,7 +172,7 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       console.log("signing in with Apple");
-      await handleAppleOauth();
+      await handleAppleWebOauth();
     } catch (error) {
       console.error("Error signing in with Apple", error);
       Alert.alert("Error", `Failed to sign in with Apple: ${error}`);
