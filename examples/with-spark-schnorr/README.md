@@ -29,22 +29,22 @@ cd examples/with-spark-schnorr/
 cp .env.local.example .env.local
 ```
 
-| Variable                  | Required | Notes                                              |
-| ------------------------- | -------- | -------------------------------------------------- |
-| `API_PUBLIC_KEY`          | Yes      | Turnkey API public key                             |
-| `API_PRIVATE_KEY`         | Yes      | Turnkey API private key                            |
-| `ORGANIZATION_ID`         | Yes      | Turnkey organization ID                            |
-| `TURNKEY_IDENTITY_ADDRESS`| Yes      | Turnkey key address holding the Spark identity key |
-| `IDENTITY_PUBLIC_KEY_HEX` | Yes      | Compressed 33-byte public key of the identity key (hex) |
-| `RECEIVER_SPARK_ADDRESS`  | Yes      | Spark address to receive the token transfer        |
-| `BASE_URL`                | No       | Turnkey API base URL (default: `https://api.turnkey.com`) |
-| `SPARK_NETWORK`           | No       | `REGTEST` (default) or `MAINNET`                   |
-| `TOKEN_NAME`              | No       | Default: `TurnkeyTestToken`                        |
-| `TOKEN_TICKER`            | No       | Default: `TKT`                                     |
-| `TOKEN_DECIMALS`          | No       | Default: `0`                                       |
-| `TOKEN_SUPPLY`            | No       | Max supply to create (default: `1000000`)           |
-| `MINT_AMOUNT`             | No       | Tokens to mint (default: `TOKEN_SUPPLY`)           |
-| `TRANSFER_AMOUNT`         | No       | Tokens to transfer (default: `MINT_AMOUNT`)        |
+| Variable                   | Required | Notes                                                     |
+| -------------------------- | -------- | --------------------------------------------------------- |
+| `API_PUBLIC_KEY`           | Yes      | Turnkey API public key                                    |
+| `API_PRIVATE_KEY`          | Yes      | Turnkey API private key                                   |
+| `ORGANIZATION_ID`          | Yes      | Turnkey organization ID                                   |
+| `TURNKEY_IDENTITY_ADDRESS` | Yes      | Turnkey key address holding the Spark identity key        |
+| `IDENTITY_PUBLIC_KEY_HEX`  | Yes      | Compressed 33-byte public key of the identity key (hex)   |
+| `RECEIVER_SPARK_ADDRESS`   | Yes      | Spark address to receive the token transfer               |
+| `BASE_URL`                 | No       | Turnkey API base URL (default: `https://api.turnkey.com`) |
+| `SPARK_NETWORK`            | No       | `REGTEST` (default) or `MAINNET`                          |
+| `TOKEN_NAME`               | No       | Default: `TurnkeyTestToken`                               |
+| `TOKEN_TICKER`             | No       | Default: `TKT`                                            |
+| `TOKEN_DECIMALS`           | No       | Default: `0`                                              |
+| `TOKEN_SUPPLY`             | No       | Max supply to create (default: `1000000`)                 |
+| `MINT_AMOUNT`              | No       | Tokens to mint (default: `TOKEN_SUPPLY`)                  |
+| `TRANSFER_AMOUNT`          | No       | Tokens to transfer (default: `MINT_AMOUNT`)               |
 
 ### 3. Run
 
