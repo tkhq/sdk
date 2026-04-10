@@ -11,6 +11,7 @@ import {
 import {
   PRODUCTION_NOTARIZER_SIGN_PUBLIC_KEY,
   PRODUCTION_ON_RAMP_CREDENTIALS_ENCRYPTION_PUBLIC_KEY,
+  PRODUCTION_OTP_VERIFICATION_PUBLIC_KEY,
   PRODUCTION_SIGNER_SIGN_PUBLIC_KEY,
   PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
 } from "./constants";
@@ -475,6 +476,95 @@ export const verifySessionJwtSignature = async (
 
   /* 5. verify ----------------------------------------------------------- */
   return p256.verify(signature, msgDigest, publicKey);
+};
+
+export interface VerificationTokenClaims {
+  id: string;
+  verification_type: string;
+  contact: string;
+  exp?: number;
+}
+
+/**
+ * Verify an OTP verification token JWT signature and return the decoded claims.
+ *
+ * OTP verification tokens are standard ES256 JWTs (unlike session JWTs which use
+ * a custom double SHA-256 scheme). They are signed by Turnkey's OTP service using
+ * a compressed P-256 public key.
+ *
+ * @param jwt - The OTP verification token JWT string to verify.
+ * @param dangerouslyOverrideOtpVerificationPublicKey - Optional override for the
+ *              compressed P-256 public key to verify against (use only in tests).
+ *              Defaults to the production OTP verification key.
+ * @returns The decoded JWT claims if signature is valid.
+ * @throws If the JWT is malformed, signature is invalid, or required claims are missing.
+ */
+export const verifyOtpVerificationToken = async (
+  jwt: string,
+  dangerouslyOverrideOtpVerificationPublicKey?: string,
+): Promise<VerificationTokenClaims> => {
+  const otpVerificationKeyHex =
+    dangerouslyOverrideOtpVerificationPublicKey ??
+    PRODUCTION_OTP_VERIFICATION_PUBLIC_KEY;
+
+  /* 1. split JWT -------------------------------------------------------- */
+  const parts = jwt.split(".");
+  if (parts.length !== 3) throw new Error("invalid JWT: need 3 parts");
+  const headerB64 = parts[0]!;
+  const payloadB64 = parts[1]!;
+  const signatureB64 = parts[2]!;
+  const signingInput = `${headerB64}.${payloadB64}`;
+
+  /* 2. sha256(header.payload) - standard ES256, single hash ------------- */
+  const msgDigest = sha256(new TextEncoder().encode(signingInput)); // 32-byte Uint8Array
+
+  /* 3. base64-url decode signature -------------------------------------- */
+  const toB64 = (u: string) =>
+    (u = u.replace(/-/g, "+").replace(/_/g, "/")).padEnd(
+      u.length + ((4 - (u.length % 4)) % 4),
+      "=",
+    );
+  const signature = Uint8Array.from(
+    atob(toB64(signatureB64))
+      .split("")
+      .map((c) => c.charCodeAt(0)),
+  ); // 64 bytes for P-256
+
+  /* 4. load compressed public key --------------------------------------- */
+  const publicKey = uint8ArrayFromHexString(otpVerificationKeyHex);
+
+  /* 5. verify ----------------------------------------------------------- */
+  const isValid = p256.verify(signature, msgDigest, publicKey);
+  if (!isValid) {
+    throw new Error("OTP verification token signature is invalid");
+  }
+
+  /* 6. decode and validate claims --------------------------------------- */
+  const payloadJson = new TextDecoder().decode(
+    Uint8Array.from(
+      atob(toB64(payloadB64))
+        .split("")
+        .map((c) => c.charCodeAt(0)),
+    ),
+  );
+  const claims = JSON.parse(payloadJson) as VerificationTokenClaims;
+
+  if (!claims.id || typeof claims.id !== "string") {
+    throw new Error("OTP verification token missing required 'id' claim");
+  }
+  if (
+    !claims.verification_type ||
+    typeof claims.verification_type !== "string"
+  ) {
+    throw new Error(
+      "OTP verification token missing required 'verification_type' claim",
+    );
+  }
+  if (!claims.contact || typeof claims.contact !== "string") {
+    throw new Error("OTP verification token missing required 'contact' claim");
+  }
+
+  return claims;
 };
 
 /**
