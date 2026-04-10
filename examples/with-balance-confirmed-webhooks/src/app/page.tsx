@@ -323,10 +323,7 @@ export default function Page() {
       typeof balance.decimals === "number" ? balance.decimals : 18;
     const erc20Contract = extractErc20ContractFromCaip19(balance.caip19);
     const assetType: "NATIVE" | "ERC20" = erc20Contract ? "ERC20" : "NATIVE";
-    const amountText = window.prompt(
-      `Amount to send (${symbol})`,
-      "0.000001",
-    );
+    const amountText = window.prompt(`Amount to send (${symbol})`, "0.000001");
     if (!amountText) {
       return;
     }

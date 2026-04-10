@@ -52,7 +52,9 @@ export async function POST(request: Request) {
 
   if (!isUnsignedInteger(amountBaseUnits) || amountBaseUnits === "0") {
     return NextResponse.json(
-      { error: "Invalid `amountBaseUnits`. Must be a positive integer string." },
+      {
+        error: "Invalid `amountBaseUnits`. Must be a positive integer string.",
+      },
       { status: 400 },
     );
   }

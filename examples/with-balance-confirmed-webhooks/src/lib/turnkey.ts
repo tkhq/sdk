@@ -12,15 +12,17 @@ const SUPPORTED_EVM_CAIP2 = [
   "eip155:80002",
 ] as const;
 
-const DEFAULT_RPC_BY_CAIP2: Record<(typeof SUPPORTED_EVM_CAIP2)[number], string> =
-  {
-    "eip155:1": "https://cloudflare-eth.com",
-    "eip155:11155111": "https://ethereum-sepolia-rpc.publicnode.com",
-    "eip155:8453": "https://mainnet.base.org",
-    "eip155:84532": "https://sepolia.base.org",
-    "eip155:137": "https://polygon-rpc.com",
-    "eip155:80002": "https://rpc-amoy.polygon.technology",
-  };
+const DEFAULT_RPC_BY_CAIP2: Record<
+  (typeof SUPPORTED_EVM_CAIP2)[number],
+  string
+> = {
+  "eip155:1": "https://cloudflare-eth.com",
+  "eip155:11155111": "https://ethereum-sepolia-rpc.publicnode.com",
+  "eip155:8453": "https://mainnet.base.org",
+  "eip155:84532": "https://sepolia.base.org",
+  "eip155:137": "https://polygon-rpc.com",
+  "eip155:80002": "https://rpc-amoy.polygon.technology",
+};
 
 type SupportedEvmCaip2 = (typeof SUPPORTED_EVM_CAIP2)[number];
 type SendAssetType = "NATIVE" | "ERC20";
@@ -90,7 +92,9 @@ async function rpcCall<T>(
   };
 
   if (payload.error) {
-    throw new Error(`RPC ${method} error: ${payload.error.message ?? "unknown"}`);
+    throw new Error(
+      `RPC ${method} error: ${payload.error.message ?? "unknown"}`,
+    );
   }
 
   if (payload.result === undefined) {
@@ -107,8 +111,11 @@ async function getEip1559Fees(caip2: SupportedEvmCaip2): Promise<{
   const zero = BigInt(0);
   const two = BigInt(2);
 
-  const priorityHex = await rpcCall<string>(caip2, "eth_maxPriorityFeePerGas", [])
-    .catch(() => "0x3b9aca00"); // 1 gwei fallback
+  const priorityHex = await rpcCall<string>(
+    caip2,
+    "eth_maxPriorityFeePerGas",
+    [],
+  ).catch(() => "0x3b9aca00"); // 1 gwei fallback
   const block = await rpcCall<{ baseFeePerGas?: string }>(
     caip2,
     "eth_getBlockByNumber",
@@ -116,10 +123,13 @@ async function getEip1559Fees(caip2: SupportedEvmCaip2): Promise<{
   );
 
   const maxPriorityFeePerGas = BigInt(priorityHex);
-  const baseFeePerGas = block.baseFeePerGas ? BigInt(block.baseFeePerGas) : zero;
-  const maxFeePerGas = baseFeePerGas > zero
-    ? baseFeePerGas * two + maxPriorityFeePerGas
-    : maxPriorityFeePerGas * two;
+  const baseFeePerGas = block.baseFeePerGas
+    ? BigInt(block.baseFeePerGas)
+    : zero;
+  const maxFeePerGas =
+    baseFeePerGas > zero
+      ? baseFeePerGas * two + maxPriorityFeePerGas
+      : maxPriorityFeePerGas * two;
 
   return {
     maxFeePerGas: maxFeePerGas.toString(),
@@ -204,7 +214,7 @@ export async function sendEthTransactionUnsponsored(params: {
   const transferData = isErc20
     ? encodeErc20Transfer(params.to, params.amountBaseUnits)
     : undefined;
-  const txTo = isErc20 ? params.tokenContractAddress ?? "" : params.to;
+  const txTo = isErc20 ? (params.tokenContractAddress ?? "") : params.to;
   const txValue = isErc20 ? "0" : params.amountBaseUnits;
 
   if (!txTo) {
