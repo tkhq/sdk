@@ -8,12 +8,9 @@ import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-
 // Bring your own provider using a RPC URL (https://docs.ethers.org/v6/api/providers/jsonrpc/#JsonRpcProvider)
 export function getProvider(): ethers.JsonRpcProvider {
-  const provider = new ethers.JsonRpcProvider(
-    process.env.RPC_URL,
-  );
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
   return provider;
 }

@@ -188,7 +188,11 @@ function parseInterval(options: any): number | undefined {
   if (raw === undefined) return undefined;
 
   const interval = parseInt(raw);
-  if (isNaN(interval) || interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
+  if (
+    isNaN(interval) ||
+    interval < MIN_INTERVAL_MS ||
+    interval > MAX_INTERVAL_MS
+  ) {
     throw new Error(
       `Invalid interval: ${raw}. Please specify a value between ${MIN_INTERVAL_MS} and ${MAX_INTERVAL_MS} milliseconds`,
     );
@@ -223,7 +227,8 @@ async function fundImpl() {
     distributionPrivateKeys[0]!.privateKeyId,
   );
   const distributionAddress = await connectedSigner.getAddress();
-  const balance = (await connectedSigner.provider?.getBalance(distributionAddress)) ?? 0n;
+  const balance =
+    (await connectedSigner.provider?.getBalance(distributionAddress)) ?? 0n;
   const originalFeeData = await connectedSigner.provider?.getFeeData();
 
   if (balance < FUND_AMOUNT) {
@@ -244,7 +249,7 @@ async function fundImpl() {
 
     const gasEstimate = await connectedSigner.estimateGas({
       to: shortTermStorage.address,
-      value: FUND_AMOUNT
+      value: FUND_AMOUNT,
     });
     const gasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
 
@@ -259,7 +264,7 @@ async function fundImpl() {
       FUND_AMOUNT,
       SPONSOR,
       originalFeeData as FeeData,
-      gasEstimate
+      gasEstimate,
     );
   }
 }
@@ -292,7 +297,8 @@ async function sweepImpl() {
   );
   if (!longTermStorageAddress || !longTermStorageAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${longTermStoragePrivateKeys[0]!.privateKeyId
+      `couldn't lookup ETH address for private key: ${
+        longTermStoragePrivateKeys[0]!.privateKeyId
       }`,
     );
   }
@@ -301,7 +307,9 @@ async function sweepImpl() {
     const provider = getProvider();
     const connectedSigner = getTurnkeySigner(provider, pk.privateKeyId);
     const shortTermStorageAddress = await connectedSigner.getAddress();
-    const balance = (await connectedSigner.provider?.getBalance(shortTermStorageAddress)) ?? 0n;
+    const balance =
+      (await connectedSigner.provider?.getBalance(shortTermStorageAddress)) ??
+      0n;
     const originalFeeData = await connectedSigner.provider?.getFeeData();
 
     if (balance < SWEEP_THRESHOLD) {
@@ -313,7 +321,7 @@ async function sweepImpl() {
 
     const gasEstimate = await connectedSigner.estimateGas({
       to: longTermStorageAddress.address,
-      value: SWEEP_THRESHOLD
+      value: SWEEP_THRESHOLD,
     });
     const gasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
     const sweepAmount = balance - gasCost;
@@ -332,7 +340,7 @@ async function sweepImpl() {
       sweepAmount,
       SPONSOR,
       originalFeeData as FeeData,
-      gasEstimate
+      gasEstimate,
     );
   }
 }
@@ -366,7 +374,8 @@ async function recycle() {
   );
   if (!distributionAddress || !distributionAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${distributionPrivateKeys[0]!.privateKeyId
+      `couldn't lookup ETH address for private key: ${
+        distributionPrivateKeys[0]!.privateKeyId
       }`,
     );
   }
@@ -378,7 +387,7 @@ async function recycle() {
   try {
     const gasEstimate = await connectedSigner.estimateGas({
       to: distributionAddress.address,
-      value: SWEEP_THRESHOLD
+      value: SWEEP_THRESHOLD,
     });
     const gasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
     const recycleAmount = balance - gasCost;
@@ -395,7 +404,7 @@ async function recycle() {
       recycleAmount,
       SPONSOR,
       originalFeeData as FeeData,
-      gasEstimate
+      gasEstimate,
     );
   } catch (error: any) {
     console.error("Encountered error:", error.toString(), "\n");
@@ -412,7 +421,11 @@ async function approveActivity(options: any) {
   const turnkeyClientApprover = getTurnkeyClient();
 
   const activity = await getActivity(turnkeyClientApprover, activityId);
-  await createActivityApproval(turnkeyClientApprover, activityId, activity.fingerprint);
+  await createActivityApproval(
+    turnkeyClientApprover,
+    activityId,
+    activity.fingerprint,
+  );
 }
 
 async function rejectActivity(options: any) {

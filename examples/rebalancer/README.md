@@ -166,11 +166,11 @@ New policy created!
 
 #### Users and their roles
 
-| User | User Tag | Role |
-|------|----------|------|
-| **Alice** | `Admin` | Can approve or reject any activity in the organization. Used in steps 8a/8b to approve or reject the recycle transaction. |
-| **Bob** | `Manager` | Can initiate a transaction from the Long Term Storage key, but requires a second Manager or Admin to approve it. Used in step 7 to initiate the recycle. |
-| **Phil** | `Executor` | Can unilaterally sign transactions from Short Term Storage keys. Used in step 6 to sweep funds to Long Term Storage. |
+| User      | User Tag   | Role                                                                                                                                                     |
+| --------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Alice** | `Admin`    | Can approve or reject any activity in the organization. Used in steps 8a/8b to approve or reject the recycle transaction.                                |
+| **Bob**   | `Manager`  | Can initiate a transaction from the Long Term Storage key, but requires a second Manager or Admin to approve it. Used in step 7 to initiate the recycle. |
+| **Phil**  | `Executor` | Can unilaterally sign transactions from Short Term Storage keys. Used in step 6 to sweep funds to Long Term Storage.                                     |
 
 Each user is assigned a user tag at creation time.
 
@@ -180,11 +180,11 @@ The user tag is passed as the second argument to `createUser` and determines whi
 const adminTagId = await createUserTag(turnkeyClient, "Admin", []);
 
 await createUser(
-    turnkeyClient,
-    "Alice",
-    [adminTagId],
-    "Alice key",
-    keys!.alice!.publicKey!,
+  turnkeyClient,
+  "Alice",
+  [adminTagId],
+  "Alice key",
+  keys!.alice!.publicKey!,
 );
 ```
 

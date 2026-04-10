@@ -5,7 +5,13 @@ import { TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { TurnkeyError } from "@turnkey/sdk-types";
 import type { TurnkeyApiClient } from "@turnkey/sdk-server";
 
-type Caip2ChainId = "eip155:1" | "eip155:11155111" | "eip155:8453" | "eip155:84532" | "eip155:137" | "eip155:80002"
+type Caip2ChainId =
+  | "eip155:1"
+  | "eip155:11155111"
+  | "eip155:8453"
+  | "eip155:84532"
+  | "eip155:137"
+  | "eip155:80002";
 
 export async function broadcastTx(
   provider: ethers.Provider,
@@ -51,12 +57,14 @@ export async function sendEth(
   value: bigint,
   sponsor: boolean,
   precalculatedFeeData: ethers.FeeData,
-  gasEstimate: bigint
+  gasEstimate: bigint,
 ) {
   const network = await connectedSigner.provider?.getNetwork();
-  const balance = (await connectedSigner.provider?.getBalance(fromAddress)) ?? 0n;
+  const balance =
+    (await connectedSigner.provider?.getBalance(fromAddress)) ?? 0n;
   const maxFeePerGas = precalculatedFeeData.maxFeePerGas?.toString() || "0x";
-  const maxPriorityFeePerGas = precalculatedFeeData.maxPriorityFeePerGas?.toString() || "0x";
+  const maxPriorityFeePerGas =
+    precalculatedFeeData.maxPriorityFeePerGas?.toString() || "0x";
   const gasLimit = gasEstimate.toString();
 
   print("Address:", fromAddress);
@@ -89,11 +97,15 @@ export async function sendEth(
     let txHash;
     const turnkeyClient = getTurnkeyClient().apiClient();
 
-    const transactionResponse = await turnkeyClient.ethSendTransaction(transactionRequest);
+    const transactionResponse =
+      await turnkeyClient.ethSendTransaction(transactionRequest);
 
-    if (transactionResponse.activity.status == "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+    if (
+      transactionResponse.activity.status == "ACTIVITY_STATUS_CONSENSUS_NEEDED"
+    ) {
       console.log(
-        `Consensus is required for activity ${transactionResponse.activity.id
+        `Consensus is required for activity ${
+          transactionResponse.activity.id
         } in order to send ${toReadableAmount(
           value.toString(),
           18,
@@ -102,7 +114,10 @@ export async function sendEth(
       );
       return;
     }
-    txHash = await pollTransactionStatus(turnkeyClient, transactionResponse.sendTransactionStatusId);
+    txHash = await pollTransactionStatus(
+      turnkeyClient,
+      transactionResponse.sendTransactionStatusId,
+    );
 
     print(
       `Sent ${toReadableAmount(
@@ -115,7 +130,8 @@ export async function sendEth(
   } catch (error: any) {
     if (error.toString().includes("TurnkeyActivityConsensusNeededError")) {
       console.error(
-        `Consensus is required for activity ${error.activityId
+        `Consensus is required for activity ${
+          error.activityId
         } in order to send ${toReadableAmount(
           value.toString(),
           18,
@@ -129,14 +145,17 @@ export async function sendEth(
   }
 }
 
-export async function pollTransactionStatus(client: TurnkeyApiClient, sendTransactionStatusId: any) {
+export async function pollTransactionStatus(
+  client: TurnkeyApiClient,
+  sendTransactionStatusId: any,
+) {
   let txHash;
 
   try {
     const pollResult = await client.pollTransactionStatus({
       organizationId: process.env.ORGANIZATION_ID!,
       sendTransactionStatusId,
-      pollingIntervalMs: 1000
+      pollingIntervalMs: 1000,
     });
 
     if (!pollResult) {
@@ -155,7 +174,6 @@ export async function pollTransactionStatus(client: TurnkeyApiClient, sendTransa
       );
     }
     console.log(txHash);
-
   } catch (error) {
     console.log("Error polling for status.");
     console.error(error);
