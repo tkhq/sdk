@@ -1,6 +1,7 @@
 import type {
   TurnkeySDKClientBase,
   TurnkeyClientMethods,
+  MfaContext,
   Wallet,
   StamperType,
   ExportBundle,
@@ -332,6 +333,23 @@ export interface ClientContextType
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
   handleFacebookOauth: (params?: HandleFacebookOauthParams) => Promise<void>;
+
+  /**
+   * Registers a custom MFA handler that will be invoked when an activity
+   * requires multi-factor approval (`ACTIVITY_STATUS_AUTHENTICATORS_NEEDED`).
+   *
+   * The handler receives a {@link MfaContext} with activity details
+   * (fingerprint, activityId, organizationId, activityType, status).
+   *
+   * Use the `httpClient` from `useTurnkey()` to approve or reject the activity.
+   *
+   * If no custom handler is set, a built-in MFA handler will be used.
+   *
+   * @param handler - Async function to handle MFA approval. Pass `undefined` to restore the default handler.
+   */
+  setMfaHandler: (
+    handler: ((context: MfaContext) => Promise<void>) | undefined,
+  ) => void;
 }
 
 /** @internal */

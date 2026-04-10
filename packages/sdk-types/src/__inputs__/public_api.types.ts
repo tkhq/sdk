@@ -40,6 +40,18 @@ export type paths = {
     /** Get the latest boot proof for a given enclave app name. */
     post: operations["PublicApiService_GetLatestBootProof"];
   };
+  "/public/v1/query/get_mfa_policies": {
+    /** Get all MFA policies for a user. */
+    post: operations["PublicApiService_GetMfaPolicies"];
+  };
+  "/public/v1/query/get_mfa_policy": {
+    /** Get a single MFA policy for a user. */
+    post: operations["PublicApiService_GetMfaPolicy"];
+  };
+  "/public/v1/query/get_mfa_status": {
+    /** Get the MFA status of an activity for a specific user or all voting users. */
+    post: operations["PublicApiService_GetMfaStatus"];
+  };
   "/public/v1/query/get_nonces": {
     /** Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions. */
     post: operations["PublicApiService_GetNonces"];
@@ -79,6 +91,14 @@ export type paths = {
   "/public/v1/query/get_send_transaction_status": {
     /** Get the status of a send transaction request. */
     post: operations["PublicApiService_GetSendTransactionStatus"];
+  };
+  "/public/v1/query/get_session_profile": {
+    /** Get a single session profile for an organization. */
+    post: operations["PublicApiService_GetSessionProfile"];
+  };
+  "/public/v1/query/get_session_profiles": {
+    /** Get all session profiles for an organization. */
+    post: operations["PublicApiService_GetSessionProfiles"];
   };
   "/public/v1/query/get_smart_contract_interface": {
     /** Get details about a smart contract interface. */
@@ -208,6 +228,10 @@ export type paths = {
     /** Create invitations to join an existing organization. */
     post: operations["PublicApiService_CreateInvitations"];
   };
+  "/public/v1/submit/create_mfa_policy": {
+    /** Create a new MFA policy for a user. */
+    post: operations["PublicApiService_CreateMfaPolicy"];
+  };
   "/public/v1/submit/create_oauth2_credential": {
     /** Enable authentication for end users with an OAuth 2.0 provider */
     post: operations["PublicApiService_CreateOauth2Credential"];
@@ -239,6 +263,10 @@ export type paths = {
   "/public/v1/submit/create_read_write_session": {
     /** Create a read write session for a user. */
     post: operations["PublicApiService_CreateReadWriteSession"];
+  };
+  "/public/v1/submit/create_session_profile": {
+    /** Create a new session profile for an organization. */
+    post: operations["PublicApiService_CreateSessionProfile"];
   };
   "/public/v1/submit/create_smart_contract_interface": {
     /** Create an ABI/IDL in JSON. */
@@ -295,6 +323,10 @@ export type paths = {
   "/public/v1/submit/delete_invitation": {
     /** Delete an existing invitation. */
     post: operations["PublicApiService_DeleteInvitation"];
+  };
+  "/public/v1/submit/delete_mfa_policy": {
+    /** Delete an MFA policy for a user. */
+    post: operations["PublicApiService_DeleteMfaPolicy"];
   };
   "/public/v1/submit/delete_oauth2_credential": {
     /** Disable authentication for end users with an OAuth 2.0 provider */
@@ -464,6 +496,10 @@ export type paths = {
     /** Update a fiat on ramp provider credential */
     post: operations["PublicApiService_UpdateFiatOnRampCredential"];
   };
+  "/public/v1/submit/update_mfa_policy": {
+    /** Update an MFA policy for a user. */
+    post: operations["PublicApiService_UpdateMfaPolicy"];
+  };
   "/public/v1/submit/update_oauth2_credential": {
     /** Update an OAuth 2.0 provider credential */
     post: operations["PublicApiService_UpdateOauth2Credential"];
@@ -614,6 +650,8 @@ export type definitions = {
     /** @description The public component of a cryptographic key pair used to sign messages and transactions. */
     publicKey: string;
     type: definitions["v1CredentialType"];
+    /** @description The session profile associated with this credential, if any. This field is only applicable for credentials of type CREDENTIAL_TYPE_LOGIN. */
+    sessionProfileId?: string;
   };
   externaldatav1Quorum: {
     /**
@@ -726,7 +764,8 @@ export type definitions = {
     | "ACTIVITY_STATUS_COMPLETED"
     | "ACTIVITY_STATUS_FAILED"
     | "ACTIVITY_STATUS_CONSENSUS_NEEDED"
-    | "ACTIVITY_STATUS_REJECTED";
+    | "ACTIVITY_STATUS_REJECTED"
+    | "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED";
   /** @enum {string} */
   v1ActivityType:
     | "ACTIVITY_TYPE_CREATE_API_KEYS"
@@ -855,7 +894,11 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_USERS_V4"
     | "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"
     | "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"
-    | "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT";
+    | "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
+    | "ACTIVITY_TYPE_CREATE_MFA_POLICY"
+    | "ACTIVITY_TYPE_UPDATE_MFA_POLICY"
+    | "ACTIVITY_TYPE_DELETE_MFA_POLICY"
+    | "ACTIVITY_TYPE_CREATE_SESSION_PROFILE";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1014,6 +1057,26 @@ export type definitions = {
     /** @description The type of authenticator transports. */
     transports: definitions["v1AuthenticatorTransport"][];
   };
+  v1AuthenticationMethod: {
+    /** @description The type of authenticator (e.g., AUTHENTICATION_TYPE_EMAIL, AUTHENTICATION_TYPE_SESSION) required for this MFA step. */
+    type: definitions["v1AuthenticationType"];
+    /** @description Optional specific authenticator ID required (e.g., for requiring a specific session profile id) */
+    id?: string;
+  };
+  v1AuthenticationMethodParams: {
+    /** @description The type of authenticator (e.g., AUTHENTICATION_TYPE_PASSKEY for passkey authentication). */
+    type: definitions["v1AuthenticationType"];
+    /** @description Optional specific authenticator ID required (e.g., UUID of a passkey authenticator). If not provided, any authenticator of the specified type can be used. */
+    id?: string;
+  };
+  /** @enum {string} */
+  v1AuthenticationType:
+    | "AUTHENTICATION_TYPE_EMAIL_OTP"
+    | "AUTHENTICATION_TYPE_SMS_OTP"
+    | "AUTHENTICATION_TYPE_PASSKEY"
+    | "AUTHENTICATION_TYPE_API_KEY"
+    | "AUTHENTICATION_TYPE_OAUTH"
+    | "AUTHENTICATION_TYPE_SESSION";
   v1Authenticator: {
     /** @description Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
     transports: definitions["v1AuthenticatorTransport"][];
@@ -1215,6 +1278,36 @@ export type definitions = {
   v1CreateInvitationsResult: {
     /** @description A list of Invitation IDs */
     invitationIds: string[];
+  };
+  v1CreateMfaPolicyIntent: {
+    /** @description The ID of the User to add the MFA Policy to. */
+    userId: string;
+    /** @description Human-readable name for a Policy. */
+    mfaPolicyName: string;
+    /** @description A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+    condition: string;
+    /** @description An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+    requiredAuthenticationMethods: definitions["v1RequiredAuthenticationMethodParams"][];
+    /**
+     * Format: int64
+     * @description The order in which this MFA policy is evaluated, starting from 1, relative to other MFA policies. Lower order values are evaluated first.
+     */
+    order: number;
+    /** @description Notes for an MFA Policy. */
+    notes?: string;
+  };
+  v1CreateMfaPolicyRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_MFA_POLICY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateMfaPolicyIntent"];
+  };
+  v1CreateMfaPolicyResult: {
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
   };
   v1CreateOauth2CredentialIntent: {
     /** @description The OAuth 2.0 provider */
@@ -1490,6 +1583,29 @@ export type definitions = {
     /** @description HPKE encrypted credential bundle */
     credentialBundle: string;
   };
+  v1CreateSessionProfileIntent: {
+    /** @description Human-readable name for a Session Profile. */
+    sessionProfileName: string;
+    /** @description The capability string that defines the permissions for this Session Profile. */
+    capability: string;
+    /** @description The duration in seconds for which sessions created with this Session Profile are valid. If not set, expiration will be determined by the value passed in to the intent of login activities. */
+    expirationSeconds?: string;
+    /** @description Notes for a Session Profile. */
+    notes?: string;
+  };
+  v1CreateSessionProfileRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_SESSION_PROFILE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateSessionProfileIntent"];
+  };
+  v1CreateSessionProfileResult: {
+    /** @description Unique identifier for a given Session Profile. */
+    sessionProfileId: string;
+  };
   v1CreateSmartContractInterfaceIntent: {
     /** @description Corresponding contract address or program ID */
     smartContractAddress: string;
@@ -1751,7 +1867,7 @@ export type definitions = {
     pivotContainerEncryptedPullSecret?: string;
     /** @description Optional flag to indicate whether to deploy the TVC app in debug mode, which includes additional logging and debugging tools. Default is false. */
     debugMode?: boolean;
-    /** @description Heath check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol. */
+    /** @description Health check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol. */
     healthCheckType: definitions["v1TvcHealthCheckType"];
     /**
      * Format: int64
@@ -2021,6 +2137,25 @@ export type definitions = {
   v1DeleteInvitationResult: {
     /** @description Unique identifier for a given Invitation. */
     invitationId: string;
+  };
+  v1DeleteMfaPolicyIntent: {
+    /** @description The ID of the User to delete the MFA Policy from. */
+    userId: string;
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
+  };
+  v1DeleteMfaPolicyRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_MFA_POLICY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteMfaPolicyIntent"];
+  };
+  v1DeleteMfaPolicyResult: {
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
   };
   v1DeleteOauth2CredentialIntent: {
     /** @description The ID of the OAuth 2.0 credential to delete */
@@ -2779,6 +2914,40 @@ export type definitions = {
     /** @description Name of enclave app. */
     appName: string;
   };
+  v1GetMfaPoliciesRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given user. */
+    userId: string;
+  };
+  v1GetMfaPoliciesResponse: {
+    /** @description A list of multi-factor authentication policies for a user. */
+    mfaPolicies: definitions["v1MfaPolicy"][];
+  };
+  v1GetMfaPolicyRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given user. */
+    userId: string;
+    /** @description Unique identifier for a given MFA policy. */
+    mfaPolicyId: string;
+  };
+  v1GetMfaPolicyResponse: {
+    /** @description Multi-factor authentication policy for a user. */
+    mfaPolicy: definitions["v1MfaPolicy"];
+  };
+  v1GetMfaStatusRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description The unique identifier of the activity to get MFA status for. */
+    activityId: string;
+    /** @description Optional user ID to filter MFA status for a specific user. */
+    userId?: string;
+  };
+  v1GetMfaStatusResponse: {
+    /** @description A list of MFA statuses for the activity's votes. */
+    mfaStatuses: definitions["v1MfaStatus"][];
+  };
   v1GetNoncesRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -2922,6 +3091,24 @@ export type definitions = {
     /** @description Structured error information including revert details, if available. */
     error?: definitions["v1TxError"];
   };
+  v1GetSessionProfileRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a session profile. */
+    sessionProfileId: string;
+  };
+  v1GetSessionProfileResponse: {
+    /** @description Session profile for a user, including details about the user's authenticators, Oauth providers, API keys, and MFA policies. */
+    sessionProfile: definitions["v1SessionProfile"];
+  };
+  v1GetSessionProfilesRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+  };
+  v1GetSessionProfilesResponse: {
+    /** @description A list of session profiles for users in the organization. */
+    sessionProfiles: definitions["v1SessionProfile"][];
+  };
   v1GetSmartContractInterfaceRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
@@ -3055,7 +3242,7 @@ export type definitions = {
   v1GetWalletAddressBalancesRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Address corresponding to a wallet account. */
+    /** @description Address corresponding to a wallet account. Private key addresses are not supported. */
     address: string;
     /**
      * @description CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values.
@@ -3614,6 +3801,10 @@ export type definitions = {
     createWebhookEndpointIntent?: definitions["v1CreateWebhookEndpointIntent"];
     updateWebhookEndpointIntent?: definitions["v1UpdateWebhookEndpointIntent"];
     deleteWebhookEndpointIntent?: definitions["v1DeleteWebhookEndpointIntent"];
+    createMfaPolicyIntent?: definitions["v1CreateMfaPolicyIntent"];
+    updateMfaPolicyIntent?: definitions["v1UpdateMfaPolicyIntent"];
+    deleteMfaPolicyIntent?: definitions["v1DeleteMfaPolicyIntent"];
+    createSessionProfileIntent?: definitions["v1CreateSessionProfileIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -3712,6 +3903,37 @@ export type definitions = {
     /** @description Public key for authentication */
     publicKey: string;
   };
+  v1MfaPolicy: {
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
+    /** @description Human-readable name for an MFA Policy. */
+    mfaPolicyName: string;
+    /** @description A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+    condition: string;
+    /** @description An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+    requiredAuthenticationMethods: definitions["v1RequiredAuthenticationMethod"][];
+    /**
+     * Format: int64
+     * @description The order in which this policy is evaluated relative to other MFA policies.
+     */
+    order: number;
+    /** @description Optional human-readable notes added by a User to describe a particular MFA policy. */
+    notes?: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1MfaStatus: {
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
+    /** @description Unique identifier for a given User. */
+    userId: string;
+    /** @description Whether the MFA policy requirements are currently satisfied. */
+    satisfied: boolean;
+    /** @description A list of authentication methods already satisfied for this MFA policy. */
+    satisfiedMethods: definitions["v1AuthenticationMethod"][];
+    /** @description An ordered list of authentication requirements needed to satisfy this MFA policy. */
+    requiredMethods: definitions["v1RequiredAuthenticationMethod"][];
+  };
   /** @enum {string} */
   v1MnemonicLanguage:
     | "MNEMONIC_LANGUAGE_ENGLISH"
@@ -3803,6 +4025,8 @@ export type definitions = {
     expirationSeconds?: string;
     /** @description Invalidate all other previously generated Login API keys */
     invalidateExisting?: boolean;
+    /** @description Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+    sessionProfileId?: string;
   };
   v1OauthLoginRequest: {
     /** @enum {string} */
@@ -3941,6 +4165,8 @@ export type definitions = {
     invalidateExisting?: boolean;
     /** @description Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
     clientSignature?: definitions["v1ClientSignature"];
+    /** @description Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+    sessionProfileId?: string;
   };
   v1OtpLoginIntentV2: {
     /** @description Signed Verification Token containing a unique id, expiry, verification type, contact */
@@ -3953,6 +4179,8 @@ export type definitions = {
     expirationSeconds?: string;
     /** @description Invalidate all other previously generated Login sessions */
     invalidateExisting?: boolean;
+    /** @description Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+    sessionProfileId?: string;
   };
   v1OtpLoginRequest: {
     /** @enum {string} */
@@ -3975,7 +4203,8 @@ export type definitions = {
     | "OUTCOME_DENY_IMPLICIT"
     | "OUTCOME_REQUIRES_CONSENSUS"
     | "OUTCOME_REJECTED"
-    | "OUTCOME_ERROR";
+    | "OUTCOME_ERROR"
+    | "OUTCOME_REQUIRES_AUTHENTICATORS";
   v1Pagination: {
     /** @description A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
     limit?: string;
@@ -4106,6 +4335,14 @@ export type definitions = {
     /** @description Resulting list of organization features. */
     features: definitions["v1Feature"][];
   };
+  v1RequiredAuthenticationMethod: {
+    /** @description A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them. */
+    any: definitions["v1AuthenticationMethod"][];
+  };
+  v1RequiredAuthenticationMethodParams: {
+    /** @description A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them. */
+    any: definitions["v1AuthenticationMethodParams"][];
+  };
   v1Result: {
     createOrganizationResult?: definitions["v1CreateOrganizationResult"];
     createAuthenticatorsResult?: definitions["v1CreateAuthenticatorsResult"];
@@ -4212,6 +4449,10 @@ export type definitions = {
     createWebhookEndpointResult?: definitions["v1CreateWebhookEndpointResult"];
     updateWebhookEndpointResult?: definitions["v1UpdateWebhookEndpointResult"];
     deleteWebhookEndpointResult?: definitions["v1DeleteWebhookEndpointResult"];
+    createMfaPolicyResult?: definitions["v1CreateMfaPolicyResult"];
+    updateMfaPolicyResult?: definitions["v1UpdateMfaPolicyResult"];
+    deleteMfaPolicyResult?: definitions["v1DeleteMfaPolicyResult"];
+    createSessionProfileResult?: definitions["v1CreateSessionProfileResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -4298,6 +4539,20 @@ export type definitions = {
     subject?: string;
     operator?: definitions["v1Operator"];
     targets?: string[];
+  };
+  v1SessionProfile: {
+    /** @description Unique identifier for a given Session Profile. */
+    sessionProfileId: string;
+    /** @description Human-readable name for a Session Profile. */
+    sessionProfileName: string;
+    /** @description The specific capability that a session created with this profile is limited to. */
+    capability: string;
+    /** @description Optional window (in seconds) indicating how long sessions created with this profile should last. */
+    expirationSeconds?: string;
+    /** @description Optional human-readable notes added by a User to describe a particular Session Profile. */
+    notes?: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
   };
   v1SetOrganizationFeatureIntent: {
     /** @description Name of the feature to set */
@@ -4508,6 +4763,8 @@ export type definitions = {
     expirationSeconds?: string;
     /** @description Invalidate all other previously generated Login API keys */
     invalidateExisting?: boolean;
+    /** @description Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+    sessionProfileId?: string;
   };
   v1StampLoginRequest: {
     /** @enum {string} */
@@ -4805,6 +5062,38 @@ export type definitions = {
   v1UpdateFiatOnRampCredentialResult: {
     /** @description Unique identifier of the Fiat On-Ramp credential that was updated */
     fiatOnRampCredentialId: string;
+  };
+  v1UpdateMfaPolicyIntent: {
+    /** @description The ID of the User to update the MFA Policy for. */
+    userId: string;
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
+    /** @description Human-readable name for a Policy. */
+    mfaPolicyName?: string;
+    /** @description A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+    condition?: string;
+    /** @description An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+    requiredAuthenticationMethods?: definitions["v1RequiredAuthenticationMethodParams"][];
+    /**
+     * Format: int64
+     * @description The order in which this MFA policy is evaluated, starting from 1, relative to other MFA policies. Lower order values are evaluated first.
+     */
+    order?: number;
+    /** @description Notes for an MFA Policy. */
+    notes?: string;
+  };
+  v1UpdateMfaPolicyRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_MFA_POLICY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateMfaPolicyIntent"];
+  };
+  v1UpdateMfaPolicyResult: {
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
   };
   v1UpdateOauth2CredentialIntent: {
     /** @description The ID of the OAuth 2.0 credential to update */
@@ -5136,6 +5425,8 @@ export type definitions = {
     oauthProviders: definitions["v1OauthProvider"][];
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description A list of MFA Policies that define multi-factor authentication requirements for this user. */
+    mfaPolicies: definitions["v1MfaPolicy"][];
   };
   v1UserParams: {
     /** @description Human-readable name for a User. */
@@ -5524,6 +5815,60 @@ export type operations = {
       };
     };
   };
+  /** Get all MFA policies for a user. */
+  PublicApiService_GetMfaPolicies: {
+    parameters: {
+      body: {
+        body: definitions["v1GetMfaPoliciesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetMfaPoliciesResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get a single MFA policy for a user. */
+  PublicApiService_GetMfaPolicy: {
+    parameters: {
+      body: {
+        body: definitions["v1GetMfaPolicyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetMfaPolicyResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the MFA status of an activity for a specific user or all voting users. */
+  PublicApiService_GetMfaStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetMfaStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetMfaStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions. */
   PublicApiService_GetNonces: {
     parameters: {
@@ -5697,6 +6042,42 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetSendTransactionStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get a single session profile for an organization. */
+  PublicApiService_GetSessionProfile: {
+    parameters: {
+      body: {
+        body: definitions["v1GetSessionProfileRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetSessionProfileResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get all session profiles for an organization. */
+  PublicApiService_GetSessionProfiles: {
+    parameters: {
+      body: {
+        body: definitions["v1GetSessionProfilesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetSessionProfilesResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -6280,6 +6661,24 @@ export type operations = {
       };
     };
   };
+  /** Create a new MFA policy for a user. */
+  PublicApiService_CreateMfaPolicy: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateMfaPolicyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Enable authentication for end users with an OAuth 2.0 provider */
   PublicApiService_CreateOauth2Credential: {
     parameters: {
@@ -6411,6 +6810,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreateReadWriteSessionRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create a new session profile for an organization. */
+  PublicApiService_CreateSessionProfile: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateSessionProfileRequest"];
       };
     };
     responses: {
@@ -6663,6 +7080,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1DeleteInvitationRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Delete an MFA policy for a user. */
+  PublicApiService_DeleteMfaPolicy: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteMfaPolicyRequest"];
       };
     };
     responses: {
@@ -7419,6 +7854,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1UpdateFiatOnRampCredentialRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update an MFA policy for a user. */
+  PublicApiService_UpdateMfaPolicy: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateMfaPolicyRequest"];
       };
     };
     responses: {

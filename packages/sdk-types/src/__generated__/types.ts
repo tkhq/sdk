@@ -96,6 +96,8 @@ export type externaldatav1Credential = {
   /** The public component of a cryptographic key pair used to sign messages and transactions. */
   publicKey: string;
   type: v1CredentialType;
+  /** The session profile associated with this credential, if any. This field is only applicable for credentials of type CREDENTIAL_TYPE_LOGIN. */
+  sessionProfileId?: string;
 };
 
 export type externaldatav1Quorum = {
@@ -221,7 +223,8 @@ export type v1ActivityStatus =
   | "ACTIVITY_STATUS_COMPLETED"
   | "ACTIVITY_STATUS_FAILED"
   | "ACTIVITY_STATUS_CONSENSUS_NEEDED"
-  | "ACTIVITY_STATUS_REJECTED";
+  | "ACTIVITY_STATUS_REJECTED"
+  | "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED";
 
 export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_API_KEYS"
@@ -350,7 +353,11 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_USERS_V4"
   | "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"
   | "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"
-  | "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT";
+  | "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
+  | "ACTIVITY_TYPE_CREATE_MFA_POLICY"
+  | "ACTIVITY_TYPE_UPDATE_MFA_POLICY"
+  | "ACTIVITY_TYPE_DELETE_MFA_POLICY"
+  | "ACTIVITY_TYPE_CREATE_SESSION_PROFILE";
 
 export type v1AddressFormat =
   | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -511,6 +518,28 @@ export type v1Attestation = {
   transports: v1AuthenticatorTransport[];
 };
 
+export type v1AuthenticationMethod = {
+  /** The type of authenticator (e.g., AUTHENTICATION_TYPE_EMAIL, AUTHENTICATION_TYPE_SESSION) required for this MFA step. */
+  type: v1AuthenticationType;
+  /** Optional specific authenticator ID required (e.g., for requiring a specific session profile id) */
+  id?: string;
+};
+
+export type v1AuthenticationMethodParams = {
+  /** The type of authenticator (e.g., AUTHENTICATION_TYPE_PASSKEY for passkey authentication). */
+  type: v1AuthenticationType;
+  /** Optional specific authenticator ID required (e.g., UUID of a passkey authenticator). If not provided, any authenticator of the specified type can be used. */
+  id?: string;
+};
+
+export type v1AuthenticationType =
+  | "AUTHENTICATION_TYPE_EMAIL_OTP"
+  | "AUTHENTICATION_TYPE_SMS_OTP"
+  | "AUTHENTICATION_TYPE_PASSKEY"
+  | "AUTHENTICATION_TYPE_API_KEY"
+  | "AUTHENTICATION_TYPE_OAUTH"
+  | "AUTHENTICATION_TYPE_SESSION";
+
 export type v1Authenticator = {
   /** Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
   transports: v1AuthenticatorTransport[];
@@ -638,16 +667,6 @@ export type v1CreateApiOnlyUsersIntent = {
   apiOnlyUsers: v1ApiOnlyUserParams[];
 };
 
-export type v1CreateApiOnlyUsersRequest = {
-  type: string;
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1CreateApiOnlyUsersIntent;
-  generateAppProofs?: boolean;
-};
-
 export type v1CreateApiOnlyUsersResult = {
   /** A list of API-only User IDs. */
   userIds: string[];
@@ -730,6 +749,35 @@ export type v1CreateInvitationsRequest = {
 export type v1CreateInvitationsResult = {
   /** A list of Invitation IDs */
   invitationIds: string[];
+};
+
+export type v1CreateMfaPolicyIntent = {
+  /** The ID of the User to add the MFA Policy to. */
+  userId: string;
+  /** Human-readable name for a Policy. */
+  mfaPolicyName: string;
+  /** A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+  condition: string;
+  /** An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+  requiredAuthenticationMethods: v1RequiredAuthenticationMethodParams[];
+  /** The order in which this MFA policy is evaluated, starting from 1, relative to other MFA policies. Lower order values are evaluated first. */
+  order: number;
+  /** Notes for an MFA Policy. */
+  notes?: string;
+};
+
+export type v1CreateMfaPolicyRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateMfaPolicyIntent;
+};
+
+export type v1CreateMfaPolicyResult = {
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
 };
 
 export type v1CreateOauth2CredentialIntent = {
@@ -1029,6 +1077,31 @@ export type v1CreateReadWriteSessionResultV2 = {
   credentialBundle: string;
 };
 
+export type v1CreateSessionProfileIntent = {
+  /** Human-readable name for a Session Profile. */
+  sessionProfileName: string;
+  /** The capability string that defines the permissions for this Session Profile. */
+  capability: string;
+  /** The duration in seconds for which sessions created with this Session Profile are valid. If not set, expiration will be determined by the value passed in to the intent of login activities. */
+  expirationSeconds?: string;
+  /** Notes for a Session Profile. */
+  notes?: string;
+};
+
+export type v1CreateSessionProfileRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateSessionProfileIntent;
+};
+
+export type v1CreateSessionProfileResult = {
+  /** Unique identifier for a given Session Profile. */
+  sessionProfileId: string;
+};
+
 export type v1CreateSmartContractInterfaceIntent = {
   /** Corresponding contract address or program ID */
   smartContractAddress: string;
@@ -1273,7 +1346,7 @@ export type v1CreateTvcDeploymentIntent = {
   pivotContainerEncryptedPullSecret?: string;
   /** Optional flag to indicate whether to deploy the TVC app in debug mode, which includes additional logging and debugging tools. Default is false. */
   debugMode?: boolean;
-  /** Heath check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol. */
+  /** Health check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol. */
   healthCheckType: v1TvcHealthCheckType;
   /** Port to use for health checks. */
   healthCheckPort: number;
@@ -1542,6 +1615,27 @@ export type v1DeleteInvitationRequest = {
 export type v1DeleteInvitationResult = {
   /** Unique identifier for a given Invitation. */
   invitationId: string;
+};
+
+export type v1DeleteMfaPolicyIntent = {
+  /** The ID of the User to delete the MFA Policy from. */
+  userId: string;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+};
+
+export type v1DeleteMfaPolicyRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1DeleteMfaPolicyIntent;
+};
+
+export type v1DeleteMfaPolicyResult = {
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
 };
 
 export type v1DeleteOauth2CredentialIntent = {
@@ -2336,6 +2430,46 @@ export type v1GetLatestBootProofRequest = {
   appName: string;
 };
 
+export type v1GetMfaPoliciesRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** Unique identifier for a given user. */
+  userId: string;
+};
+
+export type v1GetMfaPoliciesResponse = {
+  /** A list of multi-factor authentication policies for a user. */
+  mfaPolicies: v1MfaPolicy[];
+};
+
+export type v1GetMfaPolicyRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** Unique identifier for a given user. */
+  userId: string;
+  /** Unique identifier for a given MFA policy. */
+  mfaPolicyId: string;
+};
+
+export type v1GetMfaPolicyResponse = {
+  /** Multi-factor authentication policy for a user. */
+  mfaPolicy: v1MfaPolicy;
+};
+
+export type v1GetMfaStatusRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** The unique identifier of the activity to get MFA status for. */
+  activityId: string;
+  /** Optional user ID to filter MFA status for a specific user. */
+  userId?: string;
+};
+
+export type v1GetMfaStatusResponse = {
+  /** A list of MFA statuses for the activity's votes. */
+  mfaStatuses: v1MfaStatus[];
+};
+
 export type v1GetNoncesRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
@@ -2478,6 +2612,28 @@ export type v1GetSendTransactionStatusResponse = {
   error?: v1TxError;
 };
 
+export type v1GetSessionProfileRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** Unique identifier for a session profile. */
+  sessionProfileId: string;
+};
+
+export type v1GetSessionProfileResponse = {
+  /** Session profile for a user, including details about the user's authenticators, Oauth providers, API keys, and MFA policies. */
+  sessionProfile: v1SessionProfile;
+};
+
+export type v1GetSessionProfilesRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+};
+
+export type v1GetSessionProfilesResponse = {
+  /** A list of session profiles for users in the organization. */
+  sessionProfiles: v1SessionProfile[];
+};
+
 export type v1GetSmartContractInterfaceRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
@@ -2589,7 +2745,7 @@ export type v1GetWalletAccountsResponse = {
 export type v1GetWalletAddressBalancesRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Address corresponding to a wallet account. */
+  /** Address corresponding to a wallet account. Private key addresses are not supported. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
@@ -3153,6 +3309,10 @@ export type v1Intent = {
   createWebhookEndpointIntent?: v1CreateWebhookEndpointIntent;
   updateWebhookEndpointIntent?: v1UpdateWebhookEndpointIntent;
   deleteWebhookEndpointIntent?: v1DeleteWebhookEndpointIntent;
+  createMfaPolicyIntent?: v1CreateMfaPolicyIntent;
+  updateMfaPolicyIntent?: v1UpdateMfaPolicyIntent;
+  deleteMfaPolicyIntent?: v1DeleteMfaPolicyIntent;
+  createSessionProfileIntent?: v1CreateSessionProfileIntent;
 };
 
 export type v1InvitationParams = {
@@ -3230,6 +3390,36 @@ export type v1ListWebhookEndpointsResponse = {
 export type v1LoginUsage = {
   /** Public key for authentication */
   publicKey: string;
+};
+
+export type v1MfaPolicy = {
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+  /** Human-readable name for an MFA Policy. */
+  mfaPolicyName: string;
+  /** A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+  condition: string;
+  /** An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+  requiredAuthenticationMethods: v1RequiredAuthenticationMethod[];
+  /** The order in which this policy is evaluated relative to other MFA policies. */
+  order: number;
+  /** Optional human-readable notes added by a User to describe a particular MFA policy. */
+  notes?: string;
+  createdAt: externaldatav1Timestamp;
+  updatedAt: externaldatav1Timestamp;
+};
+
+export type v1MfaStatus = {
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+  /** Unique identifier for a given User. */
+  userId: string;
+  /** Whether the MFA policy requirements are currently satisfied. */
+  satisfied: boolean;
+  /** A list of authentication methods already satisfied for this MFA policy. */
+  satisfiedMethods: v1AuthenticationMethod[];
+  /** An ordered list of authentication requirements needed to satisfy this MFA policy. */
+  requiredMethods: v1RequiredAuthenticationMethod[];
 };
 
 export type v1MnemonicLanguage =
@@ -3326,6 +3516,8 @@ export type v1OauthLoginIntent = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
 };
 
 export type v1OauthLoginRequest = {
@@ -3460,6 +3652,8 @@ export type v1OtpLoginIntent = {
   invalidateExisting?: boolean;
   /** Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
   clientSignature?: v1ClientSignature;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
 };
 
 export type v1OtpLoginIntentV2 = {
@@ -3473,6 +3667,8 @@ export type v1OtpLoginIntentV2 = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login sessions */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
 };
 
 export type v1OtpLoginRequest = {
@@ -3496,7 +3692,8 @@ export type v1Outcome =
   | "OUTCOME_DENY_IMPLICIT"
   | "OUTCOME_REQUIRES_CONSENSUS"
   | "OUTCOME_REJECTED"
-  | "OUTCOME_ERROR";
+  | "OUTCOME_ERROR"
+  | "OUTCOME_REQUIRES_AUTHENTICATORS";
 
 export type v1Pagination = {
   /** A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
@@ -3635,6 +3832,16 @@ export type v1RemoveOrganizationFeatureResult = {
   features: v1Feature[];
 };
 
+export type v1RequiredAuthenticationMethod = {
+  /** A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them. */
+  any: v1AuthenticationMethod[];
+};
+
+export type v1RequiredAuthenticationMethodParams = {
+  /** A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them. */
+  any: v1AuthenticationMethodParams[];
+};
+
 export type v1Result = {
   createOrganizationResult?: v1CreateOrganizationResult;
   createAuthenticatorsResult?: v1CreateAuthenticatorsResult;
@@ -3741,6 +3948,10 @@ export type v1Result = {
   createWebhookEndpointResult?: v1CreateWebhookEndpointResult;
   updateWebhookEndpointResult?: v1UpdateWebhookEndpointResult;
   deleteWebhookEndpointResult?: v1DeleteWebhookEndpointResult;
+  createMfaPolicyResult?: v1CreateMfaPolicyResult;
+  updateMfaPolicyResult?: v1UpdateMfaPolicyResult;
+  deleteMfaPolicyResult?: v1DeleteMfaPolicyResult;
+  createSessionProfileResult?: v1CreateSessionProfileResult;
 };
 
 export type v1RevertChainEntry = {
@@ -3835,6 +4046,21 @@ export type v1SelectorV2 = {
   subject?: string;
   operator?: v1Operator;
   targets?: string[];
+};
+
+export type v1SessionProfile = {
+  /** Unique identifier for a given Session Profile. */
+  sessionProfileId: string;
+  /** Human-readable name for a Session Profile. */
+  sessionProfileName: string;
+  /** The specific capability that a session created with this profile is limited to. */
+  capability: string;
+  /** Optional window (in seconds) indicating how long sessions created with this profile should last. */
+  expirationSeconds?: string;
+  /** Optional human-readable notes added by a User to describe a particular Session Profile. */
+  notes?: string;
+  createdAt: externaldatav1Timestamp;
+  updatedAt: externaldatav1Timestamp;
 };
 
 export type v1SetOrganizationFeatureIntent = {
@@ -4048,6 +4274,8 @@ export type v1StampLoginIntent = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
 };
 
 export type v1StampLoginRequest = {
@@ -4207,6 +4435,37 @@ export type v1UpdateFiatOnRampCredentialRequest = {
 export type v1UpdateFiatOnRampCredentialResult = {
   /** Unique identifier of the Fiat On-Ramp credential that was updated */
   fiatOnRampCredentialId: string;
+};
+
+export type v1UpdateMfaPolicyIntent = {
+  /** The ID of the User to update the MFA Policy for. */
+  userId: string;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+  /** Human-readable name for a Policy. */
+  mfaPolicyName?: string;
+  /** A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+  condition?: string;
+  /** An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+  requiredAuthenticationMethods?: v1RequiredAuthenticationMethodParams[];
+  /** The order in which this MFA policy is evaluated, starting from 1, relative to other MFA policies. Lower order values are evaluated first. */
+  order?: number;
+  /** Notes for an MFA Policy. */
+  notes?: string;
+};
+
+export type v1UpdateMfaPolicyRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1UpdateMfaPolicyIntent;
+};
+
+export type v1UpdateMfaPolicyResult = {
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
 };
 
 export type v1UpdateOauth2CredentialIntent = {
@@ -4563,6 +4822,8 @@ export type v1User = {
   oauthProviders: v1OauthProvider[];
   createdAt: externaldatav1Timestamp;
   updatedAt: externaldatav1Timestamp;
+  /** A list of MFA Policies that define multi-factor authentication requirements for this user. */
+  mfaPolicies: v1MfaPolicy[];
 };
 
 export type v1UserParams = {
@@ -4909,6 +5170,49 @@ export type TGetLatestBootProofBody = {
 
 export type TGetLatestBootProofInput = { body: TGetLatestBootProofBody };
 
+export type TGetMfaPoliciesResponse = {
+  /** A list of multi-factor authentication policies for a user. */
+  mfaPolicies: v1MfaPolicy[];
+};
+
+export type TGetMfaPoliciesBody = {
+  organizationId?: string;
+  /** Unique identifier for a given user. */
+  userId: string;
+};
+
+export type TGetMfaPoliciesInput = { body: TGetMfaPoliciesBody };
+
+export type TGetMfaPolicyResponse = {
+  /** Multi-factor authentication policy for a user. */
+  mfaPolicy: v1MfaPolicy;
+};
+
+export type TGetMfaPolicyBody = {
+  organizationId?: string;
+  /** Unique identifier for a given user. */
+  userId: string;
+  /** Unique identifier for a given MFA policy. */
+  mfaPolicyId: string;
+};
+
+export type TGetMfaPolicyInput = { body: TGetMfaPolicyBody };
+
+export type TGetMfaStatusResponse = {
+  /** A list of MFA statuses for the activity's votes. */
+  mfaStatuses: v1MfaStatus[];
+};
+
+export type TGetMfaStatusBody = {
+  organizationId?: string;
+  /** The unique identifier of the activity to get MFA status for. */
+  activityId: string;
+  /** Optional user ID to filter MFA status for a specific user. */
+  userId?: string;
+};
+
+export type TGetMfaStatusInput = { body: TGetMfaStatusBody };
+
 export type TGetNoncesResponse = {
   /** The standard on-chain nonce for the address, if requested. */
   nonce?: string;
@@ -5046,6 +5350,30 @@ export type TGetSendTransactionStatusInput = {
   body: TGetSendTransactionStatusBody;
 };
 
+export type TGetSessionProfileResponse = {
+  /** Session profile for a user, including details about the user's authenticators, Oauth providers, API keys, and MFA policies. */
+  sessionProfile: v1SessionProfile;
+};
+
+export type TGetSessionProfileBody = {
+  organizationId?: string;
+  /** Unique identifier for a session profile. */
+  sessionProfileId: string;
+};
+
+export type TGetSessionProfileInput = { body: TGetSessionProfileBody };
+
+export type TGetSessionProfilesResponse = {
+  /** A list of session profiles for users in the organization. */
+  sessionProfiles: v1SessionProfile[];
+};
+
+export type TGetSessionProfilesBody = {
+  organizationId?: string;
+};
+
+export type TGetSessionProfilesInput = { body: TGetSessionProfilesBody };
+
 export type TGetSmartContractInterfaceResponse = {
   /** Object to be used in conjunction with policies to guard transaction signing. */
   smartContractInterface: externaldatav1SmartContractInterface;
@@ -5111,7 +5439,7 @@ export type TGetWalletAddressBalancesResponse = {
 
 export type TGetWalletAddressBalancesBody = {
   organizationId?: string;
-  /** Address corresponding to a wallet account. */
+  /** Address corresponding to a wallet account. Private key addresses are not supported. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
@@ -5372,21 +5700,6 @@ export type TCreateApiKeysBody = {
 
 export type TCreateApiKeysInput = { body: TCreateApiKeysBody };
 
-export type TCreateApiOnlyUsersResponse = {
-  activity: v1Activity;
-  /** A list of API-only User IDs. */
-  userIds: string[];
-};
-
-export type TCreateApiOnlyUsersBody = {
-  timestampMs?: string;
-  organizationId?: string;
-  /** A list of API-only Users to create. */
-  apiOnlyUsers: v1ApiOnlyUserParams[];
-};
-
-export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
-
 export type TCreateAuthenticatorsResponse = {
   activity: v1Activity;
   /** A list of Authenticator IDs. */
@@ -5445,6 +5758,31 @@ export type TCreateInvitationsBody = {
 };
 
 export type TCreateInvitationsInput = { body: TCreateInvitationsBody };
+
+export type TCreateMfaPolicyResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+};
+
+export type TCreateMfaPolicyBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The ID of the User to add the MFA Policy to. */
+  userId: string;
+  /** Human-readable name for a Policy. */
+  mfaPolicyName: string;
+  /** A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+  condition: string;
+  /** An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+  requiredAuthenticationMethods: v1RequiredAuthenticationMethodParams[];
+  /** The order in which this MFA policy is evaluated, starting from 1, relative to other MFA policies. Lower order values are evaluated first. */
+  order: number;
+  /** Notes for an MFA Policy. */
+  notes?: string;
+};
+
+export type TCreateMfaPolicyInput = { body: TCreateMfaPolicyBody };
 
 export type TCreateOauth2CredentialResponse = {
   activity: v1Activity;
@@ -5613,6 +5951,27 @@ export type TCreateReadWriteSessionBody = {
 export type TCreateReadWriteSessionInput = {
   body: TCreateReadWriteSessionBody;
 };
+
+export type TCreateSessionProfileResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given Session Profile. */
+  sessionProfileId: string;
+};
+
+export type TCreateSessionProfileBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Human-readable name for a Session Profile. */
+  sessionProfileName: string;
+  /** The capability string that defines the permissions for this Session Profile. */
+  capability: string;
+  /** The duration in seconds for which sessions created with this Session Profile are valid. If not set, expiration will be determined by the value passed in to the intent of login activities. */
+  expirationSeconds?: string;
+  /** Notes for a Session Profile. */
+  notes?: string;
+};
+
+export type TCreateSessionProfileInput = { body: TCreateSessionProfileBody };
 
 export type TCreateSmartContractInterfaceResponse = {
   activity: v1Activity;
@@ -5832,6 +6191,23 @@ export type TDeleteInvitationBody = {
 };
 
 export type TDeleteInvitationInput = { body: TDeleteInvitationBody };
+
+export type TDeleteMfaPolicyResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+};
+
+export type TDeleteMfaPolicyBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The ID of the User to delete the MFA Policy from. */
+  userId: string;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+};
+
+export type TDeleteMfaPolicyInput = { body: TDeleteMfaPolicyBody };
 
 export type TDeleteOauth2CredentialResponse = {
   activity: v1Activity;
@@ -6458,6 +6834,8 @@ export type TOauthLoginBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
 };
 
 export type TOauthLoginInput = { body: TOauthLoginBody };
@@ -6510,6 +6888,8 @@ export type TOtpLoginBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login sessions */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
 };
 
 export type TOtpLoginInput = { body: TOtpLoginBody };
@@ -6680,6 +7060,8 @@ export type TStampLoginBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
 };
 
 export type TStampLoginInput = { body: TStampLoginBody };
@@ -6710,6 +7092,33 @@ export type TUpdateFiatOnRampCredentialBody = {
 export type TUpdateFiatOnRampCredentialInput = {
   body: TUpdateFiatOnRampCredentialBody;
 };
+
+export type TUpdateMfaPolicyResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+};
+
+export type TUpdateMfaPolicyBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The ID of the User to update the MFA Policy for. */
+  userId: string;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+  /** Human-readable name for a Policy. */
+  mfaPolicyName?: string;
+  /** A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+  condition?: string;
+  /** An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+  requiredAuthenticationMethods?: v1RequiredAuthenticationMethodParams[];
+  /** The order in which this MFA policy is evaluated, starting from 1, relative to other MFA policies. Lower order values are evaluated first. */
+  order?: number;
+  /** Notes for an MFA Policy. */
+  notes?: string;
+};
+
+export type TUpdateMfaPolicyInput = { body: TUpdateMfaPolicyBody };
 
 export type TUpdateOauth2CredentialResponse = {
   activity: v1Activity;

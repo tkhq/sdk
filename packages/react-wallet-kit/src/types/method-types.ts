@@ -1,6 +1,7 @@
 import type {
   Erc20Transfer,
   EthTransaction,
+  MfaContext,
   OAuthProviders,
   SolanaTransaction,
   StamperType,
@@ -306,4 +307,9 @@ export type HandleSendErc20TransferParams = {
   successPageDuration?: number;
   icon?: React.ReactNode;
   stampWith?: StamperType;
+};
+
+export type HandleMfaParams = {
+  mfaContext: MfaContext;
+  successPageDuration?: number;
 };

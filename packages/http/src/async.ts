@@ -28,6 +28,11 @@ export function withAsyncPolling<
         case "ACTIVITY_STATUS_COMPLETED": {
           return activity;
         }
+        case "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED": {
+          // We don't wanna keep polling if the activity needs MFA
+          // Return the activity and let the devs deal with the MFA flow
+          return activity;
+        }
         case "ACTIVITY_STATUS_CREATED": {
           // Async pending state -- keep polling
           break;
@@ -119,6 +124,11 @@ export function createActivityPoller<
     while (true) {
       switch (activity.status) {
         case "ACTIVITY_STATUS_COMPLETED": {
+          return activity;
+        }
+        case "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED": {
+          // We don't wanna keep polling if the activity needs MFA
+          // Return the activity and let the devs deal with the MFA flow
           return activity;
         }
         case "ACTIVITY_STATUS_CREATED": {
