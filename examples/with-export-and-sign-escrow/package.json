@@ -3,13 +3,13 @@
   "version": "0.1.4",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
-    "next": "16.1.6",
+    "next": "15.5.15",
     "@turnkey/sdk-types": "workspace:*",
     "tweetnacl": "^1.0.3",
     "@turnkey/iframe-stamper": "workspace:*",
@@ -23,7 +23,7 @@
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "15.5.15",
     "tailwindcss": "^4",
     "typescript": "^5.1.3"
   }

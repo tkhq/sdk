@@ -4,12 +4,13 @@
 
 ### Patch Changes
 
-- Updated dependencies [[`d05bd86`](https://github.com/tkhq/sdk/commit/d05bd86400d463c8f8c9788e69f0918db45662b5), [`ef66673`](https://github.com/tkhq/sdk/commit/ef6667325d210c8aa0ea4c1d11d834ff28ddb66c), [`8209887`](https://github.com/tkhq/sdk/commit/8209887d48bae7ea617645603a156aeb1cfbd2e7)]:
+- Updated dependencies [[`d05bd86`](https://github.com/tkhq/sdk/commit/d05bd86400d463c8f8c9788e69f0918db45662b5), [`ef66673`](https://github.com/tkhq/sdk/commit/ef6667325d210c8aa0ea4c1d11d834ff28ddb66c), [`8209887`](https://github.com/tkhq/sdk/commit/8209887d48bae7ea617645603a156aeb1cfbd2e7), [`547566b`](https://github.com/tkhq/sdk/commit/547566be393b6c29ca8065664a1890389f1c9580)]:
   - @turnkey/sdk-server@5.3.0
   - @turnkey/sdk-browser@5.16.1
   - @turnkey/sdk-types@0.14.0
   - @turnkey/crypto@2.8.14
   - @turnkey/wallet-stamper@1.1.16
+  - next@15.5.15
 
 ## 5.5.7
 
