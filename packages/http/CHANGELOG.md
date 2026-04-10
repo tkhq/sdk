@@ -1,5 +1,14 @@
 # @turnkey/http
 
+## 3.18.1
+
+### Patch Changes
+
+- [#1269](https://github.com/tkhq/sdk/pull/1269) [`ef66673`](https://github.com/tkhq/sdk/commit/ef6667325d210c8aa0ea4c1d11d834ff28ddb66c) Author [@ethankonk](https://github.com/ethankonk) - Sync with v2026.4.5 of mono
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.5
+
 ## 3.18.0
 
 ### Minor Changes

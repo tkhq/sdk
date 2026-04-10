@@ -1,5 +1,22 @@
 # @turnkey/core
 
+## 1.14.1
+
+### Patch Changes
+
+- [#1269](https://github.com/tkhq/sdk/pull/1269) [`ef66673`](https://github.com/tkhq/sdk/commit/ef6667325d210c8aa0ea4c1d11d834ff28ddb66c) Author [@ethankonk](https://github.com/ethankonk) - Sync with v2026.4.5 of mono
+
+- [#1257](https://github.com/tkhq/sdk/pull/1257) [`aa3e55e`](https://github.com/tkhq/sdk/commit/aa3e55e1e5adea1945647c84fe247bc2761a8f77) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Add full status response as `error.cause` on errors thrown by `pollTransactionStatus()`
+
+- [#1255](https://github.com/tkhq/sdk/pull/1255) [`59ebe9b`](https://github.com/tkhq/sdk/commit/59ebe9bc4a5fa3c015ed32cc6b8ab0b66523b0a4) Author [@ethankonk](https://github.com/ethankonk) - Fixed incorrect OAuth2 activity types
+
+- Updated dependencies [[`ef66673`](https://github.com/tkhq/sdk/commit/ef6667325d210c8aa0ea4c1d11d834ff28ddb66c), [`8209887`](https://github.com/tkhq/sdk/commit/8209887d48bae7ea617645603a156aeb1cfbd2e7)]:
+  - @turnkey/sdk-types@0.14.0
+  - @turnkey/http@3.18.1
+  - @turnkey/crypto@2.8.14
+  - @turnkey/react-native-passkey-stamper@1.2.13
+  - @turnkey/api-key-stamper@0.6.5
+
 ## 1.14.0
 
 ### Minor Changes
