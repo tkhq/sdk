@@ -95,17 +95,6 @@ export type TGetGasUsageBody = Omit<
 > &
   queryOverrideParams;
 
-export type TGetIpAllowlistResponse =
-  operations["PublicApiService_GetIpAllowlist"]["responses"]["200"]["schema"];
-
-export type TGetIpAllowlistInput = { body: TGetIpAllowlistBody };
-
-export type TGetIpAllowlistBody = Omit<
-  operations["PublicApiService_GetIpAllowlist"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
 export type TGetLatestBootProofResponse =
   operations["PublicApiService_GetLatestBootProof"]["responses"]["200"]["schema"];
 
@@ -492,6 +481,16 @@ export type TCreateApiKeysBody =
   operations["PublicApiService_CreateApiKeys"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateApiOnlyUsersResponse =
+  operations["PublicApiService_CreateApiOnlyUsers"]["responses"]["200"]["schema"]["activity"]["result"]["createApiOnlyUsersResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
+
+export type TCreateApiOnlyUsersBody =
+  operations["PublicApiService_CreateApiOnlyUsers"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateAuthenticatorsResponse =
   operations["PublicApiService_CreateAuthenticators"]["responses"]["200"]["schema"]["activity"]["result"]["createAuthenticatorsResult"] &
     definitions["v1ActivityResponse"];
@@ -537,7 +536,7 @@ export type TCreateOauth2CredentialBody =
     commandOverrideParams;
 
 export type TCreateOauthProvidersResponse =
-  operations["PublicApiService_CreateOauthProviders"]["responses"]["200"]["schema"]["activity"]["result"]["createOauthProvidersResultV2"] &
+  operations["PublicApiService_CreateOauthProviders"]["responses"]["200"]["schema"]["activity"]["result"]["createOauthProvidersResult"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateOauthProvidersInput = { body: TCreateOauthProvidersBody };
@@ -621,7 +620,7 @@ export type TCreateSmartContractInterfaceBody =
     commandOverrideParams;
 
 export type TCreateSubOrganizationResponse =
-  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV8"] &
+  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV7"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
@@ -957,7 +956,7 @@ export type TInitImportWalletBody =
     commandOverrideParams;
 
 export type TInitOtpResponse =
-  operations["PublicApiService_InitOtp"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpResultV2"] &
+  operations["PublicApiService_InitOtp"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpResult"] &
     definitions["v1ActivityResponse"];
 
 export type TInitOtpInput = { body: TInitOtpBody };
@@ -1056,16 +1055,6 @@ export type TRejectActivityBody =
   operations["PublicApiService_RejectActivity"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
-export type TRemoveIpAllowlistResponse =
-  operations["PublicApiService_RemoveIpAllowlist"]["responses"]["200"]["schema"]["activity"]["result"]["removeIpAllowlistResult"] &
-    definitions["v1ActivityResponse"];
-
-export type TRemoveIpAllowlistInput = { body: TRemoveIpAllowlistBody };
-
-export type TRemoveIpAllowlistBody =
-  operations["PublicApiService_RemoveIpAllowlist"]["parameters"]["body"]["body"]["parameters"] &
-    commandOverrideParams;
-
 export type TRemoveOrganizationFeatureResponse =
   operations["PublicApiService_RemoveOrganizationFeature"]["responses"]["200"]["schema"]["activity"]["result"]["removeOrganizationFeatureResult"] &
     definitions["v1ActivityResponse"];
@@ -1076,16 +1065,6 @@ export type TRemoveOrganizationFeatureInput = {
 
 export type TRemoveOrganizationFeatureBody =
   operations["PublicApiService_RemoveOrganizationFeature"]["parameters"]["body"]["body"]["parameters"] &
-    commandOverrideParams;
-
-export type TSetIpAllowlistResponse =
-  operations["PublicApiService_SetIpAllowlist"]["responses"]["200"]["schema"]["activity"]["result"]["setIpAllowlistResult"] &
-    definitions["v1ActivityResponse"];
-
-export type TSetIpAllowlistInput = { body: TSetIpAllowlistBody };
-
-export type TSetIpAllowlistBody =
-  operations["PublicApiService_SetIpAllowlist"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TSetOrganizationFeatureResponse =

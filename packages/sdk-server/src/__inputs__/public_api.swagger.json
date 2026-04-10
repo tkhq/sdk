@@ -61,10 +61,6 @@
     {
       "name": "Consensus",
       "description": "Policies can enforce consensus requirements for Activities. For example, adding a new user requires two admins to approve the request.\n\nActivities that have been proposed, but don't yet meet the Consensus requirements will have the status: `REQUIRES_CONSENSUS`. Activities in this state can be approved or rejected using the unique fingerprint generated when an Activity is created."
-    },
-    {
-      "name": "IP Allowlist",
-      "description": "IP Allowlists restrict API access to specific CIDR blocks. They can be configured at the organization level (applying to all API keys) or at the individual API key level (overriding organization-level allowlists).\n\nWhen no IP allowlist is configured, all IP addresses are allowed. Organization-level allowlists can be enabled or disabled, while API key-level allowlists are always enforced when present."
     }
   ],
   "host": "api.turnkey.com",
@@ -326,38 +322,6 @@
           }
         ],
         "tags": ["Broadcasting"]
-      }
-    },
-    "/public/v1/query/get_ip_allowlist": {
-      "post": {
-        "summary": "Get IP Allowlist",
-        "description": "Get IP allowlist and rules for an organization.",
-        "operationId": "PublicApiService_GetIpAllowlist",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetIpAllowlistResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetIpAllowlistRequest"
-            }
-          }
-        ],
-        "tags": ["IP Allowlist"]
       }
     },
     "/public/v1/query/get_latest_boot_proof": {
@@ -1446,6 +1410,38 @@
           }
         ],
         "tags": ["API Keys"]
+      }
+    },
+    "/public/v1/submit/create_api_only_users": {
+      "post": {
+        "summary": "Create API-only users",
+        "description": "Create API-only users in an existing organization.",
+        "operationId": "PublicApiService_CreateApiOnlyUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateApiOnlyUsersRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
       }
     },
     "/public/v1/submit/create_authenticators": {
@@ -3208,38 +3204,6 @@
         "tags": ["Consensus"]
       }
     },
-    "/public/v1/submit/remove_ip_allowlist": {
-      "post": {
-        "summary": "Remove IP Allowlist",
-        "description": "Delete IP allowlist and all associated rules for organization or API key. After removal, access will be determined by organization-level allowlist (for API keys) or allowed from all IPs (for organizations).",
-        "operationId": "PublicApiService_RemoveIpAllowlist",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1RemoveIpAllowlistRequest"
-            }
-          }
-        ],
-        "tags": ["IP Allowlist"]
-      }
-    },
     "/public/v1/submit/remove_organization_feature": {
       "post": {
         "summary": "Remove organization feature",
@@ -3270,38 +3234,6 @@
           }
         ],
         "tags": ["Features"]
-      }
-    },
-    "/public/v1/submit/set_ip_allowlist": {
-      "post": {
-        "summary": "Set IP Allowlist",
-        "description": "Create or update IP allowlist and rules for organization or API key. The IP allowlist restricts API access to specific CIDR blocks. Organization-level allowlists apply to all API keys unless overridden by a key-specific allowlist.",
-        "operationId": "PublicApiService_SetIpAllowlist",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1SetIpAllowlistRequest"
-            }
-          }
-        ],
-        "tags": ["IP Allowlist"]
       }
     },
     "/public/v1/submit/set_organization_feature": {
@@ -4592,18 +4524,10 @@
         "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT",
         "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS",
         "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
-        "ACTIVITY_TYPE_INIT_OTP_V3",
-        "ACTIVITY_TYPE_VERIFY_OTP_V2",
-        "ACTIVITY_TYPE_OTP_LOGIN_V2",
         "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME",
-        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
-        "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
-        "ACTIVITY_TYPE_CREATE_USERS_V4",
         "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT",
         "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT",
-        "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT",
-        "ACTIVITY_TYPE_SET_IP_ALLOWLIST",
-        "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST"
+        "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
       ]
     },
     "v1AddressFormat": {
@@ -4644,9 +4568,7 @@
         "ADDRESS_FORMAT_TON_V3R2",
         "ADDRESS_FORMAT_TON_V4R2",
         "ADDRESS_FORMAT_TON_V5R1",
-        "ADDRESS_FORMAT_XRP",
-        "ADDRESS_FORMAT_SPARK_MAINNET",
-        "ADDRESS_FORMAT_SPARK_REGTEST"
+        "ADDRESS_FORMAT_XRP"
       ]
     },
     "v1ApiKey": {
@@ -5232,6 +5154,30 @@
       },
       "required": ["apiOnlyUsers"]
     },
+    "v1CreateApiOnlyUsersRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_API_ONLY_USERS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateApiOnlyUsersIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1CreateApiOnlyUsersResult": {
       "type": "object",
       "properties": {
@@ -5507,30 +5453,12 @@
       },
       "required": ["userId", "oauthProviders"]
     },
-    "v1CreateOauthProvidersIntentV2": {
-      "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string",
-          "description": "The ID of the User to add an Oauth provider to"
-        },
-        "oauthProviders": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1OauthProviderParamsV2"
-          },
-          "description": "A list of Oauth providers."
-        }
-      },
-      "required": ["userId", "oauthProviders"]
-    },
     "v1CreateOauthProvidersRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2"]
+          "enum": ["ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS"]
         },
         "timestampMs": {
           "type": "string",
@@ -5541,7 +5469,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreateOauthProvidersIntentV2"
+          "$ref": "#/definitions/v1CreateOauthProvidersIntent"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -5550,19 +5478,6 @@
       "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateOauthProvidersResult": {
-      "type": "object",
-      "properties": {
-        "providerIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "A list of unique identifiers for Oauth Providers"
-        }
-      },
-      "required": ["providerIds"]
-    },
-    "v1CreateOauthProvidersResultV2": {
       "type": "object",
       "properties": {
         "providerIds": {
@@ -6431,63 +6346,12 @@
       },
       "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
     },
-    "v1CreateSubOrganizationIntentV8": {
-      "type": "object",
-      "properties": {
-        "subOrganizationName": {
-          "type": "string",
-          "description": "Name for this sub-organization"
-        },
-        "rootUsers": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1RootUserParamsV5"
-          },
-          "description": "Root users to create within this sub-organization"
-        },
-        "rootQuorumThreshold": {
-          "type": "integer",
-          "format": "int32",
-          "description": "The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users"
-        },
-        "wallet": {
-          "$ref": "#/definitions/v1WalletParams",
-          "description": "The wallet to create for the sub-organization"
-        },
-        "disableEmailRecovery": {
-          "type": "boolean",
-          "description": "Disable email recovery for the sub-organization"
-        },
-        "disableEmailAuth": {
-          "type": "boolean",
-          "description": "Disable email auth for the sub-organization"
-        },
-        "disableSmsAuth": {
-          "type": "boolean",
-          "description": "Disable OTP SMS auth for the sub-organization"
-        },
-        "disableOtpEmailAuth": {
-          "type": "boolean",
-          "description": "Disable OTP email auth for the sub-organization"
-        },
-        "verificationToken": {
-          "type": "string",
-          "description": "Signed JWT containing a unique id, expiry, verification type, contact"
-        },
-        "clientSignature": {
-          "$ref": "#/definitions/v1ClientSignature",
-          "description": "Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step."
-        }
-      },
-      "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
-    },
     "v1CreateSubOrganizationRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8"]
+          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"]
         },
         "timestampMs": {
           "type": "string",
@@ -6498,7 +6362,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreateSubOrganizationIntentV8"
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV7"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -6599,24 +6463,6 @@
       "required": ["subOrganizationId"]
     },
     "v1CreateSubOrganizationResultV7": {
-      "type": "object",
-      "properties": {
-        "subOrganizationId": {
-          "type": "string"
-        },
-        "wallet": {
-          "$ref": "#/definitions/v1WalletResult"
-        },
-        "rootUserIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": ["subOrganizationId"]
-    },
-    "v1CreateSubOrganizationResultV8": {
       "type": "object",
       "properties": {
         "subOrganizationId": {
@@ -6744,7 +6590,7 @@
         },
         "healthCheckType": {
           "$ref": "#/definitions/v1TvcHealthCheckType",
-          "description": "Health check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol."
+          "description": "Heath check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol."
         },
         "healthCheckPort": {
           "type": "integer",
@@ -6914,26 +6760,12 @@
       },
       "required": ["users"]
     },
-    "v1CreateUsersIntentV4": {
-      "type": "object",
-      "properties": {
-        "users": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1UserParamsV4"
-          },
-          "description": "A list of Users."
-        }
-      },
-      "required": ["users"]
-    },
     "v1CreateUsersRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_USERS_V4"]
+          "enum": ["ACTIVITY_TYPE_CREATE_USERS_V3"]
         },
         "timestampMs": {
           "type": "string",
@@ -6944,7 +6776,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreateUsersIntentV4"
+          "$ref": "#/definitions/v1CreateUsersIntentV3"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -9081,29 +8913,6 @@
       },
       "required": ["windowDurationMinutes", "windowLimitUsd", "usageUsd"]
     },
-    "v1GetIpAllowlistRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given organization."
-        },
-        "publicKey": {
-          "type": "string",
-          "description": "If provided, return only the allowlist for this specific API key. If omitted, all allowlists for the organization are returned."
-        }
-      },
-      "required": ["organizationId"]
-    },
-    "v1GetIpAllowlistResponse": {
-      "type": "object",
-      "properties": {
-        "allowlist": {
-          "$ref": "#/definitions/v1IpAllowlist"
-        }
-      },
-      "required": ["allowlist"]
-    },
     "v1GetLatestBootProofRequest": {
       "type": "object",
       "properties": {
@@ -9672,7 +9481,7 @@
         },
         "address": {
           "type": "string",
-          "description": "Address corresponding to a wallet account. Private key addresses are not supported."
+          "description": "Address corresponding to a wallet account."
         },
         "caip2": {
           "type": "string",
@@ -10412,67 +10221,12 @@
       },
       "required": ["otpType", "contact", "appName"]
     },
-    "v1InitOtpIntentV3": {
-      "type": "object",
-      "properties": {
-        "otpType": {
-          "type": "string",
-          "description": "Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL"
-        },
-        "contact": {
-          "type": "string",
-          "description": "Email or phone number to send the OTP code to"
-        },
-        "appName": {
-          "type": "string",
-          "description": "The name of the application."
-        },
-        "otpLength": {
-          "type": "integer",
-          "format": "int32",
-          "description": "Optional length of the OTP code. Default = 9"
-        },
-        "emailCustomization": {
-          "$ref": "#/definitions/v1EmailCustomizationParamsV2",
-          "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
-        },
-        "smsCustomization": {
-          "$ref": "#/definitions/v1SmsCustomizationParams",
-          "description": "Optional parameters for customizing SMS message. If not provided, the default sms message will be used."
-        },
-        "userIdentifier": {
-          "type": "string",
-          "description": "Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address."
-        },
-        "sendFromEmailAddress": {
-          "type": "string",
-          "description": "Optional custom email address from which to send the OTP email"
-        },
-        "alphanumeric": {
-          "type": "boolean",
-          "description": "Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). If set to false, OTP code will only be numeric. Default = true"
-        },
-        "sendFromEmailSenderName": {
-          "type": "string",
-          "description": "Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'"
-        },
-        "expirationSeconds": {
-          "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the OTP is valid for. If not provided, a default of 5 minutes will be used. Maximum value is 600 seconds (10 minutes)"
-        },
-        "replyToEmailAddress": {
-          "type": "string",
-          "description": "Optional custom email address to use as reply-to"
-        }
-      },
-      "required": ["otpType", "contact", "appName"]
-    },
     "v1InitOtpRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_INIT_OTP_V3"]
+          "enum": ["ACTIVITY_TYPE_INIT_OTP_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -10483,7 +10237,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1InitOtpIntentV3"
+          "$ref": "#/definitions/v1InitOtpIntentV2"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -10500,20 +10254,6 @@
         }
       },
       "required": ["otpId"]
-    },
-    "v1InitOtpResultV2": {
-      "type": "object",
-      "properties": {
-        "otpId": {
-          "type": "string",
-          "description": "Unique identifier for an OTP flow"
-        },
-        "otpEncryptionTargetBundle": {
-          "type": "string",
-          "description": "Signed bundle containing a target encryption key to use when submitting OTP codes."
-        }
-      },
-      "required": ["otpId", "otpEncryptionTargetBundle"]
     },
     "v1InitUserEmailRecoveryIntent": {
       "type": "object",
@@ -10971,26 +10711,8 @@
         "solSendTransactionIntent": {
           "$ref": "#/definitions/v1SolSendTransactionIntent"
         },
-        "initOtpIntentV3": {
-          "$ref": "#/definitions/v1InitOtpIntentV3"
-        },
-        "verifyOtpIntentV2": {
-          "$ref": "#/definitions/v1VerifyOtpIntentV2"
-        },
-        "otpLoginIntentV2": {
-          "$ref": "#/definitions/v1OtpLoginIntentV2"
-        },
         "updateOrganizationNameIntent": {
           "$ref": "#/definitions/v1UpdateOrganizationNameIntent"
-        },
-        "createSubOrganizationIntentV8": {
-          "$ref": "#/definitions/v1CreateSubOrganizationIntentV8"
-        },
-        "createOauthProvidersIntentV2": {
-          "$ref": "#/definitions/v1CreateOauthProvidersIntentV2"
-        },
-        "createUsersIntentV4": {
-          "$ref": "#/definitions/v1CreateUsersIntentV4"
         },
         "createWebhookEndpointIntent": {
           "$ref": "#/definitions/v1CreateWebhookEndpointIntent"
@@ -11000,12 +10722,6 @@
         },
         "deleteWebhookEndpointIntent": {
           "$ref": "#/definitions/v1DeleteWebhookEndpointIntent"
-        },
-        "setIpAllowlistIntent": {
-          "$ref": "#/definitions/v1SetIpAllowlistIntent"
-        },
-        "removeIpAllowlistIntent": {
-          "$ref": "#/definitions/v1RemoveIpAllowlistIntent"
         }
       }
     },
@@ -11043,68 +10759,6 @@
         "accessType",
         "senderUserId"
       ]
-    },
-    "v1IpAllowlist": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for the organization this allowlist belongs to."
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1IpAllowlistRule"
-          },
-          "description": "List of IP allowlist rules with their metadata."
-        },
-        "publicKey": {
-          "type": "string",
-          "description": "Public key of the API key this allowlist applies to. Null means the allowlist applies to the entire organization."
-        },
-        "enabled": {
-          "type": "boolean",
-          "description": "Whether the IP allowlist is enabled. Only present for organization-level allowlists. Null for API key-level allowlists (presence of the allowlist implies enablement)."
-        },
-        "onEvaluationError": {
-          "type": "string",
-          "description": "Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY."
-        }
-      },
-      "required": ["organizationId", "rules"]
-    },
-    "v1IpAllowlistIntentRule": {
-      "type": "object",
-      "properties": {
-        "cidr": {
-          "type": "string",
-          "description": "CIDR block (e.g., '192.168.1.0/24', '2001:db8::/32')."
-        },
-        "label": {
-          "type": "string",
-          "description": "Optional human-readable label for this rule (e.g., 'Office VPN')."
-        }
-      },
-      "required": ["cidr"]
-    },
-    "v1IpAllowlistRule": {
-      "type": "object",
-      "properties": {
-        "cidr": {
-          "type": "string",
-          "description": "CIDR block (e.g., '192.168.1.0/24')."
-        },
-        "label": {
-          "type": "string",
-          "description": "Optional human-readable label for this rule."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Creation timestamp as millisecond epoch string."
-        }
-      },
-      "required": ["cidr"]
     },
     "v1ListFiatOnRampCredentialsRequest": {
       "type": "object",
@@ -11563,24 +11217,6 @@
       },
       "required": ["providerName", "oidcToken"]
     },
-    "v1OauthProviderParamsV2": {
-      "type": "object",
-      "properties": {
-        "providerName": {
-          "type": "string",
-          "description": "Human-readable name to identify a Provider."
-        },
-        "oidcToken": {
-          "type": "string",
-          "description": "Base64 encoded OIDC token"
-        },
-        "oidcClaims": {
-          "$ref": "#/definitions/v1OidcClaims",
-          "description": "OIDC claims (iss, sub, aud) to uniquely identify the user"
-        }
-      },
-      "required": ["providerName"]
-    },
     "v1OauthRequest": {
       "type": "object",
       "properties": {
@@ -11622,24 +11258,6 @@
         }
       },
       "required": ["userId", "apiKeyId", "credentialBundle"]
-    },
-    "v1OidcClaims": {
-      "type": "object",
-      "properties": {
-        "iss": {
-          "type": "string",
-          "description": "The issuer identifier from the OIDC token (iss claim)"
-        },
-        "sub": {
-          "type": "string",
-          "description": "The subject identifier from the OIDC token (sub claim)"
-        },
-        "aud": {
-          "type": "string",
-          "description": "The audience from the OIDC token (aud claim)"
-        }
-      },
-      "required": ["iss", "sub", "aud"]
     },
     "v1Operator": {
       "type": "string",
@@ -11755,38 +11373,12 @@
       },
       "required": ["verificationToken", "publicKey"]
     },
-    "v1OtpLoginIntentV2": {
-      "type": "object",
-      "properties": {
-        "verificationToken": {
-          "type": "string",
-          "description": "Signed Verification Token containing a unique id, expiry, verification type, contact"
-        },
-        "publicKey": {
-          "type": "string",
-          "description": "Client-side public key generated by the user, used as the session public key upon successful login"
-        },
-        "clientSignature": {
-          "$ref": "#/definitions/v1ClientSignature",
-          "description": "Required signature proving authorization for this login. The signature is over the verification token ID and the public key. Required for secure OTP login process."
-        },
-        "expirationSeconds": {
-          "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used."
-        },
-        "invalidateExisting": {
-          "type": "boolean",
-          "description": "Invalidate all other previously generated Login sessions"
-        }
-      },
-      "required": ["verificationToken", "publicKey", "clientSignature"]
-    },
     "v1OtpLoginRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_OTP_LOGIN_V2"]
+          "enum": ["ACTIVITY_TYPE_OTP_LOGIN"]
         },
         "timestampMs": {
           "type": "string",
@@ -11797,7 +11389,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1OtpLoginIntentV2"
+          "$ref": "#/definitions/v1OtpLoginIntent"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -12122,39 +11714,6 @@
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1RemoveIpAllowlistIntent": {
-      "type": "object",
-      "properties": {
-        "publicKey": {
-          "type": "string",
-          "description": "The public component of an API key. If null, removes the organization-level IP allowlist. If set, removes the IP allowlist for this specific API key."
-        }
-      }
-    },
-    "v1RemoveIpAllowlistRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1RemoveIpAllowlistIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1RemoveIpAllowlistResult": {
-      "type": "object"
     },
     "v1RemoveOrganizationFeatureIntent": {
       "type": "object",
@@ -12501,17 +12060,8 @@
         "solSendTransactionResult": {
           "$ref": "#/definitions/v1SolSendTransactionResult"
         },
-        "initOtpResultV2": {
-          "$ref": "#/definitions/v1InitOtpResultV2"
-        },
         "updateOrganizationNameResult": {
           "$ref": "#/definitions/v1UpdateOrganizationNameResult"
-        },
-        "createSubOrganizationResultV8": {
-          "$ref": "#/definitions/v1CreateSubOrganizationResultV8"
-        },
-        "createOauthProvidersResultV2": {
-          "$ref": "#/definitions/v1CreateOauthProvidersResultV2"
         },
         "createWebhookEndpointResult": {
           "$ref": "#/definitions/v1CreateWebhookEndpointResult"
@@ -12521,12 +12071,6 @@
         },
         "deleteWebhookEndpointResult": {
           "$ref": "#/definitions/v1DeleteWebhookEndpointResult"
-        },
-        "setIpAllowlistResult": {
-          "$ref": "#/definitions/v1SetIpAllowlistResult"
-        },
-        "removeIpAllowlistResult": {
-          "$ref": "#/definitions/v1RemoveIpAllowlistResult"
         }
       }
     },
@@ -12707,48 +12251,6 @@
       },
       "required": ["userName", "apiKeys", "authenticators", "oauthProviders"]
     },
-    "v1RootUserParamsV5": {
-      "type": "object",
-      "properties": {
-        "userName": {
-          "type": "string",
-          "description": "Human-readable name for a User."
-        },
-        "userEmail": {
-          "type": "string",
-          "description": "The user's email address."
-        },
-        "userPhoneNumber": {
-          "type": "string",
-          "description": "The user's phone number in E.164 format e.g. +13214567890"
-        },
-        "apiKeys": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1ApiKeyParamsV2"
-          },
-          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
-        },
-        "authenticators": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1AuthenticatorParamsV2"
-          },
-          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
-        },
-        "oauthProviders": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1OauthProviderParamsV2"
-          },
-          "description": "A list of Oauth providers. This field, if not needed, should be an empty array in your request body."
-        }
-      },
-      "required": ["userName", "apiKeys", "authenticators", "oauthProviders"]
-    },
     "v1Selector": {
       "type": "object",
       "properties": {
@@ -12779,55 +12281,6 @@
           }
         }
       }
-    },
-    "v1SetIpAllowlistIntent": {
-      "type": "object",
-      "properties": {
-        "publicKey": {
-          "type": "string",
-          "description": "The public component of an API key. If null, the IP allowlist applies at the organization level. If set, it applies only to this specific API key."
-        },
-        "enabled": {
-          "type": "boolean",
-          "description": "Whether the IP allowlist is enabled. Only meaningful for organization-level allowlists. Omit for API key-level allowlists."
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1IpAllowlistIntentRule"
-          },
-          "description": "List of IP allowlist rules with CIDR blocks and optional labels."
-        },
-        "onEvaluationError": {
-          "type": "string",
-          "description": "Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY."
-        }
-      }
-    },
-    "v1SetIpAllowlistRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_SET_IP_ALLOWLIST"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1SetIpAllowlistIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1SetIpAllowlistResult": {
-      "type": "object"
     },
     "v1SetOrganizationFeatureIntent": {
       "type": "object",
@@ -13127,38 +12580,6 @@
         }
       }
     },
-    "v1SignupUsageV2": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "phoneNumber": {
-          "type": "string"
-        },
-        "apiKeys": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1ApiKeyParamsV2"
-          }
-        },
-        "authenticators": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1AuthenticatorParamsV2"
-          }
-        },
-        "oauthProviders": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1OauthProviderParamsV2"
-          }
-        }
-      }
-    },
     "v1SimpleClientExtensionResults": {
       "type": "object",
       "properties": {
@@ -13382,9 +12803,6 @@
         },
         "login": {
           "$ref": "#/definitions/v1LoginUsage"
-        },
-        "signupV2": {
-          "$ref": "#/definitions/v1SignupUsageV2"
         }
       },
       "required": ["type", "tokenId"]
@@ -13591,13 +13009,6 @@
         "verificationTokenRequiredForGetAccountPii": {
           "type": "boolean",
           "description": "Verification token required for get account with PII (email/phone number). Default false."
-        },
-        "socialLinkingClientIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Whitelisted OAuth client IDs for social account linking. When a user authenticates via a social provider with an email matching an existing account, the accounts will be linked if the client ID is in this list and the issuer is considered a trusted provider."
         }
       }
     },
@@ -14632,61 +14043,6 @@
         "userTags"
       ]
     },
-    "v1UserParamsV4": {
-      "type": "object",
-      "properties": {
-        "userName": {
-          "type": "string",
-          "description": "Human-readable name for a User."
-        },
-        "userEmail": {
-          "type": "string",
-          "description": "The user's email address."
-        },
-        "userPhoneNumber": {
-          "type": "string",
-          "description": "The user's phone number in E.164 format e.g. +13214567890"
-        },
-        "apiKeys": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1ApiKeyParamsV2"
-          },
-          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
-        },
-        "authenticators": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1AuthenticatorParamsV2"
-          },
-          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
-        },
-        "oauthProviders": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1OauthProviderParamsV2"
-          },
-          "description": "A list of Oauth providers. This field, if not needed, should be an empty array in your request body."
-        },
-        "userTags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "A list of User Tag IDs. This field, if not needed, should be an empty array in your request body."
-        }
-      },
-      "required": [
-        "userName",
-        "apiKeys",
-        "authenticators",
-        "oauthProviders",
-        "userTags"
-      ]
-    },
     "v1VerifyOtpIntent": {
       "type": "object",
       "properties": {
@@ -14709,30 +14065,12 @@
       },
       "required": ["otpId", "otpCode"]
     },
-    "v1VerifyOtpIntentV2": {
-      "type": "object",
-      "properties": {
-        "otpId": {
-          "type": "string",
-          "description": "UUID representing an OTP flow. A new UUID is created for each init OTP activity."
-        },
-        "encryptedOtpBundle": {
-          "type": "string",
-          "description": "Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result."
-        },
-        "expirationSeconds": {
-          "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours)"
-        }
-      },
-      "required": ["otpId", "encryptedOtpBundle"]
-    },
     "v1VerifyOtpRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_VERIFY_OTP_V2"]
+          "enum": ["ACTIVITY_TYPE_VERIFY_OTP"]
         },
         "timestampMs": {
           "type": "string",
@@ -14743,7 +14081,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1VerifyOtpIntentV2"
+          "$ref": "#/definitions/v1VerifyOtpIntent"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -15068,7 +14406,7 @@
       "properties": {
         "eventType": {
           "type": "string",
-          "description": "The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_CONFIRMED_UPDATES)."
+          "description": "The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_UPDATES)."
         },
         "filtersJson": {
           "type": "string",
@@ -15105,13 +14443,7 @@
   "x-tagGroups": [
     {
       "name": "ORGANIZATIONS",
-      "tags": [
-        "Organizations",
-        "Invitations",
-        "Policies",
-        "Features",
-        "IP Allowlist"
-      ]
+      "tags": ["Organizations", "Invitations", "Policies", "Features"]
     },
     {
       "name": "WALLETS AND PRIVATE KEYS",

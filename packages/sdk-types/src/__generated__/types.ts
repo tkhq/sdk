@@ -350,9 +350,7 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_USERS_V4"
   | "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"
   | "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"
-  | "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
-  | "ACTIVITY_TYPE_SET_IP_ALLOWLIST"
-  | "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST";
+  | "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT";
 
 export type v1AddressFormat =
   | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -390,9 +388,7 @@ export type v1AddressFormat =
   | "ADDRESS_FORMAT_TON_V3R2"
   | "ADDRESS_FORMAT_TON_V4R2"
   | "ADDRESS_FORMAT_TON_V5R1"
-  | "ADDRESS_FORMAT_XRP"
-  | "ADDRESS_FORMAT_SPARK_MAINNET"
-  | "ADDRESS_FORMAT_SPARK_REGTEST";
+  | "ADDRESS_FORMAT_XRP";
 
 export type v1ApiKey = {
   /** A User credential that can be used to authenticate to Turnkey. */
@@ -640,6 +636,16 @@ export type v1CreateApiKeysResult = {
 export type v1CreateApiOnlyUsersIntent = {
   /** A list of API-only Users to create. */
   apiOnlyUsers: v1ApiOnlyUserParams[];
+};
+
+export type v1CreateApiOnlyUsersRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateApiOnlyUsersIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateApiOnlyUsersResult = {
@@ -1267,7 +1273,7 @@ export type v1CreateTvcDeploymentIntent = {
   pivotContainerEncryptedPullSecret?: string;
   /** Optional flag to indicate whether to deploy the TVC app in debug mode, which includes additional logging and debugging tools. Default is false. */
   debugMode?: boolean;
-  /** Health check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol. */
+  /** Heath check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol. */
   healthCheckType: v1TvcHealthCheckType;
   /** Port to use for health checks. */
   healthCheckPort: number;
@@ -2323,17 +2329,6 @@ export type v1GetGasUsageResponse = {
   usageUsd: string;
 };
 
-export type v1GetIpAllowlistRequest = {
-  /** Unique identifier for a given organization. */
-  organizationId: string;
-  /** If provided, return only the allowlist for this specific API key. If omitted, all allowlists for the organization are returned. */
-  publicKey?: string;
-};
-
-export type v1GetIpAllowlistResponse = {
-  allowlist: v1IpAllowlist;
-};
-
 export type v1GetLatestBootProofRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
@@ -2594,7 +2589,7 @@ export type v1GetWalletAccountsResponse = {
 export type v1GetWalletAddressBalancesRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Address corresponding to a wallet account. Private key addresses are not supported. */
+  /** Address corresponding to a wallet account. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
@@ -3158,8 +3153,6 @@ export type v1Intent = {
   createWebhookEndpointIntent?: v1CreateWebhookEndpointIntent;
   updateWebhookEndpointIntent?: v1UpdateWebhookEndpointIntent;
   deleteWebhookEndpointIntent?: v1DeleteWebhookEndpointIntent;
-  setIpAllowlistIntent?: v1SetIpAllowlistIntent;
-  removeIpAllowlistIntent?: v1RemoveIpAllowlistIntent;
 };
 
 export type v1InvitationParams = {
@@ -3173,35 +3166,6 @@ export type v1InvitationParams = {
   accessType: v1AccessType;
   /** Unique identifier for the Sender of an Invitation. */
   senderUserId: string;
-};
-
-export type v1IpAllowlist = {
-  /** Unique identifier for the organization this allowlist belongs to. */
-  organizationId: string;
-  /** List of IP allowlist rules with their metadata. */
-  rules: v1IpAllowlistRule[];
-  /** Public key of the API key this allowlist applies to. Null means the allowlist applies to the entire organization. */
-  publicKey?: string;
-  /** Whether the IP allowlist is enabled. Only present for organization-level allowlists. Null for API key-level allowlists (presence of the allowlist implies enablement). */
-  enabled?: boolean;
-  /** Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY. */
-  onEvaluationError?: string;
-};
-
-export type v1IpAllowlistIntentRule = {
-  /** CIDR block (e.g., '192.168.1.0/24', '2001:db8::/32'). */
-  cidr: string;
-  /** Optional human-readable label for this rule (e.g., 'Office VPN'). */
-  label?: string;
-};
-
-export type v1IpAllowlistRule = {
-  /** CIDR block (e.g., '192.168.1.0/24'). */
-  cidr: string;
-  /** Optional human-readable label for this rule. */
-  label?: string;
-  /** Creation timestamp as millisecond epoch string. */
-  createdAt?: string;
 };
 
 export type v1ListFiatOnRampCredentialsRequest = {
@@ -3651,21 +3615,6 @@ export type v1RejectActivityRequest = {
   generateAppProofs?: boolean;
 };
 
-export type v1RemoveIpAllowlistIntent = {
-  /** The public component of an API key. If null, removes the organization-level IP allowlist. If set, removes the IP allowlist for this specific API key. */
-  publicKey?: string;
-};
-
-export type v1RemoveIpAllowlistRequest = {
-  type: string;
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1RemoveIpAllowlistIntent;
-};
-
-export type v1RemoveIpAllowlistResult = {};
 export type v1RemoveOrganizationFeatureIntent = {
   /** Name of the feature to remove */
   name: v1FeatureName;
@@ -3792,8 +3741,6 @@ export type v1Result = {
   createWebhookEndpointResult?: v1CreateWebhookEndpointResult;
   updateWebhookEndpointResult?: v1UpdateWebhookEndpointResult;
   deleteWebhookEndpointResult?: v1DeleteWebhookEndpointResult;
-  setIpAllowlistResult?: v1SetIpAllowlistResult;
-  removeIpAllowlistResult?: v1RemoveIpAllowlistResult;
 };
 
 export type v1RevertChainEntry = {
@@ -3890,27 +3837,6 @@ export type v1SelectorV2 = {
   targets?: string[];
 };
 
-export type v1SetIpAllowlistIntent = {
-  /** The public component of an API key. If null, the IP allowlist applies at the organization level. If set, it applies only to this specific API key. */
-  publicKey?: string;
-  /** Whether the IP allowlist is enabled. Only meaningful for organization-level allowlists. Omit for API key-level allowlists. */
-  enabled?: boolean;
-  /** List of IP allowlist rules with CIDR blocks and optional labels. */
-  rules?: v1IpAllowlistIntentRule[];
-  /** Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY. */
-  onEvaluationError?: string;
-};
-
-export type v1SetIpAllowlistRequest = {
-  type: string;
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1SetIpAllowlistIntent;
-};
-
-export type v1SetIpAllowlistResult = {};
 export type v1SetOrganizationFeatureIntent = {
   /** Name of the feature to set */
   name: v1FeatureName;
@@ -4857,7 +4783,7 @@ export type v1WebhookEndpointData = {
 };
 
 export type v1WebhookSubscriptionParams = {
-  /** The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_CONFIRMED_UPDATES). */
+  /** The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_UPDATES). */
   eventType: string;
   /** JSON-encoded filter criteria for this subscription. */
   filtersJson?: string;
@@ -4970,18 +4896,6 @@ export type TGetGasUsageBody = {
 };
 
 export type TGetGasUsageInput = { body: TGetGasUsageBody };
-
-export type TGetIpAllowlistResponse = {
-  allowlist: v1IpAllowlist;
-};
-
-export type TGetIpAllowlistBody = {
-  organizationId?: string;
-  /** If provided, return only the allowlist for this specific API key. If omitted, all allowlists for the organization are returned. */
-  publicKey?: string;
-};
-
-export type TGetIpAllowlistInput = { body: TGetIpAllowlistBody };
 
 export type TGetLatestBootProofResponse = {
   bootProof: v1BootProof;
@@ -5197,7 +5111,7 @@ export type TGetWalletAddressBalancesResponse = {
 
 export type TGetWalletAddressBalancesBody = {
   organizationId?: string;
-  /** Address corresponding to a wallet account. Private key addresses are not supported. */
+  /** Address corresponding to a wallet account. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
@@ -5457,6 +5371,21 @@ export type TCreateApiKeysBody = {
 };
 
 export type TCreateApiKeysInput = { body: TCreateApiKeysBody };
+
+export type TCreateApiOnlyUsersResponse = {
+  activity: v1Activity;
+  /** A list of API-only User IDs. */
+  userIds: string[];
+};
+
+export type TCreateApiOnlyUsersBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** A list of API-only Users to create. */
+  apiOnlyUsers: v1ApiOnlyUserParams[];
+};
+
+export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
 
 export type TCreateAuthenticatorsResponse = {
   activity: v1Activity;
@@ -6615,19 +6544,6 @@ export type TRejectActivityBody = {
 
 export type TRejectActivityInput = { body: TRejectActivityBody };
 
-export type TRemoveIpAllowlistResponse = {
-  activity: v1Activity;
-};
-
-export type TRemoveIpAllowlistBody = {
-  timestampMs?: string;
-  organizationId?: string;
-  /** The public component of an API key. If null, removes the organization-level IP allowlist. If set, removes the IP allowlist for this specific API key. */
-  publicKey?: string;
-};
-
-export type TRemoveIpAllowlistInput = { body: TRemoveIpAllowlistBody };
-
 export type TRemoveOrganizationFeatureResponse = {
   activity: v1Activity;
   /** Resulting list of organization features. */
@@ -6644,25 +6560,6 @@ export type TRemoveOrganizationFeatureBody = {
 export type TRemoveOrganizationFeatureInput = {
   body: TRemoveOrganizationFeatureBody;
 };
-
-export type TSetIpAllowlistResponse = {
-  activity: v1Activity;
-};
-
-export type TSetIpAllowlistBody = {
-  timestampMs?: string;
-  organizationId?: string;
-  /** The public component of an API key. If null, the IP allowlist applies at the organization level. If set, it applies only to this specific API key. */
-  publicKey?: string;
-  /** Whether the IP allowlist is enabled. Only meaningful for organization-level allowlists. Omit for API key-level allowlists. */
-  enabled?: boolean;
-  /** List of IP allowlist rules with CIDR blocks and optional labels. */
-  rules?: v1IpAllowlistIntentRule[];
-  /** Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY. */
-  onEvaluationError?: string;
-};
-
-export type TSetIpAllowlistInput = { body: TSetIpAllowlistBody };
 
 export type TSetOrganizationFeatureResponse = {
   activity: v1Activity;

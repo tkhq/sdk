@@ -61,10 +61,6 @@
     {
       "name": "Consensus",
       "description": "Policies can enforce consensus requirements for Activities. For example, adding a new user requires two admins to approve the request.\n\nActivities that have been proposed, but don't yet meet the Consensus requirements will have the status: `REQUIRES_CONSENSUS`. Activities in this state can be approved or rejected using the unique fingerprint generated when an Activity is created."
-    },
-    {
-      "name": "IP Allowlist",
-      "description": "IP Allowlists restrict API access to specific CIDR blocks. They can be configured at the organization level (applying to all API keys) or at the individual API key level (overriding organization-level allowlists).\n\nWhen no IP allowlist is configured, all IP addresses are allowed. Organization-level allowlists can be enabled or disabled, while API key-level allowlists are always enforced when present."
     }
   ],
   "host": "api.turnkey.com",
@@ -326,38 +322,6 @@
           }
         ],
         "tags": ["Broadcasting"]
-      }
-    },
-    "/public/v1/query/get_ip_allowlist": {
-      "post": {
-        "summary": "Get IP Allowlist",
-        "description": "Get IP allowlist and rules for an organization.",
-        "operationId": "PublicApiService_GetIpAllowlist",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetIpAllowlistResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetIpAllowlistRequest"
-            }
-          }
-        ],
-        "tags": ["IP Allowlist"]
       }
     },
     "/public/v1/query/get_latest_boot_proof": {
@@ -1446,6 +1410,38 @@
           }
         ],
         "tags": ["API Keys"]
+      }
+    },
+    "/public/v1/submit/create_api_only_users": {
+      "post": {
+        "summary": "Create API-only users",
+        "description": "Create API-only users in an existing organization.",
+        "operationId": "PublicApiService_CreateApiOnlyUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateApiOnlyUsersRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
       }
     },
     "/public/v1/submit/create_authenticators": {
@@ -3208,38 +3204,6 @@
         "tags": ["Consensus"]
       }
     },
-    "/public/v1/submit/remove_ip_allowlist": {
-      "post": {
-        "summary": "Remove IP Allowlist",
-        "description": "Delete IP allowlist and all associated rules for organization or API key. After removal, access will be determined by organization-level allowlist (for API keys) or allowed from all IPs (for organizations).",
-        "operationId": "PublicApiService_RemoveIpAllowlist",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1RemoveIpAllowlistRequest"
-            }
-          }
-        ],
-        "tags": ["IP Allowlist"]
-      }
-    },
     "/public/v1/submit/remove_organization_feature": {
       "post": {
         "summary": "Remove organization feature",
@@ -3270,38 +3234,6 @@
           }
         ],
         "tags": ["Features"]
-      }
-    },
-    "/public/v1/submit/set_ip_allowlist": {
-      "post": {
-        "summary": "Set IP Allowlist",
-        "description": "Create or update IP allowlist and rules for organization or API key. The IP allowlist restricts API access to specific CIDR blocks. Organization-level allowlists apply to all API keys unless overridden by a key-specific allowlist.",
-        "operationId": "PublicApiService_SetIpAllowlist",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1SetIpAllowlistRequest"
-            }
-          }
-        ],
-        "tags": ["IP Allowlist"]
       }
     },
     "/public/v1/submit/set_organization_feature": {
@@ -4601,9 +4533,7 @@
         "ACTIVITY_TYPE_CREATE_USERS_V4",
         "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT",
         "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT",
-        "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT",
-        "ACTIVITY_TYPE_SET_IP_ALLOWLIST",
-        "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST"
+        "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
       ]
     },
     "v1AddressFormat": {
@@ -4644,9 +4574,7 @@
         "ADDRESS_FORMAT_TON_V3R2",
         "ADDRESS_FORMAT_TON_V4R2",
         "ADDRESS_FORMAT_TON_V5R1",
-        "ADDRESS_FORMAT_XRP",
-        "ADDRESS_FORMAT_SPARK_MAINNET",
-        "ADDRESS_FORMAT_SPARK_REGTEST"
+        "ADDRESS_FORMAT_XRP"
       ]
     },
     "v1ApiKey": {
@@ -5231,6 +5159,30 @@
         }
       },
       "required": ["apiOnlyUsers"]
+    },
+    "v1CreateApiOnlyUsersRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_API_ONLY_USERS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateApiOnlyUsersIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateApiOnlyUsersResult": {
       "type": "object",
@@ -6744,7 +6696,7 @@
         },
         "healthCheckType": {
           "$ref": "#/definitions/v1TvcHealthCheckType",
-          "description": "Health check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol."
+          "description": "Heath check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol."
         },
         "healthCheckPort": {
           "type": "integer",
@@ -9081,29 +9033,6 @@
       },
       "required": ["windowDurationMinutes", "windowLimitUsd", "usageUsd"]
     },
-    "v1GetIpAllowlistRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given organization."
-        },
-        "publicKey": {
-          "type": "string",
-          "description": "If provided, return only the allowlist for this specific API key. If omitted, all allowlists for the organization are returned."
-        }
-      },
-      "required": ["organizationId"]
-    },
-    "v1GetIpAllowlistResponse": {
-      "type": "object",
-      "properties": {
-        "allowlist": {
-          "$ref": "#/definitions/v1IpAllowlist"
-        }
-      },
-      "required": ["allowlist"]
-    },
     "v1GetLatestBootProofRequest": {
       "type": "object",
       "properties": {
@@ -9672,7 +9601,7 @@
         },
         "address": {
           "type": "string",
-          "description": "Address corresponding to a wallet account. Private key addresses are not supported."
+          "description": "Address corresponding to a wallet account."
         },
         "caip2": {
           "type": "string",
@@ -11000,12 +10929,6 @@
         },
         "deleteWebhookEndpointIntent": {
           "$ref": "#/definitions/v1DeleteWebhookEndpointIntent"
-        },
-        "setIpAllowlistIntent": {
-          "$ref": "#/definitions/v1SetIpAllowlistIntent"
-        },
-        "removeIpAllowlistIntent": {
-          "$ref": "#/definitions/v1RemoveIpAllowlistIntent"
         }
       }
     },
@@ -11043,68 +10966,6 @@
         "accessType",
         "senderUserId"
       ]
-    },
-    "v1IpAllowlist": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for the organization this allowlist belongs to."
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1IpAllowlistRule"
-          },
-          "description": "List of IP allowlist rules with their metadata."
-        },
-        "publicKey": {
-          "type": "string",
-          "description": "Public key of the API key this allowlist applies to. Null means the allowlist applies to the entire organization."
-        },
-        "enabled": {
-          "type": "boolean",
-          "description": "Whether the IP allowlist is enabled. Only present for organization-level allowlists. Null for API key-level allowlists (presence of the allowlist implies enablement)."
-        },
-        "onEvaluationError": {
-          "type": "string",
-          "description": "Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY."
-        }
-      },
-      "required": ["organizationId", "rules"]
-    },
-    "v1IpAllowlistIntentRule": {
-      "type": "object",
-      "properties": {
-        "cidr": {
-          "type": "string",
-          "description": "CIDR block (e.g., '192.168.1.0/24', '2001:db8::/32')."
-        },
-        "label": {
-          "type": "string",
-          "description": "Optional human-readable label for this rule (e.g., 'Office VPN')."
-        }
-      },
-      "required": ["cidr"]
-    },
-    "v1IpAllowlistRule": {
-      "type": "object",
-      "properties": {
-        "cidr": {
-          "type": "string",
-          "description": "CIDR block (e.g., '192.168.1.0/24')."
-        },
-        "label": {
-          "type": "string",
-          "description": "Optional human-readable label for this rule."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Creation timestamp as millisecond epoch string."
-        }
-      },
-      "required": ["cidr"]
     },
     "v1ListFiatOnRampCredentialsRequest": {
       "type": "object",
@@ -12123,39 +11984,6 @@
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
-    "v1RemoveIpAllowlistIntent": {
-      "type": "object",
-      "properties": {
-        "publicKey": {
-          "type": "string",
-          "description": "The public component of an API key. If null, removes the organization-level IP allowlist. If set, removes the IP allowlist for this specific API key."
-        }
-      }
-    },
-    "v1RemoveIpAllowlistRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1RemoveIpAllowlistIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1RemoveIpAllowlistResult": {
-      "type": "object"
-    },
     "v1RemoveOrganizationFeatureIntent": {
       "type": "object",
       "properties": {
@@ -12521,12 +12349,6 @@
         },
         "deleteWebhookEndpointResult": {
           "$ref": "#/definitions/v1DeleteWebhookEndpointResult"
-        },
-        "setIpAllowlistResult": {
-          "$ref": "#/definitions/v1SetIpAllowlistResult"
-        },
-        "removeIpAllowlistResult": {
-          "$ref": "#/definitions/v1RemoveIpAllowlistResult"
         }
       }
     },
@@ -12779,55 +12601,6 @@
           }
         }
       }
-    },
-    "v1SetIpAllowlistIntent": {
-      "type": "object",
-      "properties": {
-        "publicKey": {
-          "type": "string",
-          "description": "The public component of an API key. If null, the IP allowlist applies at the organization level. If set, it applies only to this specific API key."
-        },
-        "enabled": {
-          "type": "boolean",
-          "description": "Whether the IP allowlist is enabled. Only meaningful for organization-level allowlists. Omit for API key-level allowlists."
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1IpAllowlistIntentRule"
-          },
-          "description": "List of IP allowlist rules with CIDR blocks and optional labels."
-        },
-        "onEvaluationError": {
-          "type": "string",
-          "description": "Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY."
-        }
-      }
-    },
-    "v1SetIpAllowlistRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_SET_IP_ALLOWLIST"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1SetIpAllowlistIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1SetIpAllowlistResult": {
-      "type": "object"
     },
     "v1SetOrganizationFeatureIntent": {
       "type": "object",
@@ -15068,7 +14841,7 @@
       "properties": {
         "eventType": {
           "type": "string",
-          "description": "The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_CONFIRMED_UPDATES)."
+          "description": "The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_UPDATES)."
         },
         "filtersJson": {
           "type": "string",
@@ -15105,13 +14878,7 @@
   "x-tagGroups": [
     {
       "name": "ORGANIZATIONS",
-      "tags": [
-        "Organizations",
-        "Invitations",
-        "Policies",
-        "Features",
-        "IP Allowlist"
-      ]
+      "tags": ["Organizations", "Invitations", "Policies", "Features"]
     },
     {
       "name": "WALLETS AND PRIVATE KEYS",
