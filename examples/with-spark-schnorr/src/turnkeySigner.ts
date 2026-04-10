@@ -63,8 +63,8 @@ export class TurnkeySparkSigner implements SparkSigner {
     this.identityPublicKeyHex = identityPublicKeyHex;
   }
 
-  async getIdentityPublicKey(): Promise<Uint8Array> {
-    return Buffer.from(this.identityPublicKeyHex, "hex");
+  getIdentityPublicKey(): Promise<Uint8Array> {
+    return Promise.resolve(Buffer.from(this.identityPublicKeyHex, "hex"));
   }
 
   /**

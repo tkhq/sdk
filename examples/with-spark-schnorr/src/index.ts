@@ -50,7 +50,7 @@ async function main() {
     "TURNKEY_IDENTITY_ADDRESS",
     "IDENTITY_PUBLIC_KEY_HEX",
     "RECEIVER_SPARK_ADDRESS",
-  ];
+  ] as const;
 
   for (const v of requiredVars) {
     if (!process.env[v]) throw new Error(`Missing required env var: ${v}`);
@@ -65,6 +65,8 @@ async function main() {
     process.env.TRANSFER_AMOUNT ?? String(mintAmount),
   );
   const receiverSparkAddress = process.env.RECEIVER_SPARK_ADDRESS!;
+  const turnkeyIdentityAddress = process.env.TURNKEY_IDENTITY_ADDRESS!;
+  const identityPublicKeyHex = process.env.IDENTITY_PUBLIC_KEY_HEX!;
 
   // Initialize Turnkey client
   const turnkeyClient = new TurnkeyServerSDK({
@@ -77,8 +79,8 @@ async function main() {
   // Create the Turnkey-backed signer
   const signer = new TurnkeySparkSigner(
     turnkeyClient,
-    process.env.TURNKEY_IDENTITY_ADDRESS!,
-    process.env.IDENTITY_PUBLIC_KEY_HEX!,
+    turnkeyIdentityAddress,
+    identityPublicKeyHex,
   );
 
   // Initialize IssuerSparkWallet with Turnkey signer.
