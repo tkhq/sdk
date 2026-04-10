@@ -95,6 +95,17 @@ export type TGetGasUsageBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetIpAllowlistResponse =
+  operations["PublicApiService_GetIpAllowlist"]["responses"]["200"]["schema"];
+
+export type TGetIpAllowlistInput = { body: TGetIpAllowlistBody };
+
+export type TGetIpAllowlistBody = Omit<
+  operations["PublicApiService_GetIpAllowlist"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetLatestBootProofResponse =
   operations["PublicApiService_GetLatestBootProof"]["responses"]["200"]["schema"];
 
@@ -1055,6 +1066,16 @@ export type TRejectActivityBody =
   operations["PublicApiService_RejectActivity"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TRemoveIpAllowlistResponse =
+  operations["PublicApiService_RemoveIpAllowlist"]["responses"]["200"]["schema"]["activity"]["result"]["removeIpAllowlistResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TRemoveIpAllowlistInput = { body: TRemoveIpAllowlistBody };
+
+export type TRemoveIpAllowlistBody =
+  operations["PublicApiService_RemoveIpAllowlist"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TRemoveOrganizationFeatureResponse =
   operations["PublicApiService_RemoveOrganizationFeature"]["responses"]["200"]["schema"]["activity"]["result"]["removeOrganizationFeatureResult"] &
     definitions["v1ActivityResponse"];
@@ -1065,6 +1086,16 @@ export type TRemoveOrganizationFeatureInput = {
 
 export type TRemoveOrganizationFeatureBody =
   operations["PublicApiService_RemoveOrganizationFeature"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TSetIpAllowlistResponse =
+  operations["PublicApiService_SetIpAllowlist"]["responses"]["200"]["schema"]["activity"]["result"]["setIpAllowlistResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TSetIpAllowlistInput = { body: TSetIpAllowlistBody };
+
+export type TSetIpAllowlistBody =
+  operations["PublicApiService_SetIpAllowlist"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TSetOrganizationFeatureResponse =

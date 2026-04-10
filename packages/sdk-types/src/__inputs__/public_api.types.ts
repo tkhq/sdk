@@ -36,6 +36,10 @@ export type paths = {
     /** Get gas usage and gas limits for either the parent organization or a sub-organization. */
     post: operations["PublicApiService_GetGasUsage"];
   };
+  "/public/v1/query/get_ip_allowlist": {
+    /** Get IP allowlist and rules for an organization. */
+    post: operations["PublicApiService_GetIpAllowlist"];
+  };
   "/public/v1/query/get_latest_boot_proof": {
     /** Get the latest boot proof for a given enclave app name. */
     post: operations["PublicApiService_GetLatestBootProof"];
@@ -179,6 +183,10 @@ export type paths = {
   "/public/v1/query/list_webhook_endpoints": {
     /** List webhook endpoints within an organization. */
     post: operations["PublicApiService_ListWebhookEndpoints"];
+  };
+  "/public/v1/query/validate_tvc_image": {
+    /** Validate a container image URL and pull secret for TVC deployment */
+    post: operations["PublicApiService_ValidateTvcImage"];
   };
   "/public/v1/query/whoami": {
     /** Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users. */
@@ -432,9 +440,17 @@ export type paths = {
     /** Reject an activity. */
     post: operations["PublicApiService_RejectActivity"];
   };
+  "/public/v1/submit/remove_ip_allowlist": {
+    /** Delete IP allowlist and all associated rules for organization or API key. After removal, access will be determined by organization-level allowlist (for API keys) or allowed from all IPs (for organizations). */
+    post: operations["PublicApiService_RemoveIpAllowlist"];
+  };
   "/public/v1/submit/remove_organization_feature": {
     /** Remove an organization feature. This activity must be approved by the current root quorum. */
     post: operations["PublicApiService_RemoveOrganizationFeature"];
+  };
+  "/public/v1/submit/set_ip_allowlist": {
+    /** Create or update IP allowlist and rules for organization or API key. The IP allowlist restricts API access to specific CIDR blocks. Organization-level allowlists apply to all API keys unless overridden by a key-specific allowlist. */
+    post: operations["PublicApiService_SetIpAllowlist"];
   };
   "/public/v1/submit/set_organization_feature": {
     /** Set an organization feature. This activity must be approved by the current root quorum. */
@@ -855,7 +871,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_USERS_V4"
     | "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"
     | "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"
-    | "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT";
+    | "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
+    | "ACTIVITY_TYPE_SET_IP_ALLOWLIST"
+    | "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -893,7 +911,9 @@ export type definitions = {
     | "ADDRESS_FORMAT_TON_V3R2"
     | "ADDRESS_FORMAT_TON_V4R2"
     | "ADDRESS_FORMAT_TON_V5R1"
-    | "ADDRESS_FORMAT_XRP";
+    | "ADDRESS_FORMAT_XRP"
+    | "ADDRESS_FORMAT_SPARK_MAINNET"
+    | "ADDRESS_FORMAT_SPARK_REGTEST";
   v1ApiKey: {
     /** @description A User credential that can be used to authenticate to Turnkey. */
     credential: definitions["externaldatav1Credential"];
@@ -1751,7 +1771,7 @@ export type definitions = {
     pivotContainerEncryptedPullSecret?: string;
     /** @description Optional flag to indicate whether to deploy the TVC app in debug mode, which includes additional logging and debugging tools. Default is false. */
     debugMode?: boolean;
-    /** @description Heath check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol. */
+    /** @description Health check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol. */
     healthCheckType: definitions["v1TvcHealthCheckType"];
     /**
      * Format: int64
@@ -2773,6 +2793,15 @@ export type definitions = {
     /** @description The total gas usage (in USD) of all sponsored transactions processed over the last `window_duration_minutes` */
     usageUsd: string;
   };
+  v1GetIpAllowlistRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description If provided, return only the allowlist for this specific API key. If omitted, all allowlists for the organization are returned. */
+    publicKey?: string;
+  };
+  v1GetIpAllowlistResponse: {
+    allowlist: definitions["v1IpAllowlist"];
+  };
   v1GetLatestBootProofRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -3055,7 +3084,7 @@ export type definitions = {
   v1GetWalletAddressBalancesRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Address corresponding to a wallet account. */
+    /** @description Address corresponding to a wallet account. Private key addresses are not supported. */
     address: string;
     /**
      * @description CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values.
@@ -3614,6 +3643,8 @@ export type definitions = {
     createWebhookEndpointIntent?: definitions["v1CreateWebhookEndpointIntent"];
     updateWebhookEndpointIntent?: definitions["v1UpdateWebhookEndpointIntent"];
     deleteWebhookEndpointIntent?: definitions["v1DeleteWebhookEndpointIntent"];
+    setIpAllowlistIntent?: definitions["v1SetIpAllowlistIntent"];
+    removeIpAllowlistIntent?: definitions["v1RemoveIpAllowlistIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -3650,6 +3681,32 @@ export type definitions = {
     | "INVITATION_STATUS_CREATED"
     | "INVITATION_STATUS_ACCEPTED"
     | "INVITATION_STATUS_REVOKED";
+  v1IpAllowlist: {
+    /** @description Unique identifier for the organization this allowlist belongs to. */
+    organizationId: string;
+    /** @description List of IP allowlist rules with their metadata. */
+    rules: definitions["v1IpAllowlistRule"][];
+    /** @description Public key of the API key this allowlist applies to. Null means the allowlist applies to the entire organization. */
+    publicKey?: string;
+    /** @description Whether the IP allowlist is enabled. Only present for organization-level allowlists. Null for API key-level allowlists (presence of the allowlist implies enablement). */
+    enabled?: boolean;
+    /** @description Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY. */
+    onEvaluationError?: string;
+  };
+  v1IpAllowlistIntentRule: {
+    /** @description CIDR block (e.g., '192.168.1.0/24', '2001:db8::/32'). */
+    cidr: string;
+    /** @description Optional human-readable label for this rule (e.g., 'Office VPN'). */
+    label?: string;
+  };
+  v1IpAllowlistRule: {
+    /** @description CIDR block (e.g., '192.168.1.0/24'). */
+    cidr: string;
+    /** @description Optional human-readable label for this rule. */
+    label?: string;
+    /** @description Creation timestamp as millisecond epoch string. */
+    createdAt?: string;
+  };
   v1ListFiatOnRampCredentialsRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -4088,6 +4145,20 @@ export type definitions = {
     parameters: definitions["v1RejectActivityIntent"];
     generateAppProofs?: boolean;
   };
+  v1RemoveIpAllowlistIntent: {
+    /** @description The public component of an API key. If null, removes the organization-level IP allowlist. If set, removes the IP allowlist for this specific API key. */
+    publicKey?: string;
+  };
+  v1RemoveIpAllowlistRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1RemoveIpAllowlistIntent"];
+  };
+  v1RemoveIpAllowlistResult: { [key: string]: unknown };
   v1RemoveOrganizationFeatureIntent: {
     /** @description Name of the feature to remove */
     name: definitions["v1FeatureName"];
@@ -4212,6 +4283,8 @@ export type definitions = {
     createWebhookEndpointResult?: definitions["v1CreateWebhookEndpointResult"];
     updateWebhookEndpointResult?: definitions["v1UpdateWebhookEndpointResult"];
     deleteWebhookEndpointResult?: definitions["v1DeleteWebhookEndpointResult"];
+    setIpAllowlistResult?: definitions["v1SetIpAllowlistResult"];
+    removeIpAllowlistResult?: definitions["v1RemoveIpAllowlistResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -4299,6 +4372,26 @@ export type definitions = {
     operator?: definitions["v1Operator"];
     targets?: string[];
   };
+  v1SetIpAllowlistIntent: {
+    /** @description The public component of an API key. If null, the IP allowlist applies at the organization level. If set, it applies only to this specific API key. */
+    publicKey?: string;
+    /** @description Whether the IP allowlist is enabled. Only meaningful for organization-level allowlists. Omit for API key-level allowlists. */
+    enabled?: boolean;
+    /** @description List of IP allowlist rules with CIDR blocks and optional labels. */
+    rules?: definitions["v1IpAllowlistIntentRule"][];
+    /** @description Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY. */
+    onEvaluationError?: string;
+  };
+  v1SetIpAllowlistRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1SetIpAllowlistIntent"];
+  };
+  v1SetIpAllowlistResult: { [key: string]: unknown };
   v1SetOrganizationFeatureIntent: {
     /** @description Name of the feature to set */
     name: definitions["v1FeatureName"];
@@ -4570,6 +4663,8 @@ export type definitions = {
     enableEgress: boolean;
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description The deployment currently designated to receive traffic. Null if no deployment for this app is deployed. */
+    liveDeploymentId?: string;
   };
   v1TvcContainerSpec: {
     /** @description The URL for this container image. */
@@ -4616,6 +4711,8 @@ export type definitions = {
     stage: definitions["v1TvcDeploymentStage"];
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description Whether or not the user wants this deployment deleted from the cluster. */
+    delete: boolean;
   };
   /** @enum {string} */
   v1TvcDeploymentStage:
@@ -5195,6 +5292,17 @@ export type definitions = {
     /** @description A list of User Tag IDs. This field, if not needed, should be an empty array in your request body. */
     userTags: string[];
   };
+  v1ValidateTvcImageRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description URL of the container image. */
+    pivotContainerImageUrl: string;
+    /** @description HPKE-encrypted pull secret for private images. */
+    pivotContainerEncryptedPullSecret?: string;
+  };
+  v1ValidateTvcImageResponse: {
+    resolvedImageDigest?: string;
+  };
   v1VerifyOtpIntent: {
     /** @description ID representing the result of an init OTP activity. */
     otpId: string;
@@ -5352,7 +5460,7 @@ export type definitions = {
     subscriptions?: definitions["v1WebhookSubscriptionParams"][];
   };
   v1WebhookSubscriptionParams: {
-    /** @description The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_UPDATES). */
+    /** @description The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_CONFIRMED_UPDATES). */
     eventType: string;
     /** @description JSON-encoded filter criteria for this subscription. */
     filtersJson?: string;
@@ -5499,6 +5607,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetGasUsageResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get IP allowlist and rules for an organization. */
+  PublicApiService_GetIpAllowlist: {
+    parameters: {
+      body: {
+        body: definitions["v1GetIpAllowlistRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetIpAllowlistResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -6147,6 +6273,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ListWebhookEndpointsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Validate a container image URL and pull secret for TVC deployment */
+  PublicApiService_ValidateTvcImage: {
+    parameters: {
+      body: {
+        body: definitions["v1ValidateTvcImageRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ValidateTvcImageResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -7288,11 +7432,47 @@ export type operations = {
       };
     };
   };
+  /** Delete IP allowlist and all associated rules for organization or API key. After removal, access will be determined by organization-level allowlist (for API keys) or allowed from all IPs (for organizations). */
+  PublicApiService_RemoveIpAllowlist: {
+    parameters: {
+      body: {
+        body: definitions["v1RemoveIpAllowlistRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Remove an organization feature. This activity must be approved by the current root quorum. */
   PublicApiService_RemoveOrganizationFeature: {
     parameters: {
       body: {
         body: definitions["v1RemoveOrganizationFeatureRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create or update IP allowlist and rules for organization or API key. The IP allowlist restricts API access to specific CIDR blocks. Organization-level allowlists apply to all API keys unless overridden by a key-specific allowlist. */
+  PublicApiService_SetIpAllowlist: {
+    parameters: {
+      body: {
+        body: definitions["v1SetIpAllowlistRequest"];
       };
     };
     responses: {
