@@ -78,7 +78,7 @@ AlphaUSD balance for 0xDC608F098255C89B36da905D9132A9Ee3DD266D9:
         1000000
 
 Receipt:
-        https://explore.tempo.xyz/tx/0x71ab0cbbd90b0774be500da229e81596b9402f90fe8cf91ee49002eec77307ec
+        https://explore.testnet.tempo.xyz/tx/0x71ab0cbbd90b0774be500da229e81596b9402f90fe8cf91ee49002eec77307ec
 
 Sent 1 AlphaUSD to 0xDC608F098255C89B36da905D9132A9Ee3DD266D9!
         https://docs.tempo.xyz/guide/payments/sponsor-user-fees
