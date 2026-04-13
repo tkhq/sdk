@@ -14,6 +14,9 @@ import {
   walletActions,
   parseUnits,
   formatUnits,
+  encodeFunctionData,
+  parseAbi,
+  Address,
 } from "viem";
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { createAccount } from "@turnkey/viem";
@@ -137,10 +140,10 @@ async function main() {
   const sponsorAccount =
     useSponsor && process.env.SPONSOR_WITH
       ? ((await createAccount({
-          client: sdk.apiClient(),
-          organizationId: process.env.ORGANIZATION_ID!,
-          signWith: process.env.SPONSOR_WITH,
-        })) as Account)
+        client: sdk.apiClient(),
+        organizationId: process.env.ORGANIZATION_ID!,
+        signWith: process.env.SPONSOR_WITH,
+      })) as Account)
       : undefined;
 
   if (sponsorAccount) {
@@ -150,12 +153,24 @@ async function main() {
   // Fee payer: custom sponsor account, public endpoint (true), or self (undefined)
   const feePayer = useSponsor ? (sponsorAccount ?? true) : undefined;
 
+  const estimatedGas = await client.estimateGas({
+    account: sponsorAccount ?? client.account,
+    to: ALPHA_USD,
+    data: encodeFunctionData({
+      abi: parseAbi(["function transfer(address to, uint256 amount) returns (bool)"]),
+      functionName: "transfer",
+      args: [destination as Address, parseUnits(amount, decimals)],
+    }),
+  });
+
+  const gasWithBuffer = (estimatedGas * 120n) / 100n; // add 20% buffer to ensure we don't run out of gas
+
   const { receipt } = await client.token.transferSync({
     amount: parseUnits(amount, decimals),
     token: ALPHA_USD,
-    to: destination as `0x${string}`,
+    to: destination as Address,
     feePayer,
-    gas: 100000n, // temp workaround: need to manually set higher gas limit
+    gas: gasWithBuffer,
   });
 
   print("Receipt:", `https://explore.tempo.xyz/tx/${receipt.transactionHash}`);
