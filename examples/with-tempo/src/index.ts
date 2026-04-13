@@ -67,7 +67,7 @@ async function ensureFunded(
   print(
     "Receipts:",
     receipts
-      .map((r) => `https://explore.tempo.xyz/tx/${r.transactionHash}`)
+      .map((r) => `https://explore.testnet.tempo.xyz/tx/${r.transactionHash}`)
       .join("\n\t"),
   );
 }
@@ -173,7 +173,7 @@ async function main() {
     gas: gasWithBuffer,
   });
 
-  print("Receipt:", `https://explore.tempo.xyz/tx/${receipt.transactionHash}`);
+  print("Receipt:", `https://explore.testnet.tempo.xyz/tx/${receipt.transactionHash}`);
   print(
     `Sent ${amount} ${name} to ${destination}!`,
     "https://docs.tempo.xyz/guide/payments/sponsor-user-fees",
