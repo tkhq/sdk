@@ -142,10 +142,10 @@ async function main() {
   const sponsorAccount =
     useSponsor && process.env.SPONSOR_WITH
       ? ((await createAccount({
-        client: sdk.apiClient(),
-        organizationId: process.env.ORGANIZATION_ID!,
-        signWith: process.env.SPONSOR_WITH,
-      })) as Account)
+          client: sdk.apiClient(),
+          organizationId: process.env.ORGANIZATION_ID!,
+          signWith: process.env.SPONSOR_WITH,
+        })) as Account)
       : undefined;
 
   if (sponsorAccount) {
@@ -155,13 +155,16 @@ async function main() {
   // Fee payer: custom sponsor account, public endpoint (true), or self (undefined)
   const feePayer = useSponsor ? (sponsorAccount ?? true) : undefined;
 
-  const estimatedGas = await estimateTempoGas(client,
-    [Actions.token.transfer.call({
-      amount: BigInt(amount),
-      token: ALPHA_USD,
-      to: destination as `0x${string}`,
-    })],
-    5n
+  const estimatedGas = await estimateTempoGas(
+    client,
+    [
+      Actions.token.transfer.call({
+        amount: BigInt(amount),
+        token: ALPHA_USD,
+        to: destination as `0x${string}`,
+      }),
+    ],
+    5n,
   );
 
   const { receipt } = await client.token.transferSync({

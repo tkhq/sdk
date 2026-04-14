@@ -23,11 +23,14 @@ export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function estimateTempoGas(client: any, calls: any[], buffer: bigint) {
+export async function estimateTempoGas(
+  client: any,
+  calls: any[],
+  buffer: bigint,
+) {
   const estimatedGas = await client.estimateGas({
-    calls
+    calls,
   });
-
 
   const gasWithBuffer = (estimatedGas * (buffer + 100n)) / 100n;
 

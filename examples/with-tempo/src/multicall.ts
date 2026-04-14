@@ -159,10 +159,10 @@ async function main() {
   const sponsorAccount =
     useSponsor && process.env.SPONSOR_WITH
       ? ((await createAccount({
-        client: sdk.apiClient(),
-        organizationId: process.env.ORGANIZATION_ID!,
-        signWith: process.env.SPONSOR_WITH,
-      })) as Account)
+          client: sdk.apiClient(),
+          organizationId: process.env.ORGANIZATION_ID!,
+          signWith: process.env.SPONSOR_WITH,
+        })) as Account)
       : undefined;
 
   if (sponsorAccount) {
@@ -184,7 +184,6 @@ async function main() {
   print("Sending batch of", `${calls.length} transfers...`);
 
   const estimatedGas = await estimateTempoGas(client, calls, 5n);
-
 
   // Send all transfers atomically in a single Tempo transaction with native batch calls
   const receipt = await client.sendTransactionSync({
