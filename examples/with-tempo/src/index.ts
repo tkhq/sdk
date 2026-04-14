@@ -17,7 +17,7 @@ import {
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { createAccount } from "@turnkey/viem";
 import { createNewWallet } from "./turnkey";
-import { print } from "./util";
+import { estimateTempoGas, print } from "./util";
 
 // @ts-ignore
 const PATH_USD = "0x20c0000000000000000000000000000000000000" as const;
@@ -142,10 +142,10 @@ async function main() {
   const sponsorAccount =
     useSponsor && process.env.SPONSOR_WITH
       ? ((await createAccount({
-          client: sdk.apiClient(),
-          organizationId: process.env.ORGANIZATION_ID!,
-          signWith: process.env.SPONSOR_WITH,
-        })) as Account)
+        client: sdk.apiClient(),
+        organizationId: process.env.ORGANIZATION_ID!,
+        signWith: process.env.SPONSOR_WITH,
+      })) as Account)
       : undefined;
 
   if (sponsorAccount) {
@@ -155,12 +155,21 @@ async function main() {
   // Fee payer: custom sponsor account, public endpoint (true), or self (undefined)
   const feePayer = useSponsor ? (sponsorAccount ?? true) : undefined;
 
+  const estimatedGas = await estimateTempoGas(client,
+    [Actions.token.transfer.call({
+      amount: BigInt(amount),
+      token: ALPHA_USD,
+      to: destination as `0x${string}`,
+    })],
+    5n
+  );
+
   const { receipt } = await client.token.transferSync({
     amount: BigInt(amount),
     token: ALPHA_USD,
     to: destination as `0x${string}`,
     feePayer,
-    gas: 2000000n, // temp workaround: need to manually set higher gas limit
+    gas: estimatedGas,
     feeToken: ALPHA_USD,
   });
 

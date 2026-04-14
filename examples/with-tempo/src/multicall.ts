@@ -17,7 +17,7 @@ import {
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { createAccount } from "@turnkey/viem";
 import { createNewWallet } from "./turnkey";
-import { print } from "./util";
+import { estimateTempoGas, print } from "./util";
 
 // @ts-ignore
 const PATH_USD = "0x20c0000000000000000000000000000000000000" as const;
@@ -159,10 +159,10 @@ async function main() {
   const sponsorAccount =
     useSponsor && process.env.SPONSOR_WITH
       ? ((await createAccount({
-          client: sdk.apiClient(),
-          organizationId: process.env.ORGANIZATION_ID!,
-          signWith: process.env.SPONSOR_WITH,
-        })) as Account)
+        client: sdk.apiClient(),
+        organizationId: process.env.ORGANIZATION_ID!,
+        signWith: process.env.SPONSOR_WITH,
+      })) as Account)
       : undefined;
 
   if (sponsorAccount) {
@@ -183,12 +183,15 @@ async function main() {
 
   print("Sending batch of", `${calls.length} transfers...`);
 
+  const estimatedGas = await estimateTempoGas(client, calls, 5n);
+
+
   // Send all transfers atomically in a single Tempo transaction with native batch calls
   const receipt = await client.sendTransactionSync({
     calls,
     feePayer,
     feeToken: ALPHA_USD,
-    gas: 2000000n, // temp workaround: need to manually set higher gas limit for batch calls
+    gas: estimatedGas,
   });
 
   print(
