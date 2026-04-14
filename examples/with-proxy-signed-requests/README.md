@@ -52,3 +52,7 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000), sign in with your email, then use the dashboard to stamp and proxy a `signRawPayload` request.
+
+## Stamping other requests
+
+This example uses `stampSignRawPayload`, but every Turnkey API method has a corresponding `stamp*` variant that returns a `TSignedRequest` (`{ url, body, stamp }`) without sending the request. You can proxy any operation the same way — see [`sdk-client-base.ts`](https://github.com/tkhq/sdk/blob/main/packages/core/src/__generated__/sdk-client-base.ts) for the full list of `stamp*` methods.
