@@ -13,43 +13,6 @@ type Caip2ChainId =
   | "eip155:137"
   | "eip155:80002";
 
-export async function broadcastTx(
-  provider: ethers.Provider,
-  signedTx: string,
-  activityId: string,
-) {
-  const network = await provider.getNetwork();
-  const txHash = ethers.keccak256(signedTx);
-
-  console.log(
-    [
-      `Attempting to broadcast signed transaction:`,
-      `- Activity ID: ${activityId}`,
-      `- Signed payload: ${signedTx}`,
-      `- Hash: ${txHash}`,
-      ``,
-    ].join("\n"),
-  );
-
-  const confirmations =
-    (await (await provider.getTransaction(txHash))?.confirmations()) ?? 0;
-  if (confirmations > 0) {
-    console.log(`Transaction ${txHash} has already been broadcasted\n`);
-    return;
-  }
-
-  const { hash } = await provider.broadcastTransaction(signedTx);
-
-  console.log(`Awaiting confirmation for transaction hash ${hash}...\n`);
-
-  await provider.waitForTransaction(hash, 1);
-
-  print(
-    `Broadcasted transaction:`,
-    `https://${network.name}.etherscan.io/tx/${hash}`,
-  );
-}
-
 export async function sendEth(
   connectedSigner: ethers.Signer,
   fromAddress: string,
