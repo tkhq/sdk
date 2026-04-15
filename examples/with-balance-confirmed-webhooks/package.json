@@ -10,6 +10,8 @@
     "register-webhook": "NODE_NO_WARNINGS=1 tsx src/scripts/register-balance-confirmed-webhook.ts"
   },
   "dependencies": {
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.98.4",
     "@turnkey/sdk-server": "workspace:*",
     "dotenv": "^16.0.3",
     "next": "15.5.15",

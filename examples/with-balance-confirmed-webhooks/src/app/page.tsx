@@ -25,15 +25,16 @@ type BalancesApiResponse = {
   balances?: BalanceRow[];
 };
 
-type EthSendApiResponse = {
+type SendAssetApiResponse = {
   ok?: boolean;
   error?: string;
   from?: string;
   to?: string;
   caip2?: string;
   amountBaseUnits?: string;
-  assetType?: "NATIVE" | "ERC20";
+  assetType?: "NATIVE" | "ERC20" | "SPL";
   tokenContractAddress?: string;
+  tokenMintAddress?: string;
 };
 
 const DEFAULT_ADDRESS = process.env.NEXT_PUBLIC_DEFAULT_ADDRESS ?? "";
@@ -126,6 +127,43 @@ function extractErc20ContractFromCaip19(caip19?: string): string | null {
 
   const match = caip19.match(/\/erc20:(0x[a-fA-F0-9]{40})/i);
   return match?.[1] ?? null;
+}
+
+function extractSplMintFromCaip19(caip19?: string): string | null {
+  if (!caip19) {
+    return null;
+  }
+
+  const match = caip19.match(/\/token:([1-9A-HJ-NP-Za-km-z]+)$/);
+  return match?.[1] ?? null;
+}
+
+function getNetworkKind(caip2: string): "EVM" | "SVM" | "UNKNOWN" {
+  if (caip2.startsWith("eip155:")) {
+    return "EVM";
+  }
+
+  if (caip2.startsWith("solana:")) {
+    return "SVM";
+  }
+
+  return "UNKNOWN";
+}
+
+function normalizeCaip2ForComparison(caip2: string): string {
+  switch (caip2) {
+    case "solana:mainnet":
+    case "solana:mainnet-beta":
+      return "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
+    case "solana:devnet":
+      return "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
+    default:
+      return caip2;
+  }
+}
+
+function normalizeAddressForComparison(address: string, caip2: string): string {
+  return getNetworkKind(caip2) === "EVM" ? address.toLowerCase() : address;
 }
 
 export default function Page() {
@@ -227,16 +265,28 @@ export default function Page() {
         ? event.payload.msg.caip2
         : "";
 
-    if (!activeAddress || !activeCaip2 || eventCaip2 !== activeCaip2) {
+    const normalizedActiveCaip2 = normalizeCaip2ForComparison(activeCaip2);
+    const normalizedEventCaip2 = normalizeCaip2ForComparison(eventCaip2);
+
+    if (
+      !activeAddress ||
+      !activeCaip2 ||
+      normalizedEventCaip2 !== normalizedActiveCaip2
+    ) {
       return;
     }
 
     const eventAddress =
       typeof event.payload.msg.address === "string"
-        ? event.payload.msg.address.toLowerCase()
+        ? normalizeAddressForComparison(event.payload.msg.address, eventCaip2)
         : "";
 
-    if (eventAddress && eventAddress !== activeAddress.toLowerCase()) {
+    const normalizedActiveAddress = normalizeAddressForComparison(
+      activeAddress,
+      activeCaip2,
+    );
+
+    if (eventAddress && eventAddress !== normalizedActiveAddress) {
       return;
     }
 
@@ -310,9 +360,15 @@ export default function Page() {
       return;
     }
 
+    const networkKind = getNetworkKind(network);
+    if (networkKind === "UNKNOWN") {
+      setError("Unsupported network. Use an EVM or Solana CAIP-2 value.");
+      return;
+    }
+
     const toAddress = window.prompt(
-      "Recipient address (0x...)",
-      "0x0000000000000000000000000000000000000000",
+      `Recipient address (${networkKind === "SVM" ? "base58" : "0x..."})`,
+      fromAddress,
     );
     if (!toAddress) {
       return;
@@ -322,7 +378,15 @@ export default function Page() {
     const decimals =
       typeof balance.decimals === "number" ? balance.decimals : 18;
     const erc20Contract = extractErc20ContractFromCaip19(balance.caip19);
-    const assetType: "NATIVE" | "ERC20" = erc20Contract ? "ERC20" : "NATIVE";
+    const splMint = extractSplMintFromCaip19(balance.caip19);
+    const assetType: "NATIVE" | "ERC20" | "SPL" =
+      networkKind === "EVM"
+        ? erc20Contract
+          ? "ERC20"
+          : "NATIVE"
+        : splMint
+          ? "SPL"
+          : "NATIVE";
     const amountText = window.prompt(`Amount to send (${symbol})`, "0.000001");
     if (!amountText) {
       return;
@@ -339,7 +403,7 @@ export default function Page() {
     setIsSendingTx(true);
 
     try {
-      const response = await fetch("/api/eth-send", {
+      const response = await fetch("/api/tx-send", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -351,12 +415,13 @@ export default function Page() {
           caip2: network,
           assetType,
           tokenContractAddress: erc20Contract ?? undefined,
+          tokenMintAddress: splMint ?? undefined,
         }),
       });
 
-      const body = (await response.json()) as EthSendApiResponse;
+      const body = (await response.json()) as SendAssetApiResponse;
       if (!response.ok) {
-        throw new Error(body.error ?? "Failed to send Ethereum transaction");
+        throw new Error(body.error ?? "Failed to send transaction");
       }
 
       await fetchBalancesFromApi({
@@ -369,7 +434,7 @@ export default function Page() {
       setError(
         sendError instanceof Error
           ? sendError.message
-          : "Failed to send Ethereum transaction",
+          : "Failed to send transaction",
       );
     } finally {
       setIsSendingTx(false);
@@ -383,7 +448,8 @@ export default function Page() {
         <p className="subtitle">
           Fetches balances with Turnkey{" "}
           <code>getWalletAddressBalances (getBalances)</code> and listens for{" "}
-          <code>BALANCE_CONFIRMED_UPDATES</code> via webhook.
+          <code>BALANCE_CONFIRMED_UPDATES</code> via webhook across EVM and SVM
+          networks.
         </p>
         <div
           className={`status-pill ${isWebhookConnected ? "connected" : "disconnected"}`}
@@ -451,8 +517,18 @@ export default function Page() {
                 const erc20Contract = extractErc20ContractFromCaip19(
                   balance.caip19,
                 );
-                const isEvmNetwork = queriedCaip2.startsWith("eip155:");
-                const canSend = Boolean(queriedAddress) && isEvmNetwork;
+                const splMint = extractSplMintFromCaip19(balance.caip19);
+                const networkKind = getNetworkKind(queriedCaip2);
+                const canSend =
+                  Boolean(queriedAddress) && networkKind !== "UNKNOWN";
+                const sendLabel =
+                  networkKind === "EVM"
+                    ? erc20Contract
+                      ? `Send ${symbol} (ERC20)`
+                      : `Send ${symbol} (Native)`
+                    : splMint
+                      ? `Send ${symbol} (SPL)`
+                      : `Send ${symbol} (Native)`;
 
                 return (
                   <tr key={`${balance.caip19 ?? symbol}-${index}`}>
@@ -469,11 +545,7 @@ export default function Page() {
                           void handleSendAsset(balance);
                         }}
                       >
-                        {isSendingTx
-                          ? "Sending..."
-                          : erc20Contract
-                            ? `Send ${symbol} (ERC20)`
-                            : `Send ${symbol} (Native)`}
+                        {isSendingTx ? "Sending..." : sendLabel}
                       </button>
                     </td>
                   </tr>
