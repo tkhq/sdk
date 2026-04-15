@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { Turnkey } from "@turnkey/sdk-server";
-import { FeeData } from "ethers";
+import type { FeeData } from "ethers";
 import { isKeyOfObject } from "./utils";
 import {
   createPrivateKey,
@@ -13,22 +13,20 @@ import {
   createUser,
   createUserTag,
   createPolicy,
-  getActivities,
   getActivity,
   getPrivateKeysForTag,
   createActivityApproval,
   createActivityRejection,
 } from "./requests";
-import { getProvider, getTurnkeySigner } from "./provider";
-import { sendEth, broadcastTx } from "./send";
+import { getProvider, getTurnkeyClient, getTurnkeySigner } from "./provider";
+import { sendEth } from "./send";
 import keys from "./keys";
 
+const FUND_AMOUNT = 120000000000000n; // 0.00012 ETH
 const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
 const MIN_INTERVAL_MS = 10000; // 10 seconds
 const MAX_INTERVAL_MS = 60000; // 60 seconds
-const TRANSFER_GAS_LIMIT = 21000n;
-const GAS_MULTIPLIER = 2n;
-const ACTIVITIES_LIMIT = "100";
+const SPONSOR = process.env.USE_GAS_SPONSORSHIP === "true"; // toggle gas sponsorship
 
 // For demonstration purposes, create a globally accessible TurnkeyClient
 const turnkeyClient = new Turnkey({
@@ -83,7 +81,6 @@ async function main() {
     fund: fund,
     sweep: sweep,
     recycle: recycle,
-    pollAndBroadcast: pollAndBroadcast,
     approveActivity: approveActivity,
     rejectActivity: rejectActivity,
   };
@@ -186,17 +183,28 @@ async function setup(_options: any) {
   );
 }
 
-async function fund(options: any) {
-  const interval = parseInt(options["interval"]);
+function parseInterval(options: any): number | undefined {
+  const raw = options["interval"];
+  if (raw === undefined) return undefined;
 
-  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
-    console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
+  const interval = parseInt(raw);
+  if (
+    isNaN(interval) ||
+    interval < MIN_INTERVAL_MS ||
+    interval > MAX_INTERVAL_MS
+  ) {
+    throw new Error(
+      `Invalid interval: ${raw}. Please specify a value between ${MIN_INTERVAL_MS} and ${MAX_INTERVAL_MS} milliseconds`,
     );
   }
+  return interval;
+}
+
+async function fund(options: any) {
+  const interval = parseInterval(options);
 
   await fundImpl();
-  interval && setInterval(async () => await fundImpl(), interval);
+  if (interval) setInterval(async () => await fundImpl(), interval);
 }
 
 async function fundImpl() {
@@ -218,33 +226,51 @@ async function fundImpl() {
     provider,
     distributionPrivateKeys[0]!.privateKeyId,
   );
+  const distributionAddress = await connectedSigner.getAddress();
+  const balance =
+    (await connectedSigner.provider?.getBalance(distributionAddress)) ?? 0n;
+  const originalFeeData = await connectedSigner.provider?.getFeeData();
+
+  if (balance < FUND_AMOUNT) {
+    console.log(
+      `Address ${distributionAddress} has an insufficient balance for sweep. Moving on...`,
+    );
+  }
 
   for (const pk of shortTermStoragePrivateKeys) {
-    const ethAddress = pk.addresses.find((address: any) => {
+    const shortTermStorage = pk.addresses.find((address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
     });
-    if (!ethAddress || !ethAddress.address) {
+    if (!shortTermStorage || !shortTermStorage.address) {
       throw new Error(
         `couldn't lookup ETH address for private key: ${pk.privateKeyId}`,
       );
     }
 
+    const gasEstimate = await connectedSigner.estimateGas({
+      to: shortTermStorage.address,
+      value: FUND_AMOUNT,
+    });
+    const gasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
+
+    if (balance < gasCost) {
+      console.error(`Insufficient ETH balance of ${balance}. Needs ${gasCost}`);
+    }
+
     await sendEth(
       connectedSigner,
-      ethAddress.address,
-      120000000000000n, // 0.00012 ETH
+      distributionAddress,
+      shortTermStorage.address,
+      FUND_AMOUNT,
+      SPONSOR,
+      originalFeeData as FeeData,
+      gasEstimate,
     );
   }
 }
 
 async function sweep(options: any) {
-  const interval = parseInt(options["interval"]);
-
-  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
-    console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
-    );
-  }
+  const interval = parseInterval(options);
 
   await sweepImpl();
   interval && setInterval(async () => await sweepImpl(), interval);
@@ -280,66 +306,46 @@ async function sweepImpl() {
   for (const pk of shortTermStoragePrivateKeys!) {
     const provider = getProvider();
     const connectedSigner = getTurnkeySigner(provider, pk.privateKeyId);
-    const address = await connectedSigner.getAddress();
-    const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
+    const shortTermStorageAddress = await connectedSigner.getAddress();
+    const balance =
+      (await connectedSigner.provider?.getBalance(shortTermStorageAddress)) ??
+      0n;
     const originalFeeData = await connectedSigner.provider?.getFeeData();
-
-    const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
-      ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER
-      : 0n;
-    const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas
-      ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER
-      : 0n;
-    const feeData = new FeeData(
-      originalFeeData?.gasPrice,
-      updatedMaxFeePerGas,
-      updatedMaxPriorityFeePerGas,
-    );
-    const gasRequired =
-      feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
-        ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) *
-          TRANSFER_GAS_LIMIT
-        : 0n;
 
     if (balance < SWEEP_THRESHOLD) {
       console.log(
-        `Address ${address} has an insufficient balance for sweep. Moving on...`,
+        `Address ${shortTermStorageAddress} has an insufficient balance for sweep. Moving on...`,
       );
       continue;
     }
 
-    const sweepAmount = balance - gasRequired * 2n; // be relatively conservative with sweep amount to prevent overdraft
+    const gasEstimate = await connectedSigner.estimateGas({
+      to: longTermStorageAddress.address,
+      value: SWEEP_THRESHOLD,
+    });
+    const gasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
+    const sweepAmount = balance - gasCost;
 
-    if (sweepAmount === 0n) {
+    if (sweepAmount <= 0n) {
       console.log(
-        `Address ${address} has an insufficient balance for sweep. Moving on...`,
+        `Address ${shortTermStorageAddress} has an insufficient balance for sweep. Moving on...`,
       );
       continue;
     }
 
     await sendEth(
       connectedSigner,
+      shortTermStorageAddress,
       longTermStorageAddress.address,
       sweepAmount,
-      feeData,
+      SPONSOR,
+      originalFeeData as FeeData,
+      gasEstimate,
     );
   }
 }
 
-async function recycle(options: any) {
-  const interval = parseInt(options["interval"]);
-
-  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
-    console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
-    );
-  }
-
-  await recycleImpl();
-  interval && setInterval(async () => await recycleImpl, interval);
-}
-
-async function recycleImpl() {
+async function recycle() {
   // find "Long Term Storage" private key
   const longTermStoragePrivateKeys = await getPrivateKeysForTag(
     turnkeyClient,
@@ -376,91 +382,32 @@ async function recycleImpl() {
 
   const balance =
     (await connectedSigner.provider?.getBalance(longTermStorageAddress)) ?? 0n;
-
   const originalFeeData = await connectedSigner.provider?.getFeeData();
 
-  const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
-    ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER
-    : null;
-  const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas
-    ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER
-    : null;
-  const feeData = new FeeData(
-    originalFeeData?.gasPrice,
-    updatedMaxFeePerGas,
-    updatedMaxPriorityFeePerGas,
-  );
-  const gasRequired =
-    feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
-      ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) *
-        TRANSFER_GAS_LIMIT
-      : 0n;
+  try {
+    const gasEstimate = await connectedSigner.estimateGas({
+      to: distributionAddress.address,
+      value: SWEEP_THRESHOLD,
+    });
+    const gasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
+    const recycleAmount = balance - gasCost;
 
-  const recycleAmount = balance - gasRequired * 2n; // be relatively conservative with sweep amount to prevent overdraft
-
-  if (recycleAmount <= 0n) {
-    console.log("Insufficient balance for recycle...");
-    return;
-  }
-
-  await sendEth(
-    connectedSigner,
-    distributionAddress.address,
-    recycleAmount,
-    feeData,
-  );
-}
-
-// two approaches:
-// (1) if there's a pending/consensus needed activity, save its ID and check on it later (stateful)
-// (2) simply attempt to broadcast all signed transactions, based on when the activity was approved/completed
-// Poll for pending recycle transactions (which originate from the `Long Term Storage` address)
-function pollAndBroadcast(options: any) {
-  const interval = parseInt(options["interval"]);
-
-  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
-    console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
-    );
-  }
-
-  pollAndBroadcastImpl();
-  interval && setInterval(pollAndBroadcastImpl, interval);
-}
-
-async function pollAndBroadcastImpl() {
-  // find "Long Term Storage" private key
-  const longTermStoragePrivateKeys = await getPrivateKeysForTag(
-    turnkeyClient,
-    "long-term-storage",
-  );
-  const activities = await getActivities(turnkeyClient, ACTIVITIES_LIMIT);
-
-  const relevantActivities = activities.filter((activity) => {
-    return (
-      activity.type === "ACTIVITY_TYPE_SIGN_TRANSACTION" &&
-      activity.status === "ACTIVITY_STATUS_COMPLETED" &&
-      activity.intent.signTransactionIntent?.privateKeyId ===
-        longTermStoragePrivateKeys[0]!.privateKeyId
-    );
-  });
-
-  if (relevantActivities.length === 0) {
-    console.log(
-      "No transactions are ready for broadcasting. Double check activities that need consensus.\n",
-    );
-  }
-
-  for (let activity of relevantActivities) {
-    try {
-      const provider = getProvider();
-      const signedTx = `0x${activity.result.signTransactionResult
-        ?.signedTransaction!}`;
-
-      await broadcastTx(provider, signedTx, activity.id);
-    } catch (error: any) {
-      console.error("Encountered error:", error.toString(), "\n");
+    if (recycleAmount <= 0n) {
+      console.log("Insufficient balance for recycle...");
+      return;
     }
+
+    await sendEth(
+      connectedSigner,
+      longTermStorageAddress,
+      distributionAddress.address,
+      recycleAmount,
+      SPONSOR,
+      originalFeeData as FeeData,
+      gasEstimate,
+    );
+  } catch (error: any) {
+    console.error("Encountered error:", error.toString(), "\n");
   }
 }
 
@@ -470,8 +417,15 @@ async function approveActivity(options: any) {
   if (!activityId) {
     console.error("Must provide valid activity ID.\n");
   }
-  const activity = await getActivity(turnkeyClient, activityId);
-  await createActivityApproval(turnkeyClient, activityId, activity.fingerprint);
+
+  const turnkeyClientApprover = getTurnkeyClient();
+
+  const activity = await getActivity(turnkeyClientApprover, activityId);
+  await createActivityApproval(
+    turnkeyClientApprover,
+    activityId,
+    activity.fingerprint,
+  );
 }
 
 async function rejectActivity(options: any) {
@@ -480,9 +434,12 @@ async function rejectActivity(options: any) {
   if (!activityId) {
     console.error("Must provide valid activity ID.\n");
   }
-  const activity = await getActivity(turnkeyClient, activityId);
+
+  const turnkeyClientRejecter = getTurnkeyClient();
+
+  const activity = await getActivity(turnkeyClientRejecter, activityId);
   await createActivityRejection(
-    turnkeyClient,
+    turnkeyClientRejecter,
     activityId,
     activity.fingerprint,
   );
