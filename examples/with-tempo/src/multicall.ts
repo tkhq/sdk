@@ -200,7 +200,7 @@ async function main() {
 
   const totalAmount = amounts.reduce((sum, a) => sum + BigInt(a), 0n);
   print(
-    `Sent ${formatUnits(totalAmount, decimals)} ${name} to ${destination} in ${calls.length} batched transfers!`,
+    `Sent ${formatUnits(totalAmount, decimals)} ${name} total (${calls.length} batched transfers) to ${destination}!`,
     "https://docs.tempo.xyz/protocol/transactions#batch-calls",
   );
 

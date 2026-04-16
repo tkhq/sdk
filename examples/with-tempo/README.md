@@ -102,38 +102,38 @@ Network:
         Tempo Testnet (Moderato) (chain ID 42431)
 
 Address:
-        0xDC608F098255C89B36da905D9132A9Ee3DD266D9
+        0xCa4127b4E1BaEABB52c2D01FC0e0f1AE8D5655aC
 
 Token:
         AlphaUSD (6 decimals)
 
 Nonce:
-        6
+        3
 
 ✔ Number of transfers to batch … 3
-✔ Destination address (default to TKHQ warchest) … 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7
-✔ Sponsor fees via sponsor.moderato.tempo.xyz? … yes
+✔ Destination address (default to TKHQ warchest) … 0xD91d92a978AC1E8d5F22EcAb787A10c7676D8311
+✔ Sponsor fees via sponsor.moderato.tempo.xyz? … no
 ✔ Amount for transfer 1/3 (atomic units, 6 decimals) … 1000000
 ✔ Amount for transfer 2/3 (atomic units, 6 decimals) … 1000000
 ✔ Amount for transfer 3/3 (atomic units, 6 decimals) … 1000000
 
-AlphaUSD balance for 0xDC608F098255C89B36da905D9132A9Ee3DD266D9:
-        1000000
+AlphaUSD balance for 0xCa4127b4E1BaEABB52c2D01FC0e0f1AE8D5655aC:
+        999994.982637
 
-Sending batch of:
+Sending batch of
         3 transfers...
 
 Receipt:
-        https://explore.testnet.tempo.xyz/tx/0x...
+        https://explore.testnet.tempo.xyz/tx/0xeaa50711e31bf654d5c9db3bc52a3edd4255c1506a9bd810436179b918110ea6
 
-Sent 3 AlphaUSD to 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7 in 3 batched transfers!
+Sent 3 AlphaUSD total (3 batched transfers) to 0xD91d92a978AC1E8d5F22EcAb787A10c7676D8311!
         https://docs.tempo.xyz/protocol/transactions#batch-calls
 
-AlphaUSD balance for sender (0xDC608F098255C89B36da905D9132A9Ee3DD266D9):
-        997
+AlphaUSD balance for sender (0xCa4127b4E1BaEABB52c2D01FC0e0f1AE8D5655aC):
+        999991.981594
 
-AlphaUSD balance for destination (0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7):
-        3
+AlphaUSD balance for destination (0xD91d92a978AC1E8d5F22EcAb787A10c7676D8311):
+        7
 ```
 
 Note: if you have a consensus-related policy resembling the following
