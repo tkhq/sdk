@@ -18,6 +18,7 @@ export async function sendMagicLink({ email }: SendMagicLinkParams) {
   // we send a magic link to the user’s email
   const { otpId } = await turnkeyClient.initOtp({
     contact: email,
+    appName: "Magic Link Demo",
     otpType: OtpType.Email,
     emailCustomization: {
       // %s will be replaced with the otpCode when sending the email
