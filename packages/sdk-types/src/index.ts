@@ -269,8 +269,9 @@ export type VerificationToken = {
   contact: string;
   exp: number;
   id: string;
-  public_key?: string;
+  public_key: string;
   verification_type: string;
+  organization_id: string;
 };
 
 export * from "./__generated__/types";

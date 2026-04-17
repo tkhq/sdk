@@ -605,7 +605,7 @@ export class TurnkeyClient {
 
         const sessionResponse = await this.httpClient.stampLogin({
           publicKey: newGeneratedKeyPair!,
-          organizationId: this.config.organizationId,
+          organizationId: res.organizationId,
           expirationSeconds,
         });
 

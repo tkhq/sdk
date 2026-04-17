@@ -100,8 +100,8 @@ const VERSIONED_ACTIVITY_TYPES = {
   ],
   ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS: [
     "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
-    "v1CreateOAuthProvidersIntentV2",
-    "v1CreateOAuthProvidersResultV2",
+    "v1CreateOauthProvidersIntentV2",
+    "v1CreateOauthProvidersResultV2",
   ],
 };
 
@@ -556,7 +556,6 @@ const generateSDKClientFromSwagger = async (
           `No latest version found for activity result key: ${resultKey}`,
         );
       }
-
       const versionedMethodName = latestVersions[resultKey].formattedKeyName;
 
       codeBuffer.push(
