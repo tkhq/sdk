@@ -460,7 +460,7 @@ export type v1ApproveActivityIntent = {
 };
 
 export type v1ApproveActivityRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_APPROVE_ACTIVITY";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -539,7 +539,7 @@ export type v1AuthenticatorAttestationResponse = {
   clientDataJson: string;
   attestationObject: string;
   transports?: v1AuthenticatorTransport[];
-  authenticatorAttachment?: string;
+  authenticatorAttachment?: "cross-platform" | "platform";
 };
 
 export type v1AuthenticatorParams = {
@@ -623,7 +623,7 @@ export type v1CreateApiKeysIntentV2 = {
 };
 
 export type v1CreateApiKeysRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -643,7 +643,7 @@ export type v1CreateApiOnlyUsersIntent = {
 };
 
 export type v1CreateApiOnlyUsersRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -672,7 +672,7 @@ export type v1CreateAuthenticatorsIntentV2 = {
 };
 
 export type v1CreateAuthenticatorsRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -702,7 +702,7 @@ export type v1CreateFiatOnRampCredentialIntent = {
 };
 
 export type v1CreateFiatOnRampCredentialRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -722,7 +722,7 @@ export type v1CreateInvitationsIntent = {
 };
 
 export type v1CreateInvitationsRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_INVITATIONS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -746,7 +746,7 @@ export type v1CreateOauth2CredentialIntent = {
 };
 
 export type v1CreateOauth2CredentialRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -775,7 +775,7 @@ export type v1CreateOauthProvidersIntentV2 = {
 };
 
 export type v1CreateOauthProvidersRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -827,7 +827,7 @@ export type v1CreatePoliciesIntent = {
 };
 
 export type v1CreatePoliciesRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_POLICIES";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -875,7 +875,7 @@ export type v1CreatePolicyIntentV3 = {
 };
 
 export type v1CreatePolicyRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_POLICY_V3";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -897,7 +897,7 @@ export type v1CreatePrivateKeyTagIntent = {
 };
 
 export type v1CreatePrivateKeyTagRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -924,7 +924,7 @@ export type v1CreatePrivateKeysIntentV2 = {
 };
 
 export type v1CreatePrivateKeysRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -945,7 +945,7 @@ export type v1CreatePrivateKeysResultV2 = {
 
 export type v1CreateReadOnlySessionIntent = {};
 export type v1CreateReadOnlySessionRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -994,7 +994,7 @@ export type v1CreateReadWriteSessionIntentV2 = {
 };
 
 export type v1CreateReadWriteSessionRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1046,7 +1046,7 @@ export type v1CreateSmartContractInterfaceIntent = {
 };
 
 export type v1CreateSmartContractInterfaceRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1179,7 +1179,7 @@ export type v1CreateSubOrganizationIntentV8 = {
 };
 
 export type v1CreateSubOrganizationRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1312,7 +1312,7 @@ export type v1CreateUserTagIntent = {
 };
 
 export type v1CreateUserTagRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_USER_TAG";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1349,7 +1349,7 @@ export type v1CreateUsersIntentV4 = {
 };
 
 export type v1CreateUsersRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_USERS_V4";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1373,7 +1373,7 @@ export type v1CreateWalletAccountsIntent = {
 };
 
 export type v1CreateWalletAccountsRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1397,7 +1397,7 @@ export type v1CreateWalletIntent = {
 };
 
 export type v1CreateWalletRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_WALLET";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1423,7 +1423,7 @@ export type v1CreateWebhookEndpointIntent = {
 };
 
 export type v1CreateWebhookEndpointRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1472,7 +1472,7 @@ export type v1DeleteApiKeysIntent = {
 };
 
 export type v1DeleteApiKeysRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_API_KEYS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1494,7 +1494,7 @@ export type v1DeleteAuthenticatorsIntent = {
 };
 
 export type v1DeleteAuthenticatorsRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1514,7 +1514,7 @@ export type v1DeleteFiatOnRampCredentialIntent = {
 };
 
 export type v1DeleteFiatOnRampCredentialRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1534,7 +1534,7 @@ export type v1DeleteInvitationIntent = {
 };
 
 export type v1DeleteInvitationRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_INVITATION";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1554,7 +1554,7 @@ export type v1DeleteOauth2CredentialIntent = {
 };
 
 export type v1DeleteOauth2CredentialRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1576,7 +1576,7 @@ export type v1DeleteOauthProvidersIntent = {
 };
 
 export type v1DeleteOauthProvidersRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1606,7 +1606,7 @@ export type v1DeletePoliciesIntent = {
 };
 
 export type v1DeletePoliciesRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_POLICIES";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1626,7 +1626,7 @@ export type v1DeletePolicyIntent = {
 };
 
 export type v1DeletePolicyRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_POLICY";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1646,7 +1646,7 @@ export type v1DeletePrivateKeyTagsIntent = {
 };
 
 export type v1DeletePrivateKeyTagsRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1670,7 +1670,7 @@ export type v1DeletePrivateKeysIntent = {
 };
 
 export type v1DeletePrivateKeysRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1690,7 +1690,7 @@ export type v1DeleteSmartContractInterfaceIntent = {
 };
 
 export type v1DeleteSmartContractInterfaceRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1710,7 +1710,7 @@ export type v1DeleteSubOrganizationIntent = {
 };
 
 export type v1DeleteSubOrganizationRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1730,7 +1730,7 @@ export type v1DeleteUserTagsIntent = {
 };
 
 export type v1DeleteUserTagsRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_USER_TAGS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1752,7 +1752,7 @@ export type v1DeleteUsersIntent = {
 };
 
 export type v1DeleteUsersRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_USERS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1774,7 +1774,7 @@ export type v1DeleteWalletAccountsIntent = {
 };
 
 export type v1DeleteWalletAccountsRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1796,7 +1796,7 @@ export type v1DeleteWalletsIntent = {
 };
 
 export type v1DeleteWalletsRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_WALLETS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1816,7 +1816,7 @@ export type v1DeleteWebhookEndpointIntent = {
 };
 
 export type v1DeleteWebhookEndpointRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1932,7 +1932,7 @@ export type v1EmailAuthIntentV3 = {
 };
 
 export type v1EmailAuthRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_EMAIL_AUTH_V3";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1987,7 +1987,13 @@ export type v1EthSendRawTransactionIntent = {
   /** The raw, signed transaction to be sent. */
   signedTransaction: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002";
 };
 
 export type v1EthSendRawTransactionResult = {
@@ -2001,7 +2007,13 @@ export type v1EthSendTransactionIntent = {
   /** Whether to sponsor this transaction via Gas Station. */
   sponsor?: boolean;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002";
   /** Recipient address as a hex string with 0x prefix. */
   to: string;
   /** Amount of native asset to send in wei. */
@@ -2021,7 +2033,7 @@ export type v1EthSendTransactionIntent = {
 };
 
 export type v1EthSendTransactionRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -2048,7 +2060,7 @@ export type v1ExportPrivateKeyIntent = {
 };
 
 export type v1ExportPrivateKeyRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -2072,7 +2084,7 @@ export type v1ExportWalletAccountIntent = {
 };
 
 export type v1ExportWalletAccountRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -2098,7 +2110,7 @@ export type v1ExportWalletIntent = {
 };
 
 export type v1ExportWalletRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_EXPORT_WALLET";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -2357,7 +2369,13 @@ export type v1GetNoncesRequest = {
   /** The Ethereum address to query nonces for. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -2607,7 +2625,15 @@ export type v1GetWalletAddressBalancesRequest = {
   /** Address corresponding to a wallet account. Private key addresses are not supported. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
 export type v1GetWalletAddressBalancesResponse = {
@@ -2673,7 +2699,7 @@ export type v1ImportPrivateKeyIntent = {
 };
 
 export type v1ImportPrivateKeyRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -2701,7 +2727,7 @@ export type v1ImportWalletIntent = {
 };
 
 export type v1ImportWalletRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_IMPORT_WALLET";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -2743,7 +2769,7 @@ export type v1InitFiatOnRampIntent = {
 };
 
 export type v1InitFiatOnRampRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -2767,7 +2793,7 @@ export type v1InitImportPrivateKeyIntent = {
 };
 
 export type v1InitImportPrivateKeyRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -2787,7 +2813,7 @@ export type v1InitImportWalletIntent = {
 };
 
 export type v1InitImportWalletRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -2871,7 +2897,7 @@ export type v1InitOtpAuthIntentV3 = {
 };
 
 export type v1InitOtpAuthRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V3";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -2970,7 +2996,7 @@ export type v1InitOtpIntentV3 = {
 };
 
 export type v1InitOtpRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_INIT_OTP_V3";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3026,7 +3052,7 @@ export type v1InitUserEmailRecoveryIntentV2 = {
 };
 
 export type v1InitUserEmailRecoveryRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3246,7 +3272,15 @@ export type v1ListSupportedAssetsRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
 export type v1ListSupportedAssetsResponse = {
@@ -3319,7 +3353,7 @@ export type v1Oauth2AuthenticateIntent = {
 };
 
 export type v1Oauth2AuthenticateRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3375,7 +3409,7 @@ export type v1OauthLoginIntent = {
 };
 
 export type v1OauthLoginRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_OAUTH_LOGIN";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3421,7 +3455,7 @@ export type v1OauthProviderParamsV2 = {
 };
 
 export type v1OauthRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_OAUTH";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3477,7 +3511,7 @@ export type v1OtpAuthIntent = {
 };
 
 export type v1OtpAuthRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_OTP_AUTH";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3522,7 +3556,7 @@ export type v1OtpLoginIntentV2 = {
 };
 
 export type v1OtpLoginRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_OTP_LOGIN_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3617,9 +3651,9 @@ export type v1PrivateKeyResult = {
 
 export type v1PublicKeyCredentialWithAttestation = {
   id: string;
-  type: string;
+  type: "public-key";
   rawId: string;
-  authenticatorAttachment?: string;
+  authenticatorAttachment?: "cross-platform" | "platform";
   response: v1AuthenticatorAttestationResponse;
   clientExtensionResults: v1SimpleClientExtensionResults;
 };
@@ -3632,7 +3666,7 @@ export type v1RecoverUserIntent = {
 };
 
 export type v1RecoverUserRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_RECOVER_USER";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3652,7 +3686,7 @@ export type v1RejectActivityIntent = {
 };
 
 export type v1RejectActivityRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_REJECT_ACTIVITY";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3667,7 +3701,7 @@ export type v1RemoveIpAllowlistIntent = {
 };
 
 export type v1RemoveIpAllowlistRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3682,7 +3716,7 @@ export type v1RemoveOrganizationFeatureIntent = {
 };
 
 export type v1RemoveOrganizationFeatureRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3912,7 +3946,7 @@ export type v1SetIpAllowlistIntent = {
 };
 
 export type v1SetIpAllowlistRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3929,7 +3963,7 @@ export type v1SetOrganizationFeatureIntent = {
 };
 
 export type v1SetOrganizationFeatureRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3966,7 +4000,7 @@ export type v1SignRawPayloadIntentV2 = {
 };
 
 export type v1SignRawPayloadRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3996,7 +4030,7 @@ export type v1SignRawPayloadsIntent = {
 };
 
 export type v1SignRawPayloadsRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4026,7 +4060,7 @@ export type v1SignTransactionIntentV2 = {
 };
 
 export type v1SignTransactionRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4078,13 +4112,16 @@ export type v1SolSendTransactionIntent = {
   /** Whether to sponsor this transaction via Gas Station. */
   sponsor?: boolean;
   /** CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). */
-  caip2: string;
+  caip2:
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
+    | "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY";
   /** user-provided blockhash for replay protection / deadline control. If omitted and sponsor=true, we fetch a fresh blockhash during execution */
   recentBlockhash?: string;
 };
 
 export type v1SolSendTransactionRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4135,7 +4172,7 @@ export type v1StampLoginIntent = {
 };
 
 export type v1StampLoginRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_STAMP_LOGIN";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4279,7 +4316,7 @@ export type v1UpdateFiatOnRampCredentialIntent = {
 };
 
 export type v1UpdateFiatOnRampCredentialRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4305,7 +4342,7 @@ export type v1UpdateOauth2CredentialIntent = {
 };
 
 export type v1UpdateOauth2CredentialRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4325,7 +4362,7 @@ export type v1UpdateOrganizationNameIntent = {
 };
 
 export type v1UpdateOrganizationNameRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4371,7 +4408,7 @@ export type v1UpdatePolicyIntentV2 = {
 };
 
 export type v1UpdatePolicyRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_POLICY_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4402,7 +4439,7 @@ export type v1UpdatePrivateKeyTagIntent = {
 };
 
 export type v1UpdatePrivateKeyTagRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4424,7 +4461,7 @@ export type v1UpdateRootQuorumIntent = {
 };
 
 export type v1UpdateRootQuorumRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4444,7 +4481,7 @@ export type v1UpdateUserEmailIntent = {
 };
 
 export type v1UpdateUserEmailRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4479,7 +4516,7 @@ export type v1UpdateUserNameIntent = {
 };
 
 export type v1UpdateUserNameRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_USER_NAME";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4503,7 +4540,7 @@ export type v1UpdateUserPhoneNumberIntent = {
 };
 
 export type v1UpdateUserPhoneNumberRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4518,7 +4555,7 @@ export type v1UpdateUserPhoneNumberResult = {
 };
 
 export type v1UpdateUserRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_USER";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4544,7 +4581,7 @@ export type v1UpdateUserTagIntent = {
 };
 
 export type v1UpdateUserTagRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_USER_TAG";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4566,7 +4603,7 @@ export type v1UpdateWalletIntent = {
 };
 
 export type v1UpdateWalletRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_WALLET";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4592,7 +4629,7 @@ export type v1UpdateWebhookEndpointIntent = {
 };
 
 export type v1UpdateWebhookEndpointRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4732,7 +4769,7 @@ export type v1VerifyOtpIntentV2 = {
 };
 
 export type v1VerifyOtpRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_VERIFY_OTP_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4755,7 +4792,7 @@ export type v1Vote = {
   user: v1User;
   /** Unique identifier for a given Activity object. */
   activityId: string;
-  selection: string;
+  selection: "VOTE_SELECTION_APPROVED" | "VOTE_SELECTION_REJECTED";
   /** The raw message being signed within a Vote. */
   message: string;
   /** The public component of a cryptographic key pair used to sign messages and transactions. */
@@ -5017,7 +5054,13 @@ export type TGetNoncesBody = {
   /** The Ethereum address to query nonces for. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -5210,7 +5253,15 @@ export type TGetWalletAddressBalancesBody = {
   /** Address corresponding to a wallet account. Private key addresses are not supported. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
 export type TGetWalletAddressBalancesInput = {
@@ -5339,7 +5390,15 @@ export type TListSupportedAssetsResponse = {
 export type TListSupportedAssetsBody = {
   organizationId?: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
 export type TListSupportedAssetsInput = { body: TListSupportedAssetsBody };
@@ -6187,7 +6246,13 @@ export type TEthSendTransactionBody = {
   /** Whether to sponsor this transaction via Gas Station. */
   sponsor?: boolean;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002";
   /** Recipient address as a hex string with 0x prefix. */
   to: string;
   /** Amount of native asset to send in wei. */
@@ -6596,16 +6661,16 @@ export type TOtpLoginResponse = {
 export type TOtpLoginBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** Signed Verification Token containing a unique id, expiry, verification type, contact */
+  /** Signed JWT containing a unique id, expiry, verification type, contact */
   verificationToken: string;
-  /** Client-side public key generated by the user, used as the session public key upon successful login */
+  /** Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the verification token */
   publicKey: string;
-  /** Required signature proving authorization for this login. The signature is over the verification token ID and the public key. Required for secure OTP login process. */
-  clientSignature: v1ClientSignature;
   /** Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used. */
   expirationSeconds?: string;
-  /** Invalidate all other previously generated Login sessions */
+  /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
+  clientSignature?: v1ClientSignature;
 };
 
 export type TOtpLoginInput = { body: TOtpLoginBody };
@@ -6786,7 +6851,10 @@ export type TSolSendTransactionBody = {
   /** Whether to sponsor this transaction via Gas Station. */
   sponsor?: boolean;
   /** CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). */
-  caip2: string;
+  caip2:
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
+    | "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY";
   /** user-provided blockhash for replay protection / deadline control. If omitted and sponsor=true, we fetch a fresh blockhash during execution */
   recentBlockhash?: string;
 };
@@ -7090,12 +7158,14 @@ export type TVerifyOtpResponse = {
 export type TVerifyOtpBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** UUID representing an OTP flow. A new UUID is created for each init OTP activity. */
+  /** ID representing the result of an init OTP activity. */
   otpId: string;
-  /** Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result. */
-  encryptedOtpBundle: string;
+  /** OTP sent out to a user's contact (email or SMS) */
+  otpCode: string;
   /** Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours) */
   expirationSeconds?: string;
+  /** Client-side public key generated by the user, which will be added to the JWT response and verified in subsequent requests via a client proof signature */
+  publicKey?: string;
 };
 
 export type TVerifyOtpInput = { body: TVerifyOtpBody };

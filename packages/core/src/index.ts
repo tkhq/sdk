@@ -20,7 +20,6 @@ export { type TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 export * from "./__types__/auth";
 export * from "./__types__/config";
 export * from "./__types__/enums";
-export * from "./__types__/error";
 export * from "./__types__/export";
 export * from "./__types__/external-wallets";
 export * from "./__types__/http";

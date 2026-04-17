@@ -1,4 +1,8 @@
-import type { v1AppProof } from "./__generated__/types";
+import type {
+  v1ActivityResponse,
+  v1ActivityStatus,
+  v1AppProof,
+} from "./__generated__/types";
 
 export enum SessionType {
   READ_ONLY = "SESSION_TYPE_READ_ONLY",
@@ -267,6 +271,62 @@ export type VerificationToken = {
   id: string;
   public_key?: string;
   verification_type: string;
+};
+
+/** @internal */
+export type TActivityStatus = v1ActivityStatus;
+
+/** @internal */
+export type TActivityResponse = v1ActivityResponse;
+
+/** @internal */
+export type TSignedRequest = {
+  body: string;
+  stamp: TStamp;
+  url: string;
+};
+
+/** @internal */
+export const TERMINAL_ACTIVITY_STATUSES: TActivityStatus[] = [
+  "ACTIVITY_STATUS_COMPLETED",
+  "ACTIVITY_STATUS_FAILED",
+  "ACTIVITY_STATUS_REJECTED",
+];
+
+export type TStamp = {
+  stampHeaderName: string;
+  stampHeaderValue: string;
+};
+
+export interface TStamper {
+  stamp: (input: string) => Promise<TStamp>;
+}
+
+/**@internal */
+export class TurnkeyRequestError extends Error {
+  details: any[] | null;
+  code: number;
+
+  constructor(input: GrpcStatus) {
+    let turnkeyErrorMessage = `Turnkey error ${input.code}: ${input.message}`;
+
+    if (input.details != null) {
+      turnkeyErrorMessage += ` (Details: ${JSON.stringify(input.details)})`;
+    }
+
+    super(turnkeyErrorMessage);
+
+    this.name = "TurnkeyRequestError";
+    this.details = input.details ?? null;
+    this.code = input.code;
+  }
+}
+
+/**@internal */
+export type GrpcStatus = {
+  message: string;
+  code: number;
+  details: unknown[] | null;
 };
 
 export * from "./__generated__/types";

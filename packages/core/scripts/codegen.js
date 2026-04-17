@@ -222,14 +222,14 @@ const generateSDKClientFromSwagger = async (
   const imports = [];
 
   imports.push(
-    'import { GrpcStatus, StorageBase, TActivityResponse, TActivityStatus, TERMINAL_ACTIVITY_STATUSES, TSignedRequest, TStamper, TurnkeyHttpClientConfig, TurnkeyRequestError } from "../__types__";',
+    'import type { StorageBase, TurnkeyHttpClientConfig } from "../__types__";',
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');
 
   imports.push('import type * as SdkTypes from "@turnkey/sdk-types";');
   imports.push(
-    'import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";',
+    'import { TurnkeyError, TurnkeyErrorCodes, TStamper, TActivityResponse, TActivityStatus, TERMINAL_ACTIVITY_STATUSES, TSignedRequest, GrpcStatus, TurnkeyRequestError } from "@turnkey/sdk-types";',
   );
 
   imports.push('import { StamperType } from "../__types__";');

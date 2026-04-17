@@ -6,8 +6,7 @@ import { PublicKey, type Transaction } from "@solana/web3.js";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { getSignatureFromActivity, type TActivity } from "@turnkey/http";
-import { Turnkey } from "@turnkey/sdk-server";
+import { Turnkey, v1Activity } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 import {
   createNewSolanaWallet,
@@ -118,12 +117,12 @@ async function main() {
     await turnkeySigner.addSignature(transaction, solAddress);
   } catch (error: any) {
     await handleActivityError(turnkeyClient, error).then(
-      (activity?: TActivity) => {
+      (activity?: v1Activity) => {
         if (!activity) {
           throw error;
         }
 
-        const { r, s } = getSignatureFromActivity(activity);
+        const { r, s } = activity.result!.signRawPayloadResult!;
         transaction.addSignature(
           new PublicKey(solAddress),
           Buffer.from(`${r}${s}`, "hex"),

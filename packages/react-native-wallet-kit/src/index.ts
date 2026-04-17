@@ -36,8 +36,6 @@ export type * from "@turnkey/core/dist/__types__/config";
 /** @internal */
 export * from "@turnkey/core/dist/__types__/enums";
 /** @internal */
-export type * from "@turnkey/core/dist/__types__/error";
-/** @internal */
 export type * from "@turnkey/core/dist/__types__/export";
 /** @internal */
 export type * from "@turnkey/core/dist/__types__/external-wallets";

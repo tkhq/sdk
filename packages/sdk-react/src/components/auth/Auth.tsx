@@ -200,7 +200,9 @@ const Auth: React.FC<AuthProps> = ({
               challenge: encodedChallenge,
               attestation,
             },
-            ...(customAccounts && { customAccounts }),
+            ...(customAccounts && {
+              customAccounts: customAccounts,
+            }),
           });
           if (response?.subOrganizationId) {
             setPasskeyCreated(true);
