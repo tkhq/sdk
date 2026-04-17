@@ -8,12 +8,6 @@ import type {
   v1WalletAccountParams,
 } from "@turnkey/sdk-types";
 
-export type GrpcStatus = {
-  message: string;
-  code: number;
-  details: unknown[] | null;
-};
-
 export enum MethodType {
   Get,
   List,
@@ -23,25 +17,6 @@ export enum MethodType {
 export type THttpConfig = {
   baseUrl: string;
 };
-
-export class TurnkeyRequestError extends Error {
-  details: any[] | null;
-  code: number;
-
-  constructor(input: GrpcStatus) {
-    let turnkeyErrorMessage = `Turnkey error ${input.code}: ${input.message}`;
-
-    if (input.details != null) {
-      turnkeyErrorMessage += ` (Details: ${JSON.stringify(input.details)})`;
-    }
-
-    super(turnkeyErrorMessage);
-
-    this.name = "TurnkeyRequestError";
-    this.details = input.details ?? null;
-    this.code = input.code;
-  }
-}
 
 export type TActivityPollerConfig = {
   intervalMs: number;

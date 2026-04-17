@@ -11,7 +11,6 @@
 export * from "./auth";
 export * from "./config";
 export * from "./enums";
-export * from "./error";
 export * from "./export";
 export * from "./external-wallets";
 export * from "./http";

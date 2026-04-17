@@ -24,13 +24,13 @@ import {
   TurnkeyError,
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
+  GrpcStatus,
+  TurnkeyRequestError,
 } from "@turnkey/sdk-types";
 import {
   type CreateSubOrgParams,
   type WalletProvider,
   Chain,
-  GrpcStatus,
-  TurnkeyRequestError,
   EvmChainInfo,
   SolanaChainInfo,
   Curve,

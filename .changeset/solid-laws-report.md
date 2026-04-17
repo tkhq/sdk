@@ -2,4 +2,4 @@
 "@turnkey/sdk-types": patch
 ---
 
-Added `Stamp` and `Activity` response + status types
+Added `Stamp`, `Activity` response + status, `TurnkeyRequestError`, and `GrpcStatus` types

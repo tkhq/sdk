@@ -19,7 +19,7 @@ import { FilterType, OtpType, authErrors } from "./constants";
 import type { TurnkeyApiTypes, WalletAccount } from "@turnkey/sdk-browser";
 import { server } from "@turnkey/sdk-server";
 import parsePhoneNumberFromString from "libphonenumber-js";
-import { SessionType, v1WalletAccountParams } from "@turnkey/sdk-types";
+import { SessionType } from "@turnkey/sdk-types";
 export interface PasskeyConfig {
   displayName?: string;
   name?: string;
@@ -201,7 +201,7 @@ const Auth: React.FC<AuthProps> = ({
               attestation,
             },
             ...(customAccounts && {
-              customAccounts: customAccounts as v1WalletAccountParams[],
+              customAccounts: customAccounts,
             }),
           });
           if (response?.subOrganizationId) {

@@ -3701,7 +3701,7 @@ export type v1RemoveIpAllowlistIntent = {
 };
 
 export type v1RemoveIpAllowlistRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3946,7 +3946,7 @@ export type v1SetIpAllowlistIntent = {
 };
 
 export type v1SetIpAllowlistRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
