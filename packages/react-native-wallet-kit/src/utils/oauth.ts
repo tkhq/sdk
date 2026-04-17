@@ -1,6 +1,11 @@
 import { sha256 } from "@noble/hashes/sha256";
 import { stringToBase64urlString } from "@turnkey/encoding";
-import { AuthAction, BaseAuthResult, OAuthProviders } from "@turnkey/sdk-types";
+import {
+  AuthAction,
+  BaseAuthResult,
+  OAuthProviders,
+  TurnkeyError,
+} from "@turnkey/sdk-types";
 import AsyncStorageModule from "@react-native-async-storage/async-storage";
 
 // some bundlers wrap the module as { default: AsyncStorage } instead of
@@ -19,6 +24,8 @@ export const FACEBOOK_GRAPH_URL =
 
 export const TURNKEY_OAUTH_ORIGIN_URL = "https://oauth-origin.turnkey.com";
 export const TURNKEY_OAUTH_REDIRECT_URL = "https://oauth-redirect.turnkey.com";
+
+let _pendingOAuthState: string | null = null;
 
 // ============================================================================
 // OAuth State Building
@@ -361,6 +368,43 @@ export async function hasPKCEVerifier(
   return verifier !== null;
 }
 
+/**
+ * Stores the OAuth state in AsyncStorage for redirect flows
+ * @param state - The OAuth state string to store
+ */
+export async function storeOAuthState(state: string): Promise<void> {
+  _pendingOAuthState = state;
+  await AsyncStorage.setItem("oauth_state", state);
+}
+
+/**
+ * Consumes the stored OAuth state and validates against returned state
+ * @param returnedState - The OAuth state string returned from the provider
+ *
+ */
+export async function consumeOAuthState(returnedState: string): Promise<void> {
+  const stored = await AsyncStorage.getItem("oauth_state");
+  if (!stored) {
+    throw new TurnkeyError(`Missing stored OAuth state for validation.`);
+  }
+
+  if (!returnedState || stored !== returnedState) {
+    throw new TurnkeyError(
+      `Invalid OAuth state returned from provider. Expected "${stored}", got "${returnedState}".`,
+    );
+  }
+
+  await AsyncStorage.removeItem("oauth_state");
+}
+
+/**
+ * Checks if a stored OAuth state exists
+ * @returns true if OAuth state exists
+ */
+export async function hasOAuthState(): Promise<boolean> {
+  return (await AsyncStorage.getItem("oauth_state")) !== null;
+}
+
 // ============================================================================
 // OAuth URL Building
 // ============================================================================
@@ -412,7 +456,12 @@ export function buildOAuthUrl(params: BuildOAuthUrlParams): string {
   if (additionalState) {
     stateParams.additionalState = additionalState;
   }
+
   const state = buildOAuthState(stateParams);
+  // Store state for later validation
+  _pendingOAuthState = state;
+  storeOAuthState(state);
+  console.log("[Turnkey] OAuth state stored:", state.substring(0, 40) + "...");
 
   // If using Turnkey Oauth proxy (for Google, Apple, Facebook)
   if (useOauthProxyOrigin) {
@@ -485,6 +534,18 @@ export function parseInAppBrowserResult(
   const idToken = urlParams.get("id_token");
   const authCode = urlParams.get("code");
   const stateParam = urlParams.get("state");
+
+  // Validate state parameter
+  const stored = _pendingOAuthState;
+  if (stored) {
+    if (!stateParam || stored !== stateParam) {
+      throw new TurnkeyError(`OAuth state mismatch`);
+    }
+    _pendingOAuthState = null;
+    AsyncStorage.removeItem("oauth_state");
+    console.log("[Turnkey] OAuth state validated and consumed");
+    console.log("[Turnkey] hasOAuthState:", false);
+  }
 
   // Parse state parameter
   const stateData = parseStateParam(stateParam);

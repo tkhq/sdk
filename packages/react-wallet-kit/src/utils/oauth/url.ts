@@ -1,5 +1,6 @@
 import { OAuthProviders } from "@turnkey/sdk-types";
 import { OAUTH_PROVIDER_CONFIGS, popupWidth, popupHeight } from "./config";
+import { storeOAuthState, consumeOAuthState } from "./storage";
 
 /**
  * Builds the OAuth state parameter string
@@ -179,6 +180,11 @@ export function parseOAuthResponse(
     }
   }
 
+  // Validate state 
+  if (stateString) {
+    consumeOAuthState(stateString);
+  }
+
   // Parse state parameters
   const {
     provider,
@@ -293,7 +299,10 @@ export function buildOAuthUrl(params: BuildOAuthUrlParams): string {
   if (additionalState) {
     stateParams.additionalState = additionalState;
   }
-  authUrl.searchParams.set("state", buildOAuthState(stateParams));
+  // Generate state string and store for validation 
+  const state = buildOAuthState(stateParams);
+  authUrl.searchParams.set("state", state);
+  storeOAuthState(state);
 
   return authUrl.toString();
 }
