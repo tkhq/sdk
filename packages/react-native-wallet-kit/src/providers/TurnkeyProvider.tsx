@@ -2558,7 +2558,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         await storePKCEVerifier(OAuthProviders.DISCORD, verifier);
 
         // Build OAuth URL (direct Discord URL, not proxy)
-        const discordAuthUrl = buildOAuthUrl({
+        const discordAuthUrl = await buildOAuthUrl({
           provider: OAuthProviders.DISCORD,
           clientId,
           redirectUri,
@@ -2596,7 +2596,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
 
         // Parse the deep link result
-        const parsed = parseInAppBrowserResult(result.url);
+        const parsed = await parseInAppBrowserResult(result.url);
         if (!parsed.authCode) {
           throw new TurnkeyError(
             "Missing authorization code from Discord OAuth",
@@ -2714,7 +2714,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         await storePKCEVerifier(OAuthProviders.X, verifier);
 
         // Build OAuth URL (direct X/Twitter URL, not proxy)
-        const twitterAuthUrl = buildOAuthUrl({
+        const twitterAuthUrl = await buildOAuthUrl({
           provider: OAuthProviders.X,
           clientId,
           redirectUri,
@@ -2752,7 +2752,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
 
         // Parse the deep link result
-        const parsed = parseInAppBrowserResult(result.url);
+        const parsed = await parseInAppBrowserResult(result.url);
         if (!parsed.authCode) {
           throw new TurnkeyError(
             "Missing authorization code from Twitter OAuth",
@@ -2869,7 +2869,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const nonce = bytesToHex(sha256(publicKey));
 
         // Build OAuth URL using Turnkey OAuth proxy
-        const oauthUrl = buildOAuthUrl({
+        const oauthUrl = await buildOAuthUrl({
           provider: OAuthProviders.GOOGLE,
           clientId,
           redirectUri: finalRedirectUri,
@@ -2905,7 +2905,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
 
         // Parse the deep link result
-        const parsed = parseInAppBrowserResult(result.url);
+        const parsed = await parseInAppBrowserResult(result.url);
         if (!parsed.idToken) {
           throw new TurnkeyError(
             "oidcToken not found in the response",
@@ -3009,7 +3009,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const nonce = bytesToHex(sha256(publicKey));
 
         // Build OAuth URL using Turnkey OAuth proxy
-        const oauthUrl = buildOAuthUrl({
+        const oauthUrl = await buildOAuthUrl({
           provider: OAuthProviders.APPLE,
           clientId,
           redirectUri: finalRedirectUri,
@@ -3046,7 +3046,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
 
         // Parse the deep link result
-        const parsed = parseInAppBrowserResult(result.url);
+        const parsed = await parseInAppBrowserResult(result.url);
         if (!parsed.idToken) {
           throw new TurnkeyError(
             "oidcToken not found in the response",
@@ -3334,7 +3334,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         await storePKCEVerifier(OAuthProviders.FACEBOOK, verifier);
 
         // Build OAuth URL using Turnkey OAuth proxy
-        const oauthUrl = buildOAuthUrl({
+        const oauthUrl = await buildOAuthUrl({
           provider: OAuthProviders.FACEBOOK,
           clientId,
           redirectUri: finalRedirectUri,
@@ -3372,7 +3372,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
 
         // Parse the deep link result
-        const parsed = parseInAppBrowserResult(result.url);
+        const parsed = await parseInAppBrowserResult(result.url);
         if (!parsed.authCode) {
           throw new TurnkeyError(
             "Missing authorization code from Facebook OAuth",

@@ -361,6 +361,42 @@ export async function hasPKCEVerifier(
   return verifier !== null;
 }
 
+/**
+ * Stores the OAuth state in AsyncStorage for redirect flows
+ * @param state - The OAuth state string to store
+ */
+export async function storeOAuthState(state: string): Promise<void> {
+  await AsyncStorage.setItem("oauth_state", state);
+}
+
+/**
+ * Consumes the stored OAuth state and validates against returned state
+ * @param returnedState - The OAuth state string returned from the provider
+ *
+ */
+export async function consumeOAuthState(returnedState: string): Promise<void> {
+  const stored = await AsyncStorage.getItem("oauth_state");
+  if (!stored) {
+    throw new Error(`Missing stored OAuth state for validation.`);
+  }
+
+  if (!returnedState || stored !== returnedState) {
+    throw new Error(
+      `Invalid OAuth state returned from provider. Expected "${stored}", got "${returnedState}".`,
+    );
+  }
+
+  await AsyncStorage.removeItem("oauth_state");
+}
+
+/**
+ * Checks if a stored OAuth state exists
+ * @returns true if OAuth state exists
+ */
+export async function hasOAuthState(): Promise<boolean> {
+  return (await AsyncStorage.getItem("oauth_state")) !== null;
+}
+
 // ============================================================================
 // OAuth URL Building
 // ============================================================================
@@ -386,7 +422,7 @@ export interface BuildOAuthUrlParams {
  * - Direct provider URLs (Discord, X)
  * - Turnkey OAuth proxy (Google, Apple, Facebook)
  */
-export function buildOAuthUrl(params: BuildOAuthUrlParams): string {
+export async function buildOAuthUrl(params: BuildOAuthUrlParams): Promise<string> {
   const {
     provider,
     clientId,
@@ -412,7 +448,9 @@ export function buildOAuthUrl(params: BuildOAuthUrlParams): string {
   if (additionalState) {
     stateParams.additionalState = additionalState;
   }
+
   const state = buildOAuthState(stateParams);
+  await storeOAuthState(state);
 
   // If using Turnkey Oauth proxy (for Google, Apple, Facebook)
   if (useOauthProxyOrigin) {
@@ -475,9 +513,9 @@ export interface ParsedInAppBrowserResult {
  * @param deepLinkUrl - The URL from InAppBrowser result (e.g., "myapp://?id_token=...&state=...")
  * @returns Parsed OAuth response data
  */
-export function parseInAppBrowserResult(
+export async function parseInAppBrowserResult(
   deepLinkUrl: string,
-): ParsedInAppBrowserResult {
+): Promise<ParsedInAppBrowserResult> {
   const qsIndex = deepLinkUrl.indexOf("?");
   const queryString = qsIndex >= 0 ? deepLinkUrl.substring(qsIndex + 1) : "";
   const urlParams = new URLSearchParams(queryString);
@@ -485,6 +523,11 @@ export function parseInAppBrowserResult(
   const idToken = urlParams.get("id_token");
   const authCode = urlParams.get("code");
   const stateParam = urlParams.get("state");
+
+  // Validate state parameter
+  if (await hasOAuthState()) {
+    await consumeOAuthState(stateParam ?? "");
+  }
 
   // Parse state parameter
   const stateData = parseStateParam(stateParam);
