@@ -104,15 +104,15 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1CreateOauthProvidersIntentV2",
     "v1CreateOauthProvidersResultV2",
   ],
-  ACTIVITY_TYPE_VERIFY_OTP: [
-    "ACTIVITY_TYPE_VERIFY_OTP",
-    "v1VerifyOtpIntent",
-    "v1VerifyOtpResult",
-  ],
   ACTIVITY_TYPE_OTP_LOGIN: [
-    "ACTIVITY_TYPE_OTP_LOGIN",
-    "v1OtpLoginIntent",
-    "v1OtpLoginResult",
+    "ACTIVITY_TYPE_OTP_LOGIN_V2",
+    "v1OtpLoginIntentV2",
+    "v1OtpLoginResultV2",
+  ],
+  ACTIVITY_TYPE_VERIFY_OTP: [
+    "ACTIVITY_TYPE_VERIFY_OTP_V2",
+    "v1VerifyOtpIntentV2",
+    "v1VerifyOtpResultV2",
   ],
 };
 

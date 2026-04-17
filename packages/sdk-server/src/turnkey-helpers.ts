@@ -539,6 +539,38 @@ export const DEFAULT_TON_V4R2_ACCOUNTS: v1WalletAccountParams[] = [
   defaultTonV4r2AccountAtIndex(0),
 ];
 
+// Spark Mainnet
+export const defaultSparkMainnetAccountAtIndex = (
+  pathIndex: number,
+): v1WalletAccountParams => {
+  return {
+    curve: "CURVE_SECP256K1",
+    pathFormat: "PATH_FORMAT_BIP32",
+    path: `m/86'/0'/${pathIndex}'/0/0`,
+    addressFormat: "ADDRESS_FORMAT_SPARK_MAINNET",
+  };
+};
+
+export const DEFAULT_SPARK_MAINNET_ACCOUNTS: v1WalletAccountParams[] = [
+  defaultSparkMainnetAccountAtIndex(0),
+];
+
+// Spark Regtest
+export const defaultSparkRegtestAccountAtIndex = (
+  pathIndex: number,
+): v1WalletAccountParams => {
+  return {
+    curve: "CURVE_SECP256K1",
+    pathFormat: "PATH_FORMAT_BIP32",
+    path: `m/86'/1'/${pathIndex}'/0/0`,
+    addressFormat: "ADDRESS_FORMAT_SPARK_REGTEST",
+  };
+};
+
+export const DEFAULT_SPARK_REGTEST_ACCOUNTS: v1WalletAccountParams[] = [
+  defaultSparkRegtestAccountAtIndex(0),
+];
+
 export function generateWalletAccountsFromAddressFormat(params: {
   addresses: v1AddressFormat[];
   existingWalletAccounts?: v1WalletAccount[];
@@ -845,5 +877,17 @@ export const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> =
       hashFunction: "HASH_FUNCTION_SHA256",
       defaultAccounts: DEFAULT_XRP_ACCOUNTS,
       displayName: "XRP",
+    },
+    ADDRESS_FORMAT_SPARK_MAINNET: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_SPARK_MAINNET_ACCOUNTS,
+      displayName: "Spark Mainnet",
+    },
+    ADDRESS_FORMAT_SPARK_REGTEST: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_SPARK_REGTEST_ACCOUNTS,
+      displayName: "Spark Regtest",
     },
   };
