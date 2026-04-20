@@ -11,8 +11,11 @@ import type {
 } from "@turnkey/sdk-types";
 
 export type GoogleOauthProviderConfig = {
-  /** The Google Client ID. */
-  primaryClientId?: string;
+  /** The Google client identifiers. */
+  primaryClientId?: {
+    /** The client ID for web-based OAuth flow (used for both iOS and Android) */
+    webClientId?: string;
+  };
   /** Additional client IDs to register as secondary OAuth providers during sub-organization creation. */
   secondaryClientIds?: string[];
   /** Redirect URI override for this provider. */

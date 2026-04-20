@@ -27,11 +27,14 @@
     auth: {
       oauth: {
         google: {
-          primaryClientId: "<google-client-id>",
+          // Google's primaryClientId is an object with a webClientId field.
+          primaryClientId: {
+            webClientId: "<google-client-id>",
+          },
           secondaryClientIds: ["<google-client-id-2>"],
         },
         apple: {
-          // Apple's primaryClientId is now an object with the iOS bundle ID and
+          // Apple's primaryClientId is an object with the iOS bundle ID and
           // web/Android Services ID. See the new handleAppleOauth section below.
           primaryClientId: {
             iosBundleId: "<your-app-bundle-id>",
@@ -57,7 +60,25 @@ await handleGoogleOauth({ clientId: "<google-client-id>" });
 
 // after
 await handleGoogleOauth({
-  primaryClientId: "<google-client-id>",
+  primaryClientId: {
+    webClientId: "<google-client-id>",
+  },
+  secondaryClientIds: ["<google-client-id-2>"],
+});
+```
+
+---
+
+### Google OAuth: `handleGoogleOauth`
+
+**What changed:** Google's `primaryClientId` is an object `{ webClientId }` instead of a plain string. This allows the Google config to be extended with additional platform-specific client IDs in the future.
+
+```ts
+// per-call override
+await handleGoogleOauth({
+  primaryClientId: {
+    webClientId: "<google-client-id>",
+  },
   secondaryClientIds: ["<google-client-id-2>"],
 });
 ```

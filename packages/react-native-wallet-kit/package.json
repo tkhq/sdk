@@ -51,7 +51,6 @@
     "@turnkey/encoding": "workspace:*",
     "@turnkey/react-native-passkey-stamper": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
-    "jwt-decode": "4.0.0",
     "react-native-device-info": "^11.1.0"
   },
   "devDependencies": {

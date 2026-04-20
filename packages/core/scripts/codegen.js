@@ -100,8 +100,8 @@ const VERSIONED_ACTIVITY_TYPES = {
   ],
   ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS: [
     "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
-    "v1CreateOAuthProvidersIntentV2",
-    "v1CreateOAuthProvidersResultV2",
+    "v1CreateOauthProvidersIntentV2",
+    "v1CreateOauthProvidersResultV2",
   ],
   ACTIVITY_TYPE_OTP_LOGIN: [
     "ACTIVITY_TYPE_OTP_LOGIN",

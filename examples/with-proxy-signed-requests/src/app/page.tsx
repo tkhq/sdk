@@ -2,7 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTurnkey, AuthState } from "@turnkey/react-wallet-kit";
+import {
+  useTurnkey,
+  AuthState,
+  getClientSignatureMessageForLogin,
+} from "@turnkey/react-wallet-kit";
+import { encryptOtpCodeToBundle } from "@turnkey/crypto";
+import type { v1ClientSignature } from "@turnkey/sdk-types";
 import {
   getSuborgsAction,
   createSuborgAction,
@@ -19,10 +25,14 @@ export default function AuthPage() {
   const [otpCode, setOtpCode] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [working, setWorking] = useState<string | null>(null);
+  const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] = useState<
+    string | null
+  >(null);
 
   const pubKeyRef = useRef<string | null>(null);
 
-  const { storeSession, createApiKeyPair, authState } = useTurnkey();
+  const { storeSession, createApiKeyPair, signWithApiKey, authState } =
+    useTurnkey();
 
   useEffect(() => {
     if (authState === AuthState.Authenticated) {
@@ -41,10 +51,15 @@ export default function AuthPage() {
       pubKeyRef.current = publicKey;
       setOtpCode("");
       setOtpId(null);
+      setOtpEncryptionTargetBundle(null);
 
       setWorking("Sending code…");
-      const { otpId } = await initOtpAction({ email: trimmed, publicKey });
+      const { otpId, otpEncryptionTargetBundle } = await initOtpAction({
+        email: trimmed,
+        publicKey,
+      });
       setOtpId(otpId);
+      setOtpEncryptionTargetBundle(otpEncryptionTargetBundle);
     } catch (e: any) {
       console.error(e);
       setErr(e?.message ?? "Failed to send code.");
@@ -58,14 +73,20 @@ export default function AuthPage() {
       setErr(null);
       if (!otpId) throw new Error("No OTP in progress.");
       if (!otpCode) throw new Error("Enter the code from your email.");
-      if (!pubKeyRef.current)
+      if (!pubKeyRef.current || !otpEncryptionTargetBundle)
         throw new Error("Session key missing. Please resend the code.");
 
       setWorking("Verifying…");
 
+      const encryptedOtpBundle = await encryptOtpCodeToBundle(
+        otpCode.trim(),
+        otpEncryptionTargetBundle,
+        pubKeyRef.current,
+      );
+
       const { verificationToken } = await verifyOtpAction({
         otpId,
-        otpCode: otpCode.trim(),
+        encryptedOtpBundle,
       });
 
       let suborgId = (await getSuborgsAction({ filterValue: email.trim() }))
@@ -75,10 +96,27 @@ export default function AuthPage() {
         suborgId = created.subOrganizationId;
       }
 
+      const { message } = getClientSignatureMessageForLogin({
+        verificationToken,
+      });
+
+      const signature = await signWithApiKey({
+        message,
+        publicKey: pubKeyRef.current!,
+      });
+
+      const clientSignature: v1ClientSignature = {
+        scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
+        publicKey: pubKeyRef.current!,
+        message,
+        signature,
+      };
+
       const { session } = await otpLoginAction({
         suborgID: suborgId!,
         verificationToken,
         publicKey: pubKeyRef.current!,
+        clientSignature,
       });
 
       await storeSession({ sessionToken: session });

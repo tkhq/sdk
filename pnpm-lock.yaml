@@ -2582,12 +2582,18 @@ importers:
       '@tailwindcss/postcss':
         specifier: 4.1.13
         version: 4.1.13
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../packages/crypto
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
         version: link:../../packages/react-wallet-kit
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../packages/sdk-types
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1
@@ -3810,9 +3816,6 @@ importers:
       '@types/react':
         specifier: '>=16.8.0 <20'
         version: 18.3.24
-      jwt-decode:
-        specifier: 4.0.0
-        version: 4.0.0
       react:
         specifier: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
         version: 19.1.0
@@ -3883,9 +3886,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      jwt-decode:
-        specifier: 4.0.0
-        version: 4.0.0
       libphonenumber-js:
         specifier: ^1.11.14
         version: 1.12.15

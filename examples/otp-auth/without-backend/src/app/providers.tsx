@@ -43,21 +43,25 @@ export function Providers({ children }: { children: React.ReactNode }) {
       process.env.NEXT_PUBLIC_AUTH_PROXY_BASE_URL ||
       "https://authproxy.turnkey.com",
     auth: {
-      methods: {
-        emailOtpAuthEnabled: true,
-        smsOtpAuthEnabled: false,
-        passkeyAuthEnabled: false,
-        walletAuthEnabled: false,
-        googleOauthEnabled: false,
-        appleOauthEnabled: false,
-        facebookOauthEnabled: false,
-        xOauthEnabled: false,
-        discordOauthEnabled: false,
-      },
       createSuborgParams: {
         emailOtpAuth: suborgParams,
       },
       autoRefreshSession: true,
+    },
+    ui: {
+      authModal: {
+        methods: {
+          emailOtpAuthEnabled: true,
+          smsOtpAuthEnabled: false,
+          passkeyAuthEnabled: false,
+          walletAuthEnabled: false,
+          googleOauthEnabled: false,
+          appleOauthEnabled: false,
+          facebookOauthEnabled: false,
+          xOauthEnabled: false,
+          discordOauthEnabled: false,
+        },
+      },
     },
   };
 

@@ -25,14 +25,16 @@ function RootLayout({ children }: RootLayoutProps) {
             authProxyConfigId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
             organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
             auth: {
-              methods: {
-                passkeyAuthEnabled: true,
-                emailOtpAuthEnabled: true,
-                walletAuthEnabled: true,
-              },
               autoRefreshSession: true,
             },
             ui: {
+              authModal: {
+                methods: {
+                  passkeyAuthEnabled: true,
+                  emailOtpAuthEnabled: true,
+                  walletAuthEnabled: true,
+                },
+              },
               darkMode: true,
             },
             walletConfig: {

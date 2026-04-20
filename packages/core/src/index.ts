@@ -36,6 +36,8 @@ export {
   decodeVerificationToken,
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,
+  buildSecondaryOidcClaims,
+  buildSecondaryOauthProviders,
   addressFormatConfig,
 } from "./utils";
 

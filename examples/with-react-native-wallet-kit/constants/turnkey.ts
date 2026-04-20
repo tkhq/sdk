@@ -28,7 +28,9 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
     oauth: {
       appScheme: APP_SCHEME,
       google: {
-        primaryClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+        primaryClientId: {
+          webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+        },
       },
       apple: {
         primaryClientId: {

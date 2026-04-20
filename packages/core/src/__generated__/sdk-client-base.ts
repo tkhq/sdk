@@ -5171,7 +5171,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_OTP_LOGIN_V2",
+        type: "ACTIVITY_TYPE_OTP_LOGIN",
       },
       "otpLoginResult",
       stampWith,
@@ -5196,7 +5196,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OTP_LOGIN_V2",
+      type: "ACTIVITY_TYPE_OTP_LOGIN",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -6514,7 +6514,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_VERIFY_OTP_V2",
+        type: "ACTIVITY_TYPE_VERIFY_OTP",
       },
       "verifyOtpResult",
       stampWith,
@@ -6539,7 +6539,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_VERIFY_OTP_V2",
+      type: "ACTIVITY_TYPE_VERIFY_OTP",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

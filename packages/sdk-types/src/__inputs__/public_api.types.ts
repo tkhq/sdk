@@ -2796,7 +2796,7 @@ export type definitions = {
   v1GetIpAllowlistRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description If provided, return only the allowlist for this specific API key. If omitted, all allowlists for the organization are returned. */
+    /** @description If provided, return only the allowlist for this specific API key. */
     publicKey?: string;
   };
   v1GetIpAllowlistResponse: {

@@ -4,8 +4,6 @@ import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import {
   buildOAuthUrl,
-  buildSecondaryOauthProviders,
-  buildSecondaryOidcClaims,
   capitalizeProviderName,
   cleanupOAuthUrl,
   cleanupOAuthUrlPreserveSearch,
@@ -121,6 +119,8 @@ import {
   type SignAndSendTransactionParams,
   type EthTransaction,
   type SolanaTransaction,
+  buildSecondaryOauthProviders,
+  buildSecondaryOidcClaims,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -456,7 +456,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                             stampWith: metadata.stampWith as StamperType,
                           }),
                         });
-                        clearOAuthAddProviderMetadata();
                       }
                     : undefined,
                 exchangeCodeForToken: exchangeCodeFn,
@@ -679,7 +678,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         stampWith: metadata.stampWith as StamperType,
                       }),
                     });
-                    clearOAuthAddProviderMetadata();
                   }
                 : undefined,
           });
@@ -5255,18 +5253,26 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       } = params;
 
       // Resolve the provider's per-provider config, then apply per-call overrides.
-      const providerConfig =
-        providerName === OAuthProviders.DISCORD
-          ? masterConfig?.auth?.oauthConfig?.discord
-          : providerName === OAuthProviders.X
-            ? masterConfig?.auth?.oauthConfig?.x
-            : providerName === OAuthProviders.GOOGLE
-              ? masterConfig?.auth?.oauthConfig?.google
-              : providerName === OAuthProviders.APPLE
-                ? masterConfig?.auth?.oauthConfig?.apple
-                : providerName === OAuthProviders.FACEBOOK
-                  ? masterConfig?.auth?.oauthConfig?.facebook
-                  : undefined;
+      let providerConfig;
+      switch (providerName) {
+        case OAuthProviders.DISCORD:
+          providerConfig = masterConfig?.auth?.oauthConfig?.discord;
+          break;
+        case OAuthProviders.X:
+          providerConfig = masterConfig?.auth?.oauthConfig?.x;
+          break;
+        case OAuthProviders.GOOGLE:
+          providerConfig = masterConfig?.auth?.oauthConfig?.google;
+          break;
+        case OAuthProviders.APPLE:
+          providerConfig = masterConfig?.auth?.oauthConfig?.apple;
+          break;
+        case OAuthProviders.FACEBOOK:
+          providerConfig = masterConfig?.auth?.oauthConfig?.facebook;
+          break;
+        default:
+          providerConfig = undefined;
+      }
       const primaryClientId =
         params.primaryClientId ?? providerConfig?.primaryClientId;
       const secondaryClientIds =

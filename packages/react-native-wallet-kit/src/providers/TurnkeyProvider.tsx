@@ -16,7 +16,6 @@ import {
   setCappedTimeoutInMap,
   setTimeoutInMap,
   clearKeys,
-  buildSecondaryOauthProviders,
 } from "../utils";
 
 import {
@@ -79,6 +78,7 @@ import {
   type SignAndSendTransactionParams,
   type PollTransactionStatusParams,
   type SolSendTransactionParams,
+  buildSecondaryOauthProviders,
 } from "@turnkey/core";
 import {
   ReactNode,
@@ -321,7 +321,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
     return {
       google: {
-        clientId: oauth?.google?.primaryClientId ?? proxyClientIds?.google,
+        // TODO: We left an opening for Google to have separate clientIDs for web and iOS/Android if needed. In this helper, we just return the clientID as primaryClientId?.webClientId since it's the only one right now
+        clientId:
+          oauth?.google?.primaryClientId?.webClientId ?? proxyClientIds?.google,
         secondaryClientIds: oauth?.google?.secondaryClientIds ?? [],
         redirectUri: oauth?.google?.redirectUri ?? defaultRedirectUri,
         appScheme,
@@ -2820,7 +2822,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         secondaryClientIds: paramSecondaryClientIds,
       } = params || {};
       const settings = oauthSettings.google;
-      const clientId = paramClientId ?? settings.clientId;
+      const clientId = paramClientId?.webClientId ?? settings.clientId;
       const secondaryClientIds =
         paramSecondaryClientIds ?? settings.secondaryClientIds;
       const { redirectUri, appScheme: scheme } = settings;

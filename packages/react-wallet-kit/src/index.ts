@@ -14,6 +14,8 @@ export {
   decodeVerificationToken,
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,
+  buildSecondaryOidcClaims,
+  buildSecondaryOauthProviders,
 } from "@turnkey/core";
 
 // Re-export all types from @turnkey/core

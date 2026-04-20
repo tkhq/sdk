@@ -42,7 +42,10 @@ export type HandleXOauthParams = {
 };
 
 export type HandleGoogleOauthParams = {
-  primaryClientId?: string;
+  primaryClientId?: {
+    /** The client ID for web-based OAuth flow (used for both iOS and Android) */
+    webClientId?: string;
+  };
   secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   onOauthSuccess?: (params: {
