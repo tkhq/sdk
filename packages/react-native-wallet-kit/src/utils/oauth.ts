@@ -422,7 +422,9 @@ export interface BuildOAuthUrlParams {
  * - Direct provider URLs (Discord, X)
  * - Turnkey OAuth proxy (Google, Apple, Facebook)
  */
-export async function buildOAuthUrl(params: BuildOAuthUrlParams): Promise<string> {
+export async function buildOAuthUrl(
+  params: BuildOAuthUrlParams,
+): Promise<string> {
   const {
     provider,
     clientId,

@@ -132,7 +132,6 @@ export function consumeOAuthState(returnedState: string | null) {
   localStorage.removeItem(OAUTH_STATE_KEY);
 }
 
-
 /**
  * Checks if an OAuth state string exists in local storage
  * @return true if an OAuth state string is stored, false otherwise
