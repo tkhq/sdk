@@ -2,6 +2,13 @@
 
 Build a headless Solana agent that automatically pays x402-protected endpoints, using Turnkey for authentication, wallet management, and signing, plus [Faremeter](https://github.com/faremeter/faremeter) for x402 orchestration.
 
+This example walks through the following:
+
+- Creation (or reuse) of a Turnkey wallet with a Solana account
+- Wrapping `fetch` with Faremeter so HTTP 402 responses are paid automatically
+- Signing the payment transaction with `@turnkey/solana`
+- Fetching an x402-protected resource end-to-end on Solana devnet
+
 ## Why This Example
 
 - **Headless**: API key auth only (no browser/WebAuthn flow).
@@ -21,44 +28,82 @@ Build a headless Solana agent that automatically pays x402-protected endpoints, 
 
 Note: In this Echo flow, transaction fees are sponsored by the x402 server's fee payer. Turnkey is the secure signer for the payer wallet.
 
-## Quickstart
+## Getting started
 
-From repo root:
+### 1/ Cloning the example
 
-```bash
-pnpm install -r
-pnpm run build-all
-cd examples/with-x402-faremeter
-cp .env.local.example .env.local
-```
-
-Add values to `.env.local`:
+Make sure you have `Node.js` installed locally; we recommend Node v18+.
 
 ```bash
-API_PUBLIC_KEY=...
-API_PRIVATE_KEY=...
-ORGANIZATION_ID=...
-TEST_PAYWALL_URL=https://x402.payai.network/api/solana-devnet/paid-content
+$ git clone https://github.com/tkhq/sdk
+$ cd sdk/
+$ corepack enable  # Install `pnpm`
+$ pnpm install -r  # Install dependencies
+$ pnpm run build-all  # Compile source code
+$ cd examples/with-x402-faremeter/
 ```
 
-Run:
+### 2/ Setting up Turnkey
+
+Follow the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide to create your Turnkey organization and API key pair. You should end up with:
+
+- A public/private API key pair
+- An organization ID
+
+Copy the env template and fill in the required values:
 
 ```bash
-pnpm start
+$ cp .env.local.example .env.local
 ```
 
-You should see:
+Open `.env.local` and set:
 
-- `✅ Faremeter x402 client ready`
-- `✅ Content received!`
+- `API_PUBLIC_KEY`
+- `API_PRIVATE_KEY`
+- `ORGANIZATION_ID`
 
-## Prerequisites
+The other variables (`BASE_URL`, `SOLANA_RPC_URL`, `SOLANA_NETWORK`, `TEST_PAYWALL_URL`) are optional — see the [Environment Variables](#environment-variables) table below. Your private key should be securely managed and **_never_** be committed to git.
 
-- Node.js 18+
-- `pnpm`
-- Turnkey API key pair + organization ID
-- Devnet USDC for testing (from [Circle Faucet](https://faucet.circle.com/))
-- Optional devnet SOL (for non-gasless endpoints)
+The script will create a new Solana wallet in your Turnkey organization on first run, or reuse an existing Solana account if one is already present.
+
+### 3/ Funding the wallet
+
+For the x402 Echo endpoint, the agent mainly needs **USDC** — fees are sponsored by the server. To test against an Echo endpoint:
+
+1. Run the script once (step 4/) to generate the wallet and print its address.
+2. Get devnet USDC from the [Circle Faucet](https://faucet.circle.com/) — select **Solana Devnet** and paste your wallet address.
+
+Optional SOL airdrop (only needed for non-gasless endpoints):
+
+```bash
+$ solana airdrop 1 <WALLET_ADDRESS> --url devnet
+```
+
+### 4/ Running the script
+
+```bash
+$ pnpm start
+```
+
+You should see output similar to the following:
+
+```
+🤖 Initializing Turnkey Agent...
+
+Using existing Solana wallet: DJr1iJiUPNyWDGZagiQRnNAy4RHL5cLz4vDkJDvEJNNb
+✅ Turnkey client initialized
+✅ Agent wallet: DJr1iJiUPNyWDGZagiQRnNAy4RHL5cLz4vDkJDvEJNNb
+💰 SOL Balance: 5 SOL
+💵 USDC Balance: 20.00 USDC
+
+✅ Faremeter x402 client ready
+
+📡 Fetching paywalled resource: https://x402.payai.network/api/solana-devnet/paid-content
+
+✅ Content received!
+```
+
+On Echo, USDC can be refunded quickly, so net spend may show as `0.000000`.
 
 ## Environment Variables
 
@@ -80,22 +125,6 @@ TEST_PAYWALL_URL=https://x402.payai.network/api/solana-devnet/paid-content
 
 This is the [x402 Echo Server](https://x402.payai.network/), a free devnet test environment.
 
-## Funding the Wallet
-
-For Echo, the agent mainly needs **USDC**.
-
-Get devnet USDC:
-
-1. Go to [Circle Faucet](https://faucet.circle.com/)
-2. Select **Solana Devnet**
-3. Paste your wallet address
-
-Optional SOL airdrop:
-
-```bash
-solana airdrop 1 <WALLET_ADDRESS> --url devnet
-```
-
 ## How It Works
 
 1. Initialize Turnkey API client + `TurnkeySigner`
@@ -105,21 +134,6 @@ solana airdrop 1 <WALLET_ADDRESS> --url devnet
 5. Make request:
    - if `200`: return content
    - if `402`: build/sign payment payload and retry automatically
-
-## Example Success Output
-
-```text
-✅ Faremeter x402 client ready
-📡 Fetching paywalled resource: https://x402.payai.network/api/solana-devnet/paid-content
-✅ Content received!
-{"success":true,"transaction":"...","network":"solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1","payer":"...","premiumContent":"...","refundTransaction":"..."}
-💰 Final SOL balance: ...
-💵 Final USDC balance: ...
-📊 SOL spent: ...
-📊 USDC spent: ...
-```
-
-On Echo, USDC can be refunded quickly, so net spend may show as `0.000000`.
 
 ## Core Integration
 
