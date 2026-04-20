@@ -155,6 +155,7 @@ export async function createX402Client(
   // required `resource` object. This minimal phase1Fetch patches that so
   // faremeter's v2 validation passes. Once servers fully implement v2,
   // this can be removed and plain `fetch` used for both.
+  let hasWarnedAboutBadV2Header = false;
   const patchV2Fetch: typeof fetch = async (
     input: RequestInfo | URL,
     init?: RequestInit,
@@ -183,8 +184,15 @@ export async function createX402Client(
           headers,
         });
       }
-    } catch {
-      // If decoding fails, let faremeter handle the error
+    } catch (err) {
+      if (!hasWarnedAboutBadV2Header) {
+        hasWarnedAboutBadV2Header = true;
+        console.warn(
+          "x402: failed to decode PAYMENT-REQUIRED header; " +
+            "the server may be sending a malformed v2 response.",
+          err,
+        );
+      }
     }
     return response;
   };
