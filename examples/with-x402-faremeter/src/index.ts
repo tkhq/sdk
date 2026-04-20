@@ -163,8 +163,6 @@ async function main() {
     console.log("─".repeat(50));
     console.log("\n✅ Agent ready for x402 payments!");
   }
-
-  process.exit(0);
 }
 
 main().catch((error) => {
