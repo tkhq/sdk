@@ -69,6 +69,7 @@ You should see:
 | `ORGANIZATION_ID`  | Yes      | Turnkey organization ID | -                               |
 | `TEST_PAYWALL_URL` | No       | x402 endpoint to test   | -                               |
 | `SOLANA_RPC_URL`   | No       | Solana RPC endpoint     | `https://api.devnet.solana.com` |
+| `SOLANA_NETWORK`   | No       | Override detected network (`devnet` or `mainnet-beta`); auto-detected via genesis hash when unset | -                               |
 | `BASE_URL`         | No       | Turnkey API base URL    | `https://api.turnkey.com`       |
 
 Recommended test endpoint:

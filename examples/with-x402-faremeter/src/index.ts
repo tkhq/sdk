@@ -53,6 +53,10 @@ async function main() {
       organizationId,
       rpcUrl: process.env.SOLANA_RPC_URL,
       baseUrl: process.env.BASE_URL,
+      network: process.env.SOLANA_NETWORK as
+        | "devnet"
+        | "mainnet-beta"
+        | undefined,
     });
 
   console.log("✅ Turnkey client initialized");

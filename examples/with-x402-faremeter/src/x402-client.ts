@@ -22,6 +22,13 @@ const USDC_MINTS = {
   "mainnet-beta": new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
 };
 
+// Genesis hashes are fixed per Solana cluster and are the authoritative
+// way to identify which network an RPC endpoint is serving.
+const GENESIS_HASHES: Record<string, "devnet" | "mainnet-beta"> = {
+  EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG: "devnet",
+  "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d": "mainnet-beta",
+};
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -32,6 +39,11 @@ export interface X402ClientConfig {
   organizationId: string;
   rpcUrl?: string;
   baseUrl?: string;
+  /**
+   * Override the detected Solana network. If unset, the network is
+   * detected by calling `getGenesisHash()` on the RPC endpoint.
+   */
+  network?: "devnet" | "mainnet-beta";
 }
 
 export interface X402Client {
@@ -104,9 +116,23 @@ export async function createX402Client(
   const walletAddress = await getOrCreateSolanaWallet(turnkey.apiClient());
   const walletPubkey = new PublicKey(walletAddress);
 
-  // Set up connection and detect network
+  // Set up connection and resolve network via genesis hash (or explicit override)
   const connection = new Connection(rpcUrl, "confirmed");
-  const network = rpcUrl.includes("devnet") ? "devnet" : "mainnet-beta";
+  let network: "devnet" | "mainnet-beta";
+  if (config.network) {
+    network = config.network;
+  } else {
+    const genesisHash = await connection.getGenesisHash();
+    const detected = GENESIS_HASHES[genesisHash];
+    if (!detected) {
+      throw new Error(
+        `Unknown Solana cluster (genesis hash: ${genesisHash}). ` +
+          `Only devnet and mainnet-beta are supported. ` +
+          `Pass an explicit 'network' in X402ClientConfig to override.`,
+      );
+    }
+    network = detected;
+  }
   const usdcMint = USDC_MINTS[network];
 
   // Faremeter assembles the payment transaction (fee payer from
