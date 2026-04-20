@@ -52,9 +52,6 @@ export interface X402Client {
 interface TurnkeyWallet {
   network: string;
   publicKey: PublicKey;
-  updateTransaction: (
-    tx: VersionedTransaction,
-  ) => Promise<VersionedTransaction>;
   partiallySignTransaction: (
     tx: VersionedTransaction,
   ) => Promise<VersionedTransaction>;
@@ -112,22 +109,16 @@ export async function createX402Client(
   const network = rpcUrl.includes("devnet") ? "devnet" : "mainnet-beta";
   const usdcMint = USDC_MINTS[network];
 
-  // Create Turnkey wallet adapter compatible with faremeter's interface.
-  // Both `updateTransaction` and `partiallySignTransaction` delegate to
-  // Turnkey's signer — the distinction is for faremeter's internal flow.
+  // Faremeter assembles the payment transaction (fee payer from
+  // requirements.extra.feePayer, blockhash, SPL transfer instructions) and
+  // then calls partiallySignTransaction to have the payer wallet add its
+  // signature. Turnkey signs without exposing the private key.
   // See: https://docs.corbits.dev/api/reference/payment-solana/overview
-  const signWithTurnkey = async (
-    tx: VersionedTransaction,
-  ): Promise<VersionedTransaction> => {
-    const signedTx = await signer.signTransaction(tx, walletAddress);
-    return signedTx as VersionedTransaction;
-  };
-
   const wallet: TurnkeyWallet = {
     network,
     publicKey: walletPubkey,
-    updateTransaction: signWithTurnkey,
-    partiallySignTransaction: signWithTurnkey,
+    partiallySignTransaction: async (tx) =>
+      (await signer.signTransaction(tx, walletAddress)) as VersionedTransaction,
   };
 
   // Create payment handler using faremeter's exact payment implementation.
