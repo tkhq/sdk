@@ -1,5 +1,6 @@
 import {
   type TurnkeyApiClient,
+  type TurnkeyApiTypes,
   TurnkeyActivityError,
 } from "@turnkey/sdk-server";
 import * as crypto from "crypto";
@@ -47,7 +48,7 @@ async function findExistingSolanaWallet(
     });
 
     const solanaAccount = accounts?.find(
-      (account: { addressFormat: string; address: string }) =>
+      (account: TurnkeyApiTypes["v1WalletAccount"]) =>
         account.addressFormat === "ADDRESS_FORMAT_SOLANA",
     );
 
