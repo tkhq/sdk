@@ -492,16 +492,6 @@ export type TCreateApiKeysBody =
   operations["PublicApiService_CreateApiKeys"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
-export type TCreateApiOnlyUsersResponse =
-  operations["PublicApiService_CreateApiOnlyUsers"]["responses"]["200"]["schema"]["activity"]["result"]["createApiOnlyUsersResult"] &
-    definitions["v1ActivityResponse"];
-
-export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
-
-export type TCreateApiOnlyUsersBody =
-  operations["PublicApiService_CreateApiOnlyUsers"]["parameters"]["body"]["body"]["parameters"] &
-    commandOverrideParams;
-
 export type TCreateAuthenticatorsResponse =
   operations["PublicApiService_CreateAuthenticators"]["responses"]["200"]["schema"]["activity"]["result"]["createAuthenticatorsResult"] &
     definitions["v1ActivityResponse"];
@@ -547,7 +537,7 @@ export type TCreateOauth2CredentialBody =
     commandOverrideParams;
 
 export type TCreateOauthProvidersResponse =
-  operations["PublicApiService_CreateOauthProviders"]["responses"]["200"]["schema"]["activity"]["result"]["createOauthProvidersResult"] &
+  operations["PublicApiService_CreateOauthProviders"]["responses"]["200"]["schema"]["activity"]["result"]["createOauthProvidersResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateOauthProvidersInput = { body: TCreateOauthProvidersBody };
@@ -631,7 +621,7 @@ export type TCreateSmartContractInterfaceBody =
     commandOverrideParams;
 
 export type TCreateSubOrganizationResponse =
-  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV7"] &
+  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV8"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
@@ -967,7 +957,7 @@ export type TInitImportWalletBody =
     commandOverrideParams;
 
 export type TInitOtpResponse =
-  operations["PublicApiService_InitOtp"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpResult"] &
+  operations["PublicApiService_InitOtp"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TInitOtpInput = { body: TInitOtpBody };

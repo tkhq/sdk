@@ -7,10 +7,13 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
-import { TurnkeyProvider } from "@turnkey/react-native-wallet-kit";
+import {
+  TurnkeyProvider,
+  AuthState,
+  useTurnkey,
+} from "@turnkey/react-native-wallet-kit";
 import { TURNKEY_CONFIG, TURNKEY_CALLBACKS } from "@/constants/turnkey";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { AuthState, useTurnkey } from "@turnkey/react-native-wallet-kit";
 
 function AuthGate() {
   const { authState } = useTurnkey();

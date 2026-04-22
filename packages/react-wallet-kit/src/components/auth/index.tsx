@@ -66,17 +66,25 @@ export function AuthComponent({
     );
   }
 
-  const { methods = {}, methodOrder = [], oauthOrder = [] } = config.auth || {};
+  const {
+    methods = {},
+    methodOrder = [],
+    oauthOrder = [],
+  } = config.ui?.authModal || {};
 
   const handleEmailSubmit = async (email: string) => {
     try {
-      const otpId = await initOtp({ otpType: OtpType.Email, contact: email });
+      const { otpId, otpEncryptionTargetBundle } = await initOtp({
+        otpType: OtpType.Email,
+        contact: email,
+      });
       pushPage({
         key: "Verify OTP",
         content: (
           <OtpVerification
             contact={email}
             otpId={otpId}
+            otpEncryptionTargetBundle={otpEncryptionTargetBundle}
             otpType={OtpType.Email}
             otpLength={
               config.auth?.otpLength !== undefined
@@ -96,7 +104,7 @@ export function AuthComponent({
 
   const handlePhoneSubmit = async (phone: string, formattedPhone: string) => {
     try {
-      const otpId = await initOtp({
+      const { otpId, otpEncryptionTargetBundle } = await initOtp({
         otpType: OtpType.Sms,
         contact: phone,
       });
@@ -108,6 +116,7 @@ export function AuthComponent({
             // Pass in the formatted phone number seperately. In the case that some weird formatting occurs, we don't want to send it into the initOtp request
             formattedContact={formattedPhone}
             otpId={otpId}
+            otpEncryptionTargetBundle={otpEncryptionTargetBundle}
             otpType={OtpType.Sms}
             otpLength={
               config.auth?.otpLength !== undefined

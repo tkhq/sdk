@@ -12,6 +12,7 @@ import type {
   v1TransactionType,
   v1WalletAccountParams,
   v1AppProof,
+  v1OidcClaims,
 } from "@turnkey/sdk-types";
 import type {
   CreateSubOrgParams,
@@ -61,10 +62,6 @@ export type SignUpWithPasskeyParams = {
   passkeyDisplayName?: string;
   expirationSeconds?: string;
   challenge?: string;
-
-  // TODO: (breaking change): remove organizationId from here, there is literally
-  // no reason to have it
-  organizationId?: string;
 };
 
 export type SwitchWalletAccountChainParams = {
@@ -112,26 +109,25 @@ export type InitOtpParams = {
   contact: string;
 };
 
+export type InitOtpResult = {
+  otpId: string;
+  otpEncryptionTargetBundle: string;
+};
+
 export type VerifyOtpParams = {
   otpId: string;
   otpCode: string;
+  otpEncryptionTargetBundle: string;
   publicKey?: string;
-
-  // TODO (breaking change): we should be able to remove these and make verifyOtp()
-  // purely about verifying and not also finding an `organizationId`. That should
-  // be the responsibility of completeOtp()
-  contact: string;
-  otpType: OtpType;
 };
 
 export type VerifyOtpResult = {
-  subOrganizationId: string | undefined;
   verificationToken: string;
+  publicKey: string;
 };
 
 export type LoginWithOtpParams = {
   verificationToken: string;
-  publicKey?: string;
   organizationId?: string;
   invalidateExisting?: boolean;
   sessionKey?: string;
@@ -143,13 +139,13 @@ export type SignUpWithOtpParams = {
   otpType: OtpType;
   createSubOrgParams?: CreateSubOrgParams;
   invalidateExisting?: boolean;
-  publicKey?: string;
   sessionKey?: string;
 };
 
 export type CompleteOtpParams = {
   otpId: string;
   otpCode: string;
+  otpEncryptionTargetBundle: string;
   contact: string;
   otpType: OtpType;
   publicKey?: string;
@@ -365,7 +361,8 @@ export type UpdateUserNameParams = {
 
 export type AddOauthProviderParams = {
   providerName: string;
-  oidcToken: string;
+  oidcToken?: string;
+  oidcClaims?: v1OidcClaims[];
   organizationId?: string;
   userId?: string;
   stampWith?: StamperType | undefined;
@@ -436,6 +433,11 @@ export type SetActiveSessionParams = { sessionKey: string };
 export type CreateApiKeyPairParams = {
   externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string };
   storeOverride?: boolean;
+};
+
+export type SignWithApiKeyParams = {
+  message: string;
+  publicKey: string;
 };
 
 export type FetchBootProofForAppProofParams = {

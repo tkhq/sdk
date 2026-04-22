@@ -24,7 +24,7 @@ async function main() {
   );
 
   const { activity } = await turnkeyClient.createSubOrganization({
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
     timestampMs: String(Date.now()),
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {

@@ -4,7 +4,7 @@ import {
   type v1PayloadEncoding,
   type Session,
   type externaldatav1Timestamp,
-  type ProxyTSignupBody,
+  type ProxyTSignupV2Body,
   type v1ApiKeyParamsV2,
   type v1ApiKeyCurve,
   type v1AuthenticatorParamsV2,
@@ -12,8 +12,8 @@ import {
   type v1WalletAccount,
   type v1LoginUsage,
   type v1TokenUsage,
-  type v1OauthProviderParams,
-  type v1SignupUsage,
+  type v1OauthProviderParamsV2,
+  type v1SignupUsageV2,
   type v1SignRawPayloadResult,
   type v1TransactionType,
   type ProxyTGetWalletKitConfigResponse,
@@ -22,7 +22,7 @@ import {
   type VerificationToken,
   TurnkeyError,
   TurnkeyErrorCodes,
-  TurnkeyNetworkError,
+  v1OidcClaims,
 } from "@turnkey/sdk-types";
 import {
   type CreateSubOrgParams,
@@ -36,7 +36,6 @@ import {
   EmbeddedWallet,
   WalletSource,
   StamperType,
-  TSignedRequest,
 } from "./__types__";
 import { bs58 } from "@turnkey/encoding";
 
@@ -86,7 +85,7 @@ import {
 } from "@turnkey/encoding";
 import { keccak256, toUtf8String } from "ethers";
 import type { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
-import { VERSION } from "./__generated__/version";
+import { jwtDecode } from "jwt-decode";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -731,7 +730,7 @@ export function generateWalletAccountsFromAddressFormat(params: {
 
 export function buildSignUpBody(params: {
   createSubOrgParams: CreateSubOrgParams | undefined;
-}): ProxyTSignupBody {
+}): ProxyTSignupV2Body {
   const { createSubOrgParams } = params;
   const authenticatorName = isWeb()
     ? `${window.location.hostname}-${Date.now()}`
@@ -996,48 +995,6 @@ export async function getAuthProxyConfig(
 
   const data = await response.json();
   return data as ProxyTGetWalletKitConfigResponse;
-}
-
-/**
- * Submits a signed request to Turnkey.
- *
- * You can pass in the SignedRequest returned by any of the SDK's
- * stamping methods (stampStampLogin, stampGetPolicies, etc.).
- *
- * @deprecated Use `httpClient.sendSignedRequest()` instead, which includes
- * automatic activity polling and result extraction.
- *
- * @param signedRequest A SignedRequest object returned by a stamping method.
- * @returns The parsed JSON response from Turnkey.
- * @throws TurnkeyNetworkError if the request fails.
- */
-// TODO: (breaking change) remove this function
-export async function sendSignedRequest<T = any>(
-  signedRequest: TSignedRequest,
-): Promise<T> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "X-Client-Version": VERSION,
-    [signedRequest.stamp.stampHeaderName]: signedRequest.stamp.stampHeaderValue,
-  };
-
-  const res = await fetch(signedRequest.url, {
-    method: "POST",
-    headers,
-    body: signedRequest.body,
-  });
-
-  if (!res.ok) {
-    const errorText = await res.text();
-    throw new TurnkeyNetworkError(
-      "Signed request failed",
-      res.status,
-      TurnkeyErrorCodes.BAD_RESPONSE,
-      errorText,
-    );
-  }
-
-  return res.json() as Promise<T>;
 }
 
 /**
@@ -1431,7 +1388,7 @@ export function getClientSignatureMessageForSignup({
   phoneNumber?: string;
   apiKeys?: v1ApiKeyParamsV2[];
   authenticators?: v1AuthenticatorParamsV2[];
-  oauthProviders?: v1OauthProviderParams[];
+  oauthProviders?: v1OauthProviderParamsV2[];
 }) {
   try {
     const decoded = decodeVerificationToken(verificationToken);
@@ -1444,7 +1401,7 @@ export function getClientSignatureMessageForSignup({
 
     const verificationPublicKey = decoded.public_key as string;
 
-    const usage: v1SignupUsage = {
+    const usage: v1SignupUsageV2 = {
       ...(apiKeys ? { apiKeys } : {}),
       ...(authenticators ? { authenticators } : {}),
       ...(oauthProviders ? { oauthProviders } : {}),
@@ -1453,7 +1410,7 @@ export function getClientSignatureMessageForSignup({
     };
 
     const payload: v1TokenUsage = {
-      signup: usage,
+      signupV2: usage,
       tokenId: decoded.id as string,
       type: "USAGE_TYPE_SIGNUP",
     };
@@ -1490,3 +1447,32 @@ export const withTimeoutFallback = <T>(
     new Promise<T>((resolve) => setTimeout(() => resolve(fallback), timeout)),
   ]);
 };
+
+/**
+ * Decodes the OIDC token to extract `iss` and `sub`, then builds a list of
+ * `oidcClaims` (one per secondary client ID) suitable for use as the `aud` in `v1OauthProviderParamsV2.oidcClaims`.
+ * Returns an empty array if there are no secondary client IDs or if the token is missing `iss`/`sub`.
+ */
+export function buildSecondaryOidcClaims(
+  oidcToken: string,
+  secondaryClientIds: string[],
+): v1OidcClaims[] {
+  if (secondaryClientIds.length === 0) return [];
+  const { iss, sub } = jwtDecode<{ iss?: string; sub?: string }>(oidcToken);
+  if (!iss || !sub) return [];
+  return secondaryClientIds.map((aud) => ({ iss, sub, aud }));
+}
+
+/**
+ * Builds secondary `v1OauthProviderParamsV2` entries (using `oidcClaims`-style audiences)
+ * from a list of secondary client IDs. Each entry is tagged with the given `providerName`.
+ */
+export function buildSecondaryOauthProviders(
+  oidcToken: string,
+  providerName: string,
+  secondaryClientIds: string[],
+): v1OauthProviderParamsV2[] {
+  return buildSecondaryOidcClaims(oidcToken, secondaryClientIds).map(
+    (oidcClaims) => ({ providerName, oidcClaims }),
+  );
+}

@@ -862,7 +862,13 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
     | "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
     | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION"
+    | "ACTIVITY_TYPE_INIT_OTP_V3"
+    | "ACTIVITY_TYPE_VERIFY_OTP_V2"
+    | "ACTIVITY_TYPE_OTP_LOGIN_V2"
     | "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME"
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8"
+    | "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2"
+    | "ACTIVITY_TYPE_CREATE_USERS_V4"
     | "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"
     | "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"
     | "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
@@ -1258,17 +1264,27 @@ export type definitions = {
     /** @description A list of Oauth providers. */
     oauthProviders: definitions["v1OauthProviderParams"][];
   };
+  v1CreateOauthProvidersIntentV2: {
+    /** @description The ID of the User to add an Oauth provider to */
+    userId: string;
+    /** @description A list of Oauth providers. */
+    oauthProviders: definitions["v1OauthProviderParamsV2"][];
+  };
   v1CreateOauthProvidersRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS";
+    type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreateOauthProvidersIntent"];
+    parameters: definitions["v1CreateOauthProvidersIntentV2"];
     generateAppProofs?: boolean;
   };
   v1CreateOauthProvidersResult: {
+    /** @description A list of unique identifiers for Oauth Providers */
+    providerIds: string[];
+  };
+  v1CreateOauthProvidersResultV2: {
     /** @description A list of unique identifiers for Oauth Providers */
     providerIds: string[];
   };
@@ -1625,14 +1641,39 @@ export type definitions = {
     /** @description Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
     clientSignature?: definitions["v1ClientSignature"];
   };
+  v1CreateSubOrganizationIntentV8: {
+    /** @description Name for this sub-organization */
+    subOrganizationName: string;
+    /** @description Root users to create within this sub-organization */
+    rootUsers: definitions["v1RootUserParamsV5"][];
+    /**
+     * Format: int32
+     * @description The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users
+     */
+    rootQuorumThreshold: number;
+    /** @description The wallet to create for the sub-organization */
+    wallet?: definitions["v1WalletParams"];
+    /** @description Disable email recovery for the sub-organization */
+    disableEmailRecovery?: boolean;
+    /** @description Disable email auth for the sub-organization */
+    disableEmailAuth?: boolean;
+    /** @description Disable OTP SMS auth for the sub-organization */
+    disableSmsAuth?: boolean;
+    /** @description Disable OTP email auth for the sub-organization */
+    disableOtpEmailAuth?: boolean;
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    verificationToken?: string;
+    /** @description Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
+    clientSignature?: definitions["v1ClientSignature"];
+  };
   v1CreateSubOrganizationRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7";
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreateSubOrganizationIntentV7"];
+    parameters: definitions["v1CreateSubOrganizationIntentV8"];
     generateAppProofs?: boolean;
   };
   v1CreateSubOrganizationResult: {
@@ -1661,6 +1702,11 @@ export type definitions = {
     rootUserIds?: string[];
   };
   v1CreateSubOrganizationResultV7: {
+    subOrganizationId: string;
+    wallet?: definitions["v1WalletResult"];
+    rootUserIds?: string[];
+  };
+  v1CreateSubOrganizationResultV8: {
     subOrganizationId: string;
     wallet?: definitions["v1WalletResult"];
     rootUserIds?: string[];
@@ -1806,14 +1852,18 @@ export type definitions = {
     /** @description A list of Users. */
     users: definitions["v1UserParamsV3"][];
   };
+  v1CreateUsersIntentV4: {
+    /** @description A list of Users. */
+    users: definitions["v1UserParamsV4"][];
+  };
   v1CreateUsersRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_USERS_V3";
+    type: "ACTIVITY_TYPE_CREATE_USERS_V4";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreateUsersIntentV3"];
+    parameters: definitions["v1CreateUsersIntentV4"];
     generateAppProofs?: boolean;
   };
   v1CreateUsersResult: {
@@ -2746,7 +2796,7 @@ export type definitions = {
   v1GetIpAllowlistRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description If provided, return only the allowlist for this specific API key. If omitted, all allowlists for the organization are returned. */
+    /** @description If provided, return only the allowlist for this specific API key. */
     publicKey?: string;
   };
   v1GetIpAllowlistResponse: {
@@ -3370,19 +3420,54 @@ export type definitions = {
     /** @description Optional custom email address to use as reply-to */
     replyToEmailAddress?: string;
   };
+  v1InitOtpIntentV3: {
+    /** @description Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
+    otpType: string;
+    /** @description Email or phone number to send the OTP code to */
+    contact: string;
+    /** @description The name of the application. */
+    appName: string;
+    /**
+     * Format: int32
+     * @description Optional length of the OTP code. Default = 9
+     */
+    otpLength?: number;
+    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
+    emailCustomization?: definitions["v1EmailCustomizationParamsV2"];
+    /** @description Optional parameters for customizing SMS message. If not provided, the default sms message will be used. */
+    smsCustomization?: definitions["v1SmsCustomizationParams"];
+    /** @description Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address. */
+    userIdentifier?: string;
+    /** @description Optional custom email address from which to send the OTP email */
+    sendFromEmailAddress?: string;
+    /** @description Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). If set to false, OTP code will only be numeric. Default = true */
+    alphanumeric?: boolean;
+    /** @description Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+    sendFromEmailSenderName?: string;
+    /** @description Expiration window (in seconds) indicating how long the OTP is valid for. If not provided, a default of 5 minutes will be used. Maximum value is 600 seconds (10 minutes) */
+    expirationSeconds?: string;
+    /** @description Optional custom email address to use as reply-to */
+    replyToEmailAddress?: string;
+  };
   v1InitOtpRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_INIT_OTP_V2";
+    type: "ACTIVITY_TYPE_INIT_OTP_V3";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1InitOtpIntentV2"];
+    parameters: definitions["v1InitOtpIntentV3"];
     generateAppProofs?: boolean;
   };
   v1InitOtpResult: {
     /** @description Unique identifier for an OTP authentication */
     otpId: string;
+  };
+  v1InitOtpResultV2: {
+    /** @description Unique identifier for an OTP flow */
+    otpId: string;
+    /** @description Signed bundle containing a target encryption key to use when submitting OTP codes. */
+    otpEncryptionTargetBundle: string;
   };
   v1InitUserEmailRecoveryIntent: {
     /** @description Email of the user starting recovery */
@@ -3548,7 +3633,13 @@ export type definitions = {
     createTvcDeploymentIntent?: definitions["v1CreateTvcDeploymentIntent"];
     createTvcManifestApprovalsIntent?: definitions["v1CreateTvcManifestApprovalsIntent"];
     solSendTransactionIntent?: definitions["v1SolSendTransactionIntent"];
+    initOtpIntentV3?: definitions["v1InitOtpIntentV3"];
+    verifyOtpIntentV2?: definitions["v1VerifyOtpIntentV2"];
+    otpLoginIntentV2?: definitions["v1OtpLoginIntentV2"];
     updateOrganizationNameIntent?: definitions["v1UpdateOrganizationNameIntent"];
+    createSubOrganizationIntentV8?: definitions["v1CreateSubOrganizationIntentV8"];
+    createOauthProvidersIntentV2?: definitions["v1CreateOauthProvidersIntentV2"];
+    createUsersIntentV4?: definitions["v1CreateUsersIntentV4"];
     createWebhookEndpointIntent?: definitions["v1CreateWebhookEndpointIntent"];
     updateWebhookEndpointIntent?: definitions["v1UpdateWebhookEndpointIntent"];
     deleteWebhookEndpointIntent?: definitions["v1DeleteWebhookEndpointIntent"];
@@ -3804,6 +3895,14 @@ export type definitions = {
     /** @description Base64 encoded OIDC token */
     oidcToken: string;
   };
+  v1OauthProviderParamsV2: {
+    /** @description Human-readable name to identify a Provider. */
+    providerName: string;
+    /** @description Base64 encoded OIDC token */
+    oidcToken?: string;
+    /** @description OIDC claims (iss, sub, aud) to uniquely identify the user */
+    oidcClaims?: definitions["v1OidcClaims"];
+  };
   v1OauthRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_OAUTH";
@@ -3821,6 +3920,14 @@ export type definitions = {
     apiKeyId: string;
     /** @description HPKE encrypted credential bundle */
     credentialBundle: string;
+  };
+  v1OidcClaims: {
+    /** @description The issuer identifier from the OIDC token (iss claim) */
+    iss: string;
+    /** @description The subject identifier from the OIDC token (sub claim) */
+    sub: string;
+    /** @description The audience from the OIDC token (aud claim) */
+    aud: string;
   };
   /** @enum {string} */
   v1Operator:
@@ -3892,14 +3999,26 @@ export type definitions = {
     /** @description Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
     clientSignature?: definitions["v1ClientSignature"];
   };
+  v1OtpLoginIntentV2: {
+    /** @description Signed Verification Token containing a unique id, expiry, verification type, contact */
+    verificationToken: string;
+    /** @description Client-side public key generated by the user, used as the session public key upon successful login */
+    publicKey: string;
+    /** @description Required signature proving authorization for this login. The signature is over the verification token ID and the public key. Required for secure OTP login process. */
+    clientSignature: definitions["v1ClientSignature"];
+    /** @description Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used. */
+    expirationSeconds?: string;
+    /** @description Invalidate all other previously generated Login sessions */
+    invalidateExisting?: boolean;
+  };
   v1OtpLoginRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_OTP_LOGIN";
+    type: "ACTIVITY_TYPE_OTP_LOGIN_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1OtpLoginIntent"];
+    parameters: definitions["v1OtpLoginIntentV2"];
     generateAppProofs?: boolean;
   };
   v1OtpLoginResult: {
@@ -4157,7 +4276,10 @@ export type definitions = {
     createTvcDeploymentResult?: definitions["v1CreateTvcDeploymentResult"];
     createTvcManifestApprovalsResult?: definitions["v1CreateTvcManifestApprovalsResult"];
     solSendTransactionResult?: definitions["v1SolSendTransactionResult"];
+    initOtpResultV2?: definitions["v1InitOtpResultV2"];
     updateOrganizationNameResult?: definitions["v1UpdateOrganizationNameResult"];
+    createSubOrganizationResultV8?: definitions["v1CreateSubOrganizationResultV8"];
+    createOauthProvidersResultV2?: definitions["v1CreateOauthProvidersResultV2"];
     createWebhookEndpointResult?: definitions["v1CreateWebhookEndpointResult"];
     updateWebhookEndpointResult?: definitions["v1UpdateWebhookEndpointResult"];
     deleteWebhookEndpointResult?: definitions["v1DeleteWebhookEndpointResult"];
@@ -4225,6 +4347,20 @@ export type definitions = {
     authenticators: definitions["v1AuthenticatorParamsV2"][];
     /** @description A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
     oauthProviders: definitions["v1OauthProviderParams"][];
+  };
+  v1RootUserParamsV5: {
+    /** @description Human-readable name for a User. */
+    userName: string;
+    /** @description The user's email address. */
+    userEmail?: string;
+    /** @description The user's phone number in E.164 format e.g. +13214567890 */
+    userPhoneNumber?: string;
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
+    apiKeys: definitions["v1ApiKeyParamsV2"][];
+    /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
+    authenticators: definitions["v1AuthenticatorParamsV2"][];
+    /** @description A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
+    oauthProviders: definitions["v1OauthProviderParamsV2"][];
   };
   v1Selector: {
     subject?: string;
@@ -4371,6 +4507,13 @@ export type definitions = {
     authenticators?: definitions["v1AuthenticatorParamsV2"][];
     oauthProviders?: definitions["v1OauthProviderParams"][];
   };
+  v1SignupUsageV2: {
+    email?: string;
+    phoneNumber?: string;
+    apiKeys?: definitions["v1ApiKeyParamsV2"][];
+    authenticators?: definitions["v1AuthenticatorParamsV2"][];
+    oauthProviders?: definitions["v1OauthProviderParamsV2"][];
+  };
   v1SimpleClientExtensionResults: {
     appid?: boolean;
     appidExclude?: boolean;
@@ -4494,6 +4637,7 @@ export type definitions = {
     tokenId: string;
     signup?: definitions["v1SignupUsage"];
     login?: definitions["v1LoginUsage"];
+    signupV2?: definitions["v1SignupUsageV2"];
   };
   /** @enum {string} */
   v1TransactionType:
@@ -4724,6 +4868,8 @@ export type definitions = {
     sendFromEmailSenderName?: string;
     /** @description Verification token required for get account with PII (email/phone number). Default false. */
     verificationTokenRequiredForGetAccountPii?: boolean;
+    /** @description Whitelisted OAuth client IDs for social account linking. When a user authenticates via a social provider with an email matching an existing account, the accounts will be linked if the client ID is in this list and the issuer is considered a trusted provider. */
+    socialLinkingClientIds?: string[];
   };
   v1UpdateAuthProxyConfigResult: {
     /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
@@ -5130,6 +5276,22 @@ export type definitions = {
     /** @description A list of User Tag IDs. This field, if not needed, should be an empty array in your request body. */
     userTags: string[];
   };
+  v1UserParamsV4: {
+    /** @description Human-readable name for a User. */
+    userName: string;
+    /** @description The user's email address. */
+    userEmail?: string;
+    /** @description The user's phone number in E.164 format e.g. +13214567890 */
+    userPhoneNumber?: string;
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
+    apiKeys: definitions["v1ApiKeyParamsV2"][];
+    /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
+    authenticators: definitions["v1AuthenticatorParamsV2"][];
+    /** @description A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
+    oauthProviders: definitions["v1OauthProviderParamsV2"][];
+    /** @description A list of User Tag IDs. This field, if not needed, should be an empty array in your request body. */
+    userTags: string[];
+  };
   v1ValidateTvcImageRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -5151,14 +5313,22 @@ export type definitions = {
     /** @description Client-side public key generated by the user, which will be added to the JWT response and verified in subsequent requests via a client proof signature */
     publicKey?: string;
   };
+  v1VerifyOtpIntentV2: {
+    /** @description UUID representing an OTP flow. A new UUID is created for each init OTP activity. */
+    otpId: string;
+    /** @description Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result. */
+    encryptedOtpBundle: string;
+    /** @description Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours) */
+    expirationSeconds?: string;
+  };
   v1VerifyOtpRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_VERIFY_OTP";
+    type: "ACTIVITY_TYPE_VERIFY_OTP_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1VerifyOtpIntent"];
+    parameters: definitions["v1VerifyOtpIntentV2"];
     generateAppProofs?: boolean;
   };
   v1VerifyOtpResult: {

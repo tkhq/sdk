@@ -65,6 +65,7 @@
     "react-native-gesture-handler": ">=2.0.0",
     "react-native-inappbrowser-reborn": ">=3.7.0",
     "react-native-safe-area-context": ">=4.0.0",
+    "@invertase/react-native-apple-authentication": ">=2.5.0",
     "react-native-svg": ">=13.0.0"
   },
   "peerDependenciesMeta": {

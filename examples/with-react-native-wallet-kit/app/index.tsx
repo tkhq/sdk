@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { EmailInput, validateEmail } from "@/components/auth/email-input";
 import { SecondaryButton } from "@/components/ui/secondary-button";
-import { AuthState, useTurnkey } from "@turnkey/react-native-wallet-kit";
+import { useTurnkey } from "@turnkey/react-native-wallet-kit";
 import { OtpType } from "@/types/types";
 
 const customWallet = {
@@ -41,7 +41,6 @@ export default function LoginScreen() {
     handleDiscordOauth,
     handleFacebookOauth,
     handleAppleOauth,
-    authState,
   } = useTurnkey();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
@@ -59,12 +58,12 @@ export default function LoginScreen() {
 
     setLoading(true);
 
-    const otpId = await initOtp({
+    const initOtpResult = await initOtp({
       otpType: OtpType.Email,
       contact: email,
     });
 
-    if (!otpId) {
+    if (!initOtpResult) {
       Alert.alert("Error", "Failed to initialize OTP");
       return;
     }
@@ -74,7 +73,11 @@ export default function LoginScreen() {
 
     router.push({
       pathname: "/otp",
-      params: { email, otpId },
+      params: {
+        email,
+        otpId: initOtpResult.otpId,
+        otpEncryptionTargetBundle: initOtpResult.otpEncryptionTargetBundle,
+      },
     });
   };
 

@@ -13,6 +13,7 @@ import {
   PRODUCTION_ON_RAMP_CREDENTIALS_ENCRYPTION_PUBLIC_KEY,
   PRODUCTION_SIGNER_SIGN_PUBLIC_KEY,
   PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
+  PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
 } from "./constants";
 import {
   formatHpkeBuf,
@@ -496,6 +497,54 @@ export const encryptToEnclave = async (
     uint8ArrayFromHexString(targetPublicKeyUncompressed),
     new TextEncoder().encode(message),
   );
+};
+
+/**
+ * Encrypts an OTP code and a client public key to the target encryption key
+ * provided by the enclave during initOtp. The resulting encrypted bundle is
+ * sent to verifyOtpV2 so the enclave can decrypt it, verify the OTP code,
+ * and issue a verification token bound to the client's public key.
+ *
+ * Verifies the enclave signature on the target bundle before encrypting.
+ *
+ * @param otpCode - The OTP code entered by the user.
+ * @param otpEncryptionTargetBundle - The signed target encryption bundle returned from initOtp.
+ * @param publicKey - Compressed hex public key to embed in the encrypted bundle.
+ * @param dangerouslyOverrideSignerPublicKey - Optional override for the TLS fetcher signing key used to verify the bundle signature. Only use in test/preprod environments.
+ * @returns A promise resolving to the encrypted OTP bundle string.
+ */
+export const encryptOtpCodeToBundle = async (
+  otpCode: string,
+  otpEncryptionTargetBundle: string,
+  publicKey: string,
+  dangerouslyOverrideSignerPublicKey?: string,
+): Promise<string> => {
+  const parsedBundle = JSON.parse(otpEncryptionTargetBundle);
+
+  const verified = await verifyEnclaveSignature(
+    parsedBundle.enclaveQuorumPublic,
+    parsedBundle.dataSignature,
+    parsedBundle.data,
+    dangerouslyOverrideSignerPublicKey ??
+      PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
+  );
+  if (!verified) {
+    throw new Error(
+      "OTP encryption target bundle signature verification failed",
+    );
+  }
+
+  const signedData = JSON.parse(
+    new TextDecoder().decode(uint8ArrayFromHexString(parsedBundle.data)),
+  );
+  const targetKeyBuf = uint8ArrayFromHexString(signedData.targetPublic);
+
+  const plainTextBuf = new TextEncoder().encode(
+    JSON.stringify({ otp_code: otpCode, public_key: publicKey }),
+  );
+
+  const encryptedBuf = hpkeEncrypt({ plainTextBuf, targetKeyBuf });
+  return formatHpkeBuf(encryptedBuf);
 };
 
 /**

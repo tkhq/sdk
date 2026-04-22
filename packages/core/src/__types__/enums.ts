@@ -25,6 +25,7 @@ export enum FilterType {
   Email = "EMAIL",
   Sms = "PHONE_NUMBER",
   OidcToken = "OIDC_TOKEN",
+  OidcClaims = "OIDC_CLAIMS",
   PublicKey = "PUBLIC_KEY",
 }
 

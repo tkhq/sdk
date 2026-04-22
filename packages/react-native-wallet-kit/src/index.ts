@@ -9,7 +9,8 @@ export {
   type TurnkeySDKClientBase,
   isEthereumProvider,
   isSolanaProvider,
-  sendSignedRequest,
+  buildSecondaryOidcClaims,
+  buildSecondaryOauthProviders,
 } from "@turnkey/core";
 
 // Re-export all types from @turnkey/core

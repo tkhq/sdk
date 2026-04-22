@@ -3,7 +3,7 @@ import type { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
-import { Session, SessionType } from "@turnkey/sdk-types";
+import { type Session, SessionType, SignatureFormat } from "@turnkey/sdk-types";
 
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import { TurnkeyBaseClient } from "../__clients__/base-client";
@@ -853,5 +853,12 @@ export class TurnkeyIndexedDbClient extends TurnkeyBrowserClient {
     return await (this.stamper as IndexedDbStamper).resetKeyPair(
       externalKeyPair,
     );
+  };
+
+  sign = async (
+    payload: string,
+    format: SignatureFormat = SignatureFormat.Der,
+  ): Promise<string> => {
+    return await (this.stamper as IndexedDbStamper).sign(payload, format);
   };
 }

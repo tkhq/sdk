@@ -33,10 +33,11 @@ export {
   isEthereumProvider,
   isSolanaProvider,
   getAuthProxyConfig,
-  sendSignedRequest,
   decodeVerificationToken,
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,
+  buildSecondaryOidcClaims,
+  buildSecondaryOauthProviders,
   addressFormatConfig,
 } from "./utils";
 
