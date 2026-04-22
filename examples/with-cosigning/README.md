@@ -1,10 +1,18 @@
 # with-cosigning
 
-Demonstrates [co-signing transactions](https://docs.turnkey.com/company-wallets/co-signing-transactions) with Turnkey using a **2-of-2 root quorum**.
+Demonstrates [co-signing transactions](https://docs.turnkey.com/company-wallets/co-signing-transactions) with Turnkey using a **2-of-2 root quorum**. Both parties must sign for an activity to complete. The example shows both directions:
 
-- **User** authenticates via email OTP and signs a message with their session key (vote 1 of 2).
-- **Backend cosigner** receives an `ACTIVITY_UPDATES` webhook and logs a ready-to-run `pnpm cosign` command. Running it submits vote 2 of 2 via the cosigner API key.
-- The frontend listens via **SSE** (Server-Sent Events — a browser API that keeps an HTTP connection open so the server can push updates without polling) and shows the final signature when the activity completes.
+**Flow A — user signs first, backend approves:**
+
+- User signs a message from the dashboard (vote 1 → `CONSENSUS_NEEDED`).
+- Run `pnpm cosign <activityId> <orgId>` in a second terminal; the backend cosigner submits vote 2 and the activity completes.
+
+**Flow B — backend signs first, user approves:**
+
+- Run `pnpm sign <walletAddress> <orgId>` in a terminal; the backend cosigner initiates signing (vote 1 → `CONSENSUS_NEEDED`).
+- The activity appears in the dashboard's webhook event log — click **Approve** to submit vote 2.
+
+In both flows the frontend listens via **SSE** (Server-Sent Events — a browser API that keeps an HTTP connection open so the server can push updates without polling) and shows the final signature when the activity completes.
 
 ## How it works
 
@@ -64,15 +72,15 @@ cp .env.local.example .env.local
 
 Fill in `.env.local`:
 
-| Variable                      | Description                                                                          |
-| ----------------------------- | ------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_BASE_URL`        | Turnkey API base URL (`https://api.turnkey.com`)                                     |
-| `NEXT_PUBLIC_ORGANIZATION_ID` | Your parent org ID                                                                   |
-| `API_PUBLIC_KEY`              | Admin API key public — used for OTP flow and sub-org creation                        |
-| `API_PRIVATE_KEY`             | Admin API key private                                                                |
-| `COSIGNER_API_PUBLIC_KEY`     | Cosigner API key public — embedded in every sub-org at creation time as a root user  |
-| `COSIGNER_API_PRIVATE_KEY`    | Cosigner API key private — used by `pnpm cosign` to stamp the `approveActivity` call |
-| `WEBHOOK_URL`                 | Set to `https://<your-ngrok-id>.ngrok-free.app/api/webhook/activity-updates`         |
+| Variable                      | Description                                                                         |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_BASE_URL`        | Turnkey API base URL (`https://api.turnkey.com`)                                    |
+| `NEXT_PUBLIC_ORGANIZATION_ID` | Your parent org ID                                                                  |
+| `API_PUBLIC_KEY`              | Admin API key public — used for OTP flow and sub-org creation                       |
+| `API_PRIVATE_KEY`             | Admin API key private                                                               |
+| `COSIGNER_API_PUBLIC_KEY`     | Cosigner API key public — embedded in every sub-org at creation time as a root user |
+| `COSIGNER_API_PRIVATE_KEY`    | Cosigner API key private — used by `pnpm sign` and `pnpm cosign` to stamp requests  |
+| `WEBHOOK_URL`                 | Set to `https://<your-ngrok-id>.ngrok-free.app/api/webhook/activity-updates`        |
 
 ### 4. Register the webhook
 
@@ -106,12 +114,16 @@ Open [http://localhost:3000](http://localhost:3000).
    - Your session key submits vote 1; the activity reaches `CONSENSUS_NEEDED`.
    - The dashboard shows a ready-to-run command with the activity ID and sub-org ID.
    - The webhook fires and logs the same command to the server console.
-4. **Approve as cosigner** — In a second terminal, run the command shown on the dashboard:
-   ```bash
-   pnpm cosign <activityId> <subOrgId>
-   ```
-   This uses `COSIGNER_API_PRIVATE_KEY` to stamp the approval request.
+4. **Approve as cosigner** — Copy the ready-to-run `pnpm cosign` command from the dashboard and run it in a second terminal. This uses `COSIGNER_API_PRIVATE_KEY` to stamp the approval request.
 5. **See the signature** — The SSE stream notifies the dashboard; the final ECDSA signature appears.
+
+### Reverse flow: backend signs first, user approves
+
+The quorum is symmetric — the cosigner can also initiate signing and the user approves:
+
+1. Copy the ready-to-run `pnpm sign` command from the dashboard (shown in the org info card) and run it in a second terminal.
+2. The activity appears in the webhook event log with an **Approve** button.
+3. Click **Approve** — your session key submits vote 2 and the activity completes.
 
 ## Project structure
 
@@ -128,7 +140,8 @@ src/
 │   ├── types.ts                              # Webhook / SSE types
 │   └── activity-events.ts                    # In-memory event store
 └── scripts/
-    ├── cosign.ts                             # CLI: approve a pending activity as cosigner
+    ├── sign.ts                               # CLI: backend initiates signing (vote 1)
+    ├── cosign.ts                             # CLI: approve a pending activity as cosigner (vote 2)
     └── webhook.ts                            # CLI: pnpm webhook -register / -update
 ```
 

@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "webhook": "NODE_NO_WARNINGS=1 tsx src/scripts/webhook.ts",
-    "cosign": "NODE_NO_WARNINGS=1 tsx src/scripts/cosign.ts"
+    "cosign": "NODE_NO_WARNINGS=1 tsx src/scripts/cosign.ts",
+    "sign": "NODE_NO_WARNINGS=1 tsx src/scripts/sign.ts"
   },
   "dependencies": {
     "@tailwindcss/postcss": "4.1.13",

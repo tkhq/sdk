@@ -81,6 +81,8 @@ export default function Dashboard() {
   // --- Sign state ---
   const [message, setMessage] = useState("Hello from Turnkey Co-Signing!");
   const [signStatus, setSignStatus] = useState<SignStatus>({ kind: "idle" });
+  // Track activity IDs the current user submitted so we don't show Approve on their own pending activities
+  const userInitiatedIds = useRef(new Set<string>());
 
   const handleSign = async () => {
     if (!httpClient) return;
@@ -117,6 +119,7 @@ export default function Dashboard() {
       const activityId = (res as any).activity?.id as string | undefined;
 
       if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED" && activityId) {
+        userInitiatedIds.current.add(activityId);
         setSignStatus({
           kind: "pending",
           activityId,
@@ -219,6 +222,21 @@ export default function Dashboard() {
     };
   }, [signStatus]);
 
+  // --- User-side approval of backend-initiated activities ---
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+
+  const handleApprove = async (fingerprint: string, activityId: string) => {
+    if (!httpClient) return;
+    setApprovingId(activityId);
+    try {
+      await httpClient.approveActivity({ fingerprint });
+    } catch (e) {
+      console.error("Approval failed:", e);
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
   // --- Webhook event log ---
   const [events, setEvents] = useState<ActivityEventEnvelope[]>([]);
   const logRef = useRef<HTMLDivElement>(null);
@@ -297,6 +315,16 @@ export default function Dashboard() {
           <div className="text-xs font-mono break-all text-gray-700">
             {walletAddress ?? "(loading…)"}
           </div>
+          {walletAddress && session?.organizationId && (
+            <div className="mt-3 space-y-1">
+              <div className="text-xs text-gray-400">
+                To trigger the reverse flow (backend signs first, you approve):
+              </div>
+              <CopyBlock
+                value={`pnpm sign ${walletAddress} ${session.organizationId}`}
+              />
+            </div>
+          )}
         </section>
 
         {/* Sign message */}
@@ -419,6 +447,30 @@ export default function Dashboard() {
                     <span className="text-gray-400">
                       {new Date(ev.receivedAt).toLocaleTimeString()}
                     </span>
+                    {ev.payload.status === "ACTIVITY_STATUS_CONSENSUS_NEEDED" &&
+                      ev.payload.fingerprint &&
+                      !userInitiatedIds.current.has(ev.payload.id) &&
+                      !events.some(
+                        (e) =>
+                          e.payload.id === ev.payload.id &&
+                          [
+                            "ACTIVITY_STATUS_COMPLETED",
+                            "ACTIVITY_STATUS_FAILED",
+                            "ACTIVITY_STATUS_REJECTED",
+                          ].includes(e.payload.status),
+                      ) && (
+                        <button
+                          onClick={() =>
+                            handleApprove(ev.payload.fingerprint, ev.payload.id)
+                          }
+                          disabled={approvingId === ev.payload.id}
+                          className="rounded bg-blue-600 px-2 py-0.5 text-[10px] font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                        >
+                          {approvingId === ev.payload.id
+                            ? "Approving…"
+                            : "Approve"}
+                        </button>
+                      )}
                   </div>
                   <div className="text-gray-500 font-mono break-all">
                     {ev.payload.id}
