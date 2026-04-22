@@ -1739,6 +1739,57 @@ importers:
         specifier: ^1.55.1
         version: 1.56.1
 
+  examples/with-cosigning:
+    dependencies:
+      '@tailwindcss/postcss':
+        specifier: 4.1.13
+        version: 4.1.13
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../packages/crypto
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../packages/encoding
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../packages/react-wallet-kit
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../packages/sdk-types
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      tailwindcss:
+        specifier: 4.1.13
+        version: 4.1.13
+      tsx:
+        specifier: ^3.12.7
+        version: 3.12.7
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/with-cosmjs:
     dependencies:
       '@cosmjs/encoding':
