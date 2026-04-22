@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import OtpInput from "./otp";
 import styles from "./OtpVerification.module.css";
-import { formatPhoneNumber } from "./utils";
+import { formatPhoneNumber, getClientSignatureMessageForLogin } from "./utils";
 import EmailIcon from "@mui/icons-material/Email";
 import SmsIcon from "@mui/icons-material/Sms";
 import { CircularProgress } from "@mui/material";
@@ -13,7 +13,6 @@ import { useTurnkey } from "../../hooks/use-turnkey";
 import type { WalletAccount } from "@turnkey/sdk-browser";
 import { type v1ClientSignature, SignatureFormat } from "@turnkey/sdk-types";
 import { encryptOtpCodeToBundle } from "@turnkey/crypto";
-import { getClientSignatureMessageForLogin } from "@turnkey/core";
 
 const resendTimerMs = 15000;
 interface OtpVerificationProps {
