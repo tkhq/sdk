@@ -32,7 +32,7 @@ const SOLANA_NETWORKS = {
   },
   devnet: {
     rpc: "https://api.devnet.solana.com",
-    caip2: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+    caip2: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
     tokens: [USDC_DEVNET],
     explorerBase: "https://explorer.solana.com/tx",
     explorerSuffix: "?cluster=devnet",

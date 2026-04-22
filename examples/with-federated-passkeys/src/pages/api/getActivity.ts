@@ -38,7 +38,7 @@ export default async function getActivity(
     });
 
     res.status(200).json({
-      activity: activityResponse.activity,
+      activity: activityResponse.activity as TActivityResponse["activity"],
     });
   } catch (e) {
     console.error(e);

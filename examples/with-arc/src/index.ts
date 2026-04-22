@@ -7,13 +7,14 @@ import { ethers } from "ethers";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import {
-  getSignedTransactionFromActivity,
   TurnkeyActivityConsensusNeededError,
   TERMINAL_ACTIVITY_STATUSES,
-  TActivity,
+  InvalidArgumentError,
+  TurnkeyActivityError,
+  assertNonNull,
 } from "@turnkey/http";
 import { TurnkeySigner } from "@turnkey/ethers";
-import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+import { Turnkey as TurnkeyServerSDK, v1Activity } from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
 import { print } from "./util";
 
@@ -93,15 +94,44 @@ async function main() {
   try {
     signedTx = await connectedSigner.signTransaction(populatedTx);
   } catch (error: any) {
-    signedTx = await handleActivityError(error).then(
-      async (activity?: TActivity) => {
-        if (!activity) {
-          throw error;
-        }
+    signedTx = await handleActivityError(error).then(async (activity) => {
+      if (!activity) {
+        throw error;
+      }
 
-        return getSignedTransactionFromActivity(activity);
-      },
-    );
+      if (
+        ![
+          "ACTIVITY_TYPE_SIGN_TRANSACTION",
+          "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
+        ].includes(activity.type)
+      ) {
+        throw new InvalidArgumentError({
+          message: `Cannot get signed transaction from activity type: ${activity.type}`,
+          activityId: activity.id,
+          activityStatus: activity.status,
+        });
+      }
+
+      if (activity.status === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+        throw new TurnkeyActivityConsensusNeededError({
+          message: "Activity requires consensus",
+          activityId: activity.id,
+          activityStatus: activity.status,
+        });
+      }
+
+      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+        throw new TurnkeyActivityError({
+          message: `Expected COMPLETED status, got ${activity.status}`,
+          activityId: activity.id,
+          activityStatus: activity.status,
+        });
+      }
+
+      const { signedTransaction } = activity.result?.signTransactionResult!;
+
+      return assertNonNull(`0x${signedTransaction}`);
+    });
   }
 
   print("Turnkey-signed transaction:", `${signedTx}`);
@@ -133,14 +163,45 @@ async function main() {
     sentTx = await connectedSigner.sendTransaction(populatedTx);
   } catch (error: any) {
     sentTx = await handleActivityError(error).then(
-      async (activity?: TActivity) => {
+      async (activity?: v1Activity) => {
         if (!activity) {
           throw error;
         }
 
-        return await connectedSigner.provider?.broadcastTransaction(
-          getSignedTransactionFromActivity(activity),
-        );
+        if (
+          ![
+            "ACTIVITY_TYPE_SIGN_TRANSACTION",
+            "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
+          ].includes(activity.type)
+        ) {
+          throw new InvalidArgumentError({
+            message: `Cannot get signed transaction from activity type: ${activity.type}`,
+            activityId: activity.id,
+            activityStatus: activity.status,
+          });
+        }
+
+        if (activity.status === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+          throw new TurnkeyActivityConsensusNeededError({
+            message: "Activity requires consensus",
+            activityId: activity.id,
+            activityStatus: activity.status,
+          });
+        }
+
+        if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+          throw new TurnkeyActivityError({
+            message: `Expected COMPLETED status, got ${activity.status}`,
+            activityId: activity.id,
+            activityStatus: activity.status,
+          });
+        }
+
+        const { signedTransaction } = activity.result?.signTransactionResult!;
+
+        const signedTx = assertNonNull(`0x${signedTransaction}`);
+
+        return await connectedSigner.provider?.broadcastTransaction(signedTx);
       },
     );
   }
@@ -154,7 +215,7 @@ async function main() {
     if (error instanceof TurnkeyActivityConsensusNeededError) {
       const activityId = error["activityId"]!;
       let activityStatus = error["activityStatus"]!;
-      let activity: TActivity | undefined;
+      let activity: v1Activity | undefined;
 
       while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
         console.log("\nWaiting for consensus...\n");

@@ -3,7 +3,8 @@ import {
   stringToBase64urlString,
   pointEncode,
 } from "@turnkey/encoding";
-import type { TStamp, ApiKeyStamperBase } from "../../../__types__";
+import type { ApiKeyStamperBase } from "../../../__types__";
+import type { TStamp } from "@turnkey/sdk-types";
 import { assertValidP256ECDSAKeyPair } from "@utils";
 import { SignatureFormat } from "@turnkey/api-key-stamper";
 

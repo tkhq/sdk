@@ -104,6 +104,16 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1CreateOauthProvidersIntentV2",
     "v1CreateOauthProvidersResultV2",
   ],
+  ACTIVITY_TYPE_OTP_LOGIN: [
+    "ACTIVITY_TYPE_OTP_LOGIN_V2",
+    "v1OtpLoginIntentV2",
+    "v1OtpLoginResultV2",
+  ],
+  ACTIVITY_TYPE_VERIFY_OTP: [
+    "ACTIVITY_TYPE_VERIFY_OTP_V2",
+    "v1VerifyOtpIntentV2",
+    "v1VerifyOtpResultV2",
+  ],
 };
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
@@ -135,7 +145,12 @@ const ONEOF_FIELDS = {
 function swaggerTypeToTs(type, schema) {
   if (type === "integer" || type === "number") return "number";
   if (type === "boolean") return "boolean";
-  if (type === "string") return "string";
+  if (type === "string") {
+    if (schema.enum) {
+      return schema.enum.map((e) => `"${e}"`).join(" | ");
+    }
+    return "string";
+  }
   if (type === "array") {
     if (schema.items) {
       if (schema.items.$ref) {
