@@ -10,6 +10,7 @@ import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import {
   base64StringToBase64UrlEncodedString,
   uint8ArrayToHexString,
+  hexStringToBase64url,
 } from "@turnkey/encoding";
 import { getWebAuthnAttestation } from "@turnkey/http";
 import { v4 as uuidv4 } from "uuid";
@@ -93,11 +94,11 @@ export class CrossPlatformPasskeyStamper implements TStamper {
 
       if (isReactNative()) {
         this.stamper.allowCredentials =
-          config.allowCredentials?.map((cred) => ({
-            id: uint8ArrayToHexString(cred.id as Uint8Array),
-            type: cred.type,
-            transports: cred.transports,
-          })) || [];
+          config.allowCredentials?.map((cred) => {
+            const hex = uint8ArrayToHexString(cred.id as Uint8Array);
+            const b64url = hexStringToBase64url(hex);
+            return { id: b64url, type: cred.type, transports: cred.transports };
+          }) || [];
       } else {
         this.stamper.allowCredentials = config.allowCredentials || [];
       }
