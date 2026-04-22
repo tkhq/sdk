@@ -9,23 +9,23 @@ Demonstrates [co-signing transactions](https://docs.turnkey.com/company-wallets/
 ## How it works
 
 ```
-User (browser)          Backend (Next.js)       Turnkey         Terminal (operator)
-──────────────          ─────────────────       ───────         ───────────────────
+User (browser)          Backend (Next.js)       Turnkey                  Terminal (operator)
+──────────────          ─────────────────       ───────                  ───────────────────
 Sign message  ─────────────────────────────►  Creates activity
                                               status: CONSENSUS_NEEDED
               ◄────── activity.id, org.id ──
               (polls 3x, returns CONSENSUS_NEEDED)
 Show "run pnpm cosign …"
 
-                                              Fires webhook ──────────►
+                                              Fires webhook ──────────────►
                         POST /api/webhook/activity-updates
                         logs: "run pnpm cosign …"
                         addEvent to SSE store
 
-                                                              pnpm cosign <id> <orgId>
-                                                              approveActivity ────────►
+                                                                         pnpm cosign <id> <orgId>
+                                                                         approveActivity ────────►
                                               status: COMPLETED
-                                              Fires webhook ──────────►
+                                              Fires webhook ──────────────►
                         addEvent to SSE store
 
 GET /api/events (SSE) ◄── activity-update event (COMPLETED)
