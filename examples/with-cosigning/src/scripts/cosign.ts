@@ -72,13 +72,23 @@ async function main() {
     ].join("\n"),
   );
 
-  await cosignerClient.apiClient().approveActivity({
+  const approved = await cosignerClient.apiClient().approveActivity({
     fingerprint: activity.fingerprint,
   });
 
-  console.log(
-    "Activity approved. The browser should update automatically via SSE.",
-  );
+  const result = (approved as any).activity?.result?.signRawPayloadResult;
+  if (result) {
+    console.log(
+      [
+        "Activity approved and completed.",
+        `  Signature: 0x${result.r}${result.s}${result.v}`,
+      ].join("\n"),
+    );
+  } else {
+    console.log(
+      "Activity approved. The browser should update automatically via SSE.",
+    );
+  }
 }
 
 main().catch((error) => {
