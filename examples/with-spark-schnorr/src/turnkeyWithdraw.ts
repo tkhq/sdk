@@ -236,10 +236,12 @@ export async function turnkeyWithdraw(
   const threshold = config.getThreshold();
   const operatorRecipients: OperatorRecipientInput[] = Object.values(
     signingOperators,
-  ).map((op) => ({
-    operatorId: String(op.id),
-    encryptionPublicKey: op.identityPublicKey,
-  }));
+  )
+    .sort((a, b) => Number(a.id) - Number(b.id))
+    .map((op) => ({
+      operatorId: String(op.id),
+      encryptionPublicKey: op.identityPublicKey,
+    }));
 
   // Resolve fee
   let { feeAmountSats, feeQuoteId } = params;

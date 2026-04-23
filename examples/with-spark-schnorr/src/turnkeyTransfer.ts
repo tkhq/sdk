@@ -183,10 +183,12 @@ export async function turnkeyTransfer(
   const threshold = config.getThreshold();
   const operatorRecipients: OperatorRecipientInput[] = Object.values(
     signingOperators,
-  ).map((op) => ({
-    operatorId: String(op.id),
-    encryptionPublicKey: op.identityPublicKey,
-  }));
+  )
+    .sort((a, b) => Number(a.id) - Number(b.id))
+    .map((op) => ({
+      operatorId: String(op.id),
+      encryptionPublicKey: op.identityPublicKey,
+    }));
 
   return await internals.leafManager.selectLeavesAndExecute(
     [params.amountSats],

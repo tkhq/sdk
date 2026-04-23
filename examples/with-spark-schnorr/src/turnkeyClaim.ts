@@ -197,10 +197,12 @@ export async function turnkeyClaim(
   const threshold = config.getThreshold();
   const operatorRecipients: OperatorRecipientInput[] = Object.values(
     signingOperators,
-  ).map((op) => ({
-    operatorId: String(op.id),
-    encryptionPublicKey: op.identityPublicKey,
-  }));
+  )
+    .sort((a, b) => Number(a.id) - Number(b.id))
+    .map((op) => ({
+      operatorId: String(op.id),
+      encryptionPublicKey: op.identityPublicKey,
+    }));
 
   // ── Phase 1: Verify the inbound transfer ──────────────────────────
   // Decrypts each leaf's secretCipher via ECIES (SPARK_KEY_OPERATION)
