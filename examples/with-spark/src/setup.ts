@@ -129,7 +129,6 @@ async function main() {
   console.log(`  Identity public key: ${identityAccount.publicKey}`);
 
   console.log(`\nAdd these to your .env.local:`);
-  console.log(`  TURNKEY_IDENTITY_ADDRESS=${sparkAddress}`);
   console.log(`  TURNKEY_SPARK_ADDRESS=${sparkAddress}`);
   console.log(`  IDENTITY_PUBLIC_KEY_HEX=${identityAccount.publicKey}`);
 }

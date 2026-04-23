@@ -63,7 +63,7 @@ interface SparkWalletInternals {
 interface SparkConfig {
   getSigningOperators(): Record<
     string,
-    { id: number; identityPublicKey: string }
+    { id: number; identifier: string; identityPublicKey: string }
   >;
   getThreshold(): number;
   getCoordinatorAddress(): string;

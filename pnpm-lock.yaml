@@ -2857,7 +2857,7 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/with-spark-schnorr:
+  examples/with-spark:
     dependencies:
       '@buildonspark/issuer-sdk':
         specifier: ^0.1.23
@@ -2883,6 +2883,9 @@ importers:
       dotenv:
         specifier: ^16.0.3
         version: 16.6.1
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
     devDependencies:
       tsx:
         specifier: ^4.7.0

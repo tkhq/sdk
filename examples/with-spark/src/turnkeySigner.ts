@@ -555,6 +555,10 @@ export class TurnkeySparkSigner implements SparkSigner {
     return notImplemented("htlcHMAC");
   }
 
+  async decryptEcies(_ciphertext: Uint8Array): Promise<Uint8Array> {
+    return notImplemented("decryptEcies");
+  }
+
   // ---------------------------------------------------------------------------
   // Internal: Turnkey activity calls
   // ---------------------------------------------------------------------------

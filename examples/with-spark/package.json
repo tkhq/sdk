@@ -1,11 +1,14 @@
 {
-  "name": "@turnkey/example-with-spark-schnorr",
+  "name": "@turnkey/example-with-spark",
   "private": true,
   "version": "0.1.0",
   "scripts": {
     "setup": "tsx src/setup.ts",
-    "start": "tsx src/index.ts",
-    "e2e": "tsx src/e2e.ts",
+    "token-transfer": "tsx src/token-transfer.ts",
+    "deposit": "tsx src/deposit.ts",
+    "transfer": "tsx src/transfer.ts",
+    "claim": "tsx src/claim.ts",
+    "withdraw": "tsx src/withdraw.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
