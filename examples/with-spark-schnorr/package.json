@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
+    "setup": "tsx src/setup.ts",
     "start": "tsx src/index.ts",
     "e2e": "tsx src/e2e.ts",
     "clean": "rimraf ./dist ./.cache",

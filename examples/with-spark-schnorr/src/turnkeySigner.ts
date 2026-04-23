@@ -15,6 +15,11 @@
  * Key operations (via SPARK_PREPARE_AND_SIGN with package_request):
  *   - subtractSplitAndEncrypt()      ← deferred, executed inside signFrost
  *
+ * Key operations (via SPARK_KEY_OPERATION activity):
+ *   - getPublicKeyFromDerivation()   ← derive public key at any SparkKeyType path
+ *   - getDepositSigningKey()         ← derive DEPOSIT public key
+ *   - decryptEcies()                 ← ECIES decrypt using identity key
+ *
  * ## Deferred Commitment Pattern
  *
  * The Spark SDK generates user nonce commitments before signing (getRandomSigningCommitment),
@@ -25,21 +30,21 @@
  */
 
 import { secp256k1 } from "@noble/curves/secp256k1";
-import { schnorr } from "@noble/curves/secp256k1";
-import { sha256 } from "@noble/hashes/sha256";
 import { mnemonicToSeed } from "@scure/bip39";
-import type {
-  SparkSigner,
-  SignFrostParams,
-  AggregateFrostParams,
-  SigningCommitmentWithOptionalNonce,
-  SigningCommitment,
-  KeyDerivation,
-  SplitSecretWithProofsParams,
-  SubtractSplitAndEncryptParams,
-  SubtractSplitAndEncryptResult,
-  VerifiableSecretShare,
-  SigningNonce,
+import {
+  KeyDerivationType,
+  getSparkFrost,
+  type SparkSigner,
+  type SignFrostParams,
+  type AggregateFrostParams,
+  type SigningCommitmentWithOptionalNonce,
+  type SigningCommitment,
+  type KeyDerivation,
+  type SplitSecretWithProofsParams,
+  type SubtractSplitAndEncryptParams,
+  type SubtractSplitAndEncryptResult,
+  type VerifiableSecretShare,
+  type SigningNonce,
 } from "@buildonspark/spark-sdk";
 import type { Transaction } from "@scure/btc-signer";
 import type { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
@@ -101,6 +106,15 @@ interface PrepareAndSignResult {
   operatorPackages?: Array<Record<string, unknown>>;
   paymentHash?: string;
   transferUserSignature?: string;
+}
+
+/**
+ * Result shape from Turnkey's SPARK_KEY_OPERATION activity.
+ * This mirrors SparkKeyOperationResult from activity.proto.
+ */
+interface KeyOperationResult {
+  publicKeys?: Array<{ publicKey: string }>;
+  decryptedData?: Array<{ plaintext: string }>;
 }
 
 export class TurnkeySparkSigner implements SparkSigner {
@@ -285,53 +299,19 @@ export class TurnkeySparkSigner implements SparkSigner {
     return fromHex(sig.signatureShare);
   }
 
-  /**
-   * Aggregates FROST partial signatures into a final BIP-340 Schnorr signature.
-   *
-   * This is purely computational — no private keys involved. The aggregator
-   * sums partial signatures and computes the group nonce from all commitments.
-   *
-   * TODO: Import the spark-frost WASM module for production use. The sketch
-   * below shows the mathematical operation; the actual implementation should
-   * use the same FROST library the Spark SDK uses internally.
-   */
   async aggregateFrost(params: AggregateFrostParams): Promise<Uint8Array> {
-    // Collect all commitments: self + operators
-    const allCommitments = new Map<string, SigningCommitment>();
-    allCommitments.set("self", params.selfCommitment.commitment);
-    if (params.statechainCommitments) {
-      for (const [id, c] of Object.entries(params.statechainCommitments)) {
-        allCommitments.set(id, c);
-      }
-    }
-
-    // Collect all partial signatures: self + operators
-    const allSignatures = new Map<string, Uint8Array>();
-    allSignatures.set("self", params.selfSignature);
-    if (params.statechainSignatures) {
-      for (const [id, sig] of Object.entries(params.statechainSignatures)) {
-        allSignatures.set(id, sig);
-      }
-    }
-
-    // FROST aggregation: sum partial signatures mod curve order
-    // R = sum(D_i + rho_i * E_i) for all participants
-    // s = sum(s_i) mod n
-    //
-    // The binding factor rho_i = H("frost_binding", i || msg || encoded_commitments)
-    // Computing this correctly requires the same FROST implementation the
-    // Spark SDK uses. For now, delegate to the spark-frost WASM module.
-    //
-    // TODO: Replace with actual FROST aggregation call.
-    // The spark-sdk's DefaultSigner uses getSparkFrost().aggregateFrost({...})
-    // which is a WASM binding. We need to either:
-    //   1. Import @buildonspark/spark-frost-wasm directly
-    //   2. Re-export aggregateFrost from spark-sdk
-    //   3. Implement FROST aggregation with @noble/curves
-    throw new Error(
-      "aggregateFrost: needs spark-frost WASM module. " +
-        "See TODO in TurnkeySparkSigner for implementation options.",
-    );
+    const sparkFrost = getSparkFrost();
+    return sparkFrost.aggregateFrost({
+      message: params.message,
+      statechainSignatures: params.statechainSignatures,
+      statechainPublicKeys: params.statechainPublicKeys,
+      verifyingKey: params.verifyingKey,
+      statechainCommitments: params.statechainCommitments,
+      selfCommitment: params.selfCommitment.commitment,
+      selfPublicKey: params.publicKey,
+      selfSignature: params.selfSignature,
+      adaptorPubKey: params.adaptorPubKey,
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -363,33 +343,46 @@ export class TurnkeySparkSigner implements SparkSigner {
       return this.getIdentityPublicKey();
     }
 
-    // For key types that map to Turnkey wallet accounts, derive via
-    // the Spark wallet's BIP32 path. The Turnkey wallet created with
-    // ADDRESS_FORMAT_SPARK_* should have accounts for each key type.
-    //
-    // TODO: Use Turnkey's getWalletAccount or createWalletAccounts
-    // to retrieve the public key at the appropriate BIP32 derivation path.
-    return notImplemented("getPublicKeyFromDerivation");
+    const result = await this.callSparkKeyOperation({
+      signWith: this.sparkWalletAddress,
+      derivePublicKeys: [{ derivation: mapKeyDerivation(keyDerivation) }],
+    });
+
+    const pk = result.publicKeys?.[0]?.publicKey;
+    if (!pk) {
+      throw new Error("SPARK_KEY_OPERATION returned no public key");
+    }
+    return fromHex(pk);
   }
 
   async getDepositSigningKey(): Promise<Uint8Array> {
-    // BIP32 path: m/8797555'/A'/2' (DEPOSIT key type)
-    // TODO: Retrieve from Turnkey wallet account at DEPOSIT path
-    return notImplemented("getDepositSigningKey");
+    return this.getPublicKeyFromDerivation({
+      type: KeyDerivationType.DEPOSIT,
+    });
   }
 
-  async getStaticDepositSigningKey(_idx: number): Promise<Uint8Array> {
-    return notImplemented("getStaticDepositSigningKey");
+  async getStaticDepositSigningKey(idx: number): Promise<Uint8Array> {
+    return this.getPublicKeyFromDerivation({
+      type: KeyDerivationType.STATIC_DEPOSIT,
+      path: idx,
+    });
   }
 
   async getStaticDepositSecretKey(_idx: number): Promise<Uint8Array> {
     return notImplemented("getStaticDepositSecretKey");
   }
 
-  async decryptEcies(_ciphertext: Uint8Array): Promise<Uint8Array> {
-    // Needed for receiving transfers (decrypting the key tweak cipher).
-    // Requires a new Turnkey activity or extension to PREPARE_AND_SIGN.
-    return notImplemented("decryptEcies");
+  async decryptEcies(ciphertext: Uint8Array): Promise<Uint8Array> {
+    const result = await this.callSparkKeyOperation({
+      signWith: this.sparkWalletAddress,
+      decryptEciesRequests: [{ ciphertext: hex(ciphertext) }],
+    });
+
+    const data = result.decryptedData?.[0]?.plaintext;
+    if (!data) {
+      throw new Error("SPARK_KEY_OPERATION returned no decrypted data");
+    }
+    return fromHex(data);
   }
 
   // ---------------------------------------------------------------------------
@@ -462,6 +455,26 @@ export class TurnkeySparkSigner implements SparkSigner {
         type: "ACTIVITY_TYPE_SPARK_PREPARE_AND_SIGN",
       },
       "sparkPrepareAndSignResult",
+    );
+  }
+
+  private async callSparkKeyOperation(
+    intent: Record<string, unknown>,
+  ): Promise<KeyOperationResult> {
+    const apiClient = this.client.apiClient() as unknown as {
+      command<B, R>(url: string, body: B, resultKey: string): Promise<R>;
+      config: { organizationId?: string };
+    };
+
+    return apiClient.command<Record<string, unknown>, KeyOperationResult>(
+      "/public/v1/submit/spark_key_operation",
+      {
+        parameters: intent,
+        organizationId: apiClient.config.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_SPARK_KEY_OPERATION",
+      },
+      "sparkKeyOperationResult",
     );
   }
 }
