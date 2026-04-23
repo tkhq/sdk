@@ -1,0 +1,32 @@
+{
+  "name": "@turnkey/example-with-cosigning",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "webhook": "NODE_NO_WARNINGS=1 tsx src/scripts/webhook.ts",
+    "cosign": "NODE_NO_WARNINGS=1 tsx src/scripts/cosign.ts",
+    "sign": "NODE_NO_WARNINGS=1 tsx src/scripts/sign.ts"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "4.1.13",
+    "@turnkey/crypto": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
+    "@turnkey/react-wallet-kit": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
+    "@types/node": "20.3.1",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "dotenv": "^16.0.3",
+    "next": "15.5.15",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwindcss": "4.1.13",
+    "tsx": "^3.12.7",
+    "typescript": "5.4.3"
+  }
+}
