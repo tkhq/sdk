@@ -63,7 +63,7 @@ interface SparkWalletInternals {
 interface SparkConfig {
   getSigningOperators(): Record<
     string,
-    { id: number; identityPublicKey: string }
+    { id: number; identifier: string; identityPublicKey: string }
   >;
   getThreshold(): number;
   getCoordinatorAddress(): string;
@@ -152,6 +152,9 @@ interface SparkTransfer {
   id: string;
   [key: string]: unknown;
 }
+
+// HashVariant.HASH_VARIANT_V2 = 1
+const HASH_VARIANT_V2 = 1;
 
 /**
  * Execute a Spark transfer using Turnkey's enclave for key tweaks.
@@ -269,6 +272,7 @@ export async function turnkeyTransfer(
         userSignature: fromHex(turnkeyResult.transferUserSignature),
         directLeavesToSend: directLeafSigningJobs,
         directFromCpfpLeavesToSend: directFromCpfpLeafSigningJobs,
+        hashVariant: HASH_VARIANT_V2,
       };
 
       const receiverIdentityPublicKeys: Record<string, Uint8Array> = {};

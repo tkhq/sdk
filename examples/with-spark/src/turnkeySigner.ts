@@ -4,8 +4,13 @@
  *
  * Authentication (identity key operations):
  *   - getIdentityPublicKey()
- *   - signMessageWithIdentityKey()   ← ECDSA (DER or compact), used for SO auth
- *   - signSchnorrWithIdentityKey()   ← NOT IMPLEMENTED (Turnkey API lacks BIP340 Schnorr)
+ *   - signMessageWithIdentityKey()   ← ECDSA via compressed address (DER or compact)
+ *   - signSchnorrWithIdentityKey()   ← BIP340 Schnorr via Spark address
+ *
+ * Turnkey's signRawPayload dispatches Schnorr vs ECDSA based on the address
+ * format. The signer holds two addresses for the same underlying key:
+ *   - sparkAddress  → ADDRESS_FORMAT_SPARK_* → SchnorrPlain (BIP340)
+ *   - ecdsaAddress  → ADDRESS_FORMAT_COMPRESSED → ECDSA
  *
  * FROST signing (via SPARK_PREPARE_AND_SIGN activity):
  *   - getRandomSigningCommitment()   ← returns mutable placeholder
@@ -182,18 +187,22 @@ export interface ClaimResult {
 
 export class TurnkeySparkSigner implements SparkSigner {
   private readonly client: TurnkeyServerSDK;
-  /** The Turnkey address used for the Spark wallet (sign_with) */
-  private readonly sparkWalletAddress: string;
+  /** Spark-formatted address → signRawPayload returns BIP340 Schnorr */
+  private readonly sparkAddress: string;
+  /** Compressed-formatted address → signRawPayload returns ECDSA */
+  private readonly ecdsaAddress: string;
   /** Compressed 33-byte public key (02/03 prefix) */
   private readonly identityPublicKeyHex: string;
 
   constructor(
     client: TurnkeyServerSDK,
-    sparkWalletAddress: string,
+    sparkAddress: string,
+    ecdsaAddress: string,
     identityPublicKeyHex: string,
   ) {
     this.client = client;
-    this.sparkWalletAddress = sparkWalletAddress;
+    this.sparkAddress = sparkAddress;
+    this.ecdsaAddress = ecdsaAddress;
     this.identityPublicKeyHex = identityPublicKeyHex;
   }
 
@@ -210,7 +219,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     compact?: boolean,
   ): Promise<Uint8Array> {
     const { r, s } = await this.client.apiClient().signRawPayload({
-      signWith: this.sparkWalletAddress,
+      signWith: this.ecdsaAddress,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",
       payload: hex(message),
@@ -230,8 +239,23 @@ export class TurnkeySparkSigner implements SparkSigner {
     return Buffer.from(sig.toDERRawBytes());
   }
 
-  async signSchnorrWithIdentityKey(_message: Uint8Array): Promise<Uint8Array> {
-    return notImplemented("signSchnorrWithIdentityKey");
+  async signSchnorrWithIdentityKey(message: Uint8Array): Promise<Uint8Array> {
+    const { r, s, v } = await this.client.apiClient().signRawPayload({
+      signWith: this.sparkAddress,
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_NO_OP",
+      payload: hex(message),
+    });
+
+    if (v !== "00") {
+      throw new Error(
+        `Expected BIP340 Schnorr (v=00) from Spark address, got v=${v}`,
+      );
+    }
+
+    const rBuf = Buffer.from(r.padStart(64, "0"), "hex");
+    const sBuf = Buffer.from(s.padStart(64, "0"), "hex");
+    return Buffer.concat([rBuf, sBuf]);
   }
 
   async validateMessageWithIdentityKey(
@@ -305,7 +329,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     };
 
     const intent: Record<string, unknown> = {
-      signWith: this.sparkWalletAddress,
+      signWith: this.sparkAddress,
       signatures: [signatureRequest],
     };
 
@@ -389,7 +413,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     }));
 
     const intent: Record<string, unknown> = {
-      signWith: this.sparkWalletAddress,
+      signWith: this.sparkAddress,
       signatures: signatureRequests,
       packageRequest: {
         transfer: {
@@ -434,7 +458,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     senderIdentityPublicKey: string;
   }): Promise<ClaimResult> {
     const intent: Record<string, unknown> = {
-      signWith: this.sparkWalletAddress,
+      signWith: this.sparkAddress,
       signatures: [],
       packageRequest: {
         claim: {
@@ -485,7 +509,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     }
 
     const result = await this.callSparkKeyOperation({
-      signWith: this.sparkWalletAddress,
+      signWith: this.sparkAddress,
       derivePublicKeys: [{ derivation: mapKeyDerivation(keyDerivation) }],
     });
 
@@ -553,6 +577,10 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   async htlcHMAC(_transferID: string): Promise<Uint8Array> {
     return notImplemented("htlcHMAC");
+  }
+
+  async decryptEcies(_ciphertext: Uint8Array): Promise<Uint8Array> {
+    return notImplemented("decryptEcies");
   }
 
   // ---------------------------------------------------------------------------
