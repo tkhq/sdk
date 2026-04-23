@@ -19,7 +19,6 @@
  * Key operations (via SPARK_KEY_OPERATION activity):
  *   - getPublicKeyFromDerivation()   ← derive public key at any SparkKeyType path
  *   - getDepositSigningKey()         ← derive DEPOSIT public key
- *   - decryptEcies()                 ← ECIES decrypt using identity key
  *
  * ## Why subtractSplitAndEncrypt is not implemented
  *
@@ -123,7 +122,6 @@ interface PrepareAndSignResult {
  */
 interface KeyOperationResult {
   publicKeys?: Array<{ publicKey: string }>;
-  decryptedData?: Array<{ plaintext: string }>;
 }
 
 /**
@@ -152,6 +150,7 @@ export interface OperatorRecipientInput {
 export interface ClaimLeafInput {
   leafId: string;
   ciphertext: string;
+  senderSignature: string;
 }
 
 /**
@@ -431,6 +430,8 @@ export class TurnkeySparkSigner implements SparkSigner {
     leaves: ClaimLeafInput[];
     threshold: number;
     operatorRecipients: OperatorRecipientInput[];
+    transferId: string;
+    senderIdentityPublicKey: string;
   }): Promise<ClaimResult> {
     const intent: Record<string, unknown> = {
       signWith: this.sparkWalletAddress,
@@ -440,6 +441,8 @@ export class TurnkeySparkSigner implements SparkSigner {
           leaves: params.leaves,
           threshold: params.threshold,
           operatorRecipients: params.operatorRecipients,
+          transferId: params.transferId,
+          senderIdentityPublicKey: params.senderIdentityPublicKey,
         },
       },
     };
@@ -508,19 +511,6 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   async getStaticDepositSecretKey(_idx: number): Promise<Uint8Array> {
     return notImplemented("getStaticDepositSecretKey");
-  }
-
-  async decryptEcies(ciphertext: Uint8Array): Promise<Uint8Array> {
-    const result = await this.callSparkKeyOperation({
-      signWith: this.sparkWalletAddress,
-      decryptEciesRequests: [{ ciphertext: hex(ciphertext) }],
-    });
-
-    const data = result.decryptedData?.[0]?.plaintext;
-    if (!data) {
-      throw new Error("SPARK_KEY_OPERATION returned no decrypted data");
-    }
-    return fromHex(data);
   }
 
   // ---------------------------------------------------------------------------

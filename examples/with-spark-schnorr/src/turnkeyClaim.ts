@@ -204,17 +204,13 @@ export async function turnkeyClaim(
       encryptionPublicKey: op.identityPublicKey,
     }));
 
-  // ── Phase 1: Verify the inbound transfer ──────────────────────────
-  // Decrypts each leaf's secretCipher via ECIES (SPARK_KEY_OPERATION)
-  // and verifies the sender's signature.
-  await transferService.verifyPendingTransfer(transfer);
-
   const selfIdentityPubkey = await signer.getIdentityPublicKey();
 
   // Build leaf list from transfer data
   const leaves: Array<{
     leaf: LeafSelection;
     secretCipherHex: string;
+    senderSignatureHex: string;
     newKeyDerivation: KeyDerivation;
   }> = [];
 
@@ -231,6 +227,7 @@ export async function turnkeyClaim(
     leaves.push({
       leaf,
       secretCipherHex: hex(tLeaf.secretCipher),
+      senderSignatureHex: hex(tLeaf.signature),
       newKeyDerivation: {
         type: KeyDerivationType.LEAF,
         path: tLeaf.leaf.id,
@@ -284,12 +281,15 @@ export async function turnkeyClaim(
   const claimLeafInputs: ClaimLeafInput[] = leaves.map((l) => ({
     leafId: l.leaf.id,
     ciphertext: l.secretCipherHex,
+    senderSignature: l.senderSignatureHex,
   }));
 
   const turnkeyResult = await signer.prepareClaim({
     leaves: claimLeafInputs,
     threshold,
     operatorRecipients,
+    transferId: transfer.id,
+    senderIdentityPublicKey: hex(transfer.senderIdentityPublicKey),
   });
 
   // ── Phase 4: Assemble and send ────────────────────────────────────
