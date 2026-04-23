@@ -239,7 +239,7 @@ export async function turnkeyWithdraw(
   )
     .sort((a, b) => Number(a.id) - Number(b.id))
     .map((op) => ({
-      operatorId: String(op.id),
+      operatorId: op.identifier,
       encryptionPublicKey: op.identityPublicKey,
     }));
 

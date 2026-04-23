@@ -93,7 +93,7 @@ async function main() {
     options: {
       network,
       signerWithPreExistingKeys: true,
-      tokenSignatures: "SCHNORR",
+      tokenSignatures: "ECDSA",
     },
   });
 

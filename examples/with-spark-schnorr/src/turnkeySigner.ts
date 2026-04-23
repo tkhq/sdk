@@ -4,8 +4,8 @@
  *
  * Authentication (identity key operations):
  *   - getIdentityPublicKey()
- *   - signMessageWithIdentityKey()   ← ECDSA/Schnorr, used for SO auth
- *   - signSchnorrWithIdentityKey()   ← Schnorr, used for token operations
+ *   - signMessageWithIdentityKey()   ← ECDSA (DER or compact), used for SO auth
+ *   - signSchnorrWithIdentityKey()   ← NOT IMPLEMENTED (Turnkey API lacks BIP340 Schnorr)
  *
  * FROST signing (via SPARK_PREPARE_AND_SIGN activity):
  *   - getRandomSigningCommitment()   ← returns mutable placeholder
@@ -207,7 +207,7 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   async signMessageWithIdentityKey(
     message: Uint8Array,
-    _compact?: boolean,
+    compact?: boolean,
   ): Promise<Uint8Array> {
     const { r, s } = await this.client.apiClient().signRawPayload({
       signWith: this.sparkWalletAddress,
@@ -216,22 +216,22 @@ export class TurnkeySparkSigner implements SparkSigner {
       payload: hex(message),
     });
 
-    const rPadded = r.padStart(64, "0");
-    const sPadded = s.padStart(64, "0");
-    return Buffer.from(rPadded + sPadded, "hex");
+    const rBuf = Buffer.from(r.padStart(64, "0"), "hex");
+    const sBuf = Buffer.from(s.padStart(64, "0"), "hex");
+
+    if (compact) {
+      return Buffer.concat([rBuf, sBuf]);
+    }
+
+    const sig = new secp256k1.Signature(
+      BigInt("0x" + rBuf.toString("hex")),
+      BigInt("0x" + sBuf.toString("hex")),
+    );
+    return Buffer.from(sig.toDERRawBytes());
   }
 
-  async signSchnorrWithIdentityKey(message: Uint8Array): Promise<Uint8Array> {
-    const { r, s } = await this.client.apiClient().signRawPayload({
-      signWith: this.sparkWalletAddress,
-      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-      hashFunction: "HASH_FUNCTION_NO_OP",
-      payload: hex(message),
-    });
-
-    const rPadded = r.padStart(64, "0");
-    const sPadded = s.padStart(64, "0");
-    return Buffer.from(rPadded + sPadded, "hex");
+  async signSchnorrWithIdentityKey(_message: Uint8Array): Promise<Uint8Array> {
+    return notImplemented("signSchnorrWithIdentityKey");
   }
 
   async validateMessageWithIdentityKey(

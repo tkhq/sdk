@@ -55,6 +55,7 @@ interface SparkWalletInternals {
     addLeaves(leaves: WalletLeaf[]): Promise<void>;
     addIncomingLeaves(leaves: WalletLeaf[], id: string): Promise<void>;
     handleTransferEvent(transfer: SparkTransfer): Promise<void>;
+    registerClaimedLeaves(leaves: WalletLeaf[], transferId?: string): Promise<WalletLeaf[]>;
   };
   config: SparkConfig;
 }
@@ -200,7 +201,7 @@ export async function turnkeyClaim(
   )
     .sort((a, b) => Number(a.id) - Number(b.id))
     .map((op) => ({
-      operatorId: String(op.id),
+      operatorId: op.identifier,
       encryptionPublicKey: op.identityPublicKey,
     }));
 
@@ -330,5 +331,5 @@ export async function turnkeyClaim(
     .flatMap((l: TransferLeafData) => (l.leaf ? [l.leaf] : []))
     .map((l: LeafSelection) => l as unknown as WalletLeaf);
 
-  return claimedLeaves;
+  return internals.leafManager.registerClaimedLeaves(claimedLeaves, transfer.id);
 }
