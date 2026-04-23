@@ -39,6 +39,8 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { SparkWallet } from "@buildonspark/spark-sdk";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { TurnkeySparkSigner } from "./turnkeySigner";
+import { turnkeyTransfer } from "./turnkeyTransfer";
+import { turnkeyWithdraw } from "./turnkeyWithdraw";
 
 type SparkNetwork = "MAINNET" | "REGTEST";
 
@@ -185,18 +187,11 @@ async function main() {
     `\n== Step 2: TRANSFER ${transferSats} sats to ${receiverSparkAddress} ==`,
   );
 
-  // This triggers multiple FROST signing operations via PREPARE_AND_SIGN:
-  //   - subtractSplitAndEncrypt for key tweaking (deferred into signFrost)
-  //   - signFrost for CPFP refund tx
-  //   - signFrost for direct refund tx
-  //   - signFrost for directFromCpfp refund tx
-  //   - aggregateFrost to combine partials
-  const transferResult = await wallet.transfer({
+  const transferResult = await turnkeyTransfer(wallet, signer, {
     amountSats: transferSats,
-    receiverSparkAddress,
+    receiverSparkAddress: receiverSparkAddress,
   });
-  console.log(`  Transfer initiated`);
-  console.log(`  Result: ${JSON.stringify(transferResult)}`);
+  console.log(`  Transfer initiated: ${transferResult.id}`);
 
   // Check balance after transfer
   const balanceAfterTransfer = await wallet.getBalance();
@@ -212,9 +207,21 @@ async function main() {
 
   // Cooperative exit — sends Spark leaves to the SSP which broadcasts an
   // L1 transaction paying the withdrawal address.
-  const withdrawResult = await wallet.withdraw({
+  // SDK's wallet.withdraw() calls subtractSplitAndEncrypt internally, so
+  // we use turnkeyWithdraw() which routes key tweaks through the enclave.
+  console.log(`  Getting fee quote...`);
+  const feeQuote = await wallet.getWithdrawalFeeQuote({
+    amountSats: withdrawSats,
+    withdrawalAddress: withdrawBtcAddress,
+  });
+  if (!feeQuote) throw new Error("Failed to get withdrawal fee quote");
+  console.log(`  Fee quote: ${JSON.stringify(feeQuote)}`);
+
+  const withdrawResult = await turnkeyWithdraw(wallet, signer, {
     onchainAddress: withdrawBtcAddress,
+    amountSats: withdrawSats,
     exitSpeed: "FAST",
+    feeQuote,
   });
   console.log(`  Withdrawal initiated`);
   console.log(`  Result: ${JSON.stringify(withdrawResult)}`);

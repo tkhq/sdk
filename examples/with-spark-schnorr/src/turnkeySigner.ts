@@ -12,13 +12,22 @@
  *   - signFrost()                    ← calls Turnkey, mutates commitment
  *   - aggregateFrost()               ← client-side signature aggregation
  *
- * Key operations (via SPARK_PREPARE_AND_SIGN with package_request):
- *   - subtractSplitAndEncrypt()      ← deferred, executed inside signFrost
+ * Transfer / claim / lightning (via SPARK_PREPARE_AND_SIGN with package_request):
+ *   - prepareTransfer()              ← custom method (not part of SparkSigner)
+ *   - prepareClaim()                 ← custom method (not part of SparkSigner)
  *
  * Key operations (via SPARK_KEY_OPERATION activity):
  *   - getPublicKeyFromDerivation()   ← derive public key at any SparkKeyType path
  *   - getDepositSigningKey()         ← derive DEPOSIT public key
  *   - decryptEcies()                 ← ECIES decrypt using identity key
+ *
+ * ## Why subtractSplitAndEncrypt is not implemented
+ *
+ * The Spark SDK's transfer flow calls subtractSplitAndEncrypt() per-leaf and
+ * immediately uses the raw Feldman shares to build per-operator packages.
+ * Turnkey's enclave does this entire operation atomically inside a single
+ * SPARK_PREPARE_AND_SIGN call — raw shares never leave the enclave boundary.
+ * Use prepareTransfer() instead of the SDK's built-in transfer method.
  *
  * ## Deferred Commitment Pattern
  *
@@ -68,14 +77,11 @@ function notImplemented(method: string): never {
 function mapKeyDerivation(kd: KeyDerivation): Record<string, unknown> {
   switch (kd.type) {
     case "leaf":
-      return { sparkKeyType: "SPARK_KEY_TYPE_SIGNING_HD", leafId: kd.path };
+      return { type: "SPARK_KEY_TYPE_SIGNING_HD", leafId: kd.path };
     case "deposit":
-      return { sparkKeyType: "SPARK_KEY_TYPE_DEPOSIT" };
+      return { type: "SPARK_KEY_TYPE_DEPOSIT" };
     case "static_deposit":
-      return {
-        sparkKeyType: "SPARK_KEY_TYPE_STATIC_DEPOSIT_HD",
-        childIndex: kd.path,
-      };
+      return { type: "SPARK_KEY_TYPE_STATIC_DEPOSIT_HD", index: kd.path };
     default:
       throw new Error(`Unsupported key derivation type: ${kd.type}`);
   }
@@ -103,7 +109,10 @@ interface PrepareAndSignResult {
     hiding: string;
     binding: string;
   }>;
-  operatorPackages?: Array<Record<string, unknown>>;
+  operatorPackages?: Array<{
+    operatorId: string;
+    encryptedPackage: string;
+  }>;
   paymentHash?: string;
   transferUserSignature?: string;
 }
@@ -117,19 +126,67 @@ interface KeyOperationResult {
   decryptedData?: Array<{ plaintext: string }>;
 }
 
+/**
+ * Transfer leaf input for prepareTransfer(). Matches SparkTransferLeaf proto.
+ */
+export interface TransferLeafInput {
+  leafId: string;
+  oldLeafDerivation: KeyDerivation;
+  newLeafDerivation: KeyDerivation;
+  refundSignature?: string;
+  directRefundSignature?: string;
+  directFromCpfpRefundSignature?: string;
+}
+
+/**
+ * Operator recipient for prepareTransfer(). Matches SparkOperatorRecipient proto.
+ */
+export interface OperatorRecipientInput {
+  operatorId: string;
+  encryptionPublicKey: string;
+}
+
+/**
+ * Claim leaf input for prepareClaim(). Matches SparkClaimLeaf proto.
+ */
+export interface ClaimLeafInput {
+  leafId: string;
+  ciphertext: string;
+}
+
+/**
+ * Result from prepareTransfer(). Contains encrypted operator packages and
+ * the DER user signature — ready to forward to Spark operators.
+ */
+export interface TransferResult {
+  signatures: Array<{
+    signatureShare: Uint8Array;
+    hiding: Uint8Array;
+    binding: Uint8Array;
+  }>;
+  operatorPackages: Array<{
+    operatorId: string;
+    encryptedPackage: string;
+  }>;
+  transferUserSignature: string;
+}
+
+/**
+ * Result from prepareClaim().
+ */
+export interface ClaimResult {
+  operatorPackages: Array<{
+    operatorId: string;
+    encryptedPackage: string;
+  }>;
+}
+
 export class TurnkeySparkSigner implements SparkSigner {
   private readonly client: TurnkeyServerSDK;
   /** The Turnkey address used for the Spark wallet (sign_with) */
   private readonly sparkWalletAddress: string;
   /** Compressed 33-byte public key (02/03 prefix) */
   private readonly identityPublicKeyHex: string;
-
-  /**
-   * Pending key tweak from subtractSplitAndEncrypt, consumed by the next
-   * signFrost call via PREPARE_AND_SIGN's package_request.
-   */
-  private pendingKeyTweak: SubtractSplitAndEncryptParams | null = null;
-  private pendingKeyTweakResult: SubtractSplitAndEncryptResult | null = null;
 
   constructor(
     client: TurnkeyServerSDK,
@@ -230,12 +287,10 @@ export class TurnkeySparkSigner implements SparkSigner {
   }
 
   /**
-   * Calls Turnkey's SPARK_PREPARE_AND_SIGN activity. Generates nonce, signs,
-   * and returns the partial signature. Mutates params.selfCommitment with the
-   * real (hiding, binding) values from Turnkey.
-   *
-   * If subtractSplitAndEncrypt() was called before this, includes the pending
-   * key tweak as a package_request in the same activity call.
+   * Calls Turnkey's SPARK_PREPARE_AND_SIGN activity for FROST signing only
+   * (no package_request). Generates nonce, signs, and returns the partial
+   * signature. Mutates params.selfCommitment with the real (hiding, binding)
+   * values from Turnkey.
    */
   async signFrost(params: SignFrostParams): Promise<Uint8Array> {
     const signatureRequest = {
@@ -250,51 +305,17 @@ export class TurnkeySparkSigner implements SparkSigner {
         : {}),
     };
 
-    // Build the activity intent
     const intent: Record<string, unknown> = {
       signWith: this.sparkWalletAddress,
       signatures: [signatureRequest],
     };
 
-    // If there's a pending key tweak from subtractSplitAndEncrypt, include it
-    // as a transfer package request
-    if (this.pendingKeyTweak) {
-      intent.packageRequest = {
-        transfer: {
-          receiverIdentityPublicKey: hex(
-            this.pendingKeyTweak.receiverPublicKey,
-          ),
-          threshold: this.pendingKeyTweak.threshold,
-          numShares: this.pendingKeyTweak.numShares,
-          firstDerivation: mapKeyDerivation(this.pendingKeyTweak.first),
-          secondDerivation: mapKeyDerivation(this.pendingKeyTweak.second),
-        },
-      };
-    }
-
     const result = await this.callPrepareAndSign(intent);
 
-    // Mutate the commitment placeholder with Turnkey's real values
     const sig = result.signatures[0]!;
     const commitment = params.selfCommitment.commitment;
     commitment.hiding = fromHex(sig.hiding);
     commitment.binding = fromHex(sig.binding);
-
-    // Populate the deferred key tweak result if present
-    if (this.pendingKeyTweakResult && result.operatorPackages) {
-      // The enclave returns operator packages with the shares and cipher
-      // Map them back to the SDK's expected shape
-      Object.assign(this.pendingKeyTweakResult, {
-        shares: result.operatorPackages,
-        secretCipher: result.transferUserSignature
-          ? fromHex(result.transferUserSignature)
-          : new Uint8Array(),
-      });
-    }
-
-    // Clear pending state
-    this.pendingKeyTweak = null;
-    this.pendingKeyTweakResult = null;
 
     return fromHex(sig.signatureShare);
   }
@@ -315,25 +336,142 @@ export class TurnkeySparkSigner implements SparkSigner {
   }
 
   // ---------------------------------------------------------------------------
-  // Key operations
+  // Transfer / Claim — Turnkey-specific methods
+  //
+  // The SDK's built-in transfer() calls subtractSplitAndEncrypt() per-leaf
+  // and immediately uses raw Feldman shares to build per-operator packages.
+  // Turnkey's enclave does this atomically — shares never leave the enclave.
+  // Use these methods instead of the SDK's built-in transfer/claim flow.
   // ---------------------------------------------------------------------------
 
   /**
-   * Deferred key tweak for transfers. Stores params and returns a mutable
-   * placeholder. The actual computation happens inside the next signFrost()
-   * call via PREPARE_AND_SIGN's package_request.
+   * Prepare a transfer: FROST-sign each leaf + build encrypted operator
+   * packages in a single SPARK_PREPARE_AND_SIGN call.
+   *
+   * Returns encrypted operator packages and the DER user signature, ready
+   * to forward to Spark operators.
+   */
+  async prepareTransfer(params: {
+    signatures: Array<{
+      keyDerivation: KeyDerivation;
+      message: Uint8Array;
+      verifyingKey: Uint8Array;
+      operatorCommitments?: { [key: string]: SigningCommitment };
+      selfCommitment: SigningCommitmentWithOptionalNonce;
+      adaptorPubKey?: Uint8Array;
+    }>;
+    transferId: string;
+    leaves: TransferLeafInput[];
+    threshold: number;
+    operatorRecipients: OperatorRecipientInput[];
+    receiverPublicKey: string;
+  }): Promise<TransferResult> {
+    const signatureRequests = params.signatures.map((s) => ({
+      derivation: mapKeyDerivation(s.keyDerivation),
+      message: hex(s.message),
+      verifyingKey: hex(s.verifyingKey),
+      operatorCommitments: mapOperatorCommitments(s.operatorCommitments),
+      ...(s.adaptorPubKey ? { adaptorPublicKey: hex(s.adaptorPubKey) } : {}),
+    }));
+
+    const leaves = params.leaves.map((l) => ({
+      leafId: l.leafId,
+      oldLeafDerivation: mapKeyDerivation(l.oldLeafDerivation),
+      newLeafDerivation: mapKeyDerivation(l.newLeafDerivation),
+      ...(l.refundSignature ? { refundSignature: l.refundSignature } : {}),
+      ...(l.directRefundSignature
+        ? { directRefundSignature: l.directRefundSignature }
+        : {}),
+      ...(l.directFromCpfpRefundSignature
+        ? {
+            directFromCpfpRefundSignature: l.directFromCpfpRefundSignature,
+          }
+        : {}),
+    }));
+
+    const intent: Record<string, unknown> = {
+      signWith: this.sparkWalletAddress,
+      signatures: signatureRequests,
+      packageRequest: {
+        transfer: {
+          transferId: params.transferId,
+          leaves,
+          threshold: params.threshold,
+          operatorRecipients: params.operatorRecipients,
+          receiverPublicKey: params.receiverPublicKey,
+        },
+      },
+    };
+
+    const result = await this.callPrepareAndSign(intent);
+
+    for (let i = 0; i < params.signatures.length; i++) {
+      const sig = result.signatures[i]!;
+      const commitment = params.signatures[i]!.selfCommitment.commitment;
+      commitment.hiding = fromHex(sig.hiding);
+      commitment.binding = fromHex(sig.binding);
+    }
+
+    return {
+      signatures: result.signatures.map((s) => ({
+        signatureShare: fromHex(s.signatureShare),
+        hiding: fromHex(s.hiding),
+        binding: fromHex(s.binding),
+      })),
+      operatorPackages: result.operatorPackages ?? [],
+      transferUserSignature: result.transferUserSignature ?? "",
+    };
+  }
+
+  /**
+   * Prepare a claim: build encrypted operator packages for inbound leaves.
+   * No FROST signatures needed — the claim just rotates leaf keys.
+   */
+  async prepareClaim(params: {
+    leaves: ClaimLeafInput[];
+    threshold: number;
+    operatorRecipients: OperatorRecipientInput[];
+  }): Promise<ClaimResult> {
+    const intent: Record<string, unknown> = {
+      signWith: this.sparkWalletAddress,
+      signatures: [],
+      packageRequest: {
+        claim: {
+          leaves: params.leaves,
+          threshold: params.threshold,
+          operatorRecipients: params.operatorRecipients,
+        },
+      },
+    };
+
+    const result = await this.callPrepareAndSign(intent);
+
+    return {
+      operatorPackages: result.operatorPackages ?? [],
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Key operations (via SPARK_KEY_OPERATION)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * The Spark SDK's transfer flow calls this per-leaf and immediately uses
+   * raw Feldman shares. Turnkey's enclave produces fully-encrypted operator
+   * packages atomically — raw shares never leave the enclave boundary.
+   *
+   * Use prepareTransfer() instead of the SDK's built-in transfer method.
    */
   async subtractSplitAndEncrypt(
-    params: SubtractSplitAndEncryptParams,
+    _params: SubtractSplitAndEncryptParams,
   ): Promise<SubtractSplitAndEncryptResult> {
-    this.pendingKeyTweak = params;
-
-    const placeholder: SubtractSplitAndEncryptResult = {
-      shares: [] as unknown as VerifiableSecretShare[],
-      secretCipher: new Uint8Array(),
-    };
-    this.pendingKeyTweakResult = placeholder;
-    return placeholder;
+    throw new Error(
+      "TurnkeySparkSigner does not support subtractSplitAndEncrypt. " +
+        "Turnkey's enclave performs subtract-split-encrypt atomically inside " +
+        "SPARK_PREPARE_AND_SIGN — raw shares never leave the enclave. " +
+        "Use TurnkeySparkSigner.prepareTransfer() instead of the SDK's " +
+        "built-in transfer method.",
+    );
   }
 
   async getPublicKeyFromDerivation(
@@ -428,7 +566,7 @@ export class TurnkeySparkSigner implements SparkSigner {
   }
 
   // ---------------------------------------------------------------------------
-  // Internal: Turnkey activity call
+  // Internal: Turnkey activity calls
   // ---------------------------------------------------------------------------
 
   /**
