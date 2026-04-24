@@ -1,14 +1,17 @@
 /**
- * Creates a Turnkey wallet with the Spark IDENTITY account pre-provisioned.
+ * Creates a Turnkey wallet with two accounts at the Spark IDENTITY path:
+ *   1. Spark address (for BIP340 Schnorr signing — invoice helpers, FROST)
+ *   2. Compressed address (for ECDSA signing — SO auth, token operations)
+ *
+ * Both accounts derive from the same key at the same BIP32 path. Turnkey's
+ * signRawPayload dispatches Schnorr vs ECDSA based on the address format,
+ * so having both lets the signer use the right algorithm for each context.
  *
  * Run once before using the example scripts (token-transfer, deposit, etc.).
  * Outputs the env vars you need in .env.local:
- *   - TURNKEY_SPARK_ADDRESS     (Spark wallet address)
+ *   - TURNKEY_SPARK_ADDRESS     (Spark address — for Schnorr signing)
+ *   - TURNKEY_ECDSA_ADDRESS     (compressed address — for ECDSA signing)
  *   - IDENTITY_PUBLIC_KEY_HEX   (compressed 33-byte identity pubkey)
- *
- * The Spark handler derives all 5 key types (IDENTITY, SIGNING_HD, DEPOSIT,
- * STATIC_DEPOSIT_HD, HTLC_PREIMAGE_HD) on-the-fly from the wallet seed — only
- * the IDENTITY account needs to exist in the Turnkey DB.
  *
  * Required env vars:
  *   BASE_URL, API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID
@@ -72,9 +75,11 @@ async function main() {
     config: { organizationId?: string };
   };
 
+  const identityPath = sparkIdentityPath();
+
   console.log(`Creating Spark wallet "${walletName}" on ${network}...`);
-  console.log(`  IDENTITY path: ${sparkIdentityPath()}`);
-  console.log(`  Address format: ${sparkAddressFormat(network)}`);
+  console.log(`  IDENTITY path: ${identityPath}`);
+  console.log(`  Spark format:  ${sparkAddressFormat(network)}`);
 
   const result = await apiClient.command<
     Record<string, unknown>,
@@ -88,8 +93,14 @@ async function main() {
           {
             curve: "CURVE_SECP256K1",
             pathFormat: "PATH_FORMAT_BIP32",
-            path: sparkIdentityPath(),
+            path: identityPath,
             addressFormat: sparkAddressFormat(network),
+          },
+          {
+            curve: "CURVE_SECP256K1",
+            pathFormat: "PATH_FORMAT_BIP32",
+            path: identityPath,
+            addressFormat: "ADDRESS_FORMAT_COMPRESSED",
           },
         ],
       },
@@ -101,8 +112,9 @@ async function main() {
   );
 
   const sparkAddress = result.addresses[0];
-  if (!sparkAddress) {
-    throw new Error("Wallet created but no address returned");
+  const ecdsaAddress = result.addresses[1];
+  if (!sparkAddress || !ecdsaAddress) {
+    throw new Error("Wallet created but missing address(es)");
   }
 
   // Retrieve the public key for the IDENTITY account
@@ -123,12 +135,14 @@ async function main() {
   }
 
   console.log(`\nWallet created successfully!`);
-  console.log(`  Wallet ID: ${result.walletId}`);
-  console.log(`  Spark address: ${sparkAddress}`);
+  console.log(`  Wallet ID:           ${result.walletId}`);
+  console.log(`  Spark address:       ${sparkAddress}`);
+  console.log(`  ECDSA address:       ${ecdsaAddress}`);
   console.log(`  Identity public key: ${identityAccount.publicKey}`);
 
   console.log(`\nAdd these to your .env.local:`);
   console.log(`  TURNKEY_SPARK_ADDRESS=${sparkAddress}`);
+  console.log(`  TURNKEY_ECDSA_ADDRESS=${ecdsaAddress}`);
   console.log(`  IDENTITY_PUBLIC_KEY_HEX=${identityAccount.publicKey}`);
 }
 

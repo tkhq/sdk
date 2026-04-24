@@ -42,6 +42,7 @@ export function initSigner(): {
   const signer = new TurnkeySparkSigner(
     turnkeyClient,
     requireEnv("TURNKEY_SPARK_ADDRESS"),
+    requireEnv("TURNKEY_ECDSA_ADDRESS"),
     requireEnv("IDENTITY_PUBLIC_KEY_HEX"),
   );
 
