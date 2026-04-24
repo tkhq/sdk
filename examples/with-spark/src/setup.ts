@@ -55,6 +55,7 @@ async function main() {
     "API_PUBLIC_KEY",
     "API_PRIVATE_KEY",
     "ORGANIZATION_ID",
+    "BASE_URL"
   ] as const;
 
   for (const v of requiredVars) {
@@ -70,10 +71,7 @@ async function main() {
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
   });
 
-  const apiClient = turnkeyClient.apiClient() as unknown as {
-    command<B, R>(url: string, body: B, resultKey: string): Promise<R>;
-    config: { organizationId?: string };
-  };
+  const apiClient = turnkeyClient.apiClient();
 
   const identityPath = sparkIdentityPath();
 
@@ -118,14 +116,10 @@ async function main() {
   }
 
   // Retrieve the public key for the IDENTITY account
-  const wallets = await apiClient.command<
-    Record<string, unknown>,
-    { accounts: Array<{ address: string; publicKey: string }> }
-  >(
-    "/public/v1/query/list_wallet_accounts",
-    { organizationId: apiClient.config.organizationId, walletId: result.walletId },
-    "accounts",
-  );
+  const wallets = await apiClient.getWalletAccounts({
+    organizationId: apiClient.config.organizationId,
+    walletId: result.walletId,
+  });
 
   const identityAccount = wallets.accounts.find(
     (a: { address: string }) => a.address === sparkAddress,
