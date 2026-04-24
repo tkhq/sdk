@@ -78,6 +78,9 @@ import {
   type SignAndSendTransactionParams,
   type PollTransactionStatusParams,
   type SolSendTransactionParams,
+  type OverrideApiKeyStamperParams,
+  type OverridePasskeyStamperParams,
+  type DeleteApiKeyPairParams,
   buildSecondaryOauthProviders,
 } from "@turnkey/core";
 import {
@@ -756,6 +759,32 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
       }
       return client.createHttpClient(params);
+    },
+    [client],
+  );
+
+  const overrideApiKeyStamper = useCallback(
+    (params: OverrideApiKeyStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overrideApiKeyStamper(params);
+    },
+    [client],
+  );
+
+  const overridePasskeyStamper = useCallback(
+    (params: OverridePasskeyStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overridePasskeyStamper(params);
     },
     [client],
   );
@@ -2363,6 +2392,23 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks, session, user, masterConfig],
   );
 
+  const deleteApiKeyPair = useCallback(
+    async (params: DeleteApiKeyPairParams): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.deleteApiKeyPair(params),
+        () => logout(),
+        callbacks,
+        "Failed to delete API key pair",
+      );
+    },
+    [client, callbacks, session, user, masterConfig],
+  );
+
   const signWithApiKey = useCallback(
     async (params: SignWithApiKeyParams): Promise<string> => {
       if (!client)
@@ -3515,6 +3561,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         config: masterConfig,
         httpClient: client?.httpClient,
         createHttpClient,
+        overrideApiKeyStamper,
+        overridePasskeyStamper,
         createPasskey,
         logout,
         loginWithPasskey,
@@ -3570,6 +3618,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         clearUnusedKeyPairs,
         getActiveSessionKey,
         createApiKeyPair,
+        deleteApiKeyPair,
         signWithApiKey,
         getProxyAuthConfig,
         handleGoogleOauth,
