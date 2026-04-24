@@ -1473,13 +1473,10 @@ export class TurnkeyClient {
 
         // we sign with the verification token key. This is the key bound during
         // verifyOtp() and is what Turnkey expects to sign the client signature for login
-        await this.overrideApiKeyStamper({
-          temporaryPublicKey: verificationPublicKey,
-        });
-        const signature = await this.apiKeyStamper?.sign(
+        const signature = await this.signWithApiKey({
           message,
-          SignatureFormat.Raw,
-        );
+          publicKey: verificationPublicKey,
+        });
 
         if (!signature) {
           throw new TurnkeyError(
@@ -1530,11 +1527,6 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to log in with OTP",
         errorCode: TurnkeyErrorCodes.OTP_LOGIN_ERROR,
-      },
-      {
-        finallyFn: async () => {
-          await this.overrideApiKeyStamper({ temporaryPublicKey: "" });
-        },
       },
     );
   };
@@ -1597,13 +1589,10 @@ export class TurnkeyClient {
 
         // we sign with the verification token key. This is the key bound during
         // verifyOtp() and is what Turnkey expects to sign the client signature for signup
-        await this.overrideApiKeyStamper({
-          temporaryPublicKey: verificationPublicKey,
-        });
-        const signature = await this.apiKeyStamper?.sign(
+        const signature = await this.signWithApiKey({
           message,
-          SignatureFormat.Raw,
-        );
+          publicKey: verificationPublicKey,
+        });
 
         if (!signature) {
           throw new TurnkeyError(
@@ -1645,11 +1634,6 @@ export class TurnkeyClient {
       {
         errorCode: TurnkeyErrorCodes.OTP_SIGNUP_ERROR,
         errorMessage: "Failed to sign up with OTP",
-      },
-      {
-        finallyFn: async () => {
-          await this.overrideApiKeyStamper({ temporaryPublicKey: "" });
-        },
       },
     );
   };
