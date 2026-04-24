@@ -1,10 +1,9 @@
 /**
  * Creates a Turnkey wallet with the Spark IDENTITY account pre-provisioned.
  *
- * Run once before using index.ts (token operations) or e2e.ts (BTC operations).
+ * Run once before using the example scripts (token-transfer, deposit, etc.).
  * Outputs the env vars you need in .env.local:
- *   - TURNKEY_IDENTITY_ADDRESS  (for index.ts — token flow)
- *   - TURNKEY_SPARK_ADDRESS     (same address, for e2e.ts — BTC flow)
+ *   - TURNKEY_SPARK_ADDRESS     (Spark wallet address)
  *   - IDENTITY_PUBLIC_KEY_HEX   (compressed 33-byte identity pubkey)
  *
  * The Spark handler derives all 5 key types (IDENTITY, SIGNING_HD, DEPOSIT,
