@@ -538,17 +538,16 @@ export class TurnkeyClient {
   loginWithPasskey = async (
     params?: LoginWithPasskeyParams,
   ): Promise<PasskeyAuthResult> => {
-    let generatedPublicKey: string | undefined = undefined;
-
     const shouldOverrideConfig =
       params?.allowCredentials && this.passkeyStamper;
 
     const currentConfig = this.config.passkeyConfig;
 
+    const generatedPublicKey =
+      params?.publicKey || (await this.createApiKeyPair());
+
     return await withTurnkeyErrorHandling(
       async () => {
-        generatedPublicKey =
-          params?.publicKey || (await this.createApiKeyPair());
         const sessionKey = params?.sessionKey || SessionKey.DefaultSessionkey;
 
         const expirationSeconds =
@@ -659,10 +658,10 @@ export class TurnkeyClient {
       sessionKey = SessionKey.DefaultSessionkey,
     } = params || {};
 
-    let generatedPublicKey: string | undefined = undefined;
+    const generatedPublicKey = await this.createApiKeyPair();
+
     return withTurnkeyErrorHandling(
       async () => {
-        generatedPublicKey = await this.createApiKeyPair();
         const passkeyName = passkeyDisplayName || `passkey-${Date.now()}`;
 
         // A passkey will be created automatically when you call this function. The name is passed in
@@ -5002,10 +5001,10 @@ export class TurnkeyClient {
       );
     }
 
-    let keyPair: string | undefined;
+    const keyPair = publicKey ?? (await this.createApiKeyPair());
+
     return withTurnkeyErrorHandling(
       async () => {
-        keyPair = publicKey ?? (await this.createApiKeyPair());
         if (!keyPair) {
           throw new TurnkeyError(
             "Failed to create new key pair.",
