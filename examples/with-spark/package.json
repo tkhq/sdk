@@ -8,6 +8,8 @@
     "deposit": "tsx src/deposit.ts",
     "transfer": "tsx src/transfer.ts",
     "claim": "tsx src/claim.ts",
+    "native:setup": "tsx src/native/setup.ts",
+    "native:claim": "tsx src/native/claim.ts",
     "withdraw": "tsx src/withdraw.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"

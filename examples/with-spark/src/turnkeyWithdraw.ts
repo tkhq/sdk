@@ -21,17 +21,20 @@
  */
 
 import { v7 as uuidv7 } from "uuid";
-import {
-  type SparkWallet,
-  KeyDerivationType,
-  type KeyDerivation,
-  type NetworkType,
-  type SigningCommitment,
+import type {
+  SparkWallet,
+  KeyDerivation,
+  NetworkType,
+  SigningCommitment,
 } from "@buildonspark/spark-sdk";
 import type { TurnkeySparkSigner, TransferLeafInput, OperatorRecipientInput } from "./turnkeySigner";
 
 function fromHex(h: string): Uint8Array {
   return Buffer.from(h.replace(/^0x/, ""), "hex");
+}
+
+function leafDerivation(path: string): KeyDerivation {
+  return { type: "leaf", path } as unknown as KeyDerivation;
 }
 
 // ---------------------------------------------------------------------------
@@ -282,8 +285,8 @@ export async function turnkeyWithdraw(
     const allLeaves = [...leavesToSendToSE, ...leavesToSendToSsp];
     const leafTweaks: LeafTweak[] = allLeaves.map((leaf) => ({
       leaf,
-      keyDerivation: { type: KeyDerivationType.LEAF, path: leaf.id },
-      newKeyDerivation: { type: KeyDerivationType.RANDOM } as KeyDerivation,
+      keyDerivation: leafDerivation(leaf.id),
+      newKeyDerivation: leafDerivation(uuidv7()),
       receiverIdentityPublicKey: sspPubKey,
     }));
 
@@ -348,11 +351,11 @@ export async function turnkeyWithdraw(
     );
 
     // ── Step 3: Key tweaks via Turnkey enclave ────────────────────
-    // Uses SIGNING_HD derivation for new keys (deterministic within enclave)
-    const transferLeaves: TransferLeafInput[] = allLeaves.map((leaf) => ({
-      leafId: leaf.id,
-      oldLeafDerivation: { type: KeyDerivationType.LEAF, path: leaf.id },
-      newLeafDerivation: { type: KeyDerivationType.LEAF, path: uuidv7() },
+    // Reuse the same new derivation that signRefundsForCoopExit used above.
+    const transferLeaves: TransferLeafInput[] = leafTweaks.map((leaf) => ({
+      leafId: leaf.leaf.id,
+      oldLeafDerivation: leaf.keyDerivation,
+      newLeafDerivation: leaf.newKeyDerivation,
     }));
 
     const turnkeyResult = await signer.prepareTransfer({

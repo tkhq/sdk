@@ -16,13 +16,17 @@
 
 import {
   type SparkWallet,
-  KeyDerivationType,
   getClaimPackageSigningPayload,
   type KeyDerivation,
   type NetworkType,
   type SigningCommitment,
 } from "@buildonspark/spark-sdk";
-import type { TurnkeySparkSigner, ClaimLeafInput, OperatorRecipientInput } from "./turnkeySigner";
+import { secp256k1 } from "@noble/curves/secp256k1";
+import type {
+  TurnkeySparkSigner,
+  ClaimLeafInput,
+  OperatorRecipientInput,
+} from "./turnkeySigner";
 
 function hex(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("hex");
@@ -30,6 +34,28 @@ function hex(bytes: Uint8Array): string {
 
 function fromHex(h: string): Uint8Array {
   return Buffer.from(h.replace(/^0x/, ""), "hex");
+}
+
+function leafDerivation(path: string): KeyDerivation {
+  return { type: "leaf", path } as unknown as KeyDerivation;
+}
+
+function compactEcdsaSignature(signature: Uint8Array): Uint8Array {
+  if (signature.length === 64) {
+    return secp256k1.Signature.fromCompact(signature)
+      .normalizeS()
+      .toCompactRawBytes();
+  }
+
+  try {
+    return secp256k1.Signature.fromDER(signature)
+      .normalizeS()
+      .toCompactRawBytes();
+  } catch {
+    throw new Error(
+      `Expected compact or DER ECDSA sender signature, got ${signature.length} bytes`,
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -220,7 +246,6 @@ export async function turnkeyClaim(
     const leaf: LeafSelection = {
       ...tLeaf.leaf,
       refundTx: tLeaf.intermediateRefundTx,
-      directTx: tLeaf.intermediateDirectRefundTx ?? new Uint8Array(),
       directRefundTx: tLeaf.intermediateDirectRefundTx ?? new Uint8Array(),
       directFromCpfpRefundTx:
         tLeaf.intermediateDirectFromCpfpRefundTx ?? new Uint8Array(),
@@ -228,25 +253,59 @@ export async function turnkeyClaim(
     leaves.push({
       leaf,
       secretCipherHex: hex(tLeaf.secretCipher),
-      senderSignatureHex: hex(tLeaf.signature),
-      newKeyDerivation: {
-        type: KeyDerivationType.LEAF,
-        path: tLeaf.leaf.id,
-      },
+      senderSignatureHex: hex(compactEcdsaSignature(tLeaf.signature)),
+      newKeyDerivation: leafDerivation(tLeaf.leaf.id),
     });
   }
 
-  // ── Phase 2: Sign refund transactions ─────────────────────────────
   const sparkClient =
     await transferService.connectionManager.createSparkClient(
       config.getCoordinatorAddress(),
     );
 
   const n = leaves.length;
+  if (n === 0) {
+    throw new Error("No claimable leaves in transfer");
+  }
+
+  // ── Phase 2: Key tweaks via Turnkey enclave ───────────────────────
+  // The enclave atomically:
+  //   - decrypts each leaf's inbound ciphertext (ECIES)
+  //   - derives the new leaf key
+  //   - computes tweak = old - new (mod n)
+  //   - Feldman-splits the tweak across operators
+  //   - ECIES-encrypts per-operator packages
+  const claimLeafInputs: ClaimLeafInput[] = leaves.map((l) => ({
+    leafId: l.leaf.id,
+    ciphertext: l.secretCipherHex,
+    senderSignature: l.senderSignatureHex,
+  }));
+
+  const turnkeyResult = await signer.prepareClaim({
+    leaves: claimLeafInputs,
+    threshold,
+    operatorRecipients,
+    transferId: transfer.id,
+    senderIdentityPublicKey: hex(transfer.senderIdentityPublicKey),
+  });
+
+  const keyTweakPackage: Record<string, Uint8Array> = {};
+  for (const pkg of turnkeyResult.operatorPackages) {
+    keyTweakPackage[pkg.operatorId] = fromHex(pkg.encryptedPackage);
+  }
+
+  // ── Phase 3: Sign refund transactions ─────────────────────────────
   const { signingCommitments } = await sparkClient.get_signing_commitments({
     nodeIdCount: n,
     count: 3,
   });
+
+  const expectedCommitments = 3 * n;
+  if (signingCommitments.length !== expectedCommitments) {
+    throw new Error(
+      `Expected ${expectedCommitments} signing commitments, got ${signingCommitments.length}`,
+    );
+  }
 
   // signRefundsForClaim signs with the NEW key — both keyDerivation and
   // newKeyDerivation point to the same LEAF derivation.
@@ -272,32 +331,7 @@ export async function turnkeyClaim(
     signingCommitments.slice(2 * n, 3 * n),
   );
 
-  // ── Phase 3: Key tweaks via Turnkey enclave ───────────────────────
-  // The enclave atomically:
-  //   - decrypts each leaf's inbound ciphertext (ECIES)
-  //   - derives the new leaf key
-  //   - computes tweak = old - new (mod n)
-  //   - Feldman-splits the tweak across operators
-  //   - ECIES-encrypts per-operator packages
-  const claimLeafInputs: ClaimLeafInput[] = leaves.map((l) => ({
-    leafId: l.leaf.id,
-    ciphertext: l.secretCipherHex,
-    senderSignature: l.senderSignatureHex,
-  }));
-
-  const turnkeyResult = await signer.prepareClaim({
-    leaves: claimLeafInputs,
-    threshold,
-    operatorRecipients,
-    transferId: transfer.id,
-    senderIdentityPublicKey: hex(transfer.senderIdentityPublicKey),
-  });
-
   // ── Phase 4: Assemble and send ────────────────────────────────────
-  const keyTweakPackage: Record<string, Uint8Array> = {};
-  for (const pkg of turnkeyResult.operatorPackages) {
-    keyTweakPackage[pkg.operatorId] = fromHex(pkg.encryptedPackage);
-  }
 
   const claimPackage: ClaimPackage = {
     leavesToClaim: cpfpLeafSigningJobs,

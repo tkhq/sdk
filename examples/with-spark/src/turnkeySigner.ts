@@ -45,7 +45,6 @@
 import { secp256k1 } from "@noble/curves/secp256k1";
 import { mnemonicToSeed } from "@scure/bip39";
 import {
-  KeyDerivationType,
   getSparkFrost,
   type SparkSigner,
   type SignFrostParams,
@@ -522,15 +521,15 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   async getDepositSigningKey(): Promise<Uint8Array> {
     return this.getPublicKeyFromDerivation({
-      type: KeyDerivationType.DEPOSIT,
-    });
+      type: "deposit",
+    } as unknown as KeyDerivation);
   }
 
   async getStaticDepositSigningKey(idx: number): Promise<Uint8Array> {
     return this.getPublicKeyFromDerivation({
-      type: KeyDerivationType.STATIC_DEPOSIT,
+      type: "static_deposit",
       path: idx,
-    });
+    } as unknown as KeyDerivation);
   }
 
   async getStaticDepositSecretKey(_idx: number): Promise<Uint8Array> {

@@ -13,6 +13,7 @@ import { SparkWallet } from "@buildonspark/spark-sdk";
 import { IssuerSparkWallet } from "@buildonspark/issuer-sdk";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { TurnkeySparkSigner } from "./turnkeySigner";
+import { turnkeyClaim } from "./turnkeyClaim";
 
 type SparkNetwork = "MAINNET" | "REGTEST";
 
@@ -24,6 +25,37 @@ function requireEnv(name: string): string {
 
 function env(name: string, fallback: string): string {
   return process.env[name] ?? fallback;
+}
+
+/**
+ * Patch SparkWallet.prototype.claimTransfer to route through turnkeyClaim.
+ *
+ * The SDK's native claim path calls signer.decryptEcies() which requires
+ * the identity private key client-side. Turnkey keeps that key inside the
+ * enclave, so we intercept all claim attempts (including the SDK's
+ * background auto-claim that fires during initialize()) and handle them
+ * via the enclave-based flow.
+ *
+ * Must be called BEFORE SparkWallet.initialize() to avoid the race with
+ * setupBackgroundStream's immediate claimTransfers() call.
+ */
+function patchClaimTransfer(signer: TurnkeySparkSigner): () => void {
+  const proto = SparkWallet.prototype as any;
+  const original = proto.claimTransfer;
+
+  proto.claimTransfer = async function (
+    this: any,
+    { transfer, emit }: { transfer: any; emit?: boolean },
+  ) {
+    const result = await this.claimTransferMutex.runExclusive(() =>
+      turnkeyClaim(this, signer, transfer),
+    );
+    return this.processClaimedTransferResults(result, transfer, emit);
+  };
+
+  return () => {
+    proto.claimTransfer = original;
+  };
 }
 
 export function initSigner(): {
@@ -56,10 +88,29 @@ export async function initSparkWallet(): Promise<{
 }> {
   const { signer, network } = initSigner();
 
-  const { wallet } = await SparkWallet.initialize({
-    signer: signer as any,
-    options: { network },
-  });
+  const restoreClaimTransfer = patchClaimTransfer(signer);
+  let wallet: SparkWallet;
+  try {
+    ({ wallet } = await SparkWallet.initialize({
+      signer: signer as any,
+      options: {
+        network,
+        signerWithPreExistingKeys: true,
+      },
+    }));
+  } finally {
+    restoreClaimTransfer();
+  }
+
+  // Instance-level override survives the prototype restore so the
+  // background stream and any explicit calls still route through turnkeyClaim.
+  const w = wallet as any;
+  w.claimTransfer = async function ({ transfer, emit }: { transfer: any; emit?: boolean }) {
+    const result = await w.claimTransferMutex.runExclusive(() =>
+      turnkeyClaim(wallet, signer, transfer),
+    );
+    return w.processClaimedTransferResults(result, transfer, emit);
+  };
 
   return { wallet, signer, network };
 }

@@ -20,7 +20,6 @@
 import { v7 as uuidv7 } from "uuid";
 import {
   type SparkWallet,
-  KeyDerivationType,
   decodeSparkAddress,
   type KeyDerivation,
   type NetworkType,
@@ -30,6 +29,10 @@ import type { TurnkeySparkSigner, TransferLeafInput, OperatorRecipientInput } fr
 
 function fromHex(h: string): Uint8Array {
   return Buffer.from(h.replace(/^0x/, ""), "hex");
+}
+
+function leafDerivation(path: string): KeyDerivation {
+  return { type: "leaf", path } as unknown as KeyDerivation;
 }
 
 // ---------------------------------------------------------------------------
@@ -199,11 +202,14 @@ export async function turnkeyTransfer(
       const leaves = selected[0]!;
       const transferId = uuidv7();
 
-      // Build leaf tweaks (same shape as SDK's toSendTweak)
+      // Build leaf tweaks (same shape as SDK's toSendTweak). The same
+      // newKeyDerivation must be used for refund signing and for the
+      // Turnkey key-tweak package; otherwise the receiver later claims
+      // with a key that Spark operators did not actually rotate to.
       const leafTweaks: LeafTweak[] = leaves.map((leaf) => ({
         leaf,
-        keyDerivation: { type: KeyDerivationType.LEAF, path: leaf.id },
-        newKeyDerivation: { type: KeyDerivationType.RANDOM } as KeyDerivation,
+        keyDerivation: leafDerivation(leaf.id),
+        newKeyDerivation: leafDerivation(uuidv7()),
         receiverIdentityPublicKey: receiverPubkeyBytes,
       }));
 
@@ -240,10 +246,10 @@ export async function turnkeyTransfer(
       // For the basic transfer flow, the new leaf derivation uses a
       // new SIGNING_HD key with a fresh leaf_id. The SDK uses RANDOM,
       // but Turnkey uses deterministic HD derivation for reproducibility.
-      const transferLeaves: TransferLeafInput[] = leaves.map((leaf) => ({
-        leafId: leaf.id,
-        oldLeafDerivation: { type: KeyDerivationType.LEAF, path: leaf.id },
-        newLeafDerivation: { type: KeyDerivationType.LEAF, path: uuidv7() },
+      const transferLeaves: TransferLeafInput[] = leafTweaks.map((leaf) => ({
+        leafId: leaf.leaf.id,
+        oldLeafDerivation: leaf.keyDerivation,
+        newLeafDerivation: leaf.newKeyDerivation,
       }));
 
       // prepareTransfer returns FROST signatures + encrypted operator
