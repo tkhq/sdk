@@ -45,7 +45,6 @@
 import { secp256k1 } from "@noble/curves/secp256k1";
 import { mnemonicToSeed } from "@scure/bip39";
 import {
-  KeyDerivationType,
   getSparkFrost,
   type SparkSigner,
   type SignFrostParams,
@@ -74,6 +73,13 @@ function notImplemented(method: string): never {
   throw new Error(
     `TurnkeySparkSigner.${method} is not yet implemented. ` +
       `This method requires functionality not yet available via Turnkey activities.`,
+  );
+}
+
+function frostDebugEnabled(): boolean {
+  return ["1", "true", "yes"].includes(
+    (process.env.SPARK_CLAIM_DEBUG ?? process.env.SPARK_FROST_DEBUG ?? "")
+      .toLowerCase(),
   );
 }
 
@@ -185,6 +191,17 @@ export interface ClaimResult {
   }>;
 }
 
+export interface FrostSignDebugRecord {
+  derivation: Record<string, unknown>;
+  messageHex: string;
+  verifyingKeyHex: string;
+  publicKeyHex: string;
+  operatorCommitments: Array<{ id: string; hiding: string; binding: string }>;
+  adaptorPublicKeyHex?: string;
+  selfCommitment: { hiding: string; binding: string };
+  signatureShareHex: string;
+}
+
 export class TurnkeySparkSigner implements SparkSigner {
   private readonly client: TurnkeyServerSDK;
   /** Spark-formatted address → signRawPayload returns BIP340 Schnorr */
@@ -193,6 +210,7 @@ export class TurnkeySparkSigner implements SparkSigner {
   private readonly ecdsaAddress: string;
   /** Compressed 33-byte public key (02/03 prefix) */
   private readonly identityPublicKeyHex: string;
+  private readonly frostSignDebugRecords: FrostSignDebugRecord[] = [];
 
   constructor(
     client: TurnkeyServerSDK,
@@ -339,6 +357,21 @@ export class TurnkeySparkSigner implements SparkSigner {
     const commitment = params.selfCommitment.commitment;
     commitment.hiding = fromHex(sig.hiding);
     commitment.binding = fromHex(sig.binding);
+
+    if (frostDebugEnabled()) {
+      this.frostSignDebugRecords.push({
+        derivation: signatureRequest.derivation,
+        messageHex: signatureRequest.message,
+        verifyingKeyHex: signatureRequest.verifyingKey,
+        publicKeyHex: hex(params.publicKey),
+        operatorCommitments: signatureRequest.operatorCommitments,
+        ...(params.adaptorPubKey
+          ? { adaptorPublicKeyHex: hex(params.adaptorPubKey) }
+          : {}),
+        selfCommitment: { hiding: sig.hiding, binding: sig.binding },
+        signatureShareHex: sig.signatureShare,
+      });
+    }
 
     return fromHex(sig.signatureShare);
   }
@@ -520,17 +553,31 @@ export class TurnkeySparkSigner implements SparkSigner {
     return fromHex(pk);
   }
 
+  getFrostDebugRecordCount(): number {
+    return this.frostSignDebugRecords.length;
+  }
+
+  consumeFrostDebugRecords(startIndex = 0): FrostSignDebugRecord[] {
+    if (startIndex < 0 || startIndex > this.frostSignDebugRecords.length) {
+      startIndex = 0;
+    }
+
+    const records = this.frostSignDebugRecords.slice(startIndex);
+    this.frostSignDebugRecords.length = startIndex;
+    return records;
+  }
+
   async getDepositSigningKey(): Promise<Uint8Array> {
     return this.getPublicKeyFromDerivation({
-      type: KeyDerivationType.DEPOSIT,
-    });
+      type: "deposit",
+    } as unknown as KeyDerivation);
   }
 
   async getStaticDepositSigningKey(idx: number): Promise<Uint8Array> {
     return this.getPublicKeyFromDerivation({
-      type: KeyDerivationType.STATIC_DEPOSIT,
+      type: "static_deposit",
       path: idx,
-    });
+    } as unknown as KeyDerivation);
   }
 
   async getStaticDepositSecretKey(_idx: number): Promise<Uint8Array> {

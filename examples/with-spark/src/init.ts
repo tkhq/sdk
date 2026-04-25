@@ -26,6 +26,26 @@ function env(name: string, fallback: string): string {
   return process.env[name] ?? fallback;
 }
 
+function disableSparkSdkBackgroundStream(): () => void {
+  const proto = SparkWallet.prototype as unknown as {
+    setupBackgroundStream?: () => Promise<void>;
+  };
+  const original = proto.setupBackgroundStream;
+
+  if (!original) {
+    return () => {};
+  }
+
+  // Spark SDK's background stream auto-claims pending transfers via the
+  // built-in claim path. The Turnkey example must use turnkeyClaim(), because
+  // raw ECIES plaintexts and Feldman shares must stay inside Turnkey.
+  proto.setupBackgroundStream = async () => {};
+
+  return () => {
+    proto.setupBackgroundStream = original;
+  };
+}
+
 export function initSigner(): {
   signer: TurnkeySparkSigner;
   network: SparkNetwork;
@@ -56,12 +76,20 @@ export async function initSparkWallet(): Promise<{
 }> {
   const { signer, network } = initSigner();
 
-  const { wallet } = await SparkWallet.initialize({
-    signer: signer as any,
-    options: { network },
-  });
+  const restoreBackgroundStream = disableSparkSdkBackgroundStream();
+  try {
+    const { wallet } = await SparkWallet.initialize({
+      signer: signer as any,
+      options: {
+        network,
+        signerWithPreExistingKeys: true,
+      },
+    });
 
-  return { wallet, signer, network };
+    return { wallet, signer, network };
+  } finally {
+    restoreBackgroundStream();
+  }
 }
 
 export async function initIssuerWallet(): Promise<{
