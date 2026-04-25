@@ -26,7 +26,6 @@ import type {
   TurnkeySparkSigner,
   ClaimLeafInput,
   OperatorRecipientInput,
-  FrostSignDebugRecord,
 } from "./turnkeySigner";
 
 function hex(bytes: Uint8Array): string {
@@ -57,44 +56,6 @@ function compactEcdsaSignature(signature: Uint8Array): Uint8Array {
       `Expected compact or DER ECDSA sender signature, got ${signature.length} bytes`,
     );
   }
-}
-
-function claimDebugEnabled(): boolean {
-  return ["1", "true", "yes"].includes(
-    (process.env.SPARK_CLAIM_DEBUG ?? "").toLowerCase(),
-  );
-}
-
-function claimDebugRawEnabled(): boolean {
-  return ["1", "true", "yes"].includes(
-    (process.env.SPARK_CLAIM_DEBUG_RAW ?? "").toLowerCase(),
-  );
-}
-
-function debugClaim(label: string, value: unknown): void {
-  if (!claimDebugEnabled()) return;
-  console.log(`[spark-claim-debug] ${label}`);
-  console.log(JSON.stringify(value, null, 2));
-}
-
-function maybeBytesHex(value: unknown): string | undefined {
-  if (value instanceof Uint8Array) return hex(value);
-  if (typeof value === "string") return value;
-  return undefined;
-}
-
-function summarizeKeyTweakPackage(
-  keyTweakPackage: Record<string, Uint8Array>,
-): Record<string, { bytes: number; hex?: string }> {
-  return Object.fromEntries(
-    Object.entries(keyTweakPackage).map(([operatorId, encryptedPackage]) => [
-      operatorId,
-      {
-        bytes: encryptedPackage.length,
-        ...(claimDebugRawEnabled() ? { hex: hex(encryptedPackage) } : {}),
-      },
-    ]),
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -242,98 +203,6 @@ interface ClaimPackage {
 // HashVariant.HASH_VARIANT_V2 = 1
 const HASH_VARIANT_V2 = 1;
 
-function summarizeOperatorSigningCommitments(
-  commitments: OperatorSigningCommitment[],
-): Array<Record<string, unknown>> {
-  return commitments.map((commitment, index) => ({
-    index,
-    leafId: commitment.leafId,
-    verifyingKey: maybeBytesHex(commitment.verifyingKey),
-    publicKeys: Object.fromEntries(
-      Object.entries(commitment.publicKeys ?? {}).map(([id, publicKey]) => [
-        id,
-        hex(publicKey),
-      ]),
-    ),
-    signingNonceCommitments: Object.fromEntries(
-      Object.entries(commitment.signingNonceCommitments ?? {}).map(
-        ([id, nonceCommitment]) => [
-          id,
-          {
-            hiding: hex(nonceCommitment.hiding),
-            binding: hex(nonceCommitment.binding),
-          },
-        ],
-      ),
-    ),
-  }));
-}
-
-function indexFrostRecordsByExecutionOrder(
-  leaves: Array<{ leaf: LeafSelection }>,
-  cpfpLeafSigningJobs: LeafSigningJob[],
-  directLeafSigningJobs: LeafSigningJob[],
-  directFromCpfpLeafSigningJobs: LeafSigningJob[],
-  frostRecords: FrostSignDebugRecord[],
-): Map<string, FrostSignDebugRecord> {
-  const recordsByJob = new Map<string, FrostSignDebugRecord>();
-  let recordIndex = 0;
-
-  for (const { leaf } of leaves) {
-    if (cpfpLeafSigningJobs.some((job) => job.leafId === leaf.id)) {
-      recordsByJob.set(`cpfp:${leaf.id}`, frostRecords[recordIndex++]!);
-    }
-    if (directLeafSigningJobs.some((job) => job.leafId === leaf.id)) {
-      recordsByJob.set(`direct:${leaf.id}`, frostRecords[recordIndex++]!);
-    }
-    if (directFromCpfpLeafSigningJobs.some((job) => job.leafId === leaf.id)) {
-      recordsByJob.set(`directFromCpfp:${leaf.id}`, frostRecords[recordIndex++]!);
-    }
-  }
-
-  return recordsByJob;
-}
-
-function summarizeSigningJob(
-  phase: "cpfp" | "direct" | "directFromCpfp",
-  job: LeafSigningJob,
-  frostRecord?: FrostSignDebugRecord,
-): Record<string, unknown> {
-  return {
-    phase,
-    leafId: job.leafId,
-    signingPublicKey: hex(job.signingPublicKey),
-    rawTxBytes: job.rawTx.length,
-    ...(claimDebugRawEnabled() ? { rawTxHex: hex(job.rawTx) } : {}),
-    userSignatureHex: hex(job.userSignature),
-    selfCommitment: {
-      hiding: maybeBytesHex(job.selfCommitment?.commitment?.hiding),
-      binding: maybeBytesHex(job.selfCommitment?.commitment?.binding),
-    },
-    frostMessageHex: frostRecord?.messageHex,
-    frostVerifyingKeyHex: frostRecord?.verifyingKeyHex,
-    frostPublicKeyHex: frostRecord?.publicKeyHex,
-    frostSignatureShareHex: frostRecord?.signatureShareHex,
-    frostSelfCommitment: frostRecord?.selfCommitment,
-    frostOperatorCommitments: frostRecord?.operatorCommitments,
-    frostAdaptorPublicKeyHex: frostRecord?.adaptorPublicKeyHex,
-  };
-}
-
-function summarizeSigningJobs(
-  phase: "cpfp" | "direct" | "directFromCpfp",
-  jobs: LeafSigningJob[],
-  frostRecordsByJob: Map<string, FrostSignDebugRecord>,
-): Array<Record<string, unknown>> {
-  return jobs.map((job) =>
-    summarizeSigningJob(
-      phase,
-      job,
-      frostRecordsByJob.get(`${phase}:${job.leafId}`),
-    ),
-  );
-}
-
 /**
  * Claim an inbound Spark transfer using Turnkey's enclave for key tweaks.
  *
@@ -389,25 +258,6 @@ export async function turnkeyClaim(
     });
   }
 
-  debugClaim("claim inputs", {
-    transferId: transfer.id,
-    senderIdentityPublicKey: hex(transfer.senderIdentityPublicKey),
-    leafCount: leaves.length,
-    leaves: leaves.map((l) => ({
-      leafId: l.leaf.id,
-      status: l.leaf.status,
-      value: l.leaf.value?.toString(),
-      verifyingPublicKey: maybeBytesHex(l.leaf.verifyingPublicKey),
-      nodeTxBytes: l.leaf.nodeTx.length,
-      refundTxBytes: l.leaf.refundTx.length,
-      directRefundTxBytes: l.leaf.directRefundTx.length,
-      directFromCpfpRefundTxBytes: l.leaf.directFromCpfpRefundTx.length,
-      secretCipherBytes: l.secretCipherHex.length / 2,
-      senderSignatureHex: l.senderSignatureHex,
-      newKeyDerivation: l.newKeyDerivation,
-    })),
-  });
-
   const sparkClient =
     await transferService.connectionManager.createSparkClient(
       config.getCoordinatorAddress(),
@@ -444,12 +294,6 @@ export async function turnkeyClaim(
     keyTweakPackage[pkg.operatorId] = fromHex(pkg.encryptedPackage);
   }
 
-  debugClaim("key tweak package", {
-    operatorPackageCount: turnkeyResult.operatorPackages.length,
-    operatorIds: Object.keys(keyTweakPackage),
-    keyTweakPackage: summarizeKeyTweakPackage(keyTweakPackage),
-  });
-
   // ── Phase 3: Sign refund transactions ─────────────────────────────
   const { signingCommitments } = await sparkClient.get_signing_commitments({
     nodeIdCount: n,
@@ -462,18 +306,6 @@ export async function turnkeyClaim(
       `Expected ${expectedCommitments} signing commitments, got ${signingCommitments.length}`,
     );
   }
-
-  debugClaim("operator signing commitments", {
-    expectedCommitments,
-    actualCommitments: signingCommitments.length,
-    cpfp: summarizeOperatorSigningCommitments(signingCommitments.slice(0, n)),
-    direct: summarizeOperatorSigningCommitments(
-      signingCommitments.slice(n, 2 * n),
-    ),
-    directFromCpfp: summarizeOperatorSigningCommitments(
-      signingCommitments.slice(2 * n, 3 * n),
-    ),
-  });
 
   // signRefundsForClaim signs with the NEW key — both keyDerivation and
   // newKeyDerivation point to the same LEAF derivation.
@@ -488,18 +320,6 @@ export async function turnkeyClaim(
     })),
   );
 
-  debugClaim("derived claim leaves", {
-    leaves: claimLeaves.map((l) => ({
-      leafId: l.leaf.id,
-      leafVerifyingPublicKey: maybeBytesHex(l.leaf.verifyingPublicKey),
-      receiverIdentityPublicKey: hex(l.receiverIdentityPublicKey),
-      keyDerivation: l.keyDerivation,
-      newKeyDerivation: l.newKeyDerivation,
-    })),
-  });
-
-  const frostDebugStart = signer.getFrostDebugRecordCount();
-
   const {
     cpfpLeafSigningJobs,
     directLeafSigningJobs,
@@ -510,37 +330,6 @@ export async function turnkeyClaim(
     signingCommitments.slice(n, 2 * n),
     signingCommitments.slice(2 * n, 3 * n),
   );
-  const frostRecords = signer.consumeFrostDebugRecords(frostDebugStart);
-  const frostRecordsByJob = indexFrostRecordsByExecutionOrder(
-    leaves,
-    cpfpLeafSigningJobs,
-    directLeafSigningJobs,
-    directFromCpfpLeafSigningJobs,
-    frostRecords,
-  );
-
-  debugClaim("refund signing jobs", {
-    totalFrostRecords: frostRecords.length,
-    expectedFrostRecords:
-      cpfpLeafSigningJobs.length +
-      directLeafSigningJobs.length +
-      directFromCpfpLeafSigningJobs.length,
-    cpfp: summarizeSigningJobs(
-      "cpfp",
-      cpfpLeafSigningJobs,
-      frostRecordsByJob,
-    ),
-    direct: summarizeSigningJobs(
-      "direct",
-      directLeafSigningJobs,
-      frostRecordsByJob,
-    ),
-    directFromCpfp: summarizeSigningJobs(
-      "directFromCpfp",
-      directFromCpfpLeafSigningJobs,
-      frostRecordsByJob,
-    ),
-  });
 
   // ── Phase 4: Assemble and send ────────────────────────────────────
 
@@ -561,19 +350,6 @@ export async function turnkeyClaim(
   claimPackage.userSignature = new Uint8Array(
     await signer.signMessageWithIdentityKey(signingPayload),
   );
-
-  debugClaim("claim package", {
-    transferId: transfer.id,
-    hashVariant: claimPackage.hashVariant,
-    userSignatureHex: hex(claimPackage.userSignature),
-    keyTweakPackage: summarizeKeyTweakPackage(keyTweakPackage),
-    leavesToClaim: claimPackage.leavesToClaim.map((job) => job.leafId),
-    directLeavesToClaim: claimPackage.directLeavesToClaim.map(
-      (job) => job.leafId,
-    ),
-    directFromCpfpLeavesToClaim:
-      claimPackage.directFromCpfpLeavesToClaim.map((job) => job.leafId),
-  });
 
   const response = await sparkClient.claim_transfer({
     transferId: transfer.id,

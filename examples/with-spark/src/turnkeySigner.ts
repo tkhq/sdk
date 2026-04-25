@@ -76,13 +76,6 @@ function notImplemented(method: string): never {
   );
 }
 
-function frostDebugEnabled(): boolean {
-  return ["1", "true", "yes"].includes(
-    (process.env.SPARK_CLAIM_DEBUG ?? process.env.SPARK_FROST_DEBUG ?? "")
-      .toLowerCase(),
-  );
-}
-
 /** Maps SDK KeyDerivation to the proto SparkKeyDerivation shape. */
 function mapKeyDerivation(kd: KeyDerivation): Record<string, unknown> {
   switch (kd.type) {
@@ -191,17 +184,6 @@ export interface ClaimResult {
   }>;
 }
 
-export interface FrostSignDebugRecord {
-  derivation: Record<string, unknown>;
-  messageHex: string;
-  verifyingKeyHex: string;
-  publicKeyHex: string;
-  operatorCommitments: Array<{ id: string; hiding: string; binding: string }>;
-  adaptorPublicKeyHex?: string;
-  selfCommitment: { hiding: string; binding: string };
-  signatureShareHex: string;
-}
-
 export class TurnkeySparkSigner implements SparkSigner {
   private readonly client: TurnkeyServerSDK;
   /** Spark-formatted address → signRawPayload returns BIP340 Schnorr */
@@ -210,7 +192,6 @@ export class TurnkeySparkSigner implements SparkSigner {
   private readonly ecdsaAddress: string;
   /** Compressed 33-byte public key (02/03 prefix) */
   private readonly identityPublicKeyHex: string;
-  private readonly frostSignDebugRecords: FrostSignDebugRecord[] = [];
 
   constructor(
     client: TurnkeyServerSDK,
@@ -357,21 +338,6 @@ export class TurnkeySparkSigner implements SparkSigner {
     const commitment = params.selfCommitment.commitment;
     commitment.hiding = fromHex(sig.hiding);
     commitment.binding = fromHex(sig.binding);
-
-    if (frostDebugEnabled()) {
-      this.frostSignDebugRecords.push({
-        derivation: signatureRequest.derivation,
-        messageHex: signatureRequest.message,
-        verifyingKeyHex: signatureRequest.verifyingKey,
-        publicKeyHex: hex(params.publicKey),
-        operatorCommitments: signatureRequest.operatorCommitments,
-        ...(params.adaptorPubKey
-          ? { adaptorPublicKeyHex: hex(params.adaptorPubKey) }
-          : {}),
-        selfCommitment: { hiding: sig.hiding, binding: sig.binding },
-        signatureShareHex: sig.signatureShare,
-      });
-    }
 
     return fromHex(sig.signatureShare);
   }
@@ -551,20 +517,6 @@ export class TurnkeySparkSigner implements SparkSigner {
       throw new Error("SPARK_KEY_OPERATION returned no public key");
     }
     return fromHex(pk);
-  }
-
-  getFrostDebugRecordCount(): number {
-    return this.frostSignDebugRecords.length;
-  }
-
-  consumeFrostDebugRecords(startIndex = 0): FrostSignDebugRecord[] {
-    if (startIndex < 0 || startIndex > this.frostSignDebugRecords.length) {
-      startIndex = 0;
-    }
-
-    const records = this.frostSignDebugRecords.slice(startIndex);
-    this.frostSignDebugRecords.length = startIndex;
-    return records;
   }
 
   async getDepositSigningKey(): Promise<Uint8Array> {

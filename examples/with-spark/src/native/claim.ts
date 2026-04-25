@@ -6,11 +6,6 @@
  */
 
 import { initNativeSparkWallet } from "./init";
-import {
-  debugNativeClaim,
-  installNativeFrostDebug,
-  summarizeNativeTransfer,
-} from "./debug";
 
 type NativeTransfer = {
   id: string;
@@ -25,7 +20,6 @@ type NativeTransferService = {
 async function main() {
   const transferId = process.env.TRANSFER_ID;
   const { wallet, network } = await initNativeSparkWallet();
-  installNativeFrostDebug(wallet);
 
   try {
     const sparkAddress = await wallet.getSparkAddress();
@@ -56,7 +50,6 @@ async function main() {
       console.log(
         `\nClaiming transfer ${transfer.id} (${transfer.leaves.length} leaves)...`,
       );
-      debugNativeClaim("transfer inputs", summarizeNativeTransfer(transfer));
       const claimedLeaves = await walletClaim.claimTransfer({ transfer });
       console.log(`  Claimed ${claimedLeaves.length} leaves`);
     }

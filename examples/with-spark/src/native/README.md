@@ -28,9 +28,3 @@ Claim one transfer:
 ```sh
 TRANSFER_ID=<transfer-id> pnpm run native:claim
 ```
-
-Print the native signer's FROST inputs and signature shares while claiming:
-
-```sh
-pnpm run native:claim:debug
-```
