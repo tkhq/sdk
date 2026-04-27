@@ -214,6 +214,7 @@ export async function turnkeyClaim(
   wallet: SparkWallet,
   signer: TurnkeySparkSigner,
   transfer: SparkTransfer,
+  options: { register?: boolean } = {},
 ): Promise<WalletLeaf[]> {
   const internals = wallet as unknown as SparkWalletInternals;
   const config = internals.config;
@@ -364,6 +365,10 @@ export async function turnkeyClaim(
   const claimedLeaves: WalletLeaf[] = response.transfer.leaves
     .flatMap((l: TransferLeafData) => (l.leaf ? [l.leaf] : []))
     .map((l: LeafSelection) => l as unknown as WalletLeaf);
+
+  if (options.register === false) {
+    return claimedLeaves;
+  }
 
   return internals.leafManager.registerClaimedLeaves(claimedLeaves, transfer.id);
 }

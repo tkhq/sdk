@@ -4,13 +4,16 @@
  *
  * Authentication (identity key operations):
  *   - getIdentityPublicKey()
- *   - signMessageWithIdentityKey()   ← ECDSA via compressed address (DER or compact)
+ *   - signMessageWithIdentityKey()   ← ECDSA via compressed address, or Schnorr via Spark address
  *   - signSchnorrWithIdentityKey()   ← BIP340 Schnorr via Spark address
  *
  * Turnkey's signRawPayload dispatches Schnorr vs ECDSA based on the address
- * format. The signer holds two addresses for the same underlying key:
+ * format. The signer usually holds two addresses for the same underlying key:
  *   - sparkAddress  → ADDRESS_FORMAT_SPARK_* → SchnorrPlain (BIP340)
  *   - ecdsaAddress  → ADDRESS_FORMAT_COMPRESSED → ECDSA
+ * If a wallet was imported with only its Spark-formatted address available,
+ * ecdsaAddress may also be set to the Spark address for Schnorr identity
+ * signatures.
  *
  * FROST signing (via SPARK_PREPARE_AND_SIGN activity):
  *   - getRandomSigningCommitment()   ← returns mutable placeholder
@@ -188,7 +191,7 @@ export class TurnkeySparkSigner implements SparkSigner {
   private readonly client: TurnkeyServerSDK;
   /** Spark-formatted address → signRawPayload returns BIP340 Schnorr */
   private readonly sparkAddress: string;
-  /** Compressed-formatted address → signRawPayload returns ECDSA */
+  /** Compressed address for ECDSA, or Spark address when only Schnorr identity signing is available */
   private readonly ecdsaAddress: string;
   /** Compressed 33-byte public key (02/03 prefix) */
   private readonly identityPublicKeyHex: string;
@@ -227,7 +230,11 @@ export class TurnkeySparkSigner implements SparkSigner {
     const rBuf = Buffer.from(r.padStart(64, "0"), "hex");
     const sBuf = Buffer.from(s.padStart(64, "0"), "hex");
 
-    if (compact) {
+    // Spark accepts either DER ECDSA or 64-byte Schnorr identity signatures.
+    // Use compact bytes only for explicit compact requests or when signWith is
+    // Spark-formatted. ECDSA signatures may also return v=00, so v is not a
+    // reliable discriminator here.
+    if (compact || this.ecdsaAddress.startsWith("spark")) {
       return Buffer.concat([rBuf, sBuf]);
     }
 

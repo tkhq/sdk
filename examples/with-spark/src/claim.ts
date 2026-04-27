@@ -8,7 +8,7 @@
  *
  * Required env vars:
  *   API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID
- *   TURNKEY_SPARK_ADDRESS, IDENTITY_PUBLIC_KEY_HEX
+ *   TURNKEY_SPARK_ADDRESS, TURNKEY_ECDSA_ADDRESS, IDENTITY_PUBLIC_KEY_HEX
  *
  * Optional:
  *   TRANSFER_ID — claim a specific transfer (default: claim all pending)
