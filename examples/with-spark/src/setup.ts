@@ -9,6 +9,7 @@
  *
  * Run once before using the example scripts (token-transfer, deposit, etc.).
  * Outputs the env vars you need in .env.local:
+ *   - TURNKEY_WALLET_ID        (wallet containing the accounts below)
  *   - TURNKEY_SPARK_ADDRESS     (Spark address — for Schnorr signing)
  *   - TURNKEY_ECDSA_ADDRESS     (compressed address — for ECDSA signing)
  *   - IDENTITY_PUBLIC_KEY_HEX   (compressed 33-byte identity pubkey)
@@ -135,6 +136,7 @@ async function main() {
   console.log(`  Identity public key: ${identityAccount.publicKey}`);
 
   console.log(`\nAdd these to your .env.local:`);
+  console.log(`  TURNKEY_WALLET_ID=${result.walletId}`);
   console.log(`  TURNKEY_SPARK_ADDRESS=${sparkAddress}`);
   console.log(`  TURNKEY_ECDSA_ADDRESS=${ecdsaAddress}`);
   console.log(`  IDENTITY_PUBLIC_KEY_HEX=${identityAccount.publicKey}`);

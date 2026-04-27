@@ -14,6 +14,7 @@ import { IssuerSparkWallet } from "@buildonspark/issuer-sdk";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { TurnkeySparkSigner } from "./turnkeySigner";
 import { turnkeyClaim } from "./turnkeyClaim";
+import { installTurnkeySwapService } from "./turnkeySwap";
 
 type SparkNetwork = "MAINNET" | "REGTEST";
 
@@ -24,7 +25,37 @@ function requireEnv(name: string): string {
 }
 
 function env(name: string, fallback: string): string {
-  return process.env[name] ?? fallback;
+  return process.env[name] || fallback;
+}
+
+export interface TurnkeySparkConfig {
+  apiBaseUrl: string;
+  apiPrivateKey: string;
+  apiPublicKey: string;
+  organizationId: string;
+  sparkAddress: string;
+  ecdsaAddress: string;
+  identityPublicKeyHex: string;
+  network: SparkNetwork;
+}
+
+function requirePrefixedEnv(prefix: string, name: string): string {
+  return requireEnv(`${prefix}${name}`);
+}
+
+export function loadTurnkeySparkConfig(prefix = ""): TurnkeySparkConfig {
+  const network = env("SPARK_NETWORK", "REGTEST") as SparkNetwork;
+
+  return {
+    apiBaseUrl: env("BASE_URL", "https://api.turnkey.com"),
+    apiPrivateKey: requireEnv("API_PRIVATE_KEY"),
+    apiPublicKey: requireEnv("API_PUBLIC_KEY"),
+    organizationId: requireEnv("ORGANIZATION_ID"),
+    sparkAddress: requirePrefixedEnv(prefix, "TURNKEY_SPARK_ADDRESS"),
+    ecdsaAddress: requirePrefixedEnv(prefix, "TURNKEY_ECDSA_ADDRESS"),
+    identityPublicKeyHex: requirePrefixedEnv(prefix, "IDENTITY_PUBLIC_KEY_HEX"),
+    network,
+  };
 }
 
 /**
@@ -58,35 +89,40 @@ function patchClaimTransfer(signer: TurnkeySparkSigner): () => void {
   };
 }
 
-export function initSigner(): {
+export function initSignerFromConfig(config: TurnkeySparkConfig): {
   signer: TurnkeySparkSigner;
   network: SparkNetwork;
 } {
-  const network = env("SPARK_NETWORK", "REGTEST") as SparkNetwork;
-
   const turnkeyClient = new TurnkeyServerSDK({
-    apiBaseUrl: env("BASE_URL", "https://api.turnkey.com"),
-    apiPrivateKey: requireEnv("API_PRIVATE_KEY"),
-    apiPublicKey: requireEnv("API_PUBLIC_KEY"),
-    defaultOrganizationId: requireEnv("ORGANIZATION_ID"),
+    apiBaseUrl: config.apiBaseUrl,
+    apiPrivateKey: config.apiPrivateKey,
+    apiPublicKey: config.apiPublicKey,
+    defaultOrganizationId: config.organizationId,
   });
 
   const signer = new TurnkeySparkSigner(
     turnkeyClient,
-    requireEnv("TURNKEY_SPARK_ADDRESS"),
-    requireEnv("TURNKEY_ECDSA_ADDRESS"),
-    requireEnv("IDENTITY_PUBLIC_KEY_HEX"),
+    config.sparkAddress,
+    config.ecdsaAddress,
+    config.identityPublicKeyHex,
   );
 
-  return { signer, network };
+  return { signer, network: config.network };
 }
 
-export async function initSparkWallet(): Promise<{
+export function initSigner(): {
+  signer: TurnkeySparkSigner;
+  network: SparkNetwork;
+} {
+  return initSignerFromConfig(loadTurnkeySparkConfig());
+}
+
+export async function initSparkWalletFromConfig(config: TurnkeySparkConfig): Promise<{
   wallet: SparkWallet;
   signer: TurnkeySparkSigner;
   network: SparkNetwork;
 }> {
-  const { signer, network } = initSigner();
+  const { signer, network } = initSignerFromConfig(config);
 
   const restoreClaimTransfer = patchClaimTransfer(signer);
   let wallet: SparkWallet;
@@ -111,8 +147,25 @@ export async function initSparkWallet(): Promise<{
     );
     return w.processClaimedTransferResults(result, transfer, emit);
   };
+  installTurnkeySwapService(wallet, signer);
 
   return { wallet, signer, network };
+}
+
+export async function initSparkWalletFromEnv(prefix = ""): Promise<{
+  wallet: SparkWallet;
+  signer: TurnkeySparkSigner;
+  network: SparkNetwork;
+}> {
+  return initSparkWalletFromConfig(loadTurnkeySparkConfig(prefix));
+}
+
+export async function initSparkWallet(): Promise<{
+  wallet: SparkWallet;
+  signer: TurnkeySparkSigner;
+  network: SparkNetwork;
+}> {
+  return initSparkWalletFromEnv();
 }
 
 export async function initIssuerWallet(): Promise<{

@@ -4,8 +4,12 @@
   "version": "0.1.0",
   "scripts": {
     "setup": "tsx src/setup.ts",
+    "setup:e2e": "tsx src/setup-e2e.ts",
+    "setup:l1": "tsx src/setup-l1.ts",
+    "e2e:regtest": "tsx src/e2e-regtest.ts",
     "token-transfer": "tsx src/token-transfer.ts",
     "deposit": "tsx src/deposit.ts",
+    "deposit:turnkey": "tsx src/deposit-turnkey.ts",
     "transfer": "tsx src/transfer.ts",
     "claim": "tsx src/claim.ts",
     "native:setup": "tsx src/native/setup.ts",
