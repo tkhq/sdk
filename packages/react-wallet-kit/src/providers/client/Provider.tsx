@@ -1288,7 +1288,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setSession(session);
       setAllSessions(allSessions);
 
-      const [, user] = await Promise.all([maybeRefreshWallets(), maybeRefreshUser()]);
+      const [, user] = await Promise.all([
+        maybeRefreshWallets(),
+        maybeRefreshUser(),
+      ]);
 
       if (user && client?.config?.passkeyConfig) {
         const allowCredentials: PublicKeyCredentialDescriptor[] =

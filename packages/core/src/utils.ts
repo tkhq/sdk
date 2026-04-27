@@ -432,7 +432,6 @@ export const ERC20_TRANSFER_ABI = [
   },
 ] as const;
 
-
 export async function getActiveSessionOrThrowIfRequired(
   stampWith: StamperType | undefined,
   getActiveSession: () => Promise<Session | undefined>,
