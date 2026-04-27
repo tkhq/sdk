@@ -1,5 +1,4 @@
 import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
-import { base64UrlToBase64, atob } from "@turnkey/encoding";
 import {
   type TDeleteSubOrganizationResponse,
   type Session,
@@ -145,6 +144,7 @@ import {
   fetchAllWalletAccountsWithCursor,
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,
+  ERC20_TRANSFER_ABI,
 } from "../utils";
 import { encryptOtpCodeToBundle } from "@turnkey/crypto";
 import { createStorageManager } from "../__storage__/base";
@@ -177,27 +177,6 @@ export type TurnkeyClientMethods = Omit<
   PublicMethods<TurnkeyClient>,
   "init" | "config" | "httpClient" | "constructor"
 >;
-
-const AUTHENTICATOR_TRANSPORT_MAP: Record<string, AuthenticatorTransport> = {
-  AUTHENTICATOR_TRANSPORT_INTERNAL: "internal",
-  AUTHENTICATOR_TRANSPORT_HYBRID: "hybrid",
-  AUTHENTICATOR_TRANSPORT_USB: "usb",
-  AUTHENTICATOR_TRANSPORT_NFC: "nfc",
-  AUTHENTICATOR_TRANSPORT_BLE: "ble",
-};
-
-const ERC20_TRANSFER_ABI = [
-  {
-    type: "function",
-    name: "transfer",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "to", type: "address" },
-      { name: "amount", type: "uint256" },
-    ],
-    outputs: [{ name: "success", type: "bool" }],
-  },
-] as const;
 
 export class TurnkeyClient {
   config: TurnkeySDKClientConfig;
@@ -3262,28 +3241,7 @@ export class TurnkeyClient {
           );
         }
 
-        const { user } = userResponse;
-
-        if (this.passkeyStamper) {
-          const allowCredentials: PublicKeyCredentialDescriptor[] =
-            user.authenticators.map((a) => {
-              const b64 = base64UrlToBase64(a.credentialId);
-              const binary = atob(b64);
-              const id = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-              return {
-                id,
-                type: "public-key" as const,
-                transports: a.transports
-                  .map((t) => AUTHENTICATOR_TRANSPORT_MAP[t])
-                  .filter(Boolean) as AuthenticatorTransport[],
-              };
-            });
-          await this.overridePasskeyStamper({
-            config: { ...this.config.passkeyConfig!, allowCredentials },
-          });
-        }
-
-        return user;
+        return userResponse.user;
       },
       {
         errorMessage: "Failed to fetch user",

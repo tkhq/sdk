@@ -176,7 +176,7 @@ export interface ClientContextType
    */
   refreshUser: (params?: {
     stampWith?: StamperType | undefined;
-  }) => Promise<void>;
+  }) => Promise<v1User | undefined>;
 
   /**
    * Refreshes the wallets state for the current user session.

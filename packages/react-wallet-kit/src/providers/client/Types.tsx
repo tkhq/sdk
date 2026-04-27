@@ -109,7 +109,7 @@ export interface ClientContextType
    * @returns A promise that resolves when the user details are successfully refreshed and state is updated.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error refreshing the user details.
    */
-  refreshUser: (params?: RefreshUserParams) => Promise<void>;
+  refreshUser: (params?: RefreshUserParams) => Promise<v1User | undefined>;
 
   /**
    * Refreshes the wallets state for the current user session.

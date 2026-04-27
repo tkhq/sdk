@@ -1,4 +1,6 @@
+import { base64UrlToBase64, atob } from "@turnkey/encoding";
 import {
+  AUTHENTICATOR_TRANSPORT_MAP,
   isValidSession,
   SESSION_WARNING_THRESHOLD_MS,
   withTurnkeyErrorHandling,
@@ -665,7 +667,26 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setAllSessions(allSessions);
 
       await maybeRefreshWallets();
-      await maybeRefreshUser();
+      const user = await maybeRefreshUser();
+
+      if (user && client?.config?.passkeyConfig) {
+        const allowCredentials: PublicKeyCredentialDescriptor[] =
+          user.authenticators.map((a) => {
+            const b64 = base64UrlToBase64(a.credentialId);
+            const binary = atob(b64);
+            const id = Uint8Array.from(binary, (c: string) => c.charCodeAt(0));
+            return {
+              id,
+              type: "public-key",
+              transports: a.transports
+                .map((t) => AUTHENTICATOR_TRANSPORT_MAP[t])
+                .filter(Boolean) as AuthenticatorTransport[],
+            };
+          });
+        await client.overridePasskeyStamper({
+          config: { ...client.config.passkeyConfig, allowCredentials },
+        });
+      }
 
       callbacks?.onAuthenticationSuccess?.({
         session,
@@ -2459,7 +2480,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   );
 
   const refreshUser = useCallback(
-    async (params?: RefreshUserParams): Promise<void> => {
+    async (params?: RefreshUserParams): Promise<v1User | undefined> => {
       const { stampWith, organizationId, userId } = params || {};
       if (!client)
         throw new TurnkeyError(
@@ -2480,6 +2501,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       if (user) {
         setUser(user);
       }
+      return user;
     },
     [client, callbacks, fetchUser, session, user],
   );
@@ -2494,8 +2516,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    * @returns A promise that resolves when the user is refreshed, or does nothing if auto-refresh is disabled
    */
   const maybeRefreshUser = useCallback(
-    async (params?: RefreshUserParams): Promise<void> => {
-      if (!masterConfig?.autoRefreshManagedState) return;
+    async (params?: RefreshUserParams): Promise<v1User | undefined> => {
+      if (!masterConfig?.autoRefreshManagedState) return undefined;
       return refreshUser(params);
     },
     [masterConfig, refreshUser],
