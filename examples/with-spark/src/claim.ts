@@ -14,13 +14,15 @@
  *   TRANSFER_ID — claim a specific transfer (default: claim all pending)
  */
 
-import { initSparkWallet } from "./init";
+import { initSparkWalletFromEnv } from "./init";
 import { turnkeyClaim } from "./turnkeyClaim";
 
 async function main() {
   const transferId = process.env.TRANSFER_ID;
 
-  const { wallet, signer } = await initSparkWallet();
+  const { wallet, signer } = await initSparkWalletFromEnv(
+    process.env.CLAIM_ENV_PREFIX ?? "",
+  );
   console.log(`Authenticated to Spark SO`);
 
   const internals = wallet as unknown as {
