@@ -81,7 +81,7 @@ importers:
         version: 5.1.1(rollup@4.59.0)
       '@rollup/plugin-babel':
         specifier: 5.3.0
-        version: 5.3.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.59.0)
+        version: 5.3.0(@babel/core@7.26.9)(@types/babel__core@7.20.5)(rollup@4.59.0)
       '@rollup/plugin-node-resolve':
         specifier: 16.0.0
         version: 16.0.0(rollup@4.59.0)
@@ -229,7 +229,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -289,7 +289,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -433,7 +433,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -482,7 +482,7 @@ importers:
         version: 18.2.6
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -579,7 +579,7 @@ importers:
         version: 16.0.3
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -636,7 +636,7 @@ importers:
         version: 3.2.25
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -687,7 +687,7 @@ importers:
         version: 18.2.6
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -738,7 +738,7 @@ importers:
         version: 18.2.6
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -846,7 +846,7 @@ importers:
         version: 4.0.0
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -954,7 +954,7 @@ importers:
         version: 0.10.8(@types/three@0.178.1)(three@0.160.1)
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -1218,7 +1218,7 @@ importers:
         version: 18.2.6
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1269,7 +1269,7 @@ importers:
         version: 18.2.6
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1320,7 +1320,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -1507,7 +1507,7 @@ importers:
         version: 16.6.1
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -1779,7 +1779,7 @@ importers:
         version: 16.0.3
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -1875,7 +1875,7 @@ importers:
         version: 0.363.0(react@18.3.1)
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next-themes:
         specifier: ^0.3.0
         version: 0.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1984,7 +1984,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -2042,7 +2042,7 @@ importers:
         version: link:../../packages/sdk-types
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react:
         specifier: 19.2.4
         version: 19.2.4
@@ -2124,7 +2124,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -2205,7 +2205,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -2593,7 +2593,7 @@ importers:
         version: 18.2.6
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2671,7 +2671,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -2802,7 +2802,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -2861,10 +2861,10 @@ importers:
     dependencies:
       '@buildonspark/issuer-sdk':
         specifier: ^0.1.23
-        version: 0.1.23(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        version: 0.1.23(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@buildonspark/spark-sdk':
         specifier: 0.7.5
-        version: 0.7.5(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        version: 0.7.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@noble/curves':
         specifier: ^1.9.7
         version: 1.9.7
@@ -3267,6 +3267,46 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  examples/with-wdk-spark:
+    dependencies:
+      '@buildonspark/spark-sdk':
+        specifier: 0.7.13
+        version: 0.7.13(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@noble/curves':
+        specifier: ^1.9.7
+        version: 1.9.7
+      '@noble/hashes':
+        specifier: ^1.4.0
+        version: 1.8.0
+      '@scure/bip39':
+        specifier: ^1.3.0
+        version: 1.6.0
+      '@scure/btc-signer':
+        specifier: ^1.5.0
+        version: 1.8.1
+      '@tetherto/wdk-wallet':
+        specifier: 1.0.0-beta.7
+        version: 1.0.0-beta.7(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0))
+      '@tetherto/wdk-wallet-spark':
+        specifier: 1.0.0-beta.17
+        version: 1.0.0-beta.17(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
+    devDependencies:
+      tsx:
+        specifier: ^4.7.0
+        version: 4.20.6
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/with-x:
     dependencies:
       '@radix-ui/react-slot':
@@ -3301,7 +3341,7 @@ importers:
         version: 0.542.0(react@18.2.0)
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -4022,7 +4062,7 @@ importers:
         version: 1.12.15
       next:
         specifier: 15.5.15
-        version: 15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@18.3.1))(react@18.3.1)
+        version: 15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@18.3.1))(react@18.3.1)
       react-apple-login:
         specifier: ^1.1.6
         version: 1.1.6(prop-types@15.8.1)(react-dom@19.2.4(react@18.3.1))(react@18.3.1)
@@ -5111,8 +5151,30 @@ packages:
   '@bufbuild/protobuf@2.11.0':
     resolution: {integrity: sha512-sBXGT13cpmPR5BMgHE6UEEfEaShh5Ror6rfN3yEK5si7QVrtZg8LEPQb0VVhiLRUslD2yLnXtnRzG035J/mZXQ==}
 
+  '@buildonspark/bare@0.0.63':
+    resolution: {integrity: sha512-a3x3yPipEpSGXviusv+zcf9yO1WvKuQqKhDGyY+AnU58vNwCuxhPQGKebWE5zXwnTBPkIMh5SOI29Bqn4QrthQ==}
+    engines: {node: '>=18.0.0'}
+
   '@buildonspark/issuer-sdk@0.1.23':
     resolution: {integrity: sha512-INArHAU4TMXcvTjoqz2bU9+TiOGU33WudkBLuvgXyT0f1plevqxeWf2JsK/I6euWAwtxrN9TEi7opRQgzbiqjg==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: '>=18.2.0'
+      react-native: '>=0.71.0'
+      react-native-get-random-values: '>=1.11.0'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-native:
+        optional: true
+      react-native-get-random-values:
+        optional: true
+
+  '@buildonspark/spark-frost-bare-addon@0.0.11':
+    resolution: {integrity: sha512-JUDWTgvJ4HuDHDXDGIRmCwrG9UZ8U4lwYoJjFeiPh9Weczdil+32UK3w9ckvQMwl0nGtsL/7x/VNakjaTSVvLQ==}
+
+  '@buildonspark/spark-sdk@0.7.13':
+    resolution: {integrity: sha512-DNnYIi9475XFgqGdcVe2yHTFnvIVAwu5sHv4zjTDTJSPyrcS+zEhsCLN25D0r2VYBBvnBJ8E+u1luvQ4OFNcmQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: '>=18.2.0'
@@ -6809,6 +6871,10 @@ packages:
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
+
+  '@noble/hashes@2.2.0':
+    resolution: {integrity: sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg==}
+    engines: {node: '>= 20.19.0'}
 
   '@noble/secp256k1@1.7.1':
     resolution: {integrity: sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==}
@@ -9037,6 +9103,12 @@ packages:
   '@tanstack/virtual-core@3.13.12':
     resolution: {integrity: sha512-1YBOJfRHV4sXUmWsFSf5rQor4Ss82G8dQWLRbnk3GA4jeP8hQt1hxXh0tmflpC0dz3VgEv/1+qwPyLeWkQuPFA==}
 
+  '@tetherto/wdk-wallet-spark@1.0.0-beta.17':
+    resolution: {integrity: sha512-KB6qguvk3XZSaJTUsGXVjFbUVlbWJcmqetOGw8WpotLX9WSKRz0ZsBUUawnRVG3Q5y61fLyGkSIcvGzJVRnATA==}
+
+  '@tetherto/wdk-wallet@1.0.0-beta.7':
+    resolution: {integrity: sha512-QJJPhA+adCImQ/nMymmMeW4x0Ey65vEgWfoDjuXtdaD7LnFdCChFvZXcyDQUH3ghSTnve6MDutMmvfDIxhipVg==}
+
   '@ton/core@0.59.1':
     resolution: {integrity: sha512-SxFBAvutYJaIllTkv82vbHTJhJI6NxzqUhi499CDEjJEZ9i6i9lHJiK2df4dlLAb/4SiWX6+QUzESkK4DEdnCw==}
     peerDependencies:
@@ -10399,6 +10471,12 @@ packages:
     resolution: {integrity: sha512-1pHv8LX9CpKut1Zp4EXey7Z8OfH11ONNH6Dhi2WDUt31VVZFXZzKwXcysBgqSumFCmR+0dqjMK5v5JiFHzi0+g==}
     engines: {node: 20 || >=22}
 
+  bare-abort-controller@1.1.1:
+    resolution: {integrity: sha512-A/3w+PHaGnjlrRcmBeuCk8v23SP35db1X6a5GOkTVSloVmMEWdVhhnlrJWzIvnLJh79ljhAFS1lvLRev09LCGg==}
+
+  bare-abort@2.0.13:
+    resolution: {integrity: sha512-zdc8l88eB11Jsz5rDd6sCAgv2kUFXgdrZWoMlgU6JMkfAi1/uuGFC3IEHswKbIRQTk5H3T5CMuechsXYxiaHlQ==}
+
   bare-addon-resolve@1.9.4:
     resolution: {integrity: sha512-unn6Vy/Yke6F99vg/7tcrvM2KUvIhTNniaSqDbam4AWkd4NhvDVSrQiRYVlNzUV2P7SPobkCK7JFVxrJk9btCg==}
     peerDependencies:
@@ -10418,9 +10496,30 @@ packages:
   bare-assert@1.2.0:
     resolution: {integrity: sha512-c6uvgvTJBspTDxtVnPgrBKmLgcpW3Fp72NVKDLg6oT4QjQbhGtvrkHMhGYMK1sh4vjBHOBmuUalyt9hSzV37fQ==}
 
+  bare-async-hooks@0.0.0:
+    resolution: {integrity: sha512-xNfGwUobaomCGMGAqohAekS3uMCj+4tvI4AoOaJnO7NfpN+dvFdkC5xkeQtmZzs2vxf2TR5J6i5FDd1ImCZERw==}
+
   bare-buffer@3.6.0:
     resolution: {integrity: sha512-/maRWEQ2eBkVNMbNFVsq1pHXJYVj4Y3AixwruB24eKZDs5Gtu0fixzvjYmBIuTsBMtVH5Yb27pQO9BhFa+IlIQ==}
     engines: {bare: '>=1.20.0'}
+
+  bare-bundle@1.10.0:
+    resolution: {integrity: sha512-4LVlnJAHr00Hh6Vu6ZUJS38rcEtJT3b3vChXSsBsJ2mk1TN0lQ+gzd+Dw5L0aV7uqDZv84smuwW+O02X7PfDlw==}
+    peerDependencies:
+      bare-buffer: '*'
+      bare-url: '*'
+    peerDependenciesMeta:
+      bare-buffer:
+        optional: true
+      bare-url:
+        optional: true
+
+  bare-channel@5.2.3:
+    resolution: {integrity: sha512-2cRErqS4fzzr3ZUSd5W67ka70dZKJ1VWrCsvxPVC8vr3rWvd4aaCG5iCDas9+MFVaUIWvfw04+NH4+FHQDddMQ==}
+    engines: {bare: '>=1.7.0'}
+
+  bare-console@6.1.0:
+    resolution: {integrity: sha512-BziGTEIyVh0zn78842mmpOLGTEFE7/S4A5Tb0d2iIu7bryVdoiF0przraYMetJckHxm0P5ITTZrYfRuYRr9n/Q==}
 
   bare-crypto@1.13.4:
     resolution: {integrity: sha512-JiCZ5l2YOG1y8J7yy1BCAKTCZrPnHLb7pDRIdurBTOn5oIwBQDIv8iH5Pl2V85vzjl1NZXRfNY4HZLsE942jJA==}
@@ -10430,9 +10529,29 @@ packages:
       bare-buffer:
         optional: true
 
+  bare-debug-log@2.0.0:
+    resolution: {integrity: sha512-Vi42PkMQsNV9PUpx2Gl1hikshx5O9FzMJ6o9Nnopseg7qLBBK7Nl31d0RHcfwLEAfmcPApytpc0ZFfq68u22FQ==}
+
+  bare-dgram@1.0.1:
+    resolution: {integrity: sha512-EdsyRErrkWgN8fENdrDdXFEE9HAuJ/m6ehXz13fVj9JhdCaLWIA+L8o5aYNRLt66x08RlyG2vbrRAZoxGfcdlg==}
+
+  bare-diagnostics-channel@1.1.0:
+    resolution: {integrity: sha512-Reu+EQo+eLpB+a5p8UykFEdXndFaRaSgKV38uAMh/qhE2eTeJcdwAwo74hKYyeN8GD3DIFqC9ZlM4bnDc03CIg==}
+
   bare-dns@2.1.4:
     resolution: {integrity: sha512-abwjHmpWqSRNB7V5615QxPH92L71AVzFm/kKTs8VYiNTAi2xVdonpv0BjJ0hwXLwomoW+xsSOPjW6PZPO14asg==}
     engines: {bare: '>=1.7.0'}
+
+  bare-encoding@1.0.3:
+    resolution: {integrity: sha512-Kqf+t/azs13lUeyK4Tb7ha4wdLRXKWCXQ8w1rVmt7KtoPCPdHD/Xwt7LBIsCSwwGglrcmblo5VOLa5avkJqULA==}
+    peerDependencies:
+      bare-buffer: '*'
+    peerDependenciesMeta:
+      bare-buffer:
+        optional: true
+
+  bare-env@3.0.0:
+    resolution: {integrity: sha512-0u964P5ZLAxTi+lW4Kjp7YRJQ5gZr9ycYOtjLxsSrupgMz3sn5Z9n4SH/JIifHwvadsf1brA2JAjP+9IOWwTiw==}
 
   bare-events@2.8.2:
     resolution: {integrity: sha512-riJjyv1/mHLIPX4RwiK+oW9/4c3TEUeORHKefKAKnZ5kyslbN+HXowtbaVEqt4IMUB7OXlfixcs6gsFeo/jhiQ==}
@@ -10456,6 +10575,21 @@ packages:
   bare-form-data@1.2.1:
     resolution: {integrity: sha512-DFZhp5Tn0S7TjII/xhgLl2BNU6f7l5QbIW/YH7TjzQVnxLa8SaMSbl77jpy0ZR1oUnAo0a7NHJ9QAOU6PPr0Jg==}
 
+  bare-format@1.0.2:
+    resolution: {integrity: sha512-GswdhnOnP9QtwRbrf4wLApw5widkaLMsLe2XOs35fQD2YfEN1ApoGka+cZ7PfvzxMgfYXmMhj/2OGlVn5/Dxgw==}
+
+  bare-fs@4.7.1:
+    resolution: {integrity: sha512-WDRsyVN52eAx/lBamKD6uyw8H4228h/x0sGGGegOamM2cd7Pag88GfMQalobXI+HaEUxpCkbKQUDOQqt9wawRw==}
+    engines: {bare: '>=1.16.0'}
+    peerDependencies:
+      bare-buffer: '*'
+    peerDependenciesMeta:
+      bare-buffer:
+        optional: true
+
+  bare-hrtime@2.1.1:
+    resolution: {integrity: sha512-VMb3tHo05gsnbu3OXTmkDiwTjMlOsbQmKoysKqKEyR09m77TuDrYFbj3Q5GGk10dAKsUHrnXmwCaeJqzVpB5ZA==}
+
   bare-http-parser@1.1.3:
     resolution: {integrity: sha512-+dhVvQi6brHq14L/XHNRQ+TLuVE76VjRmMt61wVEtS+Od8xUslfMHWJN/ZjIIt3RtTG6vPuA+x9cOh7KrkBJsA==}
 
@@ -10477,6 +10611,26 @@ packages:
     resolution: {integrity: sha512-jfW5KRA84o3REpI6Vr4nbvMn+hqVAw8GU1mMdRwUsY5yJovQamxYeKGVKGqdzs+8ZbG4jRzGUXP/3Ji/DnqfPg==}
     engines: {bare: '>=1.18.0'}
 
+  bare-inspector@5.0.0:
+    resolution: {integrity: sha512-blObRFPBK6yn0/wZbrRgkGcOuLUQUYVvkKbsEp5p3bWJB+uNrAh+qUqOijQHS6mZjGvyGCE86VERp3EiUR2TyA==}
+    engines: {bare: '>=1.2.0'}
+    peerDependencies:
+      bare-tcp: '*'
+    peerDependenciesMeta:
+      bare-tcp:
+        optional: true
+
+  bare-logger@2.0.3:
+    resolution: {integrity: sha512-U6K7NxHdeAHxEgHFDV8zXvgjgDZKQO6LlCrxQvUvlrZEVTnoezSImMWizi85rbZpVsbeI1ZWcLCRGnoIf5EV8Q==}
+
+  bare-module-lexer@1.4.7:
+    resolution: {integrity: sha512-0klU4eMsjh/wcxi8FdHmNom2j2F4kmkXOhyJFL9qTaSFp2lE3m6BtbKgMHY8R5miqC9r8/IfA8wzXnC5Os14WA==}
+    peerDependencies:
+      bare-buffer: '*'
+    peerDependenciesMeta:
+      bare-buffer:
+        optional: true
+
   bare-module-resolve@1.11.1:
     resolution: {integrity: sha512-DCxeT9i8sTs3vUMA3w321OX/oXtNEu5EjObQOnTmCdNp5RXHBAvAaBDHvAi9ta0q/948QPz+co6SsGi6aQMYRg==}
     peerDependencies:
@@ -10485,22 +10639,86 @@ packages:
       bare-url:
         optional: true
 
+  bare-module-resolve@1.12.1:
+    resolution: {integrity: sha512-hbmAPyFpEq8FoZMd5sFO3u6MC5feluWoGE8YKlA8fCrl6mNtx68Wjg4DTiDJcqRJaovTvOYKfYngoBUnbaT7eg==}
+    peerDependencies:
+      bare-url: '*'
+    peerDependenciesMeta:
+      bare-url:
+        optional: true
+
+  bare-module-traverse@2.0.1:
+    resolution: {integrity: sha512-1au+Og5p97T9b6Y7xmHZ7KtpW8vEYtz2jC2whmm+YJp46EaHfk26j91MmQhufdkR/8sdK1Q5p+P9A/Y5GrJg7Q==}
+    peerDependencies:
+      bare-buffer: '*'
+      bare-url: '*'
+    peerDependenciesMeta:
+      bare-buffer:
+        optional: true
+      bare-url:
+        optional: true
+
+  bare-module@6.2.0:
+    resolution: {integrity: sha512-CoCTG8y8HKPnNW317OW1hynl28DasVPtbX033ZEAXk0Q3SYCUXi3OOnNAr6wTrDgMgpOsW0kl7Nifcom5GGH8Q==}
+    engines: {bare: '>=1.23.0'}
+    peerDependencies:
+      bare-buffer: '*'
+    peerDependenciesMeta:
+      bare-buffer:
+        optional: true
+
   bare-net@2.3.1:
     resolution: {integrity: sha512-MypSqDKpDU2Xt7FIfazn5yGvRnV09gFcIPHGWstW0gxuzA4tucTcwJSZeos97C4F89vtU5oGwXDN/HrGN6Y4Jw==}
+
+  bare-node-runtime@1.2.0:
+    resolution: {integrity: sha512-oCpkcKBLDuzhtga0Q/63Ds3Gj03I0jIf+VX4mDhSClpoBfz/wnDtl2d1NKQDAVNCoP4I617GrJkS3vwNO4dd7w==}
 
   bare-os@3.6.2:
     resolution: {integrity: sha512-T+V1+1srU2qYNBmJCXZkUY5vQ0B4FSlL3QDROnKQYOqeiQR8UbjNHlPa+TIbM4cuidiN9GaTaOZgSEgsvPbh5A==}
     engines: {bare: '>=1.14.0'}
 
+  bare-os@3.9.0:
+    resolution: {integrity: sha512-JTjuZyNIDpw+GytMO4a6TK1VXdVKKJr6DRxEHasyuYyShV2deuiHJK/ahGZlebc+SG0/wJCB9XK8gprBGDFi/Q==}
+    engines: {bare: '>=1.14.0'}
+
   bare-path@3.0.0:
     resolution: {integrity: sha512-tyfW2cQcB5NN8Saijrhqn0Zh7AnFNsnczRcuWODH0eYAXBsJ5gVxAUuNr7tsHSC6IZ77cA0SitzT+s47kot8Mw==}
+
+  bare-performance@1.3.0:
+    resolution: {integrity: sha512-ITlHSQwsnJSPjpagTtPo043LRkFgcrl9SgPsVUBXZvTeGWuNLUfMRwmwAS+35i8qnIEinySoLxwhVoJNZAIF2g==}
 
   bare-pipe@4.1.5:
     resolution: {integrity: sha512-6OfxaG8JSkRh3Gc4hzHRsxNt+yu2PpN7lrv1V+T78GdknWQkVGwiEvu4m+1nbfk8cMVQ0TGxRvQ90XA4rhnTuw==}
     engines: {bare: '>=1.16.0'}
 
+  bare-process@4.4.1:
+    resolution: {integrity: sha512-JfcTtymq6akqM2bdyTsP4A4GYJceBzb91k/ECmFps75uFf6uO33SM1bOZsRAqyRXExabsQJLn5S41NBl8HTM4A==}
+
+  bare-punycode@0.0.0:
+    resolution: {integrity: sha512-PC2Y6mGLytZPJCB9M7CvO5Zb6uWYVUZ+5t3L6vePFuFM6tdC6SsQ+sIsuf0Sa6LHBoWURX7I9yMMbPXMv7TIdQ==}
+
+  bare-querystring@1.1.0:
+    resolution: {integrity: sha512-pUtEM6JrX53MbEJFwO92F0Ch7BwZ67KD7LyglcB8/tvkkVdwTgN1f7oIklRe+NTT/WCYZgwjDFYS9efBxDSq8g==}
+
+  bare-readline@1.3.1:
+    resolution: {integrity: sha512-QtSU4ZfgQcDI6AQssjDFqTiRe4rCiciMn+Yqx6siMJZBIftAIFrNSOK0sa5SBrmNv/a7CD9Dm0onUDCRyn5Fdg==}
+
+  bare-realm@2.0.1:
+    resolution: {integrity: sha512-kQbYU6AAQu4XBTQesuz2+PpjBx7MJzf5Qw3nSLzQCzbVglx7Ml85MtWEjUe1AeslXqrd+nFPHMEbL55ouISscA==}
+    engines: {bare: '>=1.5.0'}
+
+  bare-repl@6.0.2:
+    resolution: {integrity: sha512-w2R+5LOrMl9UH/gcFjvdIpsB+SgyLr8cW4uJo5bAEzRbRpVA+ZTm8pMHYdj0uqIUBClP/6fkyW0MnB1XkxakmQ==}
+
   bare-semver@1.0.1:
     resolution: {integrity: sha512-UtggzHLiTrmFOC/ogQ+Hy7VfoKoIwrP1UFcYtTxoCUdLtsIErT8+SWtOC2DH/snT9h+xDrcBEPcwKei1mzemgg==}
+
+  bare-signals@4.2.0:
+    resolution: {integrity: sha512-fNHMOdQIlYuTvMB3Oh9Apk99hLKn351+Ir8vz+khiPTcOqIyGG4uWWjdLTzxWdYGsA0eT+We3y0K74hjj2nq7A==}
+    engines: {bare: '>=1.7.0'}
+
+  bare-stdio@1.0.2:
+    resolution: {integrity: sha512-3WJDqtvVGP4f+j68kyEC05umOYNwKJ1xG+YAXL8yZ605WgNqiRhVaFq+mVIhBt2eKNp7pa5vCQdhOt1pNh79SA==}
 
   bare-stream@2.12.0:
     resolution: {integrity: sha512-w28i8lkBgREV3rPXGbgK+BO66q+ZpKqRWrZLiCdmmUlLPrQ45CzkvRhN+7lnv00Gpi2zy5naRxnUFAxCECDm9g==}
@@ -10516,13 +10734,56 @@ packages:
       bare-events:
         optional: true
 
+  bare-string-decoder@1.0.0:
+    resolution: {integrity: sha512-FjFvfHo88U7borNQSj9ijP2JTb1asqY6K28OZrix4dF9iZf5D2wi1+99CgLlHT3HtYqdwxRhDAiKu8rVstt5rQ==}
+    peerDependencies:
+      bare-buffer: '*'
+    peerDependenciesMeta:
+      bare-buffer:
+        optional: true
+
+  bare-structured-clone@1.5.4:
+    resolution: {integrity: sha512-kR6S30P6dpFXKTelZ7Ki/Dfc31dOsaKNupLK+r5dM04wxHkON5G3WtaKP2JGXdsbjyUjk6JO0YM5kb6S8HTFEw==}
+    engines: {bare: '>=1.2.0'}
+
+  bare-stylize@0.0.1:
+    resolution: {integrity: sha512-l3MjmIl476bWijYWf3RbE+osl4iuXSOMudzp0vAqzIK7gPgn/+G3oAxp8Oin9CFF911KBP0LO9kts8Ci8mGZaQ==}
+
+  bare-subprocess@5.2.3:
+    resolution: {integrity: sha512-07wwswlV7M3sC9IykbZRZ/jHAkrXFWVLqdBWGv1y0ojCimtRD9hGwxdHmR5FUFmDUZLNsBmTYJNQqgio5+A85Q==}
+    engines: {bare: '>=1.7.0'}
+    peerDependencies:
+      bare-buffer: '*'
+    peerDependenciesMeta:
+      bare-buffer:
+        optional: true
+
+  bare-system-logger@1.0.3:
+    resolution: {integrity: sha512-HXTXZyhIIS4ZDYun4J9zKNQZDfLgEkkK8wy9nrTFJE5xq8APsOhDxuEsxP0YcNwC23DW1jaNpqD51zDeXPzIdg==}
+
   bare-tcp@2.2.7:
     resolution: {integrity: sha512-rjpqNQ2cOCkNo3NeYA/W4GTK3DRkl8sDHO3uos+AEswUjLC8XXMQF8WrJCSjlIowCbS6NUVxKE92X5RGXjyefg==}
     engines: {bare: '>=1.16.0'}
 
+  bare-thread@1.2.0:
+    resolution: {integrity: sha512-evYpeDqaTROp2JIdVgWrIBc5rVCV64tFMwZdeL13ahYt/lno2RLvTbYrcf1p6NA2p1SxybbSbGQ2F9/gHudrTg==}
+
+  bare-timers@3.2.1:
+    resolution: {integrity: sha512-O+9e6Jol/BoYsQUzAFXG0gWUW1GWryFMblGcNBfi3smPrD3rJIKQwpw2FJARl2j/1VHne4a8YaHPK1cxDKfiYQ==}
+    engines: {bare: '>=1.7.0'}
+    peerDependencies:
+      bare-abort-controller: '*'
+    peerDependenciesMeta:
+      bare-abort-controller:
+        optional: true
+
   bare-tls@2.2.1:
     resolution: {integrity: sha512-hZ+ZqwrUO4dyH7/6WYkYWjgAFNJKjzwEYJiDaMnMs+eRleBDjQ3CvNZawpkw0Ar9jnM9NZK6+f6GqjkZ2FLGmQ==}
     engines: {bare: '>=1.7.0'}
+
+  bare-tty@5.1.0:
+    resolution: {integrity: sha512-EZLvW4A+XiJgI3TW+e1pMME9PIJsfEXe/DA/WSKzIkq/v7Yarpv/rvG6Z5pGnpo4V/Bd+qopwnCLSR71hMMBYA==}
+    engines: {bare: '>=1.16.0'}
 
   bare-type@1.1.0:
     resolution: {integrity: sha512-LdtnnEEYldOc87Dr4GpsKnStStZk3zfgoEMXy8yvEZkXrcCv9RtYDrUYWFsBQHtaB0s1EUWmcvS6XmEZYIj3Bw==}
@@ -10530,6 +10791,29 @@ packages:
 
   bare-url@2.4.0:
     resolution: {integrity: sha512-NSTU5WN+fy/L0DDenfE8SXQna4voXuW0FHM7wH8i3/q9khUSchfPbPezO4zSFMnDGIf9YE+mt/RWhZgNRKRIXA==}
+
+  bare-utils@1.6.0:
+    resolution: {integrity: sha512-WhQEIkkAxkSnW7u1QgrI0AfNm5JpMruETXeYsb5qnkBJ0TTfNKygZmsh6rkoHBANaV+C/7Jed7bJP9OmEHG7rQ==}
+
+  bare-v8@1.0.1:
+    resolution: {integrity: sha512-/cR5ZvFWQRdtTZ4tx0j7TKvTWce8UnnLqm88fwHtJmfM7HODIBVjQGDT7KkDLeD2d/eHP2pzB71Y8/QyiMMKrQ==}
+
+  bare-vm@1.0.1:
+    resolution: {integrity: sha512-yLnbRvKt3AhRTmtfTIrYfdTHqGEfIJc+Fgb2DcHejE0HJ+p5adGxxPMvd3893Z7iXVYnalxukNARn4oJSZELHQ==}
+
+  bare-worker@4.1.6:
+    resolution: {integrity: sha512-yvsektF7xNqlAyjJV+YYeBx+sGZ8Fhbo5Cjc/lpIdkM8Gd/e3MlaxTFg8NknkyvJ4oDJXqvp38Q+ZOn5Gyr+nQ==}
+
+  bare-ws@2.1.0:
+    resolution: {integrity: sha512-2gEWlPK9iyBchACdIY6oQXgmDz3KLrChdwrPgmU3IVXOFTnxTqSUT27WE/+izd4QojHj/SsqDkQiD2HDvuTdAA==}
+    peerDependencies:
+      bare-buffer: '*'
+      bare-url: '*'
+    peerDependenciesMeta:
+      bare-buffer:
+        optional: true
+      bare-url:
+        optional: true
 
   bare-zlib@1.3.1:
     resolution: {integrity: sha512-VP93GFzhrTdWh9mXNocn7XsP/nF5JQluiiSsbTvsQ4yIYlhEHRMF9lQmZZDXwzK9PNYaVGUV1bdQuqp0Mj7MHw==}
@@ -11034,6 +11318,9 @@ packages:
 
   commondir@1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
+
+  compact-encoding@2.19.2:
+    resolution: {integrity: sha512-/YjhHQE/5L4F7l5Bht69dRbP9RV6zoJPeowi8bMKQxNKe3Nh6hOY8pBGoVE9fz5GaWfEd8fWJ2aU9sB4KZuMYg==}
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -15276,6 +15563,18 @@ packages:
   sodium-native@4.3.3:
     resolution: {integrity: sha512-OnxSlN3uyY8D0EsLHpmm2HOFmKddQVvEMmsakCrXUzSd8kjjbzL413t4ZNF3n0UxSwNgwTyUvkmZHTfuCeiYSw==}
 
+  sodium-native@5.1.0:
+    resolution: {integrity: sha512-3RxgyWyJlhTsABPnJVpCI5CoTDANZTqqFrEPqr+kjfnRaBihpVtMUE3yTF40ukdoB1APXeoBNKF3MzZAIHg39g==}
+    engines: {bare: '>=1.16.0'}
+
+  sodium-universal@5.0.1:
+    resolution: {integrity: sha512-rv+aH+tnKB5H0MAc2UadHShLMslpJsc4wjdnHRtiSIEYpOetCgu8MS4ExQRia+GL/MK3uuCyZPeEsi+J3h+Q+Q==}
+    peerDependencies:
+      sodium-javascript: ~0.8.0
+    peerDependenciesMeta:
+      sodium-javascript:
+        optional: true
+
   solady@0.0.235:
     resolution: {integrity: sha512-JUEXLDG7ag3HmqUnrDG7ilhafH6R9bFPpwV63O2kH4UbnS2+gRGEOqqy4k01O7tHjo3MWkDD0cpG+UY9pjy/fQ==}
 
@@ -15945,6 +16244,10 @@ packages:
   uc.micro@2.1.0:
     resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
+  udx-native@1.19.2:
+    resolution: {integrity: sha512-RNYh+UhfryCsF5hE2ZOuIqcZ+qdipXK3UsarwxWJwsUQZFE3ybwz0mPjwb5ev1PMBcjFahWiepS/q0wwL51c2g==}
+    engines: {bare: '>=1.17.4'}
+
   ufo@1.6.3:
     resolution: {integrity: sha512-yDJTmhydvl5lJzBmy/hyOAA0d+aqCBuwl818haVdYCRrWV84o7YyeVm4QlVHStqNrrJSTb6jKuFAVqAFsr+K3Q==}
 
@@ -16495,6 +16798,9 @@ packages:
 
   which-module@2.0.1:
     resolution: {integrity: sha512-iBdZ57RDvnOR9AGBhML2vFZf7h8vmBjhoaZqODJBFWHVtKkDmKuHai3cx5PgVMrX5YDNp27AofYbAwctSS+vhQ==}
+
+  which-runtime@1.3.2:
+    resolution: {integrity: sha512-5kwCfWml7+b2NO7KrLMhYihjRx0teKkd3yGp1Xk5Vaf2JGdSh+rgVhEALAD9c/59dP+YwJHXoEO7e8QPy7gOkw==}
 
   which-typed-array@1.1.19:
     resolution: {integrity: sha512-rEvr90Bck4WZt9HHFC4DJMsjvu7x+r6bImz0/BrbWb7A2djJ8hnZMrWnHo9F8ssv0OMErasDhftrfROTyqSDrw==}
@@ -18686,9 +18992,28 @@ snapshots:
 
   '@bufbuild/protobuf@2.11.0': {}
 
-  '@buildonspark/issuer-sdk@0.1.23(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+  '@buildonspark/bare@0.0.63(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
-      '@buildonspark/spark-sdk': 0.7.5(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@buildonspark/spark-frost-bare-addon': 0.0.11
+      '@buildonspark/spark-sdk': 0.7.13(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      bare-node-runtime: 1.2.0(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0))
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - bare-tcp
+      - bufferutil
+      - react
+      - react-native
+      - react-native-b4a
+      - react-native-get-random-values
+      - supports-color
+      - utf-8-validate
+      - ws
+
+  '@buildonspark/issuer-sdk@0.1.23(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@buildonspark/spark-sdk': 0.7.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@noble/curves': 1.9.7
       '@scure/btc-signer': 1.8.1
       buffer: 6.0.3
@@ -18705,7 +19030,9 @@ snapshots:
       - utf-8-validate
       - ws
 
-  '@buildonspark/spark-sdk@0.7.5(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+  '@buildonspark/spark-frost-bare-addon@0.0.11': {}
+
+  '@buildonspark/spark-sdk@0.7.13(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
       '@bufbuild/protobuf': 2.11.0
       '@lightsparkdev/core': 1.5.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -18726,8 +19053,56 @@ snapshots:
       abort-controller-x: 0.4.3
       abortcontroller-polyfill: 1.7.8
       async-mutex: 0.5.0
-      bare-crypto: 1.13.4(bare-buffer@3.6.0)(bare-events@2.8.2)
-      bare-fetch: 2.8.0(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-crypto: 1.13.4(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-fetch: 2.8.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      buffer: 6.0.3
+      eventemitter3: 5.0.1
+      js-base64: 3.7.8
+      light-bolt11-decoder: 3.2.0
+      nice-grpc: 2.1.14
+      nice-grpc-client-middleware-retry: 3.1.13
+      nice-grpc-common: 2.0.2
+      nice-grpc-opentelemetry: 0.1.20
+      nice-grpc-web: 3.3.9(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      ts-proto: 2.8.3
+      ua-parser-js: 2.0.9
+      uuidv7: 1.2.1
+    optionalDependencies:
+      react: 19.2.4
+      react-native: 0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - bufferutil
+      - react-native-b4a
+      - supports-color
+      - utf-8-validate
+      - ws
+
+  '@buildonspark/spark-sdk@0.7.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@bufbuild/protobuf': 2.11.0
+      '@lightsparkdev/core': 1.5.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      '@noble/curves': 1.9.7
+      '@noble/hashes': 1.8.0
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/context-async-hooks': 2.6.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/core': 2.6.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation': 0.203.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation-undici': 0.14.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-trace-base': 2.6.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-trace-node': 2.6.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-trace-web': 2.6.1(@opentelemetry/api@1.9.1)
+      '@scure/base': 1.2.6
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      '@scure/btc-signer': 1.8.1
+      abort-controller-x: 0.4.3
+      abortcontroller-polyfill: 1.7.8
+      async-mutex: 0.5.0
+      bare-crypto: 1.13.4(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-fetch: 2.8.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
       buffer: 6.0.3
       eventemitter3: 5.0.1
       js-base64: 3.7.8
@@ -20480,7 +20855,7 @@ snapshots:
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
       '@iota/bcs': 1.2.0
-      '@noble/curves': 1.9.0
+      '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
@@ -21426,6 +21801,8 @@ snapshots:
   '@noble/hashes@1.7.2': {}
 
   '@noble/hashes@1.8.0': {}
+
+  '@noble/hashes@2.2.0': {}
 
   '@noble/secp256k1@1.7.1': {}
 
@@ -25426,7 +25803,7 @@ snapshots:
   '@solana/web3.js@1.95.8(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@babel/runtime': 7.28.4
-      '@noble/curves': 1.9.0
+      '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@solana/buffer-layout': 4.0.1
       agentkeepalive: 4.6.0
@@ -25448,7 +25825,7 @@ snapshots:
   '@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.1.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@babel/runtime': 7.28.4
-      '@noble/curves': 1.9.0
+      '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@solana/buffer-layout': 4.0.1
       '@solana/codecs-numbers': 2.3.0(typescript@5.1.3)
@@ -25471,7 +25848,7 @@ snapshots:
   '@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@babel/runtime': 7.28.4
-      '@noble/curves': 1.9.0
+      '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@solana/buffer-layout': 4.0.1
       '@solana/codecs-numbers': 2.3.0(typescript@5.4.3)
@@ -25776,6 +26153,40 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
 
   '@tanstack/virtual-core@3.13.12': {}
+
+  '@tetherto/wdk-wallet-spark@1.0.0-beta.17(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@buildonspark/bare': 0.0.63(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@buildonspark/spark-sdk': 0.7.13(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@noble/curves': 1.9.7
+      '@noble/hashes': 2.2.0
+      '@scure/bip32': 1.7.0
+      '@tetherto/wdk-wallet': 1.0.0-beta.7(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0))
+      bare-node-runtime: 1.2.0(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0))
+      bip39: 3.1.0
+      sodium-universal: 5.0.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - bare-tcp
+      - bufferutil
+      - react
+      - react-native
+      - react-native-b4a
+      - react-native-get-random-values
+      - sodium-javascript
+      - supports-color
+      - utf-8-validate
+      - ws
+
+  '@tetherto/wdk-wallet@1.0.0-beta.7(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0))':
+    dependencies:
+      bare-node-runtime: 1.2.0(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0))
+      bip39: 3.1.0
+    transitivePeerDependencies:
+      - bare-tcp
+      - react-native-b4a
 
   '@ton/core@0.59.1(@ton/crypto@3.3.0)':
     dependencies:
@@ -27439,7 +27850,7 @@ snapshots:
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
       '@walletconnect/jsonrpc-ws-connection': 1.0.16(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/logger': 2.1.2
       '@walletconnect/relay-api': 1.0.11
       '@walletconnect/relay-auth': 1.1.0
@@ -27483,7 +27894,7 @@ snapshots:
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
       '@walletconnect/jsonrpc-ws-connection': 1.0.16(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/logger': 2.1.2
       '@walletconnect/relay-api': 1.0.11
       '@walletconnect/relay-auth': 1.1.0
@@ -27616,7 +28027,7 @@ snapshots:
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
       '@walletconnect/jsonrpc-ws-connection': 1.0.16(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/logger': 2.1.2
       '@walletconnect/relay-api': 1.0.11
       '@walletconnect/relay-auth': 1.1.0
@@ -27660,7 +28071,7 @@ snapshots:
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
       '@walletconnect/jsonrpc-ws-connection': 1.0.16(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/logger': 2.1.2
       '@walletconnect/relay-api': 1.0.11
       '@walletconnect/relay-auth': 1.1.0
@@ -27835,7 +28246,7 @@ snapshots:
       '@walletconnect/jsonrpc-provider': 1.0.14
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/sign-client': 2.21.1(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@walletconnect/types': 2.21.1
       '@walletconnect/universal-provider': 2.21.1(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -27876,7 +28287,7 @@ snapshots:
       '@walletconnect/jsonrpc-provider': 1.0.14
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/sign-client': 2.21.1(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
       '@walletconnect/types': 2.21.1
       '@walletconnect/universal-provider': 2.21.1(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
@@ -28598,7 +29009,7 @@ snapshots:
       '@walletconnect/events': 1.0.1
       '@walletconnect/heartbeat': 1.2.2
       '@walletconnect/jsonrpc-types': 1.0.4
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/logger': 2.1.2
       events: 3.3.0
     transitivePeerDependencies:
@@ -28686,7 +29097,7 @@ snapshots:
       '@walletconnect/events': 1.0.1
       '@walletconnect/heartbeat': 1.2.2
       '@walletconnect/jsonrpc-types': 1.0.4
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/logger': 2.1.2
       events: 3.3.0
     transitivePeerDependencies:
@@ -28995,7 +29406,7 @@ snapshots:
       '@walletconnect/jsonrpc-provider': 1.0.14
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/logger': 2.1.2
       '@walletconnect/sign-client': 2.21.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@walletconnect/types': 2.21.0
@@ -29035,7 +29446,7 @@ snapshots:
       '@walletconnect/jsonrpc-provider': 1.0.14
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/logger': 2.1.2
       '@walletconnect/sign-client': 2.21.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
       '@walletconnect/types': 2.21.0
@@ -29156,7 +29567,7 @@ snapshots:
       '@walletconnect/jsonrpc-provider': 1.0.14
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/logger': 2.1.2
       '@walletconnect/sign-client': 2.21.1(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@walletconnect/types': 2.21.1
@@ -29196,7 +29607,7 @@ snapshots:
       '@walletconnect/jsonrpc-provider': 1.0.14
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/logger': 2.1.2
       '@walletconnect/sign-client': 2.21.1(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
       '@walletconnect/types': 2.21.1
@@ -29413,7 +29824,7 @@ snapshots:
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
       '@walletconnect/jsonrpc-utils': 1.0.8
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/relay-api': 1.0.11
       '@walletconnect/relay-auth': 1.1.0
       '@walletconnect/safe-json': 1.0.2
@@ -29457,7 +29868,7 @@ snapshots:
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
       '@walletconnect/jsonrpc-utils': 1.0.8
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/relay-api': 1.0.11
       '@walletconnect/relay-auth': 1.1.0
       '@walletconnect/safe-json': 1.0.2
@@ -29590,7 +30001,7 @@ snapshots:
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
       '@walletconnect/jsonrpc-utils': 1.0.8
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/relay-api': 1.0.11
       '@walletconnect/relay-auth': 1.1.0
       '@walletconnect/safe-json': 1.0.2
@@ -29634,7 +30045,7 @@ snapshots:
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
       '@walletconnect/jsonrpc-utils': 1.0.8
-      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))
+      '@walletconnect/keyvaluestorage': 1.1.1(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       '@walletconnect/relay-api': 1.0.11
       '@walletconnect/relay-auth': 1.1.0
       '@walletconnect/safe-json': 1.0.2
@@ -30339,17 +30750,22 @@ snapshots:
 
   balanced-match@4.0.3: {}
 
+  bare-abort-controller@1.1.1:
+    dependencies:
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+
+  bare-abort@2.0.13: {}
+
   bare-addon-resolve@1.9.4(bare-url@2.4.0):
     dependencies:
       bare-module-resolve: 1.11.1(bare-url@2.4.0)
       bare-semver: 1.0.1
     optionalDependencies:
       bare-url: 2.4.0
-    optional: true
 
-  bare-ansi-escapes@2.2.3(bare-buffer@3.6.0)(bare-events@2.8.2):
+  bare-ansi-escapes@2.2.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
     dependencies:
-      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
     optionalDependencies:
       bare-buffer: 3.6.0
     transitivePeerDependencies:
@@ -30357,63 +30773,140 @@ snapshots:
       - bare-events
       - react-native-b4a
 
-  bare-assert@1.2.0(bare-buffer@3.6.0)(bare-events@2.8.2):
+  bare-assert@1.2.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
     dependencies:
-      bare-inspect: 3.1.4(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-inspect: 3.1.4(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
       - bare-events
       - react-native-b4a
 
+  bare-async-hooks@0.0.0: {}
+
   bare-buffer@3.6.0: {}
 
-  bare-crypto@1.13.4(bare-buffer@3.6.0)(bare-events@2.8.2):
+  bare-bundle@1.10.0(bare-buffer@3.6.0)(bare-url@2.4.0):
+    optionalDependencies:
+      bare-buffer: 3.6.0
+      bare-url: 2.4.0
+
+  bare-channel@5.2.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0):
     dependencies:
-      bare-assert: 1.2.0(bare-buffer@3.6.0)(bare-events@2.8.2)
-      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-structured-clone: 1.5.4
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - react-native-b4a
+
+  bare-console@6.1.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-hrtime: 2.1.1
+      bare-logger: 2.0.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-system-logger: 1.0.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - react-native-b4a
+
+  bare-crypto@1.13.4(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-assert: 1.2.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
     optionalDependencies:
       bare-buffer: 3.6.0
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-events
       - react-native-b4a
+
+  bare-debug-log@2.0.0:
+    dependencies:
+      bare-os: 3.6.2
+
+  bare-dgram@1.0.1(bare-abort-controller@1.1.1):
+    dependencies:
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      udx-native: 1.19.2(bare-abort-controller@1.1.1)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - react-native-b4a
+
+  bare-diagnostics-channel@1.1.0: {}
 
   bare-dns@2.1.4: {}
 
-  bare-events@2.8.2: {}
-
-  bare-fetch@2.8.0(bare-buffer@3.6.0)(bare-events@2.8.2):
-    dependencies:
-      bare-form-data: 1.2.1(bare-events@2.8.2)
-      bare-http1: 4.5.5(bare-buffer@3.6.0)(bare-url@2.4.0)
-      bare-https: 2.1.3(bare-buffer@3.6.0)(bare-events@2.8.2)(bare-url@2.4.0)
-      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
-      bare-url: 2.4.0
-      bare-zlib: 1.3.1(bare-buffer@3.6.0)(bare-events@2.8.2)
+  bare-encoding@1.0.3(bare-buffer@3.6.0):
     optionalDependencies:
+      bare-buffer: 3.6.0
+
+  bare-env@3.0.0:
+    dependencies:
+      bare-os: 3.6.2
+
+  bare-events@2.8.2(bare-abort-controller@1.1.1):
+    optionalDependencies:
+      bare-abort-controller: 1.1.1
+
+  bare-fetch@2.8.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-form-data: 1.2.1(bare-abort-controller@1.1.1)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-http1: 4.5.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-url@2.4.0)
+      bare-https: 2.1.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bare-url@2.4.0)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-url: 2.4.0
+      bare-zlib: 1.3.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    optionalDependencies:
+      bare-abort-controller: 1.1.1
       bare-buffer: 3.6.0
     transitivePeerDependencies:
       - bare-events
       - react-native-b4a
 
-  bare-form-data@1.2.1(bare-events@2.8.2):
+  bare-form-data@1.2.1(bare-abort-controller@1.1.1)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
     dependencies:
       bare-buffer: 3.6.0
-      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-events
       - react-native-b4a
+
+  bare-format@1.0.2(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-inspect: 3.1.4(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - react-native-b4a
+
+  bare-fs@4.7.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0):
+    dependencies:
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-path: 3.0.0
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-url: 2.4.0
+      fast-fifo: 1.3.2
+    optionalDependencies:
+      bare-buffer: 3.6.0
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - react-native-b4a
+
+  bare-hrtime@2.1.1: {}
 
   bare-http-parser@1.1.3: {}
 
-  bare-http1@4.5.5(bare-buffer@3.6.0)(bare-url@2.4.0):
+  bare-http1@4.5.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-url@2.4.0):
     dependencies:
-      bare-events: 2.8.2
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
       bare-http-parser: 1.1.3
-      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
-      bare-tcp: 2.2.7(bare-buffer@3.6.0)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-tcp: 2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
     optionalDependencies:
       bare-buffer: 3.6.0
       bare-url: 2.4.0
@@ -30421,11 +30914,11 @@ snapshots:
       - bare-abort-controller
       - react-native-b4a
 
-  bare-https@2.1.3(bare-buffer@3.6.0)(bare-events@2.8.2)(bare-url@2.4.0):
+  bare-https@2.1.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bare-url@2.4.0):
     dependencies:
-      bare-http1: 4.5.5(bare-buffer@3.6.0)(bare-url@2.4.0)
-      bare-tcp: 2.2.7(bare-buffer@3.6.0)
-      bare-tls: 2.2.1(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-http1: 4.5.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-url@2.4.0)
+      bare-tcp: 2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-tls: 2.2.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
@@ -30433,9 +30926,9 @@ snapshots:
       - bare-url
       - react-native-b4a
 
-  bare-inspect@3.1.4(bare-buffer@3.6.0)(bare-events@2.8.2):
+  bare-inspect@3.1.4(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
     dependencies:
-      bare-ansi-escapes: 2.2.3(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-ansi-escapes: 2.2.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
       bare-type: 1.1.0
     transitivePeerDependencies:
       - bare-abort-controller
@@ -30443,70 +30936,308 @@ snapshots:
       - bare-events
       - react-native-b4a
 
+  bare-inspector@5.0.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)):
+    dependencies:
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-http1: 4.5.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-url@2.4.0)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-url: 2.4.0
+      bare-ws: 2.1.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-url@2.4.0)
+    optionalDependencies:
+      bare-tcp: 2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - react-native-b4a
+
+  bare-logger@2.0.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-format: 1.0.2(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - react-native-b4a
+
+  bare-module-lexer@1.4.7(bare-buffer@3.6.0):
+    dependencies:
+      require-addon: 1.1.0
+    optionalDependencies:
+      bare-buffer: 3.6.0
+
   bare-module-resolve@1.11.1(bare-url@2.4.0):
     dependencies:
       bare-semver: 1.0.1
     optionalDependencies:
       bare-url: 2.4.0
-    optional: true
 
-  bare-net@2.3.1(bare-buffer@3.6.0):
+  bare-module-resolve@1.12.1(bare-url@2.4.0):
     dependencies:
-      bare-events: 2.8.2
-      bare-pipe: 4.1.5(bare-buffer@3.6.0)
-      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
-      bare-tcp: 2.2.7(bare-buffer@3.6.0)
+      bare-semver: 1.0.1
+    optionalDependencies:
+      bare-url: 2.4.0
+
+  bare-module-traverse@2.0.1(bare-buffer@3.6.0)(bare-url@2.4.0):
+    dependencies:
+      bare-addon-resolve: 1.9.4(bare-url@2.4.0)
+      bare-module-lexer: 1.4.7(bare-buffer@3.6.0)
+      bare-module-resolve: 1.12.1(bare-url@2.4.0)
+    optionalDependencies:
+      bare-buffer: 3.6.0
+      bare-url: 2.4.0
+
+  bare-module@6.2.0(bare-buffer@3.6.0):
+    dependencies:
+      bare-bundle: 1.10.0(bare-buffer@3.6.0)(bare-url@2.4.0)
+      bare-module-lexer: 1.4.7(bare-buffer@3.6.0)
+      bare-module-resolve: 1.11.1(bare-url@2.4.0)
+      bare-path: 3.0.0
+      bare-url: 2.4.0
+    optionalDependencies:
+      bare-buffer: 3.6.0
+
+  bare-net@2.3.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0):
+    dependencies:
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-pipe: 4.1.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-tcp: 2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
       - react-native-b4a
 
+  bare-node-runtime@1.2.0(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)):
+    dependencies:
+      bare-abort-controller: 1.1.1
+      bare-assert: 1.2.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-async-hooks: 0.0.0
+      bare-buffer: 3.6.0
+      bare-console: 6.1.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-crypto: 1.13.4(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-dgram: 1.0.1(bare-abort-controller@1.1.1)
+      bare-diagnostics-channel: 1.1.0
+      bare-dns: 2.1.4
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-fetch: 2.8.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-fs: 4.7.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-http1: 4.5.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-url@2.4.0)
+      bare-https: 2.1.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bare-url@2.4.0)
+      bare-inspector: 5.0.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0))
+      bare-module: 6.2.0(bare-buffer@3.6.0)
+      bare-net: 2.3.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-os: 3.6.2
+      bare-path: 3.0.0
+      bare-performance: 1.3.0
+      bare-process: 4.4.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-punycode: 0.0.0
+      bare-querystring: 1.1.0
+      bare-readline: 1.3.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-repl: 6.0.2(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-string-decoder: 1.0.0(bare-buffer@3.6.0)
+      bare-subprocess: 5.2.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-timers: 3.2.1(bare-abort-controller@1.1.1)
+      bare-tls: 2.2.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-tty: 5.1.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-url: 2.4.0
+      bare-utils: 1.6.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-v8: 1.0.1
+      bare-vm: 1.0.1
+      bare-worker: 4.1.6(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-url@2.4.0)
+      bare-ws: 2.1.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-url@2.4.0)
+      bare-zlib: 1.3.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    transitivePeerDependencies:
+      - bare-tcp
+      - react-native-b4a
+
   bare-os@3.6.2: {}
+
+  bare-os@3.9.0: {}
 
   bare-path@3.0.0:
     dependencies:
       bare-os: 3.6.2
 
-  bare-pipe@4.1.5(bare-buffer@3.6.0):
+  bare-performance@1.3.0: {}
+
+  bare-pipe@4.1.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0):
     dependencies:
-      bare-events: 2.8.2
-      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
       - react-native-b4a
 
-  bare-semver@1.0.1:
-    optional: true
-
-  bare-stream@2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2):
+  bare-process@4.4.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0):
     dependencies:
-      streamx: 2.25.0
-      teex: 1.0.1
-    optionalDependencies:
-      bare-buffer: 3.6.0
-      bare-events: 2.8.2
-    transitivePeerDependencies:
-      - react-native-b4a
-
-  bare-tcp@2.2.7(bare-buffer@3.6.0):
-    dependencies:
-      bare-dns: 2.1.4
-      bare-events: 2.8.2
-      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-abort: 2.0.13
+      bare-env: 3.0.0
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-hrtime: 2.1.1
+      bare-os: 3.9.0
+      bare-signals: 4.2.0(bare-abort-controller@1.1.1)
+      bare-stdio: 1.0.2(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
       - react-native-b4a
 
-  bare-tls@2.2.1(bare-buffer@3.6.0)(bare-events@2.8.2):
+  bare-punycode@0.0.0:
     dependencies:
-      bare-net: 2.3.1(bare-buffer@3.6.0)
-      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
+      punycode: 2.3.1
+
+  bare-querystring@1.1.0: {}
+
+  bare-readline@1.3.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-ansi-escapes: 2.2.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
       - bare-events
+      - react-native-b4a
+
+  bare-realm@2.0.1: {}
+
+  bare-repl@6.0.2(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-inspect: 3.1.4(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-module: 6.2.0(bare-buffer@3.6.0)
+      bare-os: 3.6.2
+      bare-path: 3.0.0
+      bare-pipe: 4.1.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-readline: 1.3.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-tty: 5.1.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - react-native-b4a
+
+  bare-semver@1.0.1: {}
+
+  bare-signals@4.2.0(bare-abort-controller@1.1.1):
+    dependencies:
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-os: 3.6.2
+    transitivePeerDependencies:
+      - bare-abort-controller
+
+  bare-stdio@1.0.2(bare-abort-controller@1.1.1)(bare-buffer@3.6.0):
+    dependencies:
+      bare-fs: 4.7.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-pipe: 4.1.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-tty: 5.1.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - react-native-b4a
+
+  bare-stream@2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      streamx: 2.25.0(bare-abort-controller@1.1.1)
+      teex: 1.0.1(bare-abort-controller@1.1.1)
+    optionalDependencies:
+      bare-abort-controller: 1.1.1
+      bare-buffer: 3.6.0
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+    transitivePeerDependencies:
+      - react-native-b4a
+
+  bare-string-decoder@1.0.0(bare-buffer@3.6.0):
+    dependencies:
+      text-decoder: 1.2.7
+    optionalDependencies:
+      bare-buffer: 3.6.0
+    transitivePeerDependencies:
+      - react-native-b4a
+
+  bare-structured-clone@1.5.4:
+    dependencies:
+      bare-buffer: 3.6.0
+      bare-type: 1.1.0
+      bare-url: 2.4.0
+      compact-encoding: 2.19.2
+    transitivePeerDependencies:
+      - react-native-b4a
+
+  bare-stylize@0.0.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-ansi-escapes: 2.2.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-process: 4.4.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - react-native-b4a
+
+  bare-subprocess@5.2.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0):
+    dependencies:
+      bare-env: 3.0.0
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-os: 3.6.2
+      bare-pipe: 4.1.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-url: 2.4.0
+    optionalDependencies:
+      bare-buffer: 3.6.0
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - react-native-b4a
+
+  bare-system-logger@1.0.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-logger: 2.0.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - react-native-b4a
+
+  bare-tcp@2.2.7(bare-abort-controller@1.1.1)(bare-buffer@3.6.0):
+    dependencies:
+      bare-dns: 2.1.4
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - react-native-b4a
+
+  bare-thread@1.2.0(bare-buffer@3.6.0)(bare-url@2.4.0):
+    dependencies:
+      bare-bundle: 1.10.0(bare-buffer@3.6.0)(bare-url@2.4.0)
+      bare-module-resolve: 1.12.1(bare-url@2.4.0)
+      bare-module-traverse: 2.0.1(bare-buffer@3.6.0)(bare-url@2.4.0)
+    transitivePeerDependencies:
+      - bare-buffer
+      - bare-url
+
+  bare-timers@3.2.1(bare-abort-controller@1.1.1):
+    optionalDependencies:
+      bare-abort-controller: 1.1.1
+
+  bare-tls@2.2.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-net: 2.3.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - react-native-b4a
+
+  bare-tty@5.1.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0):
+    dependencies:
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-signals: 4.2.0(bare-abort-controller@1.1.1)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
       - react-native-b4a
 
   bare-type@1.1.0: {}
@@ -30515,9 +31246,55 @@ snapshots:
     dependencies:
       bare-path: 3.0.0
 
-  bare-zlib@1.3.1(bare-buffer@3.6.0)(bare-events@2.8.2):
+  bare-utils@1.6.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
     dependencies:
-      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-debug-log: 2.0.0
+      bare-encoding: 1.0.3(bare-buffer@3.6.0)
+      bare-format: 1.0.2(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-inspect: 3.1.4(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-stylize: 0.0.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-type: 1.1.0
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - react-native-b4a
+
+  bare-v8@1.0.1: {}
+
+  bare-vm@1.0.1:
+    dependencies:
+      bare-realm: 2.0.1
+
+  bare-worker@4.1.6(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-url@2.4.0):
+    dependencies:
+      bare-channel: 5.2.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-module: 6.2.0(bare-buffer@3.6.0)
+      bare-thread: 1.2.0(bare-buffer@3.6.0)(bare-url@2.4.0)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-url
+      - react-native-b4a
+
+  bare-ws@2.1.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-url@2.4.0):
+    dependencies:
+      bare-crypto: 1.13.4(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      bare-http1: 4.5.5(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-url@2.4.0)
+      bare-https: 2.1.3(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))(bare-url@2.4.0)
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    optionalDependencies:
+      bare-buffer: 3.6.0
+      bare-url: 2.4.0
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - react-native-b4a
+
+  bare-zlib@1.3.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-stream: 2.12.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
@@ -31056,6 +31833,12 @@ snapshots:
   commander@8.3.0: {}
 
   commondir@1.0.1: {}
+
+  compact-encoding@2.19.2:
+    dependencies:
+      b4a: 1.8.0
+    transitivePeerDependencies:
+      - react-native-b4a
 
   concat-map@0.0.1: {}
 
@@ -32464,9 +33247,9 @@ snapshots:
 
   eventemitter3@5.0.1: {}
 
-  events-universal@1.0.1:
+  events-universal@1.0.1(bare-abort-controller@1.1.1):
     dependencies:
-      bare-events: 2.8.2
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
     transitivePeerDependencies:
       - bare-abort-controller
 
@@ -34760,6 +35543,81 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
+  next@15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@next/env': 15.5.15
+      '@swc/helpers': 0.5.15
+      caniuse-lite: 1.0.30001754
+      postcss: 8.4.31
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      styled-jsx: 5.1.6(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react@18.3.1)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 15.5.15
+      '@next/swc-darwin-x64': 15.5.15
+      '@next/swc-linux-arm64-gnu': 15.5.15
+      '@next/swc-linux-arm64-musl': 15.5.15
+      '@next/swc-linux-x64-gnu': 15.5.15
+      '@next/swc-linux-x64-musl': 15.5.15
+      '@next/swc-win32-arm64-msvc': 15.5.15
+      '@next/swc-win32-x64-msvc': 15.5.15
+      '@opentelemetry/api': 1.9.1
+      '@playwright/test': 1.56.1
+      sharp: 0.34.5
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+
+  next@15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@next/env': 15.5.15
+      '@swc/helpers': 0.5.15
+      caniuse-lite: 1.0.30001754
+      postcss: 8.4.31
+      react: 18.3.1
+      react-dom: 19.2.4(react@18.3.1)
+      styled-jsx: 5.1.6(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react@18.3.1)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 15.5.15
+      '@next/swc-darwin-x64': 15.5.15
+      '@next/swc-linux-arm64-gnu': 15.5.15
+      '@next/swc-linux-arm64-musl': 15.5.15
+      '@next/swc-linux-x64-gnu': 15.5.15
+      '@next/swc-linux-x64-musl': 15.5.15
+      '@next/swc-win32-arm64-msvc': 15.5.15
+      '@next/swc-win32-x64-msvc': 15.5.15
+      '@opentelemetry/api': 1.9.1
+      '@playwright/test': 1.56.1
+      sharp: 0.34.5
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+
+  next@15.5.15(@babel/core@7.26.9)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      '@next/env': 15.5.15
+      '@swc/helpers': 0.5.15
+      caniuse-lite: 1.0.30001754
+      postcss: 8.4.31
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+      styled-jsx: 5.1.6(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react@19.2.4)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 15.5.15
+      '@next/swc-darwin-x64': 15.5.15
+      '@next/swc-linux-arm64-gnu': 15.5.15
+      '@next/swc-linux-arm64-musl': 15.5.15
+      '@next/swc-linux-x64-gnu': 15.5.15
+      '@next/swc-linux-x64-musl': 15.5.15
+      '@next/swc-win32-arm64-msvc': 15.5.15
+      '@next/swc-win32-x64-msvc': 15.5.15
+      '@opentelemetry/api': 1.9.1
+      '@playwright/test': 1.56.1
+      sharp: 0.34.5
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+
   next@15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
       '@next/env': 15.5.15
@@ -34819,56 +35677,6 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       styled-jsx: 5.1.6(@babel/core@7.28.5)(babel-plugin-macros@3.1.0)(react@19.1.0)
-    optionalDependencies:
-      '@next/swc-darwin-arm64': 15.5.15
-      '@next/swc-darwin-x64': 15.5.15
-      '@next/swc-linux-arm64-gnu': 15.5.15
-      '@next/swc-linux-arm64-musl': 15.5.15
-      '@next/swc-linux-x64-gnu': 15.5.15
-      '@next/swc-linux-x64-musl': 15.5.15
-      '@next/swc-win32-arm64-msvc': 15.5.15
-      '@next/swc-win32-x64-msvc': 15.5.15
-      '@opentelemetry/api': 1.9.1
-      '@playwright/test': 1.56.1
-      sharp: 0.34.5
-    transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
-
-  next@15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@18.3.1))(react@18.3.1):
-    dependencies:
-      '@next/env': 15.5.15
-      '@swc/helpers': 0.5.15
-      caniuse-lite: 1.0.30001754
-      postcss: 8.4.31
-      react: 18.3.1
-      react-dom: 19.2.4(react@18.3.1)
-      styled-jsx: 5.1.6(@babel/core@7.28.5)(babel-plugin-macros@3.1.0)(react@18.3.1)
-    optionalDependencies:
-      '@next/swc-darwin-arm64': 15.5.15
-      '@next/swc-darwin-x64': 15.5.15
-      '@next/swc-linux-arm64-gnu': 15.5.15
-      '@next/swc-linux-arm64-musl': 15.5.15
-      '@next/swc-linux-x64-gnu': 15.5.15
-      '@next/swc-linux-x64-musl': 15.5.15
-      '@next/swc-win32-arm64-msvc': 15.5.15
-      '@next/swc-win32-x64-msvc': 15.5.15
-      '@opentelemetry/api': 1.9.1
-      '@playwright/test': 1.56.1
-      sharp: 0.34.5
-    transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
-
-  next@15.5.15(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
-    dependencies:
-      '@next/env': 15.5.15
-      '@swc/helpers': 0.5.15
-      caniuse-lite: 1.0.30001754
-      postcss: 8.4.31
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-      styled-jsx: 5.1.6(@babel/core@7.28.5)(babel-plugin-macros@3.1.0)(react@19.2.4)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.5.15
       '@next/swc-darwin-x64': 15.5.15
@@ -36772,7 +37580,6 @@ snapshots:
     dependencies:
       bare-addon-resolve: 1.9.4(bare-url@2.4.0)
       bare-url: 2.4.0
-    optional: true
 
   require-directory@2.1.1: {}
 
@@ -37256,6 +38063,26 @@ snapshots:
       require-addon: 1.1.0
     optional: true
 
+  sodium-native@5.1.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      bare-assert: 1.2.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+      require-addon: 1.1.0
+      which-runtime: 1.3.2
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - react-native-b4a
+
+  sodium-universal@5.0.1(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1)):
+    dependencies:
+      sodium-native: 5.1.0(bare-abort-controller@1.1.1)(bare-buffer@3.6.0)(bare-events@2.8.2(bare-abort-controller@1.1.1))
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - react-native-b4a
+
   solady@0.0.235: {}
 
   solc@0.8.13:
@@ -37368,9 +38195,9 @@ snapshots:
 
   stream-shift@1.0.3: {}
 
-  streamx@2.25.0:
+  streamx@2.25.0(bare-abort-controller@1.1.1):
     dependencies:
-      events-universal: 1.0.1
+      events-universal: 1.0.1(bare-abort-controller@1.1.1)
       fast-fifo: 1.3.2
       text-decoder: 1.2.7
     transitivePeerDependencies:
@@ -37474,6 +38301,22 @@ snapshots:
       '@babel/core': 7.26.9
       babel-plugin-macros: 3.1.0
 
+  styled-jsx@5.1.6(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react@18.3.1):
+    dependencies:
+      client-only: 0.0.1
+      react: 18.3.1
+    optionalDependencies:
+      '@babel/core': 7.26.9
+      babel-plugin-macros: 3.1.0
+
+  styled-jsx@5.1.6(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react@19.2.4):
+    dependencies:
+      client-only: 0.0.1
+      react: 19.2.4
+    optionalDependencies:
+      '@babel/core': 7.26.9
+      babel-plugin-macros: 3.1.0
+
   styled-jsx@5.1.6(@babel/core@7.28.5)(babel-plugin-macros@3.1.0)(react@18.2.0):
     dependencies:
       client-only: 0.0.1
@@ -37494,14 +38337,6 @@ snapshots:
     dependencies:
       client-only: 0.0.1
       react: 19.1.0
-    optionalDependencies:
-      '@babel/core': 7.28.5
-      babel-plugin-macros: 3.1.0
-
-  styled-jsx@5.1.6(@babel/core@7.28.5)(babel-plugin-macros@3.1.0)(react@19.2.4):
-    dependencies:
-      client-only: 0.0.1
-      react: 19.2.4
     optionalDependencies:
       '@babel/core': 7.28.5
       babel-plugin-macros: 3.1.0
@@ -37624,9 +38459,9 @@ snapshots:
       minizlib: 3.1.0
       yallist: 5.0.0
 
-  teex@1.0.1:
+  teex@1.0.1(bare-abort-controller@1.1.1):
     dependencies:
-      streamx: 2.25.0
+      streamx: 2.25.0(bare-abort-controller@1.1.1)
     transitivePeerDependencies:
       - bare-abort-controller
       - react-native-b4a
@@ -38093,6 +38928,16 @@ snapshots:
       ua-is-frozen: 0.1.2
 
   uc.micro@2.1.0: {}
+
+  udx-native@1.19.2(bare-abort-controller@1.1.1):
+    dependencies:
+      b4a: 1.8.0
+      bare-events: 2.8.2(bare-abort-controller@1.1.1)
+      require-addon: 1.1.0
+      streamx: 2.25.0(bare-abort-controller@1.1.1)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - react-native-b4a
 
   ufo@1.6.3: {}
 
@@ -39153,6 +39998,8 @@ snapshots:
       is-weakset: 2.0.4
 
   which-module@2.0.1: {}
+
+  which-runtime@1.3.2: {}
 
   which-typed-array@1.1.19:
     dependencies:

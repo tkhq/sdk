@@ -1,0 +1,27 @@
+{
+  "name": "@turnkey/example-with-wdk-spark",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "setup:e2e": "tsx src/setup-e2e.ts",
+    "e2e:regtest": "tsx src/e2e-regtest.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@buildonspark/spark-sdk": "0.7.13",
+    "@noble/curves": "^1.9.7",
+    "@noble/hashes": "^1.4.0",
+    "@scure/bip39": "^1.3.0",
+    "@scure/btc-signer": "^1.5.0",
+    "@tetherto/wdk-wallet": "1.0.0-beta.7",
+    "@tetherto/wdk-wallet-spark": "1.0.0-beta.17",
+    "@turnkey/sdk-server": "workspace:*",
+    "dotenv": "^16.0.3",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "5.4.3"
+  }
+}
