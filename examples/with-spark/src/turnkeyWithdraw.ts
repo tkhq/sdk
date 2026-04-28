@@ -27,6 +27,10 @@ import type {
   NetworkType,
   SigningCommitment,
 } from "@buildonspark/spark-sdk";
+import {
+  getTxFromRawTxHex,
+  getTxId,
+} from "@buildonspark/spark-sdk";
 import type { TurnkeySparkSigner, TransferLeafInput, OperatorRecipientInput } from "./turnkeySigner";
 
 function fromHex(h: string): Uint8Array {
@@ -317,7 +321,7 @@ export async function turnkeyWithdraw(
     // internally; we build the output references directly)
     const connectorTxIdBytes = fromHex(
       coopExitRequest.rawConnectorTransaction.length > 0
-        ? getTxIdFromRawHex(coopExitRequest.rawConnectorTransaction)
+        ? getTxId(getTxFromRawTxHex(coopExitRequest.rawConnectorTransaction))
         : "",
     );
     const connectorOutputs: ConnectorOutput[] = allLeaves.map((_, i) => ({
@@ -443,14 +447,3 @@ export async function turnkeyWithdraw(
   }
 }
 
-/**
- * Compute the txid from a raw transaction hex string.
- * Uses double-SHA256 of the raw bytes, reversed (little-endian).
- */
-function getTxIdFromRawHex(rawHex: string): string {
-  const crypto = require("crypto");
-  const raw = Buffer.from(rawHex, "hex");
-  const hash1 = crypto.createHash("sha256").update(raw).digest();
-  const hash2 = crypto.createHash("sha256").update(hash1).digest();
-  return Buffer.from(hash2).reverse().toString("hex");
-}
