@@ -4,5 +4,3 @@
 ---
 
 Added `storeOAuthState`, `consumeOAuthState`, and `hasOAuthState` utilities and wired them into `buildOAuthUrl` and `parseInAppBrowserResult` to add OAuth CSRF state validation.
-
-

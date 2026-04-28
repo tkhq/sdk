@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 import { OAuthProviders } from "@turnkey/sdk-types";
 import {
   buildOAuthState,
@@ -6,6 +6,12 @@ import {
   parseStateParam,
   parseOAuthResponse,
 } from "../utils/oauth";
+
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  setItem: jest.fn(() => Promise.resolve()),
+  getItem: jest.fn(() => Promise.resolve(null)),
+  removeItem: jest.fn(() => Promise.resolve()),
+}));
 describe("parseOAuthRedirect", () => {
   describe("Apple redirects", () => {
     it("parses an Apple hash with unencoded state and id_token at the end", () => {
@@ -168,8 +174,8 @@ describe("OAuth utils", () => {
   });
 
   describe("buildOAuthUrl", () => {
-    it("builds Google URL with nonce in params and prompt", () => {
-      const url = buildOAuthUrl({
+    it("builds Google URL with nonce in params and prompt", async () => {
+      const url = await buildOAuthUrl({
         provider: OAuthProviders.GOOGLE,
         clientId: "client_google",
         redirectUri: "https://example.com/callback",
@@ -194,8 +200,8 @@ describe("OAuth utils", () => {
       expect(stateParams.nonce).toBeUndefined();
     });
 
-    it("builds Discord URL with PKCE and nonce in state", () => {
-      const url = buildOAuthUrl({
+    it("builds Discord URL with PKCE and nonce in state", async () => {
+      const url = await buildOAuthUrl({
         provider: OAuthProviders.DISCORD,
         clientId: "client_discord",
         redirectUri: "https://example.com/discord",
