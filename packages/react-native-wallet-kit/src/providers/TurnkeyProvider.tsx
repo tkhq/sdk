@@ -380,18 +380,30 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         organizationId: masterConfig.organizationId,
         defaultStamperType: masterConfig.defaultStamperType,
 
-        // Define passkey and wallet config here. If we don't pass it into the client, Mr. Client will assume that we don't want to use passkeys/wallets and not create the stamper!
-        passkeyConfig: {
-          rpId: masterConfig.passkeyConfig?.rpId,
-          timeout: masterConfig.passkeyConfig?.timeout || 60000, // 60 seconds
-          userVerification:
-            masterConfig.passkeyConfig?.userVerification || "preferred",
-          allowCredentials: masterConfig.passkeyConfig?.allowCredentials || [],
-        },
+        ...(masterConfig.passkeyConfig
+          ? {
+              passkeyConfig: {
+                rpId: masterConfig.passkeyConfig.rpId,
+                timeout: masterConfig.passkeyConfig.timeout ?? 60000,
+                userVerification:
+                  masterConfig.passkeyConfig.userVerification ?? "preferred",
+                allowCredentials:
+                  masterConfig.passkeyConfig.allowCredentials ?? [],
+              },
+            }
+          : {}),
+
       });
 
       await turnkeyClient.init();
       setClient(turnkeyClient);
+      console.log("passkeyConfig:", turnkeyClient.config.passkeyConfig);
+      try {
+        await turnkeyClient.overridePasskeyStamper({ config: { rpId: "test" } });
+        console.log("[Turnkey] passkey stamper IS initialized");
+      } catch (e: any) {
+        console.log("[Turnkey] passkey stamper NOT initialized:", e.message);
+      }
 
       // Don't set clientState to ready until we fetch the proxy auth config (See other fetchProxyAuthConfig useEffect)
     } catch (error) {
