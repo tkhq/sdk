@@ -8,6 +8,7 @@ import {
   type v1ApiKeyParamsV2,
   type v1ApiKeyCurve,
   type v1AuthenticatorParamsV2,
+  type v1Authenticator,
   type v1WalletAccountParams,
   type v1WalletAccount,
   type v1LoginUsage,
@@ -37,7 +38,7 @@ import {
   WalletSource,
   StamperType,
 } from "./__types__";
-import { bs58 } from "@turnkey/encoding";
+import { bs58, base64UrlToBase64, atob } from "@turnkey/encoding";
 
 // Import all defaultAccountAtIndex functions for each address format
 import {
@@ -1461,6 +1462,17 @@ export const withTimeoutFallback = <T>(
   ]);
 };
 
+export const AUTHENTICATOR_TRANSPORT_MAP: Record<
+  string,
+  AuthenticatorTransport
+> = {
+  AUTHENTICATOR_TRANSPORT_INTERNAL: "internal",
+  AUTHENTICATOR_TRANSPORT_HYBRID: "hybrid",
+  AUTHENTICATOR_TRANSPORT_USB: "usb",
+  AUTHENTICATOR_TRANSPORT_NFC: "nfc",
+  AUTHENTICATOR_TRANSPORT_BLE: "ble",
+};
+
 /**
  * Decodes the OIDC token to extract `iss` and `sub`, then builds a list of
  * `oidcClaims` (one per secondary client ID) suitable for use as the `aud` in `v1OauthProviderParamsV2.oidcClaims`.
@@ -1488,4 +1500,21 @@ export function buildSecondaryOauthProviders(
   return buildSecondaryOidcClaims(oidcToken, secondaryClientIds).map(
     (oidcClaims) => ({ providerName, oidcClaims }),
   );
+}
+
+export function buildAllowCredentialsFromAuthenticators(
+  authenticators: v1Authenticator[],
+): PublicKeyCredentialDescriptor[] {
+  return authenticators.map((a) => {
+    const b64 = base64UrlToBase64(a.credentialId);
+    const binary = atob(b64);
+    const id = Uint8Array.from(binary, (c: string) => c.charCodeAt(0));
+    return {
+      id,
+      type: "public-key",
+      transports: a.transports
+        .map((t) => AUTHENTICATOR_TRANSPORT_MAP[t])
+        .filter(Boolean) as AuthenticatorTransport[],
+    };
+  });
 }

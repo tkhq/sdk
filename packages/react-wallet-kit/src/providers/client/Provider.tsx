@@ -24,9 +24,7 @@ import {
   storeOAuthAddProviderMetadata,
   storePKCEVerifier,
 } from "../../utils/oauth";
-import { base64UrlToBase64, atob } from "@turnkey/encoding";
 import {
-  AUTHENTICATOR_TRANSPORT_MAP,
   isValidSession,
   mergeWalletsWithoutDuplicates,
   SESSION_WARNING_THRESHOLD_MS,
@@ -126,6 +124,7 @@ import {
   type DeleteApiKeyPairParams,
   buildSecondaryOauthProviders,
   buildSecondaryOidcClaims,
+  buildAllowCredentialsFromAuthenticators,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -1009,24 +1008,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           setWallets((prev) => mergeWalletsWithoutDuplicates(prev, wallets));
         }
 
-        if (user && client?.passkeyStamper) {
-          const allowCredentials: PublicKeyCredentialDescriptor[] =
-            user.authenticators.map((a) => {
-              const b64 = base64UrlToBase64(a.credentialId);
-              const binary = atob(b64);
-              const id = Uint8Array.from(binary, (c: string) =>
-                c.charCodeAt(0),
-              );
-              return {
-                id,
-                type: "public-key",
-                transports: a.transports
-                  .map((t) => AUTHENTICATOR_TRANSPORT_MAP[t])
-                  .filter(Boolean) as AuthenticatorTransport[],
-              };
-            });
+        if (user && client) {
           await client.overridePasskeyStamper({
-            config: { ...client.config.passkeyConfig, allowCredentials },
+            config: {
+              ...client.config.passkeyConfig,
+              allowCredentials: buildAllowCredentialsFromAuthenticators(
+                user.authenticators,
+              ),
+            },
           });
         }
 
@@ -1314,22 +1303,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         maybeRefreshUser(),
       ]);
 
-      if (user && client?.passkeyStamper) {
-        const allowCredentials: PublicKeyCredentialDescriptor[] =
-          user.authenticators.map((a) => {
-            const b64 = base64UrlToBase64(a.credentialId);
-            const binary = atob(b64);
-            const id = Uint8Array.from(binary, (c: string) => c.charCodeAt(0));
-            return {
-              id,
-              type: "public-key",
-              transports: a.transports
-                .map((t) => AUTHENTICATOR_TRANSPORT_MAP[t])
-                .filter(Boolean) as AuthenticatorTransport[],
-            };
-          });
+      if (user && client) {
         await client.overridePasskeyStamper({
-          config: { ...client.config.passkeyConfig, allowCredentials },
+          config: {
+            ...client.config.passkeyConfig,
+            allowCredentials: buildAllowCredentialsFromAuthenticators(
+              user.authenticators,
+            ),
+          },
         });
       }
 

@@ -38,6 +38,8 @@ export {
   buildSecondaryOidcClaims,
   buildSecondaryOauthProviders,
   addressFormatConfig,
+  AUTHENTICATOR_TRANSPORT_MAP,
+  buildAllowCredentialsFromAuthenticators,
 } from "./utils";
 
 export * from "@turnkey/sdk-types";

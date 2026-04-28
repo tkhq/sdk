@@ -183,7 +183,7 @@ export class TurnkeyClient {
   httpClient!: TurnkeySDKClientBase;
 
   private apiKeyStamper?: CrossPlatformApiKeyStamper | undefined;
-  passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
+  private passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
   private walletManager?: WalletManagerBase | undefined;
   private storageManager!: StorageBase;
 

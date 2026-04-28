@@ -3,4 +3,4 @@
 "@turnkey/react-wallet-kit": patch
 ---
 
-scope passkey allowCredentials to the logged in users authentication after login. refreshUser and maybeRefreshUser now return v1User | undefined
+Scope passkey `allowCredentials` to the authenticated user's credentials after login. `refreshUser` now returns `v1User | undefined`.

@@ -55,17 +55,6 @@ export const isValidSession = (session?: Session | undefined): boolean => {
   return session?.expiry !== undefined && session.expiry * 1000 > Date.now();
 };
 
-export const AUTHENTICATOR_TRANSPORT_MAP: Record<
-  string,
-  AuthenticatorTransport
-> = {
-  AUTHENTICATOR_TRANSPORT_INTERNAL: "internal",
-  AUTHENTICATOR_TRANSPORT_HYBRID: "hybrid",
-  AUTHENTICATOR_TRANSPORT_USB: "usb",
-  AUTHENTICATOR_TRANSPORT_NFC: "nfc",
-  AUTHENTICATOR_TRANSPORT_BLE: "ble",
-};
-
 export async function withTurnkeyErrorHandling<T>(
   fn: () => Promise<T>,
   sessionExpireFn: () => Promise<void>,
