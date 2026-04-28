@@ -79,6 +79,10 @@ function notImplemented(method: string): never {
   );
 }
 
+function cloneBytes(bytes: Uint8Array): Uint8Array {
+  return new Uint8Array(bytes);
+}
+
 /** Maps SDK KeyDerivation to the proto SparkKeyDerivation shape. */
 function mapKeyDerivation(kd: KeyDerivation): Record<string, unknown> {
   switch (kd.type) {
@@ -88,6 +92,19 @@ function mapKeyDerivation(kd: KeyDerivation): Record<string, unknown> {
       return { type: "SPARK_KEY_TYPE_DEPOSIT" };
     case "static_deposit":
       return { type: "SPARK_KEY_TYPE_STATIC_DEPOSIT_HD", index: kd.path };
+    default:
+      throw new Error(`Unsupported key derivation type: ${kd.type}`);
+  }
+}
+
+function keyDerivationCacheKey(kd: KeyDerivation): string {
+  switch (kd.type) {
+    case "leaf":
+      return `leaf:${kd.path}`;
+    case "deposit":
+      return "deposit";
+    case "static_deposit":
+      return `static_deposit:${kd.path}`;
     default:
       throw new Error(`Unsupported key derivation type: ${kd.type}`);
   }
@@ -195,6 +212,8 @@ export class TurnkeySparkSigner implements SparkSigner {
   private readonly ecdsaAddress: string;
   /** Compressed 33-byte public key (02/03 prefix) */
   private readonly identityPublicKeyHex: string;
+  /** Coalesces and caches deterministic SPARK_KEY_OPERATION public-key derivations. */
+  private readonly publicKeyCache = new Map<string, Promise<Uint8Array>>();
 
   constructor(
     client: TurnkeyServerSDK,
@@ -514,16 +533,104 @@ export class TurnkeySparkSigner implements SparkSigner {
       return this.getIdentityPublicKey();
     }
 
-    const result = await this.callSparkKeyOperation({
-      signWith: this.sparkAddress,
-      derivePublicKeys: [{ derivation: mapKeyDerivation(keyDerivation) }],
+    const cacheKey = keyDerivationCacheKey(keyDerivation);
+    const cached = this.publicKeyCache.get(cacheKey);
+    if (cached) {
+      return cloneBytes(await cached);
+    }
+
+    const promise = this.fetchPublicKeyFromDerivation(keyDerivation);
+    this.publicKeyCache.set(cacheKey, promise);
+
+    try {
+      return cloneBytes(await promise);
+    } catch (err) {
+      this.publicKeyCache.delete(cacheKey);
+      throw err;
+    }
+  }
+
+  async getPublicKeysFromDerivations(
+    keyDerivations: KeyDerivation[],
+  ): Promise<Uint8Array[]> {
+    const output = new Array<Uint8Array>(keyDerivations.length);
+    const missingIndexes: number[] = [];
+    const missingDerivations: KeyDerivation[] = [];
+
+    for (let i = 0; i < keyDerivations.length; i++) {
+      const keyDerivation = keyDerivations[i]!;
+      const cached = this.publicKeyCache.get(
+        keyDerivationCacheKey(keyDerivation),
+      );
+      if (cached) {
+        output[i] = cloneBytes(await cached);
+      } else {
+        missingIndexes.push(i);
+        missingDerivations.push(keyDerivation);
+      }
+    }
+
+    if (missingDerivations.length === 0) {
+      return output;
+    }
+
+    const batchPromise = this.fetchPublicKeysFromDerivations(missingDerivations);
+    const perKeyPromises = missingDerivations.map((_, i) =>
+      batchPromise.then((keys) => keys[i]!),
+    );
+
+    missingDerivations.forEach((keyDerivation, i) => {
+      this.publicKeyCache.set(
+        keyDerivationCacheKey(keyDerivation),
+        perKeyPromises[i]!,
+      );
     });
 
-    const pk = result.publicKeys?.[0]?.publicKey;
-    if (!pk) {
-      throw new Error("SPARK_KEY_OPERATION returned no public key");
+    try {
+      const missingKeys = await batchPromise;
+      missingIndexes.forEach((originalIndex, i) => {
+        output[originalIndex] = cloneBytes(missingKeys[i]!);
+      });
+      return output;
+    } catch (err) {
+      missingDerivations.forEach((keyDerivation) => {
+        this.publicKeyCache.delete(keyDerivationCacheKey(keyDerivation));
+      });
+      throw err;
     }
-    return fromHex(pk);
+  }
+
+  private async fetchPublicKeyFromDerivation(
+    keyDerivation: KeyDerivation,
+  ): Promise<Uint8Array> {
+    const publicKeys = await this.fetchPublicKeysFromDerivations([
+      keyDerivation,
+    ]);
+    return publicKeys[0]!;
+  }
+
+  private async fetchPublicKeysFromDerivations(
+    keyDerivations: KeyDerivation[],
+  ): Promise<Uint8Array[]> {
+    const result = await this.callSparkKeyOperation({
+      signWith: this.sparkAddress,
+      derivePublicKeys: keyDerivations.map((keyDerivation) => ({
+        derivation: mapKeyDerivation(keyDerivation),
+      })),
+    });
+
+    if (!result.publicKeys || result.publicKeys.length !== keyDerivations.length) {
+      throw new Error(
+        `SPARK_KEY_OPERATION returned ${result.publicKeys?.length ?? 0} public keys; expected ${keyDerivations.length}`,
+      );
+    }
+
+    return result.publicKeys.map((entry, i) => {
+      if (!entry.publicKey) {
+        throw new Error(`SPARK_KEY_OPERATION returned no public key at index ${i}`);
+      }
+      return fromHex(entry.publicKey);
+    });
   }
 
   async getDepositSigningKey(): Promise<Uint8Array> {
