@@ -50,7 +50,6 @@
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@noble/hashes": "^1.8.0",
     "@turnkey/core": "workspace:*",
-    "@turnkey/encoding": "workspace:*",
     "@turnkey/iframe-stamper": "workspace:^",
     "@turnkey/sdk-types": "workspace:*",
     "buffer": "^6.0.3",

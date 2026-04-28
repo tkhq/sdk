@@ -106,7 +106,7 @@ export interface ClientContextType
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @param params.userId - user ID to target (defaults to the session's user ID).
-   * @returns A promise that resolves when the user details are successfully refreshed and state is updated.
+   * @returns A promise that resolves to the refreshed `v1User`, or `undefined` if the user could not be fetched.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error refreshing the user details.
    */
   refreshUser: (params?: RefreshUserParams) => Promise<v1User | undefined>;

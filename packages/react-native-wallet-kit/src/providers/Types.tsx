@@ -171,7 +171,7 @@ export interface ClientContextType
    * - If no user is found, the state will not be updated.
    *
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
-   * @returns A promise that resolves when the user details are successfully refreshed and state is updated.
+   * @returns A promise that resolves to the refreshed `v1User`, or `undefined` if the user could not be fetched.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error refreshing the user details.
    */
   refreshUser: (params?: {

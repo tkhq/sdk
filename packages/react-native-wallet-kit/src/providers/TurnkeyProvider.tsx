@@ -392,18 +392,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
               },
             }
           : {}),
-
       });
 
       await turnkeyClient.init();
       setClient(turnkeyClient);
-      console.log("passkeyConfig:", turnkeyClient.config.passkeyConfig);
-      try {
-        await turnkeyClient.overridePasskeyStamper({ config: { rpId: "test" } });
-        console.log("[Turnkey] passkey stamper IS initialized");
-      } catch (e: any) {
-        console.log("[Turnkey] passkey stamper NOT initialized:", e.message);
-      }
 
       // Don't set clientState to ready until we fetch the proxy auth config (See other fetchProxyAuthConfig useEffect)
     } catch (error) {

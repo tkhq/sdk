@@ -527,6 +527,13 @@ export class TurnkeyClient {
 
     return await withTurnkeyErrorHandling(
       async () => {
+        if (!this.passkeyStamper) {
+          throw new TurnkeyError(
+            "Passkey stamper is not initialized",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+          );
+        }
+
         const sessionKey = params?.sessionKey || SessionKey.DefaultSessionkey;
 
         const expirationSeconds =
@@ -641,6 +648,13 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
+        if (!this.passkeyStamper) {
+          throw new TurnkeyError(
+            "Passkey stamper is not initialized",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+          );
+        }
+
         const passkeyName = passkeyDisplayName || `passkey-${Date.now()}`;
 
         // A passkey will be created automatically when you call this function. The name is passed in
