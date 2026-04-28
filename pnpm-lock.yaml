@@ -2883,6 +2883,9 @@ importers:
       dotenv:
         specifier: ^16.0.3
         version: 16.6.1
+      light-bolt11-decoder:
+        specifier: ^3.2.0
+        version: 3.2.0
       uuid:
         specifier: ^11.1.0
         version: 11.1.0

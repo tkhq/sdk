@@ -7,11 +7,14 @@
     "setup:e2e": "tsx src/setup-e2e.ts",
     "setup:l1": "tsx src/setup-l1.ts",
     "e2e:regtest": "tsx src/e2e-regtest.ts",
+    "e2e:lightning-regtest": "tsx src/e2e-lightning-regtest.ts",
     "token-transfer": "tsx src/token-transfer.ts",
-    "deposit": "tsx src/deposit.ts",
+    "deposit": "tsx src/deposit-turnkey.ts",
     "deposit:turnkey": "tsx src/deposit-turnkey.ts",
     "transfer": "tsx src/transfer.ts",
     "claim": "tsx src/claim.ts",
+    "lightning:receive": "tsx src/lightning-receive.ts",
+    "lightning:send": "tsx src/lightning-send.ts",
     "native:setup": "tsx src/native/setup.ts",
     "native:claim": "tsx src/native/claim.ts",
     "withdraw": "tsx src/withdraw.ts",
@@ -27,6 +30,7 @@
     "@scure/btc-signer": "^1.5.0",
     "@turnkey/sdk-server": "workspace:*",
     "dotenv": "^16.0.3",
+    "light-bolt11-decoder": "^3.2.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

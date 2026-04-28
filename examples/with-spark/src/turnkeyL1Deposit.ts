@@ -8,6 +8,10 @@ const REGTEST_NETWORK = { ...btc.TEST_NETWORK, bech32: "bcrt" };
 const DUST_SATS = 546n;
 const DEFAULT_FUNDING_TIMEOUT_MS = 60000;
 const DEFAULT_FUNDING_POLL_MS = 5000;
+const DEFAULT_SPARK_REGTEST_ELECTRS_AUTH = {
+  username: "spark-sdk",
+  password: "mCMk1JqlBNtetUNy",
+};
 
 type BalanceSats = number | bigint | string;
 
@@ -15,6 +19,11 @@ type SparkWalletDepositLike = {
   getSingleUseDepositAddress(): Promise<string>;
   claimDeposit(txid: string): Promise<unknown>;
   getBalance(): Promise<{ satsBalance?: { available?: BalanceSats } }>;
+};
+
+type ElectrsAuth = {
+  username: string;
+  password: string;
 };
 
 export type Utxo = {
@@ -96,11 +105,44 @@ function xOnlyPublicKey(publicKeyHex: string): Uint8Array {
   throw new Error("L1 funding public key must be a compressed or x-only secp256k1 public key");
 }
 
+function electrsAuthForUrl(baseUrl: string): ElectrsAuth | undefined {
+  const username = process.env.SPARK_REGTEST_ELECTRS_USER;
+  const password = process.env.SPARK_REGTEST_ELECTRS_PASSWORD;
+  if (username || password) {
+    if (!username || !password) {
+      throw new Error(
+        "Set both SPARK_REGTEST_ELECTRS_USER and SPARK_REGTEST_ELECTRS_PASSWORD",
+      );
+    }
+    return { username, password };
+  }
+
+  if (baseUrl === DEFAULT_SPARK_REGTEST_ELECTRS_URL) {
+    return DEFAULT_SPARK_REGTEST_ELECTRS_AUTH;
+  }
+
+  return undefined;
+}
+
+function electrsHeaders(baseUrl: string): Headers {
+  const headers = new Headers();
+  const auth = electrsAuthForUrl(baseUrl);
+  if (auth) {
+    headers.set(
+      "Authorization",
+      `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`,
+    );
+  }
+  return headers;
+}
+
 async function fetchElectrsJson<T>(
   baseUrl: string,
   path: string,
 ): Promise<T> {
-  const response = await fetch(`${baseUrl}${path}`);
+  const response = await fetch(`${baseUrl}${path}`, {
+    headers: electrsHeaders(baseUrl),
+  });
   const body = await response.text();
   if (!response.ok) {
     throw new Error(`Electrs ${path} failed (${response.status}): ${body}`);
@@ -113,7 +155,7 @@ async function postElectrsText(
   path: string,
   body: string,
 ): Promise<string> {
-  const headers = new Headers();
+  const headers = electrsHeaders(baseUrl);
   headers.set("Content-Type", "text/plain");
 
   const response = await fetch(`${baseUrl}${path}`, {

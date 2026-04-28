@@ -154,6 +154,7 @@ interface SparkTransfer {
   id: string;
   senderIdentityPublicKey: Uint8Array;
   leaves: TransferLeafData[];
+  status?: string | number;
   [key: string]: unknown;
 }
 
@@ -202,6 +203,46 @@ interface ClaimPackage {
 
 // HashVariant.HASH_VARIANT_V2 = 1
 const HASH_VARIANT_V2 = 1;
+const TRANSFER_STATUS_COMPLETED = 5;
+const ALREADY_EXISTS_ERROR_MAX_DEPTH = 4;
+
+function isAlreadyExistsError(error: unknown): boolean {
+  let current: unknown = error;
+
+  for (let i = 0; i < ALREADY_EXISTS_ERROR_MAX_DEPTH; i++) {
+    if (!current || typeof current !== "object") break;
+    const err = current as {
+      code?: unknown;
+      details?: unknown;
+      message?: unknown;
+      originalError?: unknown;
+    };
+    if (err.code === 6 || err.code === "ALREADY_EXISTS") return true;
+
+    const text = `${err.details ?? ""} ${err.message ?? ""}`;
+    if (text.includes("ALREADY_EXISTS") || text.includes("already completed")) {
+      return true;
+    }
+
+    current = err.originalError;
+  }
+
+  const text = String(error);
+  return text.includes("ALREADY_EXISTS") || text.includes("already completed");
+}
+
+function isCompletedTransfer(transfer: SparkTransfer): boolean {
+  return (
+    transfer.status === TRANSFER_STATUS_COMPLETED ||
+    transfer.status === "TRANSFER_STATUS_COMPLETED"
+  );
+}
+
+function claimedLeavesFromTransfer(transfer: SparkTransfer): WalletLeaf[] {
+  return transfer.leaves
+    .flatMap((l: TransferLeafData) => (l.leaf ? [l.leaf] : []))
+    .map((l: LeafSelection) => l as unknown as WalletLeaf);
+}
 
 /**
  * Claim an inbound Spark transfer using Turnkey's enclave for key tweaks.
@@ -352,19 +393,31 @@ export async function turnkeyClaim(
     await signer.signMessageWithIdentityKey(signingPayload),
   );
 
-  const response = await sparkClient.claim_transfer({
-    transferId: transfer.id,
-    ownerIdentityPublicKey: selfIdentityPubkey,
-    claimPackage,
-  });
+  let claimedLeaves: WalletLeaf[];
+  try {
+    const response = await sparkClient.claim_transfer({
+      transferId: transfer.id,
+      ownerIdentityPublicKey: selfIdentityPubkey,
+      claimPackage,
+    });
 
-  if (!response.transfer) {
-    throw new Error("No transfer response from claim_transfer");
+    if (!response.transfer) {
+      throw new Error("No transfer response from claim_transfer");
+    }
+
+    claimedLeaves = claimedLeavesFromTransfer(response.transfer);
+  } catch (error) {
+    if (!isAlreadyExistsError(error)) {
+      throw error;
+    }
+
+    const completedTransfer = await transferService.queryTransfer(transfer.id);
+    if (!completedTransfer || !isCompletedTransfer(completedTransfer)) {
+      throw error;
+    }
+
+    claimedLeaves = claimedLeavesFromTransfer(completedTransfer);
   }
-
-  const claimedLeaves: WalletLeaf[] = response.transfer.leaves
-    .flatMap((l: TransferLeafData) => (l.leaf ? [l.leaf] : []))
-    .map((l: LeafSelection) => l as unknown as WalletLeaf);
 
   if (options.register === false) {
     return claimedLeaves;

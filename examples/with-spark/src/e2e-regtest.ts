@@ -212,7 +212,7 @@ async function main() {
     const withdrawAddress =
       process.env.WITHDRAW_BTC_ADDRESS || requireEnv("RECEIVER_TURNKEY_L1_BTC_ADDRESS");
     const configuredWithdrawSats = optionalNumberEnv("WITHDRAW_AMOUNT_SATS");
-    const withdrawSats = configuredWithdrawSats ?? receiverBalance;
+    const withdrawSats = configuredWithdrawSats ?? transferSats;
     if (withdrawSats <= 0) throw new Error("No receiver balance available to withdraw");
     if (withdrawSats > receiverBalance) {
       throw new Error(

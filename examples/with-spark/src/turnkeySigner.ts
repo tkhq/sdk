@@ -23,6 +23,7 @@
  * Transfer / claim / lightning (via SPARK_PREPARE_AND_SIGN with package_request):
  *   - prepareTransfer()              ← custom method (not part of SparkSigner)
  *   - prepareClaim()                 ← custom method (not part of SparkSigner)
+ *   - prepareLightningReceive()      ← custom method (not part of SparkSigner)
  *
  * Key operations (via SPARK_KEY_OPERATION activity):
  *   - getPublicKeyFromDerivation()   ← derive public key at any SparkKeyType path
@@ -198,6 +199,17 @@ export interface TransferResult {
  * Result from prepareClaim().
  */
 export interface ClaimResult {
+  operatorPackages: Array<{
+    operatorId: string;
+    encryptedPackage: string;
+  }>;
+}
+
+/**
+ * Result from prepareLightningReceive().
+ */
+export interface LightningReceiveResult {
+  paymentHash: string;
   operatorPackages: Array<{
     operatorId: string;
     encryptedPackage: string;
@@ -499,6 +511,44 @@ export class TurnkeySparkSigner implements SparkSigner {
     const result = await this.callPrepareAndSign(intent);
 
     return {
+      operatorPackages: result.operatorPackages ?? [],
+    };
+  }
+
+  /**
+   * Prepare a Lightning receive: generate a preimage inside Turnkey, split it
+   * into encrypted operator packages, and return only the payment hash plus
+   * encrypted packages. The raw preimage/shares never enter client JS.
+   */
+  async prepareLightningReceive(params: {
+    threshold: number;
+    operatorRecipients: OperatorRecipientInput[];
+  }): Promise<LightningReceiveResult> {
+    if (params.threshold < 2) {
+      throw new Error("Lightning receive threshold must be at least 2");
+    }
+
+    const intent: Record<string, unknown> = {
+      signWith: this.sparkAddress,
+      signatures: [],
+      packageRequest: {
+        lightningReceive: {
+          threshold: params.threshold,
+          operatorRecipients: params.operatorRecipients,
+        },
+      },
+    };
+
+    const result = await this.callPrepareAndSign(intent);
+
+    if (!result.paymentHash) {
+      throw new Error(
+        "SPARK_PREPARE_AND_SIGN returned no payment hash for lightning receive",
+      );
+    }
+
+    return {
+      paymentHash: result.paymentHash,
       operatorPackages: result.operatorPackages ?? [],
     };
   }
