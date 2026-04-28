@@ -12,8 +12,7 @@ Demonstrates [Spark](https://spark.money) operations using **Turnkey as the key 
 | `pnpm run setup` | Create one Turnkey Spark wallet | `CREATE_WALLET` |
 | `pnpm run setup:l1` | Create/reuse a Turnkey Bitcoin regtest funding address | `CREATE_WALLET_ACCOUNTS` |
 | `pnpm run token-transfer` | Create, mint, and transfer a Spark token | `SignRawPayload` (ECDSA) |
-| `pnpm run deposit` | Fund a Spark wallet from local bitcoind regtest | `SPARK_PREPARE_AND_SIGN` (FROST) |
-| `pnpm run deposit:turnkey` | Spend a Turnkey bcrt1p faucet UTXO into Spark and claim it | `SIGN_TRANSACTION` + `SPARK_PREPARE_AND_SIGN` |
+| `pnpm run deposit` | Spend a Turnkey bcrt1p faucet UTXO into Spark and claim it | `SIGN_TRANSACTION` + `SPARK_PREPARE_AND_SIGN` |
 | `pnpm run transfer` | Send sats to another Spark address | `SPARK_PREPARE_AND_SIGN` (FROST + key tweaks) |
 | `pnpm run claim` | Receive an inbound Spark transfer | `SPARK_PREPARE_AND_SIGN` (verify + decrypt + key tweaks) |
 | `pnpm run lightning:receive` | Create a Lightning invoice backed by Turnkey-generated Spark preimage shares | `SPARK_PREPARE_AND_SIGN` (`lightning_receive`) |
@@ -78,7 +77,8 @@ https://app.lightspark.com/regtest-faucet
 ```
 
 Spark hosted `REGTEST` uses Lightspark's Bitcoin regtest chain, not public
-Bitcoin testnet or signet.
+Bitcoin testnet or signet. No local Bitcoin node is required; the example uses
+hosted Spark services, hosted Electrs, and the Lightspark faucet.
 
 The script performs the full flow:
 
@@ -160,10 +160,7 @@ LIGHTNING_INVOICE=
 LIGHTNING_MAX_FEE_SATS=1000
 LIGHTNING_AMOUNT_SATS_TO_SEND=        # only for zero-amount BOLT11 invoices
 
-# For deposit (regtest only)
-BITCOIN_RPC_URL=http://127.0.0.1:18443
-BITCOIN_RPC_USER=user
-BITCOIN_RPC_PASS=pass
+# For hosted REGTEST deposit
 L1_DEPOSIT_FEE_SATS=500
 L1_DEPOSIT_AMOUNT_SATS=              # optional; empty sweeps all L1 funding UTXOs minus fee
 L1_DEPOSIT_TXID=                     # optional; retry claiming an already-broadcast deposit tx
@@ -185,7 +182,8 @@ WITHDRAW_AMOUNT_SATS=25000
 # Token operations (no Bitcoin needed)
 pnpm run token-transfer
 
-# Bitcoin L2 operations (requires regtest for deposit)
+# Bitcoin / Spark operations on hosted REGTEST
+pnpm run setup:l1
 pnpm run deposit
 pnpm run transfer
 pnpm run claim
@@ -342,18 +340,17 @@ For Spark's hosted `REGTEST`, use Lightspark's regtest faucet with the
 pnpm run setup:l1
 # Add TURNKEY_L1_BTC_ADDRESS and TURNKEY_L1_BTC_PUBLIC_KEY_HEX to .env.local.
 # Send faucet funds to TURNKEY_L1_BTC_ADDRESS at https://app.lightspark.com/regtest-faucet
-pnpm run deposit:turnkey
+pnpm run deposit
 ```
 
-`deposit:turnkey` creates a Spark single-use L1 deposit address, spends the
+`deposit` creates a Spark single-use L1 deposit address, spends the
 Turnkey-controlled faucet UTXO into that address with `SIGN_TRANSACTION`, then
 waits for the transaction to confirm and calls `wallet.claimDeposit(txid)`. If
 there is no funding UTXO yet, it prints the Turnkey Bitcoin address and polls
 until you fund it from the faucet. If `L1_DEPOSIT_AMOUNT_SATS` is unset, it
 deposits all available funding UTXOs minus `L1_DEPOSIT_FEE_SATS`. To retry
 after a timeout, set `L1_DEPOSIT_TXID` to the broadcast transaction ID and rerun
-`pnpm run deposit:turnkey`; the script will skip the L1 spend and only
-wait/claim.
+`pnpm run deposit`; the script will skip the L1 spend and only wait/claim.
 
 The hosted REGTEST Electrs endpoint requires basic auth. The example uses the
 same default hosted REGTEST credentials as the Spark SDK and does not print them.

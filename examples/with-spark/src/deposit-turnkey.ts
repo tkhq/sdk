@@ -36,7 +36,7 @@ function optionalBigIntEnv(name: string): bigint | undefined {
 async function main() {
   const network = env("SPARK_NETWORK", "REGTEST");
   if (network !== "REGTEST") {
-    throw new Error("deposit:turnkey currently supports SPARK_NETWORK=REGTEST only");
+    throw new Error("This deposit flow only supports SPARK_NETWORK=REGTEST");
   }
 
   const { wallet } = await initSparkWallet();
