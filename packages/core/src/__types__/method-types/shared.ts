@@ -457,8 +457,6 @@ export type SetActiveSessionParams = { sessionKey: string };
 
 export type CreateApiKeyPairParams = {
   externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string };
-  // TODO: (breaking change): remove this, we should only use `overrideApiKeyStamper()`
-  storeOverride?: boolean;
 };
 
 export type DeleteApiKeyPairParams = {

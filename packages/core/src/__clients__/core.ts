@@ -183,7 +183,7 @@ export class TurnkeyClient {
   httpClient!: TurnkeySDKClientBase;
 
   private apiKeyStamper?: CrossPlatformApiKeyStamper | undefined;
-  private passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
+  passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
   private walletManager?: WalletManagerBase | undefined;
   private storageManager!: StorageBase;
 
@@ -5175,12 +5175,10 @@ export class TurnkeyClient {
    *
    * - This function generates a new API key pair and stores it in the underlying key store.
    * - If an external key pair is provided, it will use that key pair for creation instead of generating a new one.
-   * - If `storeOverride` is set to true, the generated or provided public key will be set as the override key in the API key stamper, making it the active key for subsequent signing operations.
    * - Ensures the API key stamper is initialized before proceeding.
    * - Handles both native CryptoKeyPair objects and raw key material.
    *
    * @param params.externalKeyPair - An externally generated key pair (either a CryptoKeyPair or an object with publicKey/privateKey strings) to use instead of generating a new one.
-   * @param params.storeOverride - If true, sets the generated or provided public key as the override key in the API key stamper (defaults to false).
    * @return A promise that resolves to the public key of the created or provided API key pair as a string.
    * @throws {TurnkeyError} If the API key stamper is not initialized or if there is an error during key pair creation or storage.
    */
@@ -5190,7 +5188,6 @@ export class TurnkeyClient {
     return withTurnkeyErrorHandling(
       async () => {
         const externalKeyPair = params?.externalKeyPair;
-        const storeOverride = params?.storeOverride ?? false;
 
         if (!this.apiKeyStamper) {
           throw new TurnkeyError(
@@ -5202,7 +5199,7 @@ export class TurnkeyClient {
           externalKeyPair ? externalKeyPair : undefined,
         );
 
-        if (storeOverride && publicKey) {
+        if (publicKey) {
           await this.overrideApiKeyStamper({ temporaryPublicKey: publicKey });
         }
 

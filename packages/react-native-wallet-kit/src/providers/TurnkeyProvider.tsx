@@ -609,8 +609,30 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           return;
         }
         setSession(allLocalStorageSessions[activeSessionKey]);
-        await maybeRefreshUser();
+        const user = await maybeRefreshUser();
         await maybeRefreshWallets();
+
+        if (user && client?.passkeyStamper) {
+          const allowCredentials: PublicKeyCredentialDescriptor[] =
+            user.authenticators.map((a) => {
+              const b64 = base64UrlToBase64(a.credentialId);
+              const binary = atob(b64);
+              const id = Uint8Array.from(binary, (c: string) =>
+                c.charCodeAt(0),
+              );
+              return {
+                id,
+                type: "public-key",
+                transports: a.transports
+                  .map((t) => AUTHENTICATOR_TRANSPORT_MAP[t])
+                  .filter(Boolean) as AuthenticatorTransport[],
+              };
+            });
+          await client.overridePasskeyStamper({
+            config: { ...client.config.passkeyConfig, allowCredentials },
+          });
+        }
+
         return;
       }
     } catch (error) {
@@ -669,7 +691,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       await maybeRefreshWallets();
       const user = await maybeRefreshUser();
 
-      if (user && client?.config?.passkeyConfig) {
+      if (user && client?.passkeyStamper) {
         const allowCredentials: PublicKeyCredentialDescriptor[] =
           user.authenticators.map((a) => {
             const b64 = base64UrlToBase64(a.credentialId);

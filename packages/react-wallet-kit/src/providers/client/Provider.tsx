@@ -996,7 +996,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         // specifically, if WalletConnect finishes initializing before this promise resolves,
         // `maybeRefreshWallets()` could overwrite the WalletConnect wallet state with an outdated
         // list of wallets that doesn’t yet include the WalletConnect wallets
-        const [, wallets] = await Promise.all([
+        const [user, wallets] = await Promise.all([
           maybeRefreshUser(),
           (() => {
             if (!masterConfig?.autoRefreshManagedState) return [];
@@ -1007,6 +1007,27 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         // the prev wallets should only ever be WalletConnect wallets
         if (wallets) {
           setWallets((prev) => mergeWalletsWithoutDuplicates(prev, wallets));
+        }
+
+        if (user && client?.passkeyStamper) {
+          const allowCredentials: PublicKeyCredentialDescriptor[] =
+            user.authenticators.map((a) => {
+              const b64 = base64UrlToBase64(a.credentialId);
+              const binary = atob(b64);
+              const id = Uint8Array.from(binary, (c: string) =>
+                c.charCodeAt(0),
+              );
+              return {
+                id,
+                type: "public-key",
+                transports: a.transports
+                  .map((t) => AUTHENTICATOR_TRANSPORT_MAP[t])
+                  .filter(Boolean) as AuthenticatorTransport[],
+              };
+            });
+          await client.overridePasskeyStamper({
+            config: { ...client.config.passkeyConfig, allowCredentials },
+          });
         }
 
         return;
@@ -1293,7 +1314,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         maybeRefreshUser(),
       ]);
 
-      if (user && client?.config?.passkeyConfig) {
+      if (user && client?.passkeyStamper) {
         const allowCredentials: PublicKeyCredentialDescriptor[] =
           user.authenticators.map((a) => {
             const b64 = base64UrlToBase64(a.credentialId);
