@@ -2,8 +2,9 @@
  * Deposit: Turnkey Bitcoin regtest funding account -> Spark
  *
  * Spends UTXOs from a Turnkey-controlled bcrt1p... address into Spark's
- * single-use deposit address, broadcasts through Spark's hosted regtest
- * Electrs endpoint, and claims the deposit into the Turnkey Spark wallet.
+ * single-use deposit address. The Spark deposit tree/refunds are prepared
+ * before Turnkey signs and broadcasts the L1 transaction through Spark's hosted
+ * regtest Electrs endpoint.
  *
  * Required env vars:
  *   API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID

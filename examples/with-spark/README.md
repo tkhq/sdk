@@ -373,14 +373,16 @@ pnpm run setup:l1
 pnpm run deposit
 ```
 
-`deposit` creates a Spark single-use L1 deposit address, spends the
-Turnkey-controlled faucet UTXO into that address with `SIGN_TRANSACTION`, then
-waits for the transaction to confirm and calls `wallet.claimDeposit(txid)`. If
+`deposit` creates a Spark single-use L1 deposit address, constructs the unsigned
+Bitcoin deposit transaction, calls Spark's `advancedDeposit(unsignedTxHex)` to
+prepare the deposit tree/refunds before broadcast, then asks Turnkey to sign and
+broadcasts through the hosted REGTEST Electrs endpoint. If
 there is no funding UTXO yet, it prints the Turnkey Bitcoin address and polls
 until you fund it from the faucet. If `L1_DEPOSIT_AMOUNT_SATS` is unset, it
 deposits all available funding UTXOs minus `L1_DEPOSIT_FEE_SATS`. To retry
 after a timeout, set `L1_DEPOSIT_TXID` to the broadcast transaction ID and rerun
-`pnpm run deposit`; the script will skip the L1 spend and only wait/claim.
+`pnpm run deposit`; the script will skip the L1 spend and use
+`wallet.claimDeposit(txid)` because the transaction has already been broadcast.
 
 The hosted REGTEST Electrs endpoint requires basic auth. The example uses the
 same default hosted REGTEST credentials as the Spark SDK and does not print them.

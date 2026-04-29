@@ -17,6 +17,7 @@ type BalanceSats = number | bigint | string;
 
 type SparkWalletDepositLike = {
   getSingleUseDepositAddress(): Promise<string>;
+  advancedDeposit(txHex: string): Promise<unknown>;
   claimDeposit(txid: string): Promise<unknown>;
   getBalance(): Promise<{ satsBalance?: { available?: BalanceSats } }>;
 };
@@ -94,6 +95,11 @@ function hexToBytes(hex: string): Uint8Array {
 
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function balanceSatsToBigInt(value: BalanceSats | undefined): bigint {
+  if (value === undefined) return 0n;
+  return BigInt(value);
 }
 
 function xOnlyPublicKey(publicKeyHex: string): Uint8Array {
@@ -310,6 +316,40 @@ async function claimDeposit(wallet: SparkWalletDepositLike, txid: string) {
   }
 }
 
+async function waitForSparkAvailableBalance(params: {
+  wallet: SparkWalletDepositLike;
+  minBalanceSats: bigint;
+  timeoutMs?: number | undefined;
+  pollMs?: number | undefined;
+  log?: ((message: string) => void) | undefined;
+}): Promise<BalanceSats> {
+  const timeoutMs = params.timeoutMs ?? 300000;
+  const pollMs = params.pollMs ?? 5000;
+  const deadline = Date.now() + timeoutMs;
+  let lastAvailable: BalanceSats = 0;
+
+  while (true) {
+    const balance = await params.wallet.getBalance();
+    lastAvailable = balance.satsBalance?.available ?? 0;
+    if (balanceSatsToBigInt(lastAvailable) >= params.minBalanceSats) {
+      return lastAvailable;
+    }
+
+    if (Date.now() >= deadline) {
+      throw new Error(
+        `Timed out waiting for Spark balance to reach ${params.minBalanceSats} sats. ` +
+          `Last available balance: ${lastAvailable} sats.`,
+      );
+    }
+
+    params.log?.(
+      `Waiting for Spark deposit availability. ` +
+        `Need ${params.minBalanceSats} sats, currently ${lastAvailable} sats...`,
+    );
+    await sleep(pollMs);
+  }
+}
+
 export async function depositTurnkeyL1ToSpark(
   options: TurnkeyL1DepositOptions,
 ): Promise<TurnkeyL1DepositResult> {
@@ -387,6 +427,14 @@ export async function depositTurnkeyL1ToSpark(
   if (changeSats > 0n && changeSats < DUST_SATS) {
     log(`Adding ${changeSats} sats below dust threshold to miner fee`);
   }
+
+  const balanceBefore = await options.wallet.getBalance();
+  const minBalanceSats =
+    balanceSatsToBigInt(balanceBefore.satsBalance?.available) + depositSats;
+
+  log("Preparing Spark deposit tree and refund transactions before L1 broadcast");
+  await options.wallet.advancedDeposit(tx.hex);
+
   log(`Signing L1 deposit transaction: ${depositSats} sats to Spark, ${actualFeeSats} sats fee`);
 
   const signed = await options.turnkeyClient.apiClient().signTransaction({
@@ -416,14 +464,19 @@ export async function depositTurnkeyL1ToSpark(
     log,
   });
 
-  await claimDeposit(options.wallet, txid);
-  const balance = await options.wallet.getBalance();
+  const availableBalance = await waitForSparkAvailableBalance({
+    wallet: options.wallet,
+    minBalanceSats,
+    timeoutMs: options.confirmationTimeoutMs,
+    pollMs: options.confirmationPollMs,
+    log,
+  });
   return {
     txid,
     depositAddress,
     depositSats,
     feeSats: actualFeeSats,
     status,
-    balanceSats: balance.satsBalance?.available ?? 0,
+    balanceSats: availableBalance,
   };
 }
