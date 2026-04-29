@@ -365,6 +365,11 @@ export async function depositTurnkeyL1ToSpark(
   }
 
   if (options.existingTxid) {
+    // Retry path for an already-broadcast L1 tx. The pre-broadcast advancedDeposit
+    // window is closed: the refund tree must be signed via claimDeposit post-confirm,
+    // which trusts operators not to refuse. This is asymmetric with the happy path
+    // below — and intentional, because there's no way to recover the pre-broadcast
+    // invariant once the deposit is on-chain.
     log(`Using existing L1 deposit txid: ${options.existingTxid}`);
     const status = await waitForConfirmation({
       txid: options.existingTxid,
@@ -447,6 +452,19 @@ export async function depositTurnkeyL1ToSpark(
     allowUnknownOutputs: true,
   });
   signedTx.finalize();
+
+  // Surface the signed tx before broadcast. advancedDeposit has already consumed
+  // the deposit address upstream, so a broadcast failure here strands the leaf
+  // tree until this exact hex reaches the network. Logging the hex + txid lets
+  // the user recover by rebroadcasting via any Bitcoin node, then re-running
+  // with L1_DEPOSIT_TXID to pick up from the confirmation step.
+  const signedTxid = signedTx.id;
+  log(
+    `Signed L1 deposit ready (txid ${signedTxid}). If broadcast fails, ` +
+      `rebroadcast the hex below via any Bitcoin node and rerun with ` +
+      `L1_DEPOSIT_TXID=${signedTxid}:`,
+  );
+  log(signedTx.hex);
 
   const txid = await postElectrsText(
     electrsUrl,
