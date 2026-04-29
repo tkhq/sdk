@@ -67,6 +67,6 @@ export const TURNKEY_CALLBACKS: TurnkeyCallbacks = {
     console.log("[Turnkey] Auth success:", { action, method, identifier });
   },
   onError: (error) => {
-    console.error("[Turnkey] Error:", error);
+    console.error("[Turnkey] Error:", JSON.stringify(error));
   },
 };

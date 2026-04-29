@@ -61,12 +61,24 @@ export class ReactNativeKeychainStamper implements ApiKeyStamperBase {
   }
 
   async deleteKeyPair(publicKeyHex: string): Promise<void> {
-    // we check if the key exists under the prefixed service name
-    // - if it exists, we delete that
-    // - otherwise, we assume it's a legacy (unprefixed) key and try to delete that
-    const hasPrefixed = await Keychain.getGenericPassword({
-      service: this.serviceName(publicKeyHex),
-    });
+    // We check if the key exists under the prefixed service name so we know which
+    // service name to pass to resetGenericPassword. A missing key returns `false`.
+    // On Anrdoid, an unreadable key throws E_CRYPTO_FAILED
+    // In that case the entry still exists in SharedPreferences, so we still delete it.
+    let hasPrefixed: boolean;
+    try {
+      const result = await Keychain.getGenericPassword({
+        service: this.serviceName(publicKeyHex),
+      });
+      hasPrefixed = result !== false;
+    } catch (e: any) {
+      if (e?.code === "E_CRYPTO_FAILED") {
+        hasPrefixed = true;
+      } else {
+        throw e;
+      }
+    }
+
     await Keychain.resetGenericPassword({
       service: hasPrefixed ? this.serviceName(publicKeyHex) : publicKeyHex,
     });
