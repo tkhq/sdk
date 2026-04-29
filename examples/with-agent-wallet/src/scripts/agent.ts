@@ -67,13 +67,14 @@ async function main() {
     !scenario ||
     !walletAddress ||
     !organizationId ||
-    !["allowed", "approval", "denied"].includes(scenario)
+    !["allowed", "approval", "denied", "self-delete"].includes(scenario)
   ) {
     console.error(
-      "Usage: pnpm agent <allowed|approval|denied> <walletAddress> <organizationId>\n\n" +
+      "Usage: pnpm agent <allowed|approval|denied|self-delete> <walletAddress> <organizationId>\n\n" +
         "  allowed      — tx to ALLOWED_RECIPIENT, passes policy A immediately\n" +
         "  approval     — tx to APPROVAL_RECIPIENT, needs user approval (policy B)\n" +
-        "  denied       — tx to unknown address, rejected by default-deny\n\n" +
+        "  denied       — tx to unknown address, rejected by default-deny\n" +
+        "  self-delete  — agent deletes itself (policy C)\n\n" +
         "Example:\n" +
         "  pnpm agent allowed 0xAbc... f5a6b7c8-...",
     );
@@ -82,17 +83,8 @@ async function main() {
 
   const apiPublicKey = requiredEnv("NEXT_PUBLIC_AGENT_API_PUBLIC_KEY");
   const apiPrivateKey = requiredEnv("AGENT_API_PRIVATE_KEY");
-  const allowedRecipient = requiredEnv("NEXT_PUBLIC_ALLOWED_RECIPIENT");
-  const approvalRecipient = requiredEnv("NEXT_PUBLIC_APPROVAL_RECIPIENT");
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL?.trim() || "https://api.turnkey.com";
-
-  const toAddress =
-    scenario === "allowed"
-      ? allowedRecipient
-      : scenario === "approval"
-        ? approvalRecipient
-        : DENIED_RECIPIENT;
 
   const agentClient = new TurnkeyServerSDK({
     apiBaseUrl: baseUrl,
@@ -100,6 +92,61 @@ async function main() {
     apiPrivateKey,
     defaultOrganizationId: organizationId,
   });
+
+  // --- Self-delete scenario ---
+  if (scenario === "self-delete") {
+    const whoami = await agentClient.apiClient().getWhoami({ organizationId });
+    const agentUserId = whoami.userId;
+
+    console.log(
+      [
+        "Deleting agent user (self-remediation)…",
+        `  Agent user ID : ${agentUserId}`,
+      ].join("\n"),
+    );
+
+    let deleteRes;
+    try {
+      deleteRes = await agentClient.apiClient().deleteUsers({
+        organizationId,
+        userIds: [agentUserId],
+      });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error(`Self-delete rejected:\n  ${msg}`);
+      process.exit(0);
+    }
+
+    const deleteStatus = deleteRes.activity?.status ?? "unknown";
+    if (deleteStatus === "ACTIVITY_STATUS_COMPLETED") {
+      console.log(
+        [
+          "Agent user deleted.",
+          `  Activity ID   : ${deleteRes.activity?.id}`,
+          `  Deleted users : ${deleteRes.userIds?.join(", ")}`,
+        ].join("\n"),
+      );
+    } else {
+      console.log(
+        [
+          `Unexpected activity status: ${deleteStatus}`,
+          `  Activity ID : ${deleteRes.activity?.id}`,
+        ].join("\n"),
+      );
+    }
+    return;
+  }
+
+  // --- Transaction scenarios ---
+  const allowedRecipient = requiredEnv("NEXT_PUBLIC_ALLOWED_RECIPIENT");
+  const approvalRecipient = requiredEnv("NEXT_PUBLIC_APPROVAL_RECIPIENT");
+
+  const toAddress =
+    scenario === "allowed"
+      ? allowedRecipient
+      : scenario === "approval"
+        ? approvalRecipient
+        : DENIED_RECIPIENT;
 
   console.log(
     [

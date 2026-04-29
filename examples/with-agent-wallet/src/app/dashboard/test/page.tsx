@@ -240,11 +240,16 @@ export default function TestPage() {
               </code>{" "}
               and the activity sits in{" "}
               <code className="font-mono">CONSENSUS_NEEDED</code> until you
-              click Approve below (Policy B, 2-of-2 consensus).
+              click Approve below (Policy B, agent + human required).
             </li>
             <li>
               <span className="font-medium text-red-700">Denied</span> — any
               other destination is rejected outright (no matching ALLOW policy).
+            </li>
+            <li>
+              <span className="font-medium text-gray-700">Self-delete</span> —
+              agent deletes its own user (Policy C). Run after testing to clean
+              up, or to simulate key compromise self-remediation.
             </li>
           </ul>
           {walletAddress && (
@@ -298,6 +303,14 @@ export default function TestPage() {
                 </div>
                 <CopyBlock
                   value={`pnpm agent denied ${walletAddress} ${orgId}`}
+                />
+              </div>
+              <div>
+                <div className="mb-1 text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                  Self-delete — agent removes itself (policy C)
+                </div>
+                <CopyBlock
+                  value={`pnpm agent self-delete ${walletAddress} ${orgId}`}
                 />
               </div>
             </div>

@@ -2,12 +2,12 @@
 
 Demonstrates an AI agent wallet with **policy-gated signing**. A non-root agent user is created inside the user's sub-org and given a P-256 API key. Three policies control what the agent can do:
 
-| Scenario    | Destination / Action | Policy                         | Outcome                                                     |
-| ----------- | -------------------- | ------------------------------ | ----------------------------------------------------------- |
-| `allowed`   | `ALLOWED_RECIPIENT`  | Agent alone (1-of-1 consensus) | Completes immediately                                       |
-| `approval`  | `APPROVAL_RECIPIENT` | Agent + human (explicit IDs)   | Sits in `CONSENSUS_NEEDED` until you approve in the browser |
-| `denied`    | Any other address    | No matching ALLOW policy       | Rejected outright                                           |
-| self-delete | Delete own user      | Agent alone (1-of-1 consensus) | Agent can remove itself if compromised                      |
+| Scenario      | Destination / Action | Policy                         | Outcome                                                     |
+| ------------- | -------------------- | ------------------------------ | ----------------------------------------------------------- |
+| `allowed`     | `ALLOWED_RECIPIENT`  | Agent alone (1-of-1 consensus) | Completes immediately                                       |
+| `approval`    | `APPROVAL_RECIPIENT` | Agent + human (explicit IDs)   | Sits in `CONSENSUS_NEEDED` until you approve in the browser |
+| `denied`      | Any other address    | No matching ALLOW policy       | Rejected outright                                           |
+| `self-delete` | Delete own user      | Agent alone (1-of-1 consensus) | Agent can remove itself if compromised                      |
 
 The dashboard listens for webhook events via **SSE** and shows an **Approve** button for pending activities.
 
@@ -137,6 +137,7 @@ Open [http://localhost:3000](http://localhost:3000).
    - **Allowed**: `pnpm agent allowed <address> <orgId>` — agent signs to `ALLOWED_RECIPIENT`, activity completes immediately.
    - **Approval**: `pnpm agent approval <address> <orgId>` — agent signs to `APPROVAL_RECIPIENT`, activity lands in `CONSENSUS_NEEDED`. An **Approve** button appears in the event log — click it to submit vote 2 with your session key.
    - **Denied**: `pnpm agent denied <address> <orgId>` — agent tries to sign to an unknown address, rejected by default-deny.
+   - **Self-delete**: `pnpm agent self-delete <address> <orgId>` — agent calls `deleteUsers` on its own user ID (Policy C). Run after testing or to simulate key-compromise self-remediation.
 
 All three scenarios deliver webhook events that appear in the live SSE activity log.
 
