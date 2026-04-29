@@ -1,6 +1,8 @@
 # with-agent-wallet
 
-Demonstrates an AI agent wallet with **policy-gated signing**. A non-root agent user is created inside the user's sub-org and given a P-256 API key. Three policies control what the agent can do:
+This example demonstrates the **agentic wallets** pattern for [Turnkey embedded wallets](https://docs.turnkey.com/products/embedded-wallets/features/agentic-wallets): each user owns a sub-org with an embedded Ethereum wallet, and an AI agent is granted scoped signing rights over that wallet via policy. The agent signs transactions autonomously within its policy bounds — no root key exposure, no shared custody.
+
+The core mechanic is **policy-gated signing**. A non-root agent user is created inside the user's sub-org and given a P-256 API key. Three policies control what the agent can do:
 
 | Scenario      | Destination / Action | Policy                         | Outcome                                                     |
 | ------------- | -------------------- | ------------------------------ | ----------------------------------------------------------- |
