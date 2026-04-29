@@ -375,26 +375,20 @@ export async function storeOAuthState(state: string): Promise<void> {
  *
  */
 export async function consumeOAuthState(returnedState: string): Promise<void> {
-  const stored = await AsyncStorage.getItem("oauth_state");
-  if (!stored) {
-    throw new Error(`Missing stored OAuth state for validation.`);
+  try {
+    const stored = await AsyncStorage.getItem("oauth_state");
+    if (!stored) {
+      throw new Error(`Missing stored OAuth state for validation.`);
+    }
+
+    if (!returnedState || stored !== returnedState) {
+      throw new Error(
+        `Invalid OAuth state returned from provider. Expected "${stored}", got "${returnedState}".`,
+      );
+    }
+  } finally {
+    await AsyncStorage.removeItem("oauth_state");
   }
-
-  if (!returnedState || stored !== returnedState) {
-    throw new Error(
-      `Invalid OAuth state returned from provider. Expected "${stored}", got "${returnedState}".`,
-    );
-  }
-
-  await AsyncStorage.removeItem("oauth_state");
-}
-
-/**
- * Checks if a stored OAuth state exists
- * @returns true if OAuth state exists
- */
-export async function hasOAuthState(): Promise<boolean> {
-  return (await AsyncStorage.getItem("oauth_state")) !== null;
 }
 
 // ============================================================================
@@ -526,10 +520,12 @@ export async function parseInAppBrowserResult(
   const authCode = urlParams.get("code");
   const stateParam = urlParams.get("state");
 
-  // Validate state parameter
-  if (await hasOAuthState()) {
-    await consumeOAuthState(stateParam ?? "");
+  if (!stateParam) {
+    throw new Error(`Missing OAuth state in redirect response.`);
   }
+
+  // Validate state parameter
+  await consumeOAuthState(stateParam);
 
   // Parse state parameter
   const stateData = parseStateParam(stateParam);

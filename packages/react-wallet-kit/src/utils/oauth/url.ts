@@ -1,6 +1,10 @@
-import { OAuthProviders } from "@turnkey/sdk-types";
+import {
+  OAuthProviders,
+  TurnkeyError,
+  TurnkeyErrorCodes,
+} from "@turnkey/sdk-types";
 import { OAUTH_PROVIDER_CONFIGS, popupWidth, popupHeight } from "./config";
-import { storeOAuthState, consumeOAuthState, hasOAuthState } from "./storage";
+import { storeOAuthState, consumeOAuthState } from "./storage";
 
 /**
  * Builds the OAuth state parameter string
@@ -180,10 +184,15 @@ export function parseOAuthResponse(
     }
   }
 
-  // Validate state if we have a stored state to compare against
-  if (stateString && hasOAuthState()) {
-    consumeOAuthState(stateString);
+  if (!stateString) {
+    throw new TurnkeyError(
+      "Missing OAuth state in redirect response",
+      TurnkeyErrorCodes.INVALID_OAUTH_STATE,
+    );
   }
+
+  // Validate state parameter
+  consumeOAuthState(stateString);
 
   // Parse state parameters
   const {

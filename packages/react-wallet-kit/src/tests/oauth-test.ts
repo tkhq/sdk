@@ -1,14 +1,44 @@
-import { describe, expect, it } from "@jest/globals";
-import { OAuthProviders } from "@turnkey/sdk-types";
+import { beforeEach, describe, expect, it } from "@jest/globals";
+import { OAuthProviders, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import {
+  OAUTH_STATE_KEY,
   buildOAuthState,
   buildOAuthUrl,
+  consumeOAuthState,
   parseStateParam,
   parseOAuthResponse,
 } from "../utils/oauth";
+
+function setStoredOAuthState(state: string) {
+  localStorage.setItem(OAUTH_STATE_KEY, state);
+}
+
+beforeEach(() => {
+  let store: Record<string, string> = {};
+
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
+      getItem: (key: string) => store[key] ?? null,
+      setItem: (key: string, value: string) => {
+        store[key] = value;
+      },
+      removeItem: (key: string) => {
+        delete store[key];
+      },
+      clear: () => {
+        store = {};
+      },
+    },
+  });
+});
+
 describe("parseOAuthRedirect", () => {
   describe("Apple redirects", () => {
     it("parses an Apple hash with unencoded state and id_token at the end", () => {
+      const storedState =
+        "provider=apple&flow=redirect&publicKey=pk_abc123&openModal=true&sessionKey=sess_1";
+      setStoredOAuthState(storedState);
       const url =
         "https://example.com/callback#state=provider=apple&flow=redirect&publicKey=pk_abc123&openModal=true&sessionKey=sess_1&code=xyz&id_token=apple.id.token";
       const out = parseOAuthResponse(url);
@@ -26,45 +56,40 @@ describe("parseOAuthRedirect", () => {
       });
     });
 
-    it("returns nulls for state fields when &code= is missing, but still extracts id_token if last", () => {
+    it("throws when Apple redirect response is missing a parseable state", () => {
       const url =
         "https://example.com/callback#state=provider=apple&id_token=final.apple.token";
-      const out = parseOAuthResponse(url);
-
-      expect(out).toEqual({
-        idToken: "final.apple.token",
-        authCode: null,
-        provider: null,
-        flow: null,
-        publicKey: null,
-        openModal: null,
-        sessionKey: undefined,
-        oauthIntent: null,
-        nonce: null,
-      });
+      expect(() => parseOAuthResponse(url)).toThrow(
+        expect.objectContaining({
+          code: TurnkeyErrorCodes.INVALID_OAUTH_STATE,
+          message: "Missing OAuth state in redirect response",
+        }),
+      );
     });
 
-    it("returns null idToken if id_token is not the last parameter", () => {
+    it("throws if Apple state is malformed because id_token appears before code", () => {
       // Implementation’s regex requires id_token at the end ($).
+      const storedState =
+        "provider=apple&flow=redirect&publicKey=pk&openModal=true&sessionKey=sess";
+      setStoredOAuthState(storedState);
       const url =
         "https://example.com/callback#state=provider=apple&flow=redirect&publicKey=pk&openModal=true&sessionKey=sess&id_token=apple123&code=zzz";
-      const out = parseOAuthResponse(url);
-
-      expect(out?.idToken).toBeNull(); // because id_token is not at the end
-      expect(out?.provider).toBe("apple");
-      expect(out?.flow).toBe("redirect");
-      expect(out?.publicKey).toBe("pk");
-      expect(out?.openModal).toBe("true");
-      expect(out?.sessionKey).toBe("sess");
+      expect(() => parseOAuthResponse(url)).toThrow(
+        expect.objectContaining({
+          code: TurnkeyErrorCodes.INVALID_OAUTH_STATE,
+          message: "OAuth state mismatch",
+        }),
+      );
     });
   });
 
   describe("Google redirects", () => {
     it("parses a Google hash with URL-encoded state (recommended / typical)", () => {
       // state value is URL-encoded so URLSearchParams reads it as a single field
-      const state = encodeURIComponent(
-        "provider=google&flow=popup&publicKey=pk_g123&openModal=false&sessionKey=sess_g1",
-      );
+      const rawState =
+        "provider=google&flow=popup&publicKey=pk_g123&openModal=false&sessionKey=sess_g1";
+      setStoredOAuthState(rawState);
+      const state = encodeURIComponent(rawState);
       const url = `https://example.com/callback#id_token=google.id.token&state=${state}`;
       const out = parseOAuthResponse(url);
 
@@ -83,6 +108,7 @@ describe("parseOAuthRedirect", () => {
 
     it("with UNencoded state only captures the first segment as state (current behavior)", () => {
       // URLSearchParams will split on '&', so only 'provider=google' is captured as the state value.
+      setStoredOAuthState("provider=google");
       const url =
         "https://example.com/callback#id_token=tok123&state=provider=google&flow=popup&publicKey=pk&openModal=true&sessionKey=sess";
       const out = parseOAuthResponse(url);
@@ -96,31 +122,26 @@ describe("parseOAuthRedirect", () => {
       expect(out?.sessionKey).toBeUndefined();
     });
 
-    it("returns nulls if neither id_token nor state are present", () => {
+    it("throws if neither id_token nor state are present", () => {
       const url = "https://example.com/callback#access_token=abc123";
-      const out = parseOAuthResponse(url);
-      expect(out).toEqual({
-        idToken: null,
-        authCode: null,
-        provider: null,
-        flow: null,
-        publicKey: null,
-        openModal: null,
-        sessionKey: undefined,
-        oauthIntent: null,
-        nonce: null,
-      });
+      expect(() => parseOAuthResponse(url)).toThrow(
+        expect.objectContaining({
+          code: TurnkeyErrorCodes.INVALID_OAUTH_STATE,
+          message: "Missing OAuth state in redirect response",
+        }),
+      );
     });
   });
 
   describe("Provider detection logic", () => {
     it("uses Apple path only when hash starts with 'state=provider=apple'", () => {
       // Starts with something else: should go down the Google path
+      const rawState =
+        "provider=apple&flow=redirect&publicKey=pk&openModal=true&sessionKey=sess";
+      setStoredOAuthState(rawState);
       const url =
         "https://example.com/callback#id_token=zzz&state=" +
-        encodeURIComponent(
-          "provider=apple&flow=redirect&publicKey=pk&openModal=true&sessionKey=sess",
-        );
+        encodeURIComponent(rawState);
       const out = parseOAuthResponse(url);
 
       // Parsed by Google path (since it didn't start with 'state=provider=apple')
@@ -133,6 +154,9 @@ describe("parseOAuthRedirect", () => {
     });
 
     it("routes to Apple path when prefix matches exactly", () => {
+      const storedState =
+        "provider=apple&flow=redirect&publicKey=pk&openModal=true&sessionKey=sess";
+      setStoredOAuthState(storedState);
       const url =
         "https://example.com/callback#state=provider=apple&flow=redirect&publicKey=pk&openModal=true&sessionKey=sess&code=abc&id_token=tok";
       const out = parseOAuthResponse(url);
@@ -142,6 +166,20 @@ describe("parseOAuthRedirect", () => {
 });
 
 describe("OAuth utils", () => {
+  describe("consumeOAuthState", () => {
+    it("clears stored state even when validation throws", () => {
+      setStoredOAuthState("expected_state");
+
+      expect(() => consumeOAuthState("different_state")).toThrow(
+        expect.objectContaining({
+          code: TurnkeyErrorCodes.INVALID_OAUTH_STATE,
+          message: "OAuth state mismatch",
+        }),
+      );
+      expect(localStorage.getItem(OAUTH_STATE_KEY)).toBeNull();
+    });
+  });
+
   describe("buildOAuthState + parseStateParam", () => {
     it("builds and parses state with additional params", () => {
       const state = buildOAuthState({
@@ -239,9 +277,10 @@ describe("OAuth utils", () => {
 
   describe("parseOAuthResponse (popup flows)", () => {
     it("parses non-PKCE popup hash (Google) with provider validation", () => {
-      const state = encodeURIComponent(
-        "provider=google&flow=popup&publicKey=pk1&sessionKey=sess1",
-      );
+      const rawState =
+        "provider=google&flow=popup&publicKey=pk1&sessionKey=sess1";
+      setStoredOAuthState(rawState);
+      const state = encodeURIComponent(rawState);
       const url = `https://example.com/callback#id_token=tok123&state=${state}`;
 
       const result = parseOAuthResponse(url, OAuthProviders.GOOGLE);
@@ -259,9 +298,10 @@ describe("OAuth utils", () => {
     });
 
     it("parses PKCE popup search params (Discord) with provider validation", () => {
-      const state = encodeURIComponent(
-        "provider=discord&flow=popup&publicKey=pk2&sessionKey=sess2",
-      );
+      const rawState =
+        "provider=discord&flow=popup&publicKey=pk2&sessionKey=sess2";
+      setStoredOAuthState(rawState);
+      const state = encodeURIComponent(rawState);
       const url = "https://example.com/discord?code=code123&state=" + state;
 
       const result = parseOAuthResponse(url, OAuthProviders.DISCORD);

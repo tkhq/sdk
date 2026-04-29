@@ -2820,6 +2820,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       const {
         primaryClientId: paramClientId,
         secondaryClientIds: paramSecondaryClientIds,
+        additionalState: additionalParameters,
       } = params || {};
       const settings = oauthSettings.google;
       const clientId = paramClientId?.webClientId ?? settings.clientId;
@@ -2875,6 +2876,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           redirectUri: finalRedirectUri,
           publicKey,
           nonce,
+          additionalState: additionalParameters,
           useOauthProxyOrigin: true,
         });
 

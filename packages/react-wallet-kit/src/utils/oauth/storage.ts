@@ -104,7 +104,6 @@ export function hasPKCEVerifier(provider: PKCEProvider): boolean {
  * @param state - The OAuth state string to store
  */
 export function storeOAuthState(state: string) {
-  if (typeof localStorage === "undefined") return;
   localStorage.setItem(OAUTH_STATE_KEY, state);
 }
 
@@ -112,33 +111,26 @@ export function storeOAuthState(state: string) {
  * Consumes the OAuth state string from local storage for validation
  * @param returnedState - The OAuth state string returned from the provider
  */
-export function consumeOAuthState(returnedState: string | null) {
-  const stored = localStorage.getItem(OAUTH_STATE_KEY);
+export function consumeOAuthState(returnedState: string) {
+  try {
+    const stored = localStorage.getItem(OAUTH_STATE_KEY);
 
-  if (!stored) {
-    throw new TurnkeyError(
-      "Missing OAuth state in storage",
-      TurnkeyErrorCodes.INVALID_OAUTH_STATE,
-    );
+    if (!stored) {
+      throw new TurnkeyError(
+        "Missing OAuth state in storage",
+        TurnkeyErrorCodes.INVALID_OAUTH_STATE,
+      );
+    }
+
+    if (stored !== returnedState) {
+      throw new TurnkeyError(
+        "OAuth state mismatch",
+        TurnkeyErrorCodes.INVALID_OAUTH_STATE,
+      );
+    }
+  } finally {
+    localStorage.removeItem(OAUTH_STATE_KEY);
   }
-
-  if (!returnedState || stored !== returnedState) {
-    throw new TurnkeyError(
-      "OAuth state mismatch",
-      TurnkeyErrorCodes.INVALID_OAUTH_STATE,
-    );
-  }
-
-  localStorage.removeItem(OAUTH_STATE_KEY);
-}
-
-/**
- * Checks if an OAuth state string exists in local storage
- * @return true if an OAuth state string is stored, false otherwise
- */
-export function hasOAuthState(): boolean {
-  if (typeof localStorage === "undefined") return false;
-  return localStorage.getItem(OAUTH_STATE_KEY) !== null;
 }
 
 /**
