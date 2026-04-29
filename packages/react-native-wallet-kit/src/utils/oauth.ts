@@ -32,22 +32,12 @@ export function buildOAuthState(params: {
   flow: "redirect";
   publicKey: string;
   nonce?: string;
-  additionalState?: Record<string, string> | undefined;
 }): string {
-  const { provider, flow, publicKey, nonce, additionalState } = params;
+  const { provider, flow, publicKey, nonce } = params;
   let state = `provider=${provider}&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
 
   if (nonce) {
     state += `&nonce=${nonce}`;
-  }
-
-  if (additionalState) {
-    const extra = Object.entries(additionalState)
-      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-      .join("&");
-    if (extra) {
-      state += `&${extra}`;
-    }
   }
 
   return state;
@@ -405,7 +395,6 @@ export interface BuildOAuthUrlParams {
   publicKey: string;
   nonce: string;
   codeChallenge?: string | undefined;
-  additionalState?: Record<string, string> | undefined;
   /** If true, uses direct provider URLs; if false, uses Turnkey OAuth proxy */
   useOauthProxyOrigin?: boolean;
 }
@@ -426,7 +415,6 @@ export async function buildOAuthUrl(
     publicKey,
     nonce,
     codeChallenge,
-    additionalState,
     useOauthProxyOrigin = false,
   } = params;
 
@@ -440,9 +428,6 @@ export async function buildOAuthUrl(
   };
   if (!config.nonceInParams && nonce) {
     stateParams.nonce = nonce;
-  }
-  if (additionalState) {
-    stateParams.additionalState = additionalState;
   }
 
   const state = buildOAuthState(stateParams);

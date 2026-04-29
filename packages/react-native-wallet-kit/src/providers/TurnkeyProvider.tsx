@@ -2505,7 +2505,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const handleDiscordOauth = useCallback(
     async (params?: HandleDiscordOauthParams): Promise<void> => {
       const {
-        additionalState: additionalParameters,
         primaryClientId: paramClientId,
         secondaryClientIds: paramSecondaryClientIds,
       } = params || {};
@@ -2565,7 +2564,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           publicKey,
           nonce,
           codeChallenge,
-          additionalState: additionalParameters,
           useOauthProxyOrigin: false,
         });
 
@@ -2662,7 +2660,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const handleXOauth = useCallback(
     async (params?: HandleXOauthParams): Promise<void> => {
       const {
-        additionalState: additionalParameters,
         primaryClientId: paramClientId,
         secondaryClientIds: paramSecondaryClientIds,
       } = params || {};
@@ -2721,7 +2718,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           publicKey,
           nonce,
           codeChallenge,
-          additionalState: additionalParameters,
           useOauthProxyOrigin: false,
         });
 
@@ -2820,7 +2816,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       const {
         primaryClientId: paramClientId,
         secondaryClientIds: paramSecondaryClientIds,
-        additionalState: additionalParameters,
       } = params || {};
       const settings = oauthSettings.google;
       const clientId = paramClientId?.webClientId ?? settings.clientId;
@@ -2876,7 +2871,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           redirectUri: finalRedirectUri,
           publicKey,
           nonce,
-          additionalState: additionalParameters,
           useOauthProxyOrigin: true,
         });
 
@@ -2959,7 +2953,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const handleAppleWebOauth = useCallback(
     async (params?: HandleAppleOauthParams): Promise<void> => {
       const {
-        additionalState: additionalParameters,
         primaryClientId: paramClientId,
         secondaryClientIds: paramSecondaryClientIds,
       } = params || {};
@@ -3017,7 +3010,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           redirectUri: finalRedirectUri,
           publicKey,
           nonce,
-          additionalState: additionalParameters,
           useOauthProxyOrigin: true,
         });
 
@@ -3096,7 +3088,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const handleAppleOauth = useCallback(
     async (params?: HandleAppleOauthParams): Promise<void> => {
       const {
-        additionalState: additionalParameters,
         primaryClientId: paramClientId,
         secondaryClientIds: paramSecondaryClientIds,
       } = params || {};
@@ -3221,9 +3212,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             responseType: appleAuthAndroid.ResponseType.ALL,
             scope: appleAuthAndroid.Scope.ALL,
             nonce: publicKey,
-            ...(additionalParameters && {
-              state: JSON.stringify(additionalParameters),
-            }),
           });
 
           const androidResponse = await appleAuthAndroid.signIn();
@@ -3280,7 +3268,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const handleFacebookOauth = useCallback(
     async (params?: HandleFacebookOauthParams): Promise<void> => {
       const {
-        additionalState: additionalParameters,
         primaryClientId: paramClientId,
         secondaryClientIds: paramSecondaryClientIds,
       } = params || {};
@@ -3343,7 +3330,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           publicKey,
           nonce,
           codeChallenge,
-          additionalState: additionalParameters,
           useOauthProxyOrigin: true,
         });
 

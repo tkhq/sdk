@@ -206,7 +206,6 @@ export interface ClientContextType
    *
    * @param params.primaryClientId - The Discord client ID to use (overrides the value from TurnkeyProviderConfig).
    * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
-   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
@@ -222,7 +221,6 @@ export interface ClientContextType
    *
    * @param params.primaryClientId - The Twitter (X) client ID to use (overrides the value from TurnkeyProviderConfig).
    * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
-   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
@@ -238,7 +236,6 @@ export interface ClientContextType
    *
    * @param params.primaryClientId - The Google client ID to use (overrides the value from TurnkeyProviderConfig).
    * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
-   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
@@ -255,7 +252,6 @@ export interface ClientContextType
    *
    * @param params.primaryClientId - The Apple `serviceId` and `iosBundleId` to use (overrides the values from TurnkeyProviderConfig).
    * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
-   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
@@ -275,7 +271,6 @@ export interface ClientContextType
    *
    * @param params.primaryClientId - The Apple `serviceId` to use (overrides the value from TurnkeyProviderConfig). The `iosBundleId` is ignored.
    * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
-   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
@@ -292,7 +287,6 @@ export interface ClientContextType
    *
    * @param params.primaryClientId - The Facebook client ID to use (overrides the value from TurnkeyProviderConfig).
    * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
-   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.

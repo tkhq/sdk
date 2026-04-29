@@ -20,7 +20,6 @@ export type RefreshWalletsParams = {
 export type HandleDiscordOauthParams = {
   primaryClientId?: string;
   secondaryClientIds?: string[];
-  additionalState?: Record<string, string>;
   onOauthSuccess?: (params: {
     oidcToken: string;
     providerName: string;
@@ -32,7 +31,6 @@ export type HandleDiscordOauthParams = {
 export type HandleXOauthParams = {
   primaryClientId?: string;
   secondaryClientIds?: string[];
-  additionalState?: Record<string, string>;
   onOauthSuccess?: (params: {
     oidcToken: string;
     providerName: string;
@@ -47,7 +45,6 @@ export type HandleGoogleOauthParams = {
     webClientId?: string;
   };
   secondaryClientIds?: string[];
-  additionalState?: Record<string, string>;
   onOauthSuccess?: (params: {
     oidcToken: string;
     providerName: string;
@@ -64,7 +61,6 @@ export type HandleAppleOauthParams = {
     serviceId?: string;
   };
   secondaryClientIds?: string[];
-  additionalState?: Record<string, string>;
   onOauthSuccess?: (params: {
     oidcToken: string;
     providerName: string;
@@ -76,7 +72,6 @@ export type HandleAppleOauthParams = {
 export type HandleFacebookOauthParams = {
   primaryClientId?: string;
   secondaryClientIds?: string[];
-  additionalState?: Record<string, string>;
   onOauthSuccess?: (params: {
     oidcToken: string;
     providerName: string;
