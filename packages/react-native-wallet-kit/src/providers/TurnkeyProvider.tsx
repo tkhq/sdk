@@ -308,6 +308,59 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     } as TurnkeyProviderConfig;
   };
 
+  const buildMasterPasskeyConfig = useCallback(() => {
+    if (!masterConfig?.passkeyConfig) return undefined;
+
+    return {
+      ...masterConfig.passkeyConfig,
+      rpId: masterConfig.passkeyConfig.rpId,
+      timeout: masterConfig.passkeyConfig.timeout ?? 60000,
+      userVerification:
+        masterConfig.passkeyConfig.userVerification ?? "preferred",
+      allowCredentials: masterConfig.passkeyConfig.allowCredentials ?? [],
+    };
+  }, [masterConfig]);
+
+  const resetPasskeyStamperToMasterConfig = useCallback(async () => {
+    if (!client) return;
+
+    const passkeyConfig = buildMasterPasskeyConfig();
+    if (!passkeyConfig) return;
+
+    await client.overridePasskeyStamper({
+      config: passkeyConfig,
+    });
+  }, [buildMasterPasskeyConfig, client]);
+
+  const applyPasskeyStamperScopeForUser = useCallback(
+    async (nextUser?: v1User) => {
+      if (!client) return;
+
+      const passkeyConfig = buildMasterPasskeyConfig();
+      if (!passkeyConfig) return;
+
+      if (!nextUser || masterConfig?.auth?.scopePasskeyToUser === false) {
+        await resetPasskeyStamperToMasterConfig();
+        return;
+      }
+
+      await client.overridePasskeyStamper({
+        config: {
+          ...passkeyConfig,
+          allowCredentials: buildAllowCredentialsFromAuthenticators(
+            nextUser.authenticators,
+          ),
+        },
+      });
+    },
+    [
+      buildMasterPasskeyConfig,
+      client,
+      masterConfig?.auth?.scopePasskeyToUser,
+      resetPasskeyStamperToMasterConfig,
+    ],
+  );
+
   const oauthSettings = useMemo(() => {
     const oauth = masterConfig?.auth?.oauth;
     const proxyClientIds = proxyAuthConfigRef.current?.oauthClientIds as
@@ -615,16 +668,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const user = await maybeRefreshUser();
         await maybeRefreshWallets();
 
-        if (user && client?.config.passkeyConfig) {
-          await client.overridePasskeyStamper({
-            config: {
-              ...client.config.passkeyConfig,
-              allowCredentials: buildAllowCredentialsFromAuthenticators(
-                user.authenticators,
-              ),
-            },
-          });
-        }
+        await applyPasskeyStamperScopeForUser(user);
 
         return;
       }
@@ -684,16 +728,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       await maybeRefreshWallets();
       const user = await maybeRefreshUser();
 
-      if (user && client?.config.passkeyConfig) {
-        await client.overridePasskeyStamper({
-          config: {
-            ...client.config.passkeyConfig,
-            allowCredentials: buildAllowCredentialsFromAuthenticators(
-              user.authenticators,
-            ),
-          },
-        });
-      }
+      await applyPasskeyStamperScopeForUser(user);
 
       callbacks?.onAuthenticationSuccess?.({
         session,
@@ -732,33 +767,37 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    * @returns void
    * @throws {TurnkeyError} If there is an error during the post-logout process.
    */
-  const handlePostLogout = (sessionKey?: string) => {
-    try {
-      clearSessionTimeouts(
-        sessionKey ? [sessionKey, `${sessionKey}-warning`] : undefined,
-      );
-      setAllSessions((prev) => {
-        if (!prev) return prev;
-        if (sessionKey) {
-          const next = { ...prev };
-          delete next[sessionKey];
-          return next;
-        }
-        return {};
-      });
-      setSession(undefined);
-      setUser(undefined);
-      setWallets([]);
-    } catch (error) {
-      callbacks?.onError?.(
-        new TurnkeyError(
-          `Failed to initialize sessions`,
-          TurnkeyErrorCodes.HANDLE_POST_LOGOUT_ERROR,
-          error,
-        ),
-      );
-    }
-  };
+  const handlePostLogout = useCallback(
+    async (sessionKey?: string) => {
+      try {
+        clearSessionTimeouts(
+          sessionKey ? [sessionKey, `${sessionKey}-warning`] : undefined,
+        );
+        setAllSessions((prev) => {
+          if (!prev) return prev;
+          if (sessionKey) {
+            const next = { ...prev };
+            delete next[sessionKey];
+            return next;
+          }
+          return {};
+        });
+        setSession(undefined);
+        setUser(undefined);
+        setWallets([]);
+        await resetPasskeyStamperToMasterConfig();
+      } catch (error) {
+        callbacks?.onError?.(
+          new TurnkeyError(
+            `Failed to initialize sessions`,
+            TurnkeyErrorCodes.HANDLE_POST_LOGOUT_ERROR,
+            error,
+          ),
+        );
+      }
+    },
+    [callbacks, clearSessionTimeouts, resetPasskeyStamperToMasterConfig],
+  );
 
   const createPasskey = useCallback(
     async (params?: CreatePasskeyParams): Promise<CreatePasskeyResult> => {
@@ -832,7 +871,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           if (!sessionKey) sessionKey = await getActiveSessionKey();
           await client.logout(params);
           // We only handle post logout if the sessionKey is defined since that means we actually logged out of a session.
-          if (sessionKey) handlePostLogout(sessionKey);
+          if (sessionKey) await handlePostLogout(sessionKey);
         },
         () => logout(),
         callbacks,
@@ -841,7 +880,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
       return;
     },
-    [client, callbacks],
+    [client, callbacks, handlePostLogout],
   );
 
   const loginWithPasskey = useCallback(
@@ -2199,10 +2238,20 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setSession(session);
       setAllSessions(allSessions);
 
-      await maybeRefreshWallets();
-      await maybeRefreshUser();
+      const [, nextUser] = await Promise.all([
+        maybeRefreshWallets(),
+        maybeRefreshUser(),
+      ]);
+      await applyPasskeyStamperScopeForUser(nextUser);
     },
-    [client, callbacks, masterConfig, session, user],
+    [
+      client,
+      callbacks,
+      masterConfig,
+      session,
+      user,
+      applyPasskeyStamperScopeForUser,
+    ],
   );
 
   const clearSession = useCallback(
@@ -2212,16 +2261,25 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
+      const activeSessionKey = await client.getActiveSessionKey();
       await withTurnkeyErrorHandling(
         async () => client.clearSession(params),
         () => logout(),
         callbacks,
         "Failed to clear session",
       );
-      const sessionKey = params?.sessionKey ?? (await getActiveSessionKey());
+      const sessionKey = params?.sessionKey ?? activeSessionKey;
       if (!sessionKey) return;
       if (!params?.sessionKey) {
         setSession(undefined);
+        setUser(undefined);
+        setWallets([]);
+        await resetPasskeyStamperToMasterConfig();
+      } else if (params.sessionKey === activeSessionKey) {
+        setSession(undefined);
+        setUser(undefined);
+        setWallets([]);
+        await resetPasskeyStamperToMasterConfig();
       }
       clearSessionTimeouts([sessionKey]);
       // clear only the cleared session from allSessions
@@ -2232,7 +2290,14 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setAllSessions(newAllSessions);
       return;
     },
-    [client, callbacks, session, user, masterConfig],
+    [
+      client,
+      callbacks,
+      session,
+      user,
+      masterConfig,
+      resetPasskeyStamperToMasterConfig,
+    ],
   );
 
   const clearAllSessions = useCallback(async (): Promise<void> => {
@@ -2243,14 +2308,24 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       );
     setSession(undefined);
     setAllSessions(undefined);
+    setUser(undefined);
+    setWallets([]);
     clearSessionTimeouts();
-    return await withTurnkeyErrorHandling(
+    await withTurnkeyErrorHandling(
       () => client.clearAllSessions(),
       () => logout(),
       callbacks,
       "Failed to clear all sessions",
     );
-  }, [client, callbacks, session, user, masterConfig]);
+    await resetPasskeyStamperToMasterConfig();
+  }, [
+    client,
+    callbacks,
+    session,
+    user,
+    masterConfig,
+    resetPasskeyStamperToMasterConfig,
+  ]);
 
   const refreshSession = useCallback(
     async (
@@ -2361,8 +2436,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setSession(session);
       await withTurnkeyErrorHandling(
         async () => {
-          await maybeRefreshWallets();
-          await maybeRefreshUser();
+          const [, nextUser] = await Promise.all([
+            maybeRefreshWallets(),
+            maybeRefreshUser(),
+          ]);
+          await applyPasskeyStamperScopeForUser(nextUser);
         },
         () => logout(),
         callbacks,
@@ -2370,7 +2448,14 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       );
       return;
     },
-    [client, callbacks, session, user, masterConfig],
+    [
+      client,
+      callbacks,
+      session,
+      user,
+      masterConfig,
+      applyPasskeyStamperScopeForUser,
+    ],
   );
 
   const getActiveSessionKey = useCallback(async (): Promise<

@@ -131,6 +131,8 @@ export interface TurnkeyProviderConfig
     };
     /** whether to automatically refresh the session. */
     autoRefreshSession?: boolean;
+    /** whether to scope passkey authentication to the authenticated user's authenticators. Defaults to true. */
+    scopePasskeyToUser?: boolean;
     /** session expiration time in seconds. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
     sessionExpirationSeconds?: string;
   };
