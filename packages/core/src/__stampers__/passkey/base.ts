@@ -8,6 +8,7 @@ import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import {
   base64StringToBase64UrlEncodedString,
   uint8ArrayToHexString,
+  hexStringToBase64url,
 } from "@turnkey/encoding";
 import { getWebAuthnAttestation } from "@turnkey/http";
 import { v4 as uuidv4 } from "uuid";
@@ -15,8 +16,22 @@ import type { TStamp, TStamper } from "@turnkey/sdk-types";
 
 let PasskeyStamperModule: typeof import("@turnkey/react-native-passkey-stamper");
 
+/**
+ * Extension of TStamper that includes public config properties
+ * that both WebauthnStamper and PasskeyStamper implement
+ */
+interface ConfigurableStamper extends TStamper {
+  rpId: string | undefined;
+  timeout: number | undefined;
+  userVerification: UserVerificationRequirement | undefined;
+
+  // Web uses PublicKeyCredentialDescriptor[] (id: BufferSource)
+  // React Native uses its own PublicKeyCredentialDescriptor[] (id: string)
+  allowCredentials: any[];
+}
+
 export class CrossPlatformPasskeyStamper implements TStamper {
-  private stamper!: TStamper;
+  private stamper!: ConfigurableStamper;
   private config: TPasskeyStamperConfig;
 
   constructor(config: TPasskeyStamperConfig) {
@@ -61,6 +76,27 @@ export class CrossPlatformPasskeyStamper implements TStamper {
       }
     } else {
       throw new Error("Unsupported platform for passkey stamper");
+    }
+  }
+
+  updateConfig(config: TPasskeyStamperConfig): void {
+    this.config = config;
+
+    if (this.stamper) {
+      this.stamper.rpId = config.rpId;
+      this.stamper.timeout = config.timeout;
+      this.stamper.userVerification = config.userVerification;
+
+      if (isReactNative()) {
+        this.stamper.allowCredentials =
+          config.allowCredentials?.map((cred) => {
+            const hex = uint8ArrayToHexString(cred.id as Uint8Array);
+            const b64url = hexStringToBase64url(hex);
+            return { id: b64url, type: cred.type, transports: cred.transports };
+          }) || [];
+      } else {
+        this.stamper.allowCredentials = config.allowCredentials || [];
+      }
     }
   }
 

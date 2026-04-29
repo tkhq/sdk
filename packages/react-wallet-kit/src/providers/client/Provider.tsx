@@ -119,8 +119,12 @@ import {
   type SignAndSendTransactionParams,
   type EthTransaction,
   type SolanaTransaction,
+  type OverridePasskeyStamperParams,
+  type OverrideApiKeyStamperParams,
+  type DeleteApiKeyPairParams,
   buildSecondaryOauthProviders,
   buildSecondaryOidcClaims,
+  buildAllowCredentialsFromAuthenticators,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -991,7 +995,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         // specifically, if WalletConnect finishes initializing before this promise resolves,
         // `maybeRefreshWallets()` could overwrite the WalletConnect wallet state with an outdated
         // list of wallets that doesn’t yet include the WalletConnect wallets
-        const [, wallets] = await Promise.all([
+        const [user, wallets] = await Promise.all([
           maybeRefreshUser(),
           (() => {
             if (!masterConfig?.autoRefreshManagedState) return [];
@@ -1002,6 +1006,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         // the prev wallets should only ever be WalletConnect wallets
         if (wallets) {
           setWallets((prev) => mergeWalletsWithoutDuplicates(prev, wallets));
+        }
+
+        if (user && client) {
+          await client.overridePasskeyStamper({
+            config: {
+              ...client.config.passkeyConfig,
+              allowCredentials: buildAllowCredentialsFromAuthenticators(
+                user.authenticators,
+              ),
+            },
+          });
         }
 
         return;
@@ -1283,7 +1298,21 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setSession(session);
       setAllSessions(allSessions);
 
-      await Promise.all([maybeRefreshWallets(), maybeRefreshUser()]);
+      const [, user] = await Promise.all([
+        maybeRefreshWallets(),
+        maybeRefreshUser(),
+      ]);
+
+      if (user && client) {
+        await client.overridePasskeyStamper({
+          config: {
+            ...client.config.passkeyConfig,
+            allowCredentials: buildAllowCredentialsFromAuthenticators(
+              user.authenticators,
+            ),
+          },
+        });
+      }
 
       if (
         masterConfig?.auth?.verifyWalletOnSignup === true &&
@@ -1369,6 +1398,32 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
       return client.createHttpClient(params);
+    },
+    [client],
+  );
+
+  const overrideApiKeyStamper = useCallback(
+    (params: OverrideApiKeyStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overrideApiKeyStamper(params);
+    },
+    [client],
+  );
+
+  const overridePasskeyStamper = useCallback(
+    (params: OverridePasskeyStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overridePasskeyStamper(params);
     },
     [client],
   );
@@ -1531,7 +1586,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const refreshUser = useCallback(
-    async (params?: RefreshUserParams): Promise<void> => {
+    async (params?: RefreshUserParams): Promise<v1User | undefined> => {
       const { stampWith, organizationId, userId } = params || {};
 
       if (!client)
@@ -1555,6 +1610,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       if (user) {
         setUser(user);
       }
+
+      return user;
     },
     [client, callbacks, fetchUser, logout],
   );
@@ -1569,8 +1626,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @returns A promise that resolves when the user is refreshed, or does nothing if auto-refresh is disabled
    */
   const maybeRefreshUser = useCallback(
-    async (params?: RefreshUserParams): Promise<void> => {
-      if (!masterConfig?.autoRefreshManagedState) return;
+    async (params?: RefreshUserParams): Promise<v1User | undefined> => {
+      if (!masterConfig?.autoRefreshManagedState) return undefined;
       return refreshUser(params);
     },
     [masterConfig, refreshUser],
@@ -3279,6 +3336,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         undefined,
         callbacks,
         "Failed to create API key pair",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const deleteApiKeyPair = useCallback(
+    async (params: DeleteApiKeyPairParams): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.deleteApiKeyPair(params),
+        undefined,
+        callbacks,
+        "Failed to delete API key pair",
       );
     },
     [client, callbacks],
@@ -6163,6 +6237,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         config: masterConfig,
         httpClient: client?.httpClient,
         createHttpClient,
+        overrideApiKeyStamper,
+        overridePasskeyStamper,
         createPasskey,
         logout,
         loginWithPasskey,
@@ -6225,6 +6301,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         clearUnusedKeyPairs,
         getActiveSessionKey,
         createApiKeyPair,
+        deleteApiKeyPair,
         signWithApiKey,
         getProxyAuthConfig,
         fetchBootProofForAppProof,
