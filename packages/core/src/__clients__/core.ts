@@ -5213,10 +5213,6 @@ export class TurnkeyClient {
           externalKeyPair ? externalKeyPair : undefined,
         );
 
-        if (publicKey) {
-          await this.overrideApiKeyStamper({ temporaryPublicKey: publicKey });
-        }
-
         return publicKey;
       },
       {
