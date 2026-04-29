@@ -126,6 +126,12 @@ export default function SetupPage() {
       const allowedRecipient = process.env.NEXT_PUBLIC_ALLOWED_RECIPIENT!;
       const approvalRecipient = process.env.NEXT_PUBLIC_APPROVAL_RECIPIENT!;
 
+      // Resolve the human user's ID so we can pin it in the approval policy consensus
+      const whoami = await httpClient!.getWhoami({
+        organizationId: session.organizationId,
+      });
+      const humanUserId = (whoami as any).userId as string;
+
       // Create or find the agent non-root user (stamped with the user's session key)
       const agentUser = await fetchOrCreateP256ApiKeyUser({
         publicKey: agentPublicKey,
@@ -151,9 +157,9 @@ export default function SetupPage() {
             policyName: "agent-allow-with-approval",
             effect: "EFFECT_ALLOW",
             condition: `eth.tx.to == '${approvalRecipient.toLowerCase()}'`,
-            consensus: `approvers.count() >= 2`,
+            consensus: `approvers.any(user, user.id == '${agentUserId}') && approvers.any(user, user.id == '${humanUserId}')`,
             notes:
-              "Agent may sign to the approval recipient only after root user approves.",
+              "Agent may sign to the approval recipient only after the human user approves (agent + human, both required).",
           },
           {
             policyName: "agent-self-delete",
