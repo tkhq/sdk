@@ -45,6 +45,16 @@ API_PRIVATE_KEY=...
 SPARK_NETWORK=REGTEST
 ```
 
+This example is optimized for Spark hosted `REGTEST`: it uses hosted Spark
+services, hosted Electrs, and the Lightspark regtest faucet. No local Bitcoin
+node is required. Spark hosted `REGTEST` uses Lightspark's Bitcoin regtest
+chain, not public Bitcoin testnet or signet.
+
+Lightning receive requires the Turnkey environment you are hitting to have
+`SPARK_PREPARE_AND_SIGN.package_request.lightningReceive` deployed. Without
+that package request, Spark transfer and withdrawal flows can still run, but
+Lightning invoice creation will fail before payment.
+
 ### 3. Create the E2E wallets and accounts
 
 ```bash
@@ -76,10 +86,6 @@ and choose the **Bitcoin** receiver option:
 https://app.lightspark.com/regtest-faucet
 ```
 
-Spark hosted `REGTEST` uses Lightspark's Bitcoin regtest chain, not public
-Bitcoin testnet or signet. No local Bitcoin node is required; the example uses
-hosted Spark services, hosted Electrs, and the Lightspark faucet.
-
 The script performs the full flow:
 
 1. spends the sender Turnkey `bcrt1p...` UTXO into a Spark single-use L1 deposit address
@@ -87,6 +93,16 @@ The script performs the full flow:
 3. transfers Spark sats from the sender Turnkey Spark wallet to the receiver Turnkey Spark address
 4. claims the inbound Spark transfer on the receiver wallet
 5. withdraws the transferred Spark sats back to a Turnkey Bitcoin regtest address
+
+A successful run ends with output like:
+
+```text
+Deposit tx confirmed: <txid>
+Transfer initiated: <transfer-id>
+Claimed <n> leaves on receiver
+Withdrawal initiated to bcrt1p...
+E2E complete.
+```
 
 Useful E2E settings:
 
@@ -228,9 +244,9 @@ LIGHTNING_SENDER_ENV_PREFIX=SENDER_ LIGHTNING_INVOICE=lnbcrt... pnpm run lightni
 
 `e2e:lightning-regtest` automates the hosted REGTEST Lightning proof with two
 Turnkey Spark wallets. It ensures the sender has enough Spark sats, creating a
-Turnkey L1 deposit and waiting for faucet funding if needed; creates a receiver
-Lightning invoice; pays it from the sender wallet; then claims or verifies the
-receiver Spark settlement.
+Spark L1 deposit from the sender Bitcoin account and waiting for faucet funding
+if needed; creates a receiver Lightning invoice; pays it from the sender wallet;
+then claims or verifies the receiver Spark settlement.
 
 1. Create sender and receiver wallets.
 
@@ -257,31 +273,43 @@ https://app.lightspark.com/regtest-faucet
 To retry an already-broadcast L1 deposit without spending another UTXO, set
 `L1_DEPOSIT_TXID` and rerun the E2E.
 
+A successful run ends with output like:
+
+```text
+Lightning send response:
+{
+  "status": "LIGHTNING_PAYMENT_INITIATED",
+  ...
+}
+Claimed <n> receiver leaves
+Receiver balance: <amount> sats available
+Lightning E2E complete.
+```
+
 The one-shot scripts below remain useful when debugging individual steps.
 
 ### Manual Lightning steps
 
 1. Put Spark sats in the sender wallet.
 
-If the sender already has Spark sats, skip this step. Otherwise, run the hosted
-REGTEST deposit E2E with a small transfer amount so most funds remain in the
-sender wallet:
+If the sender already has Spark sats, skip this step. Otherwise, fund the sender
+Spark wallet through the hosted REGTEST deposit script. `setup:e2e` prints a
+"sender as the active wallet" block; copy those unprefixed `TURNKEY_*` values
+into `.env.local`, then run:
 
 ```bash
-TRANSFER_AMOUNT_SATS=1000 WITHDRAW_AMOUNT_SATS=1000 pnpm run e2e:regtest
+pnpm run deposit
 ```
 
-When prompted, fund `SENDER_TURNKEY_L1_BTC_ADDRESS` from the Lightspark
+When prompted, fund the printed `TURNKEY_L1_BTC_ADDRESS` from the Lightspark
 regtest faucet using the **Bitcoin** receiver option:
 
 ```text
 https://app.lightspark.com/regtest-faucet
 ```
 
-This deposits faucet BTC into the sender Spark wallet, sends 1000 sats to the
-receiver through the regular Spark transfer path, withdraws those 1000 receiver
-sats, and leaves the sender with the remaining Spark balance for the Lightning
-send.
+This deposits faucet BTC into the sender Spark wallet and leaves those Spark
+sats available for the Lightning send.
 
 2. Create a Lightning invoice on the receiver wallet.
 
@@ -314,24 +342,26 @@ The claim script prints the receiver balance after claiming any pending
 transfers. If it reports no pending transfers, rerun it after a short delay or
 query the receiver balance by reinitializing the receiver wallet.
 
-Current caveats:
+## Known Limitations
 
 - This Lightning path is live-proven on hosted REGTEST with a 500-sat BOLT11
   invoice, a 3-sat send fee, and receiver settlement back into Spark.
 - `e2e:lightning-regtest` automates the invoice, payment, and receiver
   settlement proof; withdrawal remains covered by `e2e:regtest`.
+- This example covers BOLT11 invoice receive plus BOLT11 payment. It does not
+  implement generic HTLC helper flows.
+- `TurnkeySparkSigner.htlcHMAC(transferID)` is intentionally unimplemented.
+  Flows that need deterministic HTLC preimage/HMAC derivation need either a
+  Turnkey-backed helper that derives the value inside the enclave from
+  `transferID`, or an explicit caller-provided preimage path.
 - Lightning send currently signs refunds twice: once while building the
   Turnkey-backed transfer request and once inside the SDK's
   `swapNodesForPreimage(...)` path. Expect roughly `6n + 1`
   `SPARK_PREPARE_AND_SIGN` activities for `n` selected leaves until the SDK swap
   path is forked or exposes a way to reuse the prebuilt request without
   redundant signing.
-- It requires the Turnkey environment you are hitting to have
-  `SPARK_PREPARE_AND_SIGN.package_request.lightningReceive` deployed.
-- Generic HTLC convenience flows are not covered here; this tests Lightning
-  invoice receive plus BOLT11 payment.
 
-### Hosted regtest faucet deposit
+## Hosted REGTEST Faucet Deposit
 
 For Spark's hosted `REGTEST`, use Lightspark's regtest faucet with the
 **Bitcoin** receiver option to fund a Turnkey `bcrt1p...` address:
