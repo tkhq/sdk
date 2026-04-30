@@ -82,7 +82,8 @@ import {
   type OverridePasskeyStamperParams,
   type DeleteApiKeyPairParams,
   buildSecondaryOauthProviders,
-  buildAllowCredentialsFromAuthenticators,
+  applyPasskeyScope,
+  resetPasskeyScope,
 } from "@turnkey/core";
 import {
   ReactNode,
@@ -308,58 +309,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     } as TurnkeyProviderConfig;
   };
 
-  const buildMasterPasskeyConfig = useCallback(() => {
-    if (!masterConfig?.passkeyConfig) return undefined;
-
-    return {
-      ...masterConfig.passkeyConfig,
-      rpId: masterConfig.passkeyConfig.rpId,
-      timeout: masterConfig.passkeyConfig.timeout ?? 60000,
-      userVerification:
-        masterConfig.passkeyConfig.userVerification ?? "preferred",
-      allowCredentials: masterConfig.passkeyConfig.allowCredentials ?? [],
-    };
-  }, [masterConfig]);
-
-  const resetPasskeyStamperToMasterConfig = useCallback(async () => {
-    if (!client) return;
-
-    const passkeyConfig = buildMasterPasskeyConfig();
-    if (!passkeyConfig) return;
-
-    await client.overridePasskeyStamper({
-      config: passkeyConfig,
-    });
-  }, [buildMasterPasskeyConfig, client]);
-
-  const applyPasskeyStamperScopeForUser = useCallback(
-    async (nextUser?: v1User) => {
-      if (!client) return;
-
-      const passkeyConfig = buildMasterPasskeyConfig();
-      if (!passkeyConfig) return;
-
-      if (!nextUser || masterConfig?.auth?.scopePasskeyToUser === false) {
-        await resetPasskeyStamperToMasterConfig();
-        return;
-      }
-
-      await client.overridePasskeyStamper({
-        config: {
-          ...passkeyConfig,
-          allowCredentials: buildAllowCredentialsFromAuthenticators(
-            nextUser.authenticators,
-          ),
-        },
-      });
-    },
-    [
-      buildMasterPasskeyConfig,
-      client,
-      masterConfig?.auth?.scopePasskeyToUser,
-      resetPasskeyStamperToMasterConfig,
-    ],
-  );
 
   const oauthSettings = useMemo(() => {
     const oauth = masterConfig?.auth?.oauth;
@@ -668,7 +617,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const user = await maybeRefreshUser();
         await maybeRefreshWallets();
 
-        await applyPasskeyStamperScopeForUser(user);
+        if (client) await applyPasskeyScope(client, masterConfig?.passkeyConfig, user, masterConfig?.auth?.scopePasskeyToUser);
 
         return;
       }
@@ -728,7 +677,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       await maybeRefreshWallets();
       const user = await maybeRefreshUser();
 
-      await applyPasskeyStamperScopeForUser(user);
+      if (client) await applyPasskeyScope(client, masterConfig?.passkeyConfig, user, masterConfig?.auth?.scopePasskeyToUser);
 
       callbacks?.onAuthenticationSuccess?.({
         session,
@@ -785,7 +734,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         setSession(undefined);
         setUser(undefined);
         setWallets([]);
-        await resetPasskeyStamperToMasterConfig();
+        if (client) await resetPasskeyScope(client, masterConfig?.passkeyConfig);
       } catch (error) {
         callbacks?.onError?.(
           new TurnkeyError(
@@ -796,7 +745,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
       }
     },
-    [callbacks, clearSessionTimeouts, resetPasskeyStamperToMasterConfig],
+    [callbacks, clearSessionTimeouts, client, masterConfig?.passkeyConfig],
   );
 
   const createPasskey = useCallback(
@@ -1702,17 +1651,19 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         callbacks,
         "Failed to add passkey",
       );
-      if (res)
-        await maybeRefreshUser({
+      if (res) {
+        const updatedUser = await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
           }),
           ...(params?.userId && { userId: params.userId }),
         });
+        await applyPasskeyScope(client, masterConfig?.passkeyConfig, updatedUser, masterConfig?.auth?.scopePasskeyToUser);
+      }
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig?.passkeyConfig, masterConfig?.auth?.scopePasskeyToUser],
   );
 
   const removePasskeys = useCallback(
@@ -2242,7 +2193,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         maybeRefreshWallets(),
         maybeRefreshUser(),
       ]);
-      await applyPasskeyStamperScopeForUser(nextUser);
+      if (client) await applyPasskeyScope(client, masterConfig?.passkeyConfig, nextUser, masterConfig?.auth?.scopePasskeyToUser);
     },
     [
       client,
@@ -2250,7 +2201,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       masterConfig,
       session,
       user,
-      applyPasskeyStamperScopeForUser,
     ],
   );
 
@@ -2274,12 +2224,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         setSession(undefined);
         setUser(undefined);
         setWallets([]);
-        await resetPasskeyStamperToMasterConfig();
+        await resetPasskeyScope(client, masterConfig?.passkeyConfig);
       } else if (params.sessionKey === activeSessionKey) {
         setSession(undefined);
         setUser(undefined);
         setWallets([]);
-        await resetPasskeyStamperToMasterConfig();
+        await resetPasskeyScope(client, masterConfig?.passkeyConfig);
       }
       clearSessionTimeouts([sessionKey]);
       // clear only the cleared session from allSessions
@@ -2296,7 +2246,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       session,
       user,
       masterConfig,
-      resetPasskeyStamperToMasterConfig,
     ],
   );
 
@@ -2317,14 +2266,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       callbacks,
       "Failed to clear all sessions",
     );
-    await resetPasskeyStamperToMasterConfig();
+    await resetPasskeyScope(client, masterConfig?.passkeyConfig);
   }, [
     client,
     callbacks,
     session,
     user,
     masterConfig,
-    resetPasskeyStamperToMasterConfig,
   ]);
 
   const refreshSession = useCallback(
@@ -2440,7 +2388,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             maybeRefreshWallets(),
             maybeRefreshUser(),
           ]);
-          await applyPasskeyStamperScopeForUser(nextUser);
+          if (client) await applyPasskeyScope(client, masterConfig?.passkeyConfig, nextUser, masterConfig?.auth?.scopePasskeyToUser);
         },
         () => logout(),
         callbacks,
@@ -2454,7 +2402,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       session,
       user,
       masterConfig,
-      applyPasskeyStamperScopeForUser,
     ],
   );
 

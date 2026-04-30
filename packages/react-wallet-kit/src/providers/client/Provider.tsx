@@ -124,7 +124,8 @@ import {
   type DeleteApiKeyPairParams,
   buildSecondaryOauthProviders,
   buildSecondaryOidcClaims,
-  buildAllowCredentialsFromAuthenticators,
+  applyPasskeyScope,
+  resetPasskeyScope,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -833,7 +834,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
     return {
       ...config,
-
       // Overrides:
       auth: {
         ...config.auth,
@@ -952,50 +952,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   };
 
-  const buildMasterPasskeyConfig = useCallback(() => {
-    return {
-      rpId: masterConfig?.passkeyConfig?.rpId,
-      timeout: masterConfig?.passkeyConfig?.timeout || 60000,
-      userVerification:
-        masterConfig?.passkeyConfig?.userVerification || "preferred",
-      allowCredentials: masterConfig?.passkeyConfig?.allowCredentials || [],
-    };
-  }, [masterConfig]);
-
-  const resetPasskeyStamperToMasterConfig = useCallback(async () => {
-    if (!client) return;
-
-    await client.overridePasskeyStamper({
-      config: buildMasterPasskeyConfig(),
-    });
-  }, [buildMasterPasskeyConfig, client]);
-
-  const applyPasskeyStamperScopeForUser = useCallback(
-    async (nextUser?: v1User) => {
-      if (!client) return;
-
-      if (!nextUser || masterConfig?.auth?.scopePasskeyToUser === false) {
-        await resetPasskeyStamperToMasterConfig();
-        return;
-      }
-
-      await client.overridePasskeyStamper({
-        config: {
-          ...buildMasterPasskeyConfig(),
-          allowCredentials: buildAllowCredentialsFromAuthenticators(
-            nextUser.authenticators,
-          ),
-        },
-      });
-    },
-    [
-      buildMasterPasskeyConfig,
-      client,
-      masterConfig?.auth?.scopePasskeyToUser,
-      resetPasskeyStamperToMasterConfig,
-    ],
-  );
-
   /**
    * Initializes the user sessions by fetching all active sessions and setting up their state.
    * @internal
@@ -1052,7 +1008,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           setWallets((prev) => mergeWalletsWithoutDuplicates(prev, wallets));
         }
 
-        await applyPasskeyStamperScopeForUser(user);
+        if (client) await applyPasskeyScope(client, masterConfig?.passkeyConfig, user, masterConfig?.auth?.scopePasskeyToUser);
 
         return;
       }
@@ -1338,7 +1294,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         maybeRefreshUser(),
       ]);
 
-      await applyPasskeyStamperScopeForUser(user);
+      if (client) await applyPasskeyScope(client, masterConfig?.passkeyConfig, user, masterConfig?.auth?.scopePasskeyToUser);
 
       if (
         masterConfig?.auth?.verifyWalletOnSignup === true &&
@@ -1405,7 +1361,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         setSession(undefined);
         setUser(undefined);
         setWallets([]);
-        await resetPasskeyStamperToMasterConfig();
+        if (client) await resetPasskeyScope(client, masterConfig?.passkeyConfig);
       } catch (error) {
         callbacks?.onError?.(
           new TurnkeyError(
@@ -1416,7 +1372,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [callbacks, clearSessionTimeouts, resetPasskeyStamperToMasterConfig],
+    [callbacks, clearSessionTimeouts, client, masterConfig?.passkeyConfig],
   );
 
   const createHttpClient = useCallback(
@@ -1739,12 +1695,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         setSession(undefined);
         setUser(undefined);
         setWallets([]);
-        await resetPasskeyStamperToMasterConfig();
+        if (client) await resetPasskeyScope(client, masterConfig?.passkeyConfig);
       } else if (params.sessionKey === activeSessionKey) {
         setSession(undefined);
         setUser(undefined);
         setWallets([]);
-        await resetPasskeyStamperToMasterConfig();
+        if (client) await resetPasskeyScope(client, masterConfig?.passkeyConfig);
       }
       clearSessionTimeouts([sessionKey]);
       // clear only the cleared session from allSessions
@@ -1760,7 +1716,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       getActiveSessionKey,
       allSessions,
-      resetPasskeyStamperToMasterConfig,
+      masterConfig?.passkeyConfig,
     ],
   );
 
@@ -3025,17 +2981,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to add passkey",
       );
-      if (res)
-        await maybeRefreshUser({
+      if (res) {
+        const updatedUser = await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
           }),
           ...(params?.userId && { userId: params.userId }),
         });
+        await applyPasskeyScope(client, masterConfig?.passkeyConfig, updatedUser, masterConfig?.auth?.scopePasskeyToUser);
+      }
       return res;
     },
-    [client, callbacks, logout, maybeRefreshUser],
+    [client, callbacks, logout, maybeRefreshUser, masterConfig?.passkeyConfig, masterConfig?.auth?.scopePasskeyToUser],
   );
 
   const removePasskeys = useCallback(
@@ -3280,7 +3238,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         maybeRefreshWallets(),
         maybeRefreshUser(),
       ]);
-      await applyPasskeyStamperScopeForUser(nextUser);
+      if (client) await applyPasskeyScope(client, masterConfig?.passkeyConfig, nextUser, masterConfig?.auth?.scopePasskeyToUser);
     },
     [
       client,
@@ -3290,7 +3248,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       getSession,
       scheduleSessionExpiration,
       getAllSessions,
-      applyPasskeyStamperScopeForUser,
+      masterConfig?.passkeyConfig,
+      masterConfig?.auth?.scopePasskeyToUser,
       maybeRefreshWallets,
       maybeRefreshUser,
     ],
@@ -3313,13 +3272,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to clear all sessions",
     );
-    await resetPasskeyStamperToMasterConfig();
+    await resetPasskeyScope(client, masterConfig?.passkeyConfig);
   }, [
     client,
     callbacks,
     logout,
     clearSessionTimeouts,
-    resetPasskeyStamperToMasterConfig,
+    masterConfig?.passkeyConfig,
   ]);
 
   const setActiveSession = useCallback(
@@ -3355,7 +3314,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             maybeRefreshWallets(),
             maybeRefreshUser(),
           ]);
-          await applyPasskeyStamperScopeForUser(nextUser);
+          if (client) await applyPasskeyScope(client, masterConfig?.passkeyConfig, nextUser, masterConfig?.auth?.scopePasskeyToUser);
         },
         () => logout(),
         callbacks,
@@ -3368,7 +3327,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       logout,
       getSession,
-      applyPasskeyStamperScopeForUser,
+      masterConfig?.passkeyConfig,
+      masterConfig?.auth?.scopePasskeyToUser,
       maybeRefreshWallets,
       maybeRefreshUser,
     ],

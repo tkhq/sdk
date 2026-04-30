@@ -40,6 +40,10 @@ export {
   addressFormatConfig,
   AUTHENTICATOR_TRANSPORT_MAP,
   buildAllowCredentialsFromAuthenticators,
+  buildPasskeyConfig,
+  buildScopedPasskeyConfig,
+  applyPasskeyScope,
+  resetPasskeyScope,
 } from "./utils";
 
 export * from "@turnkey/sdk-types";

@@ -30,6 +30,7 @@ import {
 import {
   type CreateSubOrgParams,
   type WalletProvider,
+  type TPasskeyStamperConfig,
   Chain,
   EvmChainInfo,
   SolanaChainInfo,
@@ -1516,5 +1517,61 @@ export function buildAllowCredentialsFromAuthenticators(
         .map((t) => AUTHENTICATOR_TRANSPORT_MAP[t])
         .filter(Boolean) as AuthenticatorTransport[],
     };
+  });
+}
+
+export function buildPasskeyConfig(
+  passkeyConfig?: TPasskeyStamperConfig,
+): TPasskeyStamperConfig {
+  return {
+    rpId: passkeyConfig?.rpId,
+    timeout: passkeyConfig?.timeout || 60000,
+    userVerification: passkeyConfig?.userVerification || "preferred",
+    allowCredentials: passkeyConfig?.allowCredentials || [],
+  };
+}
+
+export function buildScopedPasskeyConfig(
+  passkeyConfig: TPasskeyStamperConfig | undefined,
+  user: v1User | undefined,
+  scopeToUser?: boolean,
+): TPasskeyStamperConfig {
+  const base = buildPasskeyConfig(passkeyConfig);
+  if (!user || scopeToUser === false) {
+    return base;
+  }
+  return {
+    ...base,
+    allowCredentials: buildAllowCredentialsFromAuthenticators(
+      user.authenticators,
+    ),
+  };
+
+  
+}
+
+type PasskeyStamperOverrider = {
+  overridePasskeyStamper: (params: {
+    config: TPasskeyStamperConfig;
+  }) => Promise<void>;
+};
+
+export async function applyPasskeyScope(
+  client: PasskeyStamperOverrider,
+  passkeyConfig: TPasskeyStamperConfig | undefined,
+  user: v1User | undefined,
+  scopeToUser?: boolean,
+): Promise<void> {
+  await client.overridePasskeyStamper({
+    config: buildScopedPasskeyConfig(passkeyConfig, user, scopeToUser),
+  });
+}
+
+export async function resetPasskeyScope(
+  client: PasskeyStamperOverrider,
+  passkeyConfig: TPasskeyStamperConfig | undefined,
+): Promise<void> {
+  await client.overridePasskeyStamper({
+    config: buildPasskeyConfig(passkeyConfig),
   });
 }
