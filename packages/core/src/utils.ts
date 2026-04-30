@@ -1520,23 +1520,17 @@ export function buildAllowCredentialsFromAuthenticators(
   });
 }
 
-export function buildPasskeyConfig(
-  passkeyConfig?: TPasskeyStamperConfig,
-): TPasskeyStamperConfig {
-  return {
-    rpId: passkeyConfig?.rpId,
-    timeout: passkeyConfig?.timeout || 60000,
-    userVerification: passkeyConfig?.userVerification || "preferred",
-    allowCredentials: passkeyConfig?.allowCredentials || [],
-  };
-}
-
 export function buildScopedPasskeyConfig(
   passkeyConfig: TPasskeyStamperConfig | undefined,
   user: v1User | undefined,
   scopeToUser?: boolean,
 ): TPasskeyStamperConfig {
-  const base = buildPasskeyConfig(passkeyConfig);
+  const base = {
+    ...passkeyConfig,
+    timeout: passkeyConfig?.timeout ?? 60000,
+    userVerification: passkeyConfig?.userVerification ?? "preferred",
+    allowCredentials: passkeyConfig?.allowCredentials ?? [],
+  };
   if (!user || scopeToUser === false) {
     return base;
   }
@@ -1546,8 +1540,6 @@ export function buildScopedPasskeyConfig(
       user.authenticators,
     ),
   };
-
-  
 }
 
 type PasskeyStamperOverrider = {
@@ -1562,6 +1554,7 @@ export async function applyPasskeyScope(
   user: v1User | undefined,
   scopeToUser?: boolean,
 ): Promise<void> {
+  if (!passkeyConfig) return;
   await client.overridePasskeyStamper({
     config: buildScopedPasskeyConfig(passkeyConfig, user, scopeToUser),
   });
@@ -1571,7 +1564,8 @@ export async function resetPasskeyScope(
   client: PasskeyStamperOverrider,
   passkeyConfig: TPasskeyStamperConfig | undefined,
 ): Promise<void> {
+  if (!passkeyConfig) return;
   await client.overridePasskeyStamper({
-    config: buildPasskeyConfig(passkeyConfig),
+    config: buildScopedPasskeyConfig(passkeyConfig, undefined),
   });
 }

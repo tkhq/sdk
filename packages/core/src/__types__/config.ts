@@ -66,6 +66,8 @@ export interface TurnkeySDKClientConfig {
   walletConfig?: TWalletManagerConfig;
   /** default stamper to be used for all requests */
   defaultStamperType?: StamperType | undefined;
+  /** whether to scope passkey authentication to the authenticated user's authenticators. Defaults to true. */
+  scopePasskeyToUser?: boolean;
 }
 
 /**
