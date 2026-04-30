@@ -6,6 +6,7 @@ import {
 
 export const OAUTH_INTENT_ADD_PROVIDER = "addProvider";
 export const OAUTH_ADD_PROVIDER_METADATA_KEY = "oauth_add_provider_metadata";
+export const OAUTH_STATE_KEY = "oauth_state";
 
 export type OAuthAddProviderMetadata = {
   organizationId: string;
@@ -99,10 +100,45 @@ export function hasPKCEVerifier(provider: PKCEProvider): boolean {
 }
 
 /**
+ * Stores the OAuth state string in local storage for later validation
+ * @param state - The OAuth state string to store
+ */
+export function storeOAuthState(state: string) {
+  localStorage.setItem(OAUTH_STATE_KEY, state);
+}
+
+/**
+ * Consumes the OAuth state string from local storage for validation
+ * @param returnedState - The OAuth state string returned from the provider
+ */
+export function consumeOAuthState(returnedState: string) {
+  try {
+    const stored = localStorage.getItem(OAUTH_STATE_KEY);
+
+    if (!stored) {
+      throw new TurnkeyError(
+        "Missing OAuth state in storage",
+        TurnkeyErrorCodes.INVALID_OAUTH_STATE,
+      );
+    }
+
+    if (stored !== returnedState) {
+      throw new TurnkeyError(
+        "OAuth state mismatch",
+        TurnkeyErrorCodes.INVALID_OAUTH_STATE,
+      );
+    }
+  } finally {
+    localStorage.removeItem(OAUTH_STATE_KEY);
+  }
+}
+
+/**
  * Clears all OAuth-related data from local storage
  */
 export function clearAllOAuthData(): void {
   localStorage.removeItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
+  localStorage.removeItem(OAUTH_STATE_KEY);
   const pkceProviders: PKCEProvider[] = [
     OAuthProviders.FACEBOOK,
     OAuthProviders.DISCORD,

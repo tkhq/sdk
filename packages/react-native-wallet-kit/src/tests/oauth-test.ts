@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 import { OAuthProviders } from "@turnkey/sdk-types";
 import {
   buildOAuthState,
@@ -6,6 +6,12 @@ import {
   parseStateParam,
   parseOAuthResponse,
 } from "../utils/oauth";
+
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  setItem: jest.fn(() => Promise.resolve()),
+  getItem: jest.fn(() => Promise.resolve(null)),
+  removeItem: jest.fn(() => Promise.resolve()),
+}));
 describe("parseOAuthRedirect", () => {
   describe("Apple redirects", () => {
     it("parses an Apple hash with unencoded state and id_token at the end", () => {
@@ -143,13 +149,12 @@ describe("parseOAuthRedirect", () => {
 
 describe("OAuth utils", () => {
   describe("buildOAuthState + parseStateParam", () => {
-    it("builds and parses state with additional params", () => {
+    it("builds and parses state with core params", () => {
       const state = buildOAuthState({
         provider: OAuthProviders.GOOGLE,
         flow: "redirect",
         publicKey: "pk_123",
         nonce: "nonce_abc",
-        additionalState: { openModal: "true", sessionKey: "sess_1" },
       });
 
       const parsed = parseStateParam(state);
@@ -157,8 +162,6 @@ describe("OAuth utils", () => {
       expect(parsed.flow).toBe("redirect");
       expect(parsed.publicKey).toBe("pk_123");
       expect(parsed.nonce).toBe("nonce_abc");
-      expect(parsed.openModal).toBe("true");
-      expect(parsed.sessionKey).toBe("sess_1");
     });
 
     it("returns empty object for null/undefined state", () => {
@@ -168,20 +171,19 @@ describe("OAuth utils", () => {
   });
 
   describe("buildOAuthUrl", () => {
-    it("builds Google URL with nonce in params and prompt", () => {
-      const url = buildOAuthUrl({
+    it("builds Google URL with nonce in params and prompt", async () => {
+      const url = await buildOAuthUrl({
         provider: OAuthProviders.GOOGLE,
         clientId: "client_google",
         redirectUri: "https://example.com/callback",
         publicKey: "pk_google",
         nonce: "nonce_google",
-        additionalState: { sessionKey: "sess_google" },
         useOauthProxyOrigin: true,
       });
 
       const parsed = new URL(url);
       expect(url).toBe(
-        "https://oauth-origin.turnkey.com/?provider=google&clientId=client_google&redirectUri=https%3A%2F%2Fexample.com%2Fcallback&nonce=nonce_google&state=provider%3Dgoogle%26flow%3Dredirect%26publicKey%3Dpk_google%26sessionKey%3Dsess_google",
+        "https://oauth-origin.turnkey.com/?provider=google&clientId=client_google&redirectUri=https%3A%2F%2Fexample.com%2Fcallback&nonce=nonce_google&state=provider%3Dgoogle%26flow%3Dredirect%26publicKey%3Dpk_google",
       );
 
       const state = parsed.searchParams.get("state");
@@ -190,12 +192,11 @@ describe("OAuth utils", () => {
 
       expect(stateParams.provider).toBe("google");
       expect(stateParams.publicKey).toBe("pk_google");
-      expect(stateParams.sessionKey).toBe("sess_google");
       expect(stateParams.nonce).toBeUndefined();
     });
 
-    it("builds Discord URL with PKCE and nonce in state", () => {
-      const url = buildOAuthUrl({
+    it("builds Discord URL with PKCE and nonce in state", async () => {
+      const url = await buildOAuthUrl({
         provider: OAuthProviders.DISCORD,
         clientId: "client_discord",
         redirectUri: "https://example.com/discord",

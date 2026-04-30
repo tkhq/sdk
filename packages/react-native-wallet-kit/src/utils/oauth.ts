@@ -32,22 +32,12 @@ export function buildOAuthState(params: {
   flow: "redirect";
   publicKey: string;
   nonce?: string;
-  additionalState?: Record<string, string> | undefined;
 }): string {
-  const { provider, flow, publicKey, nonce, additionalState } = params;
+  const { provider, flow, publicKey, nonce } = params;
   let state = `provider=${provider}&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
 
   if (nonce) {
     state += `&nonce=${nonce}`;
-  }
-
-  if (additionalState) {
-    const extra = Object.entries(additionalState)
-      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-      .join("&");
-    if (extra) {
-      state += `&${extra}`;
-    }
   }
 
   return state;
@@ -361,6 +351,36 @@ export async function hasPKCEVerifier(
   return verifier !== null;
 }
 
+/**
+ * Stores the OAuth state in AsyncStorage for redirect flows
+ * @param state - The OAuth state string to store
+ */
+export async function storeOAuthState(state: string): Promise<void> {
+  await AsyncStorage.setItem("oauth_state", state);
+}
+
+/**
+ * Consumes the stored OAuth state and validates against returned state
+ * @param returnedState - The OAuth state string returned from the provider
+ *
+ */
+export async function consumeOAuthState(returnedState: string): Promise<void> {
+  try {
+    const stored = await AsyncStorage.getItem("oauth_state");
+    if (!stored) {
+      throw new Error(`Missing stored OAuth state for validation.`);
+    }
+
+    if (!returnedState || stored !== returnedState) {
+      throw new Error(
+        `Invalid OAuth state returned from provider. Expected "${stored}", got "${returnedState}".`,
+      );
+    }
+  } finally {
+    await AsyncStorage.removeItem("oauth_state");
+  }
+}
+
 // ============================================================================
 // OAuth URL Building
 // ============================================================================
@@ -375,7 +395,6 @@ export interface BuildOAuthUrlParams {
   publicKey: string;
   nonce: string;
   codeChallenge?: string | undefined;
-  additionalState?: Record<string, string> | undefined;
   /** If true, uses direct provider URLs; if false, uses Turnkey OAuth proxy */
   useOauthProxyOrigin?: boolean;
 }
@@ -386,7 +405,9 @@ export interface BuildOAuthUrlParams {
  * - Direct provider URLs (Discord, X)
  * - Turnkey OAuth proxy (Google, Apple, Facebook)
  */
-export function buildOAuthUrl(params: BuildOAuthUrlParams): string {
+export async function buildOAuthUrl(
+  params: BuildOAuthUrlParams,
+): Promise<string> {
   const {
     provider,
     clientId,
@@ -394,7 +415,6 @@ export function buildOAuthUrl(params: BuildOAuthUrlParams): string {
     publicKey,
     nonce,
     codeChallenge,
-    additionalState,
     useOauthProxyOrigin = false,
   } = params;
 
@@ -409,10 +429,9 @@ export function buildOAuthUrl(params: BuildOAuthUrlParams): string {
   if (!config.nonceInParams && nonce) {
     stateParams.nonce = nonce;
   }
-  if (additionalState) {
-    stateParams.additionalState = additionalState;
-  }
+
   const state = buildOAuthState(stateParams);
+  await storeOAuthState(state);
 
   // If using Turnkey Oauth proxy (for Google, Apple, Facebook)
   if (useOauthProxyOrigin) {
@@ -475,9 +494,9 @@ export interface ParsedInAppBrowserResult {
  * @param deepLinkUrl - The URL from InAppBrowser result (e.g., "myapp://?id_token=...&state=...")
  * @returns Parsed OAuth response data
  */
-export function parseInAppBrowserResult(
+export async function parseInAppBrowserResult(
   deepLinkUrl: string,
-): ParsedInAppBrowserResult {
+): Promise<ParsedInAppBrowserResult> {
   const qsIndex = deepLinkUrl.indexOf("?");
   const queryString = qsIndex >= 0 ? deepLinkUrl.substring(qsIndex + 1) : "";
   const urlParams = new URLSearchParams(queryString);
@@ -485,6 +504,13 @@ export function parseInAppBrowserResult(
   const idToken = urlParams.get("id_token");
   const authCode = urlParams.get("code");
   const stateParam = urlParams.get("state");
+
+  if (!stateParam) {
+    throw new Error(`Missing OAuth state in redirect response.`);
+  }
+
+  // Validate state parameter
+  await consumeOAuthState(stateParam);
 
   // Parse state parameter
   const stateData = parseStateParam(stateParam);
