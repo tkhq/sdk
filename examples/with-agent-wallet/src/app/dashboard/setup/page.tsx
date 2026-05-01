@@ -85,22 +85,19 @@ export default function SetupPage() {
           httpClient.getPolicies({ organizationId: orgId }),
         ]);
 
-        const agentUser = (usersRes as any).users?.find((u: any) =>
-          u.apiKeys?.some(
-            (k: any) => k.credential?.publicKey === agentPublicKey,
-          ),
+        const agentUser = usersRes.users.find((u) =>
+          u.apiKeys.some((k) => k.credential.publicKey === agentPublicKey),
         );
         if (!agentUser) return;
 
-        const allPolicies: any[] = (policiesRes as any).policies ?? [];
         const agentPolicies = POLICY_NAMES.map((name) =>
-          allPolicies.find((p: any) => p.policyName === name),
-        ).filter(Boolean);
+          policiesRes.policies.find((p) => p.policyName === name),
+        ).filter((p): p is NonNullable<typeof p> => p !== undefined);
         if (agentPolicies.length === 0) return;
 
         setSetup({
           agentUserId: agentUser.userId,
-          policies: agentPolicies.map((p: any) => ({
+          policies: agentPolicies.map((p) => ({
             policyId: p.policyId,
             policyName: p.policyName,
             effect: p.effect,
@@ -130,7 +127,7 @@ export default function SetupPage() {
       const whoami = await httpClient!.getWhoami({
         organizationId: session.organizationId,
       });
-      const humanUserId = (whoami as any).userId as string;
+      const humanUserId = whoami.userId;
 
       // Create or find the agent non-root user (stamped with the user's session key)
       const agentUser = await fetchOrCreateP256ApiKeyUser({
@@ -140,7 +137,7 @@ export default function SetupPage() {
           apiKeyName: "agent-key",
         },
       });
-      const agentUserId = (agentUser as any).userId as string;
+      const agentUserId = agentUser.userId;
 
       // Create or find the three signing policies
       const policiesRes = await fetchOrCreatePolicies({
@@ -175,11 +172,11 @@ export default function SetupPage() {
         agentUserId,
         policies: policiesRes.map((p) => ({
           policyId: p.policyId,
-          policyName: (p as any).policyName ?? "",
-          effect: (p as any).effect ?? "",
-          condition: (p as any).condition,
-          consensus: (p as any).consensus,
-          notes: (p as any).notes,
+          policyName: p.policyName,
+          effect: p.effect,
+          condition: p.condition,
+          consensus: p.consensus,
+          notes: p.notes,
         })),
       });
     } catch (e: unknown) {

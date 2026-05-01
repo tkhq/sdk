@@ -13,32 +13,7 @@ import type { ActivitySseMessage, ActivityEventEnvelope } from "@/lib/types";
 const POLL_INTERVAL_MS = 2_000;
 const POLL_MAX_ATTEMPTS = 30;
 
-// Returns "0x..." on success, "error:..." on failure, null on timeout.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function pollTxHash(
-  client: any,
-  organizationId: string,
-  sendTransactionStatusId: string,
-): Promise<string | null> {
-  for (let i = 0; i < POLL_MAX_ATTEMPTS; i++) {
-    let res: any;
-    try {
-      res = await client.getSendTransactionStatus({
-        organizationId,
-        sendTransactionStatusId,
-      });
-    } catch (e) {
-      return `error:${e instanceof Error ? e.message : String(e)}`;
-    }
-    if (res.txStatus === "INCLUDED") return (res.eth?.txHash as string) ?? null;
-    if (res.txStatus === "FAILED" || res.txError) {
-      const msg = res.error?.message ?? res.txError ?? "Transaction failed";
-      return `error:${msg}`;
-    }
-    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-  }
-  return null;
-}
+
 
 function statusBadge(status: string) {
   const map: Record<string, string> = {
@@ -158,8 +133,8 @@ export default function TestPage() {
           activityId,
         });
         statusId =
-          (activity as any).result?.ethSendTransactionResult
-            ?.sendTransactionStatusId ?? null;
+          activity.result?.ethSendTransactionResult?.sendTransactionStatusId ??
+          null;
       } catch {
         // ignore — fall through to "confirmed" fallback
       }
@@ -169,7 +144,27 @@ export default function TestPage() {
           ...prev,
           [activityId]: "confirming…",
         }));
-        const txHash = await pollTxHash(httpClient, activityOrgId, statusId);
+        let txHash: string | null = null;
+        for (let i = 0; i < POLL_MAX_ATTEMPTS; i++) {
+          try {
+            const res = await httpClient.getSendTransactionStatus({
+              organizationId: activityOrgId,
+              sendTransactionStatusId: statusId,
+            });
+            if (res.txStatus === "INCLUDED") {
+              txHash = res.eth?.txHash ?? null;
+              break;
+            }
+            if (res.txStatus === "FAILED" || res.txError) {
+              txHash = `error:${res.error?.message ?? res.txError ?? "Transaction failed"}`;
+              break;
+            }
+          } catch (e) {
+            txHash = `error:${e instanceof Error ? e.message : String(e)}`;
+            break;
+          }
+          await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+        }
         setApprovalResults((prev) => ({
           ...prev,
           [activityId]: txHash ?? "confirmed",
