@@ -13,8 +13,6 @@ import type { ActivitySseMessage, ActivityEventEnvelope } from "@/lib/types";
 const POLL_INTERVAL_MS = 2_000;
 const POLL_MAX_ATTEMPTS = 30;
 
-
-
 function statusBadge(status: string) {
   const map: Record<string, string> = {
     ACTIVITY_STATUS_COMPLETED: "bg-green-100 text-green-800",

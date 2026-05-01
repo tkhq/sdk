@@ -16,8 +16,8 @@ The dashboard listens for webhook events via **SSE** and shows an **Approve** bu
 ## How it works
 
 ```
-Browser (user)          Next.js server          Turnkey             Terminal (agent CLI)
-──────────────          ──────────────          ───────             ───────────────────
+Browser (user)          Next.js server          Turnkey                   Terminal (agent CLI)
+──────────────          ──────────────          ───────                   ───────────────────
 Login via Auth Proxy ──────────────────────────────────►
                         Creates sub-org + embedded wallet
 ◄─────────────── session (orgId, walletAddress) ────────
@@ -29,25 +29,25 @@ Setup tab: "Setup agent" ──────────────────�
                         Creates Policy C (self-delete)
 ◄──────────── agentUserId, policyIds (A / B / C) ───────
 
-                                                         pnpm agent allowed <addr> <orgId>
-                                                         ethSendTransaction ─────────────►
-                                                                         COMPLETED
-                                                         Fires webhook ◄──────────────────
+                                                                          pnpm agent allowed <addr> <orgId>
+                                                                          ethSendTransaction ─────────────►
+                                                                                          COMPLETED
+                                                                          Fires webhook ◄──────────────────
                         POST /api/webhook/activity-updates
                         addEvent to SSE store
 GET /api/events (SSE) ◄── activity-update (COMPLETED)
 
-                                                         pnpm agent approval <addr> <orgId>
-                                                         ethSendTransaction ─────────────►
-                                                                         CONSENSUS_NEEDED
-                                                         Fires webhook ◄──────────────────
+                                                                          pnpm agent approval <addr> <orgId>
+                                                                          ethSendTransaction ─────────────►
+                                                                                          CONSENSUS_NEEDED
+                                                                          Fires webhook ◄──────────────────
                         addEvent to SSE store
 GET /api/events (SSE) ◄── activity-update (CONSENSUS_NEEDED)
 [Approve] button
 
 httpClient.approveActivity ────────────────────────────►
-                                                                         COMPLETED
-                                                         Fires webhook ◄──────────────────
+                                                                                          COMPLETED
+                                                                          Fires webhook ◄──────────────────
 GET /api/events (SSE) ◄── activity-update (COMPLETED)
 ```
 
@@ -135,7 +135,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 1. **Sign up / sign in** — click "Login / Sign Up". Auth Proxy creates a sub-org with an embedded Ethereum wallet on first login.
 2. **Setup tab** — click "Setup agent". Your browser session key creates a non-root agent user (with your `AGENT_API_PUBLIC_KEY`) and three signing policies directly in your sub-org — no admin key involved. The page shows the resulting IDs and pre-filled CLI commands.
-3. **Test tab** — three copy-paste CLI commands are shown with your actual wallet address and sub-org ID:
+3. **Test tab** — four copy-paste CLI commands are shown with your actual wallet address and sub-org ID:
    - **Allowed**: `pnpm agent allowed <address> <orgId>` — agent signs to `ALLOWED_RECIPIENT`, activity completes immediately.
    - **Approval**: `pnpm agent approval <address> <orgId>` — agent signs to `APPROVAL_RECIPIENT`, activity lands in `CONSENSUS_NEEDED`. An **Approve** button appears in the event log — click it to submit vote 2 with your session key.
    - **Denied**: `pnpm agent denied <address> <orgId>` — agent tries to sign to an unknown address, rejected by default-deny.

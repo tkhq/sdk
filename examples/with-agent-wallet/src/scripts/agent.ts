@@ -24,8 +24,8 @@ async function pollTransactionStatus(
     if (txStatus === "FAILED" || res.txError) {
       const msg = res.error?.message ?? res.txError ?? txStatus;
       const chain = (res.error?.revertChain ?? [])
-        .map((e: any) => e.displayMessage)
-        .filter(Boolean)
+        .map((e) => e.displayMessage)
+        .filter((m): m is string => Boolean(m))
         .join(" → ");
       console.error(
         `\n  Transaction failed: ${msg}${chain ? `\n  Revert chain  : ${chain}` : ""}`,
