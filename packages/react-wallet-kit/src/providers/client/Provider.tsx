@@ -124,7 +124,8 @@ import {
   type DeleteApiKeyPairParams,
   buildSecondaryOauthProviders,
   buildSecondaryOidcClaims,
-  buildAllowCredentialsFromAuthenticators,
+  applyPasskeyScope,
+  resetPasskeyScope,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -831,9 +832,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       otpLength: proxyAuthConfig?.otpLength ?? config.auth?.otpLength ?? "6",
     };
 
+    const scopePasskeyToUser = config.auth?.scopePasskeyToUser ?? true;
+
     return {
       ...config,
-
+      scopePasskeyToUser,
       // Overrides:
       auth: {
         ...config.auth,
@@ -850,6 +853,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             : config.auth?.oauthConfig?.openOauthInPage,
         },
         autoRefreshSession: config.auth?.autoRefreshSession ?? true,
+        scopePasskeyToUser,
       },
       ui: {
         ...config.ui,
@@ -927,6 +931,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           }),
         },
         defaultStamperType: masterConfig.defaultStamperType,
+        scopePasskeyToUser: masterConfig.scopePasskeyToUser ?? true,
       });
 
       await turnkeyClient.init();
@@ -1008,16 +1013,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           setWallets((prev) => mergeWalletsWithoutDuplicates(prev, wallets));
         }
 
-        if (user && client) {
-          await client.overridePasskeyStamper({
-            config: {
-              ...client.config.passkeyConfig,
-              allowCredentials: buildAllowCredentialsFromAuthenticators(
-                user.authenticators,
-              ),
-            },
-          });
-        }
+        if (client)
+          await applyPasskeyScope(
+            client,
+            client.config.passkeyConfig,
+            user,
+            masterConfig?.auth?.scopePasskeyToUser,
+          );
 
         return;
       }
@@ -1303,16 +1305,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         maybeRefreshUser(),
       ]);
 
-      if (user && client) {
-        await client.overridePasskeyStamper({
-          config: {
-            ...client.config.passkeyConfig,
-            allowCredentials: buildAllowCredentialsFromAuthenticators(
-              user.authenticators,
-            ),
-          },
-        });
-      }
+      if (client)
+        await applyPasskeyScope(
+          client,
+          client.config.passkeyConfig,
+          user,
+          masterConfig?.auth?.scopePasskeyToUser,
+        );
 
       if (
         masterConfig?.auth?.verifyWalletOnSignup === true &&
@@ -1361,33 +1360,39 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @returns void
    * @throws {TurnkeyError} If there is an error during the post-logout process.
    */
-  const handlePostLogout = (sessionKey?: string) => {
-    try {
-      clearSessionTimeouts(
-        sessionKey ? [sessionKey, `${sessionKey}-warning`] : undefined,
-      );
-      setAllSessions((prev) => {
-        if (!prev) return prev;
-        if (sessionKey) {
-          const next = { ...prev };
-          delete next[sessionKey];
-          return next;
-        }
-        return {};
-      });
-      setSession(undefined);
-      setUser(undefined);
-      setWallets([]);
-    } catch (error) {
-      callbacks?.onError?.(
-        new TurnkeyError(
-          `Failed to initialize sessions`,
-          TurnkeyErrorCodes.HANDLE_POST_LOGOUT_ERROR,
-          error,
-        ),
-      );
-    }
-  };
+  const handlePostLogout = useCallback(
+    async (sessionKey?: string) => {
+      try {
+        const timeoutKeys = sessionKey
+          ? [sessionKey, `${sessionKey}-warning`]
+          : undefined;
+        clearSessionTimeouts(timeoutKeys);
+        setAllSessions((prev) => {
+          if (!prev) return prev;
+          if (sessionKey) {
+            const next = { ...prev };
+            delete next[sessionKey];
+            return next;
+          }
+          return {};
+        });
+        setSession(undefined);
+        setUser(undefined);
+        setWallets([]);
+        if (client)
+          await resetPasskeyScope(client, client.config.passkeyConfig);
+      } catch (error) {
+        callbacks?.onError?.(
+          new TurnkeyError(
+            `Failed to handle post logout`,
+            TurnkeyErrorCodes.HANDLE_POST_LOGOUT_ERROR,
+            error,
+          ),
+        );
+      }
+    },
+    [callbacks, clearSessionTimeouts, client, masterConfig?.passkeyConfig],
+  );
 
   const createHttpClient = useCallback(
     (params?: CreateHttpClientParams): TurnkeySDKClientBase => {
@@ -1459,7 +1464,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           if (!sessionKey) sessionKey = await getActiveSessionKey();
           await client.logout(params);
           // We only handle post logout if the sessionKey is defined since that means we actually logged out of a session.
-          if (sessionKey) handlePostLogout(sessionKey);
+          if (sessionKey) await handlePostLogout(sessionKey);
         },
         undefined,
         callbacks,
@@ -1468,7 +1473,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       return;
     },
-    [client, callbacks, getActiveSessionKey],
+    [client, callbacks, getActiveSessionKey, handlePostLogout],
   );
 
   const getSession = useCallback(
@@ -1696,16 +1701,21 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
+      const activeSessionKey = await getActiveSessionKey();
       await withTurnkeyErrorHandling(
         async () => client.clearSession(params),
         undefined,
         callbacks,
         "Failed to clear session",
       );
-      const sessionKey = params?.sessionKey ?? (await getActiveSessionKey());
+      const sessionKey = params?.sessionKey ?? activeSessionKey;
       if (!sessionKey) return;
-      if (!params?.sessionKey) {
+      if (!params?.sessionKey || params.sessionKey === activeSessionKey) {
         setSession(undefined);
+        setUser(undefined);
+        setWallets([]);
+        if (client)
+          await resetPasskeyScope(client, client.config.passkeyConfig);
       }
       clearSessionTimeouts([sessionKey]);
       // clear only the cleared session from allSessions
@@ -1716,7 +1726,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setAllSessions(newAllSessions);
       return;
     },
-    [client, callbacks, getActiveSessionKey, allSessions],
+    [
+      client,
+      callbacks,
+      getActiveSessionKey,
+      allSessions,
+      masterConfig?.passkeyConfig,
+    ],
   );
 
   /**
@@ -2980,17 +2996,31 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to add passkey",
       );
-      if (res)
-        await maybeRefreshUser({
+      if (res) {
+        const updatedUser = await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
           }),
           ...(params?.userId && { userId: params.userId }),
         });
+        await applyPasskeyScope(
+          client,
+          client.config.passkeyConfig,
+          updatedUser,
+          masterConfig?.auth?.scopePasskeyToUser,
+        );
+      }
       return res;
     },
-    [client, callbacks, logout, maybeRefreshUser],
+    [
+      client,
+      callbacks,
+      logout,
+      maybeRefreshUser,
+      masterConfig?.passkeyConfig,
+      masterConfig?.auth?.scopePasskeyToUser,
+    ],
   );
 
   const removePasskeys = useCallback(
@@ -3231,7 +3261,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setSession(session);
       setAllSessions(allSessions);
 
-      await Promise.all([maybeRefreshWallets(), maybeRefreshUser()]);
+      const nextUser = await maybeRefreshUser();
+      await maybeRefreshWallets();
+      if (client)
+        await applyPasskeyScope(
+          client,
+          client.config.passkeyConfig,
+          nextUser,
+          masterConfig?.auth?.scopePasskeyToUser,
+        );
     },
     [
       client,
@@ -3241,6 +3279,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       getSession,
       scheduleSessionExpiration,
       getAllSessions,
+      masterConfig?.passkeyConfig,
+      masterConfig?.auth?.scopePasskeyToUser,
       maybeRefreshWallets,
       maybeRefreshUser,
     ],
@@ -3254,14 +3294,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     setSession(undefined);
     setAllSessions(undefined);
+    setUser(undefined);
+    setWallets([]);
     clearSessionTimeouts();
-    return await withTurnkeyErrorHandling(
+    await withTurnkeyErrorHandling(
       () => client.clearAllSessions(),
       () => logout(),
       callbacks,
       "Failed to clear all sessions",
     );
-  }, [client, callbacks, logout, clearSessionTimeouts]);
+    await resetPasskeyScope(client, client.config.passkeyConfig);
+  }, [
+    client,
+    callbacks,
+    logout,
+    clearSessionTimeouts,
+    masterConfig?.passkeyConfig,
+  ]);
 
   const setActiveSession = useCallback(
     async (params: SetActiveSessionParams): Promise<void> => {
@@ -3292,7 +3341,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setSession(session);
       await withTurnkeyErrorHandling(
         async () => {
-          await Promise.all([maybeRefreshWallets(), maybeRefreshUser()]);
+          const nextUser = await maybeRefreshUser();
+          await maybeRefreshWallets();
+          if (client)
+            await applyPasskeyScope(
+              client,
+              client.config.passkeyConfig,
+              nextUser,
+              masterConfig?.auth?.scopePasskeyToUser,
+            );
         },
         () => logout(),
         callbacks,
@@ -3305,6 +3362,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       logout,
       getSession,
+      masterConfig?.passkeyConfig,
+      masterConfig?.auth?.scopePasskeyToUser,
       maybeRefreshWallets,
       maybeRefreshUser,
     ],
