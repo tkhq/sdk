@@ -16,38 +16,38 @@ The dashboard listens for webhook events via **SSE** and shows an **Approve** bu
 ## How it works
 
 ```
-Browser (user)          Next.js server          Turnkey                   Terminal (agent CLI)
-──────────────          ──────────────          ───────                   ───────────────────
-Login via Auth Proxy ──────────────────────────────────►
-                        Creates sub-org + embedded wallet
-◄─────────────── session (orgId, walletAddress) ────────
+Browser (user)            Next.js server            Turnkey                 Terminal (agent CLI)
+──────────────            ──────────────            ───────                 ───────────────────
+Login via Auth Proxy ─────────────────────────────────────────►
+                          Creates sub-org + embedded wallet
+◄──────────── session (orgId, walletAddress) ─────────────────
 
-Setup tab: "Setup agent" ──────────────────────────────►
-                        (client session key) creates agent user
-                        Creates Policy A (free signing)
-                        Creates Policy B (agent + human, explicit IDs)
-                        Creates Policy C (self-delete)
-◄──────────── agentUserId, policyIds (A / B / C) ───────
+Setup tab: "Setup agent" ─────────────────────────────────────►
+                          (client session key) creates agent user
+                          Creates Policy A (free signing)
+                          Creates Policy B (agent + human, explicit IDs)
+                          Creates Policy C (self-delete)
+◄──────────── agentUserId, policyIds (A / B / C) ─────────────
 
-                                                                          pnpm agent allowed <addr> <orgId>
-                                                                          ethSendTransaction ─────────────►
-                                                                                          COMPLETED
-                                                                          Fires webhook ◄──────────────────
-                        POST /api/webhook/activity-updates
-                        addEvent to SSE store
+                                                                            pnpm agent allowed <addr> <orgId>
+                                                                            ethSendTransaction ─────────────►
+                                                                                              COMPLETED
+                                                                            Fires webhook ◄──────────────────
+                          POST /api/webhook/activity-updates
+                          addEvent to SSE store
 GET /api/events (SSE) ◄── activity-update (COMPLETED)
 
-                                                                          pnpm agent approval <addr> <orgId>
-                                                                          ethSendTransaction ─────────────►
-                                                                                          CONSENSUS_NEEDED
-                                                                          Fires webhook ◄──────────────────
-                        addEvent to SSE store
+                                                                            pnpm agent approval <addr> <orgId>
+                                                                            ethSendTransaction ─────────────►
+                                                                                              CONSENSUS_NEEDED
+                                                                            Fires webhook ◄──────────────────
+                          addEvent to SSE store
 GET /api/events (SSE) ◄── activity-update (CONSENSUS_NEEDED)
 [Approve] button
 
-httpClient.approveActivity ────────────────────────────►
-                                                                                          COMPLETED
-                                                                          Fires webhook ◄──────────────────
+httpClient.approveActivity ───────────────────────────────────►
+                                                                                              COMPLETED
+                                                                            Fires webhook ◄──────────────────
 GET /api/events (SSE) ◄── activity-update (COMPLETED)
 ```
 
