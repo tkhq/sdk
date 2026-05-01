@@ -735,9 +735,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const handlePostLogout = useCallback(
     async (sessionKey?: string) => {
       try {
-        clearSessionTimeouts(
-          sessionKey ? [sessionKey, `${sessionKey}-warning`] : undefined,
-        );
+        const timeoutKeys = sessionKey
+          ? [sessionKey, `${sessionKey}-warning`]
+          : undefined;
+        clearSessionTimeouts(timeoutKeys);
         setAllSessions((prev) => {
           if (!prev) return prev;
           if (sessionKey) {
@@ -755,7 +756,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       } catch (error) {
         callbacks?.onError?.(
           new TurnkeyError(
-            `Failed to initialize sessions`,
+            `Failed to handle post logout`,
             TurnkeyErrorCodes.HANDLE_POST_LOGOUT_ERROR,
             error,
           ),
@@ -2217,10 +2218,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setSession(session);
       setAllSessions(allSessions);
 
-      const [, nextUser] = await Promise.all([
-        maybeRefreshWallets(),
-        maybeRefreshUser(),
-      ]);
+      const nextUser = await maybeRefreshUser();
+      await maybeRefreshWallets();
       if (client)
         await applyPasskeyScope(
           client,
@@ -2395,10 +2394,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setSession(session);
       await withTurnkeyErrorHandling(
         async () => {
-          const [, nextUser] = await Promise.all([
-            maybeRefreshWallets(),
-            maybeRefreshUser(),
-          ]);
+          const nextUser = await maybeRefreshUser();
+          await maybeRefreshWallets();
           if (client)
             await applyPasskeyScope(
               client,
