@@ -230,12 +230,23 @@ async function setupRole(params: {
 }
 
 function printPrefixed(prefix: string, setup: RoleSetup) {
-  console.log(`${prefix}TURNKEY_WALLET_ID=${setup.walletId}`);
-  console.log(`${prefix}TURNKEY_SPARK_ADDRESS=${setup.sparkAddress}`);
-  console.log(`${prefix}TURNKEY_ECDSA_ADDRESS=${setup.ecdsaAddress}`);
-  console.log(`${prefix}IDENTITY_PUBLIC_KEY_HEX=${setup.identityPublicKeyHex}`);
-  console.log(`${prefix}TURNKEY_L1_BTC_ADDRESS=${setup.l1.address}`);
-  console.log(`${prefix}TURNKEY_L1_BTC_PUBLIC_KEY_HEX=${setup.l1.publicKeyHex}`);
+  printEnvLines([
+    `${prefix}TURNKEY_WALLET_ID=${setup.walletId}`,
+    `${prefix}TURNKEY_SPARK_ADDRESS=${setup.sparkAddress}`,
+    `${prefix}TURNKEY_ECDSA_ADDRESS=${setup.ecdsaAddress}`,
+    `${prefix}IDENTITY_PUBLIC_KEY_HEX=${setup.identityPublicKeyHex}`,
+    `${prefix}TURNKEY_L1_BTC_ADDRESS=${setup.l1.address}`,
+    `${prefix}TURNKEY_L1_BTC_PUBLIC_KEY_HEX=${setup.l1.publicKeyHex}`,
+  ]);
+}
+
+function printEnvLines(lines: string[]) {
+  console.log(lines.join("\n"));
+}
+
+function printEnvBlock(title: string, lines: string[]) {
+  console.log(`\n${title}`);
+  printEnvLines(lines);
 }
 
 async function main() {
@@ -281,31 +292,46 @@ async function main() {
     l1Path: env("RECEIVER_TURNKEY_L1_BTC_PATH", L1_BTC_PATH),
   });
 
-  console.log("\nAdd these to your .env.local:");
-  console.log("SPARK_NETWORK=REGTEST");
+  printEnvBlock("Add these to your .env.local:", ["SPARK_NETWORK=REGTEST"]);
   printPrefixed("SENDER_", sender);
   printPrefixed("RECEIVER_", receiver);
-  console.log(`WITHDRAW_BTC_ADDRESS=${receiver.l1.address}`);
-  console.log("L1_DEPOSIT_FEE_SATS=500");
-  console.log("L1_DEPOSIT_AMOUNT_SATS=");
-  console.log("L1_DEPOSIT_TXID=");
-  console.log("L1_FUNDING_TIMEOUT_MS=60000");
-  console.log("L1_FUNDING_POLL_MS=5000");
-  console.log("L1_DEPOSIT_CONFIRMATION_TIMEOUT_MS=300000");
-  console.log("L1_DEPOSIT_CONFIRMATION_POLL_MS=5000");
-  console.log("TRANSFER_CLAIM_TIMEOUT_MS=120000");
-  console.log("TRANSFER_CLAIM_POLL_MS=3000");
-  console.log("TRANSFER_AMOUNT_SATS=");
-  console.log("WITHDRAW_AMOUNT_SATS=");
+  printEnvLines([
+    `WITHDRAW_BTC_ADDRESS=${receiver.l1.address}`,
+    "L1_DEPOSIT_FEE_SATS=500",
+    "L1_DEPOSIT_AMOUNT_SATS=",
+    "L1_DEPOSIT_TXID=",
+    "L1_FUNDING_TIMEOUT_MS=60000",
+    "L1_FUNDING_POLL_MS=5000",
+    "L1_DEPOSIT_CONFIRMATION_TIMEOUT_MS=300000",
+    "L1_DEPOSIT_CONFIRMATION_POLL_MS=5000",
+    "STATIC_DEPOSIT_INDEX=0",
+    "STATIC_DEPOSIT_FEE_SATS=500",
+    "STATIC_DEPOSIT_MAX_CLAIM_FEE_SATS=500",
+    "STATIC_DEPOSIT_AMOUNT_SATS=",
+    "STATIC_DEPOSIT_TXID=",
+    "STATIC_DEPOSIT_VOUT=",
+    "STATIC_DEPOSIT_FUNDING_TIMEOUT_MS=60000",
+    "STATIC_DEPOSIT_FUNDING_POLL_MS=5000",
+    "STATIC_DEPOSIT_CONFIRMATION_TIMEOUT_MS=300000",
+    "STATIC_DEPOSIT_CONFIRMATION_POLL_MS=5000",
+    "TRANSFER_CLAIM_TIMEOUT_MS=120000",
+    "TRANSFER_CLAIM_POLL_MS=3000",
+    "TRANSFER_AMOUNT_SATS=",
+    "WITHDRAW_AMOUNT_SATS=",
+  ]);
 
-  console.log("\nFor the one-wallet scripts, you can also use the sender as the active wallet:");
-  console.log(`TURNKEY_WALLET_ID=${sender.walletId}`);
-  console.log(`TURNKEY_SPARK_ADDRESS=${sender.sparkAddress}`);
-  console.log(`TURNKEY_ECDSA_ADDRESS=${sender.ecdsaAddress}`);
-  console.log(`IDENTITY_PUBLIC_KEY_HEX=${sender.identityPublicKeyHex}`);
-  console.log(`TURNKEY_L1_BTC_ADDRESS=${sender.l1.address}`);
-  console.log(`TURNKEY_L1_BTC_PUBLIC_KEY_HEX=${sender.l1.publicKeyHex}`);
-  console.log(`RECEIVER_SPARK_ADDRESS=${receiver.sparkAddress}`);
+  printEnvBlock(
+    "For the one-wallet scripts, you can also use the sender as the active wallet:",
+    [
+      `TURNKEY_WALLET_ID=${sender.walletId}`,
+      `TURNKEY_SPARK_ADDRESS=${sender.sparkAddress}`,
+      `TURNKEY_ECDSA_ADDRESS=${sender.ecdsaAddress}`,
+      `IDENTITY_PUBLIC_KEY_HEX=${sender.identityPublicKeyHex}`,
+      `TURNKEY_L1_BTC_ADDRESS=${sender.l1.address}`,
+      `TURNKEY_L1_BTC_PUBLIC_KEY_HEX=${sender.l1.publicKeyHex}`,
+      `RECEIVER_SPARK_ADDRESS=${receiver.sparkAddress}`,
+    ],
+  );
 }
 
 main().catch((err) => {

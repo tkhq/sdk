@@ -4,8 +4,8 @@ import type { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 export const DEFAULT_SPARK_REGTEST_ELECTRS_URL =
   "https://regtest-mempool.us-west-2.sparkinfra.net/api";
 
-const REGTEST_NETWORK = { ...btc.TEST_NETWORK, bech32: "bcrt" };
-const DUST_SATS = 546n;
+export const REGTEST_NETWORK = { ...btc.TEST_NETWORK, bech32: "bcrt" };
+export const DUST_SATS = 546n;
 const DEFAULT_FUNDING_TIMEOUT_MS = 60000;
 const DEFAULT_FUNDING_POLL_MS = 5000;
 const DEFAULT_SPARK_REGTEST_ELECTRS_AUTH = {
@@ -13,13 +13,16 @@ const DEFAULT_SPARK_REGTEST_ELECTRS_AUTH = {
   password: "mCMk1JqlBNtetUNy",
 };
 
-type BalanceSats = number | bigint | string;
+export type BalanceSats = number | bigint | string;
 
-type SparkWalletDepositLike = {
+export type SparkWalletBalanceLike = {
+  getBalance(): Promise<{ satsBalance?: { available?: BalanceSats } }>;
+};
+
+export type SparkWalletDepositLike = SparkWalletBalanceLike & {
   getSingleUseDepositAddress(): Promise<string>;
   advancedDeposit(txHex: string): Promise<unknown>;
   claimDeposit(txid: string): Promise<unknown>;
-  getBalance(): Promise<{ satsBalance?: { available?: BalanceSats } }>;
 };
 
 type ElectrsAuth = {
@@ -84,7 +87,7 @@ export interface TurnkeyL1DepositResult {
   balanceSats: BalanceSats;
 }
 
-function hexToBytes(hex: string): Uint8Array {
+export function hexToBytes(hex: string): Uint8Array {
   if (hex.length % 2 !== 0) throw new Error(`Invalid hex length: ${hex.length}`);
   const out = new Uint8Array(hex.length / 2);
   for (let i = 0; i < out.length; i++) {
@@ -93,16 +96,16 @@ function hexToBytes(hex: string): Uint8Array {
   return out;
 }
 
-function bytesToHex(bytes: Uint8Array): string {
+export function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-function balanceSatsToBigInt(value: BalanceSats | undefined): bigint {
+export function balanceSatsToBigInt(value: BalanceSats | undefined): bigint {
   if (value === undefined) return 0n;
   return BigInt(value);
 }
 
-function xOnlyPublicKey(publicKeyHex: string): Uint8Array {
+export function xOnlyPublicKey(publicKeyHex: string): Uint8Array {
   const bytes = hexToBytes(publicKeyHex);
   if (bytes.length === 32) return bytes;
   if (bytes.length === 33 && (bytes[0] === 0x02 || bytes[0] === 0x03)) {
@@ -142,7 +145,7 @@ function electrsHeaders(baseUrl: string): Headers {
   return headers;
 }
 
-async function fetchElectrsJson<T>(
+export async function fetchElectrsJson<T>(
   baseUrl: string,
   path: string,
 ): Promise<T> {
@@ -156,7 +159,7 @@ async function fetchElectrsJson<T>(
   return JSON.parse(body) as T;
 }
 
-async function postElectrsText(
+export async function postElectrsText(
   baseUrl: string,
   path: string,
   body: string,
@@ -176,7 +179,7 @@ async function postElectrsText(
   return responseBody.trim();
 }
 
-function sleep(ms: number): Promise<void> {
+export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -316,8 +319,8 @@ async function claimDeposit(wallet: SparkWalletDepositLike, txid: string) {
   }
 }
 
-async function waitForSparkAvailableBalance(params: {
-  wallet: SparkWalletDepositLike;
+export async function waitForSparkAvailableBalance(params: {
+  wallet: SparkWalletBalanceLike;
   minBalanceSats: bigint;
   timeoutMs?: number | undefined;
   pollMs?: number | undefined;

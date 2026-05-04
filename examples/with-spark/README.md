@@ -1,6 +1,6 @@
 # Example: `with-spark`
 
-Demonstrates [Spark](https://spark.money) operations using **Turnkey as the key custodian**. Private keys never leave Turnkey's enclave — all signing happens via Turnkey activities.
+Demonstrates [Spark](https://spark.money) operations using **Turnkey as the key custodian**. For the normal Spark flows, private keys never leave Turnkey's enclave and signing happens via Turnkey activities. The static deposit script is an export-based compatibility flow: it exports the static deposit account key in-memory because the current Spark SDK/SSP static claim API requires the raw static deposit key.
 
 ## Operations
 
@@ -13,6 +13,7 @@ Demonstrates [Spark](https://spark.money) operations using **Turnkey as the key 
 | `pnpm run setup:l1` | Create/reuse a Turnkey Bitcoin regtest funding address | `CREATE_WALLET_ACCOUNTS` |
 | `pnpm run token-transfer` | Create, mint, and transfer a Spark token | `SignRawPayload` (ECDSA) |
 | `pnpm run deposit` | Spend a Turnkey bcrt1p faucet UTXO into Spark and claim it | `SIGN_TRANSACTION` + `SPARK_PREPARE_AND_SIGN` |
+| `pnpm run deposit:static` | Spend a Turnkey bcrt1p faucet UTXO into a Spark static deposit address and claim it | `CREATE_WALLET_ACCOUNTS` + `EXPORT_WALLET_ACCOUNT` + `SIGN_TRANSACTION` |
 | `pnpm run transfer` | Send sats to another Spark address | `SPARK_PREPARE_AND_SIGN` (FROST + key tweaks) |
 | `pnpm run claim` | Receive an inbound Spark transfer | `SPARK_PREPARE_AND_SIGN` (verify + decrypt + key tweaks) |
 | `pnpm run lightning:receive` | Create a Lightning invoice backed by Turnkey-generated Spark preimage shares | `SPARK_PREPARE_AND_SIGN` (`lightning_receive`) |
@@ -185,6 +186,19 @@ L1_FUNDING_POLL_MS=5000
 L1_DEPOSIT_CONFIRMATION_TIMEOUT_MS=300000
 L1_DEPOSIT_CONFIRMATION_POLL_MS=5000
 
+# For hosted REGTEST static deposit
+STATIC_DEPOSIT_INDEX=0
+STATIC_DEPOSIT_AMOUNT_SATS=          # optional; empty sweeps all L1 funding UTXOs minus fee
+STATIC_DEPOSIT_FEE_SATS=500
+STATIC_DEPOSIT_MAX_CLAIM_FEE_SATS=500
+STATIC_DEPOSIT_TXID=                 # optional; retry claiming an already-broadcast static deposit tx
+STATIC_DEPOSIT_VOUT=                 # required when STATIC_DEPOSIT_TXID is set
+STATIC_DEPOSIT_FUNDING_TIMEOUT_MS=60000
+STATIC_DEPOSIT_FUNDING_POLL_MS=5000
+STATIC_DEPOSIT_CONFIRMATION_TIMEOUT_MS=300000
+STATIC_DEPOSIT_CONFIRMATION_POLL_MS=5000
+TURNKEY_EXPORT_SIGNER_PUBLIC_KEY=    # required when BASE_URL is not https://api.turnkey.com
+
 # Optional
 SPARK_NETWORK=REGTEST              # or MAINNET
 DEPOSIT_AMOUNT_SATS=100000
@@ -201,6 +215,7 @@ pnpm run token-transfer
 # Bitcoin / Spark operations on hosted REGTEST
 pnpm run setup:l1
 pnpm run deposit
+pnpm run deposit:static
 pnpm run transfer
 pnpm run claim
 pnpm run lightning:receive
@@ -388,6 +403,55 @@ The hosted REGTEST Electrs endpoint requires basic auth. The example uses the
 same default hosted REGTEST credentials as the Spark SDK and does not print them.
 For a custom protected endpoint, set `SPARK_REGTEST_ELECTRS_USER` and
 `SPARK_REGTEST_ELECTRS_PASSWORD`.
+
+## Hosted REGTEST Static Deposit
+
+`deposit:static` exercises Spark's static deposit path on hosted `REGTEST`.
+It uses the same Turnkey Bitcoin funding account as `deposit`, but sends the L1
+transaction to `wallet.getStaticDepositAddress()` instead of a single-use Spark
+deposit address.
+
+The normal `deposit` script keeps Spark deposit preparation and signing inside
+Turnkey. Static deposit is different today because the Spark SDK claim path asks
+the signer for the raw static deposit secret key. To bridge that API, the
+example creates or reuses a Turnkey wallet account at the Spark static deposit
+path before funding, then exports the account key just-in-time for the claim,
+verifies it against Spark's derived static-deposit public key, installs it into
+the signer, and clears the signer-held key after the claim attempt.
+
+Run it after `setup:e2e` or `setup` plus `setup:l1`:
+
+```bash
+pnpm run deposit:static
+```
+
+If the funding account has no UTXO yet, the script prints
+`TURNKEY_L1_BTC_ADDRESS` and waits while you fund it from the Lightspark regtest
+faucet using the **Bitcoin** receiver option. If `STATIC_DEPOSIT_AMOUNT_SATS` is
+unset, it deposits all available funding UTXOs minus
+`STATIC_DEPOSIT_FEE_SATS`.
+
+`STATIC_DEPOSIT_INDEX` selects the static deposit child account. With the
+default Spark identity path `m/8797555'/0'/0'`, index `0` uses
+`m/8797555'/0'/3'/0'`. The current Spark SDK static claim path hardcodes index
+`0`, so this example rejects other index values until that SDK path is
+parameterized.
+
+The script refuses to claim if the SSP quote would charge more than
+`STATIC_DEPOSIT_MAX_CLAIM_FEE_SATS`, based on the funded output amount and the
+quoted credit amount.
+
+For production, export bundle decryption pins Turnkey's production export
+signer key from `packages/crypto/src/constants.ts`. If you are testing against
+a non-production Turnkey environment, set `TURNKEY_EXPORT_SIGNER_PUBLIC_KEY`
+explicitly; the script will refuse to decrypt an export bundle without it.
+
+To retry after a timeout or claim a transaction that was already broadcast, set
+both values printed by the script and rerun:
+
+```bash
+STATIC_DEPOSIT_TXID=<txid> STATIC_DEPOSIT_VOUT=<vout> pnpm run deposit:static
+```
 
 ## Architecture
 

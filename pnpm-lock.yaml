@@ -2871,12 +2871,18 @@ importers:
       '@noble/hashes':
         specifier: ^1.4.0
         version: 1.8.0
+      '@peculiar/webcrypto':
+        specifier: ^1.5.0
+        version: 1.5.0
       '@scure/bip39':
         specifier: ^1.3.0
         version: 1.6.0
       '@scure/btc-signer':
         specifier: ^1.5.0
         version: 1.8.1
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../packages/crypto
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server

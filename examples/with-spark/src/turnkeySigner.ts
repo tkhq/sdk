@@ -84,6 +84,15 @@ function cloneBytes(bytes: Uint8Array): Uint8Array {
   return new Uint8Array(bytes);
 }
 
+function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a[i]! ^ b[i]!;
+  }
+  return diff === 0;
+}
+
 /** Maps SDK KeyDerivation to the proto SparkKeyDerivation shape. */
 function mapKeyDerivation(kd: KeyDerivation): Record<string, unknown> {
   switch (kd.type) {
@@ -226,6 +235,8 @@ export class TurnkeySparkSigner implements SparkSigner {
   private readonly identityPublicKeyHex: string;
   /** Coalesces and caches deterministic SPARK_KEY_OPERATION public-key derivations. */
   private readonly publicKeyCache = new Map<string, Promise<Uint8Array>>();
+  /** Optional exported static-deposit keys for SDK compatibility flows. */
+  private readonly staticDepositSecretKeys = new Map<number, Uint8Array>();
 
   constructor(
     client: TurnkeyServerSDK,
@@ -696,7 +707,38 @@ export class TurnkeySparkSigner implements SparkSigner {
     } as unknown as KeyDerivation);
   }
 
-  async getStaticDepositSecretKey(_idx: number): Promise<Uint8Array> {
+  async setStaticDepositSecretKey(idx: number, secretKey: Uint8Array): Promise<void> {
+    if (secretKey.length !== 32) {
+      throw new Error(
+        `Static deposit secret key must be 32 bytes, got ${secretKey.length}`,
+      );
+    }
+
+    const expectedPublicKey = await this.getStaticDepositSigningKey(idx);
+    const actualPublicKey = secp256k1.getPublicKey(secretKey);
+    if (!bytesEqual(actualPublicKey, expectedPublicKey)) {
+      throw new Error(
+        `Exported static deposit key at index ${idx} does not match Spark-derived public key`,
+      );
+    }
+
+    this.clearStaticDepositSecretKey(idx);
+    this.staticDepositSecretKeys.set(idx, cloneBytes(secretKey));
+  }
+
+  clearStaticDepositSecretKey(idx: number): void {
+    const secretKey = this.staticDepositSecretKeys.get(idx);
+    if (secretKey) {
+      secretKey.fill(0);
+      this.staticDepositSecretKeys.delete(idx);
+    }
+  }
+
+  async getStaticDepositSecretKey(idx: number): Promise<Uint8Array> {
+    const secretKey = this.staticDepositSecretKeys.get(idx);
+    if (secretKey) {
+      return cloneBytes(secretKey);
+    }
     return notImplemented("getStaticDepositSecretKey");
   }
 
