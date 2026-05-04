@@ -15,8 +15,6 @@
     "claim": "tsx src/claim.ts",
     "lightning:receive": "tsx src/lightning-receive.ts",
     "lightning:send": "tsx src/lightning-send.ts",
-    "native:setup": "tsx src/native/setup.ts",
-    "native:claim": "tsx src/native/claim.ts",
     "withdraw": "tsx src/withdraw.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
