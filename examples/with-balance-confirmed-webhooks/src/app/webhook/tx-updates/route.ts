@@ -1,6 +1,30 @@
 import { NextResponse } from "next/server";
+import { TxStatusWebhookPayload } from "@/lib/types";
+import { getTxStatusWebhookEventStore } from "@/lib/webhook-events";
 
 export const runtime = "nodejs";
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isTxStatusWebhookPayload(
+  value: unknown,
+): value is TxStatusWebhookPayload {
+  if (!isObject(value)) {
+    return false;
+  }
+
+  if (typeof value.type !== "string") {
+    return false;
+  }
+
+  if (!isObject(value.msg)) {
+    return false;
+  }
+
+  return true;
+}
 
 export async function POST(request: Request) {
   let payload: unknown;
@@ -14,10 +38,19 @@ export async function POST(request: Request) {
     );
   }
 
-  console.log("Received webhook payload:", payload);
+  if (!isTxStatusWebhookPayload(payload)) {
+    return NextResponse.json(
+      { error: "Payload must contain `type` and `msg` fields." },
+      { status: 400 },
+    );
+  }
+
+  const event = getTxStatusWebhookEventStore().addEvent(payload);
 
   return NextResponse.json({
     ok: true,
+    eventId: event.id,
+    receivedAt: event.receivedAt,
   });
 }
 

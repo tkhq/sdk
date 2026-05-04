@@ -1,3 +1,4 @@
+// Balance-confirmed webhook types (BALANCE_CONFIRMED_UPDATES)
 export interface BalanceWebhookAsset {
   symbol?: string;
   name?: string;
@@ -44,6 +45,47 @@ export type BalanceWebhookSseMessage =
   | {
       type: "webhook";
       event: BalanceWebhookEventEnvelope;
+    }
+  | {
+      type: "heartbeat";
+      sentAt: string;
+    };
+
+// Tx-status webhook types (SEND_TRANSACTION_STATUS_UPDATES)
+
+export interface TxStatusWebhookMessage extends Record<string, unknown> {
+  sendTransactionStatusId?: string;
+  activityId?: string;
+  orgID?: string;
+  status?: string;
+  caip2?: string;
+  idempotencyKey?: string;
+  timestamp?: number;
+  txHash?: string | null;
+  txError?: string | null;
+  error?: unknown;
+}
+
+export interface TxStatusWebhookPayload {
+  type: string;
+  msg: TxStatusWebhookMessage;
+}
+
+export interface TxStatusWebhookEventEnvelope {
+  id: string;
+  receivedAt: string;
+  payload: TxStatusWebhookPayload;
+}
+
+export type TxStatusWebhookSseMessage =
+  | {
+      type: "connected";
+      connectedAt: string;
+      recentEvents: TxStatusWebhookEventEnvelope[];
+    }
+  | {
+      type: "webhook";
+      event: TxStatusWebhookEventEnvelope;
     }
   | {
       type: "heartbeat";

@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import {
-  BalanceWebhookEventEnvelope,
-  BalanceWebhookSseMessage,
-} from "@/lib/types";
+import { BalanceWebhookEventEnvelope } from "@/lib/types";
+import { BalanceFeed } from "@/components/BalanceFeed";
+import { TxStatusFeed } from "@/components/TxStatusFeed";
 
 type BalanceRow = {
   symbol?: string;
@@ -39,59 +38,6 @@ type SendAssetApiResponse = {
 
 const DEFAULT_ADDRESS = process.env.NEXT_PUBLIC_DEFAULT_ADDRESS ?? "";
 const DEFAULT_CAIP2 = process.env.NEXT_PUBLIC_DEFAULT_CAIP2 ?? "eip155:8453";
-
-function parseSseMessage(raw: string): BalanceWebhookSseMessage | null {
-  try {
-    return JSON.parse(raw) as BalanceWebhookSseMessage;
-  } catch {
-    return null;
-  }
-}
-
-function formatUnits(value: string | undefined, decimals: number | undefined) {
-  if (!value) {
-    return "-";
-  }
-
-  if (typeof decimals !== "number" || decimals < 0) {
-    return value;
-  }
-
-  const isNegative = value.startsWith("-");
-  const numeric = isNegative ? value.slice(1) : value;
-
-  if (!/^\d+$/.test(numeric)) {
-    return value;
-  }
-
-  const padded = numeric.padStart(decimals + 1, "0");
-  const wholeRaw =
-    decimals === 0 ? padded : padded.slice(0, padded.length - decimals);
-  const whole = wholeRaw.replace(/^0+(?=\d)/, "");
-  const fraction =
-    decimals === 0
-      ? ""
-      : padded.slice(padded.length - decimals).replace(/0+$/, "");
-
-  const sign = isNegative ? "-" : "";
-  if (!fraction) {
-    return `${sign}${whole}`;
-  }
-
-  return `${sign}${whole}.${fraction}`;
-}
-
-function getEventSummary(event: BalanceWebhookEventEnvelope) {
-  const { msg, type } = event.payload;
-  const operation =
-    typeof msg.operation === "string" ? msg.operation.toUpperCase() : "UPDATE";
-  const symbol =
-    typeof msg.asset?.symbol === "string" ? msg.asset.symbol : "asset";
-  const amount = formatUnits(msg.asset?.amount, msg.asset?.decimals);
-  const caip2 = typeof msg.caip2 === "string" ? msg.caip2 : "unknown network";
-
-  return `${type} • ${operation} ${amount} ${symbol} on ${caip2}`;
-}
 
 function parseAmountToBaseUnits(
   amount: string,
@@ -173,17 +119,8 @@ export default function Page() {
   const [queriedCaip2, setQueriedCaip2] = useState(DEFAULT_CAIP2);
   const [balances, setBalances] = useState<BalanceRow[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isWebhookConnected, setIsWebhookConnected] = useState(false);
-  const [recentEvents, setRecentEvents] = useState<
-    BalanceWebhookEventEnvelope[]
-  >([]);
-  const [activeNotification, setActiveNotification] =
-    useState<BalanceWebhookEventEnvelope | null>(null);
   const [isFetchingBalances, startBalanceTransition] = useTransition();
   const [isSendingTx, setIsSendingTx] = useState(false);
-  const notificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
   const queriedAddressRef = useRef(queriedAddress);
   const queriedCaip2Ref = useRef(queriedCaip2);
 
@@ -191,20 +128,6 @@ export default function Page() {
     queriedAddressRef.current = queriedAddress;
     queriedCaip2Ref.current = queriedCaip2;
   }, [queriedAddress, queriedCaip2]);
-
-  const showNotification = (event: BalanceWebhookEventEnvelope) => {
-    setActiveNotification(event);
-
-    if (notificationTimeoutRef.current) {
-      clearTimeout(notificationTimeoutRef.current);
-    }
-
-    notificationTimeoutRef.current = setTimeout(() => {
-      setActiveNotification((current) =>
-        current?.id === event.id ? null : current,
-      );
-    }, 6_000);
-  };
 
   const fetchBalancesFromApi = async (params: {
     address: string;
@@ -297,46 +220,6 @@ export default function Page() {
       surfaceErrors: false,
     });
   };
-
-  useEffect(() => {
-    const source = new EventSource("/api/events");
-
-    source.onopen = () => {
-      setIsWebhookConnected(true);
-    };
-
-    source.onmessage = (event) => {
-      const message = parseSseMessage(event.data);
-      if (!message) {
-        return;
-      }
-
-      if (message.type === "connected") {
-        setRecentEvents(message.recentEvents);
-      }
-
-      if (message.type === "webhook") {
-        setRecentEvents((previous) =>
-          [message.event, ...previous].slice(0, 30),
-        );
-        showNotification(message.event);
-        maybeRefreshBalancesForWebhook(message.event);
-      }
-    };
-
-    source.onerror = () => {
-      setIsWebhookConnected(false);
-    };
-
-    return () => {
-      source.close();
-      setIsWebhookConnected(false);
-
-      if (notificationTimeoutRef.current) {
-        clearTimeout(notificationTimeoutRef.current);
-      }
-    };
-  }, []);
 
   async function handleFetchBalances(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -444,18 +327,14 @@ export default function Page() {
   return (
     <main className="page">
       <section className="panel">
-        <h1>Balance Confirmed Webhooks</h1>
+        <h1>Turnkey Webhook Feeds</h1>
         <p className="subtitle">
           Fetches balances with Turnkey{" "}
-          <code>getWalletAddressBalances (getBalances)</code> and listens for{" "}
-          <code>BALANCE_CONFIRMED_UPDATES</code> via webhook across EVM and SVM
-          networks.
+          <code>getWalletAddressBalances (getBalances)</code> and listens for
+          live <code>BALANCE_CONFIRMED_UPDATES</code> and{" "}
+          <code>SEND_TRANSACTION_STATUS_UPDATES</code> webhook events across EVM
+          and SVM networks.
         </p>
-        <div
-          className={`status-pill ${isWebhookConnected ? "connected" : "disconnected"}`}
-        >
-          Webhook stream: {isWebhookConnected ? "connected" : "disconnected"}
-        </div>
       </section>
 
       <section className="panel">
@@ -556,47 +435,9 @@ export default function Page() {
         )}
       </section>
 
-      <section className="panel">
-        <h2>Recent Webhook Events</h2>
-        {recentEvents.length === 0 ? (
-          <p className="balances-empty">
-            Waiting for webhook events on <code>/webhook/balance-updates</code>.
-          </p>
-        ) : (
-          <ul className="event-list">
-            {recentEvents.map((event) => {
-              const summary = getEventSummary(event);
-              const txHash =
-                typeof event.payload.msg.txHash === "string"
-                  ? event.payload.msg.txHash
-                  : "n/a";
+      <BalanceFeed onWebhookEvent={maybeRefreshBalancesForWebhook} />
 
-              return (
-                <li className="event-item" key={event.id}>
-                  <p className="event-title">{summary}</p>
-                  <p className="event-meta">
-                    {new Date(event.receivedAt).toLocaleString()} • txHash:{" "}
-                    {txHash}
-                  </p>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
-
-      {activeNotification ? (
-        <aside className="notification">
-          <h3>Balance Confirmed Update Received</h3>
-          <p>{getEventSummary(activeNotification)}</p>
-          <p>
-            {new Date(activeNotification.receivedAt).toLocaleTimeString()} •{" "}
-            {typeof activeNotification.payload.msg.address === "string"
-              ? activeNotification.payload.msg.address
-              : "address unavailable"}
-          </p>
-        </aside>
-      ) : null}
+      <TxStatusFeed />
     </main>
   );
 }
