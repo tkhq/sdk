@@ -6,7 +6,7 @@ import {
   generateP256KeyPair,
 } from "@turnkey/crypto";
 import type { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
-import type { TurnkeySparkSigner } from "./turnkeySigner";
+import type { TurnkeySparkSigner } from "../turnkeySigner";
 import {
   DEFAULT_SPARK_REGTEST_ELECTRS_URL,
   DUST_SATS,
@@ -22,7 +22,7 @@ import {
   xOnlyPublicKey,
   type BalanceSats,
   type TxStatus,
-} from "./turnkeyL1Deposit";
+} from "./common";
 
 if (typeof globalThis.crypto === "undefined") {
   (globalThis as unknown as { crypto: Crypto }).crypto = new Crypto();

@@ -20,10 +20,8 @@ import type { TurnkeySparkSigner } from "./turnkeySigner";
 import { turnkeyTransfer } from "./turnkeyTransfer";
 import { turnkeyClaim } from "./turnkeyClaim";
 import { turnkeyWithdraw } from "./turnkeyWithdraw";
-import {
-  DEFAULT_SPARK_REGTEST_ELECTRS_URL,
-  depositTurnkeyL1ToSpark,
-} from "./turnkeyL1Deposit";
+import { DEFAULT_SPARK_REGTEST_ELECTRS_URL } from "./spark-deposit/common";
+import { depositTurnkeyL1ToSpark } from "./spark-deposit/normal";
 
 type PendingTransfer = {
   id: string;

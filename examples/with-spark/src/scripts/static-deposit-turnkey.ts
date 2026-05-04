@@ -29,12 +29,12 @@
  */
 
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
-import { env, initSparkWallet, requireEnv } from "./init";
+import { env, initSparkWallet, requireEnv } from "../init";
+import { DEFAULT_SPARK_REGTEST_ELECTRS_URL } from "../spark-deposit/common";
 import {
   createOrReuseStaticDepositAccount,
   depositTurnkeyL1ToStaticSpark,
-} from "./turnkeyStaticDeposit";
-import { DEFAULT_SPARK_REGTEST_ELECTRS_URL } from "./turnkeyL1Deposit";
+} from "../spark-deposit/static";
 
 function optionalBigIntEnv(name: string): bigint | undefined {
   const value = process.env[name];
