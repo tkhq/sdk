@@ -1,5 +1,16 @@
 # @turnkey/indexed-db-stamper
 
+## 1.3.0
+
+### Minor Changes
+
+- [#1250](https://github.com/tkhq/sdk/pull/1250) [`34522d4`](https://github.com/tkhq/sdk/commit/34522d447592138a82d34cd690091315f9748edb) Author [@moeodeh3](https://github.com/moeodeh3) - Add optional `format` parameter to `sign()` method to allow callers to choose between DER (default) and raw signature formats
+
+### Patch Changes
+
+- Updated dependencies [[`34522d4`](https://github.com/tkhq/sdk/commit/34522d447592138a82d34cd690091315f9748edb), [`7a36539`](https://github.com/tkhq/sdk/commit/7a36539196856a8bd4ca4c54115fa9874ccc83fa), [`47c0ca4`](https://github.com/tkhq/sdk/commit/47c0ca4696c8a518f95550c35cfe4cb4985a2633), [`5624d54`](https://github.com/tkhq/sdk/commit/5624d5417d2cc30032ca4ce71da0a5c7ab9a462d), [`6128132`](https://github.com/tkhq/sdk/commit/6128132d910f658cdf83ecc1dec6598eb20c008a), [`7b80b1e`](https://github.com/tkhq/sdk/commit/7b80b1e9755b83988b5e49c34dff13dd92d9932f)]:
+  - @turnkey/sdk-types@1.0.0
+
 ## 1.2.6
 
 ### Patch Changes

@@ -1,5 +1,53 @@
 # @turnkey/sdk-react
 
+## 6.0.0
+
+### Major Changes
+
+- [#1250](https://github.com/tkhq/sdk/pull/1250) [`654fadc`](https://github.com/tkhq/sdk/commit/654fadc7b8296b7af7e5a68dee9ee6de20eef4c1) Author [@moeodeh3](https://github.com/moeodeh3) - ### `OtpVerification`
+
+  **What changed:** New required prop `otpEncryptionTargetBundle`
+
+  `otpEncryptionTargetBundle` comes from the `sendOtp` response:
+
+  ```ts
+  const { otpId, otpEncryptionTargetBundle } = await server.sendOtp({
+    appName: "Example App",
+    otpType: OtpType.Sms,
+    contact: phoneInput,
+    customSmsMessage: "Your OTP is {{.OtpCode}}",
+    userIdentifier: publicKey,
+  });
+  ```
+
+  ```tsx
+  // before
+  <OtpVerification
+    type={type}
+    contact={contact}
+    otpId={otpId}
+    // ...
+  />
+
+  // after
+  <OtpVerification
+    type={type}
+    contact={contact}
+    otpId={otpId}
+    otpEncryptionTargetBundle={otpEncryptionTargetBundle} // new
+    // ...
+  />
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`d677115`](https://github.com/tkhq/sdk/commit/d677115e60aaee53319131723541211457803317), [`34522d4`](https://github.com/tkhq/sdk/commit/34522d447592138a82d34cd690091315f9748edb), [`f39e11e`](https://github.com/tkhq/sdk/commit/f39e11eb4dc6dde19516c3f28263528e424672f1), [`654fadc`](https://github.com/tkhq/sdk/commit/654fadc7b8296b7af7e5a68dee9ee6de20eef4c1), [`7a36539`](https://github.com/tkhq/sdk/commit/7a36539196856a8bd4ca4c54115fa9874ccc83fa), [`f39e11e`](https://github.com/tkhq/sdk/commit/f39e11eb4dc6dde19516c3f28263528e424672f1), [`34522d4`](https://github.com/tkhq/sdk/commit/34522d447592138a82d34cd690091315f9748edb), [`47c0ca4`](https://github.com/tkhq/sdk/commit/47c0ca4696c8a518f95550c35cfe4cb4985a2633), [`5624d54`](https://github.com/tkhq/sdk/commit/5624d5417d2cc30032ca4ce71da0a5c7ab9a462d), [`6128132`](https://github.com/tkhq/sdk/commit/6128132d910f658cdf83ecc1dec6598eb20c008a), [`7b80b1e`](https://github.com/tkhq/sdk/commit/7b80b1e9755b83988b5e49c34dff13dd92d9932f)]:
+  - @turnkey/crypto@2.9.0
+  - @turnkey/sdk-types@1.0.0
+  - @turnkey/sdk-server@6.0.0
+  - @turnkey/sdk-browser@6.0.0
+  - @turnkey/wallet-stamper@1.1.17
+
 ## 5.5.8
 
 ### Patch Changes

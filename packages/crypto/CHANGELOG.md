@@ -1,5 +1,17 @@
 # @turnkey/crypto
 
+## 2.9.0
+
+### Minor Changes
+
+- [#1250](https://github.com/tkhq/sdk/pull/1250) [`d677115`](https://github.com/tkhq/sdk/commit/d677115e60aaee53319131723541211457803317) Author [@moeodeh3](https://github.com/moeodeh3) - - Export `PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY` constant
+  - Add `encryptOtpCodeToBundle()` helper that encrypts an OTP code and client public key to the enclave's target key using HPKE
+
+### Patch Changes
+
+- Updated dependencies [[`34522d4`](https://github.com/tkhq/sdk/commit/34522d447592138a82d34cd690091315f9748edb), [`7a36539`](https://github.com/tkhq/sdk/commit/7a36539196856a8bd4ca4c54115fa9874ccc83fa), [`47c0ca4`](https://github.com/tkhq/sdk/commit/47c0ca4696c8a518f95550c35cfe4cb4985a2633), [`5624d54`](https://github.com/tkhq/sdk/commit/5624d5417d2cc30032ca4ce71da0a5c7ab9a462d), [`6128132`](https://github.com/tkhq/sdk/commit/6128132d910f658cdf83ecc1dec6598eb20c008a), [`7b80b1e`](https://github.com/tkhq/sdk/commit/7b80b1e9755b83988b5e49c34dff13dd92d9932f)]:
+  - @turnkey/sdk-types@1.0.0
+
 ## 2.8.14
 
 ### Patch Changes

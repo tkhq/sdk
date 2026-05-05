@@ -1,5 +1,14 @@
 # with-x
 
+## 0.1.30
+
+### Patch Changes
+
+- Updated dependencies [[`d677115`](https://github.com/tkhq/sdk/commit/d677115e60aaee53319131723541211457803317), [`f39e11e`](https://github.com/tkhq/sdk/commit/f39e11eb4dc6dde19516c3f28263528e424672f1), [`654fadc`](https://github.com/tkhq/sdk/commit/654fadc7b8296b7af7e5a68dee9ee6de20eef4c1), [`f39e11e`](https://github.com/tkhq/sdk/commit/f39e11eb4dc6dde19516c3f28263528e424672f1), [`6128132`](https://github.com/tkhq/sdk/commit/6128132d910f658cdf83ecc1dec6598eb20c008a), [`654fadc`](https://github.com/tkhq/sdk/commit/654fadc7b8296b7af7e5a68dee9ee6de20eef4c1)]:
+  - @turnkey/crypto@2.9.0
+  - @turnkey/sdk-server@6.0.0
+  - @turnkey/sdk-react@6.0.0
+
 ## 0.1.29
 
 ### Patch Changes
