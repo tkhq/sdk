@@ -1,5 +1,236 @@
 # @turnkey/react-wallet-kit
 
+## 2.0.0
+
+### Major Changes
+
+- [#1250](https://github.com/tkhq/sdk/pull/1250) [`654fadc`](https://github.com/tkhq/sdk/commit/654fadc7b8296b7af7e5a68dee9ee6de20eef4c1) Author [@moeodeh3](https://github.com/moeodeh3) - ### `initOtp`
+
+  **What changed:** Now returns an `InitOtpResult` object instead of a plain `otpId` string.
+
+  ```ts
+  // before
+  const otpId: string = await initOtp({
+    otpType: OtpType.Email,
+    contact: "user@example.com",
+  });
+
+  // after
+  const { otpId, otpEncryptionTargetBundle }: InitOtpResult = await initOtp({
+    otpType: OtpType.Email,
+    contact: "user@example.com",
+  });
+  ```
+
+  ***
+
+  ### `verifyOtp`
+
+  **What changed:** Removed `contact` and `otpType` params. Added required `otpEncryptionTargetBundle`. The account lookup (`proxyGetAccount`) that previously happened inside `verifyOtp` has been moved out, so `verifyOtp` is now purely verification. Returns `verificationToken` and `publicKey` (removed `subOrganizationId`).
+
+  ```ts
+  // before — verifyOtp also fetched the subOrganizationId internally
+  const { subOrganizationId, verificationToken } = await verifyOtp({
+    otpId,
+    otpCode,
+    contact: "user@example.com",
+    otpType: OtpType.Email,
+  });
+
+  // after — verification only; account lookup is separate
+  const { verificationToken, publicKey } = await verifyOtp({
+    otpId,
+    otpCode,
+    otpEncryptionTargetBundle, // new — from initOtp
+    publicKey,
+  });
+
+  // account lookup is now done separately (e.g. inside completeOtp)
+  const { organizationId: subOrgId } = await httpClient.proxyGetAccount({
+    filterType: OtpTypeToFilterTypeMap[otpType],
+    filterValue: contact,
+    verificationToken,
+  });
+  ```
+
+  ***
+
+  ### `loginWithOtp`
+
+  **What changed:** Removed `publicKey` param. The key bound during `verifyOtp` is now automatically reused as the session public key and used to produce the required `clientSignature`.
+
+  ```ts
+  // before
+  await loginWithOtp({
+    verificationToken,
+    publicKey,
+    invalidateExisting: true,
+  });
+
+  // after
+  await loginWithOtp({
+    verificationToken,
+    invalidateExisting: true,
+  });
+  ```
+
+  ***
+
+  ### `signUpWithOtp`
+
+  **What changed:** Removed `publicKey` param. The key bound during `verifyOtp` is now automatically reused as the session public key and used to produce the required `clientSignature`.
+
+  ```ts
+  // before
+  await signUpWithOtp({
+    verificationToken,
+    contact: "user@example.com",
+    otpType: OtpType.Email,
+    publicKey,
+  });
+
+  // after
+  await signUpWithOtp({
+    verificationToken,
+    contact: "user@example.com",
+    otpType: OtpType.Email,
+  });
+  ```
+
+- [#1250](https://github.com/tkhq/sdk/pull/1250) [`63a8e9b`](https://github.com/tkhq/sdk/commit/63a8e9b9505671ed76bee1658053a8af72408efd) Author [@moeodeh3](https://github.com/moeodeh3) - `signUpWithPasskey` now no longer accepts an `organizationId`. This value is now taken exclusively from the config.
+
+  The `sendSignedRequest` helper function has been removed. This is replaced with `httpClient.sendSignedRequest`.
+
+- [#1250](https://github.com/tkhq/sdk/pull/1250) [`63a8e9b`](https://github.com/tkhq/sdk/commit/63a8e9b9505671ed76bee1658053a8af72408efd) Author [@moeodeh3](https://github.com/moeodeh3) - ### Auth modal config moved to `ui.authModal`
+
+  **What changed:** `methods`, `methodOrder`, and `oauthOrder` moved from `TurnkeyProviderConfig.auth` to `TurnkeyProviderConfig.ui.authModal`.
+
+  ```ts
+  // before
+  <TurnkeyProvider
+    config={{
+      auth: {
+        methods: {
+          googleOauthEnabled: true,
+          emailOtpAuthEnabled: true,
+        },
+        methodOrder: ["socials", "email"],
+        oauthOrder: ["google", "apple"],
+      },
+    }}
+  />;
+
+  // after
+  <TurnkeyProvider
+    config={{
+      ui: {
+        authModal: {
+          methods: {
+            googleOauthEnabled: true,
+            emailOtpAuthEnabled: true,
+          },
+          methodOrder: ["socials", "email"],
+          oauthOrder: ["google", "apple"],
+        },
+      },
+    }}
+  />;
+  ```
+
+  ***
+
+  ### Secondary client IDs
+
+  **What changed:** Each OAuth provider in `TurnkeyProviderConfig.auth.oauthConfig` is now configured via a nested `OauthProviderConfig` object (`{ primaryClientId, secondaryClientIds }`) instead of flat `*ClientId` strings. Every `handle*Oauth` function and `handleAddOauthProvider` accept the same `primaryClientId` / `secondaryClientIds` overrides on a per-call basis.
+
+  `secondaryClientIds` are additional client IDs that get linked to the user during sign-up: they're decoded into `oidcClaims` (`{ iss, sub, aud }`) sharing the same identity as the primary OIDC token and registered as additional audiences during sub-organization creation. This lets a user who signed in with one client ID on one platform sign in with a different client ID on another platform and resolve to the same sub-organization. Existing users can call `addOauthProvider` with `oidcClaims` to retroactively link new audiences.
+
+  ```ts
+  // before
+  <TurnkeyProvider
+    config={{
+      auth: {
+        oauthConfig: {
+          googleClientId: "<google-client-id>",
+          appleClientId: "<apple-services-id>",
+        },
+      },
+    }}
+  />;
+
+  // after
+  <TurnkeyProvider
+    config={{
+      auth: {
+        oauthConfig: {
+          google: {
+            primaryClientId: "<google-client-id>",
+            secondaryClientIds: ["<google-client-id-2>"],
+          },
+          apple: {
+            primaryClientId: "<apple-services-id>",
+          },
+        },
+      },
+    }}
+  />;
+  ```
+
+  ***
+
+  ### `handle*Oauth` params
+
+  **What changed:** Renamed `clientId` → `primaryClientId` and added `secondaryClientIds` to every `handle*Oauth` function (`handleGoogleOauth`, `handleAppleOauth`, `handleFacebookOauth`, `handleXOauth`, `handleDiscordOauth`). Per-call overrides take precedence over the values from `TurnkeyProviderConfig`.
+
+  ```ts
+  // before
+  await handleGoogleOauth({ clientId: "<google-client-id>" });
+
+  // after
+  await handleGoogleOauth({
+    primaryClientId: "<google-client-id>",
+    secondaryClientIds: ["<google-client-id-2>"],
+  });
+  ```
+
+  ***
+
+  ### `handleAddOauthProvider`
+
+  **What changed:** Added `primaryClientId` and `secondaryClientIds`. Any `secondaryClientIds` (from the call or from `TurnkeyProviderConfig`) are decoded into `oidcClaims` and forwarded to `addOauthProvider`, registering them as additional audiences on the new provider entry alongside the primary OIDC token.
+
+  ```ts
+  // add a new Google provider, linking an additional Google client ID as a secondary audience
+  await handleAddOauthProvider({
+    providerName: OAuthProviders.GOOGLE,
+    primaryClientId: "<google-client-id>",
+    secondaryClientIds: ["<google-client-id-2>"],
+  });
+  ```
+
+### Minor Changes
+
+- [#1286](https://github.com/tkhq/sdk/pull/1286) [`7a36539`](https://github.com/tkhq/sdk/commit/7a36539196856a8bd4ca4c54115fa9874ccc83fa) Author [@moeodeh3](https://github.com/moeodeh3) - - Added `overrideApiKeyStamper` and `overridePasskeyStamper` methods to allow updating the stamper configurations during runtime
+  - Added `deleteApiKeyPair` method for cleaning up key pairs that aren't associated with active sessions
+
+- [#1290](https://github.com/tkhq/sdk/pull/1290) [`2b65654`](https://github.com/tkhq/sdk/commit/2b6565453028639441d4dc72fc1f5897c9213e87) Author [@hadrelandon](https://github.com/hadrelandon) - Added `auth.scopePasskeyToUser` to control passkey scoping on the provider config.
+
+- [#1250](https://github.com/tkhq/sdk/pull/1250) [`1901eb8`](https://github.com/tkhq/sdk/commit/1901eb88b24cc68256f71789bfbed139aba91bb4) Author [@moeodeh3](https://github.com/moeodeh3) - Added `signWithApiKey()` which allows users to sign arbitrary messages using the API key stamper.
+
+  `addOauthProvider` now accepts a list of `oidcClaims` and the `oidcToken` parameter is now optional. This means the function can now be called with either an `oidcToken`, a list of `oidcClaims` or both.
+
+  An `oidcClaims` entry is the `{ iss, sub, aud }` triple from an OIDC token - `iss` and `sub` identify the user and `aud` is the client ID the token was issued for. Passing them lets you register additional audiences (e.g. iOS bundle ID + web client ID) against the same identity without needing a separate token for each, so a single user can sign in from any of them and resolve to the same sub-organization.
+
+### Patch Changes
+
+- [#1280](https://github.com/tkhq/sdk/pull/1280) [`acc33d8`](https://github.com/tkhq/sdk/commit/acc33d879b826fbf63473635f9bd160da1f39c39) Author [@hadrelandon](https://github.com/hadrelandon) - Fixed OAuth state validation to reject missing, tampered, and mismatched state parameters, and to always clean up stored state after validation attempts.
+
+- [#1286](https://github.com/tkhq/sdk/pull/1286) [`763761d`](https://github.com/tkhq/sdk/commit/763761df369841154253c3a51291ffeca61c811d) Author [@moeodeh3](https://github.com/moeodeh3) - Scope passkey `allowCredentials` to the authenticated user's credentials after login. `refreshUser` now returns `v1User | undefined`.
+
+- Updated dependencies [[`7a36539`](https://github.com/tkhq/sdk/commit/7a36539196856a8bd4ca4c54115fa9874ccc83fa), [`11b1717`](https://github.com/tkhq/sdk/commit/11b1717896e27d2fbfc5efc73af5e29c4cf0258b), [`ec0e99a`](https://github.com/tkhq/sdk/commit/ec0e99af3c0a523505c12b8e44efedca539e2399), [`34522d4`](https://github.com/tkhq/sdk/commit/34522d447592138a82d34cd690091315f9748edb), [`7a36539`](https://github.com/tkhq/sdk/commit/7a36539196856a8bd4ca4c54115fa9874ccc83fa), [`1901eb8`](https://github.com/tkhq/sdk/commit/1901eb88b24cc68256f71789bfbed139aba91bb4), [`63a8e9b`](https://github.com/tkhq/sdk/commit/63a8e9b9505671ed76bee1658053a8af72408efd), [`47c0ca4`](https://github.com/tkhq/sdk/commit/47c0ca4696c8a518f95550c35cfe4cb4985a2633), [`5624d54`](https://github.com/tkhq/sdk/commit/5624d5417d2cc30032ca4ce71da0a5c7ab9a462d), [`6128132`](https://github.com/tkhq/sdk/commit/6128132d910f658cdf83ecc1dec6598eb20c008a), [`7b80b1e`](https://github.com/tkhq/sdk/commit/7b80b1e9755b83988b5e49c34dff13dd92d9932f)]:
+  - @turnkey/core@2.0.0
+  - @turnkey/sdk-types@1.0.0
+
 ## 1.11.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @turnkey/api-key-stamper
 
+## 0.6.6
+
+### Patch Changes
+
+- Updated dependencies [[`d677115`](https://github.com/tkhq/sdk/commit/d677115e60aaee53319131723541211457803317)]:
+  - @turnkey/crypto@2.9.0
+
 ## 0.6.5
 
 ### Patch Changes
