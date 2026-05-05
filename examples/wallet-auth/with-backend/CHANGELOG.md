@@ -1,5 +1,14 @@
 # @turnkey/wallet-auth-with-backend
 
+## 0.1.15
+
+### Patch Changes
+
+- Updated dependencies [[`7a36539`](https://github.com/tkhq/sdk/commit/7a36539196856a8bd4ca4c54115fa9874ccc83fa), [`2b65654`](https://github.com/tkhq/sdk/commit/2b6565453028639441d4dc72fc1f5897c9213e87), [`acc33d8`](https://github.com/tkhq/sdk/commit/acc33d879b826fbf63473635f9bd160da1f39c39), [`34522d4`](https://github.com/tkhq/sdk/commit/34522d447592138a82d34cd690091315f9748edb), [`f39e11e`](https://github.com/tkhq/sdk/commit/f39e11eb4dc6dde19516c3f28263528e424672f1), [`654fadc`](https://github.com/tkhq/sdk/commit/654fadc7b8296b7af7e5a68dee9ee6de20eef4c1), [`654fadc`](https://github.com/tkhq/sdk/commit/654fadc7b8296b7af7e5a68dee9ee6de20eef4c1), [`7a36539`](https://github.com/tkhq/sdk/commit/7a36539196856a8bd4ca4c54115fa9874ccc83fa), [`1901eb8`](https://github.com/tkhq/sdk/commit/1901eb88b24cc68256f71789bfbed139aba91bb4), [`f39e11e`](https://github.com/tkhq/sdk/commit/f39e11eb4dc6dde19516c3f28263528e424672f1), [`63a8e9b`](https://github.com/tkhq/sdk/commit/63a8e9b9505671ed76bee1658053a8af72408efd), [`63a8e9b`](https://github.com/tkhq/sdk/commit/63a8e9b9505671ed76bee1658053a8af72408efd), [`47c0ca4`](https://github.com/tkhq/sdk/commit/47c0ca4696c8a518f95550c35cfe4cb4985a2633), [`5624d54`](https://github.com/tkhq/sdk/commit/5624d5417d2cc30032ca4ce71da0a5c7ab9a462d), [`6128132`](https://github.com/tkhq/sdk/commit/6128132d910f658cdf83ecc1dec6598eb20c008a), [`763761d`](https://github.com/tkhq/sdk/commit/763761df369841154253c3a51291ffeca61c811d), [`7b80b1e`](https://github.com/tkhq/sdk/commit/7b80b1e9755b83988b5e49c34dff13dd92d9932f)]:
+  - @turnkey/react-wallet-kit@2.0.0
+  - @turnkey/sdk-types@1.0.0
+  - @turnkey/sdk-server@6.0.0
+
 ## 0.1.14
 
 ### Patch Changes
