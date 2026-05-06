@@ -229,8 +229,48 @@ async function main() {
     const withdrawAddress =
       process.env.WITHDRAW_BTC_ADDRESS ||
       requireEnv("RECEIVER_TURNKEY_L1_BTC_ADDRESS");
+    const exitSpeed = env("WITHDRAW_EXIT_SPEED", "FAST") as
+      | "FAST"
+      | "MEDIUM"
+      | "SLOW";
+
+    // Probe the SSP fee schedule with the full receiver balance, then either
+    // honor WITHDRAW_AMOUNT_SATS or auto-pick a viable target. The SSP fee
+    // floor is the bottom of the viable range; the per-leaf cap (regtest SSP
+    // refuses leaves above some threshold) is the top. WITHDRAW_AMOUNT_SATS
+    // smaller than the fee → SparkCoopExitAmountTooLowException.
+    console.log("Probing withdrawal fee quote...");
+    const probeQuote = await receiver.wallet.getWithdrawalFeeQuote({
+      amountSats: receiverBalance,
+      withdrawalAddress: withdrawAddress,
+    });
+    if (!probeQuote) throw new Error("Failed to get withdrawal fee quote");
+
+    const totalFee = (() => {
+      switch (exitSpeed) {
+        case "SLOW":
+          return (
+            (probeQuote.l1BroadcastFeeSlow?.originalValue ?? 0) +
+            (probeQuote.userFeeSlow?.originalValue ?? 0)
+          );
+        case "MEDIUM":
+          return (
+            (probeQuote.l1BroadcastFeeMedium?.originalValue ?? 0) +
+            (probeQuote.userFeeMedium?.originalValue ?? 0)
+          );
+        case "FAST":
+          return (
+            (probeQuote.l1BroadcastFeeFast?.originalValue ?? 0) +
+            (probeQuote.userFeeFast?.originalValue ?? 0)
+          );
+      }
+    })();
+
     const configuredWithdrawSats = optionalNumberEnv("WITHDRAW_AMOUNT_SATS");
-    const withdrawSats = configuredWithdrawSats ?? transferSats;
+    // Auto-tune: 2× fee + 500 sat margin, capped at receiver balance.
+    const autoWithdrawSats = Math.min(receiverBalance, totalFee * 2 + 500);
+    const withdrawSats = configuredWithdrawSats ?? autoWithdrawSats;
+
     if (withdrawSats <= 0)
       throw new Error("No receiver balance available to withdraw");
     if (withdrawSats > receiverBalance) {
@@ -238,8 +278,17 @@ async function main() {
         `WITHDRAW_AMOUNT_SATS=${withdrawSats} exceeds receiver balance ${receiverBalance}`,
       );
     }
+    if (withdrawSats <= totalFee) {
+      throw new Error(
+        `WITHDRAW_AMOUNT_SATS=${withdrawSats} ≤ ${exitSpeed} SSP fee ${totalFee}. ` +
+          `Use ≥ ${totalFee + 1} sats or switch to a slower exit speed.`,
+      );
+    }
+    console.log(
+      `Withdrawing ${withdrawSats} sats (${exitSpeed} fee: ${totalFee} sats)...`,
+    );
 
-    console.log("Getting withdrawal fee quote...");
+    // Re-quote at the chosen amount so connector-tx sizing matches.
     const feeQuote = await receiver.wallet.getWithdrawalFeeQuote({
       amountSats: withdrawSats,
       withdrawalAddress: withdrawAddress,
@@ -249,10 +298,7 @@ async function main() {
     await turnkeyWithdraw(receiver.wallet, receiver.signer, {
       onchainAddress: withdrawAddress,
       amountSats: withdrawSats,
-      exitSpeed: env("WITHDRAW_EXIT_SPEED", "FAST") as
-        | "FAST"
-        | "MEDIUM"
-        | "SLOW",
+      exitSpeed,
       feeQuote,
     });
     const receiverBalanceAfterWithdraw = await getBalanceSats(receiver.wallet);
