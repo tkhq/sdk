@@ -85,7 +85,10 @@ function sparkAddressFormat(network: SparkNetwork): string {
     : "ADDRESS_FORMAT_SPARK_REGTEST";
 }
 
-function defaultWalletName(role: "Sender" | "Receiver", suffix: string): string {
+function defaultWalletName(
+  role: "Sender" | "Receiver",
+  suffix: string,
+): string {
   return `Spark E2E ${role} ${suffix}`;
 }
 
@@ -139,7 +142,9 @@ async function createSparkWallet(
     (account) => account.address === sparkAddress,
   );
   if (!identityAccount?.publicKey) {
-    throw new Error("Could not load Spark identity public key after wallet creation");
+    throw new Error(
+      "Could not load Spark identity public key after wallet creation",
+    );
   }
 
   return {
@@ -182,7 +187,9 @@ async function createOrReuseL1Account(
 
     const address = result.addresses[0];
     if (!address) {
-      throw new Error("Turnkey did not return an address for the L1 funding account");
+      throw new Error(
+        "Turnkey did not return an address for the L1 funding account",
+      );
     }
 
     const after = await apiClient.getWalletAccounts({
@@ -212,7 +219,9 @@ async function setupRole(params: {
   network: SparkNetwork;
   l1Path: string;
 }): Promise<RoleSetup> {
-  console.log(`Creating ${params.label} Spark wallet "${params.walletName}"...`);
+  console.log(
+    `Creating ${params.label} Spark wallet "${params.walletName}"...`,
+  );
   const spark = await createSparkWallet(
     params.apiClient,
     params.walletName,
@@ -267,7 +276,10 @@ async function main() {
   console.log(`  Spark identity path: ${sparkIdentityPath()}`);
   const walletNameSuffix = env(
     "E2E_WALLET_NAME_SUFFIX",
-    new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14),
+    new Date()
+      .toISOString()
+      .replace(/[-:.TZ]/g, "")
+      .slice(0, 14),
   );
 
   const sender = await setupRole({

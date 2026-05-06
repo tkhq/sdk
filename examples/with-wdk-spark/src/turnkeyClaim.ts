@@ -81,7 +81,10 @@ interface SparkWalletInternals {
     addLeaves(leaves: WalletLeaf[]): Promise<void>;
     addIncomingLeaves(leaves: WalletLeaf[], id: string): Promise<void>;
     handleTransferEvent(transfer: SparkTransfer): Promise<void>;
-    registerClaimedLeaves(leaves: WalletLeaf[], transferId?: string): Promise<WalletLeaf[]>;
+    registerClaimedLeaves(
+      leaves: WalletLeaf[],
+      transferId?: string,
+    ): Promise<WalletLeaf[]>;
   };
   config: SparkConfig;
 }
@@ -259,10 +262,9 @@ export async function turnkeyClaim(
     });
   }
 
-  const sparkClient =
-    await transferService.connectionManager.createSparkClient(
-      config.getCoordinatorAddress(),
-    );
+  const sparkClient = await transferService.connectionManager.createSparkClient(
+    config.getCoordinatorAddress(),
+  );
 
   const n = leaves.length;
   if (n === 0) {
@@ -370,5 +372,8 @@ export async function turnkeyClaim(
     return claimedLeaves;
   }
 
-  return internals.leafManager.registerClaimedLeaves(claimedLeaves, transfer.id);
+  return internals.leafManager.registerClaimedLeaves(
+    claimedLeaves,
+    transfer.id,
+  );
 }

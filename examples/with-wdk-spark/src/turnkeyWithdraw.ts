@@ -27,11 +27,12 @@ import type {
   NetworkType,
   SigningCommitment,
 } from "@buildonspark/spark-sdk";
-import {
-  getTxFromRawTxHex,
-  getTxId,
-} from "@buildonspark/spark-sdk";
-import type { TurnkeySparkSigner, TransferLeafInput, OperatorRecipientInput } from "./turnkeySigner";
+import { getTxFromRawTxHex, getTxId } from "@buildonspark/spark-sdk";
+import type {
+  TurnkeySparkSigner,
+  TransferLeafInput,
+  OperatorRecipientInput,
+} from "./turnkeySigner";
 
 function fromHex(h: string): Uint8Array {
   return Buffer.from(h.replace(/^0x/, ""), "hex");
@@ -334,11 +335,10 @@ export async function turnkeyWithdraw(
       config.getCoordinatorAddress(),
     );
     const nodeIds = allLeaves.map((l) => l.id);
-    const { signingCommitments } =
-      await sparkClient.get_signing_commitments({
-        nodeIds,
-        count: 3,
-      });
+    const { signingCommitments } = await sparkClient.get_signing_commitments({
+      nodeIds,
+      count: 3,
+    });
 
     const n = allLeaves.length;
     const {
@@ -389,9 +389,7 @@ export async function turnkeyWithdraw(
     const ownerIdentityPublicKey = await signer.getIdentityPublicKey();
 
     const isMainnet = config.getNetwork() === "MAINNET";
-    const expiryMs = isMainnet
-      ? 10080 * 60 * 1000 + 300 * 1000
-      : 2100 * 1000;
+    const expiryMs = isMainnet ? 10080 * 60 * 1000 + 300 * 1000 : 2100 * 1000;
 
     const response = await sparkClient.cooperative_exit_v2({
       transfer: {
@@ -446,4 +444,3 @@ export async function turnkeyWithdraw(
     );
   }
 }
-

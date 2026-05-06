@@ -28,13 +28,18 @@ async function main() {
   const internals = wallet as unknown as {
     transferService: {
       queryPendingTransfers(ids?: string[]): Promise<{
-        transfers: Array<{ id: string; leaves: unknown[]; [k: string]: unknown }>;
+        transfers: Array<{
+          id: string;
+          leaves: unknown[];
+          [k: string]: unknown;
+        }>;
       }>;
     };
   };
 
   const ids = transferId ? [transferId] : undefined;
-  const { transfers } = await internals.transferService.queryPendingTransfers(ids);
+  const { transfers } =
+    await internals.transferService.queryPendingTransfers(ids);
 
   if (transfers.length === 0) {
     console.log(`No pending transfers to claim.`);
@@ -45,13 +50,17 @@ async function main() {
   console.log(`Found ${transfers.length} pending transfer(s)`);
 
   for (const transfer of transfers) {
-    console.log(`\nClaiming transfer ${transfer.id} (${transfer.leaves.length} leaves)...`);
+    console.log(
+      `\nClaiming transfer ${transfer.id} (${transfer.leaves.length} leaves)...`,
+    );
     const claimedLeaves = await turnkeyClaim(wallet, signer, transfer as any);
     console.log(`  Claimed ${claimedLeaves.length} leaves`);
   }
 
   const balance = await wallet.getBalance();
-  console.log(`\nBalance: ${balance.satsBalance?.available ?? 0} sats available`);
+  console.log(
+    `\nBalance: ${balance.satsBalance?.available ?? 0} sats available`,
+  );
 
   console.log(`\nDone.`);
   wallet.cleanupConnections();

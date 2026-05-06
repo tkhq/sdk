@@ -38,7 +38,9 @@ function leafDerivation(leafId: string): KeyDerivation {
   return { type: "leaf", path: leafId } as unknown as KeyDerivation;
 }
 
-function invoiceNetwork(invoice: string): "MAINNET" | "REGTEST" | "TESTNET" | "SIGNET" | null {
+function invoiceNetwork(
+  invoice: string,
+): "MAINNET" | "REGTEST" | "TESTNET" | "SIGNET" | null {
   if (invoice.startsWith("lnbcrt")) return "REGTEST";
   if (invoice.startsWith("lnbc")) return "MAINNET";
   if (invoice.startsWith("lntb")) return "TESTNET";

@@ -56,7 +56,7 @@ async function main() {
     "API_PUBLIC_KEY",
     "API_PRIVATE_KEY",
     "ORGANIZATION_ID",
-    "BASE_URL"
+    "BASE_URL",
   ] as const;
 
   for (const v of requiredVars) {

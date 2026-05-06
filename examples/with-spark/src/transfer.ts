@@ -35,7 +35,9 @@ async function main() {
   console.log(`Transfer initiated: ${result.id}`);
 
   const balanceAfter = await wallet.getBalance();
-  console.log(`Balance: ${balanceAfter.satsBalance?.available ?? 0} sats available`);
+  console.log(
+    `Balance: ${balanceAfter.satsBalance?.available ?? 0} sats available`,
+  );
 
   console.log(`\nDone.`);
   wallet.cleanupConnections();

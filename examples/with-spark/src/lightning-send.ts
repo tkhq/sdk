@@ -29,7 +29,9 @@ async function main() {
       invoice: requireEnv("LIGHTNING_INVOICE"),
       maxFeeSats: requiredPositiveInt("LIGHTNING_MAX_FEE_SATS", "1000"),
     };
-    const amountSatsToSend = optionalPositiveInt("LIGHTNING_AMOUNT_SATS_TO_SEND");
+    const amountSatsToSend = optionalPositiveInt(
+      "LIGHTNING_AMOUNT_SATS_TO_SEND",
+    );
     if (amountSatsToSend !== undefined) {
       sendParams.amountSatsToSend = amountSatsToSend;
     }
@@ -37,7 +39,11 @@ async function main() {
       sendParams.idempotencyKey = process.env.LIGHTNING_IDEMPOTENCY_KEY;
     }
 
-    const response = await turnkeyPayLightningInvoice(wallet, signer, sendParams);
+    const response = await turnkeyPayLightningInvoice(
+      wallet,
+      signer,
+      sendParams,
+    );
 
     console.log("Lightning send requested");
     console.log(JSON.stringify(response, null, 2));

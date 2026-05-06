@@ -117,7 +117,9 @@ export function initSigner(): {
   return initSignerFromConfig(loadTurnkeySparkConfig());
 }
 
-export async function initSparkWalletFromConfig(config: TurnkeySparkConfig): Promise<{
+export async function initSparkWalletFromConfig(
+  config: TurnkeySparkConfig,
+): Promise<{
   wallet: SparkWallet;
   signer: TurnkeySparkSigner;
   network: SparkNetwork;
@@ -141,7 +143,13 @@ export async function initSparkWalletFromConfig(config: TurnkeySparkConfig): Pro
   // Instance-level override survives the prototype restore so the
   // background stream and any explicit calls still route through turnkeyClaim.
   const w = wallet as any;
-  w.claimTransfer = async function ({ transfer, emit }: { transfer: any; emit?: boolean }) {
+  w.claimTransfer = async function ({
+    transfer,
+    emit,
+  }: {
+    transfer: any;
+    emit?: boolean;
+  }) {
     const result = await w.claimTransferMutex.runExclusive(() =>
       turnkeyClaim(wallet, signer, transfer),
     );

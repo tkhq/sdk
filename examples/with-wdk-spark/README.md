@@ -22,10 +22,10 @@ This example replaces the local-key flow with Turnkey:
 
 ## Operations
 
-| Script | What it does |
-|--------|-------------|
-| `pnpm run setup:e2e` | Create sender + receiver Spark wallets (Turnkey-owned) and Bitcoin regtest L1 accounts |
-| `pnpm run e2e:regtest` | Deposit BTC, transfer through Spark, claim, and withdraw — all via the WDK API |
+| Script                 | What it does                                                                           |
+| ---------------------- | -------------------------------------------------------------------------------------- |
+| `pnpm run setup:e2e`   | Create sender + receiver Spark wallets (Turnkey-owned) and Bitcoin regtest L1 accounts |
+| `pnpm run e2e:regtest` | Deposit BTC, transfer through Spark, claim, and withdraw — all via the WDK API         |
 
 ## Prerequisites
 

@@ -4,21 +4,21 @@ Demonstrates [Spark](https://spark.money) operations using **Turnkey as the key 
 
 ## Operations
 
-| Script | What it does | Turnkey activity |
-|--------|-------------|-----------------|
-| `pnpm run setup:e2e` | Create sender + receiver Spark wallets and Bitcoin regtest accounts | `CREATE_WALLET` + `CREATE_WALLET_ACCOUNTS` |
-| `pnpm run e2e:regtest` | Deposit BTC into Spark, transfer, claim, and withdraw back to BTC | `SIGN_TRANSACTION` + `SPARK_*` |
-| `pnpm run e2e:lightning-regtest` | Create a Lightning invoice, pay it, and verify receiver Spark settlement | `SPARK_PREPARE_LIGHTNING_RECEIVE` + `SIGN_FROST_SPARK` + `PREPARE_SPARK_TRANSFER` |
-| `pnpm run setup` | Create one Turnkey Spark wallet | `CREATE_WALLET` |
-| `pnpm run setup:l1` | Create/reuse a Turnkey Bitcoin regtest funding address | `CREATE_WALLET_ACCOUNTS` |
-| `pnpm run token-transfer` | Create, mint, and transfer a Spark token | `SignRawPayload` (ECDSA) |
-| `pnpm run deposit` | Spend a Turnkey bcrt1p faucet UTXO into Spark and claim it | `SIGN_TRANSACTION` + `SIGN_FROST_SPARK` |
-| `pnpm run deposit:static` | Spend a Turnkey bcrt1p faucet UTXO into a Spark static deposit address and claim it | `CREATE_WALLET_ACCOUNTS` + `EXPORT_WALLET_ACCOUNT` + `SIGN_TRANSACTION` |
-| `pnpm run transfer` | Send sats to another Spark address | `SIGN_FROST_SPARK` (refund signing) + `PREPARE_SPARK_TRANSFER` (key tweaks) |
-| `pnpm run claim` | Receive an inbound Spark transfer | `SIGN_FROST_SPARK` (refund signing) + `CLAIM_SPARK_TRANSFER` (verify + decrypt + key tweaks) |
-| `pnpm run lightning:receive` | Create a Lightning invoice backed by Turnkey-generated Spark preimage shares | `SPARK_PREPARE_LIGHTNING_RECEIVE` |
-| `pnpm run lightning:send` | Pay a BOLT11 invoice from a Turnkey Spark balance | `SIGN_FROST_SPARK` + `PREPARE_SPARK_TRANSFER` |
-| `pnpm run withdraw` | Cooperative exit back to Bitcoin L1 | `SIGN_FROST_SPARK` + `PREPARE_SPARK_TRANSFER` |
+| Script                           | What it does                                                                        | Turnkey activity                                                                             |
+| -------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `pnpm run setup:e2e`             | Create sender + receiver Spark wallets and Bitcoin regtest accounts                 | `CREATE_WALLET` + `CREATE_WALLET_ACCOUNTS`                                                   |
+| `pnpm run e2e:regtest`           | Deposit BTC into Spark, transfer, claim, and withdraw back to BTC                   | `SIGN_TRANSACTION` + `SPARK_*`                                                               |
+| `pnpm run e2e:lightning-regtest` | Create a Lightning invoice, pay it, and verify receiver Spark settlement            | `SPARK_PREPARE_LIGHTNING_RECEIVE` + `SIGN_FROST_SPARK` + `PREPARE_SPARK_TRANSFER`            |
+| `pnpm run setup`                 | Create one Turnkey Spark wallet                                                     | `CREATE_WALLET`                                                                              |
+| `pnpm run setup:l1`              | Create/reuse a Turnkey Bitcoin regtest funding address                              | `CREATE_WALLET_ACCOUNTS`                                                                     |
+| `pnpm run token-transfer`        | Create, mint, and transfer a Spark token                                            | `SignRawPayload` (ECDSA)                                                                     |
+| `pnpm run deposit`               | Spend a Turnkey bcrt1p faucet UTXO into Spark and claim it                          | `SIGN_TRANSACTION` + `SIGN_FROST_SPARK`                                                      |
+| `pnpm run deposit:static`        | Spend a Turnkey bcrt1p faucet UTXO into a Spark static deposit address and claim it | `CREATE_WALLET_ACCOUNTS` + `EXPORT_WALLET_ACCOUNT` + `SIGN_TRANSACTION`                      |
+| `pnpm run transfer`              | Send sats to another Spark address                                                  | `SIGN_FROST_SPARK` (refund signing) + `PREPARE_SPARK_TRANSFER` (key tweaks)                  |
+| `pnpm run claim`                 | Receive an inbound Spark transfer                                                   | `SIGN_FROST_SPARK` (refund signing) + `CLAIM_SPARK_TRANSFER` (verify + decrypt + key tweaks) |
+| `pnpm run lightning:receive`     | Create a Lightning invoice backed by Turnkey-generated Spark preimage shares        | `SPARK_PREPARE_LIGHTNING_RECEIVE`                                                            |
+| `pnpm run lightning:send`        | Pay a BOLT11 invoice from a Turnkey Spark balance                                   | `SIGN_FROST_SPARK` + `PREPARE_SPARK_TRANSFER`                                                |
+| `pnpm run withdraw`              | Cooperative exit back to Bitcoin L1                                                 | `SIGN_FROST_SPARK` + `PREPARE_SPARK_TRANSFER`                                                |
 
 ## Getting started
 

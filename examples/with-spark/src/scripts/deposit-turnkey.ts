@@ -57,15 +57,24 @@ async function main() {
       existingTxid: process.env.L1_DEPOSIT_TXID,
       amountSats: optionalBigIntEnv("L1_DEPOSIT_AMOUNT_SATS"),
       feeSats: BigInt(env("L1_DEPOSIT_FEE_SATS", "500")),
-      electrsUrl: env("SPARK_REGTEST_ELECTRS_URL", DEFAULT_SPARK_REGTEST_ELECTRS_URL),
+      electrsUrl: env(
+        "SPARK_REGTEST_ELECTRS_URL",
+        DEFAULT_SPARK_REGTEST_ELECTRS_URL,
+      ),
       fundingTimeoutMs: Number(env("L1_FUNDING_TIMEOUT_MS", "60000")),
       fundingPollMs: Number(env("L1_FUNDING_POLL_MS", "5000")),
-      confirmationTimeoutMs: Number(env("L1_DEPOSIT_CONFIRMATION_TIMEOUT_MS", "300000")),
-      confirmationPollMs: Number(env("L1_DEPOSIT_CONFIRMATION_POLL_MS", "5000")),
+      confirmationTimeoutMs: Number(
+        env("L1_DEPOSIT_CONFIRMATION_TIMEOUT_MS", "300000"),
+      ),
+      confirmationPollMs: Number(
+        env("L1_DEPOSIT_CONFIRMATION_POLL_MS", "5000"),
+      ),
       log: console.log,
     });
 
-    console.log(`L1 deposit confirmed in block ${result.status.block_height ?? "unknown"}`);
+    console.log(
+      `L1 deposit confirmed in block ${result.status.block_height ?? "unknown"}`,
+    );
     console.log("Claimed deposit into Spark");
     console.log(`Balance: ${result.balanceSats} sats available`);
     console.log("\nDone.");

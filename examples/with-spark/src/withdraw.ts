@@ -21,7 +21,10 @@ import { turnkeyWithdraw } from "./turnkeyWithdraw";
 async function main() {
   const withdrawBtcAddress = requireEnv("WITHDRAW_BTC_ADDRESS");
   const withdrawSats = Number(env("WITHDRAW_AMOUNT_SATS", "25000"));
-  const exitSpeed = env("WITHDRAW_EXIT_SPEED", "FAST") as "FAST" | "MEDIUM" | "SLOW";
+  const exitSpeed = env("WITHDRAW_EXIT_SPEED", "FAST") as
+    | "FAST"
+    | "MEDIUM"
+    | "SLOW";
 
   const { wallet, signer } = await initSparkWallet();
   console.log(`Authenticated to Spark SO`);
@@ -47,7 +50,9 @@ async function main() {
   console.log(`Withdrawal initiated`);
 
   const balanceAfter = await wallet.getBalance();
-  console.log(`Balance: ${balanceAfter.satsBalance?.available ?? 0} sats available`);
+  console.log(
+    `Balance: ${balanceAfter.satsBalance?.available ?? 0} sats available`,
+  );
 
   console.log(`\nDone.`);
   wallet.cleanupConnections();

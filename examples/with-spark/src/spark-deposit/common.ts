@@ -57,7 +57,8 @@ export type TxStatus = {
 };
 
 export function hexToBytes(hex: string): Uint8Array {
-  if (hex.length % 2 !== 0) throw new Error(`Invalid hex length: ${hex.length}`);
+  if (hex.length % 2 !== 0)
+    throw new Error(`Invalid hex length: ${hex.length}`);
   const out = new Uint8Array(hex.length / 2);
   for (let i = 0; i < out.length; i++) {
     out[i] = Number.parseInt(hex.slice(i * 2, i * 2 + 2), 16);
@@ -66,7 +67,9 @@ export function hexToBytes(hex: string): Uint8Array {
 }
 
 export function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
 }
 
 export function balanceSatsToBigInt(value: BalanceSats | undefined): bigint {
@@ -80,7 +83,9 @@ export function xOnlyPublicKey(publicKeyHex: string): Uint8Array {
   if (bytes.length === 33 && (bytes[0] === 0x02 || bytes[0] === 0x03)) {
     return bytes.slice(1);
   }
-  throw new Error("L1 funding public key must be a compressed or x-only secp256k1 public key");
+  throw new Error(
+    "L1 funding public key must be a compressed or x-only secp256k1 public key",
+  );
 }
 
 function electrsAuthForUrl(baseUrl: string): ElectrsAuth | undefined {
@@ -143,7 +148,9 @@ export async function postElectrsText(
   });
   const responseBody = await response.text();
   if (!response.ok) {
-    throw new Error(`Electrs ${path} failed (${response.status}): ${responseBody}`);
+    throw new Error(
+      `Electrs ${path} failed (${response.status}): ${responseBody}`,
+    );
   }
   return responseBody.trim();
 }
@@ -157,10 +164,7 @@ export async function fetchFundingUtxos(
   address: string,
 ): Promise<Utxo[]> {
   try {
-    return await fetchElectrsJson<Utxo[]>(
-      baseUrl,
-      `/address/${address}/utxo`,
-    );
+    return await fetchElectrsJson<Utxo[]>(baseUrl, `/address/${address}/utxo`);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (!message.includes("(404)")) throw err;
@@ -220,15 +224,14 @@ export async function waitForFundingUtxos(params: {
   let loggedFundingPrompt = false;
 
   while (true) {
-    const utxos = await fetchFundingUtxos(
-      baseUrl,
-      params.address,
-    );
+    const utxos = await fetchFundingUtxos(baseUrl, params.address);
     if (utxos.length > 0) return utxos;
 
     if (!loggedFundingPrompt) {
       params.log?.(`No spendable UTXOs found for ${params.address}.`);
-      params.log?.("Fund this address with the Lightspark regtest faucet, Bitcoin receiver mode:");
+      params.log?.(
+        "Fund this address with the Lightspark regtest faucet, Bitcoin receiver mode:",
+      );
       params.log?.("https://app.lightspark.com/regtest-faucet");
       loggedFundingPrompt = true;
     }

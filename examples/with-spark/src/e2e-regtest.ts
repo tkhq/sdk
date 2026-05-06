@@ -11,11 +11,7 @@
 
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import type { SparkWallet } from "@buildonspark/spark-sdk";
-import {
-  env,
-  initSparkWalletFromEnv,
-  requireEnv,
-} from "./init";
+import { env, initSparkWalletFromEnv, requireEnv } from "./init";
 import type { TurnkeySparkSigner } from "./turnkeySigner";
 import { turnkeyTransfer } from "./turnkeyTransfer";
 import { turnkeyClaim } from "./turnkeyClaim";
@@ -67,13 +63,14 @@ async function waitForPendingTransfer(
   const internals = wallet as unknown as WalletWithPendingTransfers;
 
   while (true) {
-    const { transfers } = await internals.transferService.queryPendingTransfers([
-      transferId,
-    ]);
+    const { transfers } = await internals.transferService.queryPendingTransfers(
+      [transferId],
+    );
     const transfer = transfers.find((candidate) => candidate.id === transferId);
     if (transfer) return transfer;
 
-    const completedTransfer = await internals.transferService.queryTransfer(transferId);
+    const completedTransfer =
+      await internals.transferService.queryTransfer(transferId);
     const balanceSats = await getBalanceSats(wallet);
     if (
       completedTransfer?.status === TRANSFER_STATUS_COMPLETED &&
@@ -86,7 +83,9 @@ async function waitForPendingTransfer(
     }
 
     if (Date.now() >= deadline) {
-      throw new Error(`Timed out waiting for receiver pending transfer ${transferId}`);
+      throw new Error(
+        `Timed out waiting for receiver pending transfer ${transferId}`,
+      );
     }
 
     console.log(`Waiting for receiver pending transfer ${transferId}...`);
@@ -122,10 +121,16 @@ async function claimTransferOnReceiver(params: {
     if (transfer.status === TRANSFER_STATUS_COMPLETED) {
       return;
     }
-    console.log(`Claiming transfer ${transfer.id} (${transfer.leaves.length} leaves)...`);
+    console.log(
+      `Claiming transfer ${transfer.id} (${transfer.leaves.length} leaves)...`,
+    );
 
     try {
-      const claimedLeaves = await turnkeyClaim(params.wallet, params.signer, transfer as any);
+      const claimedLeaves = await turnkeyClaim(
+        params.wallet,
+        params.signer,
+        transfer as any,
+      );
       console.log(`Claimed ${claimedLeaves.length} leaves on receiver`);
       return;
     } catch (err) {
@@ -158,8 +163,12 @@ async function main() {
   const receiver = await initSparkWalletFromEnv("RECEIVER_");
 
   try {
-    console.log("\nStep 1: Deposit Turnkey BTC regtest funds into sender Spark wallet");
-    console.log(`Sender BTC regtest address: ${requireEnv("SENDER_TURNKEY_L1_BTC_ADDRESS")}`);
+    console.log(
+      "\nStep 1: Deposit Turnkey BTC regtest funds into sender Spark wallet",
+    );
+    console.log(
+      `Sender BTC regtest address: ${requireEnv("SENDER_TURNKEY_L1_BTC_ADDRESS")}`,
+    );
     const depositResult = await depositTurnkeyL1ToSpark({
       wallet: sender.wallet,
       turnkeyClient,
@@ -168,11 +177,18 @@ async function main() {
       existingTxid: process.env.L1_DEPOSIT_TXID,
       amountSats: optionalBigIntEnv("L1_DEPOSIT_AMOUNT_SATS"),
       feeSats: BigInt(env("L1_DEPOSIT_FEE_SATS", "500")),
-      electrsUrl: env("SPARK_REGTEST_ELECTRS_URL", DEFAULT_SPARK_REGTEST_ELECTRS_URL),
+      electrsUrl: env(
+        "SPARK_REGTEST_ELECTRS_URL",
+        DEFAULT_SPARK_REGTEST_ELECTRS_URL,
+      ),
       fundingTimeoutMs: Number(env("L1_FUNDING_TIMEOUT_MS", "60000")),
       fundingPollMs: Number(env("L1_FUNDING_POLL_MS", "5000")),
-      confirmationTimeoutMs: Number(env("L1_DEPOSIT_CONFIRMATION_TIMEOUT_MS", "300000")),
-      confirmationPollMs: Number(env("L1_DEPOSIT_CONFIRMATION_POLL_MS", "5000")),
+      confirmationTimeoutMs: Number(
+        env("L1_DEPOSIT_CONFIRMATION_TIMEOUT_MS", "300000"),
+      ),
+      confirmationPollMs: Number(
+        env("L1_DEPOSIT_CONFIRMATION_POLL_MS", "5000"),
+      ),
       log: console.log,
     });
     console.log(`Deposit tx confirmed: ${depositResult.txid}`);
@@ -182,7 +198,8 @@ async function main() {
     const senderBalance = await getBalanceSats(sender.wallet);
     const configuredTransferSats = optionalNumberEnv("TRANSFER_AMOUNT_SATS");
     const transferSats = configuredTransferSats ?? senderBalance;
-    if (transferSats <= 0) throw new Error("No sender balance available to transfer");
+    if (transferSats <= 0)
+      throw new Error("No sender balance available to transfer");
     if (transferSats > senderBalance) {
       throw new Error(
         `TRANSFER_AMOUNT_SATS=${transferSats} exceeds sender balance ${senderBalance}`,
@@ -206,12 +223,16 @@ async function main() {
     const receiverBalance = await getBalanceSats(receiver.wallet);
     console.log(`Receiver balance: ${receiverBalance} sats available`);
 
-    console.log("\nStep 4: Withdraw receiver Spark sats back to Bitcoin regtest");
+    console.log(
+      "\nStep 4: Withdraw receiver Spark sats back to Bitcoin regtest",
+    );
     const withdrawAddress =
-      process.env.WITHDRAW_BTC_ADDRESS || requireEnv("RECEIVER_TURNKEY_L1_BTC_ADDRESS");
+      process.env.WITHDRAW_BTC_ADDRESS ||
+      requireEnv("RECEIVER_TURNKEY_L1_BTC_ADDRESS");
     const configuredWithdrawSats = optionalNumberEnv("WITHDRAW_AMOUNT_SATS");
     const withdrawSats = configuredWithdrawSats ?? transferSats;
-    if (withdrawSats <= 0) throw new Error("No receiver balance available to withdraw");
+    if (withdrawSats <= 0)
+      throw new Error("No receiver balance available to withdraw");
     if (withdrawSats > receiverBalance) {
       throw new Error(
         `WITHDRAW_AMOUNT_SATS=${withdrawSats} exceeds receiver balance ${receiverBalance}`,
@@ -228,12 +249,17 @@ async function main() {
     await turnkeyWithdraw(receiver.wallet, receiver.signer, {
       onchainAddress: withdrawAddress,
       amountSats: withdrawSats,
-      exitSpeed: env("WITHDRAW_EXIT_SPEED", "FAST") as "FAST" | "MEDIUM" | "SLOW",
+      exitSpeed: env("WITHDRAW_EXIT_SPEED", "FAST") as
+        | "FAST"
+        | "MEDIUM"
+        | "SLOW",
       feeQuote,
     });
     const receiverBalanceAfterWithdraw = await getBalanceSats(receiver.wallet);
     console.log(`Withdrawal initiated to ${withdrawAddress}`);
-    console.log(`Receiver balance: ${receiverBalanceAfterWithdraw} sats available`);
+    console.log(
+      `Receiver balance: ${receiverBalanceAfterWithdraw} sats available`,
+    );
 
     console.log("\nE2E complete.");
   } finally {

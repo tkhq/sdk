@@ -147,10 +147,14 @@ export async function depositTurnkeyL1ToSpark(
   const minBalanceSats =
     balanceSatsToBigInt(balanceBefore.satsBalance?.available) + depositSats;
 
-  log("Preparing Spark deposit tree and refund transactions before L1 broadcast");
+  log(
+    "Preparing Spark deposit tree and refund transactions before L1 broadcast",
+  );
   await options.wallet.advancedDeposit(tx.hex);
 
-  log(`Signing L1 deposit transaction: ${depositSats} sats to Spark, ${actualFeeSats} sats fee`);
+  log(
+    `Signing L1 deposit transaction: ${depositSats} sats to Spark, ${actualFeeSats} sats fee`,
+  );
 
   const signed = await options.turnkeyClient.apiClient().signTransaction({
     signWith: options.fundingAddress,
@@ -158,9 +162,12 @@ export async function depositTurnkeyL1ToSpark(
     type: "TRANSACTION_TYPE_BITCOIN",
   });
 
-  const signedTx = btc.Transaction.fromPSBT(hexToBytes(signed.signedTransaction), {
-    allowUnknownOutputs: true,
-  });
+  const signedTx = btc.Transaction.fromPSBT(
+    hexToBytes(signed.signedTransaction),
+    {
+      allowUnknownOutputs: true,
+    },
+  );
   signedTx.finalize();
 
   // Surface the signed tx before broadcast. advancedDeposit has already consumed
@@ -176,13 +183,11 @@ export async function depositTurnkeyL1ToSpark(
   );
   log(signedTx.hex);
 
-  const txid = await postElectrsText(
-    electrsUrl,
-    "/tx",
-    signedTx.hex,
-  );
+  const txid = await postElectrsText(electrsUrl, "/tx", signedTx.hex);
   log(`Broadcast L1 txid: ${txid}`);
-  log(`Set L1_DEPOSIT_TXID=${txid} to retry claiming without spending another UTXO.`);
+  log(
+    `Set L1_DEPOSIT_TXID=${txid} to retry claiming without spending another UTXO.`,
+  );
 
   const status = await waitForConfirmation({
     txid,

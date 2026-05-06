@@ -25,7 +25,11 @@ import {
   type NetworkType,
   type SigningCommitment,
 } from "@buildonspark/spark-sdk";
-import type { TurnkeySparkSigner, TransferLeafInput, OperatorRecipientInput } from "./turnkeySigner";
+import type {
+  TurnkeySparkSigner,
+  TransferLeafInput,
+  OperatorRecipientInput,
+} from "./turnkeySigner";
 
 function fromHex(h: string): Uint8Array {
   return Buffer.from(h.replace(/^0x/, ""), "hex");
@@ -91,13 +95,19 @@ interface SparkGrpcClient {
 }
 
 interface OperatorSigningCommitment {
-  signingNonceCommitments?: Record<string, { hiding: Uint8Array; binding: Uint8Array }>;
+  signingNonceCommitments?: Record<
+    string,
+    { hiding: Uint8Array; binding: Uint8Array }
+  >;
   publicKeys?: Record<string, Uint8Array>;
   signatureShares?: Record<string, Uint8Array>;
   verifyingKey?: Uint8Array;
   leafId?: string;
   refundTxSigningResult?: {
-    signingNonceCommitments?: Record<string, { hiding: Uint8Array; binding: Uint8Array }>;
+    signingNonceCommitments?: Record<
+      string,
+      { hiding: Uint8Array; binding: Uint8Array }
+    >;
     publicKeys?: Record<string, Uint8Array>;
     signatureShares?: Record<string, Uint8Array>;
   };
@@ -220,20 +230,22 @@ export async function turnkeyTransfer(
         await transferService.connectionManager.createSparkClient(
           config.getCoordinatorAddress(),
         );
-      const { signingCommitments } =
-        await sparkClient.get_signing_commitments({
-          nodeIds,
-          count: 3,
-        });
+      const { signingCommitments } = await sparkClient.get_signing_commitments({
+        nodeIds,
+        count: 3,
+      });
 
       const n = leaves.length;
-      const { cpfpLeafSigningJobs, directLeafSigningJobs, directFromCpfpLeafSigningJobs } =
-        await signingService.signRefunds(
-          leafTweaks,
-          signingCommitments.slice(0, n),
-          signingCommitments.slice(n, 2 * n),
-          signingCommitments.slice(2 * n, 3 * n),
-        );
+      const {
+        cpfpLeafSigningJobs,
+        directLeafSigningJobs,
+        directFromCpfpLeafSigningJobs,
+      } = await signingService.signRefunds(
+        leafTweaks,
+        signingCommitments.slice(0, n),
+        signingCommitments.slice(n, 2 * n),
+        signingCommitments.slice(2 * n, 3 * n),
+      );
 
       // ── Phase 2: Key tweaks via Turnkey enclave ────────────────────
       // The enclave atomically:
@@ -286,8 +298,7 @@ export async function turnkeyTransfer(
         receiverIdentityPublicKeys[leaf.id] = receiverPubkeyBytes;
       }
 
-      const ownerIdentityPublicKey =
-        await signer.getIdentityPublicKey();
+      const ownerIdentityPublicKey = await signer.getIdentityPublicKey();
 
       const response = await sparkClient.start_transfer_v3({
         transferId,

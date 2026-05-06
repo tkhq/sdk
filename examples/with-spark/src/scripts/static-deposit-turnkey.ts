@@ -49,7 +49,9 @@ function optionalNumberEnv(name: string): number | undefined {
 async function main() {
   const network = env("SPARK_NETWORK", "REGTEST");
   if (network !== "REGTEST") {
-    throw new Error("This static deposit flow only supports SPARK_NETWORK=REGTEST");
+    throw new Error(
+      "This static deposit flow only supports SPARK_NETWORK=REGTEST",
+    );
   }
 
   const { wallet, signer } = await initSparkWallet();
@@ -102,7 +104,9 @@ async function main() {
         "SPARK_REGTEST_ELECTRS_URL",
         DEFAULT_SPARK_REGTEST_ELECTRS_URL,
       ),
-      fundingTimeoutMs: Number(env("STATIC_DEPOSIT_FUNDING_TIMEOUT_MS", "60000")),
+      fundingTimeoutMs: Number(
+        env("STATIC_DEPOSIT_FUNDING_TIMEOUT_MS", "60000"),
+      ),
       fundingPollMs: Number(env("STATIC_DEPOSIT_FUNDING_POLL_MS", "5000")),
       confirmationTimeoutMs: Number(
         env("STATIC_DEPOSIT_CONFIRMATION_TIMEOUT_MS", "300000"),

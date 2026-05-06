@@ -1,10 +1,7 @@
 import * as btc from "@scure/btc-signer";
 import { secp256k1 } from "@noble/curves/secp256k1";
 import { Crypto } from "@peculiar/webcrypto";
-import {
-  decryptExportBundle,
-  generateP256KeyPair,
-} from "@turnkey/crypto";
+import { decryptExportBundle, generateP256KeyPair } from "@turnkey/crypto";
 import type { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import type { TurnkeySparkSigner } from "../turnkeySigner";
 import {
@@ -180,7 +177,9 @@ function exportSignerPublicKeyForBaseUrl(apiBaseUrl: string): string {
 function parsePrivateKeyHex(value: string): Uint8Array {
   const hex = value.trim().replace(/^0x/, "");
   if (!/^[0-9a-fA-F]{64}$/.test(hex)) {
-    throw new Error("Exported static deposit key was not a 32-byte hex private key");
+    throw new Error(
+      "Exported static deposit key was not a 32-byte hex private key",
+    );
   }
   return Buffer.from(hex, "hex");
 }
@@ -325,7 +324,9 @@ export async function createOrReuseStaticDepositAccount(
 
     const address = result.addresses[0];
     if (!address) {
-      throw new Error("Turnkey did not return an address for the static deposit account");
+      throw new Error(
+        "Turnkey did not return an address for the static deposit account",
+      );
     }
 
     accounts = await getWalletAccounts(apiClient, sparkAccount.walletId);
@@ -398,7 +399,9 @@ function txOutputAddress(tx: btc.Transaction, index: number): string {
     throw new Error(`Signed transaction is missing output ${index}`);
   }
 
-  return btc.Address(REGTEST_NETWORK).encode(btc.OutScript.decode(output.script));
+  return btc
+    .Address(REGTEST_NETWORK)
+    .encode(btc.OutScript.decode(output.script));
 }
 
 function assertStaticDepositOutput(params: {
@@ -409,7 +412,9 @@ function assertStaticDepositOutput(params: {
 }) {
   const output = params.tx.getOutput(params.outputIndex);
   if (!output) {
-    throw new Error(`Signed transaction is missing output ${params.outputIndex}`);
+    throw new Error(
+      `Signed transaction is missing output ${params.outputIndex}`,
+    );
   }
 
   const actualAddress = txOutputAddress(params.tx, params.outputIndex);
@@ -628,7 +633,11 @@ export async function depositTurnkeyL1ToStaticSpark(
     );
     log(signedTx.hex);
 
-    const broadcastTxid = await postElectrsText(electrsUrl, "/tx", signedTx.hex);
+    const broadcastTxid = await postElectrsText(
+      electrsUrl,
+      "/tx",
+      signedTx.hex,
+    );
     if (broadcastTxid !== txid) {
       throw new Error(
         `Electrs returned txid ${broadcastTxid}, expected signed txid ${txid}`,

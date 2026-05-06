@@ -391,9 +391,7 @@ export class TurnkeySparkSigner implements SparkSigner {
       derivation: mapKeyDerivation(params.keyDerivation),
       message: hex(params.message),
       verifyingKey: hex(params.verifyingKey),
-      operatorCommitments: mapOperatorCommitments(
-        params.statechainCommitments,
-      ),
+      operatorCommitments: mapOperatorCommitments(params.statechainCommitments),
       ...(params.adaptorPubKey
         ? { adaptorPublicKey: hex(params.adaptorPubKey) }
         : {}),
@@ -616,7 +614,8 @@ export class TurnkeySparkSigner implements SparkSigner {
       return output;
     }
 
-    const batchPromise = this.fetchPublicKeysFromDerivations(missingDerivations);
+    const batchPromise =
+      this.fetchPublicKeysFromDerivations(missingDerivations);
     const perKeyPromises = missingDerivations.map((_, i) =>
       batchPromise.then((keys) => keys[i]!),
     );
@@ -661,7 +660,10 @@ export class TurnkeySparkSigner implements SparkSigner {
       })),
     });
 
-    if (!result.publicKeys || result.publicKeys.length !== keyDerivations.length) {
+    if (
+      !result.publicKeys ||
+      result.publicKeys.length !== keyDerivations.length
+    ) {
       throw new Error(
         `SPARK_KEY_OPERATION returned ${result.publicKeys?.length ?? 0} public keys; expected ${keyDerivations.length}`,
       );
@@ -669,7 +671,9 @@ export class TurnkeySparkSigner implements SparkSigner {
 
     return result.publicKeys.map((entry, i) => {
       if (!entry.publicKey) {
-        throw new Error(`SPARK_KEY_OPERATION returned no public key at index ${i}`);
+        throw new Error(
+          `SPARK_KEY_OPERATION returned no public key at index ${i}`,
+        );
       }
       return fromHex(entry.publicKey);
     });
@@ -688,7 +692,10 @@ export class TurnkeySparkSigner implements SparkSigner {
     } as unknown as KeyDerivation);
   }
 
-  async setStaticDepositSecretKey(idx: number, secretKey: Uint8Array): Promise<void> {
+  async setStaticDepositSecretKey(
+    idx: number,
+    secretKey: Uint8Array,
+  ): Promise<void> {
     if (secretKey.length !== 32) {
       throw new Error(
         `Static deposit secret key must be 32 bytes, got ${secretKey.length}`,

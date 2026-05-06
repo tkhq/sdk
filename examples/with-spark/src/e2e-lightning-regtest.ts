@@ -11,11 +11,7 @@
 
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import type { SparkWallet } from "@buildonspark/spark-sdk";
-import {
-  env,
-  initSparkWalletFromEnv,
-  requireEnv,
-} from "./init";
+import { env, initSparkWalletFromEnv, requireEnv } from "./init";
 import type { TurnkeySparkSigner } from "./turnkeySigner";
 import { turnkeyClaim } from "./turnkeyClaim";
 import {
@@ -94,7 +90,9 @@ async function maybeFundSender(params: {
   console.log(
     `Sender balance ${currentBalance} sats is below required ${params.requiredBalanceSats} sats.`,
   );
-  console.log(`Sender BTC regtest address: ${requireEnv("SENDER_TURNKEY_L1_BTC_ADDRESS")}`);
+  console.log(
+    `Sender BTC regtest address: ${requireEnv("SENDER_TURNKEY_L1_BTC_ADDRESS")}`,
+  );
 
   const depositResult = await depositTurnkeyL1ToSpark({
     wallet: params.wallet,
@@ -104,10 +102,15 @@ async function maybeFundSender(params: {
     existingTxid: process.env.L1_DEPOSIT_TXID,
     amountSats: optionalBigIntEnv("L1_DEPOSIT_AMOUNT_SATS"),
     feeSats: BigInt(env("L1_DEPOSIT_FEE_SATS", "500")),
-    electrsUrl: env("SPARK_REGTEST_ELECTRS_URL", DEFAULT_SPARK_REGTEST_ELECTRS_URL),
+    electrsUrl: env(
+      "SPARK_REGTEST_ELECTRS_URL",
+      DEFAULT_SPARK_REGTEST_ELECTRS_URL,
+    ),
     fundingTimeoutMs: Number(env("L1_FUNDING_TIMEOUT_MS", "60000")),
     fundingPollMs: Number(env("L1_FUNDING_POLL_MS", "5000")),
-    confirmationTimeoutMs: Number(env("L1_DEPOSIT_CONFIRMATION_TIMEOUT_MS", "300000")),
+    confirmationTimeoutMs: Number(
+      env("L1_DEPOSIT_CONFIRMATION_TIMEOUT_MS", "300000"),
+    ),
     confirmationPollMs: Number(env("L1_DEPOSIT_CONFIRMATION_POLL_MS", "5000")),
     log: console.log,
   });
@@ -149,7 +152,9 @@ async function claimPendingTransfers(
   // can observe Lightning settlement even if the SDK does not expose its transfer
   // ID in the SSP response. Production code should scope this query.
   for (const transfer of transfers) {
-    console.log(`Claiming transfer ${transfer.id} (${transfer.leaves.length} leaves)...`);
+    console.log(
+      `Claiming transfer ${transfer.id} (${transfer.leaves.length} leaves)...`,
+    );
     const leaves = await turnkeyClaim(wallet, signer, transfer as any);
     claimedLeaves += leaves.length;
   }
@@ -170,7 +175,10 @@ async function waitForReceiverSettlement(params: {
 
   while (true) {
     try {
-      const claimedLeaves = await claimPendingTransfers(params.wallet, params.signer);
+      const claimedLeaves = await claimPendingTransfers(
+        params.wallet,
+        params.signer,
+      );
       if (claimedLeaves > 0) {
         console.log(`Claimed ${claimedLeaves} receiver leaves`);
       }
@@ -234,8 +242,10 @@ async function main() {
     const invoiceParams: Parameters<typeof createTurnkeyLightningInvoice>[2] = {
       amountSats: lightningAmountSats,
       memo: process.env.LIGHTNING_MEMO ?? "Turnkey Spark Lightning E2E",
-      includeSparkAddress: process.env.LIGHTNING_INCLUDE_SPARK_ADDRESS === "true",
-      includeSparkInvoice: process.env.LIGHTNING_INCLUDE_SPARK_INVOICE === "true",
+      includeSparkAddress:
+        process.env.LIGHTNING_INCLUDE_SPARK_ADDRESS === "true",
+      includeSparkInvoice:
+        process.env.LIGHTNING_INCLUDE_SPARK_INVOICE === "true",
     };
     const expirySeconds = optionalInt("LIGHTNING_EXPIRY_SECONDS");
     if (expirySeconds !== undefined) {

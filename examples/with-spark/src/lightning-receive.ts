@@ -28,8 +28,10 @@ async function main() {
     const invoiceParams: Parameters<typeof createTurnkeyLightningInvoice>[2] = {
       amountSats: requiredPositiveInt("LIGHTNING_AMOUNT_SATS", "1000"),
       memo: process.env.LIGHTNING_MEMO ?? "Turnkey Spark Lightning receive",
-      includeSparkAddress: process.env.LIGHTNING_INCLUDE_SPARK_ADDRESS === "true",
-      includeSparkInvoice: process.env.LIGHTNING_INCLUDE_SPARK_INVOICE === "true",
+      includeSparkAddress:
+        process.env.LIGHTNING_INCLUDE_SPARK_ADDRESS === "true",
+      includeSparkInvoice:
+        process.env.LIGHTNING_INCLUDE_SPARK_INVOICE === "true",
     };
     const expirySeconds = optionalInt("LIGHTNING_EXPIRY_SECONDS");
     if (expirySeconds !== undefined) {

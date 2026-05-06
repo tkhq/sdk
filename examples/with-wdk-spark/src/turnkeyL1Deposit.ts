@@ -75,7 +75,8 @@ export interface TurnkeyL1DepositResult {
 }
 
 function hexToBytes(hex: string): Uint8Array {
-  if (hex.length % 2 !== 0) throw new Error(`Invalid hex length: ${hex.length}`);
+  if (hex.length % 2 !== 0)
+    throw new Error(`Invalid hex length: ${hex.length}`);
   const out = new Uint8Array(hex.length / 2);
   for (let i = 0; i < out.length; i++) {
     out[i] = Number.parseInt(hex.slice(i * 2, i * 2 + 2), 16);
@@ -84,7 +85,9 @@ function hexToBytes(hex: string): Uint8Array {
 }
 
 function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
 }
 
 function xOnlyPublicKey(publicKeyHex: string): Uint8Array {
@@ -93,13 +96,12 @@ function xOnlyPublicKey(publicKeyHex: string): Uint8Array {
   if (bytes.length === 33 && (bytes[0] === 0x02 || bytes[0] === 0x03)) {
     return bytes.slice(1);
   }
-  throw new Error("L1 funding public key must be a compressed or x-only secp256k1 public key");
+  throw new Error(
+    "L1 funding public key must be a compressed or x-only secp256k1 public key",
+  );
 }
 
-async function fetchElectrsJson<T>(
-  baseUrl: string,
-  path: string,
-): Promise<T> {
+async function fetchElectrsJson<T>(baseUrl: string, path: string): Promise<T> {
   const response = await fetch(`${baseUrl}${path}`);
   const body = await response.text();
   if (!response.ok) {
@@ -123,7 +125,9 @@ async function postElectrsText(
   });
   const responseBody = await response.text();
   if (!response.ok) {
-    throw new Error(`Electrs ${path} failed (${response.status}): ${responseBody}`);
+    throw new Error(
+      `Electrs ${path} failed (${response.status}): ${responseBody}`,
+    );
   }
   return responseBody.trim();
 }
@@ -137,10 +141,7 @@ export async function fetchFundingUtxos(
   address: string,
 ): Promise<Utxo[]> {
   try {
-    return await fetchElectrsJson<Utxo[]>(
-      baseUrl,
-      `/address/${address}/utxo`,
-    );
+    return await fetchElectrsJson<Utxo[]>(baseUrl, `/address/${address}/utxo`);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (!message.includes("(404)")) throw err;
@@ -200,15 +201,14 @@ export async function waitForFundingUtxos(params: {
   let loggedFundingPrompt = false;
 
   while (true) {
-    const utxos = await fetchFundingUtxos(
-      baseUrl,
-      params.address,
-    );
+    const utxos = await fetchFundingUtxos(baseUrl, params.address);
     if (utxos.length > 0) return utxos;
 
     if (!loggedFundingPrompt) {
       params.log?.(`No spendable UTXOs found for ${params.address}.`);
-      params.log?.("Fund this address with the Lightspark regtest faucet, Bitcoin receiver mode:");
+      params.log?.(
+        "Fund this address with the Lightspark regtest faucet, Bitcoin receiver mode:",
+      );
       params.log?.("https://app.lightspark.com/regtest-faucet");
       loggedFundingPrompt = true;
     }
@@ -345,7 +345,9 @@ export async function depositTurnkeyL1ToSpark(
   if (changeSats > 0n && changeSats < DUST_SATS) {
     log(`Adding ${changeSats} sats below dust threshold to miner fee`);
   }
-  log(`Signing L1 deposit transaction: ${depositSats} sats to Spark, ${actualFeeSats} sats fee`);
+  log(
+    `Signing L1 deposit transaction: ${depositSats} sats to Spark, ${actualFeeSats} sats fee`,
+  );
 
   const signed = await options.turnkeyClient.apiClient().signTransaction({
     signWith: options.fundingAddress,
@@ -353,18 +355,19 @@ export async function depositTurnkeyL1ToSpark(
     type: "TRANSACTION_TYPE_BITCOIN",
   });
 
-  const signedTx = btc.Transaction.fromPSBT(hexToBytes(signed.signedTransaction), {
-    allowUnknownOutputs: true,
-  });
+  const signedTx = btc.Transaction.fromPSBT(
+    hexToBytes(signed.signedTransaction),
+    {
+      allowUnknownOutputs: true,
+    },
+  );
   signedTx.finalize();
 
-  const txid = await postElectrsText(
-    electrsUrl,
-    "/tx",
-    signedTx.hex,
-  );
+  const txid = await postElectrsText(electrsUrl, "/tx", signedTx.hex);
   log(`Broadcast L1 txid: ${txid}`);
-  log(`Set L1_DEPOSIT_TXID=${txid} to retry claiming without spending another UTXO.`);
+  log(
+    `Set L1_DEPOSIT_TXID=${txid} to retry claiming without spending another UTXO.`,
+  );
 
   const status = await waitForConfirmation({
     txid,

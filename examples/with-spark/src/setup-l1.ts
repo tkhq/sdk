@@ -43,7 +43,11 @@ async function findWalletIdForAddress(
       walletId: wallet.walletId,
     });
 
-    if ((accounts as WalletAccount[]).some((account) => account.address === address)) {
+    if (
+      (accounts as WalletAccount[]).some(
+        (account) => account.address === address,
+      )
+    ) {
       return wallet.walletId;
     }
   }
@@ -66,7 +70,10 @@ async function main() {
   const path = env("TURNKEY_L1_BTC_PATH", L1_BTC_PATH);
   const walletId =
     process.env.TURNKEY_WALLET_ID ??
-    (await findWalletIdForAddress(apiClient, requireEnv("TURNKEY_SPARK_ADDRESS")));
+    (await findWalletIdForAddress(
+      apiClient,
+      requireEnv("TURNKEY_SPARK_ADDRESS"),
+    ));
 
   const before = await apiClient.getWalletAccounts({
     organizationId: apiClient.config.organizationId,
@@ -95,7 +102,9 @@ async function main() {
 
     const address = result.addresses[0];
     if (!address) {
-      throw new Error("Turnkey did not return an address for the L1 funding account");
+      throw new Error(
+        "Turnkey did not return an address for the L1 funding account",
+      );
     }
 
     const after = await apiClient.getWalletAccounts({
@@ -108,7 +117,9 @@ async function main() {
   }
 
   if (!account?.publicKey) {
-    throw new Error("Could not load L1 funding account public key after creation");
+    throw new Error(
+      "Could not load L1 funding account public key after creation",
+    );
   }
 
   console.log("Turnkey Bitcoin regtest funding account ready.");

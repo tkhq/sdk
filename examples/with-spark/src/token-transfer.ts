@@ -28,7 +28,9 @@ async function main() {
   const sparkAddress = await wallet.getSparkAddress();
   const identityPubKey = await signer.getIdentityPublicKey();
   console.log(`Spark address:       ${sparkAddress}`);
-  console.log(`Identity public key: ${Buffer.from(identityPubKey).toString("hex")}`);
+  console.log(
+    `Identity public key: ${Buffer.from(identityPubKey).toString("hex")}`,
+  );
 
   // CREATE
   console.log(`\n── CREATE token (${tokenName} / ${tokenTicker}) ──`);
@@ -49,7 +51,9 @@ async function main() {
   console.log(`  Tx: ${mintTxId}`);
 
   // TRANSFER
-  console.log(`\n── TRANSFER ${transferAmount.toLocaleString()} tokens → ${receiverSparkAddress} ──`);
+  console.log(
+    `\n── TRANSFER ${transferAmount.toLocaleString()} tokens → ${receiverSparkAddress} ──`,
+  );
   const transferTxId = await wallet.transferTokens({
     tokenIdentifier,
     tokenAmount: transferAmount,

@@ -43,9 +43,7 @@ function leafDerivation(path: string): KeyDerivation {
 interface RequestLeavesSwapParams {
   leaves: LeafSelection[];
   targetAmounts: number[];
-  onSwapInitiated?:
-    | ((leafIds: string[]) => void | Promise<void>)
-    | undefined;
+  onSwapInitiated?: ((leafIds: string[]) => void | Promise<void>) | undefined;
 }
 
 interface SparkWalletInternals {
@@ -59,7 +57,9 @@ interface SparkWalletInternals {
   };
   leafManager: {
     swapService: {
-      requestLeavesSwap(params: RequestLeavesSwapParams): Promise<LeafSelection[]>;
+      requestLeavesSwap(
+        params: RequestLeavesSwapParams,
+      ): Promise<LeafSelection[]>;
     };
   };
   config: SparkConfig;
@@ -296,10 +296,9 @@ async function executeSingleTurnkeySwap(
   const adaptorPrivKey = secp256k1.utils.randomSecretKey();
   const adaptorPubkey = secp256k1.getPublicKey(adaptorPrivKey);
 
-  const sparkClient =
-    await transferService.connectionManager.createSparkClient(
-      config.getCoordinatorAddress(),
-    );
+  const sparkClient = await transferService.connectionManager.createSparkClient(
+    config.getCoordinatorAddress(),
+  );
 
   const nodeIds = leaves.map((leaf) => leaf.id);
   const { signingCommitments } = await sparkClient.get_signing_commitments({
@@ -420,9 +419,12 @@ async function executeSingleTurnkeySwap(
     throw new Error("Failed to request leaves swap");
   }
 
-  const incomingTransfer = await transferService.queryTransfer(inboundTransferId);
+  const incomingTransfer =
+    await transferService.queryTransfer(inboundTransferId);
   if (!incomingTransfer) {
-    throw new Error(`Failed to query inbound swap transfer ${inboundTransferId}`);
+    throw new Error(
+      `Failed to query inbound swap transfer ${inboundTransferId}`,
+    );
   }
 
   return (await turnkeyClaim(wallet, signer, incomingTransfer as any, {
@@ -449,7 +451,9 @@ async function aggregateAdaptorSignatures(params: {
       (leaf) => leaf.leaf.id === signingResult.leafId,
     );
     if (!leafJob || !leafTweak) {
-      throw new Error(`Leaf not found for adaptor signature ${signingResult.leafId}`);
+      throw new Error(
+        `Leaf not found for adaptor signature ${signingResult.leafId}`,
+      );
     }
     if (!signingResult.verifyingKey) {
       throw new Error(
@@ -510,7 +514,9 @@ function distributeTargetAmounts(
     }
 
     if (!assigned) {
-      throw new Error(`Target amount ${target} could not be assigned to a swap batch`);
+      throw new Error(
+        `Target amount ${target} could not be assigned to a swap batch`,
+      );
     }
   }
 
@@ -525,7 +531,10 @@ function validateSwapInputs(
     throw new Error("Target amounts must be non-empty");
   }
 
-  const totalTargetAmount = targetAmounts.reduce((acc, amount) => acc + amount, 0);
+  const totalTargetAmount = targetAmounts.reduce(
+    (acc, amount) => acc + amount,
+    0,
+  );
   const totalLeavesValue = leaves.reduce(
     (acc, leaf) => acc + Number(leaf.value),
     0,
