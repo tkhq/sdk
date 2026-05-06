@@ -23,30 +23,64 @@ Once logged in, access a dashboard with two panels:
 ## How it works
 
 1. **Send the OTP code**
-   From your backend, call `initOtp` to send the OTP code to the user’s email.
+   Before initiating the OTP, the client generates a P256 session key pair using `createApiKeyPair()` from `useTurnkey()`. The public key is passed to your backend, which calls `initOtp` with it.
+   `initOtp` sends the OTP code to the user’s email and returns two values: `otpId` (identifies this OTP request) and `otpEncryptionTargetBundle` (a public-key bundle used to encrypt the code client-side).
 
-2. **Verify the OTP**
-   When the user submits the code, call `verifyOtp` in the backend with the otpId and otpCode to confirm that the user owns the email address.
+2. **Encrypt the OTP code on the client**
+   When the user enters the OTP code, the client encrypts it before it ever leaves the browser:
+
+   ```ts
+   import { encryptOtpCodeToBundle } from "@turnkey/crypto";
+   const encryptedOtpBundle = await encryptOtpCodeToBundle(
+     otpCode,
+     otpEncryptionTargetBundle,
+     publicKey,
+   );
+   ```
+
+   The plaintext OTP code is never sent to your backend or to Turnkey — only the encrypted bundle travels over the wire.
+
+   **What's inside `otpEncryptionTargetBundle`**
+
+   It's a JSON string with three fields:
+
+   ```json
+   {
+     "enclaveQuorumPublic": "<hex — TLS Fetcher enclave signing key>",
+     "dataSignature": "<hex DER-encoded ECDSA signature over `data`>",
+     "data": "<hex-encoded JSON: { \"targetPublic\": \"<hex uncompressed P256 key>\" }>"
+   }
+   ```
+
+   `targetPublic` is an ephemeral P256 key generated fresh per `initOtp` call inside the Turnkey secure enclave — the private half never leaves the enclave. The enclave signs `data` with its quorum key, and `encryptOtpCodeToBundle` verifies that signature against `PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY` (exported from `@turnkey/crypto`) before encrypting — this ensures the client is encrypting to a key that genuinely came from the real enclave, not a compromised proxy substituting its own key. The OTP code and the session `publicKey` are then HPKE-encrypted to `targetPublic`, so only the enclave can decrypt and verify them during `verifyOtp`.
+
+3. **Verify the OTP**
+   Send the `encryptedOtpBundle` (not the raw code) to your backend, which calls `verifyOtp` with the `otpId` and `encryptedOtpBundle`. Turnkey decrypts and validates the code inside the secure enclave.
    This step returns a `verificationToken`, which is required for logging in.
 
-3. **Find or create a sub-organization**
+4. **Find or create a sub-organization**
    After a successful verification, look up the sub-organization associated with the user’s email:
 
 - Call `getSuborgsAction({ filterValue: email })`.
 - If no result then call `createSuborgAction({ email })`. The new sub-organization will automatically include a **Turnkey wallet** containing one **Ethereum** and one **Solana** account.
 
-4. **Complete the login**
-   Call `otpLogin` in the backend with the `verificationToken`, the `suborgID` from step 3, and the `publicKey` that was securely generated client-side using `createApiKeyPair` before initiating the OTP.
+5. **Complete the login**
+   Build a `clientSignature` on the client to prove possession of the session key:
+   ```ts
+   const message = getClientSignatureMessageForLogin({ verificationToken });
+   const clientSignature = await signWithApiKey({ message, publicKey });
+   ```
+   Then call `otpLogin` in the backend with the `verificationToken`, `suborgID`, `publicKey`, and `clientSignature`.
    Under the hood, `otpLogin` associates this publicKey with the user’s sub-organization in Turnkey, effectively registering it as the active session key.
    The call returns a new `session JWT` that references this keypair stored in the client’s indexedDb, which will be used to sign all subsequent authenticated requests.
 
 > **Note:** The session JWT is a signed piece of metadata issued by Turnkey that references the client-side API keypair stored in indexedDb. It’s useful for server-side verification or associating user metadata, but cannot be used to authenticate or stamp API requests.
 > Only the client-stored session keypair can create valid x-stamp signatures for Turnkey API calls — the JWT alone is not sufficient outside the client context.
 
-5. **Store the session**
+6. **Store the session**
    Use `storeSession()` to persist the session in the browser. The SDK automatically handles authentication state and lifecycle management for you.
 
-6. **Redirect to the dashboard**
+7. **Redirect to the dashboard**
    Once the session is stored, navigate the user to `/dashboard`, where they can view and use their embedded wallets.
 
 > **Note:** The `initOtp`, `verifyOtp`, and `otpLogin` activities are handled through your backend server actions using the parent organization API keys. These endpoints should never be called directly from the client.
