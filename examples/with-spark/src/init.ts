@@ -39,42 +39,29 @@ export interface TurnkeySparkConfig {
   network: SparkNetwork;
 }
 
-function requirePrefixedEnv(prefix: string, name: string): string {
-  return requireEnv(`${prefix}${name}`);
-}
-
 export function loadTurnkeySparkConfig(prefix = ""): TurnkeySparkConfig {
-  const network = env("SPARK_NETWORK", "REGTEST") as SparkNetwork;
-
   return {
     apiBaseUrl: env("BASE_URL", "https://api.turnkey.com"),
     apiPrivateKey: requireEnv("API_PRIVATE_KEY"),
     apiPublicKey: requireEnv("API_PUBLIC_KEY"),
     organizationId: requireEnv("ORGANIZATION_ID"),
-    sparkAddress: requirePrefixedEnv(prefix, "TURNKEY_SPARK_ADDRESS"),
-    ecdsaAddress: requirePrefixedEnv(prefix, "TURNKEY_ECDSA_ADDRESS"),
-    identityPublicKeyHex: requirePrefixedEnv(prefix, "IDENTITY_PUBLIC_KEY_HEX"),
-    network,
+    sparkAddress: requireEnv(`${prefix}TURNKEY_SPARK_ADDRESS`),
+    ecdsaAddress: requireEnv(`${prefix}TURNKEY_ECDSA_ADDRESS`),
+    identityPublicKeyHex: requireEnv(`${prefix}IDENTITY_PUBLIC_KEY_HEX`),
+    network: env("SPARK_NETWORK", "REGTEST") as SparkNetwork,
   };
 }
 
 /**
- * Patch SparkWallet.prototype.claimTransfer to route through turnkeyClaim.
+ * Build a claimTransfer override that routes through turnkeyClaim. Used both
+ * to patch SparkWallet.prototype (covering the SDK's background auto-claim
+ * fired during initialize()) and to override the wallet instance after init.
  *
- * The SDK's native claim path calls signer.decryptEcies() which requires
- * the identity private key client-side. Turnkey keeps that key inside the
- * enclave, so we intercept all claim attempts (including the SDK's
- * background auto-claim that fires during initialize()) and handle them
- * via the enclave-based flow.
- *
- * Must be called BEFORE SparkWallet.initialize() to avoid the race with
- * setupBackgroundStream's immediate claimTransfers() call.
+ * The SDK's native claim path calls signer.decryptEcies() which requires the
+ * identity private key client-side; Turnkey keeps that key inside the enclave.
  */
-function patchClaimTransfer(signer: TurnkeySparkSigner): () => void {
-  const proto = SparkWallet.prototype as any;
-  const original = proto.claimTransfer;
-
-  proto.claimTransfer = async function (
+function makeClaimTransferOverride(signer: TurnkeySparkSigner) {
+  return async function (
     this: any,
     { transfer, emit }: { transfer: any; emit?: boolean },
   ) {
@@ -83,7 +70,13 @@ function patchClaimTransfer(signer: TurnkeySparkSigner): () => void {
     );
     return this.processClaimedTransferResults(result, transfer, emit);
   };
+}
 
+/** Patch the prototype before initialize() to win the race against background auto-claim. */
+function patchClaimTransfer(signer: TurnkeySparkSigner): () => void {
+  const proto = SparkWallet.prototype as any;
+  const original = proto.claimTransfer;
+  proto.claimTransfer = makeClaimTransferOverride(signer);
   return () => {
     proto.claimTransfer = original;
   };
@@ -140,21 +133,9 @@ export async function initSparkWalletFromConfig(
     restoreClaimTransfer();
   }
 
-  // Instance-level override survives the prototype restore so the
-  // background stream and any explicit calls still route through turnkeyClaim.
-  const w = wallet as any;
-  w.claimTransfer = async function ({
-    transfer,
-    emit,
-  }: {
-    transfer: any;
-    emit?: boolean;
-  }) {
-    const result = await w.claimTransferMutex.runExclusive(() =>
-      turnkeyClaim(wallet, signer, transfer),
-    );
-    return w.processClaimedTransferResults(result, transfer, emit);
-  };
+  // Instance-level override survives the prototype restore so the background
+  // stream and any explicit calls still route through turnkeyClaim.
+  (wallet as any).claimTransfer = makeClaimTransferOverride(signer);
   installTurnkeySwapService(wallet, signer);
 
   return { wallet, signer, network };

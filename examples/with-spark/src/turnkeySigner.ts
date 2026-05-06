@@ -397,10 +397,12 @@ export class TurnkeySparkSigner implements SparkSigner {
         : {}),
     };
 
-    const result = await this.callSignFrostSpark({
-      signWith: this.sparkAddress,
-      signatures: [signatureRequest],
-    });
+    const result = await this.command<SignFrostSparkResult>(
+      "/public/v1/submit/sign_frost_spark",
+      "ACTIVITY_TYPE_SIGN_FROST_SPARK",
+      "signFrostSparkResult",
+      { signWith: this.sparkAddress, signatures: [signatureRequest] },
+    );
 
     const sig = result.signatures[0]!;
     const commitment = params.selfCommitment.commitment;
@@ -463,16 +465,21 @@ export class TurnkeySparkSigner implements SparkSigner {
         : {}),
     }));
 
-    const result = await this.callPrepareSparkTransfer({
-      signWith: this.sparkAddress,
-      transfer: {
-        transferId: params.transferId,
-        leaves,
-        threshold: params.threshold,
-        operatorRecipients: params.operatorRecipients,
-        receiverPublicKey: params.receiverPublicKey,
+    const result = await this.command<PrepareSparkTransferResult>(
+      "/public/v1/submit/prepare_spark_transfer",
+      "ACTIVITY_TYPE_PREPARE_SPARK_TRANSFER",
+      "prepareSparkTransferResult",
+      {
+        signWith: this.sparkAddress,
+        transfer: {
+          transferId: params.transferId,
+          leaves,
+          threshold: params.threshold,
+          operatorRecipients: params.operatorRecipients,
+          receiverPublicKey: params.receiverPublicKey,
+        },
       },
-    });
+    );
 
     return {
       operatorPackages: result.operatorPackages ?? [],
@@ -491,18 +498,23 @@ export class TurnkeySparkSigner implements SparkSigner {
     transferId: string;
     senderIdentityPublicKey: string;
   }): Promise<ClaimResult> {
-    const result = await this.callClaimSparkTransfer({
-      signWith: this.sparkAddress,
-      packageRequest: {
-        claim: {
-          leaves: params.leaves,
-          threshold: params.threshold,
-          transferId: params.transferId,
-          operatorRecipients: params.operatorRecipients,
-          senderIdentityPublicKey: params.senderIdentityPublicKey,
+    const result = await this.command<ClaimSparkTransferResult>(
+      "/public/v1/submit/claim_spark_transfer",
+      "ACTIVITY_TYPE_CLAIM_SPARK_TRANSFER",
+      "claimSparkTransferResult",
+      {
+        signWith: this.sparkAddress,
+        packageRequest: {
+          claim: {
+            leaves: params.leaves,
+            threshold: params.threshold,
+            transferId: params.transferId,
+            operatorRecipients: params.operatorRecipients,
+            senderIdentityPublicKey: params.senderIdentityPublicKey,
+          },
         },
       },
-    });
+    );
 
     return {
       operatorPackages: result.operatorPackages ?? [],
@@ -523,13 +535,18 @@ export class TurnkeySparkSigner implements SparkSigner {
       throw new Error("Lightning receive threshold must be at least 2");
     }
 
-    const result = await this.callSparkPrepareLightningReceive({
-      signWith: this.sparkAddress,
-      lightningReceive: {
-        threshold: params.threshold,
-        operatorRecipients: params.operatorRecipients,
+    const result = await this.command<SparkPrepareLightningReceiveResult>(
+      "/public/v1/submit/spark_prepare_lightning_receive",
+      "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
+      "sparkPrepareLightningReceiveResult",
+      {
+        signWith: this.sparkAddress,
+        lightningReceive: {
+          threshold: params.threshold,
+          operatorRecipients: params.operatorRecipients,
+        },
       },
-    });
+    );
 
     if (!result.paymentHash) {
       throw new Error(
@@ -653,12 +670,17 @@ export class TurnkeySparkSigner implements SparkSigner {
   private async fetchPublicKeysFromDerivations(
     keyDerivations: KeyDerivation[],
   ): Promise<Uint8Array[]> {
-    const result = await this.callSparkKeyOperation({
-      signWith: this.sparkAddress,
-      derivePublicKeys: keyDerivations.map((keyDerivation) => ({
-        derivation: mapKeyDerivation(keyDerivation),
-      })),
-    });
+    const result = await this.command<KeyOperationResult>(
+      "/public/v1/submit/spark_key_operation",
+      "ACTIVITY_TYPE_SPARK_KEY_OPERATION",
+      "sparkKeyOperationResult",
+      {
+        signWith: this.sparkAddress,
+        derivePublicKeys: keyDerivations.map((keyDerivation) => ({
+          derivation: mapKeyDerivation(keyDerivation),
+        })),
+      },
+    );
 
     if (
       !result.publicKeys ||
@@ -776,72 +798,13 @@ export class TurnkeySparkSigner implements SparkSigner {
     return notImplemented("decryptEcies");
   }
 
-  // ---------------------------------------------------------------------------
-  // Internal: Turnkey activity calls
-  // ---------------------------------------------------------------------------
-
   /**
-   * Calls Turnkey's SIGN_FROST_SPARK activity via the raw command API.
+   * Calls a Turnkey activity via the raw command API.
    *
-   * The Turnkey SDK doesn't have a typed method for this activity yet —
-   * once it's added to the OpenAPI spec and SDK codegen, replace this with
-   * the typed `client.apiClient().signFrostSpark(...)` call.
+   * The Turnkey SDK doesn't have typed methods for the Spark activities yet —
+   * once they land in the OpenAPI spec and SDK codegen, replace these with
+   * typed `client.apiClient().xxx(...)` calls.
    */
-  private async callSignFrostSpark(
-    intent: Record<string, unknown>,
-  ): Promise<SignFrostSparkResult> {
-    return this.command<SignFrostSparkResult>(
-      "/public/v1/submit/sign_frost_spark",
-      "ACTIVITY_TYPE_SIGN_FROST_SPARK",
-      "signFrostSparkResult",
-      intent,
-    );
-  }
-
-  private async callPrepareSparkTransfer(
-    intent: Record<string, unknown>,
-  ): Promise<PrepareSparkTransferResult> {
-    return this.command<PrepareSparkTransferResult>(
-      "/public/v1/submit/prepare_spark_transfer",
-      "ACTIVITY_TYPE_PREPARE_SPARK_TRANSFER",
-      "prepareSparkTransferResult",
-      intent,
-    );
-  }
-
-  private async callClaimSparkTransfer(
-    intent: Record<string, unknown>,
-  ): Promise<ClaimSparkTransferResult> {
-    return this.command<ClaimSparkTransferResult>(
-      "/public/v1/submit/claim_spark_transfer",
-      "ACTIVITY_TYPE_CLAIM_SPARK_TRANSFER",
-      "claimSparkTransferResult",
-      intent,
-    );
-  }
-
-  private async callSparkPrepareLightningReceive(
-    intent: Record<string, unknown>,
-  ): Promise<SparkPrepareLightningReceiveResult> {
-    return this.command<SparkPrepareLightningReceiveResult>(
-      "/public/v1/submit/spark_prepare_lightning_receive",
-      "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
-      "sparkPrepareLightningReceiveResult",
-      intent,
-    );
-  }
-
-  private async callSparkKeyOperation(
-    intent: Record<string, unknown>,
-  ): Promise<KeyOperationResult> {
-    return this.command<KeyOperationResult>(
-      "/public/v1/submit/spark_key_operation",
-      "ACTIVITY_TYPE_SPARK_KEY_OPERATION",
-      "sparkKeyOperationResult",
-      intent,
-    );
-  }
-
   private async command<R>(
     url: string,
     type: string,

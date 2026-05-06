@@ -16,6 +16,7 @@
 
 import { initSparkWalletFromEnv } from "./init";
 import { turnkeyClaim } from "./turnkeyClaim";
+import { getInternals } from "./turnkeyInternal";
 
 async function main() {
   const transferId = process.env.TRANSFER_ID;
@@ -25,21 +26,9 @@ async function main() {
   );
   console.log(`Authenticated to Spark SO`);
 
-  const internals = wallet as unknown as {
-    transferService: {
-      queryPendingTransfers(ids?: string[]): Promise<{
-        transfers: Array<{
-          id: string;
-          leaves: unknown[];
-          [k: string]: unknown;
-        }>;
-      }>;
-    };
-  };
-
   const ids = transferId ? [transferId] : undefined;
   const { transfers } =
-    await internals.transferService.queryPendingTransfers(ids);
+    await getInternals(wallet).transferService.queryPendingTransfers(ids);
 
   if (transfers.length === 0) {
     console.log(`No pending transfers to claim.`);
@@ -51,9 +40,9 @@ async function main() {
 
   for (const transfer of transfers) {
     console.log(
-      `\nClaiming transfer ${transfer.id} (${transfer.leaves.length} leaves)...`,
+      `\nClaiming transfer ${transfer.id} (${transfer.leaves?.length ?? 0} leaves)...`,
     );
-    const claimedLeaves = await turnkeyClaim(wallet, signer, transfer as any);
+    const claimedLeaves = await turnkeyClaim(wallet, signer, transfer);
     console.log(`  Claimed ${claimedLeaves.length} leaves`);
   }
 

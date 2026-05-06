@@ -21,68 +21,26 @@
  */
 
 import { v7 as uuidv7 } from "uuid";
-import type {
-  SparkWallet,
-  KeyDerivation,
-  NetworkType,
-  SigningCommitment,
+import {
+  getTxFromRawTxHex,
+  getTxId,
+  type SparkWallet,
 } from "@buildonspark/spark-sdk";
-import { getTxFromRawTxHex, getTxId } from "@buildonspark/spark-sdk";
-import type {
-  TurnkeySparkSigner,
-  TransferLeafInput,
-  OperatorRecipientInput,
-} from "./turnkeySigner";
+import type { TurnkeySparkSigner } from "./turnkeySigner";
+import {
+  type ConnectorOutput,
+  createSparkClient,
+  fetchRefundCommitments,
+  fromHex,
+  getInternals,
+  getOperatorRecipients,
+  type LeafSelection,
+  makeLeafTweaks,
+  makeTransferPackage,
+  transferLeavesFromTweaks,
+} from "./turnkeyInternal";
 
-function fromHex(h: string): Uint8Array {
-  return Buffer.from(h.replace(/^0x/, ""), "hex");
-}
-
-function leafDerivation(path: string): KeyDerivation {
-  return { type: "leaf", path } as unknown as KeyDerivation;
-}
-
-// ---------------------------------------------------------------------------
-// SDK internal access helpers
-// ---------------------------------------------------------------------------
-
-interface SparkWalletInternals {
-  coopExitService: {
-    signingService: SparkSigningService;
-    connectionManager: {
-      createSparkClient(address: string): Promise<SparkGrpcClient>;
-    };
-    config: SparkConfig;
-  };
-  sspClient: SspClient | null;
-  leafManager: {
-    selectLeavesAndExecute<T>(
-      amounts: number[],
-      callback: (selected: LeafSelection[][]) => Promise<T>,
-    ): Promise<T>;
-    executeWithAllLeaves<T>(
-      callback: (leaves: LeafSelection[]) => Promise<T>,
-    ): Promise<T>;
-    handleTransferEvent(transfer: SparkTransfer): Promise<void>;
-  };
-  config: SparkConfig;
-  getSspClient(): SspClient;
-}
-
-interface SparkConfig {
-  getSigningOperators(): Record<
-    string,
-    { id: number; identifier: string; identityPublicKey: string }
-  >;
-  getThreshold(): number;
-  getCoordinatorAddress(): string;
-  getNetworkType(): NetworkType;
-  getNetwork(): string;
-  getSspIdentityPublicKey(): string;
-  signer: TurnkeySparkSigner;
-}
-
-interface SspClient {
+interface WithdrawSspClient {
   requestCoopExit(params: {
     leafExternalIds: string[];
     withdrawalAddress: string;
@@ -106,7 +64,7 @@ interface CoopExitRequest {
   coopExitTxid: string;
 }
 
-interface CoopExitFeeQuote {
+export interface CoopExitFeeQuote {
   id: string;
   l1BroadcastFeeFast?: { originalValue: number };
   l1BroadcastFeeMedium?: { originalValue: number };
@@ -115,98 +73,6 @@ interface CoopExitFeeQuote {
   userFeeMedium?: { originalValue: number };
   userFeeSlow?: { originalValue: number };
 }
-
-interface SparkGrpcClient {
-  get_signing_commitments(params: {
-    nodeIds: string[];
-    count: number;
-  }): Promise<{ signingCommitments: OperatorSigningCommitment[] }>;
-  cooperative_exit_v2(params: {
-    transfer: {
-      transferId: string;
-      ownerIdentityPublicKey: Uint8Array;
-      receiverIdentityPublicKey: Uint8Array;
-      transferPackage: TransferPackage;
-      expiryTime: Date;
-    };
-    exitId: string;
-    exitTxid: Uint8Array;
-    connectorTx: Uint8Array;
-  }): Promise<{ transfer?: SparkTransfer }>;
-}
-
-interface OperatorSigningCommitment {
-  signingNonceCommitments?: Record<
-    string,
-    { hiding: Uint8Array; binding: Uint8Array }
-  >;
-  publicKeys?: Record<string, Uint8Array>;
-  signatureShares?: Record<string, Uint8Array>;
-  verifyingKey?: Uint8Array;
-  leafId?: string;
-}
-
-interface SparkSigningService {
-  signRefundsForCoopExit(
-    leaves: LeafTweak[],
-    connectorOutputs: ConnectorOutput[],
-    connectorTx: Uint8Array,
-    cpfpCommitments: OperatorSigningCommitment[],
-    directCommitments: OperatorSigningCommitment[],
-    directFromCpfpCommitments: OperatorSigningCommitment[],
-  ): Promise<{
-    cpfpLeafSigningJobs: LeafSigningJob[];
-    directLeafSigningJobs: LeafSigningJob[];
-    directFromCpfpLeafSigningJobs: LeafSigningJob[];
-  }>;
-}
-
-interface LeafSelection {
-  id: string;
-  nodeTx: Uint8Array;
-  refundTx: Uint8Array;
-  directTx: Uint8Array;
-  value: bigint;
-  [key: string]: unknown;
-}
-
-interface LeafTweak {
-  leaf: LeafSelection;
-  keyDerivation: KeyDerivation;
-  newKeyDerivation: KeyDerivation;
-  receiverIdentityPublicKey: Uint8Array;
-}
-
-interface LeafSigningJob {
-  leafId: string;
-  rawTx: Uint8Array;
-  selfCommitment: { commitment: SigningCommitment };
-  signingPublicKey: Uint8Array;
-  userSignature: Uint8Array;
-  [key: string]: unknown;
-}
-
-interface ConnectorOutput {
-  txid: Uint8Array;
-  index: number;
-}
-
-interface TransferPackage {
-  leavesToSend: LeafSigningJob[];
-  keyTweakPackage: Record<string, Uint8Array>;
-  userSignature: Uint8Array;
-  directLeavesToSend: LeafSigningJob[];
-  directFromCpfpLeavesToSend: LeafSigningJob[];
-  hashVariant?: number;
-}
-
-interface SparkTransfer {
-  id: string;
-  [key: string]: unknown;
-}
-
-// HashVariant.HASH_VARIANT_V2 = 1
-const HASH_VARIANT_V2 = 1;
 
 export interface WithdrawParams {
   onchainAddress: string;
@@ -220,6 +86,29 @@ export interface WithdrawParams {
   deductFeeFromWithdrawalAmount?: boolean;
 }
 
+function feeFromQuote(
+  quote: CoopExitFeeQuote,
+  exitSpeed: WithdrawParams["exitSpeed"],
+): number {
+  switch (exitSpeed) {
+    case "FAST":
+      return (
+        (quote.l1BroadcastFeeFast?.originalValue ?? 0) +
+        (quote.userFeeFast?.originalValue ?? 0)
+      );
+    case "MEDIUM":
+      return (
+        (quote.l1BroadcastFeeMedium?.originalValue ?? 0) +
+        (quote.userFeeMedium?.originalValue ?? 0)
+      );
+    case "SLOW":
+      return (
+        (quote.l1BroadcastFeeSlow?.originalValue ?? 0) +
+        (quote.userFeeSlow?.originalValue ?? 0)
+      );
+  }
+}
+
 /**
  * Execute a cooperative exit (withdraw) using Turnkey's enclave for key tweaks.
  *
@@ -231,86 +120,45 @@ export async function turnkeyWithdraw(
   signer: TurnkeySparkSigner,
   params: WithdrawParams,
 ): Promise<unknown> {
-  const internals = wallet as unknown as SparkWalletInternals;
+  const internals = getInternals(wallet);
   const config = internals.config;
   const signingService = internals.coopExitService.signingService;
-  const connectionManager = internals.coopExitService.connectionManager;
-  const sspClient = internals.getSspClient();
+  const sspClient = internals.getSspClient() as WithdrawSspClient;
 
   const sspPubKeyHex = config.getSspIdentityPublicKey();
   const sspPubKey = fromHex(sspPubKeyHex);
 
-  const signingOperators = config.getSigningOperators();
-  const threshold = config.getThreshold();
-  const operatorRecipients: OperatorRecipientInput[] = Object.values(
-    signingOperators,
-  )
-    .sort((a, b) => Number(a.id) - Number(b.id))
-    .map((op) => ({
-      operatorId: op.identifier,
-      encryptionPublicKey: op.identityPublicKey,
-    }));
-
-  // Resolve fee
-  let { feeAmountSats, feeQuoteId } = params;
   const deductFee = params.deductFeeFromWithdrawalAmount ?? true;
-
-  if (params.feeQuote) {
-    switch (params.exitSpeed) {
-      case "FAST":
-        feeAmountSats =
-          (params.feeQuote.l1BroadcastFeeFast?.originalValue ?? 0) +
-          (params.feeQuote.userFeeFast?.originalValue ?? 0);
-        break;
-      case "MEDIUM":
-        feeAmountSats =
-          (params.feeQuote.l1BroadcastFeeMedium?.originalValue ?? 0) +
-          (params.feeQuote.userFeeMedium?.originalValue ?? 0);
-        break;
-      case "SLOW":
-        feeAmountSats =
-          (params.feeQuote.l1BroadcastFeeSlow?.originalValue ?? 0) +
-          (params.feeQuote.userFeeSlow?.originalValue ?? 0);
-        break;
-    }
-    feeQuoteId = params.feeQuote.id;
-  }
+  const feeAmountSats = params.feeQuote
+    ? feeFromQuote(params.feeQuote, params.exitSpeed)
+    : params.feeAmountSats;
+  const feeQuoteId = params.feeQuote?.id ?? params.feeQuoteId;
 
   if (!feeAmountSats) throw new Error("No fee quote or fee amount provided");
   if (!feeQuoteId) throw new Error("No fee quote ID provided");
 
-  const finalFeeAmountSats = feeAmountSats;
-  const finalFeeQuoteId = feeQuoteId;
-
-  // ── Leaf selection + execute ───────────────────────────────────────
   const executeCoopExit = async (
     leavesToSendToSsp: LeafSelection[],
     leavesToSendToSE: LeafSelection[],
   ) => {
     const allLeaves = [...leavesToSendToSE, ...leavesToSendToSsp];
-    const leafTweaks: LeafTweak[] = allLeaves.map((leaf) => ({
-      leaf,
-      keyDerivation: leafDerivation(leaf.id),
-      newKeyDerivation: leafDerivation(uuidv7()),
-      receiverIdentityPublicKey: sspPubKey,
-    }));
-
+    const leafTweaks = makeLeafTweaks(allLeaves, sspPubKey);
     const transferId = uuidv7();
 
     // ── Step 1: Request coop exit from SSP ────────────────────────
-    const requestParams: Parameters<typeof sspClient.requestCoopExit>[0] = {
+    const coopExitRequest = await sspClient.requestCoopExit({
       leafExternalIds: leavesToSendToSsp.map((l) => l.id),
       withdrawalAddress: params.onchainAddress,
       exitSpeed: params.exitSpeed,
       withdrawAll: deductFee,
       userOutboundTransferExternalId: transferId,
-    };
-    if (!deductFee) {
-      requestParams.feeQuoteId = finalFeeQuoteId;
-      requestParams.feeLeafExternalIds = leavesToSendToSE.map((l) => l.id);
-    }
-
-    const coopExitRequest = await sspClient.requestCoopExit(requestParams);
+      ...(deductFee
+        ? {}
+        : {
+            feeQuoteId,
+            feeLeafExternalIds: leavesToSendToSE.map((l) => l.id),
+          }),
+    });
     if (!coopExitRequest?.rawConnectorTransaction) {
       throw new Error("Failed to request coop exit");
     }
@@ -318,8 +166,7 @@ export async function turnkeyWithdraw(
     const connectorTxBytes = fromHex(coopExitRequest.rawConnectorTransaction);
     const coopExitTxId = fromHex(coopExitRequest.coopExitTxid);
 
-    // Parse connector outputs — one per leaf (SDK uses getTxFromRawTxHex
-    // internally; we build the output references directly)
+    // Parse connector outputs — one per leaf.
     const connectorTxIdBytes = fromHex(
       coopExitRequest.rawConnectorTransaction.length > 0
         ? getTxId(getTxFromRawTxHex(coopExitRequest.rawConnectorTransaction))
@@ -331,71 +178,39 @@ export async function turnkeyWithdraw(
     }));
 
     // ── Step 2: Sign refund transactions ──────────────────────────
-    const sparkClient = await connectionManager.createSparkClient(
-      config.getCoordinatorAddress(),
+    const sparkClient = await createSparkClient(internals);
+    const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
+      sparkClient,
+      allLeaves.map((l) => l.id),
     );
-    const nodeIds = allLeaves.map((l) => l.id);
-    const { signingCommitments } = await sparkClient.get_signing_commitments({
-      nodeIds,
-      count: 3,
-    });
-
-    const n = allLeaves.length;
-    const {
-      cpfpLeafSigningJobs,
-      directLeafSigningJobs,
-      directFromCpfpLeafSigningJobs,
-    } = await signingService.signRefundsForCoopExit(
+    const jobs = await signingService.signRefundsForCoopExit(
       leafTweaks,
       connectorOutputs,
       connectorTxBytes,
-      signingCommitments.slice(0, n),
-      signingCommitments.slice(n, 2 * n),
-      signingCommitments.slice(2 * n, 3 * n),
+      cpfpC,
+      directC,
+      directFromCpfpC,
     );
 
     // ── Step 3: Key tweaks via Turnkey enclave ────────────────────
-    // Reuse the same new derivation that signRefundsForCoopExit used above.
-    const transferLeaves: TransferLeafInput[] = leafTweaks.map((leaf) => ({
-      leafId: leaf.leaf.id,
-      oldLeafDerivation: leaf.keyDerivation,
-      newLeafDerivation: leaf.newKeyDerivation,
-    }));
-
     const turnkeyResult = await signer.prepareTransfer({
       transferId,
-      leaves: transferLeaves,
-      threshold,
-      operatorRecipients,
+      leaves: transferLeavesFromTweaks(leafTweaks),
+      threshold: config.getThreshold(),
+      operatorRecipients: getOperatorRecipients(config),
       receiverPublicKey: sspPubKeyHex,
     });
 
     // ── Step 4: Assemble and send ─────────────────────────────────
-    const keyTweakPackage: Record<string, Uint8Array> = {};
-    for (const pkg of turnkeyResult.operatorPackages) {
-      keyTweakPackage[pkg.operatorId] = fromHex(pkg.encryptedPackage);
-    }
-
-    const transferPackage: TransferPackage = {
-      leavesToSend: cpfpLeafSigningJobs,
-      keyTweakPackage,
-      userSignature: fromHex(turnkeyResult.transferUserSignature),
-      directLeavesToSend: directLeafSigningJobs,
-      directFromCpfpLeavesToSend: directFromCpfpLeafSigningJobs,
-      hashVariant: HASH_VARIANT_V2,
-    };
-
-    const ownerIdentityPublicKey = await signer.getIdentityPublicKey();
-
     const isMainnet = config.getNetwork() === "MAINNET";
     const expiryMs = isMainnet ? 10080 * 60 * 1000 + 300 * 1000 : 2100 * 1000;
 
     const response = await sparkClient.cooperative_exit_v2({
       transfer: {
         transferId,
-        ownerIdentityPublicKey,
+        ownerIdentityPublicKey: await signer.getIdentityPublicKey(),
         receiverIdentityPublicKey: sspPubKey,
-        transferPackage,
+        transferPackage: makeTransferPackage(turnkeyResult, jobs),
         expiryTime: new Date(Date.now() + expiryMs),
       },
       exitId: uuidv7(),
@@ -418,28 +233,21 @@ export async function turnkeyWithdraw(
     if (params.amountSats) {
       return await internals.leafManager.selectLeavesAndExecute(
         [params.amountSats],
-        async (selected) => {
-          return await executeCoopExit(selected[0]!, []);
-        },
-      );
-    } else {
-      return await internals.leafManager.executeWithAllLeaves(
-        async (allLeaves) => {
-          return await executeCoopExit(allLeaves, []);
-        },
+        async (selected) => executeCoopExit(selected[0]!, []),
       );
     }
-  } else {
-    if (!params.amountSats) {
-      throw new Error(
-        "amountSats is required when deductFeeFromWithdrawalAmount is false",
-      );
-    }
-    return await internals.leafManager.selectLeavesAndExecute(
-      [params.amountSats, finalFeeAmountSats],
-      async (selected) => {
-        return await executeCoopExit(selected[0]!, selected[1]!);
-      },
+    return await internals.leafManager.executeWithAllLeaves(async (allLeaves) =>
+      executeCoopExit(allLeaves, []),
     );
   }
+
+  if (!params.amountSats) {
+    throw new Error(
+      "amountSats is required when deductFeeFromWithdrawalAmount is false",
+    );
+  }
+  return await internals.leafManager.selectLeavesAndExecute(
+    [params.amountSats, feeAmountSats],
+    async (selected) => executeCoopExit(selected[0]!, selected[1]!),
+  );
 }

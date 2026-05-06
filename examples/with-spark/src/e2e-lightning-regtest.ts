@@ -20,20 +20,7 @@ import {
 } from "./turnkeyLightning";
 import { DEFAULT_SPARK_REGTEST_ELECTRS_URL } from "./spark-deposit/common";
 import { depositTurnkeyL1ToSpark } from "./spark-deposit/normal";
-
-type PendingTransfer = {
-  id: string;
-  leaves: unknown[];
-  [key: string]: unknown;
-};
-
-type WalletWithPendingTransfers = {
-  transferService: {
-    queryPendingTransfers(ids?: string[]): Promise<{
-      transfers: PendingTransfer[];
-    }>;
-  };
-};
+import { getInternals } from "./turnkeyInternal";
 
 function optionalBigIntEnv(name: string): bigint | undefined {
   const value = process.env[name];
@@ -144,8 +131,8 @@ async function claimPendingTransfers(
   wallet: SparkWallet,
   signer: TurnkeySparkSigner,
 ): Promise<number> {
-  const internals = wallet as unknown as WalletWithPendingTransfers;
-  const { transfers } = await internals.transferService.queryPendingTransfers();
+  const { transfers } =
+    await getInternals(wallet).transferService.queryPendingTransfers();
   let claimedLeaves = 0;
 
   // Demo-wallet convenience: claim every pending transfer so the balance check
@@ -153,9 +140,9 @@ async function claimPendingTransfers(
   // ID in the SSP response. Production code should scope this query.
   for (const transfer of transfers) {
     console.log(
-      `Claiming transfer ${transfer.id} (${transfer.leaves.length} leaves)...`,
+      `Claiming transfer ${transfer.id} (${transfer.leaves?.length ?? 0} leaves)...`,
     );
-    const leaves = await turnkeyClaim(wallet, signer, transfer as any);
+    const leaves = await turnkeyClaim(wallet, signer, transfer);
     claimedLeaves += leaves.length;
   }
 

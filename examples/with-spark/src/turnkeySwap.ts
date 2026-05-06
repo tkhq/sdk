@@ -12,33 +12,29 @@ import { secp256k1 } from "@noble/curves/secp256k1";
 import {
   getSigHashFromTx,
   getTxFromRawTxBytes,
-  type KeyDerivation,
-  type NetworkType,
-  type SigningCommitment,
   type SparkWallet,
 } from "@buildonspark/spark-sdk";
 import { v7 as uuidv7 } from "uuid";
 import { turnkeyClaim } from "./turnkeyClaim";
-import type {
-  OperatorRecipientInput,
-  TransferLeafInput,
-  TurnkeySparkSigner,
-} from "./turnkeySigner";
+import type { TurnkeySparkSigner } from "./turnkeySigner";
+import {
+  createSparkClient,
+  fetchRefundCommitments,
+  fromHex,
+  getInternals,
+  getOperatorRecipients,
+  hex,
+  type LeafSelection,
+  type LeafTweak,
+  makeLeafTweaks,
+  makeTransferPackage,
+  type OperatorSigningCommitment,
+  type RefundSigningResult,
+  type TransferPackage,
+  transferLeavesFromTweaks,
+} from "./turnkeyInternal";
 
 const MAX_BATCH_SIZE = 64;
-const HASH_VARIANT_V2 = 1;
-
-function hex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
-}
-
-function fromHex(h: string): Uint8Array {
-  return Buffer.from(h.replace(/^0x/, ""), "hex");
-}
-
-function leafDerivation(path: string): KeyDerivation {
-  return { type: "leaf", path } as unknown as KeyDerivation;
-}
 
 interface RequestLeavesSwapParams {
   leaves: LeafSelection[];
@@ -46,58 +42,7 @@ interface RequestLeavesSwapParams {
   onSwapInitiated?: ((leafIds: string[]) => void | Promise<void>) | undefined;
 }
 
-interface SparkWalletInternals {
-  transferService: {
-    connectionManager: {
-      createSparkClient(address: string): Promise<SparkGrpcClient>;
-    };
-    config: SparkConfig;
-    signingService: SparkSigningService;
-    queryTransfer(transferId: string): Promise<SparkTransfer | undefined>;
-  };
-  leafManager: {
-    swapService: {
-      requestLeavesSwap(
-        params: RequestLeavesSwapParams,
-      ): Promise<LeafSelection[]>;
-    };
-  };
-  config: SparkConfig;
-  getSspClient(): SspClient;
-}
-
-interface SparkConfig {
-  getSigningOperators(): Record<
-    string,
-    { id: number; identifier: string; identityPublicKey: string }
-  >;
-  getThreshold(): number;
-  getCoordinatorAddress(): string;
-  getSspIdentityPublicKey(): string;
-  getNetworkType(): NetworkType;
-  signer: TurnkeySparkSigner;
-}
-
-interface SparkGrpcClient {
-  get_signing_commitments(params: {
-    nodeIds: string[];
-    count: number;
-  }): Promise<{ signingCommitments: OperatorSigningCommitment[] }>;
-  initiate_swap_primary_transfer(params: {
-    transfer: {
-      transferId: string;
-      ownerIdentityPublicKey: Uint8Array;
-      receiverIdentityPublicKey: Uint8Array;
-      transferPackage: TransferPackage;
-    };
-    adaptorPublicKeys: { adaptorPublicKey: Uint8Array };
-  }): Promise<{
-    transfer?: SparkTransfer;
-    signingResults: OperatorSigningCommitment[];
-  }>;
-}
-
-interface SspClient {
+interface SwapSspClient {
   requestLeavesSwap(params: {
     userLeaves: UserLeafInput[];
     adaptorPubkey: string;
@@ -124,94 +69,11 @@ interface UserLeafInput {
   direct_from_cpfp_adaptor_added_signature: string;
 }
 
-interface OperatorSigningCommitment {
-  signingNonceCommitments?: Record<
-    string,
-    { hiding: Uint8Array; binding: Uint8Array }
-  >;
-  publicKeys?: Record<string, Uint8Array>;
-  signatureShares?: Record<string, Uint8Array>;
-  verifyingKey?: Uint8Array;
-  leafId?: string;
-  refundTxSigningResult?: {
-    signingNonceCommitments?: Record<
-      string,
-      { hiding: Uint8Array; binding: Uint8Array }
-    >;
-    publicKeys?: Record<string, Uint8Array>;
-    signatureShares?: Record<string, Uint8Array>;
-  };
-}
-
-interface SparkSigningService {
-  signRefunds(
-    leaves: LeafTweak[],
-    cpfpCommitments: OperatorSigningCommitment[],
-    directCommitments: OperatorSigningCommitment[],
-    directFromCpfpCommitments: OperatorSigningCommitment[],
-    adaptorPubKey?: Uint8Array,
-  ): Promise<{
-    cpfpLeafSigningJobs: LeafSigningJob[];
-    directLeafSigningJobs: LeafSigningJob[];
-    directFromCpfpLeafSigningJobs: LeafSigningJob[];
-  }>;
-}
-
-interface LeafSelection {
-  id: string;
-  nodeTx: Uint8Array;
-  refundTx: Uint8Array;
-  directTx: Uint8Array;
-  value: number | bigint;
-  [key: string]: unknown;
-}
-
-interface LeafTweak {
-  leaf: LeafSelection;
-  keyDerivation: KeyDerivation;
-  newKeyDerivation: KeyDerivation;
-  receiverIdentityPublicKey: Uint8Array;
-}
-
-interface LeafSigningJob {
-  leafId: string;
-  rawTx: Uint8Array;
-  selfCommitment: { commitment: SigningCommitment };
-  signingPublicKey: Uint8Array;
-  userSignature: Uint8Array;
-  [key: string]: unknown;
-}
-
-interface TransferPackage {
-  leavesToSend: LeafSigningJob[];
-  keyTweakPackage: Record<string, Uint8Array>;
-  userSignature: Uint8Array;
-  directLeavesToSend: LeafSigningJob[];
-  directFromCpfpLeavesToSend: LeafSigningJob[];
-  hashVariant?: number;
-}
-
-interface SparkTransfer {
-  id: string;
-  senderIdentityPublicKey: Uint8Array;
-  leaves: Array<{
-    leaf: LeafSelection;
-    secretCipher: Uint8Array;
-    signature: Uint8Array;
-    intermediateRefundTx: Uint8Array;
-    intermediateDirectRefundTx: Uint8Array;
-    intermediateDirectFromCpfpRefundTx: Uint8Array;
-  }>;
-  [key: string]: unknown;
-}
-
 export function installTurnkeySwapService(
   wallet: SparkWallet,
   signer: TurnkeySparkSigner,
 ): void {
-  const internals = wallet as unknown as SparkWalletInternals;
-
-  internals.leafManager.swapService = {
+  getInternals(wallet).leafManager.swapService = {
     requestLeavesSwap: (params) =>
       requestTurnkeyLeavesSwap(wallet, signer, params),
   };
@@ -265,84 +127,48 @@ async function executeSingleTurnkeySwap(
 ): Promise<LeafSelection[]> {
   validateSwapInputs(leaves, targetAmounts);
 
-  const internals = wallet as unknown as SparkWalletInternals;
+  const internals = getInternals(wallet);
   const config = internals.config;
-  const transferService = internals.transferService;
-  const signingService = transferService.signingService;
-  const sspClient = internals.getSspClient();
+  const signingService = internals.transferService.signingService;
+  const sspClient = internals.getSspClient() as SwapSspClient;
 
   const sspPubKeyHex = config.getSspIdentityPublicKey();
   const sspPubKey = fromHex(sspPubKeyHex);
 
-  const signingOperators = config.getSigningOperators();
-  const threshold = config.getThreshold();
-  const operatorRecipients: OperatorRecipientInput[] = Object.values(
-    signingOperators,
-  )
-    .sort((a, b) => Number(a.id) - Number(b.id))
-    .map((op) => ({
-      operatorId: op.identifier,
-      encryptionPublicKey: op.identityPublicKey,
-    }));
-
-  const leafTweaks: LeafTweak[] = leaves.map((leaf) => ({
-    leaf,
-    keyDerivation: leafDerivation(leaf.id),
-    newKeyDerivation: leafDerivation(uuidv7()),
-    receiverIdentityPublicKey: sspPubKey,
-  }));
-
+  const leafTweaks = makeLeafTweaks(leaves, sspPubKey);
   const transferId = uuidv7();
   const adaptorPrivKey = secp256k1.utils.randomSecretKey();
   const adaptorPubkey = secp256k1.getPublicKey(adaptorPrivKey);
 
-  const sparkClient = await transferService.connectionManager.createSparkClient(
-    config.getCoordinatorAddress(),
+  const sparkClient = await createSparkClient(internals);
+
+  const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
+    sparkClient,
+    leaves.map((l) => l.id),
   );
-
-  const nodeIds = leaves.map((leaf) => leaf.id);
-  const { signingCommitments } = await sparkClient.get_signing_commitments({
-    nodeIds,
-    count: 3,
-  });
-
-  const n = leaves.length;
   const { cpfpLeafSigningJobs } = await signingService.signRefunds(
     leafTweaks,
-    signingCommitments.slice(0, n),
-    signingCommitments.slice(n, 2 * n),
-    signingCommitments.slice(2 * n, 3 * n),
+    cpfpC,
+    directC,
+    directFromCpfpC,
     adaptorPubkey,
   );
 
-  const transferLeaves: TransferLeafInput[] = leafTweaks.map((leaf) => ({
-    leafId: leaf.leaf.id,
-    oldLeafDerivation: leaf.keyDerivation,
-    newLeafDerivation: leaf.newKeyDerivation,
-  }));
-
   const turnkeyResult = await signer.prepareTransfer({
     transferId,
-    leaves: transferLeaves,
-    threshold,
-    operatorRecipients,
+    leaves: transferLeavesFromTweaks(leafTweaks),
+    threshold: config.getThreshold(),
+    operatorRecipients: getOperatorRecipients(config),
     receiverPublicKey: sspPubKeyHex,
   });
 
-  const keyTweakPackage: Record<string, Uint8Array> = {};
-  for (const pkg of turnkeyResult.operatorPackages) {
-    keyTweakPackage[pkg.operatorId] = fromHex(pkg.encryptedPackage);
-  }
-
-  const transferPackage: TransferPackage = {
-    leavesToSend: cpfpLeafSigningJobs,
-    keyTweakPackage,
-    userSignature: fromHex(turnkeyResult.transferUserSignature),
-    // The SDK leaves these empty for swap-primary transfers.
-    directLeavesToSend: [],
-    directFromCpfpLeavesToSend: [],
-    hashVariant: HASH_VARIANT_V2,
+  // The SDK leaves direct/directFromCpfp empty for swap-primary transfers.
+  const swapJobs: RefundSigningResult = {
+    cpfpLeafSigningJobs,
+    directLeafSigningJobs: [],
+    directFromCpfpLeafSigningJobs: [],
   };
+  const transferPackage = makeTransferPackage(turnkeyResult, swapJobs);
 
   const response = await sparkClient.initiate_swap_primary_transfer({
     transfer: {
@@ -351,15 +177,13 @@ async function executeSingleTurnkeySwap(
       receiverIdentityPublicKey: sspPubKey,
       transferPackage,
     },
-    adaptorPublicKeys: {
-      adaptorPublicKey: adaptorPubkey,
-    },
+    adaptorPublicKeys: { adaptorPublicKey: adaptorPubkey },
   });
 
   if (!response.transfer) {
     throw new Error("No transfer response from initiate_swap_primary_transfer");
   }
-  if (response.transfer.leaves.some((leaf) => !leaf.leaf)) {
+  if ((response.transfer.leaves ?? []).some((leaf) => !leaf.leaf)) {
     throw new Error("Leaf is missing in swap transfer response");
   }
 
@@ -374,7 +198,7 @@ async function executeSingleTurnkeySwap(
   await onSwapInitiated?.(leaves.map((leaf) => leaf.id));
 
   const userLeaves: UserLeafInput[] = [];
-  for (const transferLeaf of response.transfer.leaves) {
+  for (const transferLeaf of response.transfer.leaves ?? []) {
     const leaf = transferLeaf.leaf;
     if (!leaf) throw new Error("Leaf is missing in swap transfer response");
 
@@ -419,14 +243,14 @@ async function executeSingleTurnkeySwap(
   }
 
   const incomingTransfer =
-    await transferService.queryTransfer(inboundTransferId);
+    await internals.transferService.queryTransfer(inboundTransferId);
   if (!incomingTransfer) {
     throw new Error(
       `Failed to query inbound swap transfer ${inboundTransferId}`,
     );
   }
 
-  return (await turnkeyClaim(wallet, signer, incomingTransfer as any, {
+  return (await turnkeyClaim(wallet, signer, incomingTransfer, {
     register: false,
   })) as unknown as LeafSelection[];
 }

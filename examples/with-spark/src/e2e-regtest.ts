@@ -18,21 +18,7 @@ import { turnkeyClaim } from "./turnkeyClaim";
 import { turnkeyWithdraw } from "./turnkeyWithdraw";
 import { DEFAULT_SPARK_REGTEST_ELECTRS_URL } from "./spark-deposit/common";
 import { depositTurnkeyL1ToSpark } from "./spark-deposit/normal";
-
-type PendingTransfer = {
-  id: string;
-  leaves: unknown[];
-  [key: string]: unknown;
-};
-
-type WalletWithPendingTransfers = {
-  transferService: {
-    queryPendingTransfers(ids?: string[]): Promise<{
-      transfers: PendingTransfer[];
-    }>;
-    queryTransfer(transferId: string): Promise<PendingTransfer | undefined>;
-  };
-};
+import { getInternals, type SparkTransfer } from "./turnkeyInternal";
 
 const TRANSFER_STATUS_COMPLETED = 5;
 
@@ -52,21 +38,21 @@ async function getBalanceSats(wallet: SparkWallet): Promise<number> {
   return typeof available === "bigint" ? Number(available) : Number(available);
 }
 
-async function waitForPendingTransfer(
+async function waitForSparkTransfer(
   wallet: SparkWallet,
   transferId: string,
   expectedBalanceSats: number,
-): Promise<PendingTransfer> {
+): Promise<SparkTransfer> {
   const timeoutMs = Number(env("TRANSFER_CLAIM_TIMEOUT_MS", "120000"));
   const pollMs = Number(env("TRANSFER_CLAIM_POLL_MS", "3000"));
   const deadline = Date.now() + timeoutMs;
-  const internals = wallet as unknown as WalletWithPendingTransfers;
+  const internals = getInternals(wallet);
 
   while (true) {
     const { transfers } = await internals.transferService.queryPendingTransfers(
       [transferId],
     );
-    const transfer = transfers.find((candidate) => candidate.id === transferId);
+    const transfer = transfers.find((c: SparkTransfer) => c.id === transferId);
     if (transfer) return transfer;
 
     const completedTransfer =
@@ -113,7 +99,7 @@ async function claimTransferOnReceiver(params: {
   const deadline = Date.now() + timeoutMs;
 
   while (true) {
-    const transfer = await waitForPendingTransfer(
+    const transfer = await waitForSparkTransfer(
       params.wallet,
       params.transferId,
       params.expectedBalanceSats,
@@ -122,7 +108,7 @@ async function claimTransferOnReceiver(params: {
       return;
     }
     console.log(
-      `Claiming transfer ${transfer.id} (${transfer.leaves.length} leaves)...`,
+      `Claiming transfer ${transfer.id} (${transfer.leaves?.length ?? 0} leaves)...`,
     );
 
     try {
