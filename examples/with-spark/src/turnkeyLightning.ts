@@ -4,7 +4,8 @@
  * The Spark SDK's native Lightning receive path calls splitSecretWithProofs()
  * client-side, and its Lightning send path calls subtractSplitAndEncrypt().
  * Turnkey keeps those secrets inside the enclave, so this module wires the
- * SDK Lightning protocol steps to Turnkey's SPARK_PREPARE_AND_SIGN packages.
+ * SDK Lightning protocol steps to Turnkey's SPARK_PREPARE_LIGHTNING_RECEIVE
+ * (for receive) and PREPARE_SPARK_TRANSFER (for send) activities.
  */
 
 import { v7 as uuidv7 } from "uuid";
@@ -504,7 +505,6 @@ async function prepareTurnkeyTransferForLightning(
 
   const recipients = operatorRecipients(config);
   const turnkeyResult = await signer.prepareTransfer({
-    signatures: [],
     transferId,
     leaves: leaves.map(
       (leaf): TransferLeafInput => ({

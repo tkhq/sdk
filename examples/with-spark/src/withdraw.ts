@@ -2,8 +2,8 @@
  * Withdraw: Spark → Bitcoin L1 (cooperative exit)
  *
  * Sends Spark leaves to the SSP which broadcasts an L1 transaction.
- * Uses SPARK_PREPARE_AND_SIGN with a transfer package request (SSP
- * as receiver) for key tweak encryption.
+ * Uses PREPARE_SPARK_TRANSFER (with the SSP as receiver) for key tweak
+ * encryption, after refund FROST signing via SIGN_FROST_SPARK.
  *
  * Required env vars:
  *   API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID

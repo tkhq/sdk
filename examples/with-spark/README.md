@@ -8,17 +8,17 @@ Demonstrates [Spark](https://spark.money) operations using **Turnkey as the key 
 |--------|-------------|-----------------|
 | `pnpm run setup:e2e` | Create sender + receiver Spark wallets and Bitcoin regtest accounts | `CREATE_WALLET` + `CREATE_WALLET_ACCOUNTS` |
 | `pnpm run e2e:regtest` | Deposit BTC into Spark, transfer, claim, and withdraw back to BTC | `SIGN_TRANSACTION` + `SPARK_*` |
-| `pnpm run e2e:lightning-regtest` | Create a Lightning invoice, pay it, and verify receiver Spark settlement | `SPARK_PREPARE_AND_SIGN` (`lightning_receive` + Lightning key tweaks) |
+| `pnpm run e2e:lightning-regtest` | Create a Lightning invoice, pay it, and verify receiver Spark settlement | `SPARK_PREPARE_LIGHTNING_RECEIVE` + `SIGN_FROST_SPARK` + `PREPARE_SPARK_TRANSFER` |
 | `pnpm run setup` | Create one Turnkey Spark wallet | `CREATE_WALLET` |
 | `pnpm run setup:l1` | Create/reuse a Turnkey Bitcoin regtest funding address | `CREATE_WALLET_ACCOUNTS` |
 | `pnpm run token-transfer` | Create, mint, and transfer a Spark token | `SignRawPayload` (ECDSA) |
-| `pnpm run deposit` | Spend a Turnkey bcrt1p faucet UTXO into Spark and claim it | `SIGN_TRANSACTION` + `SPARK_PREPARE_AND_SIGN` |
+| `pnpm run deposit` | Spend a Turnkey bcrt1p faucet UTXO into Spark and claim it | `SIGN_TRANSACTION` + `SIGN_FROST_SPARK` |
 | `pnpm run deposit:static` | Spend a Turnkey bcrt1p faucet UTXO into a Spark static deposit address and claim it | `CREATE_WALLET_ACCOUNTS` + `EXPORT_WALLET_ACCOUNT` + `SIGN_TRANSACTION` |
-| `pnpm run transfer` | Send sats to another Spark address | `SPARK_PREPARE_AND_SIGN` (FROST + key tweaks) |
-| `pnpm run claim` | Receive an inbound Spark transfer | `SPARK_PREPARE_AND_SIGN` (verify + decrypt + key tweaks) |
-| `pnpm run lightning:receive` | Create a Lightning invoice backed by Turnkey-generated Spark preimage shares | `SPARK_PREPARE_AND_SIGN` (`lightning_receive`) |
-| `pnpm run lightning:send` | Pay a BOLT11 invoice from a Turnkey Spark balance | `SPARK_PREPARE_AND_SIGN` (FROST + Lightning key tweaks) |
-| `pnpm run withdraw` | Cooperative exit back to Bitcoin L1 | `SPARK_PREPARE_AND_SIGN` (FROST + key tweaks) |
+| `pnpm run transfer` | Send sats to another Spark address | `SIGN_FROST_SPARK` (refund signing) + `PREPARE_SPARK_TRANSFER` (key tweaks) |
+| `pnpm run claim` | Receive an inbound Spark transfer | `SIGN_FROST_SPARK` (refund signing) + `CLAIM_SPARK_TRANSFER` (verify + decrypt + key tweaks) |
+| `pnpm run lightning:receive` | Create a Lightning invoice backed by Turnkey-generated Spark preimage shares | `SPARK_PREPARE_LIGHTNING_RECEIVE` |
+| `pnpm run lightning:send` | Pay a BOLT11 invoice from a Turnkey Spark balance | `SIGN_FROST_SPARK` + `PREPARE_SPARK_TRANSFER` |
+| `pnpm run withdraw` | Cooperative exit back to Bitcoin L1 | `SIGN_FROST_SPARK` + `PREPARE_SPARK_TRANSFER` |
 
 ## Getting started
 
@@ -52,9 +52,9 @@ node is required. Spark hosted `REGTEST` uses Lightspark's Bitcoin regtest
 chain, not public Bitcoin testnet or signet.
 
 Lightning receive requires the Turnkey environment you are hitting to have
-`SPARK_PREPARE_AND_SIGN.package_request.lightningReceive` deployed. Without
-that package request, Spark transfer and withdrawal flows can still run, but
-Lightning invoice creation will fail before payment.
+the `SPARK_PREPARE_LIGHTNING_RECEIVE` activity deployed. Without it, Spark
+transfer and withdrawal flows can still run, but Lightning invoice creation
+will fail before payment.
 
 ### 3. Create the E2E wallets and accounts
 
@@ -371,10 +371,10 @@ query the receiver balance by reinitializing the receiver wallet.
   `transferID`, or an explicit caller-provided preimage path.
 - Lightning send currently signs refunds twice: once while building the
   Turnkey-backed transfer request and once inside the SDK's
-  `swapNodesForPreimage(...)` path. Expect roughly `6n + 1`
-  `SPARK_PREPARE_AND_SIGN` activities for `n` selected leaves until the SDK swap
-  path is forked or exposes a way to reuse the prebuilt request without
-  redundant signing.
+  `swapNodesForPreimage(...)` path. Expect roughly `6n` `SIGN_FROST_SPARK`
+  activities plus one `PREPARE_SPARK_TRANSFER` for `n` selected leaves until
+  the SDK swap path is forked or exposes a way to reuse the prebuilt request
+  without redundant signing.
 
 ## Hosted REGTEST Faucet Deposit
 
@@ -459,8 +459,10 @@ The `TurnkeySparkSigner` implements the Spark SDK's `SparkSigner` interface, rou
 
 - **ECDSA signing** — `SignRawPayload` (identity key authentication, token operations)
 - **Schnorr identity signing** — `SignRawPayload` via the Spark address when Spark auth accepts a 64-byte identity signature
-- **FROST signing** — `SPARK_PREPARE_AND_SIGN` (threshold Schnorr for Bitcoin transactions)
+- **FROST signing** — `SIGN_FROST_SPARK` (threshold Schnorr for Bitcoin transactions; nonce generation and partial signing in one enclave call)
 - **Key derivation** — `SPARK_KEY_OPERATION` (derive deposit/signing public keys)
-- **Transfer/claim orchestration** — `SPARK_PREPARE_AND_SIGN` with package requests (key tweaks + encrypted operator packages, all inside the enclave)
+- **Transfer orchestration** — `PREPARE_SPARK_TRANSFER` (sender-side key tweaks + encrypted operator packages, all inside the enclave)
+- **Claim orchestration** — `CLAIM_SPARK_TRANSFER` (receiver-side verify + decrypt + key tweaks)
+- **Lightning receive** — `SPARK_PREPARE_LIGHTNING_RECEIVE` (preimage generated and Feldman-split inside the enclave; only `payment_hash` and encrypted operator packages leave it)
 
 Custom orchestration (`turnkeyTransfer.ts`, `turnkeyClaim.ts`, `turnkeySwap.ts`, `turnkeyWithdraw.ts`) replaces the SDK's built-in transfer/claim/swap flows because the SDK calls `subtractSplitAndEncrypt()` per-leaf, exposing raw Feldman shares client-side. Turnkey's enclave does this atomically — raw shares never leave the enclave boundary.

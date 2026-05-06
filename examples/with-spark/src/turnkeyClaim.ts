@@ -6,9 +6,8 @@
  * uses raw Feldman shares to build per-operator packages client-side.
  * Turnkey's enclave does this atomically — raw shares never leave the enclave.
  *
- * This module replaces the key-tweak step with a SPARK_PREPARE_AND_SIGN call
- * carrying a `claim` package request, while reusing the SDK's refund signing
- * and verification infrastructure.
+ * This module replaces the key-tweak step with a CLAIM_SPARK_TRANSFER call,
+ * while reusing the SDK's refund signing and verification infrastructure.
  *
  * Usage:
  *   const leaves = await turnkeyClaim(wallet, signer, transfer);
@@ -310,7 +309,7 @@ export async function turnkeyClaim(
     throw new Error("No claimable leaves in transfer");
   }
 
-  // ── Phase 2: Key tweaks via Turnkey enclave ───────────────────────
+  // ── Phase 2: Key tweaks via Turnkey enclave (CLAIM_SPARK_TRANSFER) ─
   // The enclave atomically:
   //   - decrypts each leaf's inbound ciphertext (ECIES)
   //   - derives the new leaf key

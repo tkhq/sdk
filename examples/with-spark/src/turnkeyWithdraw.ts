@@ -7,7 +7,7 @@
  * the enclave boundary.
  *
  * This module replaces the key-tweak step with a single
- * SPARK_PREPARE_AND_SIGN call, while reusing the SDK's SSP interaction,
+ * PREPARE_SPARK_TRANSFER call, while reusing the SDK's SSP interaction,
  * refund signing, and leaf management.
  *
  * Usage:
@@ -363,7 +363,6 @@ export async function turnkeyWithdraw(
     }));
 
     const turnkeyResult = await signer.prepareTransfer({
-      signatures: [],
       transferId,
       leaves: transferLeaves,
       threshold,

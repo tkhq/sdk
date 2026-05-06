@@ -5,7 +5,7 @@
  * not exactly match existing wallet leaves. The SDK's default SwapService uses
  * subtractSplitAndEncrypt() to build operator packages client-side; this shim
  * mirrors that flow while delegating key-tweak package creation to Turnkey's
- * SPARK_PREPARE_AND_SIGN activity.
+ * PREPARE_SPARK_TRANSFER activity.
  */
 
 import { secp256k1 } from "@noble/curves/secp256k1";
@@ -323,7 +323,6 @@ async function executeSingleTurnkeySwap(
   }));
 
   const turnkeyResult = await signer.prepareTransfer({
-    signatures: [],
     transferId,
     leaves: transferLeaves,
     threshold,

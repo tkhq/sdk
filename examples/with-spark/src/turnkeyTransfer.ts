@@ -7,7 +7,7 @@
  * never leave the enclave boundary.
  *
  * This module replaces the key-tweak + ECIES encryption step with a single
- * SPARK_PREPARE_AND_SIGN call, while reusing the SDK's refund signing and
+ * PREPARE_SPARK_TRANSFER call, while reusing the SDK's refund signing and
  * operator communication infrastructure.
  *
  * Usage:
@@ -252,12 +252,10 @@ export async function turnkeyTransfer(
         newLeafDerivation: leaf.newKeyDerivation,
       }));
 
-      // prepareTransfer returns FROST signatures + encrypted operator
-      // packages + DER user signature in a single enclave round trip.
-      // We pass an empty signatures array — refund signing already
-      // happened in phase 1.
+      // prepareTransfer (PREPARE_SPARK_TRANSFER) returns encrypted operator
+      // packages + DER user signature. Refund FROST signing already happened
+      // in phase 1 via signFrost (SIGN_FROST_SPARK).
       const turnkeyResult = await signer.prepareTransfer({
-        signatures: [],
         transferId,
         leaves: transferLeaves,
         threshold,

@@ -15,15 +15,15 @@
  * ecdsaAddress may also be set to the Spark address for Schnorr identity
  * signatures.
  *
- * FROST signing (via SPARK_PREPARE_AND_SIGN activity):
+ * FROST signing (via SIGN_FROST_SPARK activity):
  *   - getRandomSigningCommitment()   ← returns mutable placeholder
  *   - signFrost()                    ← calls Turnkey, mutates commitment
  *   - aggregateFrost()               ← client-side signature aggregation
  *
- * Transfer / claim / lightning (via SPARK_PREPARE_AND_SIGN with package_request):
- *   - prepareTransfer()              ← custom method (not part of SparkSigner)
- *   - prepareClaim()                 ← custom method (not part of SparkSigner)
- *   - prepareLightningReceive()      ← custom method (not part of SparkSigner)
+ * Package construction — separate activities, no FROST signing:
+ *   - prepareTransfer()              ← PREPARE_SPARK_TRANSFER
+ *   - prepareClaim()                 ← CLAIM_SPARK_TRANSFER
+ *   - prepareLightningReceive()      ← SPARK_PREPARE_LIGHTNING_RECEIVE
  *
  * Key operations (via SPARK_KEY_OPERATION activity):
  *   - getPublicKeyFromDerivation()   ← derive public key at any SparkKeyType path
@@ -34,13 +34,13 @@
  * The Spark SDK's transfer flow calls subtractSplitAndEncrypt() per-leaf and
  * immediately uses the raw Feldman shares to build per-operator packages.
  * Turnkey's enclave does this entire operation atomically inside a single
- * SPARK_PREPARE_AND_SIGN call — raw shares never leave the enclave boundary.
+ * PREPARE_SPARK_TRANSFER call — raw shares never leave the enclave boundary.
  * Use prepareTransfer() instead of the SDK's built-in transfer method.
  *
  * ## Deferred Commitment Pattern
  *
  * The Spark SDK generates user nonce commitments before signing (getRandomSigningCommitment),
- * but Turnkey's PREPARE_AND_SIGN generates the nonce and signs in one call. We bridge this
+ * but Turnkey's SIGN_FROST_SPARK generates the nonce and signs in one call. We bridge this
  * by returning a mutable placeholder from getRandomSigningCommitment, then mutating it with
  * Turnkey's real commitment values inside signFrost. The SDK holds the same object reference,
  * so it picks up the real values when building the transfer package.
@@ -133,21 +133,50 @@ function mapOperatorCommitments(
 }
 
 /**
- * Result shape from Turnkey's SPARK_PREPARE_AND_SIGN activity.
- * This mirrors SparkPrepareAndSignResult from activity.proto.
+ * Result shape from Turnkey's SIGN_FROST_SPARK activity.
+ * Mirrors SignFrostSparkResult from activity.proto.
  */
-interface PrepareAndSignResult {
+interface SignFrostSparkResult {
   signatures: Array<{
     signatureShare: string;
     hiding: string;
     binding: string;
   }>;
-  operatorPackages?: Array<{
+}
+
+/**
+ * Result shape from Turnkey's PREPARE_SPARK_TRANSFER activity.
+ * Mirrors PrepareSparkTransferResult from activity.proto.
+ */
+interface PrepareSparkTransferResult {
+  operatorPackages: Array<{
     operatorId: string;
     encryptedPackage: string;
   }>;
-  paymentHash?: string;
-  transferUserSignature?: string;
+  transferUserSignature: string;
+}
+
+/**
+ * Result shape from Turnkey's CLAIM_SPARK_TRANSFER activity.
+ * Mirrors ClaimSparkTransferResult from activity.proto.
+ */
+interface ClaimSparkTransferResult {
+  operatorPackages: Array<{
+    operatorId: string;
+    encryptedPackage: string;
+  }>;
+}
+
+/**
+ * Result shape from Turnkey's SPARK_PREPARE_LIGHTNING_RECEIVE activity.
+ * Mirrors SparkPrepareLightningReceiveResult from activity.proto.
+ */
+interface SparkPrepareLightningReceiveResult {
+  operatorPackages: Array<{
+    operatorId: string;
+    encryptedPackage: string;
+  }>;
+  paymentHash: string;
 }
 
 /**
@@ -192,11 +221,6 @@ export interface ClaimLeafInput {
  * the DER user signature — ready to forward to Spark operators.
  */
 export interface TransferResult {
-  signatures: Array<{
-    signatureShare: Uint8Array;
-    hiding: Uint8Array;
-    binding: Uint8Array;
-  }>;
   operatorPackages: Array<{
     operatorId: string;
     encryptedPackage: string;
@@ -326,12 +350,12 @@ export class TurnkeySparkSigner implements SparkSigner {
   }
 
   // ---------------------------------------------------------------------------
-  // FROST signing — bridges to SPARK_PREPARE_AND_SIGN
+  // FROST signing — bridges to SIGN_FROST_SPARK
   // ---------------------------------------------------------------------------
 
   /**
    * Returns a mutable placeholder commitment. The real commitment values are
-   * populated by signFrost() when Turnkey's PREPARE_AND_SIGN returns.
+   * populated by signFrost() when Turnkey's SIGN_FROST_SPARK returns.
    *
    * The SDK holds a reference to this object and reads commitment.hiding/binding
    * AFTER signFrost() completes, so the mutation propagates correctly.
@@ -358,10 +382,9 @@ export class TurnkeySparkSigner implements SparkSigner {
   }
 
   /**
-   * Calls Turnkey's SPARK_PREPARE_AND_SIGN activity for FROST signing only
-   * (no package_request). Generates nonce, signs, and returns the partial
-   * signature. Mutates params.selfCommitment with the real (hiding, binding)
-   * values from Turnkey.
+   * Calls Turnkey's SIGN_FROST_SPARK activity. Generates a fresh nonce inside
+   * the enclave, signs, and returns the partial signature. Mutates
+   * params.selfCommitment with the real (hiding, binding) values from Turnkey.
    */
   async signFrost(params: SignFrostParams): Promise<Uint8Array> {
     const signatureRequest = {
@@ -376,12 +399,10 @@ export class TurnkeySparkSigner implements SparkSigner {
         : {}),
     };
 
-    const intent: Record<string, unknown> = {
+    const result = await this.callSignFrostSpark({
       signWith: this.sparkAddress,
       signatures: [signatureRequest],
-    };
-
-    const result = await this.callPrepareAndSign(intent);
+    });
 
     const sig = result.signatures[0]!;
     const commitment = params.selfCommitment.commitment;
@@ -416,35 +437,19 @@ export class TurnkeySparkSigner implements SparkSigner {
   // ---------------------------------------------------------------------------
 
   /**
-   * Prepare a transfer: FROST-sign each leaf + build encrypted operator
-   * packages in a single SPARK_PREPARE_AND_SIGN call.
+   * Prepare a transfer: build encrypted operator packages and the DER user
+   * signature for an outbound BTC transfer via PREPARE_SPARK_TRANSFER.
    *
-   * Returns encrypted operator packages and the DER user signature, ready
-   * to forward to Spark operators.
+   * FROST signing happens separately — the SDK's signing flow already
+   * produces refund signatures via signFrost() per leaf before this is called.
    */
   async prepareTransfer(params: {
-    signatures: Array<{
-      keyDerivation: KeyDerivation;
-      message: Uint8Array;
-      verifyingKey: Uint8Array;
-      operatorCommitments?: { [key: string]: SigningCommitment };
-      selfCommitment: SigningCommitmentWithOptionalNonce;
-      adaptorPubKey?: Uint8Array;
-    }>;
     transferId: string;
     leaves: TransferLeafInput[];
     threshold: number;
     operatorRecipients: OperatorRecipientInput[];
     receiverPublicKey: string;
   }): Promise<TransferResult> {
-    const signatureRequests = params.signatures.map((s) => ({
-      derivation: mapKeyDerivation(s.keyDerivation),
-      message: hex(s.message),
-      verifyingKey: hex(s.verifyingKey),
-      operatorCommitments: mapOperatorCommitments(s.operatorCommitments),
-      ...(s.adaptorPubKey ? { adaptorPublicKey: hex(s.adaptorPubKey) } : {}),
-    }));
-
     const leaves = params.leaves.map((l) => ({
       leafId: l.leafId,
       oldLeafDerivation: mapKeyDerivation(l.oldLeafDerivation),
@@ -460,43 +465,26 @@ export class TurnkeySparkSigner implements SparkSigner {
         : {}),
     }));
 
-    const intent: Record<string, unknown> = {
+    const result = await this.callPrepareSparkTransfer({
       signWith: this.sparkAddress,
-      signatures: signatureRequests,
-      packageRequest: {
-        transfer: {
-          transferId: params.transferId,
-          leaves,
-          threshold: params.threshold,
-          operatorRecipients: params.operatorRecipients,
-          receiverPublicKey: params.receiverPublicKey,
-        },
+      transfer: {
+        transferId: params.transferId,
+        leaves,
+        threshold: params.threshold,
+        operatorRecipients: params.operatorRecipients,
+        receiverPublicKey: params.receiverPublicKey,
       },
-    };
-
-    const result = await this.callPrepareAndSign(intent);
-
-    for (let i = 0; i < params.signatures.length; i++) {
-      const sig = result.signatures[i]!;
-      const commitment = params.signatures[i]!.selfCommitment.commitment;
-      commitment.hiding = fromHex(sig.hiding);
-      commitment.binding = fromHex(sig.binding);
-    }
+    });
 
     return {
-      signatures: result.signatures.map((s) => ({
-        signatureShare: fromHex(s.signatureShare),
-        hiding: fromHex(s.hiding),
-        binding: fromHex(s.binding),
-      })),
       operatorPackages: result.operatorPackages ?? [],
       transferUserSignature: result.transferUserSignature ?? "",
     };
   }
 
   /**
-   * Prepare a claim: build encrypted operator packages for inbound leaves.
-   * No FROST signatures needed — the claim just rotates leaf keys.
+   * Prepare a claim: build encrypted operator packages for inbound leaves
+   * via CLAIM_SPARK_TRANSFER. The claim just rotates leaf keys — no FROST.
    */
   async prepareClaim(params: {
     leaves: ClaimLeafInput[];
@@ -505,21 +493,18 @@ export class TurnkeySparkSigner implements SparkSigner {
     transferId: string;
     senderIdentityPublicKey: string;
   }): Promise<ClaimResult> {
-    const intent: Record<string, unknown> = {
+    const result = await this.callClaimSparkTransfer({
       signWith: this.sparkAddress,
-      signatures: [],
       packageRequest: {
         claim: {
           leaves: params.leaves,
           threshold: params.threshold,
-          operatorRecipients: params.operatorRecipients,
           transferId: params.transferId,
+          operatorRecipients: params.operatorRecipients,
           senderIdentityPublicKey: params.senderIdentityPublicKey,
         },
       },
-    };
-
-    const result = await this.callPrepareAndSign(intent);
+    });
 
     return {
       operatorPackages: result.operatorPackages ?? [],
@@ -527,9 +512,10 @@ export class TurnkeySparkSigner implements SparkSigner {
   }
 
   /**
-   * Prepare a Lightning receive: generate a preimage inside Turnkey, split it
-   * into encrypted operator packages, and return only the payment hash plus
-   * encrypted packages. The raw preimage/shares never enter client JS.
+   * Prepare a Lightning receive via SPARK_PREPARE_LIGHTNING_RECEIVE: generate
+   * a preimage inside Turnkey, split it into encrypted operator packages, and
+   * return only the payment hash plus encrypted packages. The raw
+   * preimage/shares never enter client JS.
    */
   async prepareLightningReceive(params: {
     threshold: number;
@@ -539,22 +525,17 @@ export class TurnkeySparkSigner implements SparkSigner {
       throw new Error("Lightning receive threshold must be at least 2");
     }
 
-    const intent: Record<string, unknown> = {
+    const result = await this.callSparkPrepareLightningReceive({
       signWith: this.sparkAddress,
-      signatures: [],
-      packageRequest: {
-        lightningReceive: {
-          threshold: params.threshold,
-          operatorRecipients: params.operatorRecipients,
-        },
+      lightningReceive: {
+        threshold: params.threshold,
+        operatorRecipients: params.operatorRecipients,
       },
-    };
-
-    const result = await this.callPrepareAndSign(intent);
+    });
 
     if (!result.paymentHash) {
       throw new Error(
-        "SPARK_PREPARE_AND_SIGN returned no payment hash for lightning receive",
+        "SPARK_PREPARE_LIGHTNING_RECEIVE returned no payment hash",
       );
     }
 
@@ -581,7 +562,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     throw new Error(
       "TurnkeySparkSigner does not support subtractSplitAndEncrypt. " +
         "Turnkey's enclave performs subtract-split-encrypt atomically inside " +
-        "SPARK_PREPARE_AND_SIGN — raw shares never leave the enclave. " +
+        "PREPARE_SPARK_TRANSFER — raw shares never leave the enclave. " +
         "Use TurnkeySparkSigner.prepareTransfer() instead of the SDK's " +
         "built-in transfer method.",
     );
@@ -793,49 +774,87 @@ export class TurnkeySparkSigner implements SparkSigner {
   // ---------------------------------------------------------------------------
 
   /**
-   * Calls Turnkey's SPARK_PREPARE_AND_SIGN activity via the raw command API.
+   * Calls Turnkey's SIGN_FROST_SPARK activity via the raw command API.
    *
    * The Turnkey SDK doesn't have a typed method for this activity yet —
    * once it's added to the OpenAPI spec and SDK codegen, replace this with
-   * the typed `client.apiClient().sparkPrepareAndSign(...)` call.
+   * the typed `client.apiClient().signFrostSpark(...)` call.
    */
-  private async callPrepareAndSign(
+  private async callSignFrostSpark(
     intent: Record<string, unknown>,
-  ): Promise<PrepareAndSignResult> {
-    const apiClient = this.client.apiClient() as unknown as {
-      command<B, R>(url: string, body: B, resultKey: string): Promise<R>;
-      config: { organizationId?: string };
-    };
+  ): Promise<SignFrostSparkResult> {
+    return this.command<SignFrostSparkResult>(
+      "/public/v1/submit/sign_frost_spark",
+      "ACTIVITY_TYPE_SIGN_FROST_SPARK",
+      "signFrostSparkResult",
+      intent,
+    );
+  }
 
-    return apiClient.command<Record<string, unknown>, PrepareAndSignResult>(
-      "/public/v1/submit/spark_prepare_and_sign",
-      {
-        parameters: intent,
-        organizationId: apiClient.config.organizationId,
-        timestampMs: String(Date.now()),
-        type: "ACTIVITY_TYPE_SPARK_PREPARE_AND_SIGN",
-      },
-      "sparkPrepareAndSignResult",
+  private async callPrepareSparkTransfer(
+    intent: Record<string, unknown>,
+  ): Promise<PrepareSparkTransferResult> {
+    return this.command<PrepareSparkTransferResult>(
+      "/public/v1/submit/prepare_spark_transfer",
+      "ACTIVITY_TYPE_PREPARE_SPARK_TRANSFER",
+      "prepareSparkTransferResult",
+      intent,
+    );
+  }
+
+  private async callClaimSparkTransfer(
+    intent: Record<string, unknown>,
+  ): Promise<ClaimSparkTransferResult> {
+    return this.command<ClaimSparkTransferResult>(
+      "/public/v1/submit/claim_spark_transfer",
+      "ACTIVITY_TYPE_CLAIM_SPARK_TRANSFER",
+      "claimSparkTransferResult",
+      intent,
+    );
+  }
+
+  private async callSparkPrepareLightningReceive(
+    intent: Record<string, unknown>,
+  ): Promise<SparkPrepareLightningReceiveResult> {
+    return this.command<SparkPrepareLightningReceiveResult>(
+      "/public/v1/submit/spark_prepare_lightning_receive",
+      "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
+      "sparkPrepareLightningReceiveResult",
+      intent,
     );
   }
 
   private async callSparkKeyOperation(
     intent: Record<string, unknown>,
   ): Promise<KeyOperationResult> {
+    return this.command<KeyOperationResult>(
+      "/public/v1/submit/spark_key_operation",
+      "ACTIVITY_TYPE_SPARK_KEY_OPERATION",
+      "sparkKeyOperationResult",
+      intent,
+    );
+  }
+
+  private async command<R>(
+    url: string,
+    type: string,
+    resultKey: string,
+    intent: Record<string, unknown>,
+  ): Promise<R> {
     const apiClient = this.client.apiClient() as unknown as {
       command<B, R>(url: string, body: B, resultKey: string): Promise<R>;
       config: { organizationId?: string };
     };
 
-    return apiClient.command<Record<string, unknown>, KeyOperationResult>(
-      "/public/v1/submit/spark_key_operation",
+    return apiClient.command<Record<string, unknown>, R>(
+      url,
       {
         parameters: intent,
         organizationId: apiClient.config.organizationId,
         timestampMs: String(Date.now()),
-        type: "ACTIVITY_TYPE_SPARK_KEY_OPERATION",
+        type,
       },
-      "sparkKeyOperationResult",
+      resultKey,
     );
   }
 }
