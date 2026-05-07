@@ -460,7 +460,7 @@ The `TurnkeySparkSigner` implements the Spark SDK's `SparkSigner` interface, rou
 - **ECDSA signing** — `SignRawPayload` (identity key authentication, token operations)
 - **Schnorr identity signing** — `SignRawPayload` via the Spark address when Spark auth accepts a 64-byte identity signature
 - **FROST signing** — `SIGN_FROST_SPARK` (threshold Schnorr for Bitcoin transactions; nonce generation and partial signing in one enclave call)
-- **Key derivation** — `SPARK_KEY_OPERATION` (derive deposit/signing public keys)
+- **Deposit public keys** — deterministic Turnkey wallet accounts created at Spark deposit paths
 - **Transfer orchestration** — `PREPARE_SPARK_TRANSFER` (sender-side key tweaks + encrypted operator packages, all inside the enclave)
 - **Claim orchestration** — `CLAIM_SPARK_TRANSFER` (receiver-side verify + decrypt + key tweaks)
 - **Lightning receive** — `SPARK_PREPARE_LIGHTNING_RECEIVE` (preimage generated and Feldman-split inside the enclave; only `payment_hash` and encrypted operator packages leave it)

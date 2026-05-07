@@ -101,7 +101,8 @@ export interface LeafTweak {
   leaf: LeafSelection;
   keyDerivation: KeyDerivation;
   newKeyDerivation: KeyDerivation;
-  receiverIdentityPublicKey: Uint8Array;
+  signingPublicKey?: Uint8Array;
+  receiverIdentityPublicKey?: Uint8Array;
 }
 
 export interface LeafSigningJob {
@@ -481,11 +482,6 @@ export async function signRefundsBatched(
   const connectorTxParsed =
     mode.kind === "coopExit" ? getTxFromRawTxBytes(mode.connectorTx) : undefined;
 
-  // Pre-fetch all leaf public keys in one batched SPARK_KEY_OPERATION call.
-  const leafPublicKeys = await signer.getPublicKeysFromDerivations(
-    leaves.map((l) => l.keyDerivation),
-  );
-
   const pending: PendingFrost[] = [];
 
   for (let i = 0; i < leaves.length; i++) {
@@ -511,6 +507,9 @@ export async function signRefundsBatched(
     }
 
     const isZeroNode = !getCurrentTimelock(nodeTx.getInput(0).sequence);
+    const signingPublicKey = leaf.signingPublicKey ?? leaf.leaf.verifyingPublicKey;
+    const receivingPubkey =
+      leaf.receiverIdentityPublicKey ?? signingPublicKey;
 
     // signRefundsForCoopExit additionally gates directNodeTx on !isZeroNode;
     // signRefundsCore (transfer/claim) builds it whenever directTx is present
@@ -537,7 +536,7 @@ export async function signRefundsBatched(
         connectorOutput: { txid: connectorOutput.txid, index: connectorOutput.index } as Parameters<
           typeof createConnectorRefundTxs
         >[0]["connectorOutput"],
-        receivingPubkey: leaf.receiverIdentityPublicKey,
+        receivingPubkey,
         network,
       });
     } else if (mode.kind === "claim") {
@@ -545,7 +544,7 @@ export async function signRefundsBatched(
         nodeTx,
         ...(directNodeTx ? { directNodeTx } : {}),
         sequence: currentSequence,
-        receivingPubkey: leaf.receiverIdentityPublicKey,
+        receivingPubkey,
         network,
       });
     } else {
@@ -553,7 +552,7 @@ export async function signRefundsBatched(
         nodeTx,
         ...(directNodeTx ? { directNodeTx } : {}),
         sequence: currentSequence,
-        receivingPubkey: leaf.receiverIdentityPublicKey,
+        receivingPubkey,
         network,
       });
     }
@@ -583,7 +582,7 @@ export async function signRefundsBatched(
       direction: "cpfp",
       leafIdx: i,
       rawTx: refundTxs.cpfpRefundTx.toBytes(),
-      signingPublicKey: leafPublicKeys[i]!,
+      signingPublicKey,
       selfCommitment: emptyCommitment(),
       statechainCommitments:
         cpfpCommitments[i]?.signingNonceCommitments ?? {},
@@ -611,7 +610,7 @@ export async function signRefundsBatched(
         direction: "direct",
         leafIdx: i,
         rawTx: refundTxs.directRefundTx.toBytes(),
-        signingPublicKey: leafPublicKeys[i]!,
+        signingPublicKey,
         selfCommitment: emptyCommitment(),
         statechainCommitments:
           directCommitments[i]?.signingNonceCommitments ?? {},
@@ -633,7 +632,7 @@ export async function signRefundsBatched(
         direction: "directFromCpfp",
         leafIdx: i,
         rawTx: refundTxs.directFromCpfpRefundTx.toBytes(),
-        signingPublicKey: leafPublicKeys[i]!,
+        signingPublicKey,
         selfCommitment: emptyCommitment(),
         statechainCommitments:
           directFromCpfpCommitments[i]?.signingNonceCommitments ?? {},

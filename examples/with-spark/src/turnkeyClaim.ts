@@ -99,6 +99,16 @@ function claimedLeavesFromTransfer(transfer: SparkTransfer): WalletLeaf[] {
     .map((l) => l as unknown as WalletLeaf);
 }
 
+function claimLeafPublicKeysById(
+  entries: Array<{ leafId: string; publicKey: string }> | undefined,
+): Map<string, Uint8Array> {
+  const publicKeysByLeafId = new Map<string, Uint8Array>();
+  for (const { leafId, publicKey } of entries ?? []) {
+    publicKeysByLeafId.set(leafId, Buffer.from(publicKey, "hex"));
+  }
+  return publicKeysByLeafId;
+}
+
 /**
  * Claim an inbound Spark transfer using Turnkey's enclave for key tweaks.
  *
@@ -160,21 +170,30 @@ export async function turnkeyClaim(
   });
 
   const keyTweakPackage = mapKeyTweakPackage(turnkeyResult.operatorPackages);
+  const newPublicKeysByLeafId = claimLeafPublicKeysById(
+    turnkeyResult.newLeafPublicKeys,
+  );
 
   // ── Phase 2: Sign refund transactions ─────────────────────────────
-  // Pre-batch the new leaf public keys (one SPARK_KEY_OPERATION instead of N
-  // parallel calls). signRefundsBatched re-uses the cache that this populates.
   // Claim signs with the NEW key — both keyDerivation and newKeyDerivation
-  // point to the same LEAF derivation.
-  const newPublicKeys = await signer.getPublicKeysFromDerivations(
-    leaves.map((l) => l.newKeyDerivation),
+  // point to the same LEAF derivation. Prefer CLAIM_SPARK_TRANSFER's returned
+  // public key when mono provides it; otherwise resolve the same deterministic
+  // Turnkey wallet account path without using a key-operation activity.
+  const claimLeaves: LeafTweak[] = await Promise.all(
+    leaves.map(async (l) => {
+      const newPublicKey =
+        newPublicKeysByLeafId.get(l.leaf.id) ??
+        (await signer.getLeafSigningKey(l.leaf.id));
+
+      return {
+        leaf: l.leaf,
+        keyDerivation: l.newKeyDerivation,
+        newKeyDerivation: l.newKeyDerivation,
+        signingPublicKey: newPublicKey,
+        receiverIdentityPublicKey: newPublicKey,
+      };
+    }),
   );
-  const claimLeaves: LeafTweak[] = leaves.map((l, i) => ({
-    leaf: l.leaf,
-    keyDerivation: l.newKeyDerivation,
-    newKeyDerivation: l.newKeyDerivation,
-    receiverIdentityPublicKey: newPublicKeys[i]!,
-  }));
 
   const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
     sparkClient,

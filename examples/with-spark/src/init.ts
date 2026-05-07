@@ -36,6 +36,8 @@ export interface TurnkeySparkConfig {
   sparkAddress: string;
   ecdsaAddress: string;
   identityPublicKeyHex: string;
+  walletId?: string | undefined;
+  depositPublicKeyHex?: string | undefined;
   network: SparkNetwork;
 }
 
@@ -48,6 +50,8 @@ export function loadTurnkeySparkConfig(prefix = ""): TurnkeySparkConfig {
     sparkAddress: requireEnv(`${prefix}TURNKEY_SPARK_ADDRESS`),
     ecdsaAddress: requireEnv(`${prefix}TURNKEY_ECDSA_ADDRESS`),
     identityPublicKeyHex: requireEnv(`${prefix}IDENTITY_PUBLIC_KEY_HEX`),
+    walletId: process.env[`${prefix}TURNKEY_WALLET_ID`],
+    depositPublicKeyHex: process.env[`${prefix}SPARK_DEPOSIT_PUBLIC_KEY_HEX`],
     network: env("SPARK_NETWORK", "REGTEST") as SparkNetwork,
   };
 }
@@ -98,6 +102,10 @@ export function initSignerFromConfig(config: TurnkeySparkConfig): {
     config.sparkAddress,
     config.ecdsaAddress,
     config.identityPublicKeyHex,
+    {
+      walletId: config.walletId,
+      depositPublicKeyHex: config.depositPublicKeyHex,
+    },
   );
 
   return { signer, network: config.network };

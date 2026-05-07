@@ -30,6 +30,7 @@ type SparkNetwork = "MAINNET" | "REGTEST";
 const SPARK_PURPOSE = "8797555";
 const SPARK_ACCOUNT = "0";
 const SPARK_IDENTITY_CHILD = "0";
+const SPARK_DEPOSIT_CHILD = "2";
 const L1_BTC_PATH = "m/86'/1'/0'/0/0";
 const L1_BTC_ADDRESS_FORMAT = "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR";
 
@@ -53,6 +54,7 @@ interface SparkWalletSetup {
   sparkAddress: string;
   ecdsaAddress: string;
   identityPublicKeyHex: string;
+  depositPublicKeyHex: string;
 }
 
 interface L1AccountSetup {
@@ -77,6 +79,10 @@ function env(name: string, fallback: string): string {
 
 function sparkIdentityPath(): string {
   return `m/${SPARK_PURPOSE}'/${SPARK_ACCOUNT}'/${SPARK_IDENTITY_CHILD}'`;
+}
+
+function sparkDepositPath(): string {
+  return `m/${SPARK_PURPOSE}'/${SPARK_ACCOUNT}'/${SPARK_DEPOSIT_CHILD}'`;
 }
 
 function sparkAddressFormat(network: SparkNetwork): string {
@@ -119,6 +125,12 @@ async function createSparkWallet(
             path: identityPath,
             addressFormat: "ADDRESS_FORMAT_COMPRESSED",
           },
+          {
+            curve: "CURVE_SECP256K1",
+            pathFormat: "PATH_FORMAT_BIP32",
+            path: sparkDepositPath(),
+            addressFormat: "ADDRESS_FORMAT_COMPRESSED",
+          },
         ],
       },
       organizationId: apiClient.config.organizationId,
@@ -141,9 +153,19 @@ async function createSparkWallet(
   const identityAccount = (accounts as WalletAccount[]).find(
     (account) => account.address === sparkAddress,
   );
+  const depositAccount = (accounts as WalletAccount[]).find(
+    (account) =>
+      account.path === sparkDepositPath() &&
+      account.addressFormat === "ADDRESS_FORMAT_COMPRESSED",
+  );
   if (!identityAccount?.publicKey) {
     throw new Error(
       "Could not load Spark identity public key after wallet creation",
+    );
+  }
+  if (!depositAccount?.publicKey) {
+    throw new Error(
+      "Could not load Spark deposit public key after wallet creation",
     );
   }
 
@@ -152,6 +174,7 @@ async function createSparkWallet(
     sparkAddress,
     ecdsaAddress,
     identityPublicKeyHex: identityAccount.publicKey,
+    depositPublicKeyHex: depositAccount.publicKey,
   };
 }
 
@@ -244,6 +267,7 @@ function printPrefixed(prefix: string, setup: RoleSetup) {
     `${prefix}TURNKEY_SPARK_ADDRESS=${setup.sparkAddress}`,
     `${prefix}TURNKEY_ECDSA_ADDRESS=${setup.ecdsaAddress}`,
     `${prefix}IDENTITY_PUBLIC_KEY_HEX=${setup.identityPublicKeyHex}`,
+    `${prefix}SPARK_DEPOSIT_PUBLIC_KEY_HEX=${setup.depositPublicKeyHex}`,
     `${prefix}TURNKEY_L1_BTC_ADDRESS=${setup.l1.address}`,
     `${prefix}TURNKEY_L1_BTC_PUBLIC_KEY_HEX=${setup.l1.publicKeyHex}`,
   ]);
@@ -339,6 +363,7 @@ async function main() {
       `TURNKEY_SPARK_ADDRESS=${sender.sparkAddress}`,
       `TURNKEY_ECDSA_ADDRESS=${sender.ecdsaAddress}`,
       `IDENTITY_PUBLIC_KEY_HEX=${sender.identityPublicKeyHex}`,
+      `SPARK_DEPOSIT_PUBLIC_KEY_HEX=${sender.depositPublicKeyHex}`,
       `TURNKEY_L1_BTC_ADDRESS=${sender.l1.address}`,
       `TURNKEY_L1_BTC_PUBLIC_KEY_HEX=${sender.l1.publicKeyHex}`,
       `RECEIVER_SPARK_ADDRESS=${receiver.sparkAddress}`,

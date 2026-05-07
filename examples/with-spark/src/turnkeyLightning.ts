@@ -295,6 +295,10 @@ async function prepareTurnkeyTransferForLightning(
   if (leaves.length === 0) {
     throw new SparkValidationError("leaves must not be empty");
   }
+  const receiverIdentityPublicKey = leaves[0]!.receiverIdentityPublicKey;
+  if (!receiverIdentityPublicKey) {
+    throw new SparkValidationError("receiverIdentityPublicKey is required");
+  }
 
   const config = internals.config;
   const signingService = internals.transferService.signingService;
@@ -317,13 +321,13 @@ async function prepareTurnkeyTransferForLightning(
     leaves: transferLeavesFromTweaks(leaves),
     threshold: config.getThreshold(),
     operatorRecipients: getOperatorRecipients(config),
-    receiverPublicKey: hex(leaves[0]!.receiverIdentityPublicKey),
+    receiverPublicKey: hex(receiverIdentityPublicKey),
   });
 
   return {
     transferId,
     ownerIdentityPublicKey: await signer.getIdentityPublicKey(),
-    receiverIdentityPublicKey: leaves[0]!.receiverIdentityPublicKey,
+    receiverIdentityPublicKey,
     transferPackage: makeTransferPackage(turnkeyResult, jobs),
     sparkInvoice: "",
     leavesToSend: [],

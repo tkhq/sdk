@@ -32,6 +32,15 @@ function optionalNumberEnv(name: string): number | undefined {
   return value ? Number(value) : undefined;
 }
 
+function maxAmountFromValidationError(err: unknown): number | undefined {
+  const expected = (err as { context?: { expected?: unknown } }).context
+    ?.expected;
+  if (typeof expected !== "string") return undefined;
+
+  const match = expected.match(/less than or equal to (\d+)/);
+  return match ? Number(match[1]) : undefined;
+}
+
 async function getBalanceSats(wallet: SparkWallet): Promise<number> {
   const balance = await wallet.getBalance();
   const available = balance.satsBalance?.available ?? 0;
@@ -220,16 +229,30 @@ async function main() {
       | "MEDIUM"
       | "SLOW";
 
-    // Probe the SSP fee schedule with the full receiver balance, then either
-    // honor WITHDRAW_AMOUNT_SATS or auto-pick a viable target. The SSP fee
-    // floor is the bottom of the viable range; the per-leaf cap (regtest SSP
-    // refuses leaves above some threshold) is the top. WITHDRAW_AMOUNT_SATS
-    // smaller than the fee → SparkCoopExitAmountTooLowException.
+    // Probe the SSP fee schedule, then either honor WITHDRAW_AMOUNT_SATS or
+    // auto-pick a viable target. A full-balance quote can fail because the
+    // amount must leave room for fees; in that case retry with Spark's reported
+    // maximum. The SSP fee floor is the bottom of the viable range; the
+    // per-leaf cap (regtest SSP refuses leaves above some threshold) is the top.
+    // WITHDRAW_AMOUNT_SATS smaller than the fee → SparkCoopExitAmountTooLowException.
     console.log("Probing withdrawal fee quote...");
-    const probeQuote = await receiver.wallet.getWithdrawalFeeQuote({
-      amountSats: receiverBalance,
-      withdrawalAddress: withdrawAddress,
-    });
+    let maxWithdrawableSats = receiverBalance;
+    let probeQuote;
+    try {
+      probeQuote = await receiver.wallet.getWithdrawalFeeQuote({
+        amountSats: maxWithdrawableSats,
+        withdrawalAddress: withdrawAddress,
+      });
+    } catch (err) {
+      const retryAmount = maxAmountFromValidationError(err);
+      if (!retryAmount || retryAmount <= 0) throw err;
+
+      maxWithdrawableSats = retryAmount;
+      probeQuote = await receiver.wallet.getWithdrawalFeeQuote({
+        amountSats: maxWithdrawableSats,
+        withdrawalAddress: withdrawAddress,
+      });
+    }
     if (!probeQuote) throw new Error("Failed to get withdrawal fee quote");
 
     const totalFee = (() => {
@@ -253,15 +276,15 @@ async function main() {
     })();
 
     const configuredWithdrawSats = optionalNumberEnv("WITHDRAW_AMOUNT_SATS");
-    // Auto-tune: 2× fee + 500 sat margin, capped at receiver balance.
-    const autoWithdrawSats = Math.min(receiverBalance, totalFee * 2 + 500);
+    // Auto-tune: 2× fee + 500 sat margin, capped at the viable max.
+    const autoWithdrawSats = Math.min(maxWithdrawableSats, totalFee * 2 + 500);
     const withdrawSats = configuredWithdrawSats ?? autoWithdrawSats;
 
     if (withdrawSats <= 0)
       throw new Error("No receiver balance available to withdraw");
-    if (withdrawSats > receiverBalance) {
+    if (withdrawSats > maxWithdrawableSats) {
       throw new Error(
-        `WITHDRAW_AMOUNT_SATS=${withdrawSats} exceeds receiver balance ${receiverBalance}`,
+        `WITHDRAW_AMOUNT_SATS=${withdrawSats} exceeds max withdrawable amount ${maxWithdrawableSats}`,
       );
     }
     if (withdrawSats <= totalFee) {

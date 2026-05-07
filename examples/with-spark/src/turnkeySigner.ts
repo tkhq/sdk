@@ -24,10 +24,7 @@
  *   - prepareTransfer()              ← PREPARE_SPARK_TRANSFER
  *   - prepareClaim()                 ← CLAIM_SPARK_TRANSFER
  *   - prepareLightningReceive()      ← SPARK_PREPARE_LIGHTNING_RECEIVE
- *
- * Key operations (via SPARK_KEY_OPERATION activity):
- *   - getPublicKeyFromDerivation()   ← derive public key at any SparkKeyType path
- *   - getDepositSigningKey()         ← derive DEPOSIT public key
+ *   - getDepositSigningKey()         ← create/reuse deterministic DEPOSIT account public key
  *
  * ## Why subtractSplitAndEncrypt is not implemented
  *
@@ -47,6 +44,7 @@
  */
 
 import { secp256k1 } from "@noble/curves/secp256k1";
+import { sha256 } from "@noble/hashes/sha2";
 import { mnemonicToSeed } from "@scure/bip39";
 import {
   getSparkFrost,
@@ -93,6 +91,31 @@ function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
   return diff === 0;
 }
 
+function isAlreadyExistsError(err: unknown): boolean {
+  const candidate = err as { code?: unknown; message?: unknown };
+  return (
+    candidate.code === 6 ||
+    candidate.code === "ALREADY_EXISTS" ||
+    String(candidate.message ?? err).includes("already exists")
+  );
+}
+
+function isNotFoundError(err: unknown): boolean {
+  const candidate = err as { code?: unknown; message?: unknown };
+  return (
+    candidate.code === 5 ||
+    candidate.code === "NOT_FOUND" ||
+    String(candidate.message ?? err)
+      .toLowerCase()
+      .includes("not found")
+  );
+}
+
+function compressedPublicKeyHex(account: WalletAccount): string | undefined {
+  const candidate = account.publicKey ?? account.address;
+  return /^[0-9a-fA-F]{66}$/.test(candidate) ? candidate : undefined;
+}
+
 /** Maps SDK KeyDerivation to the proto SparkKeyDerivation shape. */
 function mapKeyDerivation(kd: KeyDerivation): Record<string, unknown> {
   switch (kd.type) {
@@ -102,19 +125,6 @@ function mapKeyDerivation(kd: KeyDerivation): Record<string, unknown> {
       return { type: "SPARK_KEY_TYPE_DEPOSIT" };
     case "static_deposit":
       return { type: "SPARK_KEY_TYPE_STATIC_DEPOSIT_HD", index: kd.path };
-    default:
-      throw new Error(`Unsupported key derivation type: ${kd.type}`);
-  }
-}
-
-function keyDerivationCacheKey(kd: KeyDerivation): string {
-  switch (kd.type) {
-    case "leaf":
-      return `leaf:${kd.path}`;
-    case "deposit":
-      return "deposit";
-    case "static_deposit":
-      return `static_deposit:${kd.path}`;
     default:
       throw new Error(`Unsupported key derivation type: ${kd.type}`);
   }
@@ -154,6 +164,7 @@ interface PrepareSparkTransferResult {
     encryptedPackage: string;
   }>;
   transferUserSignature: string;
+  newLeafPublicKeys?: Array<{ leafId: string; publicKey: string }>;
 }
 
 /**
@@ -165,6 +176,7 @@ interface ClaimSparkTransferResult {
     operatorId: string;
     encryptedPackage: string;
   }>;
+  newLeafPublicKeys?: Array<{ leafId: string; publicKey: string }>;
 }
 
 /**
@@ -179,12 +191,66 @@ interface SparkPrepareLightningReceiveResult {
   paymentHash: string;
 }
 
-/**
- * Result shape from Turnkey's SPARK_KEY_OPERATION activity.
- * This mirrors SparkKeyOperationResult from activity.proto.
- */
-interface KeyOperationResult {
-  publicKeys?: Array<{ publicKey: string }>;
+type WalletAccount = {
+  walletId?: string;
+  address: string;
+  addressFormat: string;
+  path: string;
+  publicKey?: string;
+};
+
+type WalletListItem = { walletId: string };
+
+type ApiClient = {
+  config: { organizationId?: string };
+  getWalletAccounts(params: {
+    organizationId?: string | undefined;
+    walletId: string;
+  }): Promise<{ accounts: WalletAccount[] }>;
+  getWalletAccount(params: {
+    organizationId?: string | undefined;
+    walletId: string;
+    path?: string | undefined;
+    address?: string | undefined;
+  }): Promise<{ account: WalletAccount }>;
+  getWallets(params: {
+    organizationId?: string | undefined;
+  }): Promise<{ wallets: WalletListItem[] }>;
+  createWalletAccounts(params: {
+    organizationId?: string | undefined;
+    walletId: string;
+    accounts: Array<{
+      curve: string;
+      pathFormat: string;
+      path: string;
+      addressFormat: string;
+    }>;
+  }): Promise<{ addresses: string[] }>;
+  command<B, R>(url: string, body: B, resultKey: string): Promise<R>;
+};
+
+const SPARK_IDENTITY_SUFFIX = "/0'";
+const SPARK_SIGNING_SUFFIX = "/1'";
+const SPARK_DEPOSIT_SUFFIX = "/2'";
+const SPARK_STATIC_DEPOSIT_SUFFIX = "/3'";
+const COMPRESSED_ADDRESS_FORMAT = "ADDRESS_FORMAT_COMPRESSED";
+const BIP32_HARDENED_RESERVED = 0x80000000;
+const ACCOUNT_LOOKUP_RETRIES = 6;
+const ACCOUNT_LOOKUP_RETRY_MS = 500;
+
+function signingHdLeafChild(leafId: string): number {
+  const digest = sha256(Buffer.from(leafId, "utf8"));
+  return (
+    ((digest[0]! << 24) |
+      (digest[1]! << 16) |
+      (digest[2]! << 8) |
+      digest[3]!) >>>
+    0
+  ) % BIP32_HARDENED_RESERVED;
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -226,6 +292,7 @@ export interface TransferResult {
     encryptedPackage: string;
   }>;
   transferUserSignature: string;
+  newLeafPublicKeys?: Array<{ leafId: string; publicKey: string }> | undefined;
 }
 
 /**
@@ -236,6 +303,7 @@ export interface ClaimResult {
     operatorId: string;
     encryptedPackage: string;
   }>;
+  newLeafPublicKeys?: Array<{ leafId: string; publicKey: string }> | undefined;
 }
 
 /**
@@ -257,8 +325,10 @@ export class TurnkeySparkSigner implements SparkSigner {
   private readonly ecdsaAddress: string;
   /** Compressed 33-byte public key (02/03 prefix) */
   private readonly identityPublicKeyHex: string;
-  /** Coalesces and caches deterministic SPARK_KEY_OPERATION public-key derivations. */
-  private readonly publicKeyCache = new Map<string, Promise<Uint8Array>>();
+  private readonly walletId: string | undefined;
+  private readonly leafSigningKeys = new Map<string, Promise<Uint8Array>>();
+  private depositSigningKey?: Promise<Uint8Array>;
+  private readonly staticDepositSigningKeys = new Map<number, Promise<Uint8Array>>();
   /** Optional exported static-deposit keys for SDK compatibility flows. */
   private readonly staticDepositSecretKeys = new Map<number, Uint8Array>();
 
@@ -267,11 +337,28 @@ export class TurnkeySparkSigner implements SparkSigner {
     sparkAddress: string,
     ecdsaAddress: string,
     identityPublicKeyHex: string,
+    options: {
+      walletId?: string | undefined;
+      depositPublicKeyHex?: string | undefined;
+      staticDepositPublicKeys?: Record<number, string> | undefined;
+    } = {},
   ) {
     this.client = client;
     this.sparkAddress = sparkAddress;
     this.ecdsaAddress = ecdsaAddress;
     this.identityPublicKeyHex = identityPublicKeyHex;
+    this.walletId = options.walletId;
+    if (options.depositPublicKeyHex) {
+      this.depositSigningKey = Promise.resolve(fromHex(options.depositPublicKeyHex));
+    }
+    for (const [index, publicKeyHex] of Object.entries(
+      options.staticDepositPublicKeys ?? {},
+    )) {
+      this.staticDepositSigningKeys.set(
+        Number(index),
+        Promise.resolve(fromHex(publicKeyHex)),
+      );
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -502,9 +589,12 @@ export class TurnkeySparkSigner implements SparkSigner {
       },
     );
 
+    this.seedLeafSigningKeys(result.newLeafPublicKeys);
+
     return {
       operatorPackages: result.operatorPackages ?? [],
       transferUserSignature: result.transferUserSignature ?? "",
+      newLeafPublicKeys: result.newLeafPublicKeys,
     };
   }
 
@@ -537,8 +627,11 @@ export class TurnkeySparkSigner implements SparkSigner {
       },
     );
 
+    this.seedLeafSigningKeys(result.newLeafPublicKeys);
+
     return {
       operatorPackages: result.operatorPackages ?? [],
+      newLeafPublicKeys: result.newLeafPublicKeys,
     };
   }
 
@@ -582,7 +675,7 @@ export class TurnkeySparkSigner implements SparkSigner {
   }
 
   // ---------------------------------------------------------------------------
-  // Key operations (via SPARK_KEY_OPERATION)
+  // Public-key access without key-operation activities
   // ---------------------------------------------------------------------------
 
   /**
@@ -611,128 +704,196 @@ export class TurnkeySparkSigner implements SparkSigner {
       return this.getIdentityPublicKey();
     }
 
-    const cacheKey = keyDerivationCacheKey(keyDerivation);
-    const cached = this.publicKeyCache.get(cacheKey);
-    if (cached) {
-      return cloneBytes(await cached);
-    }
-
-    const promise = this.fetchPublicKeyFromDerivation(keyDerivation);
-    this.publicKeyCache.set(cacheKey, promise);
-
-    try {
-      return cloneBytes(await promise);
-    } catch (err) {
-      this.publicKeyCache.delete(cacheKey);
-      throw err;
+    switch (keyDerivation.type) {
+      case "deposit":
+        return this.getDepositSigningKey();
+      case "static_deposit":
+        return this.getStaticDepositSigningKey(Number(keyDerivation.path));
+      case "leaf":
+        return this.getLeafSigningKey(String(keyDerivation.path));
+      default:
+        throw new Error(`Unsupported key derivation type: ${keyDerivation.type}`);
     }
   }
 
   async getPublicKeysFromDerivations(
     keyDerivations: KeyDerivation[],
   ): Promise<Uint8Array[]> {
-    const output = new Array<Uint8Array>(keyDerivations.length);
-    const missingIndexes: number[] = [];
-    const missingDerivations: KeyDerivation[] = [];
+    return Promise.all(
+      keyDerivations.map((keyDerivation) =>
+        this.getPublicKeyFromDerivation(keyDerivation),
+      ),
+    );
+  }
 
-    for (let i = 0; i < keyDerivations.length; i++) {
-      const keyDerivation = keyDerivations[i]!;
-      const cached = this.publicKeyCache.get(
-        keyDerivationCacheKey(keyDerivation),
+  async getLeafSigningKey(leafId: string): Promise<Uint8Array> {
+    let publicKey = this.leafSigningKeys.get(leafId);
+    if (!publicKey) {
+      const child = signingHdLeafChild(leafId);
+      publicKey = this.createOrReuseSparkAccountPublicKey(
+        `${SPARK_SIGNING_SUFFIX}/${child}'`,
       );
-      if (cached) {
-        output[i] = cloneBytes(await cached);
-      } else {
-        missingIndexes.push(i);
-        missingDerivations.push(keyDerivation);
+      this.leafSigningKeys.set(leafId, publicKey);
+    }
+    return cloneBytes(await publicKey);
+  }
+
+  /**
+   * Seed leafSigningKeys from new-leaf pubkeys returned by
+   * PREPARE_SPARK_TRANSFER / CLAIM_SPARK_TRANSFER. Subsequent
+   * getLeafSigningKey lookups for these leaves hit cache instead of
+   * round-tripping to Turnkey.
+   */
+  private seedLeafSigningKeys(
+    entries: Array<{ leafId: string; publicKey: string }> | undefined,
+  ): void {
+    if (!entries) return;
+    for (const { leafId, publicKey } of entries) {
+      this.leafSigningKeys.set(leafId, Promise.resolve(fromHex(publicKey)));
+    }
+  }
+
+  async getDepositSigningKey(): Promise<Uint8Array> {
+    if (!this.depositSigningKey) {
+      this.depositSigningKey = this.createOrReuseSparkAccountPublicKey(
+        SPARK_DEPOSIT_SUFFIX,
+      );
+    }
+    return cloneBytes(await this.depositSigningKey);
+  }
+
+  async getStaticDepositSigningKey(idx: number): Promise<Uint8Array> {
+    if (!Number.isInteger(idx) || idx < 0) {
+      throw new Error(`Invalid static deposit index: ${idx}`);
+    }
+
+    let publicKey = this.staticDepositSigningKeys.get(idx);
+    if (!publicKey) {
+      publicKey = this.createOrReuseSparkAccountPublicKey(
+        `${SPARK_STATIC_DEPOSIT_SUFFIX}/${idx}'`,
+      );
+      this.staticDepositSigningKeys.set(idx, publicKey);
+    }
+    return cloneBytes(await publicKey);
+  }
+
+  private async createOrReuseSparkAccountPublicKey(
+    suffixFromSparkBase: string,
+  ): Promise<Uint8Array> {
+    const apiClient = this.apiClient();
+    const sparkAccount = await this.findSparkIdentityAccount(apiClient);
+    const basePath = sparkAccount.account.path.endsWith(SPARK_IDENTITY_SUFFIX)
+      ? sparkAccount.account.path.slice(0, -SPARK_IDENTITY_SUFFIX.length)
+      : undefined;
+    if (!basePath) {
+      throw new Error(
+        `Spark identity account path must end in ${SPARK_IDENTITY_SUFFIX}, got ${sparkAccount.account.path}`,
+      );
+    }
+
+    const path = `${basePath}${suffixFromSparkBase}`;
+    let account = await this.fetchWalletAccountByPath(
+      apiClient,
+      sparkAccount.walletId,
+      path,
+    );
+
+    if (!account || !compressedPublicKeyHex(account)) {
+      try {
+        await apiClient.createWalletAccounts({
+          organizationId: apiClient.config.organizationId,
+          walletId: sparkAccount.walletId,
+          accounts: [
+            {
+              curve: "CURVE_SECP256K1",
+              pathFormat: "PATH_FORMAT_BIP32",
+              path,
+              addressFormat: COMPRESSED_ADDRESS_FORMAT,
+            },
+          ],
+        });
+      } catch (err) {
+        if (!isAlreadyExistsError(err)) throw err;
+      }
+
+      for (let attempt = 0; attempt < ACCOUNT_LOOKUP_RETRIES; attempt++) {
+        account = await this.fetchWalletAccountByPath(
+          apiClient,
+          sparkAccount.walletId,
+          path,
+        );
+        if (account && compressedPublicKeyHex(account)) break;
+        await sleep(ACCOUNT_LOOKUP_RETRY_MS);
       }
     }
 
-    if (missingDerivations.length === 0) {
-      return output;
+    const publicKeyHex = account && compressedPublicKeyHex(account);
+    if (!publicKeyHex) {
+      throw new Error(`Could not load Spark account public key for ${path}`);
     }
 
-    const batchPromise =
-      this.fetchPublicKeysFromDerivations(missingDerivations);
-    const perKeyPromises = missingDerivations.map((_, i) =>
-      batchPromise.then((keys) => keys[i]!),
-    );
+    return fromHex(publicKeyHex);
+  }
 
-    missingDerivations.forEach((keyDerivation, i) => {
-      this.publicKeyCache.set(
-        keyDerivationCacheKey(keyDerivation),
-        perKeyPromises[i]!,
-      );
-    });
-
+  private async fetchWalletAccountByPath(
+    apiClient: ApiClient,
+    walletId: string,
+    path: string,
+  ): Promise<WalletAccount | undefined> {
     try {
-      const missingKeys = await batchPromise;
-      missingIndexes.forEach((originalIndex, i) => {
-        output[originalIndex] = cloneBytes(missingKeys[i]!);
+      const { account } = await apiClient.getWalletAccount({
+        organizationId: apiClient.config.organizationId,
+        walletId,
+        path,
       });
-      return output;
+      return account;
     } catch (err) {
-      missingDerivations.forEach((keyDerivation) => {
-        this.publicKeyCache.delete(keyDerivationCacheKey(keyDerivation));
-      });
+      if (isNotFoundError(err)) return undefined;
       throw err;
     }
   }
 
-  private async fetchPublicKeyFromDerivation(
-    keyDerivation: KeyDerivation,
-  ): Promise<Uint8Array> {
-    const publicKeys = await this.fetchPublicKeysFromDerivations([
-      keyDerivation,
-    ]);
-    return publicKeys[0]!;
-  }
-
-  private async fetchPublicKeysFromDerivations(
-    keyDerivations: KeyDerivation[],
-  ): Promise<Uint8Array[]> {
-    const result = await this.command<KeyOperationResult>(
-      "/public/v1/submit/spark_key_operation",
-      "ACTIVITY_TYPE_SPARK_KEY_OPERATION",
-      "sparkKeyOperationResult",
-      {
-        signWith: this.sparkAddress,
-        derivePublicKeys: keyDerivations.map((keyDerivation) => ({
-          derivation: mapKeyDerivation(keyDerivation),
-        })),
-      },
-    );
-
-    if (
-      !result.publicKeys ||
-      result.publicKeys.length !== keyDerivations.length
-    ) {
-      throw new Error(
-        `SPARK_KEY_OPERATION returned ${result.publicKeys?.length ?? 0} public keys; expected ${keyDerivations.length}`,
+  private async findSparkIdentityAccount(
+    apiClient: ApiClient,
+  ): Promise<{ walletId: string; account: WalletAccount }> {
+    if (this.walletId) {
+      const accounts = await this.getWalletAccounts(apiClient, this.walletId);
+      const account = accounts.find(
+        (candidate) => candidate.address === this.sparkAddress,
       );
-    }
-
-    return result.publicKeys.map((entry, i) => {
-      if (!entry.publicKey) {
+      if (!account) {
         throw new Error(
-          `SPARK_KEY_OPERATION returned no public key at index ${i}`,
+          `Could not find Spark address ${this.sparkAddress} in wallet ${this.walletId}`,
         );
       }
-      return fromHex(entry.publicKey);
+      return { walletId: this.walletId, account };
+    }
+
+    const { wallets } = await apiClient.getWallets({
+      organizationId: apiClient.config.organizationId,
     });
+    for (const wallet of wallets) {
+      const accounts = await this.getWalletAccounts(apiClient, wallet.walletId);
+      const account = accounts.find(
+        (candidate) => candidate.address === this.sparkAddress,
+      );
+      if (account) return { walletId: wallet.walletId, account };
+    }
+
+    throw new Error(
+      `Could not find a Turnkey wallet containing Spark address ${this.sparkAddress}`,
+    );
   }
 
-  async getDepositSigningKey(): Promise<Uint8Array> {
-    return this.getPublicKeyFromDerivation({
-      type: "deposit",
-    } as unknown as KeyDerivation);
-  }
-
-  async getStaticDepositSigningKey(idx: number): Promise<Uint8Array> {
-    return this.getPublicKeyFromDerivation({
-      type: "static_deposit",
-      path: idx,
-    } as unknown as KeyDerivation);
+  private async getWalletAccounts(
+    apiClient: ApiClient,
+    walletId: string,
+  ): Promise<WalletAccount[]> {
+    const { accounts } = await apiClient.getWalletAccounts({
+      organizationId: apiClient.config.organizationId,
+      walletId,
+    });
+    return accounts;
   }
 
   async setStaticDepositSecretKey(
@@ -832,10 +993,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     resultKey: string,
     intent: Record<string, unknown>,
   ): Promise<R> {
-    const apiClient = this.client.apiClient() as unknown as {
-      command<B, R>(url: string, body: B, resultKey: string): Promise<R>;
-      config: { organizationId?: string };
-    };
+    const apiClient = this.apiClient();
 
     return apiClient.command<Record<string, unknown>, R>(
       url,
@@ -847,5 +1005,9 @@ export class TurnkeySparkSigner implements SparkSigner {
       },
       resultKey,
     );
+  }
+
+  private apiClient(): ApiClient {
+    return this.client.apiClient() as unknown as ApiClient;
   }
 }
