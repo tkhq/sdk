@@ -25,12 +25,13 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 
-type SparkNetwork = "MAINNET" | "REGTEST";
+import {
+  SparkNetwork,
+  sparkAddressFormat,
+  sparkDepositPath,
+  sparkIdentityPath,
+} from "./spark-paths";
 
-const SPARK_PURPOSE = "8797555";
-const SPARK_ACCOUNT = "0";
-const SPARK_IDENTITY_CHILD = "0";
-const SPARK_DEPOSIT_CHILD = "2";
 const L1_BTC_PATH = "m/86'/1'/0'/0/0";
 const L1_BTC_ADDRESS_FORMAT = "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR";
 
@@ -75,20 +76,6 @@ function requireEnv(name: string): string {
 
 function env(name: string, fallback: string): string {
   return process.env[name] ?? fallback;
-}
-
-function sparkIdentityPath(): string {
-  return `m/${SPARK_PURPOSE}'/${SPARK_ACCOUNT}'/${SPARK_IDENTITY_CHILD}'`;
-}
-
-function sparkDepositPath(): string {
-  return `m/${SPARK_PURPOSE}'/${SPARK_ACCOUNT}'/${SPARK_DEPOSIT_CHILD}'`;
-}
-
-function sparkAddressFormat(network: SparkNetwork): string {
-  return network === "MAINNET"
-    ? "ADDRESS_FORMAT_SPARK_MAINNET"
-    : "ADDRESS_FORMAT_SPARK_REGTEST";
 }
 
 function defaultWalletName(

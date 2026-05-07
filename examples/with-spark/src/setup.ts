@@ -30,26 +30,12 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 
-type SparkNetwork = "MAINNET" | "REGTEST";
-
-const SPARK_PURPOSE = "8797555";
-const SPARK_ACCOUNT = "0";
-const SPARK_IDENTITY_CHILD = "0";
-const SPARK_DEPOSIT_CHILD = "2";
-
-function sparkIdentityPath(): string {
-  return `m/${SPARK_PURPOSE}'/${SPARK_ACCOUNT}'/${SPARK_IDENTITY_CHILD}'`;
-}
-
-function sparkDepositPath(): string {
-  return `m/${SPARK_PURPOSE}'/${SPARK_ACCOUNT}'/${SPARK_DEPOSIT_CHILD}'`;
-}
-
-function sparkAddressFormat(network: SparkNetwork): string {
-  return network === "MAINNET"
-    ? "ADDRESS_FORMAT_SPARK_MAINNET"
-    : "ADDRESS_FORMAT_SPARK_REGTEST";
-}
+import {
+  SparkNetwork,
+  sparkAddressFormat,
+  sparkDepositPath,
+  sparkIdentityPath,
+} from "./spark-paths";
 
 interface CreateWalletResult {
   walletId: string;

@@ -116,6 +116,27 @@ function compressedPublicKeyHex(account: WalletAccount): string | undefined {
   return /^[0-9a-fA-F]{66}$/.test(candidate) ? candidate : undefined;
 }
 
+/**
+ * Require the signer to return one new-leaf pubkey per input leaf. Missing or
+ * mismatched counts mean the matching mono change isn't deployed; refusing
+ * here prevents silent fall-through to per-leaf SPARK_KEY_OPERATION-equivalent
+ * round-trips and surfaces the version skew immediately.
+ */
+function requireNewLeafPubkeys(
+  activity: string,
+  pubkeys: Array<unknown> | undefined,
+  expected: number,
+): void {
+  const got = pubkeys?.length ?? 0;
+  if (got !== expected) {
+    throw new Error(
+      `${activity} returned ${got} new-leaf pubkeys, expected ${expected}. ` +
+        `This SDK requires the matching mono change that surfaces ` +
+        `newLeafPublicKeys on PREPARE_/CLAIM_SPARK_TRANSFER results.`,
+    );
+  }
+}
+
 /** Maps SDK KeyDerivation to the proto SparkKeyDerivation shape. */
 function mapKeyDerivation(kd: KeyDerivation): Record<string, unknown> {
   switch (kd.type) {
@@ -613,6 +634,11 @@ export class TurnkeySparkSigner implements SparkSigner {
       },
     );
 
+    requireNewLeafPubkeys(
+      "PREPARE_SPARK_TRANSFER",
+      result.newLeafPublicKeys,
+      params.leaves.length,
+    );
     this.seedLeafSigningKeys(result.newLeafPublicKeys);
 
     return {
@@ -651,6 +677,11 @@ export class TurnkeySparkSigner implements SparkSigner {
       },
     );
 
+    requireNewLeafPubkeys(
+      "CLAIM_SPARK_TRANSFER",
+      result.newLeafPublicKeys,
+      params.leaves.length,
+    );
     this.seedLeafSigningKeys(result.newLeafPublicKeys);
 
     return {
@@ -763,8 +794,7 @@ export class TurnkeySparkSigner implements SparkSigner {
       const prefetched = await this.prefetchedLeafSigningKeysByChild;
       const fromPrefetch = prefetched.get(child);
       if (fromPrefetch) {
-        const cached = Promise.resolve(fromPrefetch);
-        this.leafSigningKeys.set(leafId, cached);
+        this.leafSigningKeys.set(leafId, Promise.resolve(fromPrefetch));
         return cloneBytes(fromPrefetch);
       }
     }
@@ -831,12 +861,22 @@ export class TurnkeySparkSigner implements SparkSigner {
    * PREPARE_SPARK_TRANSFER / CLAIM_SPARK_TRANSFER. Subsequent
    * getLeafSigningKey lookups for these leaves hit cache instead of
    * round-tripping to Turnkey.
+   *
+   * Validates each pubkey is a 33-byte compressed secp256k1 point in hex
+   * (66 chars). A malformed entry would silently corrupt every later FROST
+   * signature that uses it, so we fail loud at the trust boundary.
    */
   private seedLeafSigningKeys(
     entries: Array<{ leafId: string; publicKey: string }> | undefined,
   ): void {
     if (!entries) return;
     for (const { leafId, publicKey } of entries) {
+      if (!/^[0-9a-fA-F]{66}$/.test(publicKey)) {
+        throw new Error(
+          `signer returned malformed pubkey for leaf ${leafId}: ` +
+            `expected 66 hex chars (33-byte compressed secp256k1), got ${publicKey.length}`,
+        );
+      }
       this.leafSigningKeys.set(leafId, Promise.resolve(fromHex(publicKey)));
     }
   }

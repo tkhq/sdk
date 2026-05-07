@@ -100,6 +100,18 @@ export interface LeafSelection {
   [key: string]: unknown;
 }
 
+/**
+ * A leaf paired with the key-derivation metadata needed to build refund
+ * transactions and FROST sign them.
+ *
+ * The two optional pubkey fields are populated differently per flow:
+ *   - SEND / SWAP / EXIT / LIGHTNING: receiverIdentityPublicKey is set
+ *     (recipient's pubkey, used in HTLC scripts and refund outputs);
+ *     signingPublicKey is left unset and signRefundsBatched falls back to
+ *     leaf.verifyingPublicKey.
+ *   - CLAIM: both fields are set to the freshly HD-derived pubkey for the
+ *     rotated leaf id — the receiver is signing with their own new key.
+ */
 export interface LeafTweak {
   leaf: LeafSelection;
   keyDerivation: KeyDerivation;
@@ -520,6 +532,12 @@ export async function signRefundsBatched(
     }
 
     const isZeroNode = !getCurrentTimelock(nodeTx.getInput(0).sequence);
+    // SEND fallback: post-claim, leaf.verifyingPublicKey (the aggregate FROST
+    // VK) equals HD(leaf.id) for the owner — so we can use it as our signing
+    // pubkey without a SPARK_KEY_OPERATION round-trip. CLAIM sets
+    // signingPublicKey explicitly to the freshly HD-derived key for the
+    // rotated leaf id. If a future Spark protocol change ever decouples the
+    // aggregate VK from the user's HD share, this fallback breaks silently.
     const signingPublicKey = leaf.signingPublicKey ?? leaf.leaf.verifyingPublicKey;
     const receivingPubkey =
       leaf.receiverIdentityPublicKey ?? signingPublicKey;
