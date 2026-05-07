@@ -15,8 +15,8 @@
  */
 
 import { initSparkWalletFromEnv } from "./init";
-import { turnkeyClaim } from "./turnkeyClaim";
-import { getInternals } from "./turnkeyInternal";
+import { turnkeyClaim } from "./internal/turnkeyClaim";
+import { getInternals } from "./internal/turnkeyInternal";
 
 async function main() {
   const transferId = process.env.TRANSFER_ID;

@@ -16,7 +16,7 @@
  */
 
 import { initSparkWallet, requireEnv, env } from "./init";
-import { turnkeyWithdraw } from "./turnkeyWithdraw";
+import { turnkeyWithdraw } from "./internal/turnkeyWithdraw";
 
 async function main() {
   const withdrawBtcAddress = requireEnv("WITHDRAW_BTC_ADDRESS");

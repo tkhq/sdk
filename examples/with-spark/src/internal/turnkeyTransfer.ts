@@ -19,7 +19,7 @@
 
 import { v7 as uuidv7 } from "uuid";
 import { type SparkWallet, decodeSparkAddress } from "@buildonspark/spark-sdk";
-import type { TurnkeySparkSigner } from "./turnkeySigner";
+import type { TurnkeySparkSigner } from "../turnkeySigner";
 import {
   createSparkClient,
   fetchRefundCommitments,

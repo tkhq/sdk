@@ -26,7 +26,7 @@ import {
   getTxId,
   type SparkWallet,
 } from "@buildonspark/spark-sdk";
-import type { TurnkeySparkSigner } from "./turnkeySigner";
+import type { TurnkeySparkSigner } from "../turnkeySigner";
 import {
   type ConnectorOutput,
   createSparkClient,

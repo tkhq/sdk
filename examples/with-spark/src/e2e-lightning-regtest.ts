@@ -13,14 +13,14 @@ import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import type { SparkWallet } from "@buildonspark/spark-sdk";
 import { env, initSparkWalletFromEnv, requireEnv } from "./init";
 import type { TurnkeySparkSigner } from "./turnkeySigner";
-import { turnkeyClaim } from "./turnkeyClaim";
+import { turnkeyClaim } from "./internal/turnkeyClaim";
 import {
   createTurnkeyLightningInvoice,
   turnkeyPayLightningInvoice,
-} from "./turnkeyLightning";
+} from "./internal/turnkeyLightning";
 import { DEFAULT_SPARK_REGTEST_ELECTRS_URL } from "./spark-deposit/common";
 import { depositTurnkeyL1ToSpark } from "./spark-deposit/normal";
-import { getInternals } from "./turnkeyInternal";
+import { getInternals } from "./internal/turnkeyInternal";
 
 function optionalBigIntEnv(name: string): bigint | undefined {
   const value = process.env[name];

@@ -13,12 +13,12 @@ import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import type { SparkWallet } from "@buildonspark/spark-sdk";
 import { env, initSparkWalletFromEnv, requireEnv } from "./init";
 import type { TurnkeySparkSigner } from "./turnkeySigner";
-import { turnkeyTransfer } from "./turnkeyTransfer";
-import { turnkeyClaim } from "./turnkeyClaim";
-import { turnkeyWithdraw } from "./turnkeyWithdraw";
+import { turnkeyTransfer } from "./internal/turnkeyTransfer";
+import { turnkeyClaim } from "./internal/turnkeyClaim";
+import { turnkeyWithdraw } from "./internal/turnkeyWithdraw";
 import { DEFAULT_SPARK_REGTEST_ELECTRS_URL } from "./spark-deposit/common";
 import { depositTurnkeyL1ToSpark } from "./spark-deposit/normal";
-import { getInternals, type SparkTransfer } from "./turnkeyInternal";
+import { getInternals, type SparkTransfer } from "./internal/turnkeyInternal";
 
 const TRANSFER_STATUS_COMPLETED = 5;
 

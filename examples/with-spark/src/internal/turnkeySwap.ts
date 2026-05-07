@@ -16,7 +16,7 @@ import {
 } from "@buildonspark/spark-sdk";
 import { v7 as uuidv7 } from "uuid";
 import { turnkeyClaim } from "./turnkeyClaim";
-import type { TurnkeySparkSigner } from "./turnkeySigner";
+import type { TurnkeySparkSigner } from "../turnkeySigner";
 import {
   createSparkClient,
   fetchRefundCommitments,

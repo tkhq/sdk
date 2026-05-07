@@ -15,7 +15,7 @@
  */
 
 import { initSparkWallet, requireEnv, env } from "./init";
-import { turnkeyTransfer } from "./turnkeyTransfer";
+import { turnkeyTransfer } from "./internal/turnkeyTransfer";
 
 async function main() {
   const receiverSparkAddress = requireEnv("RECEIVER_SPARK_ADDRESS");

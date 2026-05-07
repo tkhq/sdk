@@ -16,7 +16,7 @@ import {
   type SparkWallet,
 } from "@buildonspark/spark-sdk";
 import { decode as decodeBolt11 } from "light-bolt11-decoder";
-import type { TurnkeySparkSigner } from "./turnkeySigner";
+import type { TurnkeySparkSigner } from "../turnkeySigner";
 import {
   createSparkClient,
   fetchRefundCommitments,

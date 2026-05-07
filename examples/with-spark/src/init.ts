@@ -13,8 +13,8 @@ import { SparkWallet } from "@buildonspark/spark-sdk";
 import { IssuerSparkWallet } from "@buildonspark/issuer-sdk";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { TurnkeySparkSigner } from "./turnkeySigner";
-import { turnkeyClaim } from "./turnkeyClaim";
-import { installTurnkeySwapService } from "./turnkeySwap";
+import { turnkeyClaim } from "./internal/turnkeyClaim";
+import { installTurnkeySwapService } from "./internal/turnkeySwap";
 
 type SparkNetwork = "MAINNET" | "REGTEST";
 

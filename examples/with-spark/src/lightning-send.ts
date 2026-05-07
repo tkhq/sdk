@@ -1,5 +1,5 @@
 import { initSparkWalletFromEnv, requireEnv, env } from "./init";
-import { turnkeyPayLightningInvoice } from "./turnkeyLightning";
+import { turnkeyPayLightningInvoice } from "./internal/turnkeyLightning";
 
 function optionalPositiveInt(name: string): number | undefined {
   const val = process.env[name];

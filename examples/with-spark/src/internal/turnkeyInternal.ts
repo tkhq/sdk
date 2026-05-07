@@ -34,7 +34,7 @@ import type {
   TransferLeafInput,
   TransferResult,
   TurnkeySparkSigner,
-} from "./turnkeySigner";
+} from "../turnkeySigner";
 
 // HashVariant.HASH_VARIANT_V2 = 1 (proto-defined)
 export const HASH_VARIANT_V2 = 1;

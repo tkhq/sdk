@@ -22,7 +22,7 @@ import type {
   ClaimLeafInput,
   OperatorRecipientInput,
   TurnkeySparkSigner,
-} from "./turnkeySigner";
+} from "../turnkeySigner";
 import {
   type ClaimPackage,
   createSparkClient,
