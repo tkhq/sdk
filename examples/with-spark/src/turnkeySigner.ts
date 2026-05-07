@@ -192,6 +192,7 @@ interface SparkPrepareLightningReceiveResult {
 }
 
 type WalletAccount = {
+  walletAccountId?: string;
   walletId?: string;
   address: string;
   addressFormat: string;
@@ -201,11 +202,18 @@ type WalletAccount = {
 
 type WalletListItem = { walletId: string };
 
+type PaginationOptions = {
+  limit?: string;
+  before?: string;
+  after?: string;
+};
+
 type ApiClient = {
   config: { organizationId?: string };
   getWalletAccounts(params: {
     organizationId?: string | undefined;
     walletId: string;
+    paginationOptions?: PaginationOptions | undefined;
   }): Promise<{ accounts: WalletAccount[] }>;
   getWalletAccount(params: {
     organizationId?: string | undefined;
@@ -327,6 +335,13 @@ export class TurnkeySparkSigner implements SparkSigner {
   private readonly identityPublicKeyHex: string;
   private readonly walletId: string | undefined;
   private readonly leafSigningKeys = new Map<string, Promise<Uint8Array>>();
+  /**
+   * Prefetched SIGNING_HD pubkeys, keyed by BIP32 child index (the
+   * `signingHdLeafChild(leafId)` output). Populated once at construction by
+   * paging through all wallet accounts under m/8797555'/{acct}'/1'/.
+   * Lets repeat-session leaf lookups skip a CREATE_WALLET_ACCOUNTS round-trip.
+   */
+  private prefetchedLeafSigningKeysByChild?: Promise<Map<number, Uint8Array>>;
   private depositSigningKey?: Promise<Uint8Array>;
   private readonly staticDepositSigningKeys = new Map<number, Promise<Uint8Array>>();
   /** Optional exported static-deposit keys for SDK compatibility flows. */
@@ -359,6 +374,15 @@ export class TurnkeySparkSigner implements SparkSigner {
         Promise.resolve(fromHex(publicKeyHex)),
       );
     }
+
+    // Fire-and-forget: page through existing SIGNING_HD wallet accounts and
+    // index by child. The first getLeafSigningKey lookup awaits this; the
+    // Spark SDK's LeafManager.sync calls it in parallel for every known leaf,
+    // so all of them become cache hits with no extra round-trips.
+    this.prefetchedLeafSigningKeysByChild = this.prefetchSigningHdAccounts().catch((err) => {
+      console.warn("[turnkeySigner] leaf signing-key prefetch failed:", err);
+      return new Map<number, Uint8Array>();
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -728,14 +752,78 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   async getLeafSigningKey(leafId: string): Promise<Uint8Array> {
     let publicKey = this.leafSigningKeys.get(leafId);
-    if (!publicKey) {
-      const child = signingHdLeafChild(leafId);
-      publicKey = this.createOrReuseSparkAccountPublicKey(
-        `${SPARK_SIGNING_SUFFIX}/${child}'`,
-      );
-      this.leafSigningKeys.set(leafId, publicKey);
+    if (publicKey) return cloneBytes(await publicKey);
+
+    const child = signingHdLeafChild(leafId);
+
+    // Try the prefetched map first — covers every leaf account that already
+    // existed in the Turnkey wallet at construction time (the common case
+    // for repeat sessions).
+    if (this.prefetchedLeafSigningKeysByChild) {
+      const prefetched = await this.prefetchedLeafSigningKeysByChild;
+      const fromPrefetch = prefetched.get(child);
+      if (fromPrefetch) {
+        const cached = Promise.resolve(fromPrefetch);
+        this.leafSigningKeys.set(leafId, cached);
+        return cloneBytes(fromPrefetch);
+      }
     }
+
+    publicKey = this.createOrReuseSparkAccountPublicKey(
+      `${SPARK_SIGNING_SUFFIX}/${child}'`,
+    );
+    this.leafSigningKeys.set(leafId, publicKey);
     return cloneBytes(await publicKey);
+  }
+
+  /**
+   * Page through every wallet account and collect the SIGNING_HD ones into
+   * a `child → public_key` map. Called once at construction; subsequent
+   * leaf lookups read this map instead of round-tripping per-leaf.
+   */
+  private async prefetchSigningHdAccounts(): Promise<Map<number, Uint8Array>> {
+    const apiClient = this.apiClient();
+    const sparkAccount = await this.findSparkIdentityAccount(apiClient);
+    const basePath = sparkAccount.account.path.endsWith(SPARK_IDENTITY_SUFFIX)
+      ? sparkAccount.account.path.slice(0, -SPARK_IDENTITY_SUFFIX.length)
+      : undefined;
+    if (!basePath) return new Map();
+
+    const signingPrefix = `${basePath}${SPARK_SIGNING_SUFFIX}/`;
+    const pageLimit = 100;
+    const result = new Map<number, Uint8Array>();
+    let cursor: string | undefined;
+
+    while (true) {
+      const { accounts } = await apiClient.getWalletAccounts({
+        organizationId: apiClient.config.organizationId,
+        walletId: sparkAccount.walletId,
+        paginationOptions: {
+          limit: String(pageLimit),
+          ...(cursor ? { after: cursor } : {}),
+        },
+      });
+      if (accounts.length === 0) break;
+
+      for (const account of accounts) {
+        if (account.addressFormat !== COMPRESSED_ADDRESS_FORMAT) continue;
+        if (!account.path.startsWith(signingPrefix)) continue;
+        const trailing = account.path.slice(signingPrefix.length);
+        const match = trailing.match(/^(\d+)'$/);
+        if (!match) continue;
+        const child = Number(match[1]);
+        const pubkeyHex = compressedPublicKeyHex(account);
+        if (!pubkeyHex) continue;
+        result.set(child, fromHex(pubkeyHex));
+      }
+
+      if (accounts.length < pageLimit) break;
+      const last = accounts[accounts.length - 1];
+      if (!last?.walletAccountId) break;
+      cursor = last.walletAccountId;
+    }
+
+    return result;
   }
 
   /**

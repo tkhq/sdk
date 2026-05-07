@@ -27,6 +27,7 @@ import {
   type LeafTweak,
   makeLeafTweaks,
   makeTransferPackage,
+  signRefundsBatched,
   type SparkWalletInternals,
   transferLeavesFromTweaks,
 } from "./turnkeyInternal";
@@ -271,11 +272,6 @@ export async function turnkeyPayLightningInvoice(
   );
 }
 
-// TODO: This still calls signingService.signRefundsForLightning, which fires
-// up to 3N sequential SIGN_FROST_SPARK activities. Migrate to the batched
-// signFrostBatch path once createRefundTxsForLightning becomes a public export
-// of @buildonspark/spark-sdk (it's currently only in src/utils/htlc-transactions
-// and not re-exported in the package's public types).
 async function prepareTurnkeyTransferForLightning(
   internals: SparkWalletInternals,
   signer: TurnkeySparkSigner,
@@ -301,19 +297,27 @@ async function prepareTurnkeyTransferForLightning(
   }
 
   const config = internals.config;
-  const signingService = internals.transferService.signingService;
   const sparkClient = await createSparkClient(internals);
+  const ownerIdentityPublicKey = await signer.getIdentityPublicKey();
 
   const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
     sparkClient,
     leaves.map((l) => l.leaf.id),
   );
-  const jobs = await signingService.signRefundsForLightning(
+  // One batched SIGN_FROST_SPARK across all (leaf × cpfp/direct/directFromCpfp)
+  // tuples instead of the SDK's per-leaf serial loop.
+  const jobs = await signRefundsBatched(
+    internals,
+    signer,
     leaves,
     cpfpC,
     directC,
     directFromCpfpC,
-    paymentHash,
+    {
+      kind: "lightning",
+      paymentHash,
+      sequenceLockDestinationPubkey: ownerIdentityPublicKey,
+    },
   );
 
   const turnkeyResult = await signer.prepareTransfer({
@@ -326,7 +330,7 @@ async function prepareTurnkeyTransferForLightning(
 
   return {
     transferId,
-    ownerIdentityPublicKey: await signer.getIdentityPublicKey(),
+    ownerIdentityPublicKey,
     receiverIdentityPublicKey,
     transferPackage: makeTransferPackage(turnkeyResult, jobs),
     sparkInvoice: "",

@@ -15,6 +15,8 @@ import {
   createCurrentTimelockRefundTxs,
   createDecrementedTimelockRefundTxs,
   getCurrentTimelock,
+  getNetwork,
+  getNextHTLCTransactionSequence,
   getSigHashFromMultiInputTx,
   getSigHashFromTx,
   getTxFromRawTxBytes,
@@ -26,6 +28,7 @@ import {
   SparkValidationError,
   type SparkWallet,
 } from "@buildonspark/spark-sdk";
+import { createRefundTxsForLightning } from "./htlc-transactions";
 import type {
   OperatorRecipientInput,
   TransferLeafInput,
@@ -440,6 +443,16 @@ export type RefundMode =
       kind: "coopExit";
       connectorOutputs: ConnectorOutput[];
       connectorTx: Uint8Array;
+    }
+  /**
+   * Outbound Lightning send. Uses createRefundTxsForLightning, which builds
+   * HTLC TXs spending the leaf node TX into a Taproot output committed to
+   * (paymentHash, receiver_pubkey)/sequence-locked back to sender.
+   */
+  | {
+      kind: "lightning";
+      paymentHash: Uint8Array;
+      sequenceLockDestinationPubkey: Uint8Array;
     };
 
 interface PendingFrost {
@@ -546,6 +559,30 @@ export async function signRefundsBatched(
         sequence: currentSequence,
         receivingPubkey,
         network,
+      });
+    } else if (mode.kind === "lightning") {
+      // hashLockDestinationPubkey is the receiver's identity pubkey (per-leaf
+      // metadata via leaf.receiverIdentityPublicKey, set by makeLeafTweaks).
+      // sequenceLockDestinationPubkey is the sender's (our) identity pubkey,
+      // carried on the mode so callers fetch it once.
+      if (!leaf.receiverIdentityPublicKey) {
+        throw new SparkValidationError(
+          "lightning refund signing requires leaf.receiverIdentityPublicKey",
+          { field: "receiverIdentityPublicKey" },
+        );
+      }
+      const { nextSequence, nextDirectSequence } =
+        getNextHTLCTransactionSequence(currentSequence);
+      refundTxs = createRefundTxsForLightning({
+        nodeTx,
+        directNodeTx,
+        vout: 0,
+        sequence: nextSequence,
+        directSequence: nextDirectSequence,
+        network: getNetwork(network),
+        hash: mode.paymentHash,
+        hashLockDestinationPubkey: leaf.receiverIdentityPublicKey,
+        sequenceLockDestinationPubkey: mode.sequenceLockDestinationPubkey,
       });
     } else {
       refundTxs = await createDecrementedTimelockRefundTxs({
