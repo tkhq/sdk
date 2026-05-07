@@ -271,6 +271,11 @@ export async function turnkeyPayLightningInvoice(
   );
 }
 
+// TODO: This still calls signingService.signRefundsForLightning, which fires
+// up to 3N sequential SIGN_FROST_SPARK activities. Migrate to the batched
+// signFrostBatch path once createRefundTxsForLightning becomes a public export
+// of @buildonspark/spark-sdk (it's currently only in src/utils/htlc-transactions
+// and not re-exported in the package's public types).
 async function prepareTurnkeyTransferForLightning(
   internals: SparkWalletInternals,
   signer: TurnkeySparkSigner,

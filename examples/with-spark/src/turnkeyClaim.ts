@@ -25,6 +25,8 @@ import type {
 } from "./turnkeySigner";
 import {
   type ClaimPackage,
+  createSparkClient,
+  fetchRefundCommitments,
   getInternals,
   getOperatorRecipients,
   HASH_VARIANT_V2,
@@ -33,6 +35,7 @@ import {
   type LeafTweak,
   leafDerivation,
   mapKeyTweakPackage,
+  signRefundsBatched,
   type SparkTransfer,
   type WalletLeaf,
 } from "./turnkeyInternal";
@@ -112,7 +115,6 @@ export async function turnkeyClaim(
   const internals = getInternals(wallet);
   const config = internals.config;
   const transferService = internals.transferService;
-  const signingService = transferService.signingService;
   const operatorRecipients: OperatorRecipientInput[] =
     getOperatorRecipients(config);
 
@@ -136,10 +138,7 @@ export async function turnkeyClaim(
     throw new Error("No claimable leaves in transfer");
   }
 
-  const sparkClient = await transferService.connectionManager.createSparkClient(
-    config.getCoordinatorAddress(),
-  );
-
+  const sparkClient = await createSparkClient(internals);
   const n = leaves.length;
 
   // ── Phase 1: Key tweaks via Turnkey enclave (CLAIM_SPARK_TRANSFER) ─
@@ -163,41 +162,37 @@ export async function turnkeyClaim(
   const keyTweakPackage = mapKeyTweakPackage(turnkeyResult.operatorPackages);
 
   // ── Phase 2: Sign refund transactions ─────────────────────────────
-  // get_signing_commitments here uses nodeIdCount (not nodeIds) — claim flow
-  // requests fresh commitments not tied to specific nodes.
-  const { signingCommitments } = await sparkClient.get_signing_commitments({
-    nodeIdCount: n,
-    count: 3,
-  });
+  // Pre-batch the new leaf public keys (one SPARK_KEY_OPERATION instead of N
+  // parallel calls). signRefundsBatched re-uses the cache that this populates.
+  // Claim signs with the NEW key — both keyDerivation and newKeyDerivation
+  // point to the same LEAF derivation.
+  const newPublicKeys = await signer.getPublicKeysFromDerivations(
+    leaves.map((l) => l.newKeyDerivation),
+  );
+  const claimLeaves: LeafTweak[] = leaves.map((l, i) => ({
+    leaf: l.leaf,
+    keyDerivation: l.newKeyDerivation,
+    newKeyDerivation: l.newKeyDerivation,
+    receiverIdentityPublicKey: newPublicKeys[i]!,
+  }));
 
-  if (signingCommitments.length !== 3 * n) {
-    throw new Error(
-      `Expected ${3 * n} signing commitments, got ${signingCommitments.length}`,
-    );
-  }
-
-  // signRefundsForClaim signs with the NEW key — both keyDerivation and
-  // newKeyDerivation point to the same LEAF derivation.
-  const claimLeaves: LeafTweak[] = await Promise.all(
-    leaves.map(async (l) => ({
-      leaf: l.leaf,
-      keyDerivation: l.newKeyDerivation,
-      newKeyDerivation: l.newKeyDerivation,
-      receiverIdentityPublicKey: await signer.getPublicKeyFromDerivation(
-        l.newKeyDerivation,
-      ),
-    })),
+  const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
+    sparkClient,
+    n,
   );
 
   const {
     cpfpLeafSigningJobs,
     directLeafSigningJobs,
     directFromCpfpLeafSigningJobs,
-  } = await signingService.signRefundsForClaim(
+  } = await signRefundsBatched(
+    internals,
+    signer,
     claimLeaves,
-    signingCommitments.slice(0, n),
-    signingCommitments.slice(n, 2 * n),
-    signingCommitments.slice(2 * n, 3 * n),
+    cpfpC,
+    directC,
+    directFromCpfpC,
+    { kind: "claim" },
   );
 
   // ── Phase 3: Assemble and send ────────────────────────────────────

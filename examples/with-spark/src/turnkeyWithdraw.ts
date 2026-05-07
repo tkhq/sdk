@@ -37,6 +37,7 @@ import {
   type LeafSelection,
   makeLeafTweaks,
   makeTransferPackage,
+  signRefundsBatched,
   transferLeavesFromTweaks,
 } from "./turnkeyInternal";
 
@@ -122,7 +123,6 @@ export async function turnkeyWithdraw(
 ): Promise<unknown> {
   const internals = getInternals(wallet);
   const config = internals.config;
-  const signingService = internals.coopExitService.signingService;
   const sspClient = internals.getSspClient() as WithdrawSspClient;
 
   const sspPubKeyHex = config.getSspIdentityPublicKey();
@@ -178,18 +178,21 @@ export async function turnkeyWithdraw(
     }));
 
     // ── Step 2: Sign refund transactions ──────────────────────────
+    // Batched: one SIGN_FROST_SPARK activity for all (leaf × direction)
+    // tuples instead of the SDK's serial 3N round-trips.
     const sparkClient = await createSparkClient(internals);
     const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
       sparkClient,
       allLeaves.map((l) => l.id),
     );
-    const jobs = await signingService.signRefundsForCoopExit(
+    const jobs = await signRefundsBatched(
+      internals,
+      signer,
       leafTweaks,
-      connectorOutputs,
-      connectorTxBytes,
       cpfpC,
       directC,
       directFromCpfpC,
+      { kind: "coopExit", connectorOutputs, connectorTx: connectorTxBytes },
     );
 
     // ── Step 3: Key tweaks via Turnkey enclave ────────────────────
@@ -202,7 +205,7 @@ export async function turnkeyWithdraw(
     });
 
     // ── Step 4: Assemble and send ─────────────────────────────────
-    const isMainnet = config.getNetwork() === "MAINNET";
+    const isMainnet = config.getNetworkType() === "MAINNET";
     const expiryMs = isMainnet ? 10080 * 60 * 1000 + 300 * 1000 : 2100 * 1000;
 
     const response = await sparkClient.cooperative_exit_v2({

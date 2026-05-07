@@ -30,6 +30,7 @@ import {
   makeTransferPackage,
   type OperatorSigningCommitment,
   type RefundSigningResult,
+  signRefundsBatched,
   type TransferPackage,
   transferLeavesFromTweaks,
 } from "./turnkeyInternal";
@@ -129,7 +130,6 @@ async function executeSingleTurnkeySwap(
 
   const internals = getInternals(wallet);
   const config = internals.config;
-  const signingService = internals.transferService.signingService;
   const sspClient = internals.getSspClient() as SwapSspClient;
 
   const sspPubKeyHex = config.getSspIdentityPublicKey();
@@ -146,12 +146,14 @@ async function executeSingleTurnkeySwap(
     sparkClient,
     leaves.map((l) => l.id),
   );
-  const { cpfpLeafSigningJobs } = await signingService.signRefunds(
+  const { cpfpLeafSigningJobs } = await signRefundsBatched(
+    internals,
+    signer,
     leafTweaks,
     cpfpC,
     directC,
     directFromCpfpC,
-    adaptorPubkey,
+    { kind: "transfer", adaptorPubKey: adaptorPubkey },
   );
 
   const turnkeyResult = await signer.prepareTransfer({

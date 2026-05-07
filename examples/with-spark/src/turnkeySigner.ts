@@ -387,29 +387,50 @@ export class TurnkeySparkSigner implements SparkSigner {
    * params.selfCommitment with the real (hiding, binding) values from Turnkey.
    */
   async signFrost(params: SignFrostParams): Promise<Uint8Array> {
-    const signatureRequest = {
-      derivation: mapKeyDerivation(params.keyDerivation),
-      message: hex(params.message),
-      verifyingKey: hex(params.verifyingKey),
-      operatorCommitments: mapOperatorCommitments(params.statechainCommitments),
-      ...(params.adaptorPubKey
-        ? { adaptorPublicKey: hex(params.adaptorPubKey) }
+    const [signature] = await this.signFrostBatch([params]);
+    return signature!;
+  }
+
+  /**
+   * Batched FROST signing: one SIGN_FROST_SPARK activity for many signature
+   * requests. Mutates each params[i].selfCommitment.commitment with the real
+   * (hiding, binding) values returned by Turnkey, matching signFrost behavior.
+   *
+   * Used by signRefundsBatched (turnkeyInternal.ts) to collapse the SDK's
+   * per-leaf-per-direction signing loop into a single Turnkey round-trip.
+   */
+  async signFrostBatch(params: SignFrostParams[]): Promise<Uint8Array[]> {
+    if (params.length === 0) return [];
+
+    const signatureRequests = params.map((p) => ({
+      derivation: mapKeyDerivation(p.keyDerivation),
+      message: hex(p.message),
+      verifyingKey: hex(p.verifyingKey),
+      operatorCommitments: mapOperatorCommitments(p.statechainCommitments),
+      ...(p.adaptorPubKey
+        ? { adaptorPublicKey: hex(p.adaptorPubKey) }
         : {}),
-    };
+    }));
 
     const result = await this.command<SignFrostSparkResult>(
       "/public/v1/submit/sign_frost_spark",
       "ACTIVITY_TYPE_SIGN_FROST_SPARK",
       "signFrostSparkResult",
-      { signWith: this.sparkAddress, signatures: [signatureRequest] },
+      { signWith: this.sparkAddress, signatures: signatureRequests },
     );
 
-    const sig = result.signatures[0]!;
-    const commitment = params.selfCommitment.commitment;
-    commitment.hiding = fromHex(sig.hiding);
-    commitment.binding = fromHex(sig.binding);
+    if (result.signatures.length !== params.length) {
+      throw new Error(
+        `SIGN_FROST_SPARK returned ${result.signatures.length} signatures; expected ${params.length}`,
+      );
+    }
 
-    return fromHex(sig.signatureShare);
+    return result.signatures.map((sig, i) => {
+      const commitment = params[i]!.selfCommitment.commitment;
+      commitment.hiding = fromHex(sig.hiding);
+      commitment.binding = fromHex(sig.binding);
+      return fromHex(sig.signatureShare);
+    });
   }
 
   async aggregateFrost(params: AggregateFrostParams): Promise<Uint8Array> {

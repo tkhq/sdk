@@ -10,11 +10,21 @@
  */
 
 import { v7 as uuidv7 } from "uuid";
-import type {
-  KeyDerivation,
-  NetworkType,
-  SigningCommitment,
-  SparkWallet,
+import {
+  createConnectorRefundTxs,
+  createCurrentTimelockRefundTxs,
+  createDecrementedTimelockRefundTxs,
+  getCurrentTimelock,
+  getSigHashFromMultiInputTx,
+  getSigHashFromTx,
+  getTxFromRawTxBytes,
+  type KeyDerivation,
+  type Network,
+  type NetworkType,
+  type SignFrostParams,
+  type SigningCommitment,
+  SparkValidationError,
+  type SparkWallet,
 } from "@buildonspark/spark-sdk";
 import type {
   OperatorRecipientInput,
@@ -50,7 +60,7 @@ export interface SparkConfig {
   getThreshold(): number;
   getCoordinatorAddress(): string;
   getNetworkType(): NetworkType;
-  getNetwork(): string;
+  getNetwork(): Network;
   getSspIdentityPublicKey(): string;
   signer: TurnkeySparkSigner;
 }
@@ -81,6 +91,7 @@ export interface LeafSelection {
   directTx: Uint8Array;
   directRefundTx?: Uint8Array;
   directFromCpfpRefundTx?: Uint8Array;
+  verifyingPublicKey: Uint8Array;
   value: number | bigint;
   status?: string;
   [key: string]: unknown;
@@ -361,12 +372,13 @@ export function transferLeavesFromTweaks(
 
 /**
  * Fetch 3N signing commitments from the coordinator and split them into
- * (cpfp, direct, directFromCpfp) groups. The signRefunds* methods on
- * SparkSigningService all consume this 3-way split.
+ * (cpfp, direct, directFromCpfp) groups. Pass `nodeIds` for transfer/swap/
+ * withdraw/lightning flows (commitments tied to specific nodes) or a number
+ * for the claim flow (fresh commitments not tied to any node).
  */
 export async function fetchRefundCommitments(
   sparkClient: SparkGrpcClient,
-  nodeIds: string[],
+  nodeIdsOrCount: string[] | number,
 ): Promise<
   [
     OperatorSigningCommitment[],
@@ -374,11 +386,16 @@ export async function fetchRefundCommitments(
     OperatorSigningCommitment[],
   ]
 > {
-  const { signingCommitments } = await sparkClient.get_signing_commitments({
-    nodeIds,
-    count: 3,
-  });
-  const n = nodeIds.length;
+  const params =
+    typeof nodeIdsOrCount === "number"
+      ? { nodeIdCount: nodeIdsOrCount, count: 3 }
+      : { nodeIds: nodeIdsOrCount, count: 3 };
+  const { signingCommitments } =
+    await sparkClient.get_signing_commitments(params);
+  const n =
+    typeof nodeIdsOrCount === "number"
+      ? nodeIdsOrCount
+      : nodeIdsOrCount.length;
   return [
     signingCommitments.slice(0, n),
     signingCommitments.slice(n, 2 * n),
@@ -398,5 +415,276 @@ export function makeTransferPackage(
     directLeavesToSend: jobs.directLeafSigningJobs,
     directFromCpfpLeavesToSend: jobs.directFromCpfpLeafSigningJobs,
     hashVariant: HASH_VARIANT_V2,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Batched refund signing
+//
+// Replacement for SparkSigningService.signRefunds*(...). The SDK's signing
+// service runs a serial for-loop over leaves and calls signFrost once per
+// (leaf, direction) tuple — N leaves × up to 3 directions = up to 3N Turnkey
+// activities per flow. We collapse that to ONE batched SIGN_FROST_SPARK call
+// while preserving the exact per-leaf tx-creation and sighash logic.
+// ---------------------------------------------------------------------------
+
+/** Mode discriminator for signRefundsBatched. */
+export type RefundMode =
+  /** Outbound transfer / swap. Uses createDecrementedTimelockRefundTxs. */
+  | { kind: "transfer"; adaptorPubKey?: Uint8Array }
+  /** Inbound claim. Uses createCurrentTimelockRefundTxs. */
+  | { kind: "claim" }
+  /** Cooperative exit. Uses createConnectorRefundTxs + multi-input sighash. */
+  | {
+      kind: "coopExit";
+      connectorOutputs: ConnectorOutput[];
+      connectorTx: Uint8Array;
+    };
+
+interface PendingFrost {
+  direction: "cpfp" | "direct" | "directFromCpfp";
+  leafIdx: number;
+  rawTx: Uint8Array;
+  signingPublicKey: Uint8Array;
+  selfCommitment: { commitment: SigningCommitment };
+  statechainCommitments: { [key: string]: SigningCommitment };
+  message: Uint8Array;
+}
+
+function emptyCommitment(): { commitment: SigningCommitment } {
+  return {
+    commitment: {
+      hiding: new Uint8Array(33),
+      binding: new Uint8Array(33),
+    },
+  };
+}
+
+export async function signRefundsBatched(
+  internals: SparkWalletInternals,
+  signer: TurnkeySparkSigner,
+  leaves: LeafTweak[],
+  cpfpCommitments: OperatorSigningCommitment[],
+  directCommitments: OperatorSigningCommitment[],
+  directFromCpfpCommitments: OperatorSigningCommitment[],
+  mode: RefundMode,
+): Promise<RefundSigningResult> {
+  if (leaves.length === 0) {
+    return {
+      cpfpLeafSigningJobs: [],
+      directLeafSigningJobs: [],
+      directFromCpfpLeafSigningJobs: [],
+    };
+  }
+
+  const network = internals.config.getNetwork();
+  const connectorTxParsed =
+    mode.kind === "coopExit" ? getTxFromRawTxBytes(mode.connectorTx) : undefined;
+
+  // Pre-fetch all leaf public keys in one batched SPARK_KEY_OPERATION call.
+  const leafPublicKeys = await signer.getPublicKeysFromDerivations(
+    leaves.map((l) => l.keyDerivation),
+  );
+
+  const pending: PendingFrost[] = [];
+
+  for (let i = 0; i < leaves.length; i++) {
+    const leaf = leaves[i]!;
+    if (!leaf.leaf) {
+      throw new SparkValidationError("Leaf not found in signRefundsBatched", {
+        field: "leaf",
+        value: leaf,
+        expected: "Non-null leaf",
+      });
+    }
+
+    const nodeTx = getTxFromRawTxBytes(leaf.leaf.nodeTx);
+    const nodeOutput = nodeTx.getOutput(0);
+    const currRefundTx = getTxFromRawTxBytes(leaf.leaf.refundTx);
+    const currentSequence = currRefundTx.getInput(0).sequence;
+    if (currentSequence == null) {
+      throw new SparkValidationError("Invalid refund transaction", {
+        field: "sequence",
+        value: currRefundTx.getInput(0),
+        expected: "Non-null sequence",
+      });
+    }
+
+    const isZeroNode = !getCurrentTimelock(nodeTx.getInput(0).sequence);
+
+    // signRefundsForCoopExit additionally gates directNodeTx on !isZeroNode;
+    // signRefundsCore (transfer/claim) builds it whenever directTx is present
+    // and only checks isZeroNode at the signing branch. Either way the signing
+    // branch below uses the same condition, so the difference is academic.
+    const directNodeTx =
+      leaf.leaf.directTx.length > 0 ? getTxFromRawTxBytes(leaf.leaf.directTx) : undefined;
+
+    let refundTxs;
+    if (mode.kind === "coopExit") {
+      const connectorOutput = mode.connectorOutputs[i];
+      if (!connectorOutput || connectorOutput.index === undefined) {
+        throw new SparkValidationError("Missing connector output", {
+          field: "connectorOutput",
+          value: connectorOutput,
+          expected: "Valid connector output with index",
+        });
+      }
+      const effectiveDirectNodeTx = isZeroNode ? undefined : directNodeTx;
+      refundTxs = await createConnectorRefundTxs({
+        nodeTx,
+        ...(effectiveDirectNodeTx ? { directNodeTx: effectiveDirectNodeTx } : {}),
+        sequence: currentSequence,
+        connectorOutput: { txid: connectorOutput.txid, index: connectorOutput.index } as Parameters<
+          typeof createConnectorRefundTxs
+        >[0]["connectorOutput"],
+        receivingPubkey: leaf.receiverIdentityPublicKey,
+        network,
+      });
+    } else if (mode.kind === "claim") {
+      refundTxs = await createCurrentTimelockRefundTxs({
+        nodeTx,
+        ...(directNodeTx ? { directNodeTx } : {}),
+        sequence: currentSequence,
+        receivingPubkey: leaf.receiverIdentityPublicKey,
+        network,
+      });
+    } else {
+      refundTxs = await createDecrementedTimelockRefundTxs({
+        nodeTx,
+        ...(directNodeTx ? { directNodeTx } : {}),
+        sequence: currentSequence,
+        receivingPubkey: leaf.receiverIdentityPublicKey,
+        network,
+      });
+    }
+
+    // CPFP refund: always signed when present.
+    const connectorPrevOutput =
+      mode.kind === "coopExit"
+        ? connectorTxParsed!.getOutput(mode.connectorOutputs[i]!.index)
+        : undefined;
+    if (mode.kind === "coopExit" && (!connectorPrevOutput || !connectorPrevOutput.script)) {
+      throw new SparkValidationError("Invalid connector transaction output", {
+        field: "connectorPrevOutput",
+        value: connectorPrevOutput,
+        expected: "Valid output with script",
+      });
+    }
+
+    const cpfpSighash =
+      mode.kind === "coopExit"
+        ? getSigHashFromMultiInputTx(refundTxs.cpfpRefundTx, 0, [
+            nodeOutput,
+            connectorPrevOutput!,
+          ])
+        : getSigHashFromTx(refundTxs.cpfpRefundTx, 0, nodeOutput);
+
+    pending.push({
+      direction: "cpfp",
+      leafIdx: i,
+      rawTx: refundTxs.cpfpRefundTx.toBytes(),
+      signingPublicKey: leafPublicKeys[i]!,
+      selfCommitment: emptyCommitment(),
+      statechainCommitments:
+        cpfpCommitments[i]?.signingNonceCommitments ?? {},
+      message: cpfpSighash,
+    });
+
+    // Direct refund: only when directRefundTx exists AND not a zero-timelock node.
+    if (refundTxs.directRefundTx && !isZeroNode) {
+      if (!directNodeTx) {
+        throw new SparkValidationError(
+          "Direct node transaction undefined while direct refund transaction is defined",
+          { field: "directNodeTx", value: directNodeTx, expected: "Non-null direct node tx" },
+        );
+      }
+      const directOutput = directNodeTx.getOutput(0);
+      const directSighash =
+        mode.kind === "coopExit"
+          ? getSigHashFromMultiInputTx(refundTxs.directRefundTx, 0, [
+              directOutput,
+              connectorPrevOutput!,
+            ])
+          : getSigHashFromTx(refundTxs.directRefundTx, 0, directOutput);
+
+      pending.push({
+        direction: "direct",
+        leafIdx: i,
+        rawTx: refundTxs.directRefundTx.toBytes(),
+        signingPublicKey: leafPublicKeys[i]!,
+        selfCommitment: emptyCommitment(),
+        statechainCommitments:
+          directCommitments[i]?.signingNonceCommitments ?? {},
+        message: directSighash,
+      });
+    }
+
+    // Direct-from-CPFP refund: signed when present (no isZeroNode gate).
+    if (refundTxs.directFromCpfpRefundTx) {
+      const directFromCpfpSighash =
+        mode.kind === "coopExit"
+          ? getSigHashFromMultiInputTx(refundTxs.directFromCpfpRefundTx, 0, [
+              nodeOutput,
+              connectorPrevOutput!,
+            ])
+          : getSigHashFromTx(refundTxs.directFromCpfpRefundTx, 0, nodeOutput);
+
+      pending.push({
+        direction: "directFromCpfp",
+        leafIdx: i,
+        rawTx: refundTxs.directFromCpfpRefundTx.toBytes(),
+        signingPublicKey: leafPublicKeys[i]!,
+        selfCommitment: emptyCommitment(),
+        statechainCommitments:
+          directFromCpfpCommitments[i]?.signingNonceCommitments ?? {},
+        message: directFromCpfpSighash,
+      });
+    }
+  }
+
+  // Single batched SIGN_FROST_SPARK call for all (leaf × direction) tuples.
+  const adaptor =
+    mode.kind === "transfer" && mode.adaptorPubKey
+      ? mode.adaptorPubKey
+      : new Uint8Array();
+  const frostParams: SignFrostParams[] = pending.map((p) => ({
+    message: p.message,
+    keyDerivation: leaves[p.leafIdx]!.keyDerivation,
+    publicKey: p.signingPublicKey,
+    selfCommitment: p.selfCommitment,
+    statechainCommitments: p.statechainCommitments,
+    adaptorPubKey: adaptor,
+    verifyingKey: leaves[p.leafIdx]!.leaf.verifyingPublicKey,
+  }));
+  const signatures = await signer.signFrostBatch(frostParams);
+
+  const cpfpJobs: LeafSigningJob[] = [];
+  const directJobs: LeafSigningJob[] = [];
+  const directFromCpfpJobs: LeafSigningJob[] = [];
+
+  for (let i = 0; i < pending.length; i++) {
+    const p = pending[i]!;
+    const leaf = leaves[p.leafIdx]!;
+    const job: LeafSigningJob = {
+      leafId: leaf.leaf.id,
+      signingPublicKey: p.signingPublicKey,
+      rawTx: p.rawTx,
+      selfCommitment: p.selfCommitment,
+      userSignature: signatures[i]!,
+      // SDK consumers also read these fields via the [string]: unknown index:
+      signingNonceCommitment: p.selfCommitment.commitment,
+      signingCommitments: { signingCommitments: p.statechainCommitments },
+      additionalInputs: [],
+    };
+
+    if (p.direction === "cpfp") cpfpJobs.push(job);
+    else if (p.direction === "direct") directJobs.push(job);
+    else directFromCpfpJobs.push(job);
+  }
+
+  return {
+    cpfpLeafSigningJobs: cpfpJobs,
+    directLeafSigningJobs: directJobs,
+    directFromCpfpLeafSigningJobs: directFromCpfpJobs,
   };
 }

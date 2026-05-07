@@ -28,6 +28,7 @@ import {
   getOperatorRecipients,
   makeLeafTweaks,
   makeTransferPackage,
+  signRefundsBatched,
   type SparkTransfer,
   transferLeavesFromTweaks,
 } from "./turnkeyInternal";
@@ -48,7 +49,6 @@ export async function turnkeyTransfer(
 ): Promise<SparkTransfer> {
   const internals = getInternals(wallet);
   const config = internals.config;
-  const signingService = internals.transferService.signingService;
 
   const receiverPubkeyHex = decodeSparkAddress(
     params.receiverSparkAddress,
@@ -68,16 +68,21 @@ export async function turnkeyTransfer(
       const leafTweaks = makeLeafTweaks(leaves, receiverPubkeyBytes);
 
       // ── Phase 1: Sign refund transactions ──────────────────────────
+      // Batched: one SIGN_FROST_SPARK activity for all (leaf × direction)
+      // tuples instead of the SDK's serial 3N round-trips.
       const sparkClient = await createSparkClient(internals);
       const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
         sparkClient,
         leaves.map((l) => l.id),
       );
-      const jobs = await signingService.signRefunds(
+      const jobs = await signRefundsBatched(
+        internals,
+        signer,
         leafTweaks,
         cpfpC,
         directC,
         directFromCpfpC,
+        { kind: "transfer" },
       );
 
       // ── Phase 2: Key tweaks via Turnkey enclave ────────────────────
