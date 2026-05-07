@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
+    "hello": "tsx src/hello-world.ts",
     "setup": "tsx src/setup.ts",
     "setup:e2e": "tsx src/setup-e2e.ts",
     "setup:l1": "tsx src/setup-l1.ts",
