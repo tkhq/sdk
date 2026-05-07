@@ -117,23 +117,47 @@ function compressedPublicKeyHex(account: WalletAccount): string | undefined {
 }
 
 /**
- * Require the signer to return one new-leaf pubkey per input leaf. Missing or
- * mismatched counts mean the matching mono change isn't deployed; refusing
- * here prevents silent fall-through to per-leaf SPARK_KEY_OPERATION-equivalent
- * round-trips and surfaces the version skew immediately.
+ * Validate the new-leaf pubkey envelope returned by PREPARE_/CLAIM_SPARK_TRANSFER:
+ * one entry per input leaf, no duplicates, every returned leafId expected.
+ *
+ * The format/curve-point validation of each pubkey happens later in
+ * `seedLeafSigningKeys` at the trust boundary. Anything that gets through both
+ * checks but is still wrong (e.g., a valid curve point that isn't HD(leaf_id))
+ * is bounded by FROST aggregation: operators' shares actually sum to HD(leaf_id),
+ * so a lying signer's signature simply fails to verify on-chain — DOS rather
+ * than loss-of-funds.
+ *
+ * Missing pubkeys altogether means the matching mono change isn't deployed;
+ * refusing here surfaces the version skew immediately instead of silently
+ * falling back to per-leaf SPARK_KEY_OPERATION-equivalent round-trips.
  */
 function requireNewLeafPubkeys(
   activity: string,
-  pubkeys: Array<unknown> | undefined,
-  expected: number,
+  pubkeys: Array<{ leafId: string; publicKey: string }> | undefined,
+  expectedLeafIds: string[],
 ): void {
   const got = pubkeys?.length ?? 0;
-  if (got !== expected) {
+  if (got !== expectedLeafIds.length) {
     throw new Error(
-      `${activity} returned ${got} new-leaf pubkeys, expected ${expected}. ` +
+      `${activity} returned ${got} new-leaf pubkeys, expected ${expectedLeafIds.length}. ` +
         `This SDK requires the matching mono change that surfaces ` +
         `newLeafPublicKeys on PREPARE_/CLAIM_SPARK_TRANSFER results.`,
     );
+  }
+  const expected = new Set(expectedLeafIds);
+  const seen = new Set<string>();
+  for (const { leafId } of pubkeys!) {
+    if (!expected.has(leafId)) {
+      throw new Error(
+        `${activity} returned newLeafPublicKey for unexpected leafId ${leafId}`,
+      );
+    }
+    if (seen.has(leafId)) {
+      throw new Error(
+        `${activity} returned duplicate newLeafPublicKey for leafId ${leafId}`,
+      );
+    }
+    seen.add(leafId);
   }
 }
 
@@ -637,7 +661,14 @@ export class TurnkeySparkSigner implements SparkSigner {
     requireNewLeafPubkeys(
       "PREPARE_SPARK_TRANSFER",
       result.newLeafPublicKeys,
-      params.leaves.length,
+      params.leaves.map((l) => {
+        if (l.newLeafDerivation.type !== "leaf") {
+          throw new Error(
+            `prepareTransfer requires newLeafDerivation.type === "leaf", got ${l.newLeafDerivation.type}`,
+          );
+        }
+        return l.newLeafDerivation.path;
+      }),
     );
     this.seedLeafSigningKeys(result.newLeafPublicKeys);
 
@@ -680,7 +711,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     requireNewLeafPubkeys(
       "CLAIM_SPARK_TRANSFER",
       result.newLeafPublicKeys,
-      params.leaves.length,
+      params.leaves.map((l) => l.leafId),
     );
     this.seedLeafSigningKeys(result.newLeafPublicKeys);
 
@@ -862,14 +893,17 @@ export class TurnkeySparkSigner implements SparkSigner {
    * getLeafSigningKey lookups for these leaves hit cache instead of
    * round-tripping to Turnkey.
    *
-   * Validates each pubkey is a 33-byte compressed secp256k1 point in hex
-   * (66 chars). A malformed entry would silently corrupt every later FROST
-   * signature that uses it, so we fail loud at the trust boundary.
+   * Validation at the trust boundary: each pubkey must be hex-formatted, decode
+   * to a valid secp256k1 point, and be distinct across the batch (each
+   * HD-derived leaf signing key is unique by construction). A malformed or
+   * duplicate entry would silently corrupt every later FROST signature that
+   * uses it, so we fail loud here.
    */
   private seedLeafSigningKeys(
     entries: Array<{ leafId: string; publicKey: string }> | undefined,
   ): void {
     if (!entries) return;
+    const seenPubkeys = new Set<string>();
     for (const { leafId, publicKey } of entries) {
       if (!/^[0-9a-fA-F]{66}$/.test(publicKey)) {
         throw new Error(
@@ -877,6 +911,21 @@ export class TurnkeySparkSigner implements SparkSigner {
             `expected 66 hex chars (33-byte compressed secp256k1), got ${publicKey.length}`,
         );
       }
+      try {
+        secp256k1.ProjectivePoint.fromHex(publicKey);
+      } catch {
+        throw new Error(
+          `signer returned non-secp256k1 pubkey for leaf ${leafId}`,
+        );
+      }
+      const normalized = publicKey.toLowerCase();
+      if (seenPubkeys.has(normalized)) {
+        throw new Error(
+          `signer returned duplicate pubkey across leaves in one response; ` +
+            `each HD-derived leaf signing key must be unique`,
+        );
+      }
+      seenPubkeys.add(normalized);
       this.leafSigningKeys.set(leafId, Promise.resolve(fromHex(publicKey)));
     }
   }

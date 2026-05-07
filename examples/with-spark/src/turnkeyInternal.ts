@@ -342,6 +342,16 @@ export async function createSparkClient(
   );
 }
 
+/**
+ * Build the operator-recipients list for transfer/claim/swap/withdraw/lightning
+ * package construction.
+ *
+ * The numeric-id sort is load-bearing — the signer assigns Feldman polynomial
+ * evaluation points by *array position*, so position-N must hold operator-with-id-N
+ * for every operator to reconstruct its share at the expected x-coordinate.
+ * Pre-sort, `Object.values()` insertion order would scramble the assignment and
+ * operators couldn't reconstruct. See commit 558d66361 for the original incident.
+ */
 export function getOperatorRecipients(
   config: SparkConfig,
 ): OperatorRecipientInput[] {
