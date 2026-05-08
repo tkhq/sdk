@@ -24,7 +24,7 @@ async function main() {
   //   2. Construct a TurnkeySparkSigner — a SparkSigner implementation that
   //      delegates every key/signing operation to a Turnkey activity
   //   3. Hand the signer to SparkWallet.initialize() and patch the SDK's
-  //      claim path so inbound transfers route through CLAIM_SPARK_TRANSFER
+  //      claim path so inbound transfers route through SPARK_CLAIM_TRANSFER
   //
   // After this returns, every key operation the SDK performs (Schnorr sigs,
   // FROST refunds, ECIES decrypts, …) goes through Turnkey's enclave; raw

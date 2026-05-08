@@ -15,14 +15,14 @@
  * ecdsaAddress may also be set to the Spark address for Schnorr identity
  * signatures.
  *
- * FROST signing (via SIGN_FROST_SPARK activity):
+ * FROST signing (via SPARK_SIGN_FROST activity):
  *   - getRandomSigningCommitment()   ← returns mutable placeholder
  *   - signFrost()                    ← calls Turnkey, mutates commitment
  *   - aggregateFrost()               ← client-side signature aggregation
  *
  * Package construction — separate activities, no FROST signing:
- *   - prepareTransfer()              ← PREPARE_SPARK_TRANSFER
- *   - prepareClaim()                 ← CLAIM_SPARK_TRANSFER
+ *   - prepareTransfer()              ← SPARK_PREPARE_TRANSFER
+ *   - prepareClaim()                 ← SPARK_CLAIM_TRANSFER
  *   - prepareLightningReceive()      ← SPARK_PREPARE_LIGHTNING_RECEIVE
  *   - getDepositSigningKey()         ← create/reuse deterministic DEPOSIT account public key
  *
@@ -31,13 +31,13 @@
  * The Spark SDK's transfer flow calls subtractSplitAndEncrypt() per-leaf and
  * immediately uses the raw Feldman shares to build per-operator packages.
  * Turnkey's enclave does this entire operation atomically inside a single
- * PREPARE_SPARK_TRANSFER call — raw shares never leave the enclave boundary.
+ * SPARK_PREPARE_TRANSFER call — raw shares never leave the enclave boundary.
  * Use prepareTransfer() instead of the SDK's built-in transfer method.
  *
  * ## Deferred Commitment Pattern
  *
  * The Spark SDK generates user nonce commitments before signing (getRandomSigningCommitment),
- * but Turnkey's SIGN_FROST_SPARK generates the nonce and signs in one call. We bridge this
+ * but Turnkey's SPARK_SIGN_FROST generates the nonce and signs in one call. We bridge this
  * by returning a mutable placeholder from getRandomSigningCommitment, then mutating it with
  * Turnkey's real commitment values inside signFrost. The SDK holds the same object reference,
  * so it picks up the real values when building the transfer package.
@@ -69,13 +69,6 @@ function hex(bytes: Uint8Array): string {
 
 function fromHex(h: string): Uint8Array {
   return Buffer.from(h.replace(/^0x/, ""), "hex");
-}
-
-function notImplemented(method: string): never {
-  throw new Error(
-    `TurnkeySparkSigner.${method} is not yet implemented. ` +
-      `This method requires functionality not yet available via Turnkey activities.`,
-  );
 }
 
 function cloneBytes(bytes: Uint8Array): Uint8Array {
@@ -117,7 +110,7 @@ function compressedPublicKeyHex(account: WalletAccount): string | undefined {
 }
 
 /**
- * Validate the new-leaf pubkey envelope returned by PREPARE_/CLAIM_SPARK_TRANSFER:
+ * Validate the new-leaf pubkey envelope returned by PREPARE_/SPARK_CLAIM_TRANSFER:
  * one entry per input leaf, no duplicates, every returned leafId expected.
  *
  * The format/curve-point validation of each pubkey happens later in
@@ -129,7 +122,7 @@ function compressedPublicKeyHex(account: WalletAccount): string | undefined {
  *
  * Missing pubkeys altogether means the matching mono change isn't deployed;
  * refusing here surfaces the version skew immediately instead of silently
- * falling back to per-leaf SPARK_KEY_OPERATION-equivalent round-trips.
+ * falling back to per-leaf pubkey-derivation round-trips.
  */
 function requireNewLeafPubkeys(
   activity: string,
@@ -141,7 +134,7 @@ function requireNewLeafPubkeys(
     throw new Error(
       `${activity} returned ${got} new-leaf pubkeys, expected ${expectedLeafIds.length}. ` +
         `This SDK requires the matching mono change that surfaces ` +
-        `newLeafPublicKeys on PREPARE_/CLAIM_SPARK_TRANSFER results.`,
+        `newLeafPublicKeys on PREPARE_/SPARK_CLAIM_TRANSFER results.`,
     );
   }
   const expected = new Set(expectedLeafIds);
@@ -188,10 +181,10 @@ function mapOperatorCommitments(
 }
 
 /**
- * Result shape from Turnkey's SIGN_FROST_SPARK activity.
- * Mirrors SignFrostSparkResult from activity.proto.
+ * Result shape from Turnkey's SPARK_SIGN_FROST activity.
+ * Mirrors SparkSignFrostResult from activity.proto.
  */
-interface SignFrostSparkResult {
+interface SparkSignFrostResult {
   signatures: Array<{
     signatureShare: string;
     hiding: string;
@@ -200,10 +193,10 @@ interface SignFrostSparkResult {
 }
 
 /**
- * Result shape from Turnkey's PREPARE_SPARK_TRANSFER activity.
- * Mirrors PrepareSparkTransferResult from activity.proto.
+ * Result shape from Turnkey's SPARK_PREPARE_TRANSFER activity.
+ * Mirrors SparkPrepareTransferResult from activity.proto.
  */
-interface PrepareSparkTransferResult {
+interface SparkPrepareTransferResult {
   operatorPackages: Array<{
     operatorId: string;
     encryptedPackage: string;
@@ -213,10 +206,10 @@ interface PrepareSparkTransferResult {
 }
 
 /**
- * Result shape from Turnkey's CLAIM_SPARK_TRANSFER activity.
- * Mirrors ClaimSparkTransferResult from activity.proto.
+ * Result shape from Turnkey's SPARK_CLAIM_TRANSFER activity.
+ * Mirrors SparkClaimTransferResult from activity.proto.
  */
-interface ClaimSparkTransferResult {
+interface SparkClaimTransferResult {
   operatorPackages: Array<{
     operatorId: string;
     encryptedPackage: string;
@@ -506,12 +499,12 @@ export class TurnkeySparkSigner implements SparkSigner {
   }
 
   // ---------------------------------------------------------------------------
-  // FROST signing — bridges to SIGN_FROST_SPARK
+  // FROST signing — bridges to SPARK_SIGN_FROST
   // ---------------------------------------------------------------------------
 
   /**
    * Returns a mutable placeholder commitment. The real commitment values are
-   * populated by signFrost() when Turnkey's SIGN_FROST_SPARK returns.
+   * populated by signFrost() when Turnkey's SPARK_SIGN_FROST returns.
    *
    * The SDK holds a reference to this object and reads commitment.hiding/binding
    * AFTER signFrost() completes, so the mutation propagates correctly.
@@ -538,7 +531,7 @@ export class TurnkeySparkSigner implements SparkSigner {
   }
 
   /**
-   * Calls Turnkey's SIGN_FROST_SPARK activity. Generates a fresh nonce inside
+   * Calls Turnkey's SPARK_SIGN_FROST activity. Generates a fresh nonce inside
    * the enclave, signs, and returns the partial signature. Mutates
    * params.selfCommitment with the real (hiding, binding) values from Turnkey.
    */
@@ -548,7 +541,7 @@ export class TurnkeySparkSigner implements SparkSigner {
   }
 
   /**
-   * Batched FROST signing: one SIGN_FROST_SPARK activity for many signature
+   * Batched FROST signing: one SPARK_SIGN_FROST activity for many signature
    * requests. Mutates each params[i].selfCommitment.commitment with the real
    * (hiding, binding) values returned by Turnkey, matching signFrost behavior.
    *
@@ -568,16 +561,16 @@ export class TurnkeySparkSigner implements SparkSigner {
         : {}),
     }));
 
-    const result = await this.command<SignFrostSparkResult>(
-      "/public/v1/submit/sign_frost_spark",
-      "ACTIVITY_TYPE_SIGN_FROST_SPARK",
-      "signFrostSparkResult",
+    const result = await this.command<SparkSignFrostResult>(
+      "/public/v1/submit/spark_sign_frost",
+      "ACTIVITY_TYPE_SPARK_SIGN_FROST",
+      "sparkSignFrostResult",
       { signWith: this.sparkAddress, signatures: signatureRequests },
     );
 
     if (result.signatures.length !== params.length) {
       throw new Error(
-        `SIGN_FROST_SPARK returned ${result.signatures.length} signatures; expected ${params.length}`,
+        `SPARK_SIGN_FROST returned ${result.signatures.length} signatures; expected ${params.length}`,
       );
     }
 
@@ -615,7 +608,7 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   /**
    * Prepare a transfer: build encrypted operator packages and the DER user
-   * signature for an outbound BTC transfer via PREPARE_SPARK_TRANSFER.
+   * signature for an outbound BTC transfer via SPARK_PREPARE_TRANSFER.
    *
    * FROST signing happens separately — the SDK's signing flow already
    * produces refund signatures via signFrost() per leaf before this is called.
@@ -642,10 +635,10 @@ export class TurnkeySparkSigner implements SparkSigner {
         : {}),
     }));
 
-    const result = await this.command<PrepareSparkTransferResult>(
-      "/public/v1/submit/prepare_spark_transfer",
-      "ACTIVITY_TYPE_PREPARE_SPARK_TRANSFER",
-      "prepareSparkTransferResult",
+    const result = await this.command<SparkPrepareTransferResult>(
+      "/public/v1/submit/spark_prepare_transfer",
+      "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER",
+      "sparkPrepareTransferResult",
       {
         signWith: this.sparkAddress,
         transfer: {
@@ -659,7 +652,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     );
 
     requireNewLeafPubkeys(
-      "PREPARE_SPARK_TRANSFER",
+      "SPARK_PREPARE_TRANSFER",
       result.newLeafPublicKeys,
       params.leaves.map((l) => {
         if (l.newLeafDerivation.type !== "leaf") {
@@ -681,7 +674,7 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   /**
    * Prepare a claim: build encrypted operator packages for inbound leaves
-   * via CLAIM_SPARK_TRANSFER. The claim just rotates leaf keys — no FROST.
+   * via SPARK_CLAIM_TRANSFER. The claim just rotates leaf keys — no FROST.
    */
   async prepareClaim(params: {
     leaves: ClaimLeafInput[];
@@ -690,10 +683,10 @@ export class TurnkeySparkSigner implements SparkSigner {
     transferId: string;
     senderIdentityPublicKey: string;
   }): Promise<ClaimResult> {
-    const result = await this.command<ClaimSparkTransferResult>(
-      "/public/v1/submit/claim_spark_transfer",
-      "ACTIVITY_TYPE_CLAIM_SPARK_TRANSFER",
-      "claimSparkTransferResult",
+    const result = await this.command<SparkClaimTransferResult>(
+      "/public/v1/submit/spark_claim_transfer",
+      "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER",
+      "sparkClaimTransferResult",
       {
         signWith: this.sparkAddress,
         packageRequest: {
@@ -709,7 +702,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     );
 
     requireNewLeafPubkeys(
-      "CLAIM_SPARK_TRANSFER",
+      "SPARK_CLAIM_TRANSFER",
       result.newLeafPublicKeys,
       params.leaves.map((l) => l.leafId),
     );
@@ -777,7 +770,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     throw new Error(
       "TurnkeySparkSigner does not support subtractSplitAndEncrypt. " +
         "Turnkey's enclave performs subtract-split-encrypt atomically inside " +
-        "PREPARE_SPARK_TRANSFER — raw shares never leave the enclave. " +
+        "SPARK_PREPARE_TRANSFER — raw shares never leave the enclave. " +
         "Use TurnkeySparkSigner.prepareTransfer() instead of the SDK's " +
         "built-in transfer method.",
     );
@@ -889,7 +882,7 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   /**
    * Seed leafSigningKeys from new-leaf pubkeys returned by
-   * PREPARE_SPARK_TRANSFER / CLAIM_SPARK_TRANSFER. Subsequent
+   * SPARK_PREPARE_TRANSFER / SPARK_CLAIM_TRANSFER. Subsequent
    * getLeafSigningKey lookups for these leaves hit cache instead of
    * round-tripping to Turnkey.
    *
@@ -1073,6 +1066,34 @@ export class TurnkeySparkSigner implements SparkSigner {
     return accounts;
   }
 
+  /**
+   * Cache an exported static-deposit private key in process memory.
+   *
+   * **Trust boundary deviation.** This is the only `TurnkeySparkSigner`
+   * method that puts a private key in client-side JS memory. Every other
+   * Spark key stays inside Turnkey's enclave; static-deposit is the
+   * exception because the Spark SDK's claim path requires the raw secret
+   * client-side and there is no enclave-only alternative today.
+   *
+   * The secret must come from `exportWalletAccount` against the Turnkey
+   * static-deposit account at `idx`. This method validates the secret
+   * derives the expected secp256k1 pubkey before caching; mismatched
+   * keys throw without storing.
+   *
+   * **Hygiene — read this.** Once cached, the secret is plaintext on
+   * the JS heap and exposed to memory disclosure (process dumps,
+   * debugger attach, swap-to-disk, log accidents, RCE). To minimize
+   * exposure:
+   *   - Prefer the `installStaticDepositSecretKey` helper, which
+   *     exports + caches + zeros the local copy in one call.
+   *   - Wrap the claim call in a `try`/`finally` and call
+   *     `clearStaticDepositSecretKey(idx)` in `finally` so the cache
+   *     is zeroed even on error.
+   *   - Don't run static-deposit claims from long-lived daemons.
+   *     Use a short-lived process, ideally one that doesn't service
+   *     other untrusted requests during the claim window.
+   *   - Don't log this value or anything derived from it.
+   */
   async setStaticDepositSecretKey(
     idx: number,
     secretKey: Uint8Array,
@@ -1103,27 +1124,62 @@ export class TurnkeySparkSigner implements SparkSigner {
     }
   }
 
+  /**
+   * Returns the cached static-deposit secret for `idx`. Throws if no
+   * secret was pre-loaded via `setStaticDepositSecretKey`.
+   *
+   * Called by the Spark SDK's static-deposit claim path. There is no
+   * enclave-only fallback — the SDK's claim flow needs the raw secret
+   * client-side, so if you haven't exported and cached it the claim
+   * cannot proceed. See `setStaticDepositSecretKey` for the trust-
+   * boundary caveats and lifecycle hygiene.
+   */
   async getStaticDepositSecretKey(idx: number): Promise<Uint8Array> {
     const secretKey = this.staticDepositSecretKeys.get(idx);
     if (secretKey) {
       return cloneBytes(secretKey);
     }
-    return notImplemented("getStaticDepositSecretKey");
+    throw new Error(
+      `TurnkeySparkSigner.getStaticDepositSecretKey(${idx}): no secret cached. ` +
+        "The Spark SDK's static-deposit claim path needs the raw private " +
+        "key client-side; call installStaticDepositSecretKey (export from " +
+        "Turnkey + cache) before invoking the claim, and " +
+        "clearStaticDepositSecretKey afterward. There is no enclave-only " +
+        "static-deposit-claim path today — see " +
+        "src/spark-deposit/static.ts for the recommended pattern.",
+    );
   }
 
   // ---------------------------------------------------------------------------
   // Not needed for Turnkey-backed wallets
+  //
+  // Each method below explains why it's unsupported and where the equivalent
+  // Turnkey-driven flow lives (if any). Errors here surface only when SDK
+  // code paths we don't normally exercise call into them — file an issue if
+  // you hit one in a flow that should work.
   // ---------------------------------------------------------------------------
 
   async generateMnemonic(): Promise<string> {
-    return notImplemented("generateMnemonic");
+    throw new Error(
+      "TurnkeySparkSigner.generateMnemonic is not supported. Wallets are " +
+        "created via Turnkey's CREATE_WALLET activity (see setup.ts), not " +
+        "from a client-generated mnemonic. The wallet seed lives inside " +
+        "Turnkey's enclave and never leaves.",
+    );
   }
 
   async subtractPrivateKeysGivenDerivationPaths(
     _first: string,
     _second: string,
   ): Promise<Uint8Array> {
-    return notImplemented("subtractPrivateKeysGivenDerivationPaths");
+    throw new Error(
+      "TurnkeySparkSigner.subtractPrivateKeysGivenDerivationPaths is not " +
+        "supported. This primitive is only used by the SDK's built-in " +
+        "transfer/claim flows; the Turnkey integration replaces those with " +
+        "SPARK_PREPARE_TRANSFER / SPARK_CLAIM_TRANSFER which compute the " +
+        "tweak scalar atomically inside the enclave. Use " +
+        "TurnkeySparkSigner.prepareTransfer or prepareClaim instead.",
+    );
   }
 
   async subtractAndSplitSecretWithProofsGivenDerivations(
@@ -1132,13 +1188,27 @@ export class TurnkeySparkSigner implements SparkSigner {
       second?: KeyDerivation | undefined;
     },
   ): Promise<VerifiableSecretShare[]> {
-    return notImplemented("subtractAndSplitSecretWithProofsGivenDerivations");
+    throw new Error(
+      "TurnkeySparkSigner.subtractAndSplitSecretWithProofsGivenDerivations " +
+        "is not supported. The SDK's built-in transfer/claim flows call " +
+        "this; the Turnkey integration replaces them with " +
+        "SPARK_PREPARE_TRANSFER / SPARK_CLAIM_TRANSFER which subtract + " +
+        "Feldman-split atomically inside the enclave (raw shares never " +
+        "leave). Use TurnkeySparkSigner.prepareTransfer or prepareClaim.",
+    );
   }
 
   async splitSecretWithProofs(
     _params: SplitSecretWithProofsParams,
   ): Promise<VerifiableSecretShare[]> {
-    return notImplemented("splitSecretWithProofs");
+    throw new Error(
+      "TurnkeySparkSigner.splitSecretWithProofs is not supported. The SDK's " +
+        "built-in Lightning-receive path calls this with a client-generated " +
+        "preimage; the Turnkey integration replaces it with " +
+        "SPARK_PREPARE_LIGHTNING_RECEIVE which generates the preimage and " +
+        "Feldman-splits it inside the enclave (the preimage never enters " +
+        "client JS). Use TurnkeySparkSigner.prepareLightningReceive.",
+    );
   }
 
   signTransactionIndex(
@@ -1146,15 +1216,38 @@ export class TurnkeySparkSigner implements SparkSigner {
     _index: number,
     _publicKey: Uint8Array,
   ): void {
-    notImplemented("signTransactionIndex");
+    throw new Error(
+      "TurnkeySparkSigner.signTransactionIndex is not supported. The Turnkey " +
+        "integration uses signFrostBatch for FROST signing and signRawPayload " +
+        "for identity signatures; no Turnkey-driven flow needs raw " +
+        "transaction-index ECDSA signing with a client-held private key.",
+    );
   }
 
   async htlcHMAC(_transferID: string): Promise<Uint8Array> {
-    return notImplemented("htlcHMAC");
+    throw new Error(
+      "TurnkeySparkSigner.htlcHMAC is not supported. Turnkey-driven Lightning " +
+        "flows route through src/internal/turnkeyLightning.ts " +
+        "(SPARK_PREPARE_LIGHTNING_RECEIVE for receives, the swap-based send " +
+        "path) and do not require client-side preimage derivation. " +
+        "If you need raw HTLC primitives (atomic swaps, manual LSP " +
+        "integration), pass an explicit `preimage` to wallet.createHTLC(...) " +
+        "— the Spark SDK skips htlcHMAC when preimage is provided. For " +
+        "deterministic wallet-seed-derived preimages, a SPARK_HTLC_HMAC " +
+        "Turnkey activity would be needed (not built today; file an issue " +
+        "if you have a use case).",
+    );
   }
 
   async decryptEcies(_ciphertext: Uint8Array): Promise<Uint8Array> {
-    return notImplemented("decryptEcies");
+    throw new Error(
+      "TurnkeySparkSigner.decryptEcies is not supported. The SDK's built-in " +
+        "claim flow calls this to decrypt the inbound ciphertext using the " +
+        "wallet identity key client-side; the Turnkey integration replaces " +
+        "the entire claim flow with SPARK_CLAIM_TRANSFER which performs " +
+        "ECIES decryption inside the enclave (identity key never leaves). " +
+        "Use TurnkeySparkSigner.prepareClaim — see src/internal/turnkeyClaim.ts.",
+    );
   }
 
   /**

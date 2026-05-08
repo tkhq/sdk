@@ -6,7 +6,7 @@
  * uses raw Feldman shares to build per-operator packages client-side.
  * Turnkey's enclave does this atomically — raw shares never leave the enclave.
  *
- * This module replaces the key-tweak step with a CLAIM_SPARK_TRANSFER call,
+ * This module replaces the key-tweak step with a SPARK_CLAIM_TRANSFER call,
  * while reusing the SDK's refund signing and verification infrastructure.
  *
  * Usage:
@@ -40,6 +40,17 @@ import {
   type WalletLeaf,
 } from "./turnkeyInternal";
 
+/**
+ * Numeric value of `TransferStatus.TRANSFER_STATUS_COMPLETED` from
+ * `@buildonspark/spark-sdk`'s internal proto enum (see
+ * `dist/bare/index.d.ts`). The enum itself isn't part of the SDK's public
+ * exports so we can't import it; if the SDK ever re-orders this enum the
+ * numeric form drifts silently. The string-form check on `isCompletedTransfer`
+ * is the primary guard; this numeric value is a fallback for SDK builds that
+ * surface the raw enum value.
+ *
+ * Re-validate against the SDK's TransferStatus enum on every pin bump.
+ */
 const TRANSFER_STATUS_COMPLETED = 5;
 const ALREADY_EXISTS_ERROR_MAX_DEPTH = 4;
 
@@ -151,7 +162,7 @@ export async function turnkeyClaim(
   const sparkClient = await createSparkClient(internals);
   const n = leaves.length;
 
-  // ── Phase 1: Key tweaks via Turnkey enclave (CLAIM_SPARK_TRANSFER) ─
+  // ── Phase 1: Key tweaks via Turnkey enclave (SPARK_CLAIM_TRANSFER) ─
   // The enclave atomically: decrypts each leaf's inbound ciphertext (ECIES),
   // derives the new leaf key, computes tweak, Feldman-splits across operators,
   // and ECIES-encrypts per-operator packages.
@@ -176,24 +187,21 @@ export async function turnkeyClaim(
 
   // ── Phase 2: Sign refund transactions ─────────────────────────────
   // Claim signs with the NEW key — both keyDerivation and newKeyDerivation
-  // point to the same LEAF derivation. Prefer CLAIM_SPARK_TRANSFER's returned
-  // public key when mono provides it; otherwise resolve the same deterministic
-  // Turnkey wallet account path without using a key-operation activity.
-  const claimLeaves: LeafTweak[] = await Promise.all(
-    leaves.map(async (l) => {
-      const newPublicKey =
-        newPublicKeysByLeafId.get(l.leaf.id) ??
-        (await signer.getLeafSigningKey(l.leaf.id));
-
-      return {
-        leaf: l.leaf,
-        keyDerivation: l.newKeyDerivation,
-        newKeyDerivation: l.newKeyDerivation,
-        signingPublicKey: newPublicKey,
-        receiverIdentityPublicKey: newPublicKey,
-      };
-    }),
-  );
+  // point to the same LEAF derivation. signer.prepareClaim above ran
+  // requireNewLeafPubkeys + seedLeafSigningKeys, so newPublicKeysByLeafId
+  // is guaranteed to have an entry for every leaf in `leaves`. The
+  // non-null assertion documents that contract — if it ever fires, fix
+  // requireNewLeafPubkeys, don't paper over with a fallback.
+  const claimLeaves: LeafTweak[] = leaves.map((l) => {
+    const newPublicKey = newPublicKeysByLeafId.get(l.leaf.id)!;
+    return {
+      leaf: l.leaf,
+      keyDerivation: l.newKeyDerivation,
+      newKeyDerivation: l.newKeyDerivation,
+      signingPublicKey: newPublicKey,
+      receiverIdentityPublicKey: newPublicKey,
+    };
+  });
 
   const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
     sparkClient,

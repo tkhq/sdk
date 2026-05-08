@@ -5,7 +5,7 @@
  * client-side, and its Lightning send path calls subtractSplitAndEncrypt().
  * Turnkey keeps those secrets inside the enclave, so this module wires the
  * SDK Lightning protocol steps to Turnkey's SPARK_PREPARE_LIGHTNING_RECEIVE
- * (for receive) and PREPARE_SPARK_TRANSFER (for send) activities.
+ * (for receive) and SPARK_PREPARE_TRANSFER (for send) activities.
  */
 
 import { v7 as uuidv7 } from "uuid";
@@ -31,6 +31,20 @@ import {
   type SparkWalletInternals,
   transferLeavesFromTweaks,
 } from "./turnkeyInternal";
+
+/**
+ * Spark protocol expiry for in-flight outbound Lightning sends.
+ *
+ * **Source of truth:** matches the SDK's Lightning send retry window — see
+ * the constant definition in @buildonspark/spark-sdk's lightning send service.
+ * The SSP can use this transfer request while the outbound payment is in
+ * flight; if Spark ever changes the retry window, this drifts silently.
+ *
+ * Re-validate against `@buildonspark/spark-sdk` whenever the pinned SDK
+ * version is bumped. If they diverge, the SSP may reject the transfer or
+ * (worse) accept it with subtly different semantics.
+ */
+const LIGHTNING_SEND_EXPIRY_MS = 16 * 24 * 60 * 60 * 1000;
 
 interface Bolt11Decoded {
   sections: Array<{ name: string; value?: unknown }>;
@@ -67,6 +81,17 @@ function decodeLightningInvoice(invoice: string): {
     throw new SparkValidationError("No payment hash found in invoice", {
       invoice,
     });
+  }
+  // Defense-in-depth: the decoded paymentHash gets committed into the HTLC
+  // refund Taproot output via createRefundTxsForLightning. If light-bolt11-decoder
+  // ever returns a malformed hash (parser bug, malicious invoice, compromised dep),
+  // we'd lock funds in an unclaimable output. Reject anything that isn't a
+  // 32-byte hex string before it leaves this function.
+  if (!/^[0-9a-fA-F]{64}$/.test(paymentHash)) {
+    throw new SparkValidationError(
+      "Decoded paymentHash is not 32 bytes of hex",
+      { field: "paymentHash", value: paymentHash, expected: "64 hex chars" },
+    );
   }
 
   return { amountMSats, paymentHash };
@@ -209,9 +234,7 @@ export async function turnkeyPayLightningInvoice(
     }): Promise<unknown>;
   };
   const paymentHash = fromHex(decodedInvoice.paymentHash);
-  // Matches the Spark SDK's Lightning send retry window. The SSP can use this
-  // transfer request while the outbound Lightning payment is in flight.
-  const expiryTime = new Date(Date.now() + 16 * 24 * 60 * 60 * 1000);
+  const expiryTime = new Date(Date.now() + LIGHTNING_SEND_EXPIRY_MS);
 
   return internals.leafManager.selectLeavesAndExecute(
     [totalAmount],
@@ -304,7 +327,7 @@ async function prepareTurnkeyTransferForLightning(
     sparkClient,
     leaves.map((l) => l.leaf.id),
   );
-  // One batched SIGN_FROST_SPARK across all (leaf × cpfp/direct/directFromCpfp)
+  // One batched SPARK_SIGN_FROST across all (leaf × cpfp/direct/directFromCpfp)
   // tuples instead of the SDK's per-leaf serial loop.
   const jobs = await signRefundsBatched(
     internals,

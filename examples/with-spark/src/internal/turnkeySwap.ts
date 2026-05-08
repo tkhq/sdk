@@ -5,7 +5,7 @@
  * not exactly match existing wallet leaves. The SDK's default SwapService uses
  * subtractSplitAndEncrypt() to build operator packages client-side; this shim
  * mirrors that flow while delegating key-tweak package creation to Turnkey's
- * PREPARE_SPARK_TRANSFER activity.
+ * SPARK_PREPARE_TRANSFER activity.
  */
 
 import { secp256k1 } from "@noble/curves/secp256k1";
@@ -137,124 +137,164 @@ async function executeSingleTurnkeySwap(
 
   const leafTweaks = makeLeafTweaks(leaves, sspPubKey);
   const transferId = uuidv7();
+  // ──────────────────────────────────────────────────────────────────
+  // Trust-boundary deviation: adaptor secret on the JS heap.
+  //
+  // This scalar is the only Spark-flow private key the Turnkey integration
+  // generates outside the enclave (along with `staticDepositSecretKey`).
+  // The Spark SDK's reference implementation does the same — see
+  // `sendSwapTransfer` in @buildonspark/spark-sdk — so this is a
+  // protocol-level pattern, not a Turnkey-specific concession. But because
+  // the Turnkey integration *otherwise* maintains an enclave-only invariant
+  // for signing keys, this exception is worth flagging.
+  //
+  // Exposure surfaces while this variable is live:
+  //   - process dump / core file
+  //   - debugger / inspector attach
+  //   - swap-to-disk under memory pressure
+  //   - log accidents
+  //   - RCE / sandbox escape during the swap window
+  //
+  // The window spans from generation here through SSP swap initiation,
+  // inbound transfer query, and claim — tens of seconds to minutes. We
+  // zero the bytes on completion via `try`/`finally` below.
+  //
+  // Proper fix (not implemented today): add `SPARK_GENERATE_ADAPTOR` and
+  // `SPARK_REVEAL_ADAPTOR` Turnkey activities so the secret is derived
+  // inside the enclave and only revealed at the moment of swap commit.
+  // Tracked as a follow-up; ship after a real consumer surfaces a use case.
+  // ──────────────────────────────────────────────────────────────────
   const adaptorPrivKey = secp256k1.utils.randomSecretKey();
   const adaptorPubkey = secp256k1.getPublicKey(adaptorPrivKey);
 
-  const sparkClient = await createSparkClient(internals);
+  try {
+    const sparkClient = await createSparkClient(internals);
 
-  const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
-    sparkClient,
-    leaves.map((l) => l.id),
-  );
-  const { cpfpLeafSigningJobs } = await signRefundsBatched(
-    internals,
-    signer,
-    leafTweaks,
-    cpfpC,
-    directC,
-    directFromCpfpC,
-    { kind: "transfer", adaptorPubKey: adaptorPubkey },
-  );
+    const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
+      sparkClient,
+      leaves.map((l) => l.id),
+    );
+    const { cpfpLeafSigningJobs } = await signRefundsBatched(
+      internals,
+      signer,
+      leafTweaks,
+      cpfpC,
+      directC,
+      directFromCpfpC,
+      { kind: "transfer", adaptorPubKey: adaptorPubkey },
+    );
 
-  const turnkeyResult = await signer.prepareTransfer({
-    transferId,
-    leaves: transferLeavesFromTweaks(leafTweaks),
-    threshold: config.getThreshold(),
-    operatorRecipients: getOperatorRecipients(config),
-    receiverPublicKey: sspPubKeyHex,
-  });
-
-  // The SDK leaves direct/directFromCpfp empty for swap-primary transfers.
-  const swapJobs: RefundSigningResult = {
-    cpfpLeafSigningJobs,
-    directLeafSigningJobs: [],
-    directFromCpfpLeafSigningJobs: [],
-  };
-  const transferPackage = makeTransferPackage(turnkeyResult, swapJobs);
-
-  const response = await sparkClient.initiate_swap_primary_transfer({
-    transfer: {
+    const turnkeyResult = await signer.prepareTransfer({
       transferId,
-      ownerIdentityPublicKey: await signer.getIdentityPublicKey(),
-      receiverIdentityPublicKey: sspPubKey,
-      transferPackage,
-    },
-    adaptorPublicKeys: { adaptorPublicKey: adaptorPubkey },
-  });
+      leaves: transferLeavesFromTweaks(leafTweaks),
+      threshold: config.getThreshold(),
+      operatorRecipients: getOperatorRecipients(config),
+      receiverPublicKey: sspPubKeyHex,
+    });
 
-  if (!response.transfer) {
-    throw new Error("No transfer response from initiate_swap_primary_transfer");
-  }
-  if ((response.transfer.leaves ?? []).some((leaf) => !leaf.leaf)) {
-    throw new Error("Leaf is missing in swap transfer response");
-  }
+    // The SDK leaves direct/directFromCpfp empty for swap-primary transfers.
+    const swapJobs: RefundSigningResult = {
+      cpfpLeafSigningJobs,
+      directLeafSigningJobs: [],
+      directFromCpfpLeafSigningJobs: [],
+    };
+    const transferPackage = makeTransferPackage(turnkeyResult, swapJobs);
 
-  const adaptorAddedSignatureMap = await aggregateAdaptorSignatures({
-    signer,
-    signingResults: response.signingResults,
-    transferPackage,
-    leaves: leafTweaks,
-    adaptorPubkey,
-  });
+    const response = await sparkClient.initiate_swap_primary_transfer({
+      transfer: {
+        transferId,
+        ownerIdentityPublicKey: await signer.getIdentityPublicKey(),
+        receiverIdentityPublicKey: sspPubKey,
+        transferPackage,
+      },
+      adaptorPublicKeys: { adaptorPublicKey: adaptorPubkey },
+    });
 
-  await onSwapInitiated?.(leaves.map((leaf) => leaf.id));
-
-  const userLeaves: UserLeafInput[] = [];
-  for (const transferLeaf of response.transfer.leaves ?? []) {
-    const leaf = transferLeaf.leaf;
-    if (!leaf) throw new Error("Leaf is missing in swap transfer response");
-
-    const adaptorAddedSignature = adaptorAddedSignatureMap.get(leaf.id);
-    if (!adaptorAddedSignature) {
-      throw new Error(`Adaptor added signature not found for leaf ${leaf.id}`);
+    if (!response.transfer) {
+      throw new Error("No transfer response from initiate_swap_primary_transfer");
+    }
+    if ((response.transfer.leaves ?? []).some((leaf) => !leaf.leaf)) {
+      throw new Error("Leaf is missing in swap transfer response");
     }
 
-    userLeaves.push({
-      leaf_id: leaf.id,
-      raw_unsigned_refund_transaction: hex(transferLeaf.intermediateRefundTx),
-      direct_raw_unsigned_refund_transaction: hex(
-        transferLeaf.intermediateDirectRefundTx ?? new Uint8Array(),
-      ),
-      direct_from_cpfp_raw_unsigned_refund_transaction: hex(
-        transferLeaf.intermediateDirectFromCpfpRefundTx ?? new Uint8Array(),
-      ),
-      adaptor_added_signature: hex(adaptorAddedSignature),
-      direct_adaptor_added_signature: hex(adaptorAddedSignature),
-      direct_from_cpfp_adaptor_added_signature: hex(adaptorAddedSignature),
+    const adaptorAddedSignatureMap = await aggregateAdaptorSignatures({
+      signer,
+      signingResults: response.signingResults,
+      transferPackage,
+      leaves: leafTweaks,
+      adaptorPubkey,
     });
+
+    await onSwapInitiated?.(leaves.map((leaf) => leaf.id));
+
+    const userLeaves: UserLeafInput[] = [];
+    for (const transferLeaf of response.transfer.leaves ?? []) {
+      const leaf = transferLeaf.leaf;
+      if (!leaf) throw new Error("Leaf is missing in swap transfer response");
+
+      const adaptorAddedSignature = adaptorAddedSignatureMap.get(leaf.id);
+      if (!adaptorAddedSignature) {
+        throw new Error(`Adaptor added signature not found for leaf ${leaf.id}`);
+      }
+
+      // Direct + directFromCpfp adaptor-added signatures are deliberately the
+      // same value as cpfp. The SDK leaves direct/directFromCpfp signing jobs
+      // empty for swap-primary transfers (above), so the SSP API only
+      // meaningfully checks the cpfp-direction signature; the duplicate fields
+      // satisfy the schema. This matches the @buildonspark/spark-sdk reference
+      // implementation (see processSwapBatch in their TransferService) byte
+      // for byte — verified 2026-05-07.
+      userLeaves.push({
+        leaf_id: leaf.id,
+        raw_unsigned_refund_transaction: hex(transferLeaf.intermediateRefundTx),
+        direct_raw_unsigned_refund_transaction: hex(
+          transferLeaf.intermediateDirectRefundTx ?? new Uint8Array(),
+        ),
+        direct_from_cpfp_raw_unsigned_refund_transaction: hex(
+          transferLeaf.intermediateDirectFromCpfpRefundTx ?? new Uint8Array(),
+        ),
+        adaptor_added_signature: hex(adaptorAddedSignature),
+        direct_adaptor_added_signature: hex(adaptorAddedSignature),
+        direct_from_cpfp_adaptor_added_signature: hex(adaptorAddedSignature),
+      });
+    }
+
+    const request = await sspClient.requestLeavesSwap({
+      userLeaves,
+      adaptorPubkey: hex(adaptorPubkey),
+      targetAmountSats: targetAmounts,
+      totalAmountSats: leaves.reduce((acc, leaf) => acc + Number(leaf.value), 0),
+      feeSats: 0,
+      userOutboundTransferExternalId: response.transfer.id,
+    });
+
+    const inboundTransferId = request?.inboundTransfer?.sparkId;
+    if (
+      !request ||
+      !request.swapLeaves ||
+      request.swapLeaves.length === 0 ||
+      request.status === "FAILED" ||
+      !inboundTransferId
+    ) {
+      throw new Error("Failed to request leaves swap");
+    }
+
+    const incomingTransfer =
+      await internals.transferService.queryTransfer(inboundTransferId);
+    if (!incomingTransfer) {
+      throw new Error(
+        `Failed to query inbound swap transfer ${inboundTransferId}`,
+      );
+    }
+
+    return (await turnkeyClaim(wallet, signer, incomingTransfer, {
+      register: false,
+    })) as unknown as LeafSelection[];
+  } finally {
+    // Zero the adaptor secret on every exit (success or throw) to bound
+    // the JS-heap exposure window.
+    adaptorPrivKey.fill(0);
   }
-
-  const request = await sspClient.requestLeavesSwap({
-    userLeaves,
-    adaptorPubkey: hex(adaptorPubkey),
-    targetAmountSats: targetAmounts,
-    totalAmountSats: leaves.reduce((acc, leaf) => acc + Number(leaf.value), 0),
-    feeSats: 0,
-    userOutboundTransferExternalId: response.transfer.id,
-  });
-
-  const inboundTransferId = request?.inboundTransfer?.sparkId;
-  if (
-    !request ||
-    !request.swapLeaves ||
-    request.swapLeaves.length === 0 ||
-    request.status === "FAILED" ||
-    !inboundTransferId
-  ) {
-    throw new Error("Failed to request leaves swap");
-  }
-
-  const incomingTransfer =
-    await internals.transferService.queryTransfer(inboundTransferId);
-  if (!incomingTransfer) {
-    throw new Error(
-      `Failed to query inbound swap transfer ${inboundTransferId}`,
-    );
-  }
-
-  return (await turnkeyClaim(wallet, signer, incomingTransfer, {
-    register: false,
-  })) as unknown as LeafSelection[];
 }
 
 async function aggregateAdaptorSignatures(params: {
@@ -294,6 +334,13 @@ async function aggregateAdaptorSignatures(params: {
     }
 
     const message = getSigHashFromTx(refundTx, 0, nodeOutput);
+    // signingResult.verifyingKey comes from the operator coordinator and is
+    // trust-bounded by on-chain verification. A malicious operator could
+    // report a wrong VK; the resulting aggregated signature would fail to
+    // verify against the leaf's actual UTXO key — DOS, not loss-of-funds
+    // (same trust pattern as `requireNewLeafPubkeys` in turnkeySigner.ts).
+    // aggregateFrost is purely client-side and never sees Turnkey's signing
+    // share, so a wrong VK can't leak any enclave-managed material.
     const adaptorAddedSignature = await params.signer.aggregateFrost({
       message,
       publicKey: leafJob.signingPublicKey,

@@ -2,8 +2,8 @@
  * Transfer: Spark → Spark (send side)
  *
  * Sends sats from the Turnkey-backed wallet to another Spark address.
- * Refund FROST signing happens via SIGN_FROST_SPARK; key tweak encryption
- * and operator package construction happen via PREPARE_SPARK_TRANSFER.
+ * Refund FROST signing happens via SPARK_SIGN_FROST; key tweak encryption
+ * and operator package construction happen via SPARK_PREPARE_TRANSFER.
  *
  * Required env vars:
  *   API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID

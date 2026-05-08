@@ -7,7 +7,7 @@
  * never leave the enclave boundary.
  *
  * This module replaces the key-tweak + ECIES encryption step with a single
- * PREPARE_SPARK_TRANSFER call, while reusing the SDK's refund signing and
+ * SPARK_PREPARE_TRANSFER call, while reusing the SDK's refund signing and
  * operator communication infrastructure.
  *
  * Usage:
@@ -68,7 +68,7 @@ export async function turnkeyTransfer(
       const leafTweaks = makeLeafTweaks(leaves, receiverPubkeyBytes);
 
       // ── Phase 1: Sign refund transactions ──────────────────────────
-      // Batched: one SIGN_FROST_SPARK activity for all (leaf × direction)
+      // Batched: one SPARK_SIGN_FROST activity for all (leaf × direction)
       // tuples instead of the SDK's serial 3N round-trips.
       const sparkClient = await createSparkClient(internals);
       const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
@@ -89,7 +89,7 @@ export async function turnkeyTransfer(
       // The enclave atomically: derives old/new leaf keys, computes tweak,
       // Feldman-splits across operators, ECIES-encrypts per-leaf data, and
       // signs the transfer package payload (ECDSA-DER). Refund FROST signing
-      // already happened in phase 1 via SIGN_FROST_SPARK.
+      // already happened in phase 1 via SPARK_SIGN_FROST.
       const turnkeyResult = await signer.prepareTransfer({
         transferId,
         leaves: transferLeavesFromTweaks(leafTweaks),

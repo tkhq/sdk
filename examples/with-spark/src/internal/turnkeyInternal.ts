@@ -450,7 +450,7 @@ export function makeTransferPackage(
 // Replacement for SparkSigningService.signRefunds*(...). The SDK's signing
 // service runs a serial for-loop over leaves and calls signFrost once per
 // (leaf, direction) tuple — N leaves × up to 3 directions = up to 3N Turnkey
-// activities per flow. We collapse that to ONE batched SIGN_FROST_SPARK call
+// activities per flow. We collapse that to ONE batched SPARK_SIGN_FROST call
 // while preserving the exact per-leaf tx-creation and sighash logic.
 // ---------------------------------------------------------------------------
 
@@ -494,6 +494,34 @@ function emptyCommitment(): { commitment: SigningCommitment } {
       binding: new Uint8Array(33),
     },
   };
+}
+
+/**
+ * Assert that an operator-commitment entry exists and is non-empty before
+ * we forward it into a FROST signing request. Without this, a missing
+ * commitment silently becomes `{}` and the wasted Turnkey round-trip only
+ * surfaces the failure inside the enclave (`operator_commitments must
+ * include at least one operator commitment`). The likely root cause when
+ * this throws is `fetchRefundCommitments` returning fewer entries than
+ * expected — check the coordinator response.
+ */
+function requireOperatorCommitments(
+  commitment: OperatorSigningCommitment | undefined,
+  leafId: string,
+  direction: "cpfp" | "direct" | "directFromCpfp",
+): { [key: string]: SigningCommitment } {
+  const ops = commitment?.signingNonceCommitments;
+  if (!ops || Object.keys(ops).length === 0) {
+    throw new SparkValidationError(
+      `Missing ${direction} operator commitments for leaf ${leafId}`,
+      {
+        field: "operatorCommitments",
+        value: ops,
+        expected: "non-empty signingNonceCommitments map",
+      },
+    );
+  }
+  return ops;
 }
 
 export async function signRefundsBatched(
@@ -544,7 +572,7 @@ export async function signRefundsBatched(
     const isZeroNode = !getCurrentTimelock(nodeTx.getInput(0).sequence);
     // SEND fallback: post-claim, leaf.verifyingPublicKey (the aggregate FROST
     // VK) equals HD(leaf.id) for the owner — so we can use it as our signing
-    // pubkey without a SPARK_KEY_OPERATION round-trip. CLAIM sets
+    // pubkey without an extra pubkey-derivation round-trip. CLAIM sets
     // signingPublicKey explicitly to the freshly HD-derived key for the
     // rotated leaf id. If a future Spark protocol change ever decouples the
     // aggregate VK from the user's HD share, this fallback breaks silently.
@@ -649,8 +677,11 @@ export async function signRefundsBatched(
       rawTx: refundTxs.cpfpRefundTx.toBytes(),
       signingPublicKey,
       selfCommitment: emptyCommitment(),
-      statechainCommitments:
-        cpfpCommitments[i]?.signingNonceCommitments ?? {},
+      statechainCommitments: requireOperatorCommitments(
+        cpfpCommitments[i],
+        leaf.leaf.id,
+        "cpfp",
+      ),
       message: cpfpSighash,
     });
 
@@ -677,8 +708,11 @@ export async function signRefundsBatched(
         rawTx: refundTxs.directRefundTx.toBytes(),
         signingPublicKey,
         selfCommitment: emptyCommitment(),
-        statechainCommitments:
-          directCommitments[i]?.signingNonceCommitments ?? {},
+        statechainCommitments: requireOperatorCommitments(
+          directCommitments[i],
+          leaf.leaf.id,
+          "direct",
+        ),
         message: directSighash,
       });
     }
@@ -699,14 +733,17 @@ export async function signRefundsBatched(
         rawTx: refundTxs.directFromCpfpRefundTx.toBytes(),
         signingPublicKey,
         selfCommitment: emptyCommitment(),
-        statechainCommitments:
-          directFromCpfpCommitments[i]?.signingNonceCommitments ?? {},
+        statechainCommitments: requireOperatorCommitments(
+          directFromCpfpCommitments[i],
+          leaf.leaf.id,
+          "directFromCpfp",
+        ),
         message: directFromCpfpSighash,
       });
     }
   }
 
-  // Single batched SIGN_FROST_SPARK call for all (leaf × direction) tuples.
+  // Single batched SPARK_SIGN_FROST call for all (leaf × direction) tuples.
   const adaptor =
     mode.kind === "transfer" && mode.adaptorPubKey
       ? mode.adaptorPubKey

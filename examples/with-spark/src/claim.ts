@@ -4,7 +4,7 @@
  * Queries pending transfers addressed to this wallet, then claims them.
  * The enclave atomically verifies the sender's per-leaf signature,
  * ECIES-decrypts the transfer secret, and builds encrypted operator
- * packages via the CLAIM_SPARK_TRANSFER activity.
+ * packages via the SPARK_CLAIM_TRANSFER activity.
  *
  * Required env vars:
  *   API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID

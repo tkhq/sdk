@@ -46,8 +46,8 @@ You only ever construct `TurnkeySparkSigner`. Everything below it (including
 
 | File                  | Role                                                              |
 | --------------------- | ----------------------------------------------------------------- |
-| `turnkeyTransfer.ts`  | Drives `PREPARE_SPARK_TRANSFER` for outbound transfers            |
-| `turnkeyClaim.ts`     | Drives `CLAIM_SPARK_TRANSFER` for inbound transfers               |
+| `turnkeyTransfer.ts`  | Drives `SPARK_PREPARE_TRANSFER` for outbound transfers            |
+| `turnkeyClaim.ts`     | Drives `SPARK_CLAIM_TRANSFER` for inbound transfers               |
 | `turnkeyWithdraw.ts`  | Coop-exit / withdraw flow                                         |
 | `turnkeyLightning.ts` | Lightning send + receive flows                                    |
 | `turnkeySwap.ts`      | Leaf-swap flow used by SDK leaf selection                         |
@@ -68,7 +68,7 @@ them at every read site; don't assume future contributors will read this file.
    key for that `leaf_id`. We rely on this in `signRefundsBatched`
    ([`internal/turnkeyInternal.ts`](src/internal/turnkeyInternal.ts)) so
    send-flow refund signing can use `leaf.verifyingPublicKey` directly without
-   a separate `SPARK_KEY_OPERATION` round-trip. If Spark ever decouples per-leaf
+   a separate pubkey-derivation round-trip. If Spark ever decouples per-leaf
    aggregate VK from the user's HD share, this breaks silently.
 
 2. **Operator recipients must be sorted by numeric ID.** The signer (Turnkey
@@ -78,7 +78,7 @@ them at every read site; don't assume future contributors will read this file.
    scramble share assignment and operators couldn't reconstruct. See commit
    `558d66361` for the original incident.
 
-3. **`newLeafPublicKeys` returned by `PREPARE_/CLAIM_SPARK_TRANSFER` are
+3. **`newLeafPublicKeys` returned by `PREPARE_/SPARK_CLAIM_TRANSFER` are
    trusted but bounded.** The SDK validates format (hex + secp256k1 point),
    uniqueness, and leafId-set-equals-input. A signer that lies with a
    syntactically valid pubkey is still bounded by FROST aggregation: operator
@@ -100,7 +100,7 @@ caret) so we control upgrades.
   (entry point) → `internal/turnkeyTransfer.ts` (orchestration) →
   `turnkeySigner.prepareTransfer` (Turnkey activity boundary).
 - **"How does FROST signing work here?"** — `signRefundsBatched` in
-  `internal/turnkeyInternal.ts`; one batched `SIGN_FROST_SPARK` activity
+  `internal/turnkeyInternal.ts`; one batched `SPARK_SIGN_FROST` activity
   collapses N leaves × up to 3 directions into a single round-trip.
 - **"What's the deal with the HD pubkey caching?"** — `seedLeafSigningKeys`,
   `prefetchSigningHdAccounts`, and `getLeafSigningKey` in `turnkeySigner.ts`.

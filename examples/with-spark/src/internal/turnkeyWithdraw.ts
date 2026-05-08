@@ -7,7 +7,7 @@
  * the enclave boundary.
  *
  * This module replaces the key-tweak step with a single
- * PREPARE_SPARK_TRANSFER call, while reusing the SDK's SSP interaction,
+ * SPARK_PREPARE_TRANSFER call, while reusing the SDK's SSP interaction,
  * refund signing, and leaf management.
  *
  * Usage:
@@ -18,6 +18,28 @@
  *     feeQuoteId: "...",
  *     exitSpeed: "FAST",
  *   });
+ *
+ * ## Trust model
+ *
+ * Coop-exit is **SSP-trusted by protocol design**. The user submits
+ * `params.onchainAddress` to the SSP and trusts the SSP to:
+ *   1. Build a `rawConnectorTransaction` whose outputs route the user's
+ *      leaves to the correct destination (this module signs refunds
+ *      against those outputs without verifying their address)
+ *   2. Broadcast a `coopExitTxid` whose L1 output pays to
+ *      `params.onchainAddress` (this module never re-fetches and verifies
+ *      the broadcast tx)
+ *
+ * If the SSP returns a malicious connector tx that routes leaves to an
+ * attacker-controlled output, or broadcasts an L1 tx with a different
+ * destination, the user can lose funds. This is fundamental to the Spark
+ * coop-exit protocol; running your own broadcasting infrastructure would
+ * be the only way to remove the SSP trust dependency.
+ *
+ * Operational mitigation: post-broadcast, the caller can independently
+ * query L1 for `coopExitTxid` and verify the output paying to
+ * `params.onchainAddress` matches the requested amount. The SDK doesn't
+ * do this automatically.
  */
 
 import { v7 as uuidv7 } from "uuid";
@@ -40,6 +62,21 @@ import {
   signRefundsBatched,
   transferLeavesFromTweaks,
 } from "./turnkeyInternal";
+
+/**
+ * Spark protocol expiry for an in-flight cooperative-exit transfer.
+ *
+ * **Source of truth:** matches the SDK's coop-exit expiry constants — see
+ * the constant definitions in @buildonspark/spark-sdk's coop-exit service.
+ * Different windows for mainnet (7 days + 5 min buffer) vs other networks
+ * (35 min) reflect the L1 confirmation latency the SSP needs.
+ *
+ * Re-validate against `@buildonspark/spark-sdk` whenever the pinned SDK
+ * version is bumped. If they diverge, operators may reject the transfer
+ * or accept it with subtly different semantics.
+ */
+const COOP_EXIT_EXPIRY_MS_MAINNET = 10080 * 60 * 1000 + 300 * 1000;
+const COOP_EXIT_EXPIRY_MS_OTHER = 2100 * 1000;
 
 interface WithdrawSspClient {
   requestCoopExit(params: {
@@ -163,22 +200,21 @@ export async function turnkeyWithdraw(
       throw new Error("Failed to request coop exit");
     }
 
+    // Parse the connector tx once, derive both the raw bytes (for refund
+    // signing) and the txid bytes (for connector output references).
+    const connectorTx = getTxFromRawTxHex(coopExitRequest.rawConnectorTransaction);
     const connectorTxBytes = fromHex(coopExitRequest.rawConnectorTransaction);
+    const connectorTxIdBytes = fromHex(getTxId(connectorTx));
     const coopExitTxId = fromHex(coopExitRequest.coopExitTxid);
 
     // Parse connector outputs — one per leaf.
-    const connectorTxIdBytes = fromHex(
-      coopExitRequest.rawConnectorTransaction.length > 0
-        ? getTxId(getTxFromRawTxHex(coopExitRequest.rawConnectorTransaction))
-        : "",
-    );
     const connectorOutputs: ConnectorOutput[] = allLeaves.map((_, i) => ({
       txid: connectorTxIdBytes,
       index: i,
     }));
 
     // ── Step 2: Sign refund transactions ──────────────────────────
-    // Batched: one SIGN_FROST_SPARK activity for all (leaf × direction)
+    // Batched: one SPARK_SIGN_FROST activity for all (leaf × direction)
     // tuples instead of the SDK's serial 3N round-trips.
     const sparkClient = await createSparkClient(internals);
     const [cpfpC, directC, directFromCpfpC] = await fetchRefundCommitments(
@@ -206,7 +242,7 @@ export async function turnkeyWithdraw(
 
     // ── Step 4: Assemble and send ─────────────────────────────────
     const isMainnet = config.getNetworkType() === "MAINNET";
-    const expiryMs = isMainnet ? 10080 * 60 * 1000 + 300 * 1000 : 2100 * 1000;
+    const expiryMs = isMainnet ? COOP_EXIT_EXPIRY_MS_MAINNET : COOP_EXIT_EXPIRY_MS_OTHER;
 
     const response = await sparkClient.cooperative_exit_v2({
       transfer: {

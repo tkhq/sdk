@@ -373,6 +373,32 @@ export async function exportStaticDepositSecretKey(params: {
   return parsePrivateKeyHex(decryptedBundle);
 }
 
+/**
+ * Export a static-deposit private key from Turnkey, hand it to the
+ * signer's in-memory cache, and zero the local copy.
+ *
+ * **This is the only place where a Turnkey-managed private key leaves
+ * the enclave in plaintext.** The Spark SDK's static-deposit claim path
+ * requires the raw secret client-side; there is no enclave-only
+ * alternative today. The exposure window starts when this function
+ * resolves and ends when `signer.clearStaticDepositSecretKey(index)`
+ * is called.
+ *
+ * Recommended usage:
+ *
+ * ```ts
+ * await installStaticDepositSecretKey({...});
+ * try {
+ *   await wallet.claimStaticDeposit(...);
+ * } finally {
+ *   signer.clearStaticDepositSecretKey(index);
+ * }
+ * ```
+ *
+ * See `TurnkeySparkSigner.setStaticDepositSecretKey` for the full set
+ * of hygiene caveats (memory disclosure surfaces, daemon lifetime,
+ * logging discipline).
+ */
 export async function installStaticDepositSecretKey(params: {
   turnkeyClient: TurnkeyServerSDK;
   signer: TurnkeySparkSigner;
