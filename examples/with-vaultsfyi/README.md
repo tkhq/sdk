@@ -57,7 +57,7 @@ Now open `.env.local` and add the missing environment variables:
 - `NONROOT_API_PUBLIC_KEY`
 - `NONROOT_API_PRIVATE_KEY`
 - `RPC_URL`
-- `VAULTS_FYI_API_KEY` — get one at [vaults.fyi](https://docs.vaults.fyi)
+- `VAULTS_FYI_API_KEY` — sign up at the [vaults.fyi portal](https://portal.vaults.fyi) to get one
 
 ### 3/ Discover yield opportunities
 
