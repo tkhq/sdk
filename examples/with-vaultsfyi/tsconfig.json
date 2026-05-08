@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "lib": ["es2022"],
+    "target": "es2022"
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
+}
