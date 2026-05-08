@@ -689,14 +689,12 @@ export class TurnkeySparkSigner implements SparkSigner {
       "sparkClaimTransferResult",
       {
         signWith: this.sparkAddress,
-        packageRequest: {
-          claim: {
-            leaves: params.leaves,
-            threshold: params.threshold,
-            transferId: params.transferId,
-            operatorRecipients: params.operatorRecipients,
-            senderIdentityPublicKey: params.senderIdentityPublicKey,
-          },
+        claim: {
+          leaves: params.leaves,
+          threshold: params.threshold,
+          transferId: params.transferId,
+          operatorRecipients: params.operatorRecipients,
+          senderIdentityPublicKey: params.senderIdentityPublicKey,
         },
       },
     );
