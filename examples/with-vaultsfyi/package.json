@@ -1,0 +1,24 @@
+{
+  "name": "@turnkey/with-vaultsfyi",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -w run build-all",
+    "setup-policy": "tsx src/setupPolicy.ts",
+    "discover": "tsx src/discover.ts",
+    "deposit": "tsx src/deposit.ts",
+    "positions": "tsx src/positions.ts",
+    "withdraw": "tsx src/withdraw.ts",
+    "setup-rewards-policy": "tsx src/setupRewardsPolicy.ts",
+    "claim-rewards": "tsx src/claimRewards.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/viem": "workspace:*",
+    "@vaultsfyi/sdk": "^2.3.1",
+    "dotenv": "^16.0.3",
+    "viem": "^2.24.2"
+  }
+}
