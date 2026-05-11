@@ -2256,6 +2256,7 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TApproveActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
     return this.activityDecision(
       "/public/v1/submit/approve_activity",
@@ -2266,6 +2267,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_APPROVE_ACTIVITY",
       },
       stampWith,
@@ -2308,6 +2310,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2319,6 +2324,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
       },
       "createApiKeysResult",
@@ -2362,6 +2368,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2373,6 +2382,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
       },
       "createAuthenticatorsResult",
@@ -2416,6 +2426,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateFiatOnRampCredentialResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2427,6 +2440,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
       },
       "createFiatOnRampCredentialResult",
@@ -2471,6 +2485,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateInvitationsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2482,6 +2499,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_INVITATIONS",
       },
       "createInvitationsResult",
@@ -2525,6 +2543,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateOauth2CredentialResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2536,6 +2557,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL",
       },
       "createOauth2CredentialResult",
@@ -2579,6 +2601,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2590,6 +2615,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
       },
       "createOauthProvidersResultV2",
@@ -2633,6 +2659,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePoliciesResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2644,6 +2673,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_POLICIES",
       },
       "createPoliciesResult",
@@ -2687,6 +2717,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2698,6 +2731,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
       },
       "createPolicyResult",
@@ -2740,6 +2774,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2751,6 +2788,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
       },
       "createPrivateKeyTagResult",
@@ -2794,6 +2832,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2805,6 +2846,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       },
       "createPrivateKeysResultV2",
@@ -2848,6 +2890,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateReadOnlySessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2859,6 +2904,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
       },
       "createReadOnlySessionResult",
@@ -2902,6 +2948,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateReadWriteSessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2913,6 +2962,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
       },
       "createReadWriteSessionResultV2",
@@ -2956,6 +3006,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateSmartContractInterfaceResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -2967,6 +3020,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
       },
       "createSmartContractInterfaceResult",
@@ -3011,6 +3065,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3022,6 +3079,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
       },
       "createSubOrganizationResultV8",
@@ -3065,6 +3123,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3076,6 +3137,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_USER_TAG",
       },
       "createUserTagResult",
@@ -3119,6 +3181,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3130,6 +3195,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_USERS_V4",
       },
       "createUsersResult",
@@ -3172,6 +3238,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3183,6 +3252,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_WALLET",
       },
       "createWalletResult",
@@ -3225,6 +3295,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateWalletAccountsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3236,6 +3309,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
       },
       "createWalletAccountsResult",
@@ -3279,6 +3353,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateWebhookEndpointResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3290,6 +3367,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT",
       },
       "createWebhookEndpointResult",
@@ -3333,6 +3411,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3344,6 +3425,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_API_KEYS",
       },
       "deleteApiKeysResult",
@@ -3387,6 +3469,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3398,6 +3483,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
       },
       "deleteAuthenticatorsResult",
@@ -3441,6 +3527,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteFiatOnRampCredentialResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3452,6 +3541,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL",
       },
       "deleteFiatOnRampCredentialResult",
@@ -3496,6 +3586,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteInvitationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3507,6 +3600,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_INVITATION",
       },
       "deleteInvitationResult",
@@ -3550,6 +3644,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteOauth2CredentialResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3561,6 +3658,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL",
       },
       "deleteOauth2CredentialResult",
@@ -3604,6 +3702,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3615,6 +3716,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
       },
       "deleteOauthProvidersResult",
@@ -3658,6 +3760,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeletePoliciesResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3669,6 +3774,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_POLICIES",
       },
       "deletePoliciesResult",
@@ -3712,6 +3818,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeletePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3723,6 +3832,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_POLICY",
       },
       "deletePolicyResult",
@@ -3765,6 +3875,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeletePrivateKeyTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3776,6 +3889,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
       },
       "deletePrivateKeyTagsResult",
@@ -3819,6 +3933,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeletePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3830,6 +3947,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
       },
       "deletePrivateKeysResult",
@@ -3873,6 +3991,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteSmartContractInterfaceResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3884,6 +4005,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
       },
       "deleteSmartContractInterfaceResult",
@@ -3928,6 +4050,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3939,6 +4064,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
       },
       "deleteSubOrganizationResult",
@@ -3982,6 +4108,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteUserTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -3993,6 +4122,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_USER_TAGS",
       },
       "deleteUserTagsResult",
@@ -4036,6 +4166,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4047,6 +4180,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_USERS",
       },
       "deleteUsersResult",
@@ -4089,6 +4223,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteWalletAccountsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4100,6 +4237,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
       },
       "deleteWalletAccountsResult",
@@ -4143,6 +4281,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteWalletsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4154,6 +4295,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_WALLETS",
       },
       "deleteWalletsResult",
@@ -4196,6 +4338,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteWebhookEndpointResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4207,6 +4352,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT",
       },
       "deleteWebhookEndpointResult",
@@ -4250,6 +4396,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TEmailAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4261,6 +4410,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_EMAIL_AUTH_V3",
       },
       "emailAuthResult",
@@ -4303,6 +4453,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TEthSendTransactionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4314,6 +4467,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
       },
       "ethSendTransactionResult",
@@ -4357,6 +4511,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TExportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4368,6 +4525,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY",
       },
       "exportPrivateKeyResult",
@@ -4411,6 +4569,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TExportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4422,6 +4583,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_EXPORT_WALLET",
       },
       "exportWalletResult",
@@ -4464,6 +4626,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TExportWalletAccountResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4475,6 +4640,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT",
       },
       "exportWalletAccountResult",
@@ -4518,6 +4684,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4529,6 +4698,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
       },
       "importPrivateKeyResult",
@@ -4572,6 +4742,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4583,6 +4756,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_IMPORT_WALLET",
       },
       "importWalletResult",
@@ -4625,6 +4799,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitFiatOnRampResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4636,6 +4813,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
       },
       "initFiatOnRampResult",
@@ -4679,6 +4857,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4690,6 +4871,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
       },
       "initImportPrivateKeyResult",
@@ -4733,6 +4915,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4744,6 +4929,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
       },
       "initImportWalletResult",
@@ -4787,6 +4973,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitOtpResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4798,6 +4987,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_INIT_OTP_V3",
       },
       "initOtpResultV2",
@@ -4840,6 +5030,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4851,6 +5044,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V3",
       },
       "initOtpAuthResultV2",
@@ -4893,6 +5087,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitUserEmailRecoveryResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4904,6 +5101,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
       },
       "initUserEmailRecoveryResult",
@@ -4947,6 +5145,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TOauthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -4958,6 +5159,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_OAUTH",
       },
       "oauthResult",
@@ -5000,6 +5202,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TOauth2AuthenticateResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5011,6 +5216,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
       },
       "oauth2AuthenticateResult",
@@ -5054,6 +5260,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TOauthLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5065,6 +5274,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_OAUTH_LOGIN",
       },
       "oauthLoginResult",
@@ -5107,6 +5317,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5118,6 +5331,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_OTP_AUTH",
       },
       "otpAuthResult",
@@ -5160,6 +5374,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TOtpLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5171,6 +5388,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_OTP_LOGIN",
       },
       "otpLoginResult",
@@ -5213,6 +5431,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TRecoverUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5224,6 +5445,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_RECOVER_USER",
       },
       "recoverUserResult",
@@ -5266,6 +5488,7 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TRejectActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
     return this.activityDecision(
       "/public/v1/submit/reject_activity",
@@ -5276,6 +5499,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_REJECT_ACTIVITY",
       },
       stampWith,
@@ -5318,6 +5542,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TRemoveIpAllowlistResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5329,6 +5556,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST",
       },
       "removeIpAllowlistResult",
@@ -5372,6 +5600,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TRemoveOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5383,6 +5614,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE",
       },
       "removeOrganizationFeatureResult",
@@ -5426,6 +5658,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TSetIpAllowlistResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5437,6 +5672,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST",
       },
       "setIpAllowlistResult",
@@ -5480,6 +5716,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TSetOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5491,6 +5730,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
       },
       "setOrganizationFeatureResult",
@@ -5534,6 +5774,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TSignRawPayloadResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5545,6 +5788,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       },
       "signRawPayloadResult",
@@ -5588,6 +5832,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TSignRawPayloadsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5599,6 +5846,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
       },
       "signRawPayloadsResult",
@@ -5642,6 +5890,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TSignTransactionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5653,6 +5904,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       },
       "signTransactionResult",
@@ -5696,6 +5948,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TSolSendTransactionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5707,6 +5962,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
       },
       "solSendTransactionResult",
@@ -5750,6 +6006,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TStampLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5761,6 +6020,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_STAMP_LOGIN",
       },
       "stampLoginResult",
@@ -5803,6 +6063,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateFiatOnRampCredentialResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5814,6 +6077,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL",
       },
       "updateFiatOnRampCredentialResult",
@@ -5858,6 +6122,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateOauth2CredentialResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5869,6 +6136,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL",
       },
       "updateOauth2CredentialResult",
@@ -5912,6 +6180,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateOrganizationNameResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5923,6 +6194,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME",
       },
       "updateOrganizationNameResult",
@@ -5966,6 +6238,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -5977,6 +6252,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
       },
       "updatePolicyResultV2",
@@ -6019,6 +6295,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -6030,6 +6309,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG",
       },
       "updatePrivateKeyTagResult",
@@ -6073,6 +6353,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateRootQuorumResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -6084,6 +6367,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
       },
       "updateRootQuorumResult",
@@ -6127,6 +6411,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -6138,6 +6425,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_USER",
       },
       "updateUserResult",
@@ -6180,6 +6468,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserEmailResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -6191,6 +6482,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL",
       },
       "updateUserEmailResult",
@@ -6234,6 +6526,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserNameResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -6245,6 +6540,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_USER_NAME",
       },
       "updateUserNameResult",
@@ -6288,6 +6584,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserPhoneNumberResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -6299,6 +6598,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
       },
       "updateUserPhoneNumberResult",
@@ -6342,6 +6642,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -6353,6 +6656,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_USER_TAG",
       },
       "updateUserTagResult",
@@ -6396,6 +6700,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -6407,6 +6714,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_WALLET",
       },
       "updateWalletResult",
@@ -6449,6 +6757,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateWebhookEndpointResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -6460,6 +6771,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT",
       },
       "updateWebhookEndpointResult",
@@ -6503,6 +6815,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TVerifyOtpResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
     const session = await this.storageManager?.getActiveSession();
 
     return this.activity(
@@ -6514,6 +6829,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_VERIFY_OTP",
       },
       "verifyOtpResult",
