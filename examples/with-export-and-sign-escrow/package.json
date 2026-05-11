@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "next": "15.5.16",
+    "next": "15.5.18",
     "@turnkey/sdk-types": "workspace:*",
     "tweetnacl": "^1.0.3",
     "@turnkey/iframe-stamper": "workspace:*",
@@ -23,7 +23,7 @@
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
     "eslint": "^9",
-    "eslint-config-next": "15.5.16",
+    "eslint-config-next": "15.5.18",
     "tailwindcss": "^4",
     "typescript": "^5.1.3"
   }
