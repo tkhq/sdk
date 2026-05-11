@@ -534,6 +534,35 @@ function generateApiTypes(swagger, prefix = "") {
         const intentDef = definitions[adjustedIntentTypeName];
         output += generateInlineProperties(intentDef, isAllOptional);
       }
+
+      // Emit any remaining top-level request fields (e.g. generateAppProofs)
+      // that aren't part of the structural envelope.
+      const STRUCTURAL = new Set([
+        "type",
+        "timestampMs",
+        "organizationId",
+        "parameters",
+      ]);
+      const requiredProps = Array.isArray(requestTypeDef.required)
+        ? requestTypeDef.required
+        : [];
+      for (const [prop, schema] of Object.entries(
+        requestTypeDef.properties || {},
+      )) {
+        if (STRUCTURAL.has(prop)) continue;
+        let type = "any";
+        if (schema.$ref) {
+          type = refToTs(schema.$ref);
+        } else if (schema.type) {
+          type = swaggerTypeToTs(schema.type, schema);
+        }
+        const desc = schema.description
+          ? `  /** ${schema.description} */\n`
+          : "";
+        const propName = isValidIdentifier(prop) ? prop : `"${prop}"`;
+        const required = requiredProps.includes(prop) ? "" : "?";
+        output += `${desc}  ${propName}${required}: ${type};\n`;
+      }
     } else if (methodType === "query" || methodType === "noop") {
       output += `  organizationId?: string;\n`;
       if (requestTypeDef.properties) {
