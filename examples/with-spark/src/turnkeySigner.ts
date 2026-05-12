@@ -154,18 +154,23 @@ function requireNewLeafPubkeys(
   }
 }
 
-/** Maps SDK KeyDerivation to the proto SparkKeyDerivation shape. */
-function mapKeyDerivation(kd: KeyDerivation): Record<string, unknown> {
-  switch (kd.type) {
-    case "leaf":
-      return { type: "SPARK_KEY_TYPE_SIGNING_HD", leafId: kd.path };
-    case "deposit":
-      return { type: "SPARK_KEY_TYPE_DEPOSIT" };
-    case "static_deposit":
-      return { type: "SPARK_KEY_TYPE_STATIC_DEPOSIT_HD", index: kd.path };
-    default:
-      throw new Error(`Unsupported key derivation type: ${kd.type}`);
+/**
+ * Maps an SDK KeyDerivation to the proto SparkSigningLeafDerivation shape.
+ *
+ * The three call sites — SPARK_SIGN_FROST signature requests and
+ * SPARK_PREPARE_TRANSFER's {old,new}_leaf_derivation — were narrowed from
+ * the polymorphic SparkKeyDerivation oneof to SparkSigningLeafDerivation
+ * in mono, so non-leaf derivations are rejected here.
+ */
+function mapSigningLeafDerivation(
+  kd: KeyDerivation,
+): { leafId: string } {
+  if (kd.type !== "leaf") {
+    throw new Error(
+      `Expected leaf KeyDerivation for SparkSigningLeafDerivation field, got ${kd.type}`,
+    );
   }
+  return { leafId: String(kd.path) };
 }
 
 /** Maps operator commitment map to proto shape. */
@@ -552,7 +557,7 @@ export class TurnkeySparkSigner implements SparkSigner {
     if (params.length === 0) return [];
 
     const signatureRequests = params.map((p) => ({
-      derivation: mapKeyDerivation(p.keyDerivation),
+      derivation: mapSigningLeafDerivation(p.keyDerivation),
       message: hex(p.message),
       verifyingKey: hex(p.verifyingKey),
       operatorCommitments: mapOperatorCommitments(p.statechainCommitments),
@@ -622,8 +627,8 @@ export class TurnkeySparkSigner implements SparkSigner {
   }): Promise<TransferResult> {
     const leaves = params.leaves.map((l) => ({
       leafId: l.leafId,
-      oldLeafDerivation: mapKeyDerivation(l.oldLeafDerivation),
-      newLeafDerivation: mapKeyDerivation(l.newLeafDerivation),
+      oldLeafDerivation: mapSigningLeafDerivation(l.oldLeafDerivation),
+      newLeafDerivation: mapSigningLeafDerivation(l.newLeafDerivation),
       ...(l.refundSignature ? { refundSignature: l.refundSignature } : {}),
       ...(l.directRefundSignature
         ? { directRefundSignature: l.directRefundSignature }
