@@ -75,7 +75,8 @@ function methodTypeFromMethodName(methodName) {
   if (
     methodName.startsWith("get") ||
     methodName.startsWith("list") ||
-    methodName.startsWith("test")
+    methodName.startsWith("test") ||
+    methodName.startsWith("validate")
   ) {
     return "query";
   }
