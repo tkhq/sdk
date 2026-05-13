@@ -16,7 +16,6 @@ $ npm install @turnkey/spark
 
 ## Examples
 
-| Example                                            | Description                                                                                                                                                                                           |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`with-spark`](../../examples/with-spark/)         | Demonstrates [Spark](https://spark.money) operations using **Turnkey as the key custodian**.                                                                                                          |
-| [`with-spark-wdk`](../../examples/with-spark-wdk/) | Demonstrates [Spark](https://spark.money) operations through Tether's [`@tetherto/wdk-wallet-spark`](https://github.com/tetherto/wdk-wallet-spark) wallet API, with **Turnkey as the key custodian**. |
+| Example                                    | Description                                                                                  |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| [`with-spark`](../../examples/with-spark/) | Demonstrates [Spark](https://spark.money) operations using **Turnkey as the key custodian**. |

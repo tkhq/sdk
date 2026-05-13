@@ -2962,7 +2962,7 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/with-spark-schnorr:
+  examples/with-spark:
     dependencies:
       '@buildonspark/issuer-sdk':
         specifier: ^0.1.23
