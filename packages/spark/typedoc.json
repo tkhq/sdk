@@ -1,0 +1,29 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "name": "spark",
+  "exclude": [
+    "src/turnkey-helpers.ts",
+    "**/__generated__/**",
+    "**/__inputs__/**",
+    "**/__types__/**",
+    "**/node_modules/**",
+    "src/__generated__/sdk_api_types.ts",
+    "src/__generated__/sdk-client-base.ts",
+    "src/__inputs__/public_api.types.ts",
+    "src/__inputs__/public_api.swagger.json",
+    "src/__types__/base.ts"
+  ],
+  "excludeInternal": true,
+  "includeVersion": true,
+  "alwaysCreateEntryPointModule": true,
+  "gitRevision": "main",
+  "router": "structure-dir",
+  "projectDocuments": ["documents/*.md", "CHANGELOG.md"],
+  "outputs": [
+    {
+      "name": "json",
+      "path": "./generated-docs/sdks",
+      "fileExtension": "json"
+    }
+  ]
+}
