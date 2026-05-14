@@ -258,7 +258,8 @@ function methodTypeFromMethodName(methodName) {
   if (
     methodName.startsWith("tget") ||
     methodName.startsWith("tlist") ||
-    methodName.startsWith("ttest")
+    methodName.startsWith("ttest") ||
+    methodName.startsWith("validate")
   ) {
     return "query";
   }
