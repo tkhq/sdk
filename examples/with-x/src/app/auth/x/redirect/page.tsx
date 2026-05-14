@@ -47,15 +47,7 @@ export default function RedirectPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="text-center space-y-6">
-        <div className="flex justify-center">
-          <Loading />
-        </div>
-        <h1 className="text-2xl font-semibold text-foreground">Logging In</h1>
-        <p className="text-muted-foreground">
-          Please wait while we sign you in...
-        </p>
-      </div>
+      <Loading />
     </main>
   );
 }
