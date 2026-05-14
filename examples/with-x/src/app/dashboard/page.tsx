@@ -10,12 +10,7 @@ import { LogoutButton } from "../../components/LogoutButton";
 
 export default function Dashboard() {
   const router = useRouter();
-  const {
-    authState,
-    clientState,
-    user,
-    wallets,
-  } = useTurnkey();
+  const { authState, clientState, user, wallets } = useTurnkey();
 
   useEffect(() => {
     if (clientState !== ClientState.Ready) return;

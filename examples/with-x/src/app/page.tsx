@@ -6,7 +6,6 @@ import Image from "next/image";
 import { AuthState, ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
 import { LoginWithXButton } from "@/components/LoginWithXButton";
 
-
 export default function Home() {
   const router = useRouter();
   const { authState, clientState } = useTurnkey();
