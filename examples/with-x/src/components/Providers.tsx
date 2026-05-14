@@ -6,14 +6,7 @@ import { TurnkeyProvider } from "@turnkey/react-wallet-kit";
 const config = {
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
   organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-  authProxyConfigId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
   auth: {
-    oauthConfig: {
-      x: {
-        primaryClientId: process.env.NEXT_PUBLIC_X_CLIENT_ID,
-      },
-      oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
-    },
     autoRefreshSession: true,
   },
 };

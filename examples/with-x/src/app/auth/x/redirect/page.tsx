@@ -2,11 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useTurnkey } from "@turnkey/react-wallet-kit";
+import { ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
 import { Loading } from "@/components/Loading";
 
 export default function RedirectPage() {
-  const { createApiKeyPair, storeSession } = useTurnkey();
+  const { createApiKeyPair, storeSession, clientState } = useTurnkey();
   const router = useRouter();
   const searchParams = useSearchParams();
   const initiated = useRef(false);
@@ -15,6 +15,7 @@ export default function RedirectPage() {
   const state = searchParams.get("state");
 
   useEffect(() => {
+    if (clientState !== ClientState.Ready) return;
     if (initiated.current) return;
     initiated.current = true;
 
@@ -43,7 +44,7 @@ export default function RedirectPage() {
     };
 
     turnkeyAuth();
-  }, []);
+  }, [clientState]);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-background p-4">

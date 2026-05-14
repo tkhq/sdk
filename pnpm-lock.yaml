@@ -3378,9 +3378,6 @@ importers:
       '@turnkey/crypto':
         specifier: workspace:*
         version: link:../../packages/crypto
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../../packages/encoding
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
         version: link:../../packages/react-wallet-kit

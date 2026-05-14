@@ -1,18 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { AuthState, ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
 import { LoginWithXButton } from "@/components/LoginWithXButton";
-import { Loading } from "@/components/Loading";
+
 
 export default function Home() {
   const router = useRouter();
   const { authState, clientState } = useTurnkey();
-  const searchParams = useSearchParams();
-  const state = searchParams.get("state");
-  const [isLoading] = useState(state);
 
   useEffect(() => {
     if (
@@ -37,7 +34,7 @@ export default function Home() {
         </div>
         <h1 className="text-4xl font-bold text-foreground">Welcome</h1>
         <p className="text-muted-foreground text-lg">Sign in to get started</p>
-        {isLoading ? <Loading /> : <LoginWithXButton />}
+        <LoginWithXButton />
       </div>
     </main>
   );

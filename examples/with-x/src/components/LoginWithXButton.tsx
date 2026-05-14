@@ -2,16 +2,17 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { useTurnkey } from "@turnkey/react-wallet-kit";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 export function LoginWithXButton() {
-  const { handleXOauth } = useTurnkey();
+  const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  async function handleXLogin() {
+  function handleXLogin() {
     setIsRedirecting(true);
-    await handleXOauth({ openInPage: true });
+    localStorage.setItem("oauth_state", "random_state");
+    router.push("/auth/x");
   }
 
   return (
