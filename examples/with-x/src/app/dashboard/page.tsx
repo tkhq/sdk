@@ -10,7 +10,15 @@ import { LogoutButton } from "../../components/LogoutButton";
 
 export default function Dashboard() {
   const router = useRouter();
-  const { authState, clientState, session, user, wallets, createWallet, refreshWallets } = useTurnkey();
+  const {
+    authState,
+    clientState,
+    session,
+    user,
+    wallets,
+    createWallet,
+    refreshWallets,
+  } = useTurnkey();
 
   useEffect(() => {
     if (
@@ -22,7 +30,11 @@ export default function Dashboard() {
   }, [authState, clientState, router]);
 
   useEffect(() => {
-    if (authState !== AuthState.Authenticated || clientState !== ClientState.Ready) return;
+    if (
+      authState !== AuthState.Authenticated ||
+      clientState !== ClientState.Ready
+    )
+      return;
     if (!session) return;
     if (wallets.length > 0) return;
 

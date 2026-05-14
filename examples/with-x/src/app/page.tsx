@@ -11,7 +11,7 @@ export default function Home() {
   const router = useRouter();
   const { authState, clientState } = useTurnkey();
   const searchParams = useSearchParams();
-  const state = searchParams.get('state');
+  const state = searchParams.get("state");
   const [isLoading] = useState(state);
 
   useEffect(() => {
@@ -37,11 +37,7 @@ export default function Home() {
         </div>
         <h1 className="text-4xl font-bold text-foreground">Welcome</h1>
         <p className="text-muted-foreground text-lg">Sign in to get started</p>
-        {isLoading ? (
-          <Loading />
-        ) : (
-          <LoginWithXButton />
-        )}
+        {isLoading ? <Loading /> : <LoginWithXButton />}
       </div>
     </main>
   );

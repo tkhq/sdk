@@ -45,11 +45,11 @@ Navigate to the [X developer console](https://console.x.com/) and create an app.
 
    For the callback URI use:
 
-```
-http://127.0.0.1:3456
-```
+   ```
+   http://127.0.0.1:3456
+   ```
 
-> Use `127.0.0.1` and NOT `localhost`. The port must match the `PORT` value in your `.env.local`.
+   > Use `127.0.0.1` and NOT `localhost`. The port must match the `PORT` value in your `.env.local`.
 
    Save changes. These settings can be updated later via the app's settings menu.
 

@@ -11,7 +11,7 @@ export function LoginWithXButton() {
 
   async function handleXLogin() {
     setIsRedirecting(true);
-    await handleXOauth({ openInPage: true })
+    await handleXOauth({ openInPage: true });
   }
 
   return (
