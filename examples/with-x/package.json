@@ -6,19 +6,13 @@
     "dev": "PORT=$(grep PORT .env.local | cut -d '=' -f2) next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "credential-upload": "npx tsx credential-upload.tsx"
+    "lint": "eslint"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
-    "@turnkey/crypto": "workspace:*",
-    "@turnkey/encoding": "workspace:*",
-    "@turnkey/sdk-server": "workspace:*",
-    "@turnkey/sdk-react": "workspace:*",
-    "axios": "^1.13.5",
+    "@turnkey/react-wallet-kit": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "dotenv": "^16.0.3",
     "lucide-react": "^0.542.0",
     "next": "15.5.18",
     "react": "18.2.0",

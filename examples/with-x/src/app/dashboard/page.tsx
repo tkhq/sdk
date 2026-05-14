@@ -1,50 +1,42 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Image from "next/Image";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useTurnkey } from "@turnkey/sdk-react";
+import { AuthState, ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
 
 export default function Dashboard() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const router = useRouter();
-  const indexedDbInitialized = useRef(false);
-  const [userId, setUserId] = useState<string>(
-    "00000000-0000-0000-0000-000000000000",
-  );
-  const [walletAddress, setWalletAddress] = useState<string>("0x");
-  const { indexedDbClient } = useTurnkey();
-
-  const walletName = "My Solana Wallet";
+  const { authState, clientState, user, wallets, logout, createWallet, refreshWallets } = useTurnkey();
 
   useEffect(() => {
-    const getAccountInfo = async () => {
-      if (indexedDbClient !== undefined && !indexedDbInitialized.current) {
-        indexedDbInitialized.current = true;
+    if (
+      clientState === ClientState.Ready &&
+      authState === AuthState.Unauthenticated
+    ) {
+      router.push("/");
+    }
+  }, [authState, clientState, router]);
 
-        try {
-          const whoamIResponse = await indexedDbClient.getWhoami();
-          setUserId(whoamIResponse.userId);
+  useEffect(() => {
+    if (authState !== AuthState.Authenticated || clientState !== ClientState.Ready) return;
+    if (wallets.length > 0) return;
 
-          const getWalletsResponse = await indexedDbClient.getWallets({
-            organizationId: whoamIResponse.organizationId,
-          });
+    createWallet({
+      walletName: "My Solana Wallet",
+      accounts: ["ADDRESS_FORMAT_SOLANA"],
+    }).then(() => refreshWallets());
+  }, [authState, clientState, wallets, createWallet, refreshWallets]);
 
-          const getWalletAccountsResponse =
-            await indexedDbClient.getWalletAccounts({
-              organizationId: whoamIResponse.organizationId,
-              walletId: getWalletsResponse.wallets[0].walletId,
-            });
-
-          setWalletAddress(getWalletAccountsResponse.accounts[0].address);
-        } catch (e) {
-          console.error("Failed obtaining account information");
-        }
-      }
-    };
-
-    getAccountInfo();
-  }, [indexedDbClient]);
+  const walletName = "My Solana Wallet";
+  const userId = user?.userId ?? "00000000-0000-0000-0000-000000000000";
+  const walletAddress =
+    wallets[0]?.accounts?.find(
+      (a) => a.addressFormat === "ADDRESS_FORMAT_SOLANA",
+    )?.address ??
+    wallets[0]?.accounts?.[0]?.address ??
+    "0x";
 
   const copyToClipboard = async (text: string, fieldName: string) => {
     try {
@@ -56,7 +48,8 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logout();
     router.push("/");
   };
 
@@ -160,7 +153,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-foreground font-mono text-sm">
+                <span className="text-foreground font-mono text-sm truncate overflow-hidden max-w-[200px]">
                   {walletAddress}
                 </span>
                 <button
