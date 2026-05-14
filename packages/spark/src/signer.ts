@@ -19,32 +19,17 @@
 
 import { secp256k1 } from "@noble/curves/secp256k1"; // used in validateMessageWithIdentityKey
 import { mnemonicToSeed } from "@scure/bip39";
-import type {
-  SparkSigner,
-  SignFrostParams,
-  AggregateFrostParams,
-  SigningCommitmentWithOptionalNonce,
-  KeyDerivation,
-  SplitSecretWithProofsParams,
-  SubtractSplitAndEncryptParams,
-  SubtractSplitAndEncryptResult,
-  VerifiableSecretShare,
-  SigningNonce,
-} from "@buildonspark/spark-sdk";
-import type { Transaction } from "@scure/btc-signer";
+import type { SparkSigner } from "@buildonspark/spark-sdk";
 import type { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 
-function hex(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString("hex");
-}
+const hex = (bytes: Uint8Array) => Buffer.from(bytes).toString("hex");
 
-function notImplemented(method: string): never {
+const notImplemented = (method: string) => () => {
   throw new Error(
     `TurnkeySparkSigner.${method} is not implemented. ` +
-      `This method requires HD key derivation or FROST/ECIES operations ` +
-      `that are not yet expressible via Turnkey's signRawPayload API.`,
+      `This method requires operations that are not yet expressible via Turnkey's signRawPayload API.`,
   );
-}
+};
 
 export class TurnkeySparkSigner implements SparkSigner {
   private readonly client: TurnkeyServerSDK;
@@ -138,72 +123,39 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   // --- Not implemented: ---
 
-  async getDepositSigningKey(): Promise<Uint8Array> {
-    return notImplemented("getDepositSigningKey");
-  }
-  async getStaticDepositSigningKey(_idx: number): Promise<Uint8Array> {
-    return notImplemented("getStaticDepositSigningKey");
-  }
-  async getStaticDepositSecretKey(_idx: number): Promise<Uint8Array> {
-    return notImplemented("getStaticDepositSecretKey");
-  }
-  async generateMnemonic(): Promise<string> {
-    return notImplemented("generateMnemonic");
-  }
-  async signFrost(_params: SignFrostParams): Promise<Uint8Array> {
-    return notImplemented("signFrost");
-  }
-  async aggregateFrost(_params: AggregateFrostParams): Promise<Uint8Array> {
-    return notImplemented("aggregateFrost");
-  }
-  async decryptEcies(_ciphertext: Uint8Array): Promise<Uint8Array> {
-    return notImplemented("decryptEcies");
-  }
-  async getRandomSigningCommitment(): Promise<SigningCommitmentWithOptionalNonce> {
-    return notImplemented("getRandomSigningCommitment");
-  }
-  getNonceForSelfCommitment(
-    _selfCommitment: SigningCommitmentWithOptionalNonce,
-  ): SigningNonce | undefined {
-    return notImplemented("getNonceForSelfCommitment");
-  }
-  async getPublicKeyFromDerivation(
-    _keyDerivation?: KeyDerivation,
-  ): Promise<Uint8Array> {
-    return notImplemented("getPublicKeyFromDerivation");
-  }
-  async subtractPrivateKeysGivenDerivationPaths(
-    _first: string,
-    _second: string,
-  ): Promise<Uint8Array> {
-    return notImplemented("subtractPrivateKeysGivenDerivationPaths");
-  }
-  async subtractAndSplitSecretWithProofsGivenDerivations(
-    _params: Omit<SplitSecretWithProofsParams, "secret"> & {
-      first: KeyDerivation;
-      second?: KeyDerivation | undefined;
-    },
-  ): Promise<VerifiableSecretShare[]> {
-    return notImplemented("subtractAndSplitSecretWithProofsGivenDerivations");
-  }
-  async subtractSplitAndEncrypt(
-    _params: SubtractSplitAndEncryptParams,
-  ): Promise<SubtractSplitAndEncryptResult> {
-    return notImplemented("subtractSplitAndEncrypt");
-  }
-  async splitSecretWithProofs(
-    _params: SplitSecretWithProofsParams,
-  ): Promise<VerifiableSecretShare[]> {
-    return notImplemented("splitSecretWithProofs");
-  }
-  signTransactionIndex(
-    _tx: Transaction,
-    _index: number,
-    _publicKey: Uint8Array,
-  ): void {
-    notImplemented("signTransactionIndex");
-  }
-  async htlcHMAC(_transferID: string): Promise<Uint8Array> {
-    return notImplemented("htlcHMAC");
-  }
+  getDepositSigningKey = notImplemented("getDepositSigningKey");
+
+  getStaticDepositSigningKey = notImplemented("getStaticDepositSigningKey");
+
+  getStaticDepositSecretKey = notImplemented("getStaticDepositSecretKey");
+
+  generateMnemonic = notImplemented("generateMnemonic");
+
+  signFrost = notImplemented("signFrost");
+
+  aggregateFrost = notImplemented("aggregateFrost");
+
+  decryptEcies = notImplemented("decryptEcies");
+
+  getRandomSigningCommitment = notImplemented("getRandomSigningCommitment");
+
+  getNonceForSelfCommitment = notImplemented("getNonceForSelfCommitment");
+
+  getPublicKeyFromDerivation = notImplemented("getPublicKeyFromDerivation");
+
+  subtractPrivateKeysGivenDerivationPaths = notImplemented(
+    "subtractPrivateKeysGivenDerivationPaths",
+  );
+
+  subtractAndSplitSecretWithProofsGivenDerivations = notImplemented(
+    "subtractAndSplitSecretWithProofsGivenDerivations",
+  );
+
+  subtractSplitAndEncrypt = notImplemented("subtractSplitAndEncrypt");
+
+  splitSecretWithProofs = notImplemented("splitSecretWithProofs");
+
+  signTransactionIndex = notImplemented("signTransactionIndex");
+
+  htlcHMAC = notImplemented("htlcHMAC");
 }

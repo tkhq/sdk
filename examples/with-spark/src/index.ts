@@ -36,7 +36,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { IssuerSparkWallet } from "@buildonspark/issuer-sdk";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
-import { TurnkeySparkSigner } from "./turnkeySigner";
+import { TurnkeySparkSigner } from "@turnkey/spark";
 
 type SparkNetwork = "MAINNET" | "REGTEST";
 

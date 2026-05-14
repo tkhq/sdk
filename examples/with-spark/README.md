@@ -1,4 +1,4 @@
-# Example: `with-spark-schnorr`
+# Example: `with-spark`
 
 Demonstrates minting and transferring a [Spark](https://spark.money) token with **Turnkey as the key custodian**. Turnkey signs each token transaction via Schnorr (`signRawPayload`) through a custom `TurnkeySparkSigner`, while the `IssuerSparkWallet` handles all transaction construction, serialization, and broadcasting.
 
@@ -20,7 +20,7 @@ cd sdk/
 corepack enable
 pnpm install -r
 pnpm run build-all
-cd examples/with-spark-schnorr/
+cd examples/with-spark/
 ```
 
 ### 2. Configure `.env.local`
