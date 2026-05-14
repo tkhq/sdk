@@ -10,7 +10,7 @@ import { LogoutButton } from "../../components/LogoutButton";
 
 export default function Dashboard() {
   const router = useRouter();
-  const { authState, clientState, user, wallets, createWallet, refreshWallets } = useTurnkey();
+  const { authState, clientState, session, user, wallets, createWallet, refreshWallets } = useTurnkey();
 
   useEffect(() => {
     if (
@@ -23,13 +23,16 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (authState !== AuthState.Authenticated || clientState !== ClientState.Ready) return;
+    if (!session) return;
     if (wallets.length > 0) return;
 
     createWallet({
       walletName: "My Solana Wallet",
       accounts: ["ADDRESS_FORMAT_SOLANA"],
-    }).then(() => refreshWallets());
-  }, [authState, clientState, wallets, createWallet, refreshWallets]);
+    })
+      .then(() => refreshWallets())
+      .catch((err) => console.error("Failed to create wallet:", err));
+  }, [authState, clientState, session, wallets, createWallet, refreshWallets]);
 
   const walletName = "My Solana Wallet";
   const userId = user?.userId ?? "00000000-0000-0000-0000-000000000000";
