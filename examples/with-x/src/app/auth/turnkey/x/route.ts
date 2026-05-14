@@ -122,7 +122,7 @@ export async function POST(req: Request) {
         });
 
       subOrgId =
-        createSubOrgResponse.activity.result.createSubOrganizationResultV7
+        createSubOrgResponse.activity.result.createSubOrganizationResultV8
           ?.subOrganizationId;
     } else if (getSubOrgIdsResponse.organizationIds.length > 1) {
       // multiple sub orgs with the same OIDC token, shouldn't be possible
