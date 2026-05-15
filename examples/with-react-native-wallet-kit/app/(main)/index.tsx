@@ -1,25 +1,35 @@
 import { StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { HelloWave } from "@/components/hello-wave";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { useTurnkey, ClientState } from "@turnkey/react-native-wallet-kit";
+import {
+  useTurnkey,
+  ClientState,
+  StamperType,
+} from "@turnkey/react-native-wallet-kit";
 
 export default function HomeScreen() {
   const {
     logout,
     session,
+    user,
     wallets,
     createWallet,
     createWalletAccounts,
     refreshWallets,
+    refreshUser,
     signMessage,
     exportWallet,
     exportWalletAccount,
     clientState,
     deleteSubOrganization,
   } = useTurnkey();
+  const [scopedPasskeyResult, setScopedPasskeyResult] = useState<string | null>(
+    null,
+  );
+  const [scopedPasskeyLoading, setScopedPasskeyLoading] = useState(false);
 
   const isClientReady = clientState === ClientState.Ready;
 
@@ -122,6 +132,35 @@ export default function HomeScreen() {
     }
   };
 
+  const handleScopedPasskeyFetch = async () => {
+    try {
+      setScopedPasskeyLoading(true);
+
+      const refreshedUser = await refreshUser({
+        stampWith: StamperType.Passkey,
+      });
+      const refreshedWallets = await refreshWallets({
+        stampWith: StamperType.Passkey,
+      });
+
+      const summary = [
+        `Scoped passkey request succeeded.`,
+        `Org: ${session?.organizationId ?? "Unknown"}`,
+        `Current user: ${refreshedUser?.userName ?? refreshedUser?.userId ?? user?.userId ?? "Unknown"}`,
+        `Wallets loaded: ${refreshedWallets.length}`,
+      ].join("\n");
+
+      setScopedPasskeyResult(summary);
+      Alert.alert("Scoped passkey success", summary);
+    } catch (error) {
+      console.error("Error fetching users with scoped passkey:", error);
+      setScopedPasskeyResult("Scoped passkey request failed.");
+      Alert.alert("Error", "Failed to fetch users with a scoped passkey");
+    } finally {
+      setScopedPasskeyLoading(false);
+    }
+  };
+
   // Calculate session expiry date
   const getExpiryDate = () => {
     if (session?.expiry) {
@@ -199,6 +238,33 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </ThemedView>
         )}
+
+        <ThemedView style={styles.sessionContainer}>
+          <ThemedText type="subtitle">Scoped Passkey Demo</ThemedText>
+          <ThemedText style={styles.helperText}>
+            Trigger a passkey-stamped user and wallet refresh to show a scoped
+            passkey can sign authenticated reads for the current user.
+          </ThemedText>
+          <TouchableOpacity
+            style={[
+              styles.createButton,
+              (!isClientReady || scopedPasskeyLoading) && styles.buttonDisabled,
+            ]}
+            disabled={!isClientReady || scopedPasskeyLoading}
+            onPress={handleScopedPasskeyFetch}
+          >
+            <ThemedText style={styles.createButtonText}>
+              {scopedPasskeyLoading
+                ? "Checking scoped passkey..."
+                : "Refresh with scoped passkey"}
+            </ThemedText>
+          </TouchableOpacity>
+          {scopedPasskeyResult ? (
+            <ThemedText style={styles.resultText}>
+              {scopedPasskeyResult}
+            </ThemedText>
+          ) : null}
+        </ThemedView>
 
         {/* Wallets Section */}
         <ThemedView style={styles.walletsContainer}>
@@ -378,6 +444,19 @@ const styles = StyleSheet.create({
   },
   sessionInfo: {
     gap: 8,
+  },
+  helperText: {
+    fontSize: 13,
+    lineHeight: 18,
+    opacity: 0.75,
+  },
+  resultText: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: "monospace",
+    backgroundColor: "rgba(255,255,255,0.55)",
+    padding: 12,
+    borderRadius: 8,
   },
   dangerButton: {
     backgroundColor: "#ef4444",

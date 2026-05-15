@@ -48,7 +48,7 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
         primaryClientId: process.env.EXPO_PUBLIC_DISCORD_CLIENT_ID,
       },
     },
-
+    scopePasskeyToUser: true,
     autoRefreshSession: true,
   },
 };
