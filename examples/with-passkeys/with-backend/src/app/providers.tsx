@@ -1,6 +1,9 @@
 "use client";
 
-import { TurnkeyProvider, TurnkeyProviderConfig } from "@turnkey/react-wallet-kit";
+import {
+  TurnkeyProvider,
+  TurnkeyProviderConfig,
+} from "@turnkey/react-wallet-kit";
 
 const turnkeyConfig: TurnkeyProviderConfig = {
   organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,

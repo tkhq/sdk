@@ -250,9 +250,9 @@ export default function Dashboard() {
         transaction: {
           unsignedTransaction,
           signWith: solAddress,
-          // TODO(sdk): SDK types only enumerate the full 44-char genesis hash, but the API
-          // accepts both forms. Remove cast once sdk-types is updated.
-          caip2: solNetwork.caip2 as "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG" | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+          caip2: solNetwork.caip2 as
+            | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
+            | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
           sponsor: true,
         },
       });

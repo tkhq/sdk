@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTurnkey, AuthState } from "@turnkey/react-wallet-kit";
-import { createSuborgAction, getSuborgsByEmailAction } from "@/server/actions/turnkey";
+import {
+  createSuborgAction,
+  getSuborgsByEmailAction,
+} from "@/server/actions/turnkey";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -54,8 +57,12 @@ export default function AuthPage() {
         setWorking("Creating passkey…");
 
         // 2) One passkey tap — email used as the name so the OS picker shows a meaningful label
-        const passKeyName = trimmed.replace(/[^a-zA-Z0-9 \-_:/]/g, "-").slice(0, 64);
-        const { encodedChallenge, attestation } = await createPasskey({ name: passKeyName });
+        const passKeyName = trimmed
+          .replace(/[^a-zA-Z0-9 \-_:/]/g, "-")
+          .slice(0, 64);
+        const { encodedChallenge, attestation } = await createPasskey({
+          name: passKeyName,
+        });
 
         setWorking("Creating your account…");
 
