@@ -712,6 +712,70 @@
         "tags": ["Policies"]
       }
     },
+    "/public/v1/query/get_tvc_app": {
+      "post": {
+        "summary": "Get TVC App",
+        "description": "Get details about a single TVC App",
+        "operationId": "PublicApiService_GetTvcApp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/query/get_tvc_deployment": {
+      "post": {
+        "summary": "Get TVC Deployment",
+        "description": "Get details about a single TVC Deployment",
+        "operationId": "PublicApiService_GetTvcDeployment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcDeploymentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcDeploymentRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
     "/public/v1/query/get_user": {
       "post": {
         "summary": "Get user",
@@ -1160,6 +1224,70 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/query/list_tvc_app_deployments": {
+      "post": {
+        "summary": "List TVC Deployments",
+        "description": "List all deployments for a given TVC App",
+        "operationId": "PublicApiService_GetTvcAppDeployments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppDeploymentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppDeploymentsRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/query/list_tvc_apps": {
+      "post": {
+        "summary": "List TVC Apps",
+        "description": "List all TVC Apps within an organization.",
+        "operationId": "PublicApiService_GetTvcApps",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppsRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
     "/public/v1/query/list_user_tags": {
       "post": {
         "summary": "List user tags",
@@ -1350,6 +1478,38 @@
           }
         ],
         "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/query/validate_tvc_image": {
+      "post": {
+        "summary": "Validate Container Image for TVC",
+        "description": "Validate a container image URL and pull secret for TVC deployment",
+        "operationId": "PublicApiService_ValidateTvcImage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ValidateTvcImageResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ValidateTvcImageRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
       }
     },
     "/public/v1/query/whoami": {
@@ -1862,6 +2022,102 @@
           }
         ],
         "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/submit/create_tvc_app": {
+      "post": {
+        "summary": "Create a TVC App",
+        "description": "Create a new TVC application",
+        "operationId": "PublicApiService_CreateTvcApp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTvcAppRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/submit/create_tvc_deployment": {
+      "post": {
+        "summary": "Create a TVC Deployment",
+        "description": "Create a new TVC Deployment",
+        "operationId": "PublicApiService_CreateTvcDeployment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTvcDeploymentRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/submit/create_tvc_manifest_approvals": {
+      "post": {
+        "summary": "Create TVC Manifest Approvals",
+        "description": "Post one or more manifest approvals for a TVC Manifest",
+        "operationId": "PublicApiService_CreateTvcManifestApprovals",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTvcManifestApprovalsRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
       }
     },
     "/public/v1/submit/create_user_tag": {
@@ -2406,6 +2662,70 @@
           }
         ],
         "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/submit/delete_tvc_app_and_deployments": {
+      "post": {
+        "summary": "Delete a TVC App and all of its deployments",
+        "description": "Delete a TVC App and all of its deployments",
+        "operationId": "PublicApiService_DeleteTvcAppAndDeployments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteTvcAppAndDeploymentsRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/submit/delete_tvc_deployment": {
+      "post": {
+        "summary": "Delete a TVC Deployment",
+        "description": "Delete a TVC Deployment",
+        "operationId": "PublicApiService_DeleteTvcDeployment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteTvcDeploymentRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
       }
     },
     "/public/v1/submit/delete_user_tags": {
@@ -3272,6 +3592,38 @@
         "tags": ["Features"]
       }
     },
+    "/public/v1/submit/restore_tvc_deployment": {
+      "post": {
+        "summary": "Restore a TVC Deployment",
+        "description": "Restore a deleted TVC Deployment",
+        "operationId": "PublicApiService_RestoreTvcDeployment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RestoreTvcDeploymentRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
     "/public/v1/submit/set_ip_allowlist": {
       "post": {
         "summary": "Set IP Allowlist",
@@ -3334,6 +3686,38 @@
           }
         ],
         "tags": ["Features"]
+      }
+    },
+    "/public/v1/submit/set_tvc_app_live_deployment": {
+      "post": {
+        "summary": "Set TVC App live deployment",
+        "description": "Set the live deployment for a TVC App",
+        "operationId": "PublicApiService_UpdateTvcAppLiveDeployment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateTvcAppLiveDeploymentRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
       }
     },
     "/public/v1/submit/sign_raw_payload": {
@@ -3462,6 +3846,134 @@
           }
         ],
         "tags": ["Broadcasting"]
+      }
+    },
+    "/public/v1/submit/spark_claim_transfer": {
+      "post": {
+        "summary": "Claim Spark transfer",
+        "description": "Construct receiver-side encrypted operator packages to claim a Spark transfer. Does not perform FROST signing.",
+        "operationId": "PublicApiService_SparkClaimTransfer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SparkClaimTransferRequest"
+            }
+          }
+        ],
+        "tags": ["Signing"]
+      }
+    },
+    "/public/v1/submit/spark_prepare_lightning_receive": {
+      "post": {
+        "summary": "Spark prepare Lightning receive",
+        "description": "Generate a Lightning preimage and distribute Feldman shares to operators for a Spark Lightning receive. Does not perform FROST signing.",
+        "operationId": "PublicApiService_SparkPrepareLightningReceive",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SparkPrepareLightningReceiveRequest"
+            }
+          }
+        ],
+        "tags": ["Signing"]
+      }
+    },
+    "/public/v1/submit/spark_prepare_transfer": {
+      "post": {
+        "summary": "Prepare Spark transfer",
+        "description": "Construct sender-side encrypted operator packages for a Spark BTC transfer. Does not perform FROST signing.",
+        "operationId": "PublicApiService_SparkPrepareTransfer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SparkPrepareTransferRequest"
+            }
+          }
+        ],
+        "tags": ["Signing"]
+      }
+    },
+    "/public/v1/submit/spark_sign_frost": {
+      "post": {
+        "summary": "Sign Frost Spark",
+        "description": "Perform pure FROST partial signing for a Spark wallet. Produces partial signatures without constructing operator packages.",
+        "operationId": "PublicApiService_SparkSignFrost",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SparkSignFrostRequest"
+            }
+          }
+        ],
+        "tags": ["Signing"]
       }
     },
     "/public/v1/submit/stamp_login": {
@@ -3990,6 +4502,9 @@
         "productId": {
           "type": "string",
           "description": "The product that the customer wants to subscribe to."
+        },
+        "orbPlanId": {
+          "type": "string"
         }
       },
       "required": ["productId"]
@@ -4603,7 +5118,16 @@
         "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT",
         "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT",
         "ACTIVITY_TYPE_SET_IP_ALLOWLIST",
-        "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST"
+        "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST",
+        "ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT",
+        "ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT",
+        "ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS",
+        "ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT",
+        "ACTIVITY_TYPE_SPARK_SIGN_FROST",
+        "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER",
+        "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER",
+        "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
+        "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE"
       ]
     },
     "v1AddressFormat": {
@@ -6023,7 +6547,7 @@
         },
         "userId": {
           "type": "string",
-          "description": "Unique identifier for a given User."
+          "description": "Optional unique identifier for a given User. If none provided, the read write session will be created for the user who is making the request."
         },
         "apiKeyName": {
           "type": "string",
@@ -6668,6 +7192,27 @@
       },
       "required": ["name", "quorumPublicKey"]
     },
+    "v1CreateTvcAppRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_TVC_APP"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateTvcAppIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1CreateTvcAppResult": {
       "type": "object",
       "properties": {
@@ -6769,6 +7314,27 @@
         "publicIngressPort"
       ]
     },
+    "v1CreateTvcDeploymentRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateTvcDeploymentIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1CreateTvcDeploymentResult": {
       "type": "object",
       "properties": {
@@ -6800,6 +7366,27 @@
         }
       },
       "required": ["manifestId", "approvals"]
+    },
+    "v1CreateTvcManifestApprovalsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_APPROVE_TVC_DEPLOYMENT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateTvcManifestApprovalsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateTvcManifestApprovalsResult": {
       "type": "object",
@@ -7795,6 +8382,94 @@
       },
       "required": ["subOrganizationUuid"]
     },
+    "v1DeleteTvcAppAndDeploymentsIntent": {
+      "type": "object",
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "The unique identifier of the TVC app to delete. The app and all associated deployments will be removed."
+        }
+      },
+      "required": ["appId"]
+    },
+    "v1DeleteTvcAppAndDeploymentsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteTvcAppAndDeploymentsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteTvcAppAndDeploymentsResult": {
+      "type": "object",
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "The unique identifier of the deleted TVC app."
+        }
+      },
+      "required": ["appId"]
+    },
+    "v1DeleteTvcDeploymentIntent": {
+      "type": "object",
+      "properties": {
+        "deploymentId": {
+          "type": "string",
+          "description": "The unique identifier of the TVC deployment to delete."
+        }
+      },
+      "required": ["deploymentId"]
+    },
+    "v1DeleteTvcDeploymentRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteTvcDeploymentIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteTvcDeploymentResult": {
+      "type": "object",
+      "properties": {
+        "deploymentId": {
+          "type": "string",
+          "description": "The unique identifier of the deleted TVC deployment."
+        }
+      },
+      "required": ["deploymentId"]
+    },
     "v1DeleteUserTagsIntent": {
       "type": "object",
       "properties": {
@@ -8457,6 +9132,10 @@
         "maxPriorityFeePerGas": {
           "type": "string",
           "description": "Maximum priority fee (tip) per gas unit in wei. Required for non-sponsored (EIP-1559) transactions. Not used for sponsored transactions."
+        },
+        "deadline": {
+          "type": "string",
+          "description": "Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true."
         },
         "gasStationNonce": {
           "type": "string",
@@ -9511,6 +10190,106 @@
         }
       },
       "required": ["organizationIds"]
+    },
+    "v1GetTvcAppDeploymentsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "appId": {
+          "type": "string",
+          "description": "Unique identifier for a given TVC App."
+        }
+      },
+      "required": ["organizationId", "appId"]
+    },
+    "v1GetTvcAppDeploymentsResponse": {
+      "type": "object",
+      "properties": {
+        "tvcDeployments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcDeployment"
+          },
+          "description": "List of deployments for this TVC App"
+        }
+      },
+      "required": ["tvcDeployments"]
+    },
+    "v1GetTvcAppRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "tvcAppId": {
+          "type": "string",
+          "description": "Unique identifier for a given TVC App."
+        }
+      },
+      "required": ["organizationId", "tvcAppId"]
+    },
+    "v1GetTvcAppResponse": {
+      "type": "object",
+      "properties": {
+        "tvcApp": {
+          "$ref": "#/definitions/v1TvcApp",
+          "description": "Details about a single TVC App"
+        }
+      },
+      "required": ["tvcApp"]
+    },
+    "v1GetTvcAppsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetTvcAppsResponse": {
+      "type": "object",
+      "properties": {
+        "tvcApps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcApp"
+          },
+          "description": "A list of TVC Apps."
+        }
+      },
+      "required": ["tvcApps"]
+    },
+    "v1GetTvcDeploymentRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "deploymentId": {
+          "type": "string",
+          "description": "Unique identifier for a given TVC Deployment."
+        }
+      },
+      "required": ["organizationId", "deploymentId"]
+    },
+    "v1GetTvcDeploymentResponse": {
+      "type": "object",
+      "properties": {
+        "tvcDeployment": {
+          "$ref": "#/definitions/v1TvcDeployment",
+          "description": "Details about a single TVC Deployment"
+        }
+      },
+      "required": ["tvcDeployment"]
     },
     "v1GetUserRequest": {
       "type": "object",
@@ -11006,6 +11785,33 @@
         },
         "removeIpAllowlistIntent": {
           "$ref": "#/definitions/v1RemoveIpAllowlistIntent"
+        },
+        "updateTvcAppLiveDeploymentIntent": {
+          "$ref": "#/definitions/v1UpdateTvcAppLiveDeploymentIntent"
+        },
+        "deleteTvcDeploymentIntent": {
+          "$ref": "#/definitions/v1DeleteTvcDeploymentIntent"
+        },
+        "deleteTvcAppAndDeploymentsIntent": {
+          "$ref": "#/definitions/v1DeleteTvcAppAndDeploymentsIntent"
+        },
+        "restoreTvcDeploymentIntent": {
+          "$ref": "#/definitions/v1RestoreTvcDeploymentIntent"
+        },
+        "sparkSignFrostIntent": {
+          "$ref": "#/definitions/v1SparkSignFrostIntent"
+        },
+        "sparkPrepareTransferIntent": {
+          "$ref": "#/definitions/v1SparkPrepareTransferIntent"
+        },
+        "sparkClaimTransferIntent": {
+          "$ref": "#/definitions/v1SparkClaimTransferIntent"
+        },
+        "sparkPrepareLightningReceiveIntent": {
+          "$ref": "#/definitions/v1SparkPrepareLightningReceiveIntent"
+        },
+        "postTvcQuorumKeyShareIntent": {
+          "$ref": "#/definitions/v1PostTvcQuorumKeyShareIntent"
         }
       }
     },
@@ -11901,6 +12707,38 @@
         "condition"
       ]
     },
+    "v1PostTvcQuorumKeyShareIntent": {
+      "type": "object",
+      "properties": {
+        "deploymentId": {
+          "type": "string",
+          "description": "Unique identifier of the TVC deployment receiving quorum key share"
+        },
+        "ephemeralPublicKeyHex": {
+          "type": "string",
+          "description": "Hex-encoded ephemeral public key used to encrypt the quorum key share"
+        },
+        "shareApprovalBundle": {
+          "$ref": "#/definitions/v1QuorumKeyShareApprovalBundle",
+          "description": "Re-encrypted quorum key share and approval"
+        }
+      },
+      "required": [
+        "deploymentId",
+        "ephemeralPublicKeyHex",
+        "shareApprovalBundle"
+      ]
+    },
+    "v1PostTvcQuorumKeyShareResult": {
+      "type": "object",
+      "properties": {
+        "provisioningShareId": {
+          "type": "string",
+          "description": "The unique identifier for the provisioning quorum key share"
+        }
+      },
+      "required": ["provisioningShareId"]
+    },
     "v1PrivateKey": {
       "type": "object",
       "properties": {
@@ -12038,6 +12876,24 @@
       },
       "required": ["id", "type", "rawId", "response", "clientExtensionResults"]
     },
+    "v1QuorumKeyShareApprovalBundle": {
+      "type": "object",
+      "properties": {
+        "operatorId": {
+          "type": "string",
+          "description": "Unique identifier of the operator providing this quorum key share"
+        },
+        "reEncryptedShareHex": {
+          "type": "string",
+          "description": "Hex-encoded re-encrypted quorum key share"
+        },
+        "signature": {
+          "type": "string",
+          "description": "Signature from the share set operator approving the manifest"
+        }
+      },
+      "required": ["operatorId", "reEncryptedShareHex", "signature"]
+    },
     "v1RecoverUserIntent": {
       "type": "object",
       "properties": {
@@ -12149,6 +13005,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1RemoveIpAllowlistIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -12203,6 +13062,50 @@
         }
       },
       "required": ["features"]
+    },
+    "v1RestoreTvcDeploymentIntent": {
+      "type": "object",
+      "properties": {
+        "deploymentId": {
+          "type": "string",
+          "description": "The unique identifier of the TVC deployment to restore."
+        }
+      },
+      "required": ["deploymentId"]
+    },
+    "v1RestoreTvcDeploymentRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1RestoreTvcDeploymentIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1RestoreTvcDeploymentResult": {
+      "type": "object",
+      "properties": {
+        "deploymentId": {
+          "type": "string",
+          "description": "The unique identifier of the restored TVC deployment."
+        }
+      },
+      "required": ["deploymentId"]
     },
     "v1Result": {
       "type": "object",
@@ -12527,6 +13430,33 @@
         },
         "removeIpAllowlistResult": {
           "$ref": "#/definitions/v1RemoveIpAllowlistResult"
+        },
+        "updateTvcAppLiveDeploymentResult": {
+          "$ref": "#/definitions/v1UpdateTvcAppLiveDeploymentResult"
+        },
+        "deleteTvcDeploymentResult": {
+          "$ref": "#/definitions/v1DeleteTvcDeploymentResult"
+        },
+        "deleteTvcAppAndDeploymentsResult": {
+          "$ref": "#/definitions/v1DeleteTvcAppAndDeploymentsResult"
+        },
+        "restoreTvcDeploymentResult": {
+          "$ref": "#/definitions/v1RestoreTvcDeploymentResult"
+        },
+        "sparkSignFrostResult": {
+          "$ref": "#/definitions/v1SparkSignFrostResult"
+        },
+        "sparkPrepareTransferResult": {
+          "$ref": "#/definitions/v1SparkPrepareTransferResult"
+        },
+        "sparkClaimTransferResult": {
+          "$ref": "#/definitions/v1SparkClaimTransferResult"
+        },
+        "sparkPrepareLightningReceiveResult": {
+          "$ref": "#/definitions/v1SparkPrepareLightningReceiveResult"
+        },
+        "postTvcQuorumKeyShareResult": {
+          "$ref": "#/definitions/v1PostTvcQuorumKeyShareResult"
         }
       }
     },
@@ -12822,6 +13752,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1SetIpAllowlistIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -13207,11 +14140,14 @@
         "caip2": {
           "type": "string",
           "enum": [
+            "solana:mainnet",
             "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-            "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
-            "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY"
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+            "solana:devnet",
+            "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+            "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
           ],
-          "description": "CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet)."
+          "description": "CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values."
         },
         "recentBlockhash": {
           "type": "string",
@@ -13310,6 +14246,547 @@
         }
       }
     },
+    "v1SparkClaimLeaf": {
+      "type": "object",
+      "properties": {
+        "leafId": {
+          "type": "string",
+          "description": "Leaf identifier (UUID)."
+        },
+        "ciphertext": {
+          "type": "string",
+          "description": "ECIES ciphertext (hex-encoded) containing the inbound transfer secret. Decrypted inside the enclave using the wallet's Identity key."
+        },
+        "senderSignature": {
+          "type": "string",
+          "description": "Hex-encoded 64-byte compact ECDSA signature binding (leaf_id, transfer_id, ciphertext) to the sender's identity key. Verified inside the enclave before decryption."
+        }
+      },
+      "required": ["leafId", "ciphertext", "senderSignature"]
+    },
+    "v1SparkClaimPackage": {
+      "type": "object",
+      "properties": {
+        "leaves": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkClaimLeaf"
+          },
+          "description": "Leaves being claimed."
+        },
+        "threshold": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Shamir threshold for reconstructing the per-leaf claim secret."
+        },
+        "operatorRecipients": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkOperatorRecipient"
+          },
+          "description": "Operators that will receive Shamir shares."
+        },
+        "transferId": {
+          "type": "string",
+          "description": "Spark transfer identifier (UUID). Used together with each leaf's sender_signature to verify the sender bound this ciphertext to this transfer."
+        },
+        "senderIdentityPublicKey": {
+          "type": "string",
+          "description": "Sender's compressed secp256k1 identity public key (hex-encoded, 33 bytes). Used to verify the per-leaf sender_signature fields."
+        }
+      },
+      "required": [
+        "leaves",
+        "threshold",
+        "operatorRecipients",
+        "transferId",
+        "senderIdentityPublicKey"
+      ]
+    },
+    "v1SparkClaimTransferIntent": {
+      "type": "object",
+      "properties": {
+        "signWith": {
+          "type": "string",
+          "description": "A Spark wallet account address identifying the wallet."
+        },
+        "claim": {
+          "$ref": "#/definitions/v1SparkClaimPackage",
+          "description": "Claim package parameters."
+        }
+      },
+      "required": ["signWith", "claim"]
+    },
+    "v1SparkClaimTransferRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1SparkClaimTransferIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1SparkClaimTransferResult": {
+      "type": "object",
+      "properties": {
+        "operatorPackages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkEncryptedOperatorPackage"
+          },
+          "description": "Per-operator ECIES-encrypted packages."
+        },
+        "newLeafPublicKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkLeafPublicKey"
+          },
+          "description": "Newly-derived SigningLeaf public keys, one per leaf, in input order."
+        }
+      },
+      "required": ["operatorPackages", "newLeafPublicKeys"]
+    },
+    "v1SparkDepositDerivation": {
+      "type": "object"
+    },
+    "v1SparkEncryptedOperatorPackage": {
+      "type": "object",
+      "properties": {
+        "operatorId": {
+          "type": "string",
+          "description": "Spark operator identifier (UUID)."
+        },
+        "encryptedPackage": {
+          "type": "string",
+          "description": "ECIES ciphertext (hex-encoded) opaque to Turnkey after emission."
+        }
+      },
+      "required": ["operatorId", "encryptedPackage"]
+    },
+    "v1SparkFrostCommitment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "FROST participant identifier, hex-encoded (32-byte scalar)."
+        },
+        "hiding": {
+          "type": "string",
+          "description": "Hiding commitment D, hex-encoded compressed secp256k1 point."
+        },
+        "binding": {
+          "type": "string",
+          "description": "Binding commitment E, hex-encoded compressed secp256k1 point."
+        }
+      },
+      "required": ["id", "hiding", "binding"]
+    },
+    "v1SparkHtlcPreimageDerivation": {
+      "type": "object"
+    },
+    "v1SparkIdentityDerivation": {
+      "type": "object"
+    },
+    "v1SparkKeyDerivation": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "$ref": "#/definitions/v1SparkIdentityDerivation",
+          "description": "Spark identity key derivation."
+        },
+        "signingLeaf": {
+          "$ref": "#/definitions/v1SparkSigningLeafDerivation",
+          "description": "Spark signing leaf key derivation, identified by leaf ID."
+        },
+        "deposit": {
+          "$ref": "#/definitions/v1SparkDepositDerivation",
+          "description": "Spark deposit key derivation."
+        },
+        "staticDeposit": {
+          "$ref": "#/definitions/v1SparkStaticDepositDerivation",
+          "description": "Spark static deposit key derivation, identified by index."
+        },
+        "htlcPreimage": {
+          "$ref": "#/definitions/v1SparkHtlcPreimageDerivation",
+          "description": "Spark HTLC preimage key derivation."
+        }
+      }
+    },
+    "v1SparkLeafPublicKey": {
+      "type": "object",
+      "properties": {
+        "leafId": {
+          "type": "string",
+          "description": "The Spark leaf_id this public key was derived for."
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Hex-encoded compressed secp256k1 point (33 bytes) for the SigningLeaf derivation at leaf_id."
+        }
+      },
+      "required": ["leafId", "publicKey"]
+    },
+    "v1SparkLightningReceivePackage": {
+      "type": "object",
+      "properties": {
+        "threshold": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Feldman VSS threshold for reconstructing the preimage."
+        },
+        "operatorRecipients": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkOperatorRecipient"
+          },
+          "description": "Operators that will receive Feldman shares of the preimage. Order must match the operators' numeric IDs in the Spark operator config - share index is the 1-based position in this list."
+        }
+      },
+      "required": ["threshold", "operatorRecipients"]
+    },
+    "v1SparkOperatorRecipient": {
+      "type": "object",
+      "properties": {
+        "operatorId": {
+          "type": "string",
+          "description": "Spark operator identifier (UUID)."
+        },
+        "encryptionPublicKey": {
+          "type": "string",
+          "description": "Operator's ECIES encryption pubkey (hex-encoded compressed secp256k1 point)."
+        }
+      },
+      "required": ["operatorId", "encryptionPublicKey"]
+    },
+    "v1SparkPartialSignature": {
+      "type": "object",
+      "properties": {
+        "signatureShare": {
+          "type": "string",
+          "description": "Hex-encoded FROST partial signature."
+        },
+        "hiding": {
+          "type": "string",
+          "description": "Turnkey's hiding commitment D (hex-encoded compressed secp256k1 point). Forward to the Spark Operator."
+        },
+        "binding": {
+          "type": "string",
+          "description": "Turnkey's binding commitment E (hex-encoded compressed secp256k1 point). Forward to the Spark Operator."
+        }
+      },
+      "required": ["signatureShare", "hiding", "binding"]
+    },
+    "v1SparkPrepareLightningReceiveIntent": {
+      "type": "object",
+      "properties": {
+        "signWith": {
+          "type": "string",
+          "description": "A Spark wallet account address identifying the wallet."
+        },
+        "lightningReceive": {
+          "$ref": "#/definitions/v1SparkLightningReceivePackage",
+          "description": "Lightning receive package parameters: threshold and operator recipients."
+        }
+      },
+      "required": ["signWith", "lightningReceive"]
+    },
+    "v1SparkPrepareLightningReceiveRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1SparkPrepareLightningReceiveIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1SparkPrepareLightningReceiveResult": {
+      "type": "object",
+      "properties": {
+        "operatorPackages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkEncryptedOperatorPackage"
+          },
+          "description": "Per-operator ECIES-encrypted Feldman share packages."
+        },
+        "paymentHash": {
+          "type": "string",
+          "description": "Hex-encoded SHA256(preimage). Forward to the Lightning node."
+        }
+      },
+      "required": ["operatorPackages", "paymentHash"]
+    },
+    "v1SparkPrepareTransferIntent": {
+      "type": "object",
+      "properties": {
+        "signWith": {
+          "type": "string",
+          "description": "A Spark wallet account address identifying the wallet."
+        },
+        "transfer": {
+          "$ref": "#/definitions/v1SparkTransferPackage",
+          "description": "Transfer package parameters for HD key tweak splitting."
+        }
+      },
+      "required": ["signWith", "transfer"]
+    },
+    "v1SparkPrepareTransferRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1SparkPrepareTransferIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1SparkPrepareTransferResult": {
+      "type": "object",
+      "properties": {
+        "operatorPackages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkEncryptedOperatorPackage"
+          },
+          "description": "Per-operator ECIES-encrypted packages."
+        },
+        "transferUserSignature": {
+          "type": "string",
+          "description": "Hex-encoded ECDSA-DER signature of the TransferPackage signing payload, signed with the wallet's IDENTITY key."
+        },
+        "newLeafPublicKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkLeafPublicKey"
+          },
+          "description": "Newly-derived SigningLeaf public keys, one per leaf, in input order."
+        }
+      },
+      "required": [
+        "operatorPackages",
+        "transferUserSignature",
+        "newLeafPublicKeys"
+      ]
+    },
+    "v1SparkSignFrostIntent": {
+      "type": "object",
+      "properties": {
+        "signWith": {
+          "type": "string",
+          "description": "A Spark wallet account address identifying the wallet to sign with."
+        },
+        "signatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkSignatureRequest"
+          },
+          "description": "Batched sign requests. Each produces a partial signature plus Turnkey's public commitments."
+        }
+      },
+      "required": ["signWith", "signatures"]
+    },
+    "v1SparkSignFrostRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_SPARK_SIGN_FROST"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1SparkSignFrostIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1SparkSignFrostResult": {
+      "type": "object",
+      "properties": {
+        "signatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkPartialSignature"
+          },
+          "description": "Partial signatures plus Turnkey commitments, one per request, in order."
+        }
+      },
+      "required": ["signatures"]
+    },
+    "v1SparkSignatureRequest": {
+      "type": "object",
+      "properties": {
+        "derivation": {
+          "$ref": "#/definitions/v1SparkKeyDerivation",
+          "description": "Which key to sign with."
+        },
+        "message": {
+          "type": "string",
+          "description": "Hex-encoded 32-byte sighash to sign."
+        },
+        "verifyingKey": {
+          "type": "string",
+          "description": "Aggregate group verifying key (hex-encoded compressed secp256k1 point), computed as P_ops + P_user. Bound into the nonce HMAC."
+        },
+        "operatorCommitments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkFrostCommitment"
+          },
+          "description": "Commitments for every non-Turnkey participant. MUST NOT include an entry under Turnkey's identifier. Bound into the nonce HMAC."
+        }
+      },
+      "required": [
+        "derivation",
+        "message",
+        "verifyingKey",
+        "operatorCommitments"
+      ]
+    },
+    "v1SparkSigningLeafDerivation": {
+      "type": "object",
+      "properties": {
+        "leafId": {
+          "type": "string",
+          "description": "Unique identifier for the Spark signing leaf."
+        }
+      },
+      "required": ["leafId"]
+    },
+    "v1SparkStaticDepositDerivation": {
+      "type": "object",
+      "properties": {
+        "index": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Index used to derive the static deposit key."
+        }
+      },
+      "required": ["index"]
+    },
+    "v1SparkTransferLeaf": {
+      "type": "object",
+      "properties": {
+        "leafId": {
+          "type": "string",
+          "description": "Leaf identifier (UUID)."
+        },
+        "oldLeafDerivation": {
+          "$ref": "#/definitions/v1SparkKeyDerivation",
+          "description": "Derivation for the existing (pre-transfer) leaf key. Always a SigningLeaf derivation."
+        },
+        "newLeafDerivation": {
+          "$ref": "#/definitions/v1SparkKeyDerivation",
+          "description": "Derivation for the new (post-transfer) leaf key. Always a SigningLeaf derivation. The enclave ECIES-encrypts this private key to receiver_public_key as the per-leaf secret_cipher; HD-derived rather than random so the sender can re-derive on retry (Turnkey's enclave is stateless)."
+        },
+        "refundSignature": {
+          "type": "string",
+          "description": "Client-produced CPFP refund signature (hex-encoded), passed through verbatim into the per-operator SendLeafKeyTweak. Empty omits the field from the operator package."
+        },
+        "directRefundSignature": {
+          "type": "string",
+          "description": "Client-produced direct refund signature (hex-encoded). Passed through verbatim."
+        },
+        "directFromCpfpRefundSignature": {
+          "type": "string",
+          "description": "Client-produced direct-from-CPFP refund signature (hex-encoded). Passed through verbatim."
+        }
+      },
+      "required": ["leafId", "oldLeafDerivation", "newLeafDerivation"]
+    },
+    "v1SparkTransferPackage": {
+      "type": "object",
+      "properties": {
+        "transferId": {
+          "type": "string",
+          "description": "Spark transfer identifier (UUID)."
+        },
+        "leaves": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkTransferLeaf"
+          },
+          "description": "Leaves being transferred."
+        },
+        "threshold": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Feldman VSS threshold for reconstructing the per-leaf tweak scalar."
+        },
+        "operatorRecipients": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SparkOperatorRecipient"
+          },
+          "description": "Operators that will receive Feldman shares of the per-leaf tweak. Order must match the operators' numeric IDs in the Spark operator config - share index is the 1-based position in this list."
+        },
+        "receiverPublicKey": {
+          "type": "string",
+          "description": "Recipient's identity pubkey (hex-encoded compressed secp256k1 point). Each leaf's new_priv is ECIES-encrypted to this key and embedded in the per-operator package for claim-time delivery."
+        }
+      },
+      "required": [
+        "transferId",
+        "leaves",
+        "threshold",
+        "operatorRecipients",
+        "receiverPublicKey"
+      ]
+    },
     "v1StampLoginIntent": {
       "type": "object",
       "properties": {
@@ -13399,9 +14876,205 @@
         "TRANSACTION_TYPE_TEMPO"
       ]
     },
+    "v1TvcApp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Identifier for this TVC App."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique Identifier of the Organization for this TVC App"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name for this TVC App."
+        },
+        "quorumPublicKey": {
+          "type": "string",
+          "description": "Public key for the Quorum Key associated with this TVC App"
+        },
+        "manifestSet": {
+          "$ref": "#/definitions/v1TvcOperatorSet",
+          "description": "Manifest Set (people who can approve manifests)"
+        },
+        "shareSet": {
+          "$ref": "#/definitions/v1TvcOperatorSet",
+          "description": "Share Set (people who have a share of the Quorum Key)"
+        },
+        "enableEgress": {
+          "type": "boolean",
+          "description": "Whether or not this TVC App has network egress enabled."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "liveDeploymentId": {
+          "type": "string",
+          "description": "The deployment currently designated to receive traffic. Null if no deployment for this app is deployed."
+        },
+        "publicDomain": {
+          "type": "string",
+          "description": "The public domain for ingress to this TVC App (in the format \"app-\u003cID\u003e.turnkey.cloud\")."
+        }
+      },
+      "required": [
+        "id",
+        "organizationId",
+        "name",
+        "quorumPublicKey",
+        "manifestSet",
+        "shareSet",
+        "enableEgress",
+        "createdAt",
+        "updatedAt",
+        "publicDomain"
+      ]
+    },
+    "v1TvcContainerSpec": {
+      "type": "object",
+      "properties": {
+        "containerUrl": {
+          "type": "string",
+          "description": "The URL for this container image."
+        },
+        "path": {
+          "type": "string",
+          "description": "The path (in-container) to the executable binary."
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The arguments to pass to the executable."
+        },
+        "hasPullSecret": {
+          "type": "boolean",
+          "description": "Whether or not this container requires a pull secret to access."
+        },
+        "healthCheckType": {
+          "$ref": "#/definitions/v1TvcHealthCheckType",
+          "description": "The type of health check to perform against this executable."
+        },
+        "healthCheckPort": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The port to use for health checks against this executable."
+        },
+        "publicIngressPort": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The port to use for public ingress to this executable."
+        }
+      },
+      "required": [
+        "containerUrl",
+        "path",
+        "args",
+        "hasPullSecret",
+        "healthCheckType",
+        "healthCheckPort",
+        "publicIngressPort"
+      ]
+    },
+    "v1TvcDeployment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Identifier for this TVC Deployment."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique Identifier of the Organization for this TVC Deployment"
+        },
+        "appId": {
+          "type": "string",
+          "description": "Unique Identifier of the TVC App for this deployment"
+        },
+        "manifestSet": {
+          "$ref": "#/definitions/v1TvcOperatorSet",
+          "description": "Set of TVC operators who can approve this deployment"
+        },
+        "shareSet": {
+          "$ref": "#/definitions/v1TvcOperatorSet",
+          "description": "Set of TVC operators who have a share of the Quorum Key"
+        },
+        "manifest": {
+          "$ref": "#/definitions/v1TvcManifest",
+          "description": "The manifest used for this deployment"
+        },
+        "manifestApprovals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcOperatorApproval"
+          },
+          "description": "List of operator approvals for this manifest"
+        },
+        "qosVersion": {
+          "type": "string",
+          "description": "QOS Version used for this deployment"
+        },
+        "pivotContainer": {
+          "$ref": "#/definitions/v1TvcContainerSpec",
+          "description": "The pivot container spec for this deployment"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "delete": {
+          "type": "boolean",
+          "description": "Whether or not the user wants this deployment deleted from the cluster."
+        }
+      },
+      "required": [
+        "id",
+        "organizationId",
+        "appId",
+        "manifestSet",
+        "shareSet",
+        "manifest",
+        "manifestApprovals",
+        "qosVersion",
+        "pivotContainer",
+        "createdAt",
+        "updatedAt",
+        "delete"
+      ]
+    },
     "v1TvcHealthCheckType": {
       "type": "string",
       "enum": ["TVC_HEALTH_CHECK_TYPE_HTTP", "TVC_HEALTH_CHECK_TYPE_GRPC"]
+    },
+    "v1TvcManifest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Identifier for this TVC Manifest."
+        },
+        "manifest": {
+          "type": "string",
+          "format": "byte",
+          "description": "The manifest content (raw UTF-8 JSON bytes)"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": ["id", "manifest", "createdAt", "updatedAt"]
     },
     "v1TvcManifestApproval": {
       "type": "object",
@@ -13417,6 +15090,66 @@
       },
       "required": ["operatorId", "signature"]
     },
+    "v1TvcOperator": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Identifier for this TVC Operator."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of this TVC Operator."
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Public key for this TVC Operator."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": ["id", "name", "publicKey", "createdAt", "updatedAt"]
+    },
+    "v1TvcOperatorApproval": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique ID for this approval"
+        },
+        "manifestId": {
+          "type": "string",
+          "description": "Unique Identifier of the TVC Manifest being approved"
+        },
+        "operator": {
+          "$ref": "#/definitions/v1TvcOperator",
+          "description": "The TVC Operator who made this approval"
+        },
+        "approval": {
+          "type": "string",
+          "format": "byte",
+          "description": "Signature of the operator over the deployment manifest"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "manifestId",
+        "operator",
+        "approval",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
     "v1TvcOperatorParams": {
       "type": "object",
       "properties": {
@@ -13430,6 +15163,51 @@
         }
       },
       "required": ["name", "publicKey"]
+    },
+    "v1TvcOperatorSet": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Identifier for this TVC Operator Set."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of this TVC Operator Set."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique Identifier of the Organization for this TVC Operator Set"
+        },
+        "operators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcOperator"
+          },
+          "description": "List of TVC Operators in this set"
+        },
+        "threshold": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Threshold number of operators required for quorum."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "organizationId",
+        "operators",
+        "threshold",
+        "createdAt",
+        "updatedAt"
+      ]
     },
     "v1TvcOperatorSetParams": {
       "type": "object",
@@ -13767,6 +15545,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdateOrganizationNameIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -13994,6 +15775,43 @@
       "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1UpdateRootQuorumResult": {
+      "type": "object"
+    },
+    "v1UpdateTvcAppLiveDeploymentIntent": {
+      "type": "object",
+      "properties": {
+        "deploymentId": {
+          "type": "string",
+          "description": "The unique identifier of the TVC deployment to set as live for the app."
+        }
+      },
+      "required": ["deploymentId"]
+    },
+    "v1UpdateTvcAppLiveDeploymentRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateTvcAppLiveDeploymentIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateTvcAppLiveDeploymentResult": {
       "type": "object"
     },
     "v1UpdateUserEmailIntent": {
@@ -14394,7 +16212,7 @@
         },
         "windowDurationMinutes": {
           "type": "string",
-          "description": "Rolling sponsorship window duration, expressed in minutes."
+          "description": "Rolling sponsorship window duration, expressed in minutes. This value can't exceed 30 days (43200 minutes)."
         },
         "enabled": {
           "type": "boolean",
@@ -14686,6 +16504,32 @@
         "oauthProviders",
         "userTags"
       ]
+    },
+    "v1ValidateTvcImageRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "pivotContainerImageUrl": {
+          "type": "string",
+          "description": "URL of the container image."
+        },
+        "pivotContainerEncryptedPullSecret": {
+          "type": "string",
+          "description": "HPKE-encrypted pull secret for private images."
+        }
+      },
+      "required": ["organizationId", "pivotContainerImageUrl"]
+    },
+    "v1ValidateTvcImageResponse": {
+      "type": "object",
+      "properties": {
+        "resolvedImageDigest": {
+          "type": "string"
+        }
+      }
     },
     "v1VerifyOtpIntent": {
       "type": "object",
@@ -15086,6 +16930,11 @@
     "ApiKeyAuth": {
       "type": "apiKey",
       "name": "X-Stamp",
+      "in": "header"
+    },
+    "AttestedAuth": {
+      "type": "apiKey",
+      "name": "X-Stamp-Attested",
       "in": "header"
     },
     "AuthenticatorAuth": {
