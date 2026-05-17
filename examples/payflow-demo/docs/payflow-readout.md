@@ -65,20 +65,22 @@ flowchart LR
 
 The PoC runs as two CLI scripts:
 
-### Setup (`pnpm setup`)
+### Setup (`pnpm run-setup`)
 1. Creates a merchant HD wallet with 3 derived accounts (one per merchant)
 2. Creates the treasury wallet with its omnibus account
 3. Creates a non-root automation user with a generated API key pair
 4. Creates the ALLOW policy that permits only USDC `transfer()` calls to the treasury
 
-### Demo (`pnpm demo`)
+### Demo (`pnpm run-demo`)
 
-**Positive path — Sweep succeeds:**
-- Reads the USDC balance of each merchant account
-- Selects a funded merchant
-- Signs and submits a USDC transfer to the treasury using the automation user's credentials
-- Polls until the transaction is confirmed on-chain
-- Prints the transaction hash and Etherscan link
+The demo authenticates as the non-root automation user and presents an interactive CLI with five scenarios:
+
+**Positive path — Sweep all merchants:**
+- Scans all merchant accounts for USDC balances
+- Sweeps every funded account to the treasury in one pass
+- Signs each transaction through Turnkey's policy engine using `@turnkey/ethers`
+- Broadcasts to Sepolia and waits for on-chain confirmation
+- Prints the transaction hash and Etherscan link for each sweep
 
 **Negative path 1 — Transfer to attacker blocked:**
 - Builds a USDC transfer to a non-treasury address (simulating a compromised API key)
@@ -91,6 +93,8 @@ The PoC runs as two CLI scripts:
 - Submits with the automation user's credentials
 - The policy engine rejects — the token contract doesn't match USDC
 - The rejection reason is surfaced
+
+The demo also includes balance refresh and a "run all" option that executes the positive sweep followed by both negative paths in sequence.
 
 ---
 
@@ -112,6 +116,14 @@ One ALLOW policy governs all merchant accounts at once. It checks three conditio
 3. `eth.tx.data[10..74]` must be the padded treasury address (recipient-level restriction)
 
 Everything not matching this policy is rejected by Turnkey's implicit deny. No DENY policies are needed, and no per-merchant policy management is required.
+
+### Signing Architecture
+
+The PoC uses `@turnkey/ethers` (`TurnkeySigner`) to separate signing from broadcasting:
+- **Signing** happens through Turnkey's policy engine — every transaction is evaluated against the ALLOW policy before the key material is used
+- **Broadcasting** happens through a standard ethers.js JSON-RPC provider to Sepolia
+
+This separation gives Payflow full control over the broadcast layer (retry logic, gas estimation, nonce management) while Turnkey handles the security-critical signing path.
 
 ### PoC vs. Production Architecture
 

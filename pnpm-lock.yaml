@@ -766,6 +766,9 @@ importers:
       '@turnkey/crypto':
         specifier: workspace:*
         version: link:../../packages/crypto
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../packages/ethers
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
@@ -775,7 +778,13 @@ importers:
       ethers:
         specifier: ^6.10.0
         version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
     devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.9
       typescript:
         specifier: 5.4.3
         version: 5.4.3

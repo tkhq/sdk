@@ -74,8 +74,8 @@ async function main() {
   console.log("\n4. Creating automation user...");
   const automationKeyPair = generateP256KeyPair();
 
-  const { userIds } = await api.createApiOnlyUsers({
-    apiOnlyUsers: [
+  const { userIds } = await api.createUsers({
+    users: [
       {
         userName: "Payflow Automation User",
         userTags: [],
@@ -83,8 +83,11 @@ async function main() {
           {
             apiKeyName: "payflow-automation-key",
             publicKey: automationKeyPair.publicKey,
+            curveType: "API_KEY_CURVE_P256" as const,
           },
         ],
+        authenticators: [],
+        oauthProviders: [],
       },
     ],
   });

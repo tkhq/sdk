@@ -1,11 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
 import { ethers } from "ethers";
+import { TurnkeySigner } from "@turnkey/ethers";
+import prompts from "prompts";
 import { getAutomationClient } from "../turnkey";
-import { pollTransactionStatus } from "../turnkey";
 import {
   SEPOLIA_USDC_ADDRESS,
-  SEPOLIA_CAIP2,
   SEPOLIA_RPC_URL,
   ERC20_ABI,
   GENERATED_FILE,
@@ -25,11 +25,49 @@ interface GeneratedConfig {
 function loadGenerated(): GeneratedConfig {
   const filePath = path.resolve(process.cwd(), GENERATED_FILE);
   if (!fs.existsSync(filePath)) {
-    throw new Error(
-      `${GENERATED_FILE} not found. Run 'pnpm setup' first.`,
-    );
+    throw new Error(`${GENERATED_FILE} not found. Run 'pnpm run-setup' first.`);
   }
   return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+}
+
+function isPolicyRejection(error: any): boolean {
+  const msg = (error.message || String(error)).toLowerCase();
+  return (
+    msg.includes("policy") ||
+    msg.includes("consensus") ||
+    msg.includes("denied") ||
+    msg.includes("no applicable policy") ||
+    msg.includes("sufficient permissions")
+  );
+}
+
+function extractPolicyReason(error: any): string {
+  const msg = error.message || String(error);
+  const detailsMatch = msg.match(/Details: \[(.+)\]/);
+  if (detailsMatch) {
+    try {
+      const details = JSON.parse(`[${detailsMatch[1]}]`);
+      const eval_ = details[0]?.policyEvaluations?.[0];
+      if (eval_) {
+        return `Policy "${eval_.policyId}" → ${eval_.outcome} (${details[0].message})`;
+      }
+    } catch {}
+  }
+  return msg;
+}
+
+function header() {
+  console.log();
+  console.log("╔══════════════════════════════════════════════════════════╗");
+  console.log("║            Payflow Demo — Merchant Sweep Flow           ║");
+  console.log("╚══════════════════════════════════════════════════════════╝");
+  console.log();
+}
+
+function divider(title: string) {
+  const pad = Math.max(0, 55 - title.length);
+  const line = "─".repeat(pad);
+  console.log(`\n─── ${title} ${line}\n`);
 }
 
 async function main() {
@@ -39,180 +77,297 @@ async function main() {
   const iface = new ethers.Interface(ERC20_ABI);
 
   const automationClient = getAutomationClient();
-  const api = automationClient.apiClient();
   const organizationId = process.env.ORGANIZATION_ID!;
 
-  console.log("╔══════════════════════════════════════════════════════════╗");
-  console.log("║            Payflow Demo — Merchant Sweep Flow           ║");
-  console.log("╚══════════════════════════════════════════════════════════╝\n");
+  function createSigner(signWith: string) {
+    return new TurnkeySigner(
+      {
+        client: automationClient.apiClient(),
+        organizationId,
+        signWith,
+      },
+      provider,
+    );
+  }
+
+  header();
 
   // ── Display architecture ──
-  console.log("Architecture:");
-  console.log(`  Merchant Wallet: ${config.merchantWalletId}`);
+  console.log("  Your Turnkey Architecture:\n");
+  console.log(`    Merchant Wallet:   ${config.merchantWalletId}`);
   for (let i = 0; i < config.merchantAddresses.length; i++) {
-    console.log(`    Account ${i}: ${config.merchantAddresses[i]}`);
+    console.log(`      └ Merchant ${i}:   ${config.merchantAddresses[i]}`);
   }
-  console.log(`  Treasury Wallet: ${config.treasuryWalletId}`);
-  console.log(`    Address: ${config.treasuryAddress}`);
-  console.log(`  Automation User: ${config.automationUserId}`);
-  console.log(`  Policy: ${config.policyId}`);
-  console.log();
+  console.log(`    Treasury Wallet:   ${config.treasuryWalletId}`);
+  console.log(`      └ Omnibus:       ${config.treasuryAddress}`);
+  console.log(`    Automation User:   ${config.automationUserId}`);
+  console.log(`    Sweep Policy:      ${config.policyId}`);
 
-  // ── Find a funded merchant account ──
-  console.log("─── Checking Merchant Balances ───\n");
-  let fundedIndex = -1;
-  let fundedBalance = 0n;
+  // ── Check balances ──
+  divider("Merchant Balances");
 
+  const balances: { address: string; balance: bigint; formatted: string }[] = [];
   for (let i = 0; i < config.merchantAddresses.length; i++) {
     const balance: bigint = await usdc.balanceOf!(config.merchantAddresses[i]);
     const formatted = ethers.formatUnits(balance, 6);
-    console.log(`  Merchant ${i} (${config.merchantAddresses[i]}): ${formatted} USDC`);
-    if (balance > 0n && fundedIndex === -1) {
-      fundedIndex = i;
-      fundedBalance = balance;
+    balances.push({ address: config.merchantAddresses[i]!, balance, formatted });
+    const status = balance > 0n ? `${formatted} USDC` : "0.0 USDC (empty)";
+    console.log(`    Merchant ${i}: ${status}`);
+    console.log(`               ${config.merchantAddresses[i]}`);
+  }
+
+  const merchantAddress = config.merchantAddresses[0]!;
+
+  // ── Interactive menu ──
+  let running = true;
+  while (running) {
+    console.log();
+    const { action } = await prompts({
+      type: "select",
+      name: "action",
+      message: "Select a demo scenario",
+      choices: [
+        {
+          title: "✓  Sweep USDC to treasury",
+          description: "Transfer USDC from a merchant to the omnibus treasury",
+          value: "sweep",
+        },
+        {
+          title: "✗  Send USDC to attacker address",
+          description: "Attempt a transfer to an unauthorized address (should be blocked)",
+          value: "attack",
+        },
+        {
+          title: "✗  Send non-USDC token to treasury",
+          description: "Attempt a LINK transfer to the treasury (should be blocked)",
+          value: "wrong-token",
+        },
+        {
+          title: "▶  Run all scenarios",
+          description: "Run positive sweep, then both negative paths in sequence",
+          value: "all",
+        },
+        {
+          title: "↻  Refresh balances",
+          description: "Re-check merchant USDC balances",
+          value: "refresh",
+        },
+        {
+          title: "✕  Exit",
+          value: "exit",
+        },
+      ],
+    });
+
+    if (!action || action === "exit") {
+      running = false;
+      continue;
+    }
+
+    if (action === "refresh") {
+      divider("Refreshing Balances");
+      for (let i = 0; i < config.merchantAddresses.length; i++) {
+        const balance: bigint = await usdc.balanceOf!(config.merchantAddresses[i]);
+        const formatted = ethers.formatUnits(balance, 6);
+        balances[i] = { address: config.merchantAddresses[i]!, balance, formatted };
+        const status = balance > 0n ? `${formatted} USDC` : "0.0 USDC (empty)";
+        console.log(`    Merchant ${i}: ${status}`);
+      }
+      continue;
+    }
+
+    const actions = action === "all" ? ["sweep", "attack", "wrong-token"] : [action];
+
+    for (const act of actions) {
+      if (act === "sweep") {
+        await runSweep();
+      } else if (act === "attack") {
+        await runAttackerTransfer();
+      } else if (act === "wrong-token") {
+        await runWrongToken();
+      }
     }
   }
 
-  console.log();
+  console.log("\n  Done. Thanks for watching the Payflow demo.\n");
 
-  if (fundedIndex === -1) {
-    console.log("⚠  No merchant accounts have USDC balances.");
-    console.log("   Fund a merchant account at https://faucet.circle.com/ and re-run.\n");
-    console.log("   Merchant addresses:");
-    for (const addr of config.merchantAddresses) {
-      console.log(`     ${addr}`);
+  // ── Scenario implementations ──
+
+  async function sweepOne(index: number, balance: bigint) {
+    const from = config.merchantAddresses[index]!;
+    const amount = ethers.formatUnits(balance, 6);
+
+    console.log(`    From:    Merchant ${index} (${from})`);
+    console.log(`    To:      Treasury (${config.treasuryAddress})`);
+    console.log(`    Amount:  ${amount} USDC`);
+    console.log(`    Signer:  Automation User (non-root)\n`);
+
+    const transferData = iface.encodeFunctionData("transfer", [
+      config.treasuryAddress,
+      balance,
+    ]);
+
+    try {
+      const signer = createSigner(from);
+      console.log("    Signing via Turnkey policy engine...");
+      const tx = await signer.sendTransaction({
+        to: SEPOLIA_USDC_ADDRESS,
+        data: transferData,
+      });
+
+      console.log("    Broadcasting to Sepolia...");
+      const receipt = await tx.wait();
+
+      console.log();
+      console.log("    ┌─────────────────────────────────────────────┐");
+      console.log("    │  ✓  SWEEP SUCCESSFUL                       │");
+      console.log("    ├─────────────────────────────────────────────┤");
+      console.log(`    │  Amount:  ${amount} USDC`);
+      console.log(`    │  Tx Hash: ${receipt!.hash}`);
+      console.log(`    │  Explorer: https://sepolia.etherscan.io/tx/${receipt!.hash}`);
+      console.log("    └─────────────────────────────────────────────┘");
+    } catch (error: any) {
+      const msg = error.message || String(error);
+      if (isPolicyRejection(error)) {
+        console.log(`\n    ✗ Unexpectedly REJECTED by policy: ${msg}`);
+      } else {
+        console.log(`\n    ✗ Failed: ${msg}`);
+      }
     }
-    process.exit(0);
   }
 
-  const merchantAddress = config.merchantAddresses[fundedIndex]!;
-  const formattedBalance = ethers.formatUnits(fundedBalance, 6);
-  console.log(`  Selected Merchant ${fundedIndex} with ${formattedBalance} USDC\n`);
+  async function runSweep() {
+    divider("Positive Path: Sweep All Merchants to Treasury");
 
-  // ══════════════════════════════════════════════════════
-  // POSITIVE PATH: Sweep USDC to treasury
-  // ══════════════════════════════════════════════════════
-  console.log("─── Positive Path: USDC Sweep to Treasury ───\n");
-  console.log(`  From: ${merchantAddress} (Merchant ${fundedIndex})`);
-  console.log(`  To:   ${config.treasuryAddress} (Treasury)`);
-  console.log(`  Amount: ${formattedBalance} USDC\n`);
-
-  const transferData = iface.encodeFunctionData("transfer", [
-    config.treasuryAddress,
-    fundedBalance,
-  ]);
-
-  const nonce = await provider.getTransactionCount(merchantAddress);
-  const feeData = await provider.getFeeData();
-
-  try {
-    const { sendTransactionStatusId } = await api.ethSendTransaction({
-      from: merchantAddress,
-      to: SEPOLIA_USDC_ADDRESS,
-      caip2: SEPOLIA_CAIP2,
-      data: transferData,
-      nonce: String(nonce),
-      gasLimit: "200000",
-      maxFeePerGas: String(feeData.maxFeePerGas ?? "50000000000"),
-      maxPriorityFeePerGas: String(feeData.maxPriorityFeePerGas ?? "2000000000"),
-    });
-
-    const result = await pollTransactionStatus({
-      apiClient: api,
-      organizationId,
-      sendTransactionStatusId,
-    });
-
-    if (result.txStatus === "INCLUDED") {
-      console.log(`\n  ✓ Sweep successful!`);
-      console.log(`    Amount: ${formattedBalance} USDC`);
-      console.log(`    Tx Hash: ${result.eth?.txHash}`);
-      console.log(`    Explorer: https://sepolia.etherscan.io/tx/${result.eth?.txHash}\n`);
-    } else {
-      console.log(`\n  ✗ Unexpected transaction status: ${result.txStatus}\n`);
+    const funded: { index: number; balance: bigint }[] = [];
+    for (let i = 0; i < config.merchantAddresses.length; i++) {
+      const bal: bigint = await usdc.balanceOf!(config.merchantAddresses[i]);
+      if (bal > 0n) {
+        funded.push({ index: i, balance: bal });
+      }
     }
-  } catch (error: any) {
-    console.log(`\n  ✗ Sweep failed: ${error.message}\n`);
+
+    if (funded.length === 0) {
+      console.log("  ⚠  No merchant accounts have USDC balances.");
+      console.log("     Fund an account at https://faucet.circle.com/ first.\n");
+      console.log("     Merchant addresses:");
+      for (const addr of config.merchantAddresses) {
+        console.log(`       ${addr}`);
+      }
+      return;
+    }
+
+    const totalUsdc = ethers.formatUnits(
+      funded.reduce((sum, f) => sum + f.balance, 0n),
+      6,
+    );
+    console.log(`    Sweeping ${funded.length} funded account(s) → Treasury`);
+    console.log(`    Total: ${totalUsdc} USDC\n`);
+
+    for (const f of funded) {
+      await sweepOne(f.index, f.balance);
+    }
   }
 
-  // ══════════════════════════════════════════════════════
-  // NEGATIVE PATH 1: USDC transfer to non-treasury address
-  // ══════════════════════════════════════════════════════
-  console.log("─── Negative Path: USDC Transfer to Attacker Address ───\n");
+  async function runAttackerTransfer() {
+    divider("Negative Path: USDC to Attacker Address");
 
-  const attackerAddress = "0x000000000000000000000000000000000000dEaD";
-  console.log(`  From: ${merchantAddress} (Merchant ${fundedIndex})`);
-  console.log(`  To:   ${attackerAddress} (Attacker — NOT the treasury)`);
-  console.log(`  Amount: 1 USDC`);
-  console.log(`  Expected: REJECTED by policy\n`);
+    const attackerAddress = "0x000000000000000000000000000000000000dEaD";
 
-  const attackData = iface.encodeFunctionData("transfer", [
-    attackerAddress,
-    ethers.parseUnits("1", 6),
-  ]);
+    console.log(`    From:     Merchant 0 (${merchantAddress})`);
+    console.log(`    To:       ${attackerAddress} (NOT the treasury)`);
+    console.log(`    Token:    USDC`);
+    console.log(`    Amount:   1 USDC`);
+    console.log(`    Signer:   Automation User (non-root)`);
+    console.log(`    Expected: REJECTED — recipient is not the treasury\n`);
 
-  const attackNonce = await provider.getTransactionCount(merchantAddress);
+    const attackData = iface.encodeFunctionData("transfer", [
+      attackerAddress,
+      ethers.parseUnits("1", 6),
+    ]);
 
-  try {
-    await api.ethSendTransaction({
-      from: merchantAddress,
-      to: SEPOLIA_USDC_ADDRESS,
-      caip2: SEPOLIA_CAIP2,
-      data: attackData,
-      nonce: String(attackNonce),
-      gasLimit: "200000",
-      maxFeePerGas: String(feeData.maxFeePerGas ?? "50000000000"),
-      maxPriorityFeePerGas: String(feeData.maxPriorityFeePerGas ?? "2000000000"),
-    });
+    const nonce = await provider.getTransactionCount(merchantAddress);
+    const feeData = await provider.getFeeData();
 
-    console.log("  ✗ ERROR: Transaction was unexpectedly approved!\n");
-  } catch (error: any) {
-    const message = error.message || String(error);
-    console.log(`  ✓ Transaction correctly REJECTED by policy.`);
-    console.log(`    Reason: ${message}\n`);
+    try {
+      console.log("    Submitting to Turnkey policy engine...");
+      const signer = createSigner(merchantAddress);
+      await signer.signTransaction({
+        to: SEPOLIA_USDC_ADDRESS,
+        data: attackData,
+        nonce,
+        gasLimit: 200000n,
+        maxFeePerGas: feeData.maxFeePerGas ?? 50000000000n,
+        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas ?? 2000000000n,
+        chainId: 11155111n,
+        type: 2,
+      });
+
+      console.log("\n    ✗ ERROR: Transaction was unexpectedly approved!");
+    } catch (error: any) {
+      const msg = error.message || String(error);
+      if (isPolicyRejection(error)) {
+        console.log();
+        console.log("    ┌─────────────────────────────────────────────┐");
+        console.log("    │  ✓  CORRECTLY BLOCKED BY POLICY             │");
+        console.log("    ├─────────────────────────────────────────────┤");
+        console.log(`    │  ${extractPolicyReason(error)}`);
+        console.log("    └─────────────────────────────────────────────┘");
+      } else {
+        console.log(`\n    ✗ Failed for unexpected reason: ${msg}`);
+      }
+    }
   }
 
-  // ══════════════════════════════════════════════════════
-  // NEGATIVE PATH 2: Non-USDC ERC-20 transfer to treasury
-  // ══════════════════════════════════════════════════════
-  console.log("─── Negative Path: Non-USDC Token Transfer to Treasury ───\n");
+  async function runWrongToken() {
+    divider("Negative Path: Non-USDC Token to Treasury");
 
-  const fakeTokenAddress = "0x779877A7B0D9E8603169DdbD7836e478b4624789"; // Sepolia LINK
-  console.log(`  From: ${merchantAddress} (Merchant ${fundedIndex})`);
-  console.log(`  Token: ${fakeTokenAddress} (LINK — NOT USDC)`);
-  console.log(`  To:   ${config.treasuryAddress} (Treasury)`);
-  console.log(`  Expected: REJECTED by policy\n`);
+    const fakeTokenAddress = "0x779877A7B0D9E8603169DdbD7836e478b4624789";
 
-  const nonUsdcData = iface.encodeFunctionData("transfer", [
-    config.treasuryAddress,
-    ethers.parseUnits("1", 18),
-  ]);
+    console.log(`    From:     Merchant 0 (${merchantAddress})`);
+    console.log(`    To:       Treasury (${config.treasuryAddress})`);
+    console.log(`    Token:    LINK at ${fakeTokenAddress} (NOT USDC)`);
+    console.log(`    Amount:   1 LINK`);
+    console.log(`    Signer:   Automation User (non-root)`);
+    console.log(`    Expected: REJECTED — token contract is not USDC\n`);
 
-  const nonUsdcNonce = await provider.getTransactionCount(merchantAddress);
+    const nonUsdcData = iface.encodeFunctionData("transfer", [
+      config.treasuryAddress,
+      ethers.parseUnits("1", 18),
+    ]);
 
-  try {
-    await api.ethSendTransaction({
-      from: merchantAddress,
-      to: fakeTokenAddress,
-      caip2: SEPOLIA_CAIP2,
-      data: nonUsdcData,
-      nonce: String(nonUsdcNonce),
-      gasLimit: "200000",
-      maxFeePerGas: String(feeData.maxFeePerGas ?? "50000000000"),
-      maxPriorityFeePerGas: String(feeData.maxPriorityFeePerGas ?? "2000000000"),
-    });
+    const nonce = await provider.getTransactionCount(merchantAddress);
+    const feeData = await provider.getFeeData();
 
-    console.log("  ✗ ERROR: Transaction was unexpectedly approved!\n");
-  } catch (error: any) {
-    const message = error.message || String(error);
-    console.log(`  ✓ Transaction correctly REJECTED by policy.`);
-    console.log(`    Reason: ${message}\n`);
+    try {
+      console.log("    Submitting to Turnkey policy engine...");
+      const signer = createSigner(merchantAddress);
+      await signer.signTransaction({
+        to: fakeTokenAddress,
+        data: nonUsdcData,
+        nonce,
+        gasLimit: 200000n,
+        maxFeePerGas: feeData.maxFeePerGas ?? 50000000000n,
+        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas ?? 2000000000n,
+        chainId: 11155111n,
+        type: 2,
+      });
+
+      console.log("\n    ✗ ERROR: Transaction was unexpectedly approved!");
+    } catch (error: any) {
+      const msg = error.message || String(error);
+      if (isPolicyRejection(error)) {
+        console.log();
+        console.log("    ┌─────────────────────────────────────────────┐");
+        console.log("    │  ✓  CORRECTLY BLOCKED BY POLICY             │");
+        console.log("    ├─────────────────────────────────────────────┤");
+        console.log(`    │  ${extractPolicyReason(error)}`);
+        console.log("    └─────────────────────────────────────────────┘");
+      } else {
+        console.log(`\n    ✗ Failed for unexpected reason: ${msg}`);
+      }
+    }
   }
-
-  console.log("═══════════════════════════════════════════════════════════");
-  console.log("  Demo complete. The policy allowed only USDC sweeps to");
-  console.log("  the treasury and blocked all other transfer attempts.");
-  console.log("═══════════════════════════════════════════════════════════\n");
 }
 
 main().catch((error) => {
