@@ -1,0 +1,20 @@
+{
+  "name": "@turnkey/example-payflow-demo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "setup": "tsx src/scripts/setup.ts",
+    "demo": "tsx src/scripts/demo.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/crypto": "workspace:*",
+    "dotenv": "^16.0.3",
+    "ethers": "^6.10.0"
+  },
+  "devDependencies": {
+    "typescript": "5.4.3"
+  }
+}

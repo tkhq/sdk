@@ -761,6 +761,25 @@ importers:
         specifier: 2.34.0
         version: 2.34.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
 
+  examples/payflow-demo:
+    dependencies:
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../packages/crypto
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+    devDependencies:
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/react-components:
     dependencies:
       '@coinbase/onchainkit':
