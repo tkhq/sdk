@@ -22,42 +22,97 @@ Manual key management and ad-hoc transfer scripts don't meet Payflow's security 
 
 Turnkey provides the key management, signing, and policy enforcement layer. The PoC demonstrates the full merchant flow using Turnkey's SDK and policy engine.
 
-```mermaid
-flowchart LR
-    subgraph Turnkey["Turnkey Organization"]
-        MW["Merchant Wallet<br/>(1 HD Seed)"]
-        M0["Merchant 0<br/>0xabc..."]
-        M1["Merchant 1<br/>0xdef..."]
-        M2["Merchant 2<br/>0x123..."]
-        TW["Treasury Wallet<br/>(Separate HD Seed)"]
-        T["Omnibus Treasury<br/>0x456..."]
-        P["Policy: ALLOW<br/>USDC transfer() → Treasury"]
-        AU["Automation User<br/>(non-root)"]
+### 1. Organization Structure
 
-        MW --> M0
-        MW --> M1
-        MW --> M2
-        TW --> T
+What the setup script provisions inside the Turnkey org:
+
+```mermaid
+flowchart TB
+    subgraph Org["Turnkey Organization"]
+        direction TB
+
+        subgraph Wallets["Key Management"]
+            direction LR
+            subgraph MW["Merchant Wallet (1 HD Seed)"]
+                M0["Account 0\nMerchant A"]
+                M1["Account 1\nMerchant B"]
+                M2["Account 2\nMerchant C"]
+            end
+            subgraph TW["Treasury Wallet (Separate HD Seed)"]
+                T["Omnibus\nTreasury"]
+            end
+        end
+
+        subgraph Access["Access Control"]
+            direction LR
+            AU["Automation User\n(non-root, API-only)"]
+            P["ALLOW Policy\nUSDC transfer() → Treasury"]
+        end
     end
 
-    M0 -- "USDC sweep" --> T
-    M1 -- "USDC sweep" --> T
-    M2 -- "USDC sweep" --> T
-    AU -. "signs via policy" .-> P
-    P -. "gates" .-> M0
-    P -. "gates" .-> M1
-    P -. "gates" .-> M2
-
-    style P fill:#e8f5e9,stroke:#4caf50
+    style MW fill:#fff3e0,stroke:#ff9800
+    style TW fill:#e8f5e9,stroke:#4caf50
     style AU fill:#e3f2fd,stroke:#2196f3
+    style P fill:#e8f5e9,stroke:#4caf50
 ```
 
-**Key design decisions in this flow:**
+**Why this shape:**
+- **Wallet Accounts, not Wallets** — one HD seed with unlimited derived accounts. One merchant = one account. Scales to thousands without hitting the 100-wallet-per-org cap.
+- **Separate treasury seed** — the highest-value address is isolated from merchant deposit keys.
+- **Non-root automation user** — root credentials bypass the policy engine. Non-root ensures policies are actually enforced.
 
-- Each merchant gets a **derived account** (not a separate wallet), so Payflow can onboard unlimited merchants without hitting the 100-wallet-per-org cap.
-- The treasury uses a **separate HD seed**, isolating the highest-value address from merchant deposit keys.
-- A single **ALLOW policy** plus **implicit deny** controls all fund movement — no per-merchant policy management needed.
-- The **automation user is non-root**, so the policy engine actually evaluates and enforces the rules (root credentials bypass policies).
+### 2. Sweep Flow (Positive Path)
+
+How USDC moves from merchant accounts to the treasury:
+
+```mermaid
+sequenceDiagram
+    participant CLI as Payflow CLI
+    participant TK as Turnkey Policy Engine
+    participant Chain as Sepolia (on-chain)
+
+    CLI->>CLI: Scan merchant balances
+    loop For each funded merchant
+        CLI->>TK: Sign USDC transfer(treasury, amount)
+        TK->>TK: Evaluate ALLOW policy
+        Note over TK: ✓ Token = USDC<br/>✓ Function = transfer()<br/>✓ Recipient = Treasury
+        TK-->>CLI: Signed transaction
+        CLI->>Chain: Broadcast tx
+        Chain-->>CLI: Tx confirmed
+    end
+```
+
+### 3. Policy Enforcement (Negative Paths)
+
+What happens when the automation user tries unauthorized transfers — even with valid API credentials:
+
+```mermaid
+flowchart LR
+    subgraph Allowed["✓ ALLOWED"]
+        A1["USDC transfer()\nto Treasury"]
+    end
+
+    subgraph Blocked["✗ BLOCKED"]
+        B1["USDC transfer()\nto attacker address"]
+        B2["LINK transfer()\nto Treasury"]
+        B3["USDC approve()\nto any address"]
+        B4["Native ETH send\nto any address"]
+    end
+
+    P["ALLOW Policy\n3 conditions"]
+
+    A1 --- P
+    P -.- B1
+    P -.- B2
+    P -.- B3
+    P -.- B4
+
+    style Allowed fill:#e8f5e9,stroke:#4caf50
+    style Blocked fill:#ffebee,stroke:#f44336
+    style P fill:#fff3e0,stroke:#ff9800
+```
+
+The policy checks three conditions: (1) target contract must be USDC, (2) function selector must be `transfer()`, (3) recipient must be the padded treasury address. Everything else hits **implicit deny** — no DENY policies needed.
 
 ---
 
