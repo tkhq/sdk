@@ -57,12 +57,10 @@ export default function LoginPage() {
 
       window.localStorage.setItem("turnkey_otp_id", otpId);
       window.localStorage.setItem("turnkey_public_key", publicKey);
-      if (otpEncryptionTargetBundle) {
-        window.localStorage.setItem(
-          "turnkey_otp_encryption_target_bundle",
-          otpEncryptionTargetBundle,
-        );
-      }
+      window.localStorage.setItem(
+        "turnkey_otp_encryption_target_bundle",
+        otpEncryptionTargetBundle,
+      );
 
       setIsSent(true);
     } finally {
@@ -81,7 +79,7 @@ export default function LoginPage() {
     const otpCode = new URLSearchParams(window.location.search).get("otpCode");
     if (otpCode && !loginAttempted.current) {
       loginAttempted.current = true;
-      loginOrSignUp(otpCode);
+      void loginOrSignUp(otpCode);
     }
   }, [clientState]);
 
@@ -144,8 +142,8 @@ export default function LoginPage() {
       // On success, authState → Authenticated triggers the redirect and unmounts
       // this component, so isProcessingMagicLink never needs to be reset.
     } catch (err) {
+      console.error("Magic link login failed:", err);
       setIsProcessingMagicLink(false);
-      throw err;
     }
   };
 

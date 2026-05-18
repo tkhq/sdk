@@ -28,6 +28,11 @@ export async function sendMagicLink({ email }: SendMagicLinkParams) {
   if (!otpId) {
     throw new Error("Failed to initialize OTP: missing otpId in response.");
   }
+  if (!otpEncryptionTargetBundle) {
+    throw new Error(
+      "Failed to initialize OTP: missing otpEncryptionTargetBundle in response.",
+    );
+  }
 
   return { otpId, otpEncryptionTargetBundle };
 }
