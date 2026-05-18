@@ -598,9 +598,6 @@ importers:
       typescript:
         specifier: 5.1.3
         version: 5.1.3
-      viem:
-        specifier: 2.37.9
-        version: 2.37.9(bufferutil@4.0.9)(typescript@5.1.3)(utf-8-validate@5.0.10)(zod@4.1.11)
 
   examples/oauth:
     dependencies:
