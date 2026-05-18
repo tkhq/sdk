@@ -128,8 +128,10 @@ jobs:
           BANNED_TO_ADDRESS: ${{ secrets.PREPROD_BANNED_TO_ADDRESS }}
           SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
           WALLET_ID: ${{ secrets.PREPROD_WALLET_ID }}
+  
   test-end-to-end:
     runs-on: ubuntu-latest
+    needs: build
     timeout-minutes: 60
 
     env:
