@@ -17,9 +17,10 @@
  *   - SPARK_DEPOSIT_PUBLIC_KEY_HEX
  *
  * Required env vars:
- *   BASE_URL, API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID
+ *   API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID
  *
  * Optional:
+ *   BASE_URL       – Turnkey API base URL (default: https://api.turnkey.com)
  *   SPARK_NETWORK – REGTEST (default) or MAINNET
  *   WALLET_NAME  – name for the new wallet (default: "Spark Wallet")
  */
@@ -49,7 +50,6 @@ async function main() {
     "API_PUBLIC_KEY",
     "API_PRIVATE_KEY",
     "ORGANIZATION_ID",
-    "BASE_URL",
   ] as const;
 
   for (const v of requiredVars) {
