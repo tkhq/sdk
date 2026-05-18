@@ -155,22 +155,23 @@ function requireNewLeafPubkeys(
 }
 
 /**
- * Maps an SDK KeyDerivation to the proto SparkSigningLeafDerivation shape.
+ * Maps an SDK KeyDerivation to the proto SparkKeyDerivation oneof shape with
+ * the signingLeaf variant selected.
  *
  * The three call sites — SPARK_SIGN_FROST signature requests and
- * SPARK_PREPARE_TRANSFER's {old,new}_leaf_derivation — were narrowed from
- * the polymorphic SparkKeyDerivation oneof to SparkSigningLeafDerivation
- * in mono, so non-leaf derivations are rejected here.
+ * SPARK_PREPARE_TRANSFER's {old,new}_leaf_derivation — accept the polymorphic
+ * SparkKeyDerivation, but the SDK only drives the signingLeaf variant; other
+ * derivation types are rejected here.
  */
 function mapSigningLeafDerivation(
   kd: KeyDerivation,
-): { leafId: string } {
+): { signingLeaf: { leafId: string } } {
   if (kd.type !== "leaf") {
     throw new Error(
-      `Expected leaf KeyDerivation for SparkSigningLeafDerivation field, got ${kd.type}`,
+      `Expected leaf KeyDerivation for SparkKeyDerivation signingLeaf, got ${kd.type}`,
     );
   }
-  return { leafId: String(kd.path) };
+  return { signingLeaf: { leafId: String(kd.path) } };
 }
 
 /** Maps operator commitment map to proto shape. */
