@@ -17,7 +17,7 @@
     "prettier-all:write": "prettier --write \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml,mjs}\" --ignore-path ./.prettierignore",
     "prettier-codegen:write": "prettier --write \"packages/{core,sdk-browser,sdk-server,sdk-types}/src/**/*.{css,html,js,json,md,ts,tsx,yaml,yml,mjs}\"",
     "test-all": "pnpm run -r --no-bail test",
-    "typecheck-all": "pnpm run -r typecheck",
+    "typecheck-all": "turbo run typecheck",
     "codegen-all": "pnpm run -r codegen",
     "prepare-release": "pnpm changeset version && pnpm run version"
   },

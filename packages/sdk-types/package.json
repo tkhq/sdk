@@ -12,7 +12,7 @@
     "build": "rollup -c",
     "prepublishOnly": "pnpm run clean && pnpm run build",
     "clean": "rimraf ./dist ./.cache",
-    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "typecheck": "tsc --noEmit",
     "codegen": "node scripts/codegen.js"
   },
   "module": "./dist/index.mjs",
