@@ -562,7 +562,10 @@ export class TurnkeySparkSigner implements SparkSigner {
       message: hex(p.message),
       verifyingKey: hex(p.verifyingKey),
       operatorCommitments: mapOperatorCommitments(p.statechainCommitments),
-      ...(p.adaptorPubKey
+      // Spark SDK passes `new Uint8Array()` for non-adaptor signs (empty
+      // is truthy as an object), so length-check before forwarding to
+      // avoid sending an empty `adaptorPublicKey` on every FROST call.
+      ...(p.adaptorPubKey && p.adaptorPubKey.length > 0
         ? { adaptorPublicKey: hex(p.adaptorPubKey) }
         : {}),
     }));
