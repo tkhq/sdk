@@ -8,8 +8,12 @@ export function LogoutButton() {
   const { logout } = useTurnkey();
 
   const handleLogout = async () => {
-    await logout();
-    router.push("/");
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+    router.replace("/");
   };
 
   return (
