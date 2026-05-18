@@ -75,7 +75,7 @@ Open `.env.local` and fill in all values:
 The backend uses Turnkey's `oauth2Authenticate` to exchange X auth codes for OIDC tokens. To do this, Turnkey needs your X Client Secret uploaded and encrypted. Run the credential-upload script:
 
 ```bash
-pnpm run credential-upload -- <client_id> <client_secret>
+pnpm run credential-upload -- <client_secret>
 ```
 
 On success it prints an **OAuth 2.0 Credential ID**. Add that value to `.env.local`:
