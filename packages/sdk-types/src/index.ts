@@ -4,6 +4,8 @@ import type {
   v1AppProof,
 } from "./__generated__/types";
 
+export * from "./__generated__/types";
+
 export enum SessionType {
   READ_ONLY = "SESSION_TYPE_READ_ONLY",
   READ_WRITE = "SESSION_TYPE_READ_WRITE",
@@ -181,7 +183,7 @@ export class TurnkeyNetworkError extends TurnkeyError {
     message: string,
     public statusCode?: number,
     code?: TurnkeyErrorCodes,
-    cause?: unknown,
+    override cause?: unknown,
   ) {
     super(message, code, cause);
     this.name = "TurnkeyNetworkError";
@@ -339,5 +341,3 @@ export type GrpcStatus = {
   code: number;
   details: unknown[] | null;
 };
-
-export * from "./__generated__/types";

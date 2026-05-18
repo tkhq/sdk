@@ -8051,7 +8051,7 @@ export type ProxyTInitOtpBody = {
   /** Email or phone number to send the OTP code to */
   contact: string;
   /** Optional parameters for customizing emails. If not provided, the default email will be used. */
-  emailCustomization?: v1ProxyEmailCustomizationParams;
+  // emailCustomization?: v1ProxyEmailCustomizationParams;
 }
 
 export type ProxyTInitOtpInput = { body: ProxyTInitOtpBody };
@@ -8069,7 +8069,7 @@ export type ProxyTInitOtpV2Body = {
   /** Email or phone number to send the OTP code to */
   contact: string;
   /** Optional parameters for customizing emails. If not provided, the default email will be used. */
-  emailCustomization?: v1ProxyEmailCustomizationParams;
+  // emailCustomization?: v1ProxyEmailCustomizationParams;
 }
 
 export type ProxyTInitOtpV2Input = { body: ProxyTInitOtpV2Body };

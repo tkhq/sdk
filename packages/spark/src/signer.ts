@@ -19,8 +19,8 @@
 
 import { secp256k1 } from "@noble/curves/secp256k1"; // used in validateMessageWithIdentityKey
 import { mnemonicToSeed } from "@scure/bip39";
-import type { SparkSigner } from "@buildonspark/spark-sdk";
-import type { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+import { KeyDerivationType, type SignFrostParams, type SparkSigner } from "@buildonspark/spark-sdk";
+import type { Turnkey as TurnkeyServerSDK, v1SparkKeyDerivation } from "@turnkey/sdk-server";
 
 const hex = (bytes: Uint8Array) => Buffer.from(bytes).toString("hex");
 
@@ -46,6 +46,54 @@ export class TurnkeySparkSigner implements SparkSigner {
     this.client = client;
     this.identityKeyAddress = identityKeyAddress;
     this.identityPublicKeyHex = identityPublicKeyHex;
+  }
+
+  async signFrost(params: SignFrostParams): Promise<Uint8Array> {
+    let derivation: v1SparkKeyDerivation;
+    switch (params.keyDerivation.type) {
+        case KeyDerivationType.DEPOSIT:
+            derivation = {
+              deposit: {}
+            }
+            break;
+        case KeyDerivationType.STATIC_DEPOSIT:
+            derivation = {
+              staticDeposit: {
+                index: params.keyDerivation.path,
+              }
+            }
+            break;
+        case KeyDerivationType.LEAF:
+            derivation = {
+              signingLeaf: {
+                leafId: params.keyDerivation.path,
+              }
+            }
+            break;
+        default:
+            throw new Error(`Unsupported key derivation type: ${params.keyDerivation.type}`);
+      }
+
+    const response = await this.client.apiClient().sparkSignFrost({
+      signWith: this.identityKeyAddress,
+      signatures: [{
+        derivation,
+        message: hex(params.message),
+        verifyingKey: hex(params.verifyingKey),
+        operatorCommitments: Object.entries(params.statechainCommitments ?? {}).map(([id, c]) => ({
+          id,
+          hiding: hex(c.hiding),
+          binding: hex(c.binding),
+        })),
+      }],
+    });
+
+    const signatureShare = response.signatures[0]?.signatureShare;
+    if (signatureShare == null) {
+      throw new Error("No signature share returned from Turnkey");
+    }
+
+    return Buffer.from(signatureShare, "hex");
   }
 
   getIdentityPublicKey(): Promise<Uint8Array> {
@@ -131,7 +179,7 @@ export class TurnkeySparkSigner implements SparkSigner {
 
   generateMnemonic = notImplemented("generateMnemonic");
 
-  signFrost = notImplemented("signFrost");
+  // signFrost = notImplemented("signFrost");
 
   aggregateFrost = notImplemented("aggregateFrost");
 
