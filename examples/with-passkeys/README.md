@@ -113,16 +113,14 @@ Your backend is only involved in **sub-org creation (step 6 of sign-up)** — it
 
 ```bash
 git clone https://github.com/tkhq/sdk
-cd sdk/examples/with-passkeys/with-backend
+cd sdk/
+corepack enable  # Install `pnpm`
+pnpm install -r  # Install dependencies
+pnpm run build-all  # Compile source code
+cd examples/with-passkeys/with-backend/
 ```
 
-#### 2/ Install dependencies
-
-```bash
-npm install
-```
-
-#### 3/ Set up environment variables
+#### 2/ Set up environment variables
 
 ```bash
 cp .env.local.example .env.local
@@ -137,10 +135,10 @@ API_PUBLIC_KEY=                # API key public key (for your backend)
 API_PRIVATE_KEY=               # API key private key (for your backend)
 ```
 
-#### 4/ Run
+#### 3/ Run
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).

@@ -24,7 +24,7 @@ export async function createSuborgAction(params: {
   tempPublicKey: string;
 }) {
   return await turnkey.apiClient().createSubOrganization({
-    subOrganizationName: `suborg-${params.email}-${Date.now()}`,
+    subOrganizationName: `suborg-passkey-demo-${Date.now()}`,
     rootQuorumThreshold: 1,
     rootUsers: [
       {

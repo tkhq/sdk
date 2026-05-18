@@ -79,10 +79,11 @@ export default function AuthPage() {
 
         // 4) Override the stamper to use the temp key, then call stampLogin to register
         //    the long-lived session keypair — no second passkey tap required.
+        if (!httpClient) throw new Error("Turnkey client not initialized.");
         const sessionPublicKey = await createApiKeyPair();
         await overrideApiKeyStamper({ temporaryPublicKey: tempPublicKey });
         try {
-          const { session } = await httpClient!.stampLogin({
+          const { session } = await httpClient.stampLogin({
             publicKey: sessionPublicKey,
             organizationId: subOrganizationId,
           });
