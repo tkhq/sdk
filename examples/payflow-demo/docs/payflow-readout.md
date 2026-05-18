@@ -28,30 +28,30 @@ What `pnpm run-setup` provisions inside the Turnkey org:
 
 ```mermaid
 graph TB
-    Org["Turnkey Organization"]
+    Org["Payflow Organization"]
 
-    Org --> MW["Merchant Wallet<br/>(HD Seed 1)"]
-    Org --> TW["Treasury Wallet<br/>(HD Seed 2)"]
-    Org --> AU["Automation User<br/>(non-root, API-only)"]
-    Org --> P["ALLOW Policy"]
+    Org --> MW["Merchant Wallet\n(HD Seed 1)"]
+    Org --> TW["Treasury Wallet\n(HD Seed 2)"]
+    Org --> AU["Automation User\n(non-root)"]
 
-    MW --> M0["Account 0<br/>Merchant A<br/><i>0xabc...</i>"]
-    MW --> M1["Account 1<br/>Merchant B<br/><i>0xdef...</i>"]
-    MW --> M2["Account 2<br/>Merchant C<br/><i>0x123...</i>"]
+    MW --> M0["Merchant A"]
+    MW --> M1["Merchant B"]
+    MW --> M2["Merchant C"]
 
-    TW --> T["Account 0<br/>Omnibus Treasury<br/><i>0x456...</i>"]
+    TW --> T["Omnibus Treasury"]
 
-    AU -.- P
+    AU -- "scoped by" --> P["ALLOW Policy\nUSDC transfer() → Treasury only"]
+    P -. "can sign from" .-> MW
 
-    style Org fill:#f5f5f5,stroke:#333,stroke-width:2px
-    style MW fill:#fff3e0,stroke:#ff9800
-    style TW fill:#e8f5e9,stroke:#4caf50
-    style AU fill:#e3f2fd,stroke:#2196f3
-    style P fill:#e8f5e9,stroke:#4caf50
-    style M0 fill:#fff,stroke:#ff9800
-    style M1 fill:#fff,stroke:#ff9800
-    style M2 fill:#fff,stroke:#ff9800
-    style T fill:#fff,stroke:#4caf50
+    style Org fill:#37474f,stroke:#263238,color:#fff,stroke-width:2px
+    style MW fill:#ff9800,stroke:#e65100,color:#fff
+    style M0 fill:#ffe0b2,stroke:#ff9800
+    style M1 fill:#ffe0b2,stroke:#ff9800
+    style M2 fill:#ffe0b2,stroke:#ff9800
+    style TW fill:#2e7d32,stroke:#1b5e20,color:#fff
+    style T fill:#c8e6c9,stroke:#2e7d32
+    style AU fill:#1565c0,stroke:#0d47a1,color:#fff
+    style P fill:#7b1fa2,stroke:#4a148c,color:#fff
 ```
 
 **Key points:**
