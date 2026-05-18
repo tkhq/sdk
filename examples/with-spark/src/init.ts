@@ -146,6 +146,18 @@ export async function initSparkWalletFromConfig(
   (wallet as any).claimTransfer = makeClaimTransferOverride(signer);
   installTurnkeySwapService(wallet, signer);
 
+  // Disable the SDK's claim-time auto-optimize swap. The optimizer splits a
+  // freshly-claimed leaf into binary denominations via the swap path, leaving
+  // each new leaf in SWAP_PENDING locally. The SO-side state transitions to
+  // AVAILABLE only after the swap finalizes, which the in-process LeafManager
+  // sees only via a fresh sync — short-lived example runs that try to
+  // withdraw/transfer immediately after a claim see available=0 because every
+  // local leaf is SWAP_PENDING. Disabling the auto-optimize keeps the claim's
+  // leaf AVAILABLE so the next operation proceeds. Users who want
+  // optimization can call wallet.optimizeLeaves() explicitly and await it.
+  const leafManager = (wallet as any).leafManager;
+  if (leafManager) leafManager.onAutoOptimize = async () => undefined;
+
   return { wallet, signer, network };
 }
 
