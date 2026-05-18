@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export function CopyIcon({ text, title }: { text: string; title?: string }) {
   const [copied, setCopied] = useState(false);
@@ -21,6 +22,7 @@ export function CopyIcon({ text, title }: { text: string; title?: string }) {
         className="w-4 h-4 text-green-600"
         fill="currentColor"
         viewBox="0 0 20 20"
+        aria-label="Copied"
       >
         <path
           fillRule="evenodd"
@@ -32,20 +34,26 @@ export function CopyIcon({ text, title }: { text: string; title?: string }) {
   }
 
   return (
-    <svg
-      className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
+    <Button
+      variant="ghost"
       onClick={handleCopy}
+      aria-label={title ?? "Copy"}
+      title={title ?? "Copy"}
+      className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
     >
-      {title && <title>{title}</title>}
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-      />
-    </svg>
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+        />
+      </svg>
+    </Button>
   );
 }
