@@ -18,10 +18,9 @@ export function CopyIcon({ text, title }: { text: string; title?: string }) {
   if (copied) {
     return (
       <svg
-        className="w-4 h-4 text-green-600 cursor-pointer"
+        className="w-4 h-4 text-green-600"
         fill="currentColor"
         viewBox="0 0 20 20"
-        title={title}
       >
         <path
           fillRule="evenodd"
@@ -39,8 +38,8 @@ export function CopyIcon({ text, title }: { text: string; title?: string }) {
       stroke="currentColor"
       viewBox="0 0 24 24"
       onClick={handleCopy}
-      title={title}
     >
+      {title && <title>{title}</title>}
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
