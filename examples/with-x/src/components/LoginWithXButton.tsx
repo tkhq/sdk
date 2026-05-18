@@ -11,8 +11,9 @@ export function LoginWithXButton() {
 
   function handleXLogin() {
     setIsRedirecting(true);
-    localStorage.setItem("oauth_state", "random_state");
-    router.push("/auth/x");
+    const state = crypto.randomUUID();
+    localStorage.setItem("x_oauth_state", state);
+    router.push(`/auth/x?state=${state}`);
   }
 
   return (

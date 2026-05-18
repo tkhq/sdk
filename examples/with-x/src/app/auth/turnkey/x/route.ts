@@ -19,14 +19,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing public_key" }, { status: 400 });
   }
 
-  // in production your should check the state parameter to ensure that it matches what was generated
-  if (body?.state != "random_state") {
-    return NextResponse.json(
-      { error: "Invalid state value received from X" },
-      { status: 400 },
-    );
-  }
-
   // ensure the X_CLIENT_ID environment variable has been set
   if (!process.env.X_CLIENT_ID) {
     return NextResponse.json(
