@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-export function CopyIcon({ text, title }: { text: string; title?: string }) {
+export function CopyButton({ text, title }: { text: string; title?: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AuthState, ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
-import { CopyIcon } from "../../components/ui/CopyIcon";
+import { CopyButton } from "../../components/ui/CopyButton";
 import { SolanaIcon } from "../../components/ui/SolanaIcon";
 import { LogoutButton } from "../../components/LogoutButton";
 
@@ -56,7 +56,7 @@ export default function Dashboard() {
                 </label>
                 <p className="text-foreground font-mono">{userId}</p>
               </div>
-              <CopyIcon text={userId} title="Copy User ID" />
+              <CopyButton text={userId} title="Copy User ID" />
             </div>
           </div>
 
@@ -76,7 +76,7 @@ export default function Dashboard() {
                 <span className="text-foreground font-mono text-sm truncate overflow-hidden max-w-[200px]">
                   {walletAddress}
                 </span>
-                <CopyIcon text={walletAddress} title="Copy Wallet Address" />
+                <CopyButton text={walletAddress} title="Copy Wallet Address" />
               </div>
             </div>
           </div>
