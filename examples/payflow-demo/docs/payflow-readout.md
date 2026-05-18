@@ -28,10 +28,10 @@ What `pnpm run-setup` provisions inside the Turnkey org:
 
 ```mermaid
 graph LR
-    subgraph Org["Payflow Organization"]
+    subgraph Org["🏢 Payflow Organization"]
         direction LR
 
-        subgraph Keys["Wallets"]
+        subgraph Wallets["Wallets"]
             direction TB
             MW["Merchant Wallet\n(HD Seed 1)"] --> M0["Merchant A"]
             MW --> M1["Merchant B"]
@@ -39,17 +39,17 @@ graph LR
             TW["Treasury Wallet\n(HD Seed 2)"] --> T["Omnibus Treasury"]
         end
 
-        subgraph Access["Access Control"]
+        subgraph Users["Users & Policies"]
             direction TB
             AU["Automation User\n(non-root)"] --> P["ALLOW Policy\nUSDC transfer() → Treasury only"]
         end
 
-        Access -- "controls signing on" --> Keys
+        Users -- "controls signing on" --> Wallets
     end
 
-    style Org fill:#f5f5f5,stroke:#333,stroke-width:2px
-    style Keys fill:#fafafa,stroke:#ccc
-    style Access fill:#fafafa,stroke:#ccc
+    style Org fill:#eceff1,stroke:#37474f,stroke-width:2px,color:#37474f
+    style Wallets fill:#fff8e1,stroke:#ff9800,stroke-width:1px
+    style Users fill:#e3f2fd,stroke:#1565c0,stroke-width:1px
     style MW fill:#ff9800,stroke:#e65100,color:#fff
     style M0 fill:#f57c00,stroke:#e65100,color:#fff
     style M1 fill:#f57c00,stroke:#e65100,color:#fff

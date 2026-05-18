@@ -4,6 +4,8 @@ This example demonstrates how Turnkey can power stablecoin payment rails for a f
 
 Built on top of patterns from [`sweeper`](../sweeper/) (transfer automation), [`kitchen-sink`](../kitchen-sink/) (`createWallet`, `createUsers`, `createPolicy`), and [`trading-runner`](../trading-runner/) (ERC-20 policy condition patterns).
 
+For architecture details, design decisions, and a production roadmap, see the [Customer Readout](./docs/payflow-readout.md).
+
 ## Getting started
 
 ### 1/ Clone the repository
