@@ -1,6 +1,5 @@
 "use server";
 
-import { OtpType } from "@turnkey/react-wallet-kit";
 import { Turnkey } from "@turnkey/sdk-server";
 
 type SendMagicLinkParams = {
@@ -16,12 +15,12 @@ export async function sendMagicLink({ email }: SendMagicLinkParams) {
   }).apiClient();
 
   // we send a magic link to the user’s email
-  const { otpId } = await turnkeyClient.initOtp({
+  const { otpId, otpEncryptionTargetBundle } = await turnkeyClient.initOtp({
     contact: email,
     appName: "Magic Link Demo",
-    otpType: OtpType.Email,
+    otpType: "OTP_TYPE_EMAIL",
     emailCustomization: {
-      // %s will be replaced with the otpCode when sending the email
+      // %s is replaced with the OTP code when the email is sent
       magicLinkTemplate: "http://localhost:3000?otpCode=%s",
     },
   });
@@ -30,5 +29,5 @@ export async function sendMagicLink({ email }: SendMagicLinkParams) {
     throw new Error("Failed to initialize OTP: missing otpId in response.");
   }
 
-  return otpId;
+  return { otpId, otpEncryptionTargetBundle };
 }
