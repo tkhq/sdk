@@ -107,8 +107,8 @@ export interface LeafSelection {
  * The two optional pubkey fields are populated differently per flow:
  *   - SEND / SWAP / EXIT / LIGHTNING: receiverIdentityPublicKey is set
  *     (recipient's pubkey, used in HTLC scripts and refund outputs);
- *     signingPublicKey is left unset and signRefundsBatched falls back to
- *     leaf.verifyingPublicKey.
+ *     signingPublicKey is left unset and signRefundsBatched resolves it from
+ *     the signer using the current leaf id.
  *   - CLAIM: both fields are set to the freshly HD-derived pubkey for the
  *     rotated leaf id — the receiver is signing with their own new key.
  */
@@ -487,6 +487,25 @@ interface PendingFrost {
   message: Uint8Array;
 }
 
+async function resolveLeafSigningPublicKey(
+  signer: TurnkeySparkSigner,
+  leaf: LeafTweak,
+): Promise<Uint8Array> {
+  if (leaf.signingPublicKey && leaf.signingPublicKey.length > 0) {
+    return leaf.signingPublicKey;
+  }
+
+  if (leaf.keyDerivation.type !== "leaf") {
+    throw new SparkValidationError("Leaf signing requires leaf key derivation", {
+      field: "keyDerivation",
+      value: leaf.keyDerivation,
+      expected: "leaf key derivation",
+    });
+  }
+
+  return signer.getLeafSigningKey(String(leaf.keyDerivation.path));
+}
+
 function emptyCommitment(): { commitment: SigningCommitment } {
   return {
     commitment: {
@@ -570,13 +589,7 @@ export async function signRefundsBatched(
     }
 
     const isZeroNode = !getCurrentTimelock(nodeTx.getInput(0).sequence);
-    // SEND fallback: post-claim, leaf.verifyingPublicKey (the aggregate FROST
-    // VK) equals HD(leaf.id) for the owner — so we can use it as our signing
-    // pubkey without an extra pubkey-derivation round-trip. CLAIM sets
-    // signingPublicKey explicitly to the freshly HD-derived key for the
-    // rotated leaf id. If a future Spark protocol change ever decouples the
-    // aggregate VK from the user's HD share, this fallback breaks silently.
-    const signingPublicKey = leaf.signingPublicKey ?? leaf.leaf.verifyingPublicKey;
+    const signingPublicKey = await resolveLeafSigningPublicKey(signer, leaf);
     const receivingPubkey =
       leaf.receiverIdentityPublicKey ?? signingPublicKey;
 
