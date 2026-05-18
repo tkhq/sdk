@@ -33,6 +33,7 @@ graph TB
     Org --> MW["Merchant Wallet\n(HD Seed 1)"]
     Org --> TW["Treasury Wallet\n(HD Seed 2)"]
     Org --> AU["Automation User\n(non-root)"]
+    Org --> P["ALLOW Policy\nUSDC transfer() → Treasury only"]
 
     MW --> M0["Merchant A"]
     MW --> M1["Merchant B"]
@@ -40,16 +41,16 @@ graph TB
 
     TW --> T["Omnibus Treasury"]
 
-    AU -- "scoped by" --> P["ALLOW Policy\nUSDC transfer() → Treasury only"]
-    P -. "can sign from" .-> MW
+    P -- "permits" --> AU
+    P -- "controls signing on" --> MW
 
     style Org fill:#37474f,stroke:#263238,color:#fff,stroke-width:2px
     style MW fill:#ff9800,stroke:#e65100,color:#fff
-    style M0 fill:#ffe0b2,stroke:#ff9800
-    style M1 fill:#ffe0b2,stroke:#ff9800
-    style M2 fill:#ffe0b2,stroke:#ff9800
+    style M0 fill:#f57c00,stroke:#e65100,color:#fff
+    style M1 fill:#f57c00,stroke:#e65100,color:#fff
+    style M2 fill:#f57c00,stroke:#e65100,color:#fff
     style TW fill:#2e7d32,stroke:#1b5e20,color:#fff
-    style T fill:#c8e6c9,stroke:#2e7d32
+    style T fill:#388e3c,stroke:#1b5e20,color:#fff
     style AU fill:#1565c0,stroke:#0d47a1,color:#fff
     style P fill:#7b1fa2,stroke:#4a148c,color:#fff
 ```
@@ -65,30 +66,24 @@ How the policy engine evaluates each transaction when `pnpm run-demo` runs a swe
 
 ```mermaid
 flowchart TD
-    Start["Automation User<br/>submits transaction"] --> Q1{"Is the target contract<br/>USDC?"}
+    Start["Transaction submitted"] --> Q1{"Target = USDC?"}
+    Q1 -->|No| D1["DENIED"]
+    Q1 -->|Yes| Q2{"Function = transfer()?"}
+    Q2 -->|No| D2["DENIED"]
+    Q2 -->|Yes| Q3{"Recipient = Treasury?"}
+    Q3 -->|No| D3["DENIED"]
+    Q3 -->|Yes| Allow["ALLOWED → Sign"]
+    Allow --> Broadcast["Broadcast → Confirmed"]
 
-    Q1 -->|"No"| Deny1["DENIED<br/>Implicit deny"]
-    Q1 -->|"Yes"| Q2{"Is the function<br/>transfer()?"}
-
-    Q2 -->|"No"| Deny2["DENIED<br/>Implicit deny"]
-    Q2 -->|"Yes"| Q3{"Is the recipient<br/>the Treasury?"}
-
-    Q3 -->|"No"| Deny3["DENIED<br/>Implicit deny"]
-    Q3 -->|"Yes"| Allow["ALLOWED<br/>Sign transaction"]
-
-    Allow --> Broadcast["Broadcast to<br/>Sepolia"]
-    Broadcast --> Confirmed["Transaction<br/>confirmed on-chain"]
-
-    style Start fill:#e3f2fd,stroke:#2196f3
-    style Q1 fill:#fff3e0,stroke:#ff9800
-    style Q2 fill:#fff3e0,stroke:#ff9800
-    style Q3 fill:#fff3e0,stroke:#ff9800
-    style Allow fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
-    style Deny1 fill:#ffebee,stroke:#f44336
-    style Deny2 fill:#ffebee,stroke:#f44336
-    style Deny3 fill:#ffebee,stroke:#f44336
-    style Broadcast fill:#f5f5f5,stroke:#333
-    style Confirmed fill:#e8f5e9,stroke:#4caf50
+    style Start fill:#1565c0,stroke:#0d47a1,color:#fff
+    style Q1 fill:#ff9800,stroke:#e65100,color:#fff
+    style Q2 fill:#ff9800,stroke:#e65100,color:#fff
+    style Q3 fill:#ff9800,stroke:#e65100,color:#fff
+    style Allow fill:#2e7d32,stroke:#1b5e20,color:#fff
+    style D1 fill:#c62828,stroke:#b71c1c,color:#fff
+    style D2 fill:#c62828,stroke:#b71c1c,color:#fff
+    style D3 fill:#c62828,stroke:#b71c1c,color:#fff
+    style Broadcast fill:#388e3c,stroke:#1b5e20,color:#fff
 ```
 
 Each demo scenario hits a different point in this flowchart:
