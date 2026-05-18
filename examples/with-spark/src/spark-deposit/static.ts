@@ -247,6 +247,29 @@ async function getWalletAccounts(
   return accounts as WalletAccount[];
 }
 
+async function getWalletAccountByPath(
+  apiClient: ApiClient,
+  walletId: string,
+  path: string,
+): Promise<WalletAccount | undefined> {
+  try {
+    const { account } = await apiClient.getWalletAccount({
+      organizationId: getOrganizationId(apiClient),
+      walletId,
+      path,
+    });
+    return account as WalletAccount;
+  } catch (err) {
+    if (isNotFoundError(err)) return undefined;
+    throw err;
+  }
+}
+
+function isNotFoundError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  return /not found/i.test(message);
+}
+
 async function findSparkAccount(params: {
   apiClient: ApiClient;
   sparkAddress: string;
@@ -300,16 +323,20 @@ export async function createOrReuseStaticDepositAccount(
     index,
   );
 
-  let accounts = await getWalletAccounts(apiClient, sparkAccount.walletId);
-  let account = accounts.find(
-    (candidate) =>
-      candidate.path === staticPath &&
-      candidate.addressFormat === STATIC_DEPOSIT_ADDRESS_FORMAT,
+  // Prefer the singular getWalletAccount lookup. Some Turnkey backends have
+  // exhibited a stale-index bug where getWalletAccounts (list) does not return
+  // a newly-created static-deposit account; the singular path lookup still
+  // resolves it. Fall back to "not found" only for explicit NotFound errors so
+  // unrelated failures aren't swallowed.
+  let account = await getWalletAccountByPath(
+    apiClient,
+    sparkAccount.walletId,
+    staticPath,
   );
 
   if (!account) {
     log(`Creating static deposit wallet account at ${staticPath}`);
-    const result = await apiClient.createWalletAccounts({
+    await apiClient.createWalletAccounts({
       organizationId: getOrganizationId(apiClient),
       walletId: sparkAccount.walletId,
       accounts: [
@@ -322,21 +349,22 @@ export async function createOrReuseStaticDepositAccount(
       ],
     });
 
-    const address = result.addresses[0];
-    if (!address) {
-      throw new Error(
-        "Turnkey did not return an address for the static deposit account",
-      );
-    }
-
-    accounts = await getWalletAccounts(apiClient, sparkAccount.walletId);
-    account = accounts.find((candidate) => candidate.address === address);
+    account = await getWalletAccountByPath(
+      apiClient,
+      sparkAccount.walletId,
+      staticPath,
+    );
   } else {
     log(`Reusing static deposit wallet account at ${staticPath}`);
   }
 
   if (!account?.publicKey) {
     throw new Error("Could not load static deposit account public key");
+  }
+  if (account.addressFormat !== STATIC_DEPOSIT_ADDRESS_FORMAT) {
+    throw new Error(
+      `Static deposit account at ${staticPath} has unexpected addressFormat ${account.addressFormat}`,
+    );
   }
 
   return {
