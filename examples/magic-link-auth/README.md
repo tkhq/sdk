@@ -18,10 +18,7 @@ A high-level overview of the user experience and what happens on screen:
 
 A step-by-step look under the hood:
 
-1. **_Generate a session keypair_**
-   - Before sending the magic link, the frontend calls `createApiKeyPair()` to generate a P256 keypair. The private half is stored in IndexedDB and never leaves the device.
-
-2. **_Send the magic link_**
+1. **_Send the magic link_**
    - The backend calls [`initOtp`](https://docs.turnkey.com/api-reference/activities/init-generic-otp) with the user's email and a `magicLinkTemplate`:
 
      ```ts
@@ -31,26 +28,29 @@ A step-by-step look under the hood:
      },
      ```
 
-   - The response returns an `otpId` and an `otpEncryptionTargetBundle` (an ephemeral enclave public key). The public half of the session keypair (`publicKey`), `otpId`, and `otpEncryptionTargetBundle` are then stored in `localStorage` to be retrieved after the redirect.
+   - The response returns an `otpId` and an `otpEncryptionTargetBundle` (an ephemeral enclave public key). Both are stored in `localStorage` to be retrieved after the redirect.
 
-3. **_Magic link redirect_**
+2. **_Magic link redirect_**
    - The user clicks the magic link and is redirected to a URL like:
 
      ```
      http://localhost:3000?otpCode=<code>
      ```
 
-   - On page load, the frontend extracts the `otpCode` from the URL and retrieves `otpId`, `publicKey`, and `otpEncryptionTargetBundle` from `localStorage`.
+   - On page load, the frontend extracts the `otpCode` from the URL and retrieves `otpId` and `otpEncryptionTargetBundle` from `localStorage`.
+
+3. **_Generate a session keypair_**
+   - The frontend calls `createApiKeyPair()` to generate a P256 keypair. The private half is stored in IndexedDB and never leaves the device.
 
 4. **_Encrypt the OTP code_**
-   - The frontend calls `encryptOtpCodeToBundle(otpCode, otpEncryptionTargetBundle, publicKey)` from `@turnkey/crypto`. This encrypts the code for the enclave's ephemeral key so the **plaintext OTP is never sent to the backend**.
+   - The frontend calls `encryptOtpCodeToBundle(otpCode, otpEncryptionTargetBundle, publicKey)` from `@turnkey/crypto`. This encrypts the code — along with the session public key — for the enclave's ephemeral key so the **plaintext OTP is never sent to the backend**.
 
 5. **_Verify OTP_**
    - The backend calls [`verifyOtp`](https://docs.turnkey.com/api-reference/activities/verify-generic-otp) with `otpId` and `encryptedOtpBundle`.
-   - This returns a `verificationToken` containing the user's email address.
+   - This returns a `verificationToken` containing the user's email address and the session public key (extracted by the enclave from the encrypted bundle).
 
 6. **_Build a client signature_**
-   - The frontend calls `getClientSignatureMessageForLogin({ verificationToken })` and signs the message with `signWithApiKey({ message, publicKey })`.
+   - The frontend calls `getClientSignatureMessageForLogin({ verificationToken })`, which returns the canonical `publicKey` decoded from the token. It signs the message with `signWithApiKey({ message, publicKey })`.
    - This proves to Turnkey that the caller holds the private key corresponding to `publicKey`, binding the session to the device.
 
 7. **_Get or create the sub-organization_**

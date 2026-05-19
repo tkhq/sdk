@@ -47,16 +47,12 @@ export default function LoginPage() {
     try {
       setIsSubmitting(true);
 
-      // Generate a session keypair for this magic-link attempt.
-      // The private half stays in IndexedDB; publicKey + encryption bundle
-      // survive the redirect in localStorage.
-      const publicKey = await createApiKeyPair();
+      // OTP state needs to survive the redirect, so we store it in localStorage
       const { otpId, otpEncryptionTargetBundle } = await sendMagicLink({
         email,
       });
 
       window.localStorage.setItem("turnkey_otp_id", otpId);
-      window.localStorage.setItem("turnkey_public_key", publicKey);
       window.localStorage.setItem(
         "turnkey_otp_encryption_target_bundle",
         otpEncryptionTargetBundle,
@@ -92,15 +88,16 @@ export default function LoginPage() {
   const loginOrSignUp = async (code: string) => {
     try {
       const otpId = window.localStorage.getItem("turnkey_otp_id");
-      const publicKey = window.localStorage.getItem("turnkey_public_key");
       const otpEncryptionTargetBundle = window.localStorage.getItem(
         "turnkey_otp_encryption_target_bundle",
       );
 
       if (!otpId) throw new Error("No otpId found in local storage.");
-      if (!publicKey) throw new Error("No publicKey found in local storage.");
       if (!otpEncryptionTargetBundle)
         throw new Error("No encryption bundle found in local storage.");
+
+      // Create the session keypair here, after the redirect
+      const publicKey = await createApiKeyPair();
 
       // Encrypt the OTP code for the enclave's target key — the plaintext
       // code is never sent to our backend.
@@ -116,28 +113,30 @@ export default function LoginPage() {
         encryptedOtpBundle,
       });
 
-      // Build a client signature proving we hold the private key for publicKey.
-      const { message } = getClientSignatureMessageForLogin({
-        verificationToken,
+      // The token's publicKey is the canonical source — it was embedded inside
+      // the encrypted bundle by the enclave and equals the key we just created.
+      const { message, publicKey: tokenPublicKey } =
+        getClientSignatureMessageForLogin({ verificationToken });
+      const signature = await signWithApiKey({
+        message,
+        publicKey: tokenPublicKey,
       });
-      const signature = await signWithApiKey({ message, publicKey });
       const clientSignature: v1ClientSignature = {
         scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
-        publicKey,
+        publicKey: tokenPublicKey,
         message,
         signature,
       };
 
       const session = await completeAuth({
         verificationToken,
-        publicKey,
+        publicKey: tokenPublicKey,
         clientSignature,
       });
 
       await storeSession({ sessionToken: session });
 
       window.localStorage.removeItem("turnkey_otp_id");
-      window.localStorage.removeItem("turnkey_public_key");
       window.localStorage.removeItem("turnkey_otp_encryption_target_bundle");
       // On success, authState → Authenticated triggers the redirect and unmounts
       // this component, so isProcessingMagicLink never needs to be reset.
