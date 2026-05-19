@@ -103,20 +103,23 @@ async function main() {
   console.log(`    Automation User:   ${config.automationUserId}`);
   console.log(`    Sweep Policy:      ${config.policyId}`);
 
-  // ── Check balances ──
-  divider("Merchant Balances");
-
-  const balances: { address: string; balance: bigint; formatted: string }[] = [];
-  for (let i = 0; i < config.merchantAddresses.length; i++) {
-    const balance: bigint = await usdc.balanceOf!(config.merchantAddresses[i]);
-    const formatted = ethers.formatUnits(balance, 6);
-    balances.push({ address: config.merchantAddresses[i]!, balance, formatted });
-    const status = balance > 0n ? `${formatted} USDC` : "0.0 USDC (empty)";
-    console.log(`    Merchant ${i}: ${status}`);
-    console.log(`               ${config.merchantAddresses[i]}`);
-  }
-
   const merchantAddress = config.merchantAddresses[0]!;
+
+  // ── Check balances ──
+  await printBalances();
+
+  async function printBalances() {
+    divider("Account Balances");
+    for (let i = 0; i < config.merchantAddresses.length; i++) {
+      const bal: bigint = await usdc.balanceOf!(config.merchantAddresses[i]);
+      const formatted = ethers.formatUnits(bal, 6);
+      const status = bal > 0n ? `${formatted} USDC` : "0.0 USDC (empty)";
+      console.log(`    Merchant ${i}:  ${status}`);
+    }
+    const treasuryBal: bigint = await usdc.balanceOf!(config.treasuryAddress);
+    const treasuryFormatted = ethers.formatUnits(treasuryBal, 6);
+    console.log(`    Treasury:   ${treasuryFormatted} USDC`);
+  }
 
   // ── Interactive menu ──
   let running = true;
@@ -165,20 +168,13 @@ async function main() {
     }
 
     if (action === "refresh") {
-      divider("Refreshing Balances");
-      for (let i = 0; i < config.merchantAddresses.length; i++) {
-        const balance: bigint = await usdc.balanceOf!(config.merchantAddresses[i]);
-        const formatted = ethers.formatUnits(balance, 6);
-        balances[i] = { address: config.merchantAddresses[i]!, balance, formatted };
-        const status = balance > 0n ? `${formatted} USDC` : "0.0 USDC (empty)";
-        console.log(`    Merchant ${i}: ${status}`);
-      }
+      await printBalances();
       continue;
     }
 
-    const actions = action === "all" ? ["sweep", "attack", "wrong-token"] : [action];
+    const scenarios = action === "all" ? ["sweep", "attack", "wrong-token"] : [action];
 
-    for (const act of actions) {
+    for (const act of scenarios) {
       if (act === "sweep") {
         await runSweep();
       } else if (act === "attack") {
@@ -187,6 +183,8 @@ async function main() {
         await runWrongToken();
       }
     }
+
+    await printBalances();
   }
 
   console.log("\n  Done. Thanks for watching the Payflow demo.\n");

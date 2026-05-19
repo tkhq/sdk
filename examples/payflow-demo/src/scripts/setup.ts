@@ -152,7 +152,7 @@ async function main() {
     console.log(`       Merchant ${i}: ${merchantAddresses[i]}`);
   }
   console.log(`  3. Fund the merchant account with a small amount of Sepolia ETH for gas`);
-  console.log(`  4. Run: pnpm demo`);
+  console.log(`  4. Run: pnpm run-demo`);
 }
 
 main().catch((error) => {
