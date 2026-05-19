@@ -3,7 +3,20 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "start": "tsx src/index.ts",
+    "hello": "tsx src/hello-world.ts",
+    "setup": "tsx src/setup.ts",
+    "setup:e2e": "tsx src/setup-e2e.ts",
+    "setup:l1": "tsx src/setup-l1.ts",
+    "e2e:regtest": "tsx src/e2e-regtest.ts",
+    "e2e:lightning-regtest": "tsx src/e2e-lightning-regtest.ts",
+    "token-transfer": "tsx src/token-transfer.ts",
+    "deposit": "tsx src/scripts/deposit-turnkey.ts",
+    "deposit:static": "tsx src/scripts/static-deposit-turnkey.ts",
+    "transfer": "tsx src/transfer.ts",
+    "claim": "tsx src/claim.ts",
+    "lightning:receive": "tsx src/lightning-receive.ts",
+    "lightning:send": "tsx src/lightning-send.ts",
+    "withdraw": "tsx src/withdraw.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -12,11 +25,14 @@
     "@buildonspark/spark-sdk": "0.7.5",
     "@noble/curves": "^1.9.7",
     "@noble/hashes": "^1.4.0",
+    "@peculiar/webcrypto": "^1.5.0",
     "@scure/bip39": "^1.3.0",
     "@scure/btc-signer": "^1.5.0",
+    "@turnkey/crypto": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
-    "@turnkey/spark": "workspace:*",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "light-bolt11-decoder": "^3.2.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "tsx": "^4.7.0",
