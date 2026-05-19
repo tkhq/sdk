@@ -107,8 +107,9 @@ export default function LoginPage() {
         publicKey,
       );
 
-      // Verify the encrypted bundle → get a verificationToken.
-      const { verificationToken } = await verifyOtpAction({
+      // Verify the encrypted bundle → get a verificationToken and the sub-org
+      // ID. Sub-org creation is gated here, after Turnkey validates the OTP.
+      const { verificationToken, subOrgId } = await verifyOtpAction({
         otpId,
         encryptedOtpBundle,
       });
@@ -130,6 +131,7 @@ export default function LoginPage() {
 
       const session = await completeAuth({
         verificationToken,
+        subOrgId,
         publicKey: tokenPublicKey,
         clientSignature,
       });

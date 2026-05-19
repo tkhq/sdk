@@ -10,36 +10,38 @@ const turnkey = new Turnkey({
   defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
 });
 
-// Step 1: verify the encrypted OTP bundle → returns a verificationToken.
-// Splitting this out so the client can build a clientSignature using the token
-// before calling completeAuth.
+// Step 1: verify the encrypted OTP bundle → returns a verificationToken and
+// the sub-org ID. Sub-org lookup/creation is done here, after Turnkey has
+// validated the OTP
 export async function verifyOtpAction(params: {
   otpId: string;
   encryptedOtpBundle: string;
 }) {
-  const { verificationToken } = await turnkey.apiClient().verifyOtp({
+  const client = turnkey.apiClient();
+
+  const { verificationToken } = await client.verifyOtp({
     otpId: params.otpId,
     encryptedOtpBundle: params.encryptedOtpBundle,
   });
   if (!verificationToken) {
     throw new Error("Verification token not found after OTP verification.");
   }
-  return { verificationToken };
+
+  const email = extractEmailFromVerificationToken(verificationToken);
+  const subOrgId = await getOrCreateSuborgForEmail(client, email);
+
+  return { verificationToken, subOrgId };
 }
 
-// Step 2: look up / create the sub-org and issue a session.
+// Step 2: issue a session. subOrgId comes from verifyOtpAction
 export async function completeAuth(params: {
   verificationToken: string;
+  subOrgId: string;
   publicKey: string;
   clientSignature: v1ClientSignature;
 }) {
-  const client = turnkey.apiClient();
-
-  const email = extractEmailFromVerificationToken(params.verificationToken);
-  const subOrgId = await getOrCreateSuborgForEmail(client, email);
-
-  const { session } = await client.otpLogin({
-    organizationId: subOrgId,
+  const { session } = await turnkey.apiClient().otpLogin({
+    organizationId: params.subOrgId,
     verificationToken: params.verificationToken,
     publicKey: params.publicKey,
     clientSignature: params.clientSignature,
