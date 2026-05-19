@@ -557,14 +557,27 @@ export class TurnkeySparkSigner implements SparkSigner {
   async signFrostBatch(params: SignFrostParams[]): Promise<Uint8Array[]> {
     if (params.length === 0) return [];
 
+    // adaptorPubKey may be omitted (undefined) or empty (`new Uint8Array()`,
+    // how the Spark SDK signals non-adaptor signs) — both forward as plain
+    // FROST. Any other length is a caller bug: SPARK_SIGN_FROST would
+    // either reject (non-33-byte → enclave InvalidArgument) or, for a 33-
+    // byte non-curve-point, fail downstream aggregation. Reject at the SDK
+    // boundary so the error points at the call site, not the enclave.
+    for (let i = 0; i < params.length; i++) {
+      const a = params[i]!.adaptorPubKey;
+      if (a !== undefined && a.length !== 0 && a.length !== 33) {
+        throw new Error(
+          `signFrostBatch[${i}]: adaptorPubKey must be omitted, empty, or ` +
+            `a 33-byte compressed secp256k1 point (got length=${a.length})`,
+        );
+      }
+    }
+
     const signatureRequests = params.map((p) => ({
       derivation: mapSigningLeafDerivation(p.keyDerivation),
       message: hex(p.message),
       verifyingKey: hex(p.verifyingKey),
       operatorCommitments: mapOperatorCommitments(p.statechainCommitments),
-      // Spark SDK passes `new Uint8Array()` for non-adaptor signs (empty
-      // is truthy as an object), so length-check before forwarding to
-      // avoid sending an empty `adaptorPublicKey` on every FROST call.
       ...(p.adaptorPubKey && p.adaptorPubKey.length > 0
         ? { adaptorPublicKey: hex(p.adaptorPubKey) }
         : {}),

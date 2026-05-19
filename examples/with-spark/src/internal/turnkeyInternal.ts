@@ -560,25 +560,8 @@ export async function signRefundsBatched(
     };
   }
 
-  // When a caller intends to use adaptor signing (swap path), the pubkey
-  // must be a 33-byte compressed secp256k1 point. SPARK_SIGN_FROST silently
-  // accepts a malformed/empty adaptor field and produces a non-adaptor
-  // signature share; the aggregate signature is only rejected later by
-  // initiate_swap_primary_transfer with "calculated R y-value is odd". The
-  // plain-transfer path leaves adaptorPubKey undefined and is fine.
-  if (
-    mode.kind === "transfer" &&
-    mode.adaptorPubKey !== undefined &&
-    mode.adaptorPubKey.length !== 33
-  ) {
-    throw new Error(
-      `signRefundsBatched: adaptorPubKey must be a 33-byte compressed ` +
-        `secp256k1 point when provided (got length=${mode.adaptorPubKey.length}). ` +
-        `Pass undefined for plain (non-swap) transfers, or a valid 33-byte ` +
-        `compressed pubkey for the swap path.`,
-    );
-  }
-
+  // adaptorPubKey length-validation lives at the SPARK_SIGN_FROST boundary
+  // in `signFrostBatch`, covering every caller (transfer, coopExit, ...).
   const network = internals.config.getNetwork();
   const connectorTxParsed =
     mode.kind === "coopExit" ? getTxFromRawTxBytes(mode.connectorTx) : undefined;
