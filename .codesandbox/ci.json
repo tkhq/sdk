@@ -1,6 +1,5 @@
 {
-  "installCommand": "csb:install",
-  "buildCommand": "csb:build",
+  "buildCommand": "build-all",
   "packages": [
     "packages/cosmjs",
     "packages/eip-1193-provider",

@@ -10,8 +10,6 @@
     "build:watch": "tsc --build tsconfig.mono.json --watch",
     "build": "turbo --filter \"./packages/**\" build",
     "generate-docs": "typedoc --options typedoc.json",
-    "csb:install": "corepack enable && pnpm install -r",
-    "csb:build": "pnpm run build-all",
     "clean-all": "pnpm run -r clean",
     "prettier-all:check": "prettier --check \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml,mjs}\" --ignore-path ./.prettierignore",
     "prettier-all:write": "prettier --write \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml,mjs}\" --ignore-path ./.prettierignore",
