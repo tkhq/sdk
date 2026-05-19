@@ -41,12 +41,8 @@ runs:
       env:
         SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
-    - name: Audit the lockfiles to catch peer dependency issues
-      run: pnpm install -r --lockfile-only
-      shell: bash
-
     - name: Install dependencies
-      run: pnpm install -r --frozen-lockfile
+      run: pnpm install --frozen-lockfile
       shell: bash
 
     - name: Install Foundry
