@@ -6,6 +6,8 @@ Built on top of patterns from [`sweeper`](../sweeper/) (transfer automation), [`
 
 For architecture details, design decisions, and a production roadmap, see the [Customer Readout](./docs/payflow-readout.md).
 
+[Watch the demo recording](https://drive.google.com/file/d/13aOgC1nI0THKp2OLzp6OF7yQ1Gf7mnmb/view?usp=sharing) for a full walkthrough of setup, sweep, and policy enforcement.
+
 ## Getting started
 
 ### 1/ Clone the repository

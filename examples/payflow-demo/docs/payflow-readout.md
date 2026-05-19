@@ -6,6 +6,14 @@
 
 ---
 
+## Demo Recording
+
+Watch the full walkthrough of setup, sweep, and policy enforcement in action:
+
+[View Screen Recording](https://drive.google.com/file/d/13aOgC1nI0THKp2OLzp6OF7yQ1Gf7mnmb/view?usp=sharing)
+
+---
+
 ## Problem Summary
 
 Payflow is building stablecoin payment rails for small businesses. Merchants receive hundreds of USDC deposits daily from their customers, and Payflow needs to:
