@@ -79,6 +79,18 @@ async function main() {
   const automationClient = getAutomationClient();
   const organizationId = process.env.ORGANIZATION_ID!;
 
+  // ── Validate credentials match generated config ──
+  const envPubKey = process.env.AUTOMATION_API_PUBLIC_KEY;
+  if (envPubKey !== config.automationApiPublicKey) {
+    console.error("\n  ✗ Credential mismatch detected!");
+    console.error(`    .env.local key:        ${envPubKey}`);
+    console.error(`    generated.json key:    ${config.automationApiPublicKey}`);
+    console.error("\n  Update .env.local with the credentials from payflow.generated.json:");
+    console.error(`    AUTOMATION_API_PUBLIC_KEY="${config.automationApiPublicKey}"`);
+    console.error(`    AUTOMATION_API_PRIVATE_KEY="${config.automationApiPrivateKey}"`);
+    process.exit(1);
+  }
+
   function createSigner(signWith: string) {
     return new TurnkeySigner(
       {
