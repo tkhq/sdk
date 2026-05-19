@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const state = req.nextUrl.searchParams.get("state") ?? "";
+  const state = req.nextUrl.searchParams.get("state");
+  if (!state) {
+    return NextResponse.json({ error: "Missing state parameter" }, { status: 400 });
+  }
+
   const params = new URLSearchParams({
     redirect_uri: process.env.X_REDIRECT_URI!, // should match exactly what is entered on X's developer portal
     response_type: "code",
