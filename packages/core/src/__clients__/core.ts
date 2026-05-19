@@ -573,6 +573,7 @@ export class TurnkeyClient {
           );
         }
 
+        // For passkey stamps, the stamp header value is JSON that includes the credentialId used to sign. Extract it here so we can return it to the caller.
         const credentialId = (
           JSON.parse(passkeyLoginRequest.stamp.stampHeaderValue) as {
             credentialId: string;
