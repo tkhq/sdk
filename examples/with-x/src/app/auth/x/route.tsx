@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     scope: "tweet.read users.read", // the minimum scope required for Turnkey to perform OAuth 2.0 authentication on behalf of an end-user
     state,
     code_challenge: "base64_encoded_sha256(code_verifier)", // the base64 encoded sha256 of code_verifier should be used in production
-    code_challenge_method: "plain", // you should use the P256 challenge method in production
+    code_challenge_method: "plain", // you should use the S256 challenge method in production
   });
 
   return NextResponse.redirect(
