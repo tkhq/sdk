@@ -56,7 +56,6 @@
     "typedoc-plugin-markdown": "^4.6.0",
     "typescript": "5.4.3"
   },
-  "packageManager": "pnpm@10.6.3",
   "pnpm": {
     "auditConfig": {
       "ignoreCves": [
@@ -113,5 +112,6 @@
       "defu@<=6.1.4": ">=6.1.5",
       "@babel/plugin-transform-modules-systemjs@>=7.12.0 <=7.29.3": ">=7.29.4"
     }
-  }
+  },
+  "packageManager": "pnpm@10.6.3+sha512.bb45e34d50a9a76e858a95837301bfb6bd6d35aea2c5d52094fa497a467c43f5c440103ce2511e9e0a2f89c3d6071baac3358fc68ac6fb75e2ceb3d2736065e6"
 }
