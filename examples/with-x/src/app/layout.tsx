@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { TurnkeyProvider } from "@turnkey/sdk-react";
 import "./globals.css";
 
@@ -9,7 +10,7 @@ const turnkeyConfig = {
 };
 
 interface RootLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 function RootLayout({ children }: RootLayoutProps) {
