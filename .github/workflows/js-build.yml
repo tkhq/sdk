@@ -7,6 +7,11 @@ on:
   pull_request:
   workflow_dispatch: # Allows manual invocation
 
+concurrency:
+  # We only want to cancel previous builds on PRs and let the pushes to main complete
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+
 jobs:
   build:
     runs-on: ubuntu-latest
