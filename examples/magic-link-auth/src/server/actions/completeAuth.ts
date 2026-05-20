@@ -1,45 +1,50 @@
 "use server";
 
 import { Turnkey, TurnkeyApiClient } from "@turnkey/sdk-server";
+import type { v1ClientSignature } from "@turnkey/sdk-types";
 
-type CompleteAuthParams = {
+const turnkey = new Turnkey({
+  apiBaseUrl: "https://api.turnkey.com",
+  apiPrivateKey: process.env.API_PRIVATE_KEY!,
+  apiPublicKey: process.env.API_PUBLIC_KEY!,
+  defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+});
+
+// Step 1: verify the encrypted OTP bundle → returns a verificationToken and
+// the sub-org ID. Sub-org lookup/creation is done here, after Turnkey has
+// validated the OTP
+export async function verifyOtpAction(params: {
   otpId: string;
-  otpCode: string;
-  publicKey: string;
-};
+  encryptedOtpBundle: string;
+}) {
+  const client = turnkey.apiClient();
 
-export async function completeAuth({
-  otpId,
-  otpCode,
-  publicKey,
-}: CompleteAuthParams) {
-  const turnkeyClient = new Turnkey({
-    apiBaseUrl: "https://api.turnkey.com",
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-  }).apiClient();
-
-  // we cerify the OTP code to get a verification token
-  const { verificationToken } = await turnkeyClient.verifyOtp({
-    otpId,
-    otpCode,
+  const { verificationToken } = await client.verifyOtp({
+    otpId: params.otpId,
+    encryptedOtpBundle: params.encryptedOtpBundle,
   });
   if (!verificationToken) {
     throw new Error("Verification token not found after OTP verification.");
   }
 
-  // we extract the email from the verificationToken
   const email = extractEmailFromVerificationToken(verificationToken);
+  const subOrgId = await getOrCreateSuborgForEmail(client, email);
 
-  // we either get or create the sub-organization for this email
-  const subOrgId = await getOrCreateSuborgForEmail(turnkeyClient, email);
+  return { verificationToken, subOrgId };
+}
 
-  // create a session
-  const { session } = await turnkeyClient.otpLogin({
-    organizationId: subOrgId,
-    verificationToken,
-    publicKey,
+// Step 2: issue a session. subOrgId comes from verifyOtpAction
+export async function completeAuth(params: {
+  verificationToken: string;
+  subOrgId: string;
+  publicKey: string;
+  clientSignature: v1ClientSignature;
+}) {
+  const { session } = await turnkey.apiClient().otpLogin({
+    organizationId: params.subOrgId,
+    verificationToken: params.verificationToken,
+    publicKey: params.publicKey,
+    clientSignature: params.clientSignature,
   });
 
   if (!session) {
@@ -49,17 +54,14 @@ export async function completeAuth({
   return session;
 }
 
-// helper to decode the verification token and extract the email
 function extractEmailFromVerificationToken(token: string): string {
   try {
     const [, payloadBase64] = token.split(".");
     const payloadJson = Buffer.from(payloadBase64, "base64url").toString();
     const payload = JSON.parse(payloadJson);
-
     const email = payload.contact;
     if (!email)
       throw new Error("Email not found in verification token payload.");
-
     return email;
   } catch (error) {
     console.error("Failed to decode verification token:", error);
@@ -67,13 +69,11 @@ function extractEmailFromVerificationToken(token: string): string {
   }
 }
 
-// helper to get or create a sub-organization for the given email
 async function getOrCreateSuborgForEmail(
-  turnkeyClient: TurnkeyApiClient,
+  client: TurnkeyApiClient,
   email: string,
 ): Promise<string> {
-  // we try to find an existing sub-org
-  const { organizationIds } = await turnkeyClient.getVerifiedSubOrgIds({
+  const { organizationIds } = await client.getVerifiedSubOrgIds({
     filterType: "EMAIL",
     filterValue: email,
   });
@@ -81,9 +81,8 @@ async function getOrCreateSuborgForEmail(
   const existingSubOrgId = organizationIds?.[0];
   if (existingSubOrgId) return existingSubOrgId;
 
-  // no subOrg exists, so we create one
-  const { subOrganizationId } = await turnkeyClient.createSubOrganization({
-    subOrganizationName: `suborg-${Date.now()}`,
+  const { subOrganizationId } = await client.createSubOrganization({
+    subOrganizationName: `suborg-magic-link-${Date.now()}`,
     rootQuorumThreshold: 1,
     rootUsers: [
       {

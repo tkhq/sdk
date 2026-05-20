@@ -1,6 +1,6 @@
 # Example: `Magic Link Login / Signup`
 
-This is a minimal **Next.js** app showing how to build a **“magic link” login and signup flow** using Turnkey’s email OTP system.
+This is a minimal **Next.js** app showing how to build a **"magic link" login and signup flow** using Turnkey's email OTP system.
 
 ---
 
@@ -19,49 +19,52 @@ A high-level overview of the user experience and what happens on screen:
 A step-by-step look under the hood:
 
 1. **_Send the magic link_**
-   - The app calls [`initOtp`](https://docs.turnkey.com/api-reference/activities/init-generic-otp) with the user’s email and an `emailCustomization` object containing a `magicLinkTemplate`:
+   - The backend calls [`initOtp`](https://docs.turnkey.com/api-reference/activities/init-generic-otp) with the user's email and a `magicLinkTemplate`:
 
      ```ts
      emailCustomization: {
-       // %s will be replaced with the otpCode when sending the email
+       // %s is replaced with the OTP code when the email is sent
        magicLinkTemplate: "http://localhost:3000?otpCode=%s",
      },
      ```
 
-   - The `%s` placeholder in the template will be replaced by Turnkey with the **`otpCode`** when the email is sent, producing a fully functional magic link.
-
-   - The response returns an `otpId` that will be required later when the user clicks the link. We store this `otpId` in `localStorage` for use after redirection.
+   - The response returns an `otpId` and an `otpEncryptionTargetBundle` (an ephemeral enclave public key). Both are stored in `localStorage` to be retrieved after the redirect.
 
 2. **_Magic link redirect_**
-   - The user clicks the magic link in their email and is redirected back to the app at a URL like:
+   - The user clicks the magic link and is redirected to a URL like:
 
-     ```bash
+     ```
      http://localhost:3000?otpCode=<code>
      ```
 
-   - On page load, the frontend automatically extracts the `otpCode` from the query parameters and retrieves the stored `otpId` from `localStorage`.
+   - On page load, the frontend extracts the `otpCode` from the URL and retrieves `otpId` and `otpEncryptionTargetBundle` from `localStorage`.
 
-   - It then proceeds to complete the authentication flow.
+3. **_Generate a session keypair_**
+   - The frontend calls `createApiKeyPair()` to generate a P256 keypair. The private half is stored in IndexedDB and never leaves the device.
 
-3. **_Verify OTP_**
-   - The app calls [`verifyOtp`](https://docs.turnkey.com/api-reference/activities/verify-generic-otp) with the `otpId` and `otpCode`.
-   - This returns a `verificationToken`, which contains their email address.
+4. **_Encrypt the OTP code_**
+   - The frontend calls `encryptOtpCodeToBundle(otpCode, otpEncryptionTargetBundle, publicKey)` from `@turnkey/crypto`. This encrypts the code — along with the session public key — for the enclave's ephemeral key so the **plaintext OTP is never sent to the backend**.
 
-4. **_Getting the Sub-organization Id_**
-   - The email is extracted from the decoded `verificationToken` payload.
-   - The app checks if a sub-organization already exists for that email:
+5. **_Verify OTP_**
+   - The backend calls [`verifyOtp`](https://docs.turnkey.com/api-reference/activities/verify-generic-otp) with `otpId` and `encryptedOtpBundle`.
+   - This returns a `verificationToken` containing the user's email address and the session public key (extracted by the enclave from the encrypted bundle).
+
+6. **_Build a client signature_**
+   - The frontend calls `getClientSignatureMessageForLogin({ verificationToken })`, which returns the canonical `publicKey` decoded from the token. It signs the message with `signWithApiKey({ message, publicKey })`.
+   - This proves to Turnkey that the caller holds the private key corresponding to `publicKey`, binding the session to the device.
+
+7. **_Get or create the sub-organization_**
+   - The email is extracted from the `verificationToken` payload.
+   - The backend checks if a sub-organization already exists for that email:
      - If **no sub-org** exists → it creates one.
      - If it **does exist** → it reuses it.
 
-   - In both cases, the process results in a valid `suborgId`.
+8. **_Login with OTP_**
+   - The backend calls [`otpLogin`](https://docs.turnkey.com/api-reference/activities/login-with-otp) with the `verificationToken`, `publicKey`, `suborgId`, and `clientSignature`.
+   - This issues a **session token**, completing the magic link login/signup flow.
 
-5. **_Login with OTP_**
-   - The app calls [`otpLogin`](https://docs.turnkey.com/api-reference/activities/login-with-otp) with the `verificationToken`, `publicKey`, and `suborgId`.
-   - This final step issues a **session token**, completing the magic link login/signup flow.
-
-6. **_Session storage_**
-   - The frontend stores the resulting session using the Turnkey SDK’s `storeSession` method.
-   - From this point onward, the user is authenticated and can interact with their Turnkey-managed wallets and sub-organization.
+9. **_Session storage_**
+   - The frontend stores the session using `storeSession`. The user is now authenticated and can interact with their Turnkey-managed wallets and sub-organization.
 
 ---
 
@@ -77,7 +80,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/otp-auth/
+$ cd examples/magic-link-auth/
 ```
 
 ### 2/ Setting up Turnkey
@@ -106,3 +109,17 @@ $ pnpm run dev
 ```
 
 This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to start.
+
+---
+
+## Implementation note: `LoginPage` is loaded with `ssr: false`
+
+`page.tsx` dynamically imports `LoginPage` with `{ ssr: false }` so that Next.js skips server-rendering it entirely. This is required because `LoginPage` reads `window.location.search` in a `useState` initializer to detect the magic-link redirect and immediately show a loading screen instead of the login form:
+
+```ts
+const [isProcessingMagicLink, setIsProcessingMagicLink] = useState(() =>
+  new URLSearchParams(window.location.search).has("otpCode"),
+);
+```
+
+`window` is not available during SSR, and reading it there would either throw or produce a hydration mismatch (server renders the form; client corrects to the loading screen, causing a visible flash). With `ssr: false` the component only ever runs in the browser, so `window` is always defined and the initial state is correct on the very first render.
