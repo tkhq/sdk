@@ -144,6 +144,9 @@ export default function LoginPage() {
       // this component, so isProcessingMagicLink never needs to be reset.
     } catch (err) {
       console.error("Magic link login failed:", err);
+      window.localStorage.removeItem("turnkey_otp_id");
+      window.localStorage.removeItem("turnkey_otp_encryption_target_bundle");
+      loginAttempted.current = false;
       setIsProcessingMagicLink(false);
     }
   };
