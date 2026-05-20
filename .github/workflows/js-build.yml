@@ -75,6 +75,10 @@ jobs:
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
+      # Install foundry toolchain
+      - name: Setup Foundry
+        uses: ./.github/actions/foundry-setup
+
       - name: Build
         run: pnpm build --filter='./packages/*'
 
@@ -105,6 +109,10 @@ jobs:
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
+
+      # Install foundry toolchain
+      - name: Setup Foundry
+        uses: ./.github/actions/foundry-setup
 
       - name: Build
         run: pnpm build --filter='./packages/*'
@@ -154,20 +162,25 @@ jobs:
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
+      # Install foundry toolchain
+      - name: Setup Foundry
+        uses: ./.github/actions/foundry-setup
+
+      # Install playwright browsers
+      - name: Setup Playwright
+        id: playwright-setup
+        uses: ./.github/actions/playwright-setup
+
       # We only want to build the examples/with-sdk-js and its dependencies
       - name: Build
         run: pnpm build --filter=./examples/with-sdk-js...
 
-      # Install Playwright browsers + system deps
-      - name: Install Playwright browsers
-        run: pnpm playwright install chromium --with-deps
-        working-directory: examples/with-sdk-js
-
       - name: Run Playwright tests
-        env:
-          CI: "true"
         run: pnpm exec playwright test --reporter=line,html
         working-directory: examples/with-sdk-js
+        env:
+          CI: "true"
+          PLAYWRIGHT_BROWSERS_PATH: ${{ steps.playwright-setup.outputs.cache }}
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
