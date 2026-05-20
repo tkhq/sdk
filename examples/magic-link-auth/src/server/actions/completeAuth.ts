@@ -1,17 +1,47 @@
 "use server";
 
-import { Turnkey, TurnkeyApiClient } from "@turnkey/sdk-server";
+import { Turnkey, TurnkeyApiClient, v1ClientSignature } from "@turnkey/sdk-server";
+
+// Step 1: verify the encrypted OTP bundle → returns a verificationToken and
+// the sub-org ID. Sub-org lookup/creation is done here, after Turnkey has
+// validated the OTP
+export async function verifyOtpAction(params: {
+  otpId: string;
+  encryptedOtpBundle: string;
+}) {
+  const turnkeyClient = new Turnkey({
+    apiBaseUrl: "https://api.turnkey.com",
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+  }).apiClient();
+
+  const { verificationToken } = await turnkeyClient.verifyOtp({
+    otpId: params.otpId,
+    encryptedOtpBundle: params.encryptedOtpBundle,
+  });
+  if (!verificationToken) {
+    throw new Error("Verification token not found after OTP verification.");
+  }
+
+  const email = extractEmailFromVerificationToken(verificationToken);
+  const subOrgId = await getOrCreateSuborgForEmail(turnkeyClient, email);
+
+  return { verificationToken, subOrgId };
+}
 
 type CompleteAuthParams = {
   otpId: string;
-  otpCode: string;
+  otpEncryptionTargetBundle: string;
   publicKey: string;
+  clientSignature: v1ClientSignature
 };
 
 export async function completeAuth({
   otpId,
-  otpCode,
+  otpEncryptionTargetBundle,
   publicKey,
+  clientSignature,
 }: CompleteAuthParams) {
   const turnkeyClient = new Turnkey({
     apiBaseUrl: "https://api.turnkey.com",
@@ -23,7 +53,7 @@ export async function completeAuth({
   // we cerify the OTP code to get a verification token
   const { verificationToken } = await turnkeyClient.verifyOtp({
     otpId,
-    otpCode,
+    encryptedOtpBundle: otpEncryptionTargetBundle,
   });
   if (!verificationToken) {
     throw new Error("Verification token not found after OTP verification.");
@@ -40,6 +70,7 @@ export async function completeAuth({
     organizationId: subOrgId,
     verificationToken,
     publicKey,
+    clientSignature,
   });
 
   if (!session) {

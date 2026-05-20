@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { sendMagicLink } from "@/server/actions/sendMagicLink";
-import { AuthState, ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
-import { completeAuth } from "@/server/actions/completeAuth";
+import { AuthState, ClientState, getClientSignatureMessageForLogin, useTurnkey } from "@turnkey/react-wallet-kit";
+import { completeAuth, verifyOtpAction } from "@/server/actions/completeAuth";
 import { useRouter } from "next/navigation";
+import { v1ClientSignature } from "@turnkey/sdk-server";
+import { encryptOtpCodeToBundle } from "@turnkey/crypto";
 
 function LoginPage() {
   const router = useRouter();
-  const { clientState, authState, createApiKeyPair, storeSession } =
+  const { clientState, authState, createApiKeyPair, storeSession, signWithApiKey } =
     useTurnkey();
 
   const [email, setEmail] = useState("");
@@ -29,11 +31,12 @@ function LoginPage() {
 
     try {
       setIsSubmitting(true);
-      const otpId = await sendMagicLink({ email });
+      const { otpId, otpEncryptionTargetBundle } = await sendMagicLink({ email });
 
-      // we store the otpId in local storage to use it later when the user clicks the magic link
+      // we store the otpId and otpEncryptionTargetBundle in local storage to use it later when the user clicks the magic link
       // since its needed to verify the otp code
       window.localStorage.setItem("turnkey_otp_id", otpId);
+      window.localStorage.setItem("turnkey_otp_encryption_target_bundle", otpEncryptionTargetBundle);
 
       setIsSent(true);
     } finally {
@@ -65,8 +68,6 @@ function LoginPage() {
   }, [authState, router]);
 
   const loginOrSignUp = async (otpCode: string) => {
-    const publicKey = await createApiKeyPair();
-
     // get the otpId from local storage
     const otpId = window.localStorage.getItem("turnkey_otp_id");
 
@@ -74,11 +75,48 @@ function LoginPage() {
       throw new Error("No otpId found in local storage.");
     }
 
-    const session = await completeAuth({ otpId, otpCode, publicKey });
+    const otpEncryptionTargetBundle = window.localStorage.getItem("turnkey_otp_encryption_target_bundle");
+
+    if (!otpEncryptionTargetBundle) {
+      throw new Error("No otpEncryptionTargetBundle found in local storage.");
+    }
+
+    const publicKey = await createApiKeyPair();
+    const encryptedOtpBundle = await encryptOtpCodeToBundle(
+        otpCode.trim(),
+        otpEncryptionTargetBundle,
+        publicKey,
+      );
+
+      // Verify the encrypted bundle → get a verificationToken and the sub-org
+      // ID. Sub-org creation is gated here, after Turnkey validates the OTP.
+      const { verificationToken, subOrgId } = await verifyOtpAction({
+        otpId,
+        encryptedOtpBundle,
+      });
+
+    // signature over the new key
+    // The token's publicKey is the canonical source — it was embedded inside
+      // the encrypted bundle by the enclave and equals the key we just created.
+      const { message, publicKey: tokenPublicKey } =
+        getClientSignatureMessageForLogin({ verificationToken });
+      const signature = await signWithApiKey({
+        message,
+        publicKey: tokenPublicKey,
+      });
+      const clientSignature: v1ClientSignature = {
+        scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
+        publicKey: tokenPublicKey,
+        message,
+        signature,
+      };
+
+    const session = await completeAuth({ otpId, otpEncryptionTargetBundle, publicKey, clientSignature });
     await storeSession({ sessionToken: session });
 
-    // remove the otpId from local storage since we don't need it anymore
+    // remove the otpId and otpEncryptionTargetBundle from local storage since we don't need them anymore
     window.localStorage.removeItem("turnkey_otp_id");
+    window.localStorage.removeItem("turnkey_otp_encryption_target_bundle");
   };
 
   return (
