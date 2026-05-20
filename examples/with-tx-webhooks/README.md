@@ -1,11 +1,16 @@
-# Example: `with-balance-confirmed-webhooks`
+# Example: `with-tx-webhooks`
 
-This example includes:
+This example demonstrates Turnkey webhook subscriptions for two event types:
 
-- a script that creates a webhook endpoint for `BALANCE_CONFIRMED_UPDATES` using `@turnkey/sdk-server`
-- a webhook server endpoint at `/webhook/balance-updates`
+- **`BALANCE_CONFIRMED_UPDATES`** — fires when a balance change is confirmed on-chain
+- **`SEND_TRANSACTION_STATUS_UPDATES`** — fires when a sponsored transaction status changes
+
+It includes:
+
+- a script that registers a webhook endpoint for either event type using `@turnkey/sdk-server`
+- webhook server endpoints at `/webhook/balance-updates` and `/webhook/tx-updates`
 - a frontend that fetches balances for an address (`getWalletAddressBalances`, surfaced as `getBalances` in this example)
-- a frontend popup notification when a balance-confirmed webhook arrives
+- a frontend popup notification when a webhook event arrives
 - per-asset send buttons in the balances table so you can send native assets, ERC-20 tokens, or SPL tokens (`sponsor: false`) to a prompted recipient address
 
 ## Getting started
@@ -24,7 +29,7 @@ pnpm install
 From this example directory:
 
 ```bash
-cd examples/with-balance-confirmed-webhooks
+cd examples/with-tx-webhooks
 cp .env.example .env
 ```
 
@@ -33,7 +38,8 @@ Fill in:
 - `API_PUBLIC_KEY`
 - `API_PRIVATE_KEY`
 - `ORGANIZATION_ID`
-- `WEBHOOK_URL` (public URL that points to `/webhook/balance-updates`)
+- `BALANCE_WEBHOOK_URL` (public URL that points to `/webhook/balance-updates`)
+- `TX_STATUS_WEBHOOK_URL` (public URL that points to `/webhook/tx-updates`)
 - `NEXT_PUBLIC_DEFAULT_ADDRESS` should be an address controlled by your Turnkey org if you want to test withdrawals from the UI
   (it must have enough native balance on the selected network to cover value + fees, and for SPL sends it also needs enough SOL to create the recipient ATA when missing)
 - optional `ETH_RPC_URL` if you want to force a specific RPC endpoint for unsponsored ETH sends
@@ -42,7 +48,8 @@ Fill in:
 Example:
 
 ```env
-WEBHOOK_URL="https://your-subdomain.ngrok-free.app/webhook/balance-updates"
+BALANCE_WEBHOOK_URL="https://your-subdomain.ngrok-free.app/webhook/balance-updates"
+TX_STATUS_WEBHOOK_URL="https://your-subdomain.ngrok-free.app/webhook/tx-updates"
 ```
 
 ### 3/ Run the app
@@ -61,29 +68,38 @@ Use ngrok (or equivalent):
 ngrok http 3000
 ```
 
-Update `WEBHOOK_URL` in `.env` to match your ngrok URL and keep the `/webhook/balance-updates` path.
+Update `BALANCE_WEBHOOK_URL` and `TX_STATUS_WEBHOOK_URL` in `.env` to match your ngrok URL.
 
 ### 5/ Register the webhook with Turnkey (via SDK server)
 
+Register a **balance-confirmed** webhook:
+
 ```bash
-pnpm register-webhook
+pnpm register-webhook:balance
 ```
 
-This script calls:
+Register a **transaction status** webhook:
 
-- `createWebhookEndpoint`
-- with subscription `{ eventType: "BALANCE_CONFIRMED_UPDATES" }`
+```bash
+pnpm register-webhook:tx-status
+```
+
+Both commands call `createWebhookEndpoint` and set the appropriate `eventType` subscription. You can register both at the same time — each call creates a separate endpoint.
 
 ## Webhook endpoint details
 
-- Endpoint: `POST /webhook/balance-updates`
-- SSE stream to frontend: `GET /api/events`
-- Balance lookup API used by frontend: `GET /api/balances?address=<address>&caip2=<caip2>`
-- Transaction send API used by table action buttons: `POST /api/tx-send` (always sends with `sponsor: false`)
+| Purpose                                            | Route                                               |
+| -------------------------------------------------- | --------------------------------------------------- |
+| Receive `BALANCE_CONFIRMED_UPDATES` webhooks       | `POST /webhook/balance-updates`                     |
+| Receive `SEND_TRANSACTION_STATUS_UPDATES` webhooks | `POST /webhook/tx-updates`                          |
+| SSE stream for balance events (frontend)           | `GET /api/balance-events`                           |
+| SSE stream for tx-status events (frontend)         | `GET /api/tx-events`                                |
+| Balance lookup                                     | `GET /api/balances?address=<address>&caip2=<caip2>` |
+| Send transaction (unsponsored)                     | `POST /api/tx-send`                                 |
 
 ## Test webhook delivery locally
 
-You can simulate a webhook event:
+Simulate a **balance confirmed** event:
 
 ```bash
 curl -X POST http://localhost:3000/webhook/balance-updates \
@@ -114,7 +130,27 @@ curl -X POST http://localhost:3000/webhook/balance-updates \
   }'
 ```
 
-When this request is received, the frontend shows a popup notification and appends the event to the recent events list.
+Simulate a **transaction status** event:
+
+```bash
+curl -X POST http://localhost:3000/webhook/tx-updates \
+  -H "content-type: application/json" \
+  -d '{
+    "type": "transaction:status",
+    "msg": {
+      "sendTransactionStatusId": "abc123",
+      "activityId": "activity-456",
+      "orgID": "ac4763ff-4bb3-4350-b926-355d87882578",
+      "status": "CONFIRMED",
+      "caip2": "eip155:8453",
+      "idempotencyKey": "8be5a6fa9d04d9474b41e659e5b9b0c4b8eaa5fba754b4154fb8f29b3b20ac9e",
+      "timestamp": 1746000000,
+      "txHash": "0xa1f7f464f73cdf484daf24e59932baefbb71fadf6590f22dc50750a0809cbcdc"
+    }
+  }'
+```
+
+When either request is received, the frontend shows a popup notification and appends the event to the corresponding feed.
 
 ## Triggering a withdrawal event from UI
 

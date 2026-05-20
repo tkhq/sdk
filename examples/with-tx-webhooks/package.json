@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-with-balance-confirmed-webhooks",
+  "name": "@turnkey/example-with-tx-webhooks",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "register-webhook": "NODE_NO_WARNINGS=1 tsx src/scripts/register-balance-confirmed-webhook.ts"
+    "register-webhook:balance": "NODE_NO_WARNINGS=1 EVENT_TYPE=BALANCE_CONFIRMED_UPDATES tsx src/scripts/register-webhook.ts",
+    "register-webhook:tx-status": "NODE_NO_WARNINGS=1 EVENT_TYPE=SEND_TRANSACTION_STATUS_UPDATES tsx src/scripts/register-webhook.ts"
   },
   "dependencies": {
     "@solana/spl-token": "^0.4.14",

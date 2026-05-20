@@ -3,7 +3,12 @@ import * as path from "path";
 import * as dotenv from "dotenv";
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 
-const BALANCE_CONFIRMED_EVENT = "BALANCE_CONFIRMED_UPDATES";
+const SUPPORTED_EVENT_TYPES = [
+  "BALANCE_CONFIRMED_UPDATES",
+  "SEND_TRANSACTION_STATUS_UPDATES",
+] as const;
+
+type EventType = (typeof SUPPORTED_EVENT_TYPES)[number];
 
 function loadEnv() {
   const basePath = process.cwd();
@@ -32,14 +37,37 @@ function requiredEnv(name: string): string {
 async function main() {
   loadEnv();
 
+  // EVENT_TYPE can be passed as an env var or as the first CLI argument
+  const eventType: string =
+    process.env.EVENT_TYPE?.trim() || process.argv[2] || "";
+
+  if (!SUPPORTED_EVENT_TYPES.includes(eventType as EventType)) {
+    throw new Error(
+      `Invalid or missing EVENT_TYPE. Must be one of: ${SUPPORTED_EVENT_TYPES.join(", ")}.\n` +
+        `Pass it via the EVENT_TYPE env var or as a CLI argument.`,
+    );
+  }
+
   const organizationId = requiredEnv("ORGANIZATION_ID");
   const apiPublicKey = requiredEnv("API_PUBLIC_KEY");
   const apiPrivateKey = requiredEnv("API_PRIVATE_KEY");
-  const webhookUrl = requiredEnv("WEBHOOK_URL");
   const baseUrl = process.env.BASE_URL?.trim() || "https://api.turnkey.com";
+
+  // Prefer event-specific env vars; fall back to generic WEBHOOK_URL / WEBHOOK_NAME
+  const isBalance = eventType === "BALANCE_CONFIRMED_UPDATES";
+  const webhookUrlEnvVar = isBalance
+    ? "BALANCE_WEBHOOK_URL"
+    : "TX_STATUS_WEBHOOK_URL";
+  const webhookNameEnvVar = isBalance
+    ? "BALANCE_WEBHOOK_NAME"
+    : "TX_STATUS_WEBHOOK_NAME";
+
+  const webhookUrl =
+    process.env[webhookUrlEnvVar]?.trim() || requiredEnv("WEBHOOK_URL");
   const webhookName =
+    process.env[webhookNameEnvVar]?.trim() ||
     process.env.WEBHOOK_NAME?.trim() ||
-    `balance-confirmed-webhook-${Date.now()}`;
+    `${eventType.toLowerCase().replace(/_/g, "-")}-${Date.now()}`;
 
   const turnkey = new TurnkeySDKServer({
     apiBaseUrl: baseUrl,
@@ -54,7 +82,7 @@ async function main() {
     url: webhookUrl,
     subscriptions: [
       {
-        eventType: BALANCE_CONFIRMED_EVENT,
+        eventType,
       },
     ],
   });
@@ -65,7 +93,7 @@ async function main() {
       `- Endpoint ID: ${response.endpointId}`,
       `- Name: ${response.webhookEndpoint?.name ?? webhookName}`,
       `- URL: ${response.webhookEndpoint?.url ?? webhookUrl}`,
-      `- Subscription: ${BALANCE_CONFIRMED_EVENT}`,
+      `- Subscription: ${eventType}`,
     ].join("\n"),
   );
 }
