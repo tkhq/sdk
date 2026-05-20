@@ -3,7 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   const state = req.nextUrl.searchParams.get("state");
   if (!state) {
-    return NextResponse.json({ error: "Missing state parameter" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing state parameter" },
+      { status: 400 },
+    );
   }
 
   const params = new URLSearchParams({
