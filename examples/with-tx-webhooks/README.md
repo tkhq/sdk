@@ -1,4 +1,4 @@
-# Example: `with-balance-confirmed-webhooks`
+# Example: `with-tx-webhooks`
 
 This example demonstrates Turnkey webhook subscriptions for two event types:
 
@@ -29,7 +29,7 @@ pnpm install
 From this example directory:
 
 ```bash
-cd examples/with-balance-confirmed-webhooks
+cd examples/with-tx-webhooks
 cp .env.example .env
 ```
 
