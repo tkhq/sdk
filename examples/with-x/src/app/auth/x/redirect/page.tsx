@@ -16,6 +16,7 @@ export default function RedirectPage() {
 
   useEffect(() => {
     if (clientState !== ClientState.Ready) return;
+    if (!auth_code || !state) return;
     if (initiated.current) return;
     initiated.current = true;
 
@@ -62,7 +63,7 @@ export default function RedirectPage() {
     };
 
     turnkeyAuth();
-  }, [clientState]);
+  }, [clientState, auth_code, state, router, createApiKeyPair, storeSession]);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-background p-4">
