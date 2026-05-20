@@ -30,10 +30,21 @@ export default function RedirectPage() {
 
         const publicKey = await createApiKeyPair();
 
+        const msgBytes = new TextEncoder().encode(publicKey);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", msgBytes);
+        const nonce = Array.from(new Uint8Array(hashBuffer))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+
         const res = await fetch("/auth/turnkey/x", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ auth_code, state, public_key: publicKey }),
+          body: JSON.stringify({
+            auth_code,
+            state,
+            public_key: publicKey,
+            nonce,
+          }),
         });
 
         const data = await res.json();

@@ -19,6 +19,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing public_key" }, { status: 400 });
   }
 
+  if (!body?.nonce) {
+    return NextResponse.json({ error: "Missing nonce" }, { status: 400 });
+  }
+
   // ensure the X_CLIENT_ID environment variable has been set
   if (!process.env.X_CLIENT_ID) {
     return NextResponse.json(
@@ -62,6 +66,7 @@ export async function POST(req: Request) {
         authCode: body.auth_code,
         redirectUri: process.env.X_REDIRECT_URI!,
         codeVerifier: "base64_encoded_sha256(code_verifier)", // in production this value should be a random value and the codeChallenge will be the base64_encoded_sha256(code_verifier)
+        nonce: body.nonce,
         bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
       });
 
