@@ -657,7 +657,10 @@ function main() {
   // --- Base Types ---
   output += `// --- Base Types from Swagger Definitions ---\n`;
 
-  for (const [defName, def] of Object.entries(swaggerMain.definitions)) {
+  for (const [defName, def] of Object.entries({
+    ...swaggerAuthProxy.definitions,
+    ...swaggerMain.definitions,
+  })) {
     if (
       (def.type === "object" && def.properties) ||
       (def.type === "string" && def.enum)
