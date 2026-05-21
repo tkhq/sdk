@@ -3,7 +3,9 @@ import {
   DEFAULT_SOLANA_ACCOUNTS,
   Turnkey as TurnkeySDKClient,
 } from "@turnkey/sdk-server";
-import { generateP256KeyPair, decryptCredentialBundle } from "@turnkey/crypto";
+import { generateP256KeyPair } from "@turnkey/crypto";
+import { sha256 } from "@noble/hashes/sha2";
+import { bytesToHex } from "@noble/hashes/utils";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -71,6 +73,7 @@ export async function POST(req: Request) {
         redirectUri: process.env.X_REDIRECT_URI!,
         codeVerifier: "base64_encoded_sha256(code_verifier)", // in production this value should be a random value and the codeChallenge will be the base64_encoded_sha256(code_verifier)
         bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
+        nonce: bytesToHex(sha256(keypair.publicKey)),
       });
 
     let encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(
