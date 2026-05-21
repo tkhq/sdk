@@ -4,9 +4,9 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AuthState, ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
-import { CopyButton } from "../../components/ui/CopyButton";
-import { SolanaIcon } from "../../components/ui/SolanaIcon";
-import { LogoutButton } from "../../components/LogoutButton";
+import { CopyButton } from "@/components/ui/CopyButton";
+import { SolanaIcon } from "@/components/ui/SolanaIcon";
+import { LogoutButton } from "@/components/LogoutButton";
 
 export default function Dashboard() {
   const router = useRouter();
