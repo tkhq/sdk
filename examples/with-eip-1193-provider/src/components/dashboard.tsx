@@ -232,7 +232,7 @@ export function Dashboard({ provider }: DashboardProps) {
               <DialogHeader>
                 <DialogTitle>Send Transaction</DialogTitle>
                 <DialogDescription>
-                  Enter the transaction details and click send when you're
+                  Enter the transaction details and click send when you&#39;re
                   ready.
                 </DialogDescription>
               </DialogHeader>
@@ -311,7 +311,7 @@ export function Dashboard({ provider }: DashboardProps) {
               <DialogHeader>
                 <DialogTitle>Sign Message</DialogTitle>
                 <DialogDescription>
-                  Enter your message and click sign when you're ready.
+                  Enter your message and click sign when you&#39;re ready.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">

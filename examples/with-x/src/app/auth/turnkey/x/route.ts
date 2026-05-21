@@ -71,7 +71,7 @@ export async function POST(req: Request) {
 
     // perform an Oauth2Authenticate activity with the parameters passed by the client that will respond with an OIDC token issued by Turnkey to be used with a future LoginWithOAuth or CreateSubOrganization activity
     // NOTE: P256 keypair is only required if you would like the encrypted bearer token to be returned in the response
-    let keypair = generateP256KeyPair();
+    const keypair = generateP256KeyPair();
 
     const oauth2AuthenticateResponse = await turnkeyClient
       .apiClient()
@@ -83,6 +83,7 @@ export async function POST(req: Request) {
         bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
         nonce: bytesToHex(sha256(sessionPublicKey)),
       });
+      
     // you can now decrypt and store the bearer token as shown below (code commented out for security reasons)
     // const encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(oauth2AuthenticateResponse.oidcToken);
     // if (encryptedBearerToken !== undefined) {
@@ -164,7 +165,7 @@ export async function POST(req: Request) {
 }
 
 // Gets the encrypted bearer token from the b64-encoded OIDC ID Token
-export function getEncryptedBearerTokenFromOidcToken(
+function getEncryptedBearerTokenFromOidcToken(
   token: string,
 ): string | undefined {
   const payloadSeg = token.split(".")[1];

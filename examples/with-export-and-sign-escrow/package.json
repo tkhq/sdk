@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "next": "15.5.18",
+    "@solana/web3.js": "^1.95.8",
     "@turnkey/sdk-types": "workspace:*",
     "tweetnacl": "^1.0.3",
     "@turnkey/iframe-stamper": "workspace:*",

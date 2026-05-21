@@ -1,4 +1,3 @@
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import { ALG_ES256, PUBKEY_CRED_TYPE } from "./constants";
 
 import { TWebauthnStamperConfig } from "@turnkey/webauthn-stamper";
@@ -6,13 +5,12 @@ import { base64UrlEncode, generateRandomBuffer } from "./utils";
 import { PasskeyRegistrationResult } from "./types";
 import { env } from "@/env.mjs";
 
-const { NEXT_PUBLIC_TURNKEY_RPID } = env;
-
 export type Email = `${string}@${string}.${string}`;
 
 export const createWebauthnStamper = async (
   options?: TWebauthnStamperConfig,
 ) => {
+  const { NEXT_PUBLIC_TURNKEY_RPID } = env();
   const { WebauthnStamper } = await import("@turnkey/webauthn-stamper");
   const rpId = options?.rpId || NEXT_PUBLIC_TURNKEY_RPID;
   if (!rpId) {
@@ -28,6 +26,7 @@ export const createWebauthnStamper = async (
 export const registerPassKey = async (
   email: Email,
 ): Promise<PasskeyRegistrationResult> => {
+  const { NEXT_PUBLIC_TURNKEY_RPID } = env();
   const { getWebAuthnAttestation } = await import("@turnkey/http");
   const challenge = generateRandomBuffer();
   const authenticatorUserId = generateRandomBuffer();

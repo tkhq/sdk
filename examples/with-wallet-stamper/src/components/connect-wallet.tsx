@@ -10,6 +10,7 @@ import Account from "./account";
 import WalletSelector from "./wallet-selector";
 import { WalletName } from "@solana/wallet-adapter-base";
 import { useTurnkey } from "./turnkey-provider";
+import { WalletType } from "@turnkey/wallet-stamper";
 
 export function ConnectWallet() {
   const { connection } = useConnection();
@@ -60,12 +61,12 @@ export function ConnectWallet() {
       if (signMessage) {
         setWallet({
           signMessage: async (message) => {
-            const signedMessage = await signMessage(Buffer.from(message));
+            const signedMessage = await signMessage(Uint8Array.from(Buffer.from(message)));
             return Buffer.from(signedMessage).toString("hex");
           },
-          recoverPublicKey: () =>
-            Buffer.from(publicKey?.toBuffer()).toString("hex"),
-          type: "solana",
+          getPublicKey: async () =>
+            Buffer.from(publicKey?.toBytes()).toString("hex"),
+          type: WalletType.Solana,
         });
       }
     }

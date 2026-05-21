@@ -1,6 +1,6 @@
 "use client";
 import { useTurnkey } from "@turnkey/react-wallet-kit";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useBalance } from "wagmi";
 import {
   Connection,
@@ -19,15 +19,16 @@ import {
   WalletClient,
 } from "viem";
 import { mainnet } from "viem/chains";
-import { getQuote, getStatus, QuoteParams, StatusParams } from "./actions/lifi";
+import { getQuote, getStatus, QuoteParams, StatusParams, TransactionRequest } from "./actions/lifi";
 
 function LoginButton() {
   const { handleLogin } = useTurnkey();
+  const handleClick = useCallback(() => handleLogin(), [handleLogin]);
 
   return (
     <button
       className="w-full mt-6 bg-black hover:bg-gray-800 text-white font-semibold py-4 rounded-xl transition-all active:scale-98"
-      onClick={handleLogin}
+      onClick={handleClick}
     >
       Login / Sign Up
     </button>
@@ -129,7 +130,7 @@ export default function BridgePage() {
   const [ethSwapHash, setEthSwapHash] = useState("");
   const [solSwapHash, setSolSwapHash] = useState("");
   const [transactionRequest, setTransactionRequest] = useState<
-    any | undefined
+    TransactionRequest
   >();
   const [turnkeySolanaSigner, setTurnkeySolanaSigner] = useState<
     TurnkeySigner | undefined
@@ -186,7 +187,7 @@ export default function BridgePage() {
 
         setSwapButtonDisabled(false);
         setSwapButtonText("Swap");
-      } catch (e: any) {
+      } catch {
         setEthAddress(undefined);
         setSolAddress(undefined);
         setViemWalletClient(undefined);
@@ -288,21 +289,25 @@ export default function BridgePage() {
       setTransactionRequest(getPriceResponse.transactionRequest);
       setToAmount(
         toToken === "ETH"
-          ? formatEther(getPriceResponse.estimate.toAmount)
-          : lamportsToSol(getPriceResponse.estimate.toAmount).toString(),
+          ? formatEther(getPriceResponse.estimate.toAmount as unknown as bigint)
+          : lamportsToSol(getPriceResponse.estimate.toAmount as unknown as number).toString(),
       );
-    } catch (e: any) {
+    } catch {
       setToAmount("0.0");
     }
   };
 
   const handleSwap = async () => {
+    if (transactionRequest == null) {
+      return;
+    }
+    
     setSwapModalOpen(true);
     setSwapping(true);
     setToAmount("");
     setFromAmount("");
 
-    let statusParams: StatusParams = {
+    const statusParams: StatusParams = {
       txHash: "",
     };
 
@@ -310,7 +315,7 @@ export default function BridgePage() {
       // construct the ETH transaction to send for the bridge
       const sendTransactionResponse = await viemWalletClient?.sendTransaction({
         to: transactionRequest.to,
-        value: transactionRequest.value,
+        value: transactionRequest.value as unknown as bigint,
         data: transactionRequest.data,
         chain: mainnet,
         account: viemAccount!,
@@ -352,7 +357,7 @@ export default function BridgePage() {
         setSwapping(false);
 
         // stay on the success page containing links to the confirmed transactions for 5 seconds
-        const timer = setTimeout(() => {
+        setTimeout(() => {
           setSwapModalOpen(false);
         }, 5000);
         break;

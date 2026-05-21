@@ -1,5 +1,7 @@
 "use server";
 
+import { Address, Hex } from "viem";
+
 export interface QuoteParams {
   fromChain: string;
   toChain: string;
@@ -12,6 +14,22 @@ export interface QuoteParams {
 
 export interface StatusParams {
   txHash: string;
+}
+
+export interface TransactionRequest {
+  to: Address
+  from: Address
+  data: Hex
+  value: string
+}
+
+export interface LifiQuoteEstimate {
+  toAmount: string;
+}
+
+export interface LifiQuoteResponse {
+  estimate: LifiQuoteEstimate;
+  transactionRequest: TransactionRequest;
 }
 
 export async function getQuote(quoteParams: QuoteParams) {
@@ -34,7 +52,7 @@ export async function getQuote(quoteParams: QuoteParams) {
 
   const response = await quoteResponse.json();
 
-  return response;
+  return response as LifiQuoteResponse;
 }
 
 export async function getStatus(statusParams: StatusParams) {

@@ -6,7 +6,7 @@ import {
   CreateSubOrgParams,
 } from "@turnkey/react-wallet-kit";
 import { createConfig, http, WagmiProvider } from "wagmi";
-import { mainnet, sepolia } from "wagmi/chains";
+import { mainnet } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // ensure users created by the auth proxy are created with this wallet

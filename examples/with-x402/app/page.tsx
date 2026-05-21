@@ -11,7 +11,7 @@ export default function Home() {
               <img src="/logo.svg" className="mx-auto" />
             </div>
             <p className="text-xl text-gray-600 mb-8 font-mono">
-              A demo showing how to seamlessly integrate Turnkey's embedded
+              A demo showing how to seamlessly integrate Turnkey&#39;s embedded
               wallets with x402 paywalls.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">

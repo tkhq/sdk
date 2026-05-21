@@ -12,6 +12,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
   group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
 
+env:
+  NODE_ENV: production
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,25 +34,25 @@ jobs:
 
       # Even though typecheck turbo task depends on ^build, we still want to run it explicitly
       - name: Build
-        run: pnpm build --filter='./packages/*'
+        run: pnpm build
 
       - name: Typecheck
         run: pnpm typecheck
 
       - name: Prettier
-        run: pnpm run prettier-all:check
+        run: pnpm prettier-all:check
 
       # This is to catch when someone forgets to run `pnpm run version` after bumping package versions as well as check to make sure codegen output is up to date.
       # Both of these things will cause git to be dirty after the build step.
       - name: Run version script
-        run: pnpm run version
+        run: pnpm version
 
       - name: Run codegen
-        run: pnpm run codegen-all
+        run: pnpm codegen-all
 
       # Run prettier again after codegen to ensure generated code is formatted correctly
       - name: Run prettier
-        run: pnpm run prettier-codegen:write
+        run: pnpm prettier-codegen:write
 
       - name: Ensure git is clean
         run: |
