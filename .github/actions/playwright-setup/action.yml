@@ -1,0 +1,44 @@
+name: "Setup Playwright"
+description: "Setup Playwright for E2E tests"
+
+inputs:
+  cache:
+    description: "Playwright browser cache directory"
+    type: string
+    required: true
+    default: ${{ github.workspace }}/.cache/playwright
+
+outputs:
+  cache:
+    description: "Playwright browser cache directory"
+    value: ${{ inputs.cache }}
+
+runs:
+  using: "composite"
+
+  steps:
+    # We build architecture specific caches for playwright browser downloads
+    - name: Setup playwright browser cache
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: ${{ inputs.cache }}
+        key: ${{ runner.os }}-${{ runner.arch }}-playwright-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+        # The hierarchy of restoring the cache goes as follows:
+        #
+        # - First we try to match an existing cache from the same branch
+        # - Then we try to match a cache from the target branch of this PR (if this is not a PR, this cache will never exist)
+        # - Then we try to match a cache from the default branch
+        # - Then we try to match any cache
+        restore-keys: |
+          ${{ runner.os }}-${{ runner.arch }}-playwright-${{ github.head_ref || github.ref_name }}-
+          ${{ runner.os }}-${{ runner.arch }}-playwright-${{ github.base_ref }}-
+          ${{ runner.os }}-${{ runner.arch }}-playwright-${{ github.event.repository.default_branch }}-
+          ${{ runner.os }}-${{ runner.arch }}-playwright-
+
+    # Install Playwright browsers + system deps
+    - name: Install Playwright browsers
+      run: pnpm playwright install chromium --with-deps
+      working-directory: examples/with-sdk-js
+      shell: bash
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: ${{ inputs.cache }}

@@ -1,0 +1,17 @@
+name: "Setup foundry"
+description: "Install Foundry toolchain"
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@c7450ba673e133f5ee30098b3b54f444d3a2ca2d # v1.8.0
+      with:
+        cache: true
+        version: "stable"
+        cache-key: ${{ github.job }}-${{ github.sha }}
+        cache-restore-keys: |
+          ${{ github.job }}-${{ github.sha }}
+          ${{ github.job }}-
+          ${{ runner.os }}-foundry-toolchain
