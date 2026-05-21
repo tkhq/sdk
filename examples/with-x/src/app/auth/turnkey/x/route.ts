@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import {
   DEFAULT_SOLANA_ACCOUNTS,
   Turnkey as TurnkeySDKClient,
 } from "@turnkey/sdk-server";
-import { generateP256KeyPair, decryptCredentialBundle } from "@turnkey/crypto";
+import { generateP256KeyPair } from "@turnkey/crypto";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -45,6 +46,12 @@ export async function POST(req: Request) {
     );
   }
 
+  const cookieStore = await cookies();
+  const codeVerifier = cookieStore.get("pkce_verifier")?.value;
+  if (!codeVerifier) {
+    return NextResponse.json({ error: "Missing PKCE verifier" }, { status: 400 });
+  }
+
   try {
     // construct a TurnkeyClient with the parent organization api key saved in .env.local
     // this is a server component and is never exposed to the client
@@ -65,16 +72,13 @@ export async function POST(req: Request) {
         oauth2CredentialId: process.env.OAUTH2_CREDENTIAL_ID!,
         authCode: body.auth_code,
         redirectUri: process.env.X_REDIRECT_URI!,
-        codeVerifier: "base64_encoded_sha256(code_verifier)", // in production this value should be a random value and the codeChallenge will be the base64_encoded_sha256(code_verifier)
+        codeVerifier,
         nonce: body.nonce,
         bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
       });
 
-    let encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(
-      oauth2AuthenticateResponse.oidcToken,
-    );
-
     // you can now decrypt and store the bearer token as shown below (code commented out for security reasons)
+    // const encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(oauth2AuthenticateResponse.oidcToken);
     // if (encryptedBearerToken !== undefined) {
     //   const decryptedBearerToken = await decryptCredentialBundle(
     //     encryptedBearerToken,
@@ -138,10 +142,12 @@ export async function POST(req: Request) {
       publicKey: body?.public_key,
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       ok: true,
       session: loginWithOAuthResponse.session,
     });
+    response.cookies.delete("pkce_verifier");
+    return response;
   } catch (e) {
     return NextResponse.json(
       { error: `Error performing OAuth 2.0 authentication: ${e}` },
