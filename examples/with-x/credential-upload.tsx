@@ -13,7 +13,7 @@ dotenv.config({ path: "./.env.local" });
 (async () => {
   // obtain the args to this script and ensure there is exactly 1
   const args = process.argv.slice(2);
-  if (args.length < 1) {
+  if (args.length !== 1) {
     console.log(
       "Invalid client secret provided. To input a client secret run: pnpm run credential-upload -- <client_secret>",
     );
