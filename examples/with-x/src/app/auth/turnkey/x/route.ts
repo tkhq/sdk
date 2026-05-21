@@ -48,8 +48,12 @@ export async function POST(req: Request) {
 
   const cookieStore = await cookies();
   const codeVerifier = cookieStore.get("pkce_verifier")?.value;
-  if (!codeVerifier) {
+  const expectedState = cookieStore.get("pkce_state")?.value;
+  if (!codeVerifier || !expectedState) {
     return NextResponse.json({ error: "Missing PKCE verifier" }, { status: 400 });
+  }
+  if (body.state !== expectedState) {
+    return NextResponse.json({ error: "Invalid state" }, { status: 400 });
   }
 
   try {
@@ -147,6 +151,7 @@ export async function POST(req: Request) {
       session: loginWithOAuthResponse.session,
     });
     response.cookies.delete("pkce_verifier");
+    response.cookies.delete("pkce_state");
     return response;
   } catch (e) {
     return NextResponse.json(

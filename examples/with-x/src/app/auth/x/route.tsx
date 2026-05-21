@@ -29,11 +29,8 @@ export async function GET(req: NextRequest) {
   const response = NextResponse.redirect(
     `https://x.com/i/oauth2/authorize?${params.toString()}`,
   );
-  response.cookies.set("pkce_verifier", codeVerifier, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 600,
-  });
+  const cookieOptions = { httpOnly: true, sameSite: "lax" as const, path: "/", maxAge: 600 };
+  response.cookies.set("pkce_verifier", codeVerifier, cookieOptions);
+  response.cookies.set("pkce_state", state, cookieOptions);
   return response;
 }
