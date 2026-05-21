@@ -50,7 +50,10 @@ export async function POST(req: Request) {
   const codeVerifier = cookieStore.get("pkce_verifier")?.value;
   const expectedState = cookieStore.get("pkce_state")?.value;
   if (!codeVerifier || !expectedState) {
-    return NextResponse.json({ error: "Missing PKCE verifier" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing PKCE verifier" },
+      { status: 400 },
+    );
   }
   if (body.state !== expectedState) {
     return NextResponse.json({ error: "Invalid state" }, { status: 400 });
