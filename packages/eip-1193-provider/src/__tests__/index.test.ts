@@ -15,6 +15,7 @@ import {
   type EIP1474Methods,
   ProviderDisconnectedError,
   MethodNotSupportedRpcError,
+  RpcRequestError,
 } from "viem";
 import { foundry } from "viem/chains";
 import {
@@ -32,7 +33,7 @@ import type { TurnkeyEIP1193Provider } from "../types";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 import { createEIP1193Provider } from "../";
-import type { AddEthereumChainParameter } from "viem";
+import type { AddEthereumChainParameter, Hash } from "viem";
 import { formatEther, getHttpRpcClient } from "viem/utils";
 
 declare global {
@@ -397,31 +398,52 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             const to = RECEIVER_ADDRESS;
             const value = numberToHex(parseEther("0.001"));
             const chainId = numberToHex(foundry.id);
-            const nonce = await eip1193Provider.request({
-              method: "eth_getTransactionCount",
-              params: [from, "latest"],
-            });
             const gas = numberToHex(21000n);
             const maxFeePerGas = numberToHex(parseGwei("20"));
             const maxPriorityFeePerGas = numberToHex(parseGwei("2"));
             const transactionType = "0x2";
+            let transactionHash: Hash | undefined = undefined;
 
-            const transactionHash = await eip1193Provider.request({
-              method: "eth_sendTransaction",
-              params: [
-                {
-                  from,
-                  to,
-                  value,
-                  chainId,
-                  nonce,
-                  gas,
-                  maxFeePerGas,
-                  maxPriorityFeePerGas,
-                  type: transactionType,
-                },
-              ],
-            });
+            while (transactionHash == null) {
+              const nonce = await eip1193Provider.request({
+                method: "eth_getTransactionCount",
+                params: [from, "latest"],
+              });
+
+              try {
+                transactionHash = await eip1193Provider.request({
+                  method: "eth_sendTransaction",
+                  params: [
+                    {
+                      from,
+                      to,
+                      value,
+                      chainId,
+                      nonce,
+                      gas,
+                      maxFeePerGas,
+                      maxPriorityFeePerGas,
+                      type: transactionType,
+                    },
+                  ],
+                });
+              } catch (error) {
+                // Retry on nonce too low (we are reusing the same account accross all test runs)
+                if (
+                  error instanceof RpcRequestError &&
+                  error.details === "nonce too low"
+                ) {
+                  console.warn(
+                    "Nonce too low error encountered, trying again.",
+                  );
+
+                  continue;
+                }
+
+                // Rethrow any other errors
+                throw error;
+              }
+            }
 
             expect(transactionHash).toBeDefined();
             expect(transactionHash).toMatch(/^0x[a-fA-F0-9]+$/);
@@ -429,7 +451,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             // Optionally, you can wait for the transaction to be mined and then perform assertions on the receipt
             const receipt = await eip1193Provider.request({
               method: "eth_getTransactionReceipt",
-              params: [transactionHash],
+              params: [transactionHash!],
             });
 
             expect(receipt).toBeDefined();
