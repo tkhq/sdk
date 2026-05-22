@@ -3,7 +3,12 @@ import type {
   TurnkeyCallbacks,
 } from "@turnkey/react-native-wallet-kit";
 
-const ORGANIZATION_ID = process.env.EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID || "";
+const ORGANIZATION_ID = process.env.EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID;
+if (!ORGANIZATION_ID) {
+  throw new Error(
+    "Missing EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID — add it to your .env file",
+  );
+}
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_TURNKEY_API_BASE_URL || "https://api.turnkey.com";
 const AUTH_PROXY_CONFIG_ID =
