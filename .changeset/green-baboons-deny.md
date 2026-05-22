@@ -1,9 +1,9 @@
 ---
-"@turnkey/sdk-browser": major
-"@turnkey/sdk-server": major
-"@turnkey/sdk-types": major
-"@turnkey/core": major
-"@turnkey/http": major
+"@turnkey/sdk-browser": minor
+"@turnkey/sdk-server": minor
+"@turnkey/sdk-types": minor
+"@turnkey/core": minor
+"@turnkey/http": minor
 ---
 
 ### Breaking/Behavioral Changes
@@ -42,7 +42,6 @@ apiClient.oauth2Authenticate({
 - `solana:devnet`
 - `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`
 - `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG`
-
 
 ### New SDK methods
 
