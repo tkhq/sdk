@@ -51,6 +51,8 @@ export async function POST(req: Request) {
     );
   }
 
+  const sessionPublicKey = body.public_key;
+
   try {
     // construct a TurnkeyClient with the parent organization api key saved in .env.local
     // this is a server component and is never exposed to the client
@@ -73,12 +75,11 @@ export async function POST(req: Request) {
         redirectUri: process.env.X_REDIRECT_URI!,
         codeVerifier: "base64_encoded_sha256(code_verifier)", // in production this value should be a random value and the codeChallenge will be the base64_encoded_sha256(code_verifier)
         bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
-        nonce: bytesToHex(sha256(keypair.publicKey)),
+        nonce: bytesToHex(sha256(sessionPublicKey)),
       });
 
-    let encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(
-      oauth2AuthenticateResponse.oidcToken,
-    );
+    // get the encryptedBearerToken
+    getEncryptedBearerTokenFromOidcToken(oauth2AuthenticateResponse.oidcToken);
 
     // you can now decrypt and store the bearer token as shown below (code commented out for security reasons)
     // if (encryptedBearerToken !== undefined) {
@@ -141,7 +142,7 @@ export async function POST(req: Request) {
     const loginWithOAuthResponse = await turnkeyClient.apiClient().oauthLogin({
       organizationId: subOrgId,
       oidcToken: oauth2AuthenticateResponse.oidcToken,
-      publicKey: body?.public_key,
+      publicKey: sessionPublicKey,
     });
 
     return NextResponse.json({
