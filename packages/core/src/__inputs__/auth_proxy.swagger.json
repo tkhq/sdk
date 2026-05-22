@@ -703,6 +703,10 @@
         "contact": {
           "type": "string",
           "description": "Email or phone number to send the OTP code to"
+        },
+        "emailCustomization": {
+          "$ref": "#/definitions/v1ProxyEmailCustomizationParams",
+          "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
         }
       },
       "required": ["otpType", "contact"]
@@ -727,6 +731,10 @@
         "contact": {
           "type": "string",
           "description": "Email or phone number to send the OTP code to"
+        },
+        "emailCustomization": {
+          "$ref": "#/definitions/v1ProxyEmailCustomizationParams",
+          "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
         }
       },
       "required": ["otpType", "contact"]
@@ -766,7 +774,7 @@
         },
         "nonce": {
           "type": "string",
-          "description": "An optional nonce used by the client to prevent replay/substitution of an ID token"
+          "description": "A nonce value set to sha256(publicKey), used to bind the OIDC token to a specific public key"
         },
         "clientId": {
           "type": "string",
@@ -778,6 +786,7 @@
         "authCode",
         "redirectUri",
         "codeVerifier",
+        "nonce",
         "clientId"
       ]
     },
@@ -952,6 +961,15 @@
     "v1PathFormat": {
       "type": "string",
       "enum": ["PATH_FORMAT_BIP32"]
+    },
+    "v1ProxyEmailCustomizationParams": {
+      "type": "object",
+      "properties": {
+        "templateId": {
+          "type": "string",
+          "description": "Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template."
+        }
+      }
     },
     "v1SignupRequest": {
       "type": "object",

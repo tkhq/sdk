@@ -1273,6 +1273,99 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getTvcApp = async (
+    input: SdkTypes.TGetTvcAppBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetTvcAppResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_tvc_app",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetTvcApp = async (
+    input: SdkTypes.TGetTvcAppBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_tvc_app";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getTvcDeployment = async (
+    input: SdkTypes.TGetTvcDeploymentBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetTvcDeploymentResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_tvc_deployment",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetTvcDeployment = async (
+    input: SdkTypes.TGetTvcDeploymentBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_tvc_deployment";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getUser = async (
     input: SdkTypes.TGetUserBody,
     stampWith?: StamperType,
@@ -1926,6 +2019,99 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getTvcAppDeployments = async (
+    input: SdkTypes.TGetTvcAppDeploymentsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetTvcAppDeploymentsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_tvc_app_deployments",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetTvcAppDeployments = async (
+    input: SdkTypes.TGetTvcAppDeploymentsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_tvc_app_deployments";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getTvcApps = async (
+    input: SdkTypes.TGetTvcAppsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetTvcAppsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_tvc_apps",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetTvcApps = async (
+    input: SdkTypes.TGetTvcAppsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_tvc_apps";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   listUserTags = async (
     input: SdkTypes.TListUserTagsBody = {},
     stampWith?: StamperType,
@@ -2188,6 +2374,53 @@ export class TurnkeySDKClientBase {
     const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_webhook_endpoints";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  validateTvcImage = async (
+    input: SdkTypes.TValidateTvcImageBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TValidateTvcImageResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/validate_tvc_image",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampValidateTvcImage = async (
+    input: SdkTypes.TValidateTvcImageBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/validate_tvc_image";
     const body = {
       ...input,
       organizationId:
@@ -3107,6 +3340,180 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createTvcApp = async (
+    input: SdkTypes.TCreateTvcAppBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TCreateTvcAppResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/create_tvc_app",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_CREATE_TVC_APP",
+      },
+      "createTvcAppResult",
+      stampWith,
+    );
+  };
+
+  stampCreateTvcApp = async (
+    input: SdkTypes.TCreateTvcAppBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_tvc_app";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_TVC_APP",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createTvcDeployment = async (
+    input: SdkTypes.TCreateTvcDeploymentBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TCreateTvcDeploymentResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/create_tvc_deployment",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT",
+      },
+      "createTvcDeploymentResult",
+      stampWith,
+    );
+  };
+
+  stampCreateTvcDeployment = async (
+    input: SdkTypes.TCreateTvcDeploymentBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_tvc_deployment";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createTvcManifestApprovals = async (
+    input: SdkTypes.TCreateTvcManifestApprovalsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TCreateTvcManifestApprovalsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/create_tvc_manifest_approvals",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS",
+      },
+      "createTvcManifestApprovalsResult",
+      stampWith,
+    );
+  };
+
+  stampCreateTvcManifestApprovals = async (
+    input: SdkTypes.TCreateTvcManifestApprovalsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/create_tvc_manifest_approvals";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4092,6 +4499,123 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteTvcAppAndDeployments = async (
+    input: SdkTypes.TDeleteTvcAppAndDeploymentsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TDeleteTvcAppAndDeploymentsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/delete_tvc_app_and_deployments",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS",
+      },
+      "deleteTvcAppAndDeploymentsResult",
+      stampWith,
+    );
+  };
+
+  stampDeleteTvcAppAndDeployments = async (
+    input: SdkTypes.TDeleteTvcAppAndDeploymentsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/delete_tvc_app_and_deployments";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteTvcDeployment = async (
+    input: SdkTypes.TDeleteTvcDeploymentBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TDeleteTvcDeploymentResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/delete_tvc_deployment",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT",
+      },
+      "deleteTvcDeploymentResult",
+      stampWith,
+    );
+  };
+
+  stampDeleteTvcDeployment = async (
+    input: SdkTypes.TDeleteTvcDeploymentBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_tvc_deployment";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5653,6 +6177,64 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  restoreTvcDeployment = async (
+    input: SdkTypes.TRestoreTvcDeploymentBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TRestoreTvcDeploymentResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/restore_tvc_deployment",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT",
+      },
+      "restoreTvcDeploymentResult",
+      stampWith,
+    );
+  };
+
+  stampRestoreTvcDeployment = async (
+    input: SdkTypes.TRestoreTvcDeploymentBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/restore_tvc_deployment";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   setIpAllowlist = async (
     input: SdkTypes.TSetIpAllowlistBody,
     stampWith?: StamperType,
@@ -5758,6 +6340,64 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  updateTvcAppLiveDeployment = async (
+    input: SdkTypes.TUpdateTvcAppLiveDeploymentBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TUpdateTvcAppLiveDeploymentResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/set_tvc_app_live_deployment",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT",
+      },
+      "updateTvcAppLiveDeploymentResult",
+      stampWith,
+    );
+  };
+
+  stampUpdateTvcAppLiveDeployment = async (
+    input: SdkTypes.TUpdateTvcAppLiveDeploymentBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/set_tvc_app_live_deployment";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5990,6 +6630,239 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  sparkClaimTransfer = async (
+    input: SdkTypes.TSparkClaimTransferBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TSparkClaimTransferResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/spark_claim_transfer",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER",
+      },
+      "sparkClaimTransferResult",
+      stampWith,
+    );
+  };
+
+  stampSparkClaimTransfer = async (
+    input: SdkTypes.TSparkClaimTransferBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/spark_claim_transfer";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  sparkPrepareLightningReceive = async (
+    input: SdkTypes.TSparkPrepareLightningReceiveBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TSparkPrepareLightningReceiveResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/spark_prepare_lightning_receive",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
+      },
+      "sparkPrepareLightningReceiveResult",
+      stampWith,
+    );
+  };
+
+  stampSparkPrepareLightningReceive = async (
+    input: SdkTypes.TSparkPrepareLightningReceiveBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/spark_prepare_lightning_receive";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  sparkPrepareTransfer = async (
+    input: SdkTypes.TSparkPrepareTransferBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TSparkPrepareTransferResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/spark_prepare_transfer",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER",
+      },
+      "sparkPrepareTransferResult",
+      stampWith,
+    );
+  };
+
+  stampSparkPrepareTransfer = async (
+    input: SdkTypes.TSparkPrepareTransferBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/spark_prepare_transfer";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  sparkSignFrost = async (
+    input: SdkTypes.TSparkSignFrostBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TSparkSignFrostResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/spark_sign_frost",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_SPARK_SIGN_FROST",
+      },
+      "sparkSignFrostResult",
+      stampWith,
+    );
+  };
+
+  stampSparkSignFrost = async (
+    input: SdkTypes.TSparkSignFrostBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/spark_sign_frost";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SPARK_SIGN_FROST",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
