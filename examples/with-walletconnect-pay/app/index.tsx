@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/theme";
-import { useTurnkey } from "@turnkey/react-native-wallet-kit";
+import { useTurnkey, OtpType } from "@turnkey/react-native-wallet-kit";
 
 const colors = Colors.dark;
 
@@ -45,7 +45,7 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       const id = await initOtp({
-        otpType: "OTP_TYPE_EMAIL",
+        otpType: OtpType.Email,
         contact: email.trim(),
       });
       if (id) {
@@ -69,7 +69,7 @@ export default function LoginScreen() {
       await completeOtp({
         otpId,
         otpCode: otpCode.trim(),
-        otpType: "OTP_TYPE_EMAIL",
+        otpType: OtpType.Email,
         contact: email.trim(),
         createSubOrgParams: {
           customWallet,
