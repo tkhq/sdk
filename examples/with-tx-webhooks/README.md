@@ -106,13 +106,13 @@ curl -X POST http://localhost:3000/webhook/balance-updates \
   -H "content-type: application/json" \
   -d '{
     "type": "balances:confirmed",
+    "organizationId": "ac4763ff-4bb3-4350-b926-355d87882578",
+    "parentOrganizationId": "1875b49b-22ad-42c6-949f-04d5dd03ee3a",
     "msg": {
       "operation": "withdraw",
       "caip2": "eip155:8453",
       "txHash": "0xa1f7f464f73cdf484daf24e59932baefbb71fadf6590f22dc50750a0809cbcdc",
       "address": "0x527602f07b0a70ed2be48f55e2678bbf4ef57df3",
-      "orgID": "ac4763ff-4bb3-4350-b926-355d87882578",
-      "parentOrgID": "1875b49b-22ad-42c6-949f-04d5dd03ee3a",
       "idempotencyKey": "8be5a6fa9d04d9474b41e659e5b9b0c4b8eaa5fba754b4154fb8f29b3b20ac9e",
       "asset": {
         "symbol": "USDC",
@@ -137,10 +137,11 @@ curl -X POST http://localhost:3000/webhook/tx-updates \
   -H "content-type: application/json" \
   -d '{
     "type": "transaction:status",
+    "organizationId": "ac4763ff-4bb3-4350-b926-355d87882578",
+    "parentOrganizationId": "ac4763ff-4bb3-4350-b926-355d87882578",
     "msg": {
       "sendTransactionStatusId": "abc123",
       "activityId": "activity-456",
-      "orgID": "ac4763ff-4bb3-4350-b926-355d87882578",
       "status": "CONFIRMED",
       "caip2": "eip155:8453",
       "idempotencyKey": "8be5a6fa9d04d9474b41e659e5b9b0c4b8eaa5fba754b4154fb8f29b3b20ac9e",

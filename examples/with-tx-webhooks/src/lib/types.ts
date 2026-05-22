@@ -18,8 +18,6 @@ export interface BalanceWebhookMessage extends Record<string, unknown> {
   caip2?: string;
   txHash?: string;
   address?: string;
-  orgID?: string;
-  parentOrgID?: string;
   idempotencyKey?: string;
   asset?: BalanceWebhookAsset;
   block?: BalanceWebhookBlock;
@@ -27,6 +25,8 @@ export interface BalanceWebhookMessage extends Record<string, unknown> {
 
 export interface BalanceConfirmedWebhookPayload {
   type: string;
+  organizationId?: string;
+  parentOrganizationId?: string;
   msg: BalanceWebhookMessage;
 }
 
@@ -56,7 +56,6 @@ export type BalanceWebhookSseMessage =
 export interface TxStatusWebhookMessage extends Record<string, unknown> {
   sendTransactionStatusId?: string;
   activityId?: string;
-  orgID?: string;
   status?: string;
   caip2?: string;
   idempotencyKey?: string;
@@ -68,6 +67,8 @@ export interface TxStatusWebhookMessage extends Record<string, unknown> {
 
 export interface TxStatusWebhookPayload {
   type: string;
+  organizationId?: string;
+  parentOrganizationId?: string;
   msg: TxStatusWebhookMessage;
 }
 
