@@ -18,6 +18,7 @@ import {
 } from "@/constants/walletconnect";
 import { signAllWcPayActions } from "@/lib/turnkey-signer";
 import { Colors } from "@/constants/theme";
+import { formatUnits } from "viem";
 
 const colors = Colors.dark;
 
@@ -129,7 +130,7 @@ export default function PaymentScreen() {
         paymentId,
         optionId: selectedOption.id,
       });
-      const actions = actionsResponse.actions || actionsResponse;
+      const actions = actionsResponse;
 
       const signatures = await signAllWcPayActions(
         actions,
@@ -149,11 +150,7 @@ export default function PaymentScreen() {
         status &&
         (status === "FAILED" || status === "REJECTED" || status === "ERROR")
       ) {
-        throw new Error(
-          result.message ||
-            result.error ||
-            `Payment failed with status: ${result.status}`,
-        );
+        throw new Error(`Payment failed with status: ${result.status}`);
       }
 
       setPaymentResult(result);
@@ -510,8 +507,8 @@ function Row({
 function formatDisplayAmount(amount: any): string {
   if (!amount) return "";
   if (amount.display?.decimals != null && amount.value) {
-    return (
-      parseInt(amount.value, 10) / Math.pow(10, amount.display.decimals)
+    return parseFloat(
+      formatUnits(BigInt(amount.value), amount.display.decimals),
     ).toFixed(2);
   }
   if (amount.value) return amount.value;
