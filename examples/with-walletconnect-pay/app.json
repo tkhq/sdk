@@ -10,8 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "xyz.tkhqlabs.passkeyapp",
-      "associatedDomains": ["webcredentials:passkeyapp.tkhqlabs.xyz"],
+      "bundleIdentifier": "xyz.tkhqlabs.wcpaydemo",
       "infoPlist": {
         "NSCameraUsageDescription": "We need camera access to scan WalletConnect Pay QR codes"
       }
@@ -24,7 +23,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "package": "xyz.tkhqlabs.passkeyapp",
+      "package": "xyz.tkhqlabs.wcpaydemo",
       "permissions": ["android.permission.CAMERA"]
     },
     "web": {
