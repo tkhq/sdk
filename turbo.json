@@ -1,9 +1,9 @@
 {
-  "$schema": "https://turbo.build/schema.json",
+  "$schema": "https://turborepo.dev/schema.json",
   "tasks": {
     "build": {
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "dependsOn": ["^clean", "^build"],
+      "dependsOn": ["^build"],
       "outputs": [
         "build/**",
         ".vercel/**",
@@ -13,7 +13,23 @@
       ]
     },
     "clean": {
-      "dependsOn": ["^clean"]
+      "cache": false
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "typecheck": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "tsconfig.json",
+        "!dist",
+        "!build",
+        "!.next",
+        "!.vercel",
+        "!**/*.md"
+      ],
+      "dependsOn": ["^build"]
     },
     "dev": {
       "persistent": true,

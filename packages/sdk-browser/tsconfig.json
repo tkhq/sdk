@@ -15,7 +15,7 @@
     }
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
-  "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
+  "exclude": ["dist", "node_modules"],
   "references": [
     { "path": "../api-key-stamper" },
     { "path": "../http" },

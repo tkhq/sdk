@@ -7,55 +7,39 @@ runs:
   steps:
     # https://github.com/actions/setup-node
     - name: Install Node.js
-      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
       with:
         node-version-file: ".nvmrc"
+        package-manager-cache: false
 
-    - name: Use recent version of npm
-      run: npm install -g npm@11.5.1
-      shell: bash
-
-    - name: Use corepack to activate pnpm
-      run: npm i -g corepack@0.34.1 && corepack enable
-      shell: bash
+    - name: Install pnpm
+      uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+      with:
+        cache: true
 
     - name: Audit dependencies (before installing anything)
       # Ignore "low" and "moderate" advisories for now.
       run: pnpm audit --audit-level high
       shell: bash
 
-    - name: Get pnpm store directory (for caching)
-      id: pnpm-cache-dir
-      run: |
-        echo "dir=$(pnpm store path)" >> $GITHUB_OUTPUT
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
       shell: bash
 
-    # https://github.com/actions/cache
-    - name: Setup pnpm store cache
+    # We build architecture specific caches for turbo builds as there can be differences in the build artifacts between architectures
+    - name: Setup turbo build cache
       uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       with:
-        path: ${{ steps.pnpm-cache-dir.outputs.dir }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        path: .turbo/cache
+        key: ${{ runner.os }}-${{ runner.arch }}-turbo-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+        # The hierarchy of restoring the cache goes as follows:
+        #
+        # - First we try to match an existing cache from the same branch
+        # - Then we try to match a cache from the target branch of this PR (if this is not a PR, this cache will never exist)
+        # - Then we try to match a cache from the default branch
+        # - Then we try to match any cache
         restore-keys: |
-          ${{ runner.os }}-pnpm-store-
-      env:
-        SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
-
-    - name: Audit the lockfiles to catch peer dependency issues
-      run: pnpm install -r --lockfile-only
-      shell: bash
-
-    - name: Install dependencies
-      run: pnpm install -r --frozen-lockfile
-      shell: bash
-
-    - name: Install Foundry
-      uses: foundry-rs/foundry-toolchain@82dee4ba654bd2146511f85f0d013af94670c4de # v1.4.0
-      with:
-        cache: true
-        version: "stable"
-        cache-key: ${{ github.job }}-${{ github.sha }}
-        cache-restore-keys: |
-          ${{ github.job }}-${{ github.sha }}
-          ${{ github.job }}-
-          ${{ runner.os }}-foundry-toolchain
+          ${{ runner.os }}-${{ runner.arch }}-turbo-${{ github.head_ref || github.ref_name }}-
+          ${{ runner.os }}-${{ runner.arch }}-turbo-${{ github.base_ref }}-
+          ${{ runner.os }}-${{ runner.arch }}-turbo-${{ github.event.repository.default_branch }}-
+          ${{ runner.os }}-${{ runner.arch }}-turbo-

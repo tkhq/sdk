@@ -49,7 +49,7 @@
     "clean": "rimraf ./dist ./.cache",
     "test": "jest --detectOpenHandles",
     "anvil": "anvil",
-    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "typecheck": "tsc --noEmit",
     "compile:contracts": "hardhat compile"
   },
   "peerDependencies": {

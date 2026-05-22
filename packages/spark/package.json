@@ -1,0 +1,65 @@
+{
+  "name": "@turnkey/spark",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "license": "Apache-2.0",
+  "description": "Turnkey Spark Signer implementation",
+  "keywords": [
+    "Turnkey",
+    "Spark"
+  ],
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com/"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkhq/sdk.git",
+    "directory": "packages/spark"
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "build": "rollup -c",
+    "clean": "rimraf ./dist ./.cache",
+    "test": "DOTENV_CONFIG_PATH=.env.test jest --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@buildonspark/spark-sdk": "^0.7.5",
+    "@noble/curves": "^1.9.7",
+    "@noble/hashes": "^1.4.0",
+    "@scure/bip39": "^1.3.0",
+    "@scure/btc-signer": "^1.5.0",
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.4.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

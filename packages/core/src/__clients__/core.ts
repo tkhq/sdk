@@ -554,15 +554,36 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.INTERNAL_ERROR,
           );
         }
-        const sessionResponse = await this.httpClient.stampLogin(
-          {
-            publicKey: generatedPublicKey,
-            organizationId:
-              params?.organizationId ?? this.config.organizationId,
-            expirationSeconds,
-          },
+
+        const loginPayload = {
+          publicKey: generatedPublicKey,
+          organizationId: params?.organizationId ?? this.config.organizationId,
+          expirationSeconds,
+        };
+
+        const passkeyLoginRequest = await this.httpClient.stampStampLogin(
+          loginPayload,
           StamperType.Passkey,
         );
+
+        if (!passkeyLoginRequest) {
+          throw new TurnkeyError(
+            "Failed to generate login payload for passkey login.",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+          );
+        }
+
+        // For passkey stamps, the stamp header value is JSON that includes the credentialId used to sign. Extract it here so we can return it to the caller.
+        const credentialId = (
+          JSON.parse(passkeyLoginRequest.stamp.stampHeaderValue) as {
+            credentialId: string;
+          }
+        ).credentialId;
+
+        const sessionResponse =
+          await this.httpClient.sendSignedRequest<TStampLoginResponse>(
+            passkeyLoginRequest,
+          );
 
         await this.storeSession({
           sessionToken: sessionResponse.session,
@@ -571,11 +592,7 @@ export class TurnkeyClient {
 
         return {
           sessionToken: sessionResponse.session,
-
-          // TODO: can we return the credentialId here?
-          // from a quick glance this is going to be difficult
-          // for now we return an empty string
-          credentialId: "",
+          credentialId,
         };
       },
       {

@@ -15,5 +15,5 @@
     "src/**/*.jsx",
     "src/**/*.json"
   ],
-  "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"]
+  "exclude": ["dist", "node_modules"]
 }
