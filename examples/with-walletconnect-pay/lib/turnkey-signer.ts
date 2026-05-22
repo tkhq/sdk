@@ -60,11 +60,11 @@ export async function signWcPayAction(
       let message: string;
       if (messageHex.startsWith("0x")) {
         const hex = messageHex.slice(2);
-        const bytes: number[] = [];
+        const bytes = new Uint8Array(hex.length / 2);
         for (let i = 0; i < hex.length; i += 2) {
-          bytes.push(parseInt(hex.substring(i, i + 2), 16));
+          bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
         }
-        message = String.fromCharCode(...bytes);
+        message = new TextDecoder().decode(bytes);
       } else {
         message = messageHex;
       }
