@@ -5,6 +5,8 @@ import {
   Turnkey as TurnkeySDKClient,
 } from "@turnkey/sdk-server";
 import { generateP256KeyPair } from "@turnkey/crypto";
+import { sha256 } from "@noble/hashes/sha2";
+import { bytesToHex } from "@noble/hashes/utils";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -18,10 +20,6 @@ export async function POST(req: Request) {
 
   if (!body?.public_key) {
     return NextResponse.json({ error: "Missing public_key" }, { status: 400 });
-  }
-
-  if (!body?.nonce) {
-    return NextResponse.json({ error: "Missing nonce" }, { status: 400 });
   }
 
   // ensure the X_CLIENT_ID environment variable has been set
@@ -58,6 +56,7 @@ export async function POST(req: Request) {
   if (body.state !== expectedState) {
     return NextResponse.json({ error: "Invalid state" }, { status: 400 });
   }
+  const sessionPublicKey = body.public_key;
 
   try {
     // construct a TurnkeyClient with the parent organization api key saved in .env.local
@@ -80,10 +79,9 @@ export async function POST(req: Request) {
         authCode: body.auth_code,
         redirectUri: process.env.X_REDIRECT_URI!,
         codeVerifier,
-        nonce: body.nonce,
         bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
+        nonce: bytesToHex(sha256(sessionPublicKey)),
       });
-
     // you can now decrypt and store the bearer token as shown below (code commented out for security reasons)
     // const encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(oauth2AuthenticateResponse.oidcToken);
     // if (encryptedBearerToken !== undefined) {
@@ -146,7 +144,7 @@ export async function POST(req: Request) {
     const loginWithOAuthResponse = await turnkeyClient.apiClient().oauthLogin({
       organizationId: subOrgId,
       oidcToken: oauth2AuthenticateResponse.oidcToken,
-      publicKey: body?.public_key,
+      publicKey: sessionPublicKey,
     });
 
     const response = NextResponse.json({

@@ -773,6 +773,69 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getTvcApp = async (
+    input: SdkApiTypes.TGetTvcAppBody,
+  ): Promise<SdkApiTypes.TGetTvcAppResponse> => {
+    return this.request("/public/v1/query/get_tvc_app", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetTvcApp = async (
+    input: SdkApiTypes.TGetTvcAppBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_tvc_app";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getTvcDeployment = async (
+    input: SdkApiTypes.TGetTvcDeploymentBody,
+  ): Promise<SdkApiTypes.TGetTvcDeploymentResponse> => {
+    return this.request("/public/v1/query/get_tvc_deployment", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetTvcDeployment = async (
+    input: SdkApiTypes.TGetTvcDeploymentBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_tvc_deployment";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getUser = async (
     input: SdkApiTypes.TGetUserBody,
   ): Promise<SdkApiTypes.TGetUserResponse> => {
@@ -1216,6 +1279,69 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getTvcAppDeployments = async (
+    input: SdkApiTypes.TGetTvcAppDeploymentsBody,
+  ): Promise<SdkApiTypes.TGetTvcAppDeploymentsResponse> => {
+    return this.request("/public/v1/query/list_tvc_app_deployments", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetTvcAppDeployments = async (
+    input: SdkApiTypes.TGetTvcAppDeploymentsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_tvc_app_deployments";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getTvcApps = async (
+    input: SdkApiTypes.TGetTvcAppsBody,
+  ): Promise<SdkApiTypes.TGetTvcAppsResponse> => {
+    return this.request("/public/v1/query/list_tvc_apps", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetTvcApps = async (
+    input: SdkApiTypes.TGetTvcAppsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_tvc_apps";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   listUserTags = async (
     input: SdkApiTypes.TListUserTagsBody = {},
   ): Promise<SdkApiTypes.TListUserTagsResponse> => {
@@ -1391,6 +1517,38 @@ export class TurnkeySDKClientBase {
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_webhook_endpoints";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  validateTvcImage = async (
+    input: SdkApiTypes.TValidateTvcImageBody,
+  ): Promise<SdkApiTypes.TValidateTvcImageResponse> => {
+    return this.request("/public/v1/query/validate_tvc_image", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampValidateTvcImage = async (
+    input: SdkApiTypes.TValidateTvcImageBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/validate_tvc_image";
     const body = {
       ...input,
       organizationId: input.organizationId ?? this.config.organizationId,
@@ -2052,6 +2210,132 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createTvcApp = async (
+    input: SdkApiTypes.TCreateTvcAppBody,
+  ): Promise<SdkApiTypes.TCreateTvcAppResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_tvc_app",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_TVC_APP",
+      },
+      "createTvcAppResult",
+    );
+  };
+
+  stampCreateTvcApp = async (
+    input: SdkApiTypes.TCreateTvcAppBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_tvc_app";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_TVC_APP",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createTvcDeployment = async (
+    input: SdkApiTypes.TCreateTvcDeploymentBody,
+  ): Promise<SdkApiTypes.TCreateTvcDeploymentResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_tvc_deployment",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT",
+      },
+      "createTvcDeploymentResult",
+    );
+  };
+
+  stampCreateTvcDeployment = async (
+    input: SdkApiTypes.TCreateTvcDeploymentBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_tvc_deployment";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createTvcManifestApprovals = async (
+    input: SdkApiTypes.TCreateTvcManifestApprovalsBody,
+  ): Promise<SdkApiTypes.TCreateTvcManifestApprovalsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_tvc_manifest_approvals",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS",
+      },
+      "createTvcManifestApprovalsResult",
+    );
+  };
+
+  stampCreateTvcManifestApprovals = async (
+    input: SdkApiTypes.TCreateTvcManifestApprovalsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/create_tvc_manifest_approvals";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2765,6 +3049,91 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteTvcAppAndDeployments = async (
+    input: SdkApiTypes.TDeleteTvcAppAndDeploymentsBody,
+  ): Promise<SdkApiTypes.TDeleteTvcAppAndDeploymentsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_tvc_app_and_deployments",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS",
+      },
+      "deleteTvcAppAndDeploymentsResult",
+    );
+  };
+
+  stampDeleteTvcAppAndDeployments = async (
+    input: SdkApiTypes.TDeleteTvcAppAndDeploymentsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/delete_tvc_app_and_deployments";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteTvcDeployment = async (
+    input: SdkApiTypes.TDeleteTvcDeploymentBody,
+  ): Promise<SdkApiTypes.TDeleteTvcDeploymentResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_tvc_deployment",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT",
+      },
+      "deleteTvcDeploymentResult",
+    );
+  };
+
+  stampDeleteTvcDeployment = async (
+    input: SdkApiTypes.TDeleteTvcDeploymentBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_tvc_deployment";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3894,6 +4263,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  restoreTvcDeployment = async (
+    input: SdkApiTypes.TRestoreTvcDeploymentBody,
+  ): Promise<SdkApiTypes.TRestoreTvcDeploymentResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/restore_tvc_deployment",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT",
+      },
+      "restoreTvcDeploymentResult",
+    );
+  };
+
+  stampRestoreTvcDeployment = async (
+    input: SdkApiTypes.TRestoreTvcDeploymentBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/restore_tvc_deployment";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   setIpAllowlist = async (
     input: SdkApiTypes.TSetIpAllowlistBody,
   ): Promise<SdkApiTypes.TSetIpAllowlistResponse> => {
@@ -3967,6 +4378,48 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  updateTvcAppLiveDeployment = async (
+    input: SdkApiTypes.TUpdateTvcAppLiveDeploymentBody,
+  ): Promise<SdkApiTypes.TUpdateTvcAppLiveDeploymentResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/set_tvc_app_live_deployment",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT",
+      },
+      "updateTvcAppLiveDeploymentResult",
+    );
+  };
+
+  stampUpdateTvcAppLiveDeployment = async (
+    input: SdkApiTypes.TUpdateTvcAppLiveDeploymentBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/set_tvc_app_live_deployment";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4135,6 +4588,175 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  sparkClaimTransfer = async (
+    input: SdkApiTypes.TSparkClaimTransferBody,
+  ): Promise<SdkApiTypes.TSparkClaimTransferResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/spark_claim_transfer",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER",
+      },
+      "sparkClaimTransferResult",
+    );
+  };
+
+  stampSparkClaimTransfer = async (
+    input: SdkApiTypes.TSparkClaimTransferBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/spark_claim_transfer";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  sparkPrepareLightningReceive = async (
+    input: SdkApiTypes.TSparkPrepareLightningReceiveBody,
+  ): Promise<SdkApiTypes.TSparkPrepareLightningReceiveResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/spark_prepare_lightning_receive",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
+      },
+      "sparkPrepareLightningReceiveResult",
+    );
+  };
+
+  stampSparkPrepareLightningReceive = async (
+    input: SdkApiTypes.TSparkPrepareLightningReceiveBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/spark_prepare_lightning_receive";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  sparkPrepareTransfer = async (
+    input: SdkApiTypes.TSparkPrepareTransferBody,
+  ): Promise<SdkApiTypes.TSparkPrepareTransferResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/spark_prepare_transfer",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER",
+      },
+      "sparkPrepareTransferResult",
+    );
+  };
+
+  stampSparkPrepareTransfer = async (
+    input: SdkApiTypes.TSparkPrepareTransferBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/spark_prepare_transfer";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  sparkSignFrost = async (
+    input: SdkApiTypes.TSparkSignFrostBody,
+  ): Promise<SdkApiTypes.TSparkSignFrostResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/spark_sign_frost",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_SPARK_SIGN_FROST",
+      },
+      "sparkSignFrostResult",
+    );
+  };
+
+  stampSparkSignFrost = async (
+    input: SdkApiTypes.TSparkSignFrostBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/spark_sign_frost";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SPARK_SIGN_FROST",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

@@ -298,9 +298,12 @@ export type SolanaTransaction = {
   unsignedTransaction: string;
   signWith: string;
   caip2:
+    | "solana:mainnet"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
-    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
-    | "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY";
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d"
+    | "solana:devnet"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
   sponsor?: boolean;
   recentBlockhash?: string;
 };

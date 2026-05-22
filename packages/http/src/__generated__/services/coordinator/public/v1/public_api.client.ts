@@ -89,6 +89,10 @@ import type {
   TGetTvcDeploymentBody,
   TGetTvcDeploymentResponse,
 } from "./public_api.fetcher";
+import type {
+  TGetTvcDeploymentProvisioningDetailsBody,
+  TGetTvcDeploymentProvisioningDetailsResponse,
+} from "./public_api.fetcher";
 import type { TGetUserBody, TGetUserResponse } from "./public_api.fetcher";
 import type { TGetWalletBody, TGetWalletResponse } from "./public_api.fetcher";
 import type {
@@ -318,6 +322,14 @@ import type {
   TDeleteSubOrganizationResponse,
 } from "./public_api.fetcher";
 import type {
+  TDeleteTvcAppAndDeploymentsBody,
+  TDeleteTvcAppAndDeploymentsResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteTvcDeploymentBody,
+  TDeleteTvcDeploymentResponse,
+} from "./public_api.fetcher";
+import type {
   TDeleteUserTagsBody,
   TDeleteUserTagsResponse,
 } from "./public_api.fetcher";
@@ -399,6 +411,10 @@ import type {
 import type { TOtpAuthBody, TOtpAuthResponse } from "./public_api.fetcher";
 import type { TOtpLoginBody, TOtpLoginResponse } from "./public_api.fetcher";
 import type {
+  TPostTvcQuorumKeyShareBody,
+  TPostTvcQuorumKeyShareResponse,
+} from "./public_api.fetcher";
+import type {
   TRecoverUserBody,
   TRecoverUserResponse,
 } from "./public_api.fetcher";
@@ -415,12 +431,20 @@ import type {
   TRemoveOrganizationFeatureResponse,
 } from "./public_api.fetcher";
 import type {
+  TRestoreTvcDeploymentBody,
+  TRestoreTvcDeploymentResponse,
+} from "./public_api.fetcher";
+import type {
   TSetIpAllowlistBody,
   TSetIpAllowlistResponse,
 } from "./public_api.fetcher";
 import type {
   TSetOrganizationFeatureBody,
   TSetOrganizationFeatureResponse,
+} from "./public_api.fetcher";
+import type {
+  TUpdateTvcAppLiveDeploymentBody,
+  TUpdateTvcAppLiveDeploymentResponse,
 } from "./public_api.fetcher";
 import type {
   TSignRawPayloadBody,
@@ -437,6 +461,22 @@ import type {
 import type {
   TSolSendTransactionBody,
   TSolSendTransactionResponse,
+} from "./public_api.fetcher";
+import type {
+  TSparkClaimTransferBody,
+  TSparkClaimTransferResponse,
+} from "./public_api.fetcher";
+import type {
+  TSparkPrepareLightningReceiveBody,
+  TSparkPrepareLightningReceiveResponse,
+} from "./public_api.fetcher";
+import type {
+  TSparkPrepareTransferBody,
+  TSparkPrepareTransferResponse,
+} from "./public_api.fetcher";
+import type {
+  TSparkSignFrostBody,
+  TSparkSignFrostResponse,
 } from "./public_api.fetcher";
 import type {
   TStampLoginBody,
@@ -1246,6 +1286,42 @@ export class TurnkeyClient {
     input: TGetTvcDeploymentBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_tvc_deployment";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment
+   *
+   * Sign the provided `TGetTvcDeploymentProvisioningDetailsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_tvc_deployment_provisioning_details).
+   *
+   * See also {@link stampGetTvcDeploymentProvisioningDetails}.
+   */
+  getTvcDeploymentProvisioningDetails = async (
+    input: TGetTvcDeploymentProvisioningDetailsBody,
+  ): Promise<TGetTvcDeploymentProvisioningDetailsResponse> => {
+    return this.request(
+      "/public/v1/query/get_tvc_deployment_provisioning_details",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetTvcDeploymentProvisioningDetailsBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetTvcDeploymentProvisioningDetails}.
+   */
+  stampGetTvcDeploymentProvisioningDetails = async (
+    input: TGetTvcDeploymentProvisioningDetailsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl +
+      "/public/v1/query/get_tvc_deployment_provisioning_details";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -3147,6 +3223,73 @@ export class TurnkeyClient {
   };
 
   /**
+   * Delete a TVC App and all of its deployments
+   *
+   * Sign the provided `TDeleteTvcAppAndDeploymentsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_tvc_app_and_deployments).
+   *
+   * See also {@link stampDeleteTvcAppAndDeployments}.
+   */
+  deleteTvcAppAndDeployments = async (
+    input: TDeleteTvcAppAndDeploymentsBody,
+  ): Promise<TDeleteTvcAppAndDeploymentsResponse> => {
+    return this.request(
+      "/public/v1/submit/delete_tvc_app_and_deployments",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteTvcAppAndDeploymentsBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteTvcAppAndDeployments}.
+   */
+  stampDeleteTvcAppAndDeployments = async (
+    input: TDeleteTvcAppAndDeploymentsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_tvc_app_and_deployments";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Delete a TVC Deployment
+   *
+   * Sign the provided `TDeleteTvcDeploymentBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_tvc_deployment).
+   *
+   * See also {@link stampDeleteTvcDeployment}.
+   */
+  deleteTvcDeployment = async (
+    input: TDeleteTvcDeploymentBody,
+  ): Promise<TDeleteTvcDeploymentResponse> => {
+    return this.request("/public/v1/submit/delete_tvc_deployment", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteTvcDeploymentBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteTvcDeployment}.
+   */
+  stampDeleteTvcDeployment = async (
+    input: TDeleteTvcDeploymentBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_tvc_deployment";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Delete user tags within an organization.
    *
    * Sign the provided `TDeleteUserTagsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_user_tags).
@@ -3878,6 +4021,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Post re-encrypted quorum key share for a TVC deployment.
+   *
+   * Sign the provided `TPostTvcQuorumKeyShareBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/post_tvc_quorum_key_share).
+   *
+   * See also {@link stampPostTvcQuorumKeyShare}.
+   */
+  postTvcQuorumKeyShare = async (
+    input: TPostTvcQuorumKeyShareBody,
+  ): Promise<TPostTvcQuorumKeyShareResponse> => {
+    return this.request("/public/v1/submit/post_tvc_quorum_key_share", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TPostTvcQuorumKeyShareBody` by using the client's `stamp` function.
+   *
+   * See also {@link PostTvcQuorumKeyShare}.
+   */
+  stampPostTvcQuorumKeyShare = async (
+    input: TPostTvcQuorumKeyShareBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/post_tvc_quorum_key_share";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Complete the process of recovering a user by adding an authenticator.
    *
    * Sign the provided `TRecoverUserBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/recover_user).
@@ -4004,6 +4179,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Restore a deleted TVC Deployment
+   *
+   * Sign the provided `TRestoreTvcDeploymentBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/restore_tvc_deployment).
+   *
+   * See also {@link stampRestoreTvcDeployment}.
+   */
+  restoreTvcDeployment = async (
+    input: TRestoreTvcDeploymentBody,
+  ): Promise<TRestoreTvcDeploymentResponse> => {
+    return this.request("/public/v1/submit/restore_tvc_deployment", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TRestoreTvcDeploymentBody` by using the client's `stamp` function.
+   *
+   * See also {@link RestoreTvcDeployment}.
+   */
+  stampRestoreTvcDeployment = async (
+    input: TRestoreTvcDeploymentBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/restore_tvc_deployment";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Create or update IP allowlist and rules for organization or API key. The IP allowlist restricts API access to specific CIDR blocks. Organization-level allowlists apply to all API keys unless overridden by a key-specific allowlist.
    *
    * Sign the provided `TSetIpAllowlistBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/set_ip_allowlist).
@@ -4057,6 +4264,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/set_organization_feature";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Set the live deployment for a TVC App
+   *
+   * Sign the provided `TUpdateTvcAppLiveDeploymentBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/set_tvc_app_live_deployment).
+   *
+   * See also {@link stampUpdateTvcAppLiveDeployment}.
+   */
+  updateTvcAppLiveDeployment = async (
+    input: TUpdateTvcAppLiveDeploymentBody,
+  ): Promise<TUpdateTvcAppLiveDeploymentResponse> => {
+    return this.request("/public/v1/submit/set_tvc_app_live_deployment", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateTvcAppLiveDeploymentBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateTvcAppLiveDeployment}.
+   */
+  stampUpdateTvcAppLiveDeployment = async (
+    input: TUpdateTvcAppLiveDeploymentBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/set_tvc_app_live_deployment";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -4182,6 +4421,136 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/sol_send_transaction";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Construct receiver-side encrypted operator packages to claim a Spark transfer. Does not perform FROST signing.
+   *
+   * Sign the provided `TSparkClaimTransferBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/spark_claim_transfer).
+   *
+   * See also {@link stampSparkClaimTransfer}.
+   */
+  sparkClaimTransfer = async (
+    input: TSparkClaimTransferBody,
+  ): Promise<TSparkClaimTransferResponse> => {
+    return this.request("/public/v1/submit/spark_claim_transfer", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TSparkClaimTransferBody` by using the client's `stamp` function.
+   *
+   * See also {@link SparkClaimTransfer}.
+   */
+  stampSparkClaimTransfer = async (
+    input: TSparkClaimTransferBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/spark_claim_transfer";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Generate a Lightning preimage and distribute Feldman shares to operators for a Spark Lightning receive. Does not perform FROST signing.
+   *
+   * Sign the provided `TSparkPrepareLightningReceiveBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/spark_prepare_lightning_receive).
+   *
+   * See also {@link stampSparkPrepareLightningReceive}.
+   */
+  sparkPrepareLightningReceive = async (
+    input: TSparkPrepareLightningReceiveBody,
+  ): Promise<TSparkPrepareLightningReceiveResponse> => {
+    return this.request(
+      "/public/v1/submit/spark_prepare_lightning_receive",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TSparkPrepareLightningReceiveBody` by using the client's `stamp` function.
+   *
+   * See also {@link SparkPrepareLightningReceive}.
+   */
+  stampSparkPrepareLightningReceive = async (
+    input: TSparkPrepareLightningReceiveBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/spark_prepare_lightning_receive";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Construct sender-side encrypted operator packages for a Spark BTC transfer. Does not perform FROST signing.
+   *
+   * Sign the provided `TSparkPrepareTransferBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/spark_prepare_transfer).
+   *
+   * See also {@link stampSparkPrepareTransfer}.
+   */
+  sparkPrepareTransfer = async (
+    input: TSparkPrepareTransferBody,
+  ): Promise<TSparkPrepareTransferResponse> => {
+    return this.request("/public/v1/submit/spark_prepare_transfer", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TSparkPrepareTransferBody` by using the client's `stamp` function.
+   *
+   * See also {@link SparkPrepareTransfer}.
+   */
+  stampSparkPrepareTransfer = async (
+    input: TSparkPrepareTransferBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/spark_prepare_transfer";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Perform pure FROST partial signing for a Spark wallet. Produces partial signatures without constructing operator packages.
+   *
+   * Sign the provided `TSparkSignFrostBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/spark_sign_frost).
+   *
+   * See also {@link stampSparkSignFrost}.
+   */
+  sparkSignFrost = async (
+    input: TSparkSignFrostBody,
+  ): Promise<TSparkSignFrostResponse> => {
+    return this.request("/public/v1/submit/spark_sign_frost", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TSparkSignFrostBody` by using the client's `stamp` function.
+   *
+   * See also {@link SparkSignFrost}.
+   */
+  stampSparkSignFrost = async (
+    input: TSparkSignFrostBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/spark_sign_frost";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

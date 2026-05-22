@@ -11,6 +11,8 @@
     "credential-upload": "npx tsx credential-upload.tsx"
   },
   "dependencies": {
+    "@noble/curves": "1.9.7",
+    "@noble/hashes": "^1.8.0",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/react-wallet-kit": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
