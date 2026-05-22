@@ -1,15 +1,19 @@
 import { WalletConnectPay } from "@walletconnect/pay";
 
-const WC_API_KEY = process.env.EXPO_PUBLIC_WC_API_KEY || "";
+type WalletConnectPayInstance = InstanceType<typeof WalletConnectPay>;
 
 // Singleton WalletConnect Pay client
-let wcPayClient: WalletConnectPay | null = null;
+let wcPayClient: WalletConnectPayInstance | null = null;
 
-export function getWcPayClient(): WalletConnectPay {
+export function getWcPayClient(): WalletConnectPayInstance {
   if (!wcPayClient) {
-    wcPayClient = new WalletConnectPay({
-      apiKey: WC_API_KEY,
-    });
+    const apiKey = process.env.EXPO_PUBLIC_WC_API_KEY;
+    if (!apiKey) {
+      throw new Error(
+        "Missing EXPO_PUBLIC_WC_API_KEY — add it to your .env file",
+      );
+    }
+    wcPayClient = new WalletConnectPay({ apiKey });
   }
   return wcPayClient;
 }
