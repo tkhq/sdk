@@ -3,3 +3,4 @@ packages:
   - internal/*
   - examples/**
   - "!examples/with-react-native-wallet-kit/**"
+  - "!examples/with-walletconnect-pay/**"
