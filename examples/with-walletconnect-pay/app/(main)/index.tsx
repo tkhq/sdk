@@ -7,10 +7,10 @@ import {
   ScrollView,
   Alert,
   RefreshControl,
-  Clipboard,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import * as Clipboard from "expo-clipboard";
 import { useTurnkey, ClientState } from "@turnkey/react-native-wallet-kit";
 import { Colors } from "@/constants/theme";
 
@@ -107,9 +107,9 @@ export default function HomeScreen() {
     router.push({ pathname: "/scanner" });
   };
 
-  const handleCopyAddress = () => {
+  const handleCopyAddress = async () => {
     if (!walletAddress) return;
-    Clipboard.setString(walletAddress);
+    await Clipboard.setStringAsync(walletAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

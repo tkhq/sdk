@@ -23,6 +23,7 @@
     "@walletconnect/react-native-compat": "2.23.9",
     "expo": "~54.0.7",
     "expo-camera": "~16.0.0",
+    "expo-clipboard": "~7.1.5",
     "expo-constants": "~18.0.8",
     "expo-font": "~14.0.8",
     "expo-haptics": "~15.0.7",
