@@ -22,6 +22,7 @@ export function TurnkeyProvider({
         <TurnkeyThemeOverrides
           light={config.ui?.colors?.light}
           dark={config.ui?.colors?.dark}
+          nonce={config.ui?.styleNonce}
         />
         {children}
 
