@@ -51,8 +51,10 @@ async function main() {
     console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);
   }
 
+  const minimumBalanceForRentExemption =
+    await connection.getMinimumBalanceForRentExemption(0);
   let balance = await solanaNetwork.balance(connection, solAddress);
-  while (balance === 0) {
+  while (balance <= minimumBalanceForRentExemption) {
     console.log(
       [
         `\n💸 Your onchain balance is at 0! To continue this demo you'll need funds! You can use:`,
@@ -75,6 +77,11 @@ async function main() {
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
   }
+
+  print(
+    "SOL balance:",
+    `${balance} Lamports\n\tMinimum balance for rent exemption: ${minimumBalanceForRentExemption} Lamports`,
+  );
 
   const { numTxsStr } = await prompts([
     {
@@ -113,10 +120,10 @@ async function main() {
           var n = Math.floor(Number(str));
           if (n !== Infinity && String(n) === str && n > 0) {
             // valid int was passed in
-            if (n + 5000 > balance) {
-              return `insufficient balance: current balance (${balance}) is less than ${
-                n + 5000 * numTxs
-              } (amount + 5000 lamports per tx for fee)`;
+            const minimumRequired =
+              minimumBalanceForRentExemption + n + 5000 * numTxs;
+            if (minimumRequired > balance) {
+              return `insufficient balance: current balance (${balance}) is less than ${minimumRequired} (rent exemption + amount + 5000 lamports per tx for fee)`;
             }
             return true;
           } else {
