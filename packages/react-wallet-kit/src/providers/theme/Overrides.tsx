@@ -16,8 +16,9 @@ export type ThemeOverrides = {
 export function TurnkeyThemeOverrides(props: {
   light?: Partial<ThemeOverrides> | undefined;
   dark?: Partial<ThemeOverrides> | undefined;
+  nonce?: string | undefined;
 }) {
-  const { light, dark } = props;
+  const { light, dark, nonce } = props;
   const generateCSSVars = (theme?: Partial<ThemeOverrides>) => {
     if (!theme) return "";
     return Object.entries(theme)
@@ -33,7 +34,7 @@ export function TurnkeyThemeOverrides(props: {
   };
 
   return (
-    <style>
+    <style nonce={nonce}>
       {`
         :root {
           ${generateCSSVars(light)}
