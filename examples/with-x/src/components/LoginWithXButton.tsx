@@ -12,7 +12,7 @@ export function LoginWithXButton() {
   function handleXLogin() {
     setIsRedirecting(true);
     const state = crypto.randomUUID();
-    localStorage.setItem("x_oauth_state", state);
+    localStorage.setItem("oauth_state", state); // satisfies the kit's internal state check on redirect
     router.push(`/auth/x?state=${state}`);
   }
 

@@ -22,13 +22,6 @@ export default function RedirectPage() {
 
     const turnkeyAuth = async () => {
       try {
-        const storedState = localStorage.getItem("x_oauth_state");
-        localStorage.removeItem("x_oauth_state");
-
-        if (!state || !storedState || state !== storedState) {
-          throw new Error("OAuth state mismatch");
-        }
-
         const publicKey = await createApiKeyPair();
 
         const res = await fetch("/auth/turnkey/x", {
