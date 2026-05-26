@@ -13,7 +13,7 @@ dotenv.config({ path: "./.env.local" });
 (async () => {
   // obtain the args to this script and ensure there is exactly 1
   const args = process.argv.slice(2);
-  if (args.length < 2) {
+  if (args.length !== 1) {
     console.log(
       "Invalid client secret provided. To input a client secret run: pnpm run credential-upload -- <client_secret>",
     );
@@ -28,7 +28,7 @@ dotenv.config({ path: "./.env.local" });
   }
 
   // obtain the client secret from the arguments
-  const client_secret = args[1];
+  const client_secret = args[0];
 
   // encrypt the client secret to TLS Fetchers public key
   const encryptedClientSecret = await encryptOauth2ClientSecret(client_secret);

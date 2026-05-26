@@ -1,68 +1,59 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import axios from "axios";
-import { useTurnkey } from "@turnkey/sdk-react";
+import { ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
+import { Loading } from "@/components/Loading";
 
-export default function LoadingPage() {
-  const { indexedDbClient } = useTurnkey();
+export default function RedirectPage() {
+  const { createApiKeyPair, storeSession, clientState } = useTurnkey();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [pubKey, setPubKey] = useState<string | null>(null);
-  const indexedDbInitialized = useRef(false);
+  const initiated = useRef(false);
 
   const auth_code = searchParams.get("code");
   const state = searchParams.get("state");
 
   useEffect(() => {
-    const refreshKey = async () => {
-      if (indexedDbClient !== undefined && !indexedDbInitialized.current) {
-        indexedDbInitialized.current = true;
+    if (clientState !== ClientState.Ready) return;
+    if (!auth_code || !state) return;
+    if (initiated.current) return;
+    initiated.current = true;
 
-        await indexedDbClient.resetKeyPair();
-        const newKey = await indexedDbClient.getPublicKey();
-
-        if (newKey) {
-          setPubKey(newKey);
-        }
-      }
-    };
-
-    refreshKey();
-  }, [indexedDbClient]);
-
-  useEffect(() => {
     const turnkeyAuth = async () => {
-      if (pubKey == undefined) return;
-
       try {
-        const { data } = await axios.post("/auth/turnkey/x", {
-          auth_code: auth_code,
-          state: state,
-          public_key: pubKey,
+        const publicKey = await createApiKeyPair();
+
+        const res = await fetch("/auth/turnkey/x", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            auth_code,
+            state,
+            public_key: publicKey,
+          }),
         });
 
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error ?? "Auth failed");
+        }
+
+        await storeSession({ sessionToken: data.session });
         router.push("/dashboard");
       } catch (e) {
         console.error(`Failed logging in: ${e}`);
         router.push("/");
       }
     };
+
     turnkeyAuth();
-  }, [pubKey]);
+  }, [clientState, auth_code, state, router, createApiKeyPair, storeSession]);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="text-center space-y-6">
-        <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 border-t-black"></div>
-        </div>
-        <h1 className="text-2xl font-semibold text-foreground">Logging In</h1>
-        <p className="text-muted-foreground">
-          Please wait while we sign you in...
-        </p>
-      </div>
+      <Loading />
     </main>
   );
 }

@@ -3386,18 +3386,12 @@ importers:
       '@turnkey/crypto':
         specifier: workspace:*
         version: link:../../packages/crypto
-      '@turnkey/encoding':
+      '@turnkey/react-wallet-kit':
         specifier: workspace:*
-        version: link:../../packages/encoding
-      '@turnkey/sdk-react':
-        specifier: workspace:*
-        version: link:../../packages/sdk-react
+        version: link:../../packages/react-wallet-kit
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
-      axios:
-        specifier: '>=1.15.1'
-        version: 1.16.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

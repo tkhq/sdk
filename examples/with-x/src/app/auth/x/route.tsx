@@ -1,17 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 
 export async function GET(req: NextRequest) {
+  const state = req.nextUrl.searchParams.get("state");
+  if (!state) {
+    return NextResponse.json(
+      { error: "Missing state parameter" },
+      { status: 400 },
+    );
+  }
+
+  const codeVerifier = crypto.randomBytes(32).toString("base64url");
+  const codeChallenge = crypto
+    .createHash("sha256")
+    .update(codeVerifier)
+    .digest("base64url");
+
   const params = new URLSearchParams({
     redirect_uri: process.env.X_REDIRECT_URI!, // should match exactly what is entered on X's developer portal
     response_type: "code",
     client_id: process.env.X_CLIENT_ID!,
     scope: "tweet.read users.read", // the minimum scope required for Turnkey to perform OAuth 2.0 authentication on behalf of an end-user
-    state: "random_state", // in production this value should be a random value that is check when the user is redirected back to your application from X
-    code_challenge: "base64_encoded_sha256(code_verifier)", // the base64 encoded sha256 of code_verifier should be used in production
-    code_challenge_method: "plain", // you should use the P256 challenge method in production
+    state,
+    code_challenge: codeChallenge,
+    code_challenge_method: "S256",
   });
 
-  return NextResponse.redirect(
+  const response = NextResponse.redirect(
     `https://x.com/i/oauth2/authorize?${params.toString()}`,
   );
+  const cookieOptions = {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: process.env.NODE_ENV === "production", // use secure: true in production
+    path: "/",
+    maxAge: 600,
+  };
+  response.cookies.set("pkce_verifier", codeVerifier, cookieOptions);
+  response.cookies.set("pkce_state", state, cookieOptions);
+  return response;
 }

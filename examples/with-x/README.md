@@ -1,11 +1,14 @@
 # Example: `with-x`
 
-This example shows a complete the Oauth 2.0 flow with X. It contains a NextJS app with:
+This example shows a complete OAuth 2.0 login flow with X (Twitter) using [`@turnkey/react-wallet-kit`](https://www.npmjs.com/package/@turnkey/react-wallet-kit) and a custom Next.js backend. It contains:
 
-- a frontend application
-- a backend application
+- A login page that initiates the X OAuth 2.0 flow
+- A backend route (`/auth/x`) that redirects to X's authorization endpoint
+- A backend route (`/auth/turnkey/x`) that exchanges the auth code for a Turnkey session via `oauth2Authenticate`
+- A redirect page (`/auth/x/redirect`) that handles the OAuth callback and stores the session
+- A dashboard page that displays the authenticated user's ID and Solana wallet address
 
-This example contains an example auth page as well as a stub API endpoint for "your business" (where the user is resolved into an organization ID). It relies on the `indexedDbClient` to stamp the requests. For more information on oauth, [check out our documentation](https://docs.turnkey.com/authentication/social-logins).
+For more information on OAuth, [check out our documentation](https://docs.turnkey.com/authentication/social-logins).
 
 ## Getting started
 
@@ -24,73 +27,69 @@ $ cd examples/with-x/
 
 ### 2/ Setting up Turnkey
 
-The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
+If you don't have a Turnkey account yet, follow the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide to create an organization.
 
-- A public/private API key pair for Turnkey
-- An organization ID
+You'll also need a **Turnkey API keypair** for the backend to authenticate with the Turnkey API. Create one in the Turnkey dashboard and save the public and private keys — they will be used for `API_PUBLIC_KEY` and `API_PRIVATE_KEY` in your `.env.local`.
 
-Once you've gathered these values, add them to a new `.env.local` file. Notice that your API private key should be securely managed and **_never_** be committed to git.
+### 3/ Setting up X
+
+Navigate to the [X developer console](https://console.x.com/) and create an app. Then:
+
+1. In **User authentication settings** for your app, click **Set up**. You'll be asked to fill in:
+   - **App permissions**: select **Read**
+   - **Type of App**: select **Web App**
+   - **App info**: add a **Callback URI / Redirect URL** and a **Website URL**
+
+   For the callback URI use:
+
+   ```
+   http://127.0.0.1:3456/auth/x/redirect
+   ```
+
+   > Use `127.0.0.1` and NOT `localhost`. The port must match the `PORT` value in your `.env.local`.
+
+   Save changes. These settings can be updated later via the app's settings menu.
+
+2. After setup completes, your **Client ID** and **Client Secret** are shown once — copy them immediately. The secret cannot be viewed again (only regenerated). Your Client ID can always be found later under **OAuth 2.0 Keys** in the app view.
+
+> **Note on email:** X does not return the user's email address as part of the OAuth login flow. To access additional user data via X's API (e.g. username, profile info), you can decrypt the X user access token that Turnkey returns — see the commented-out code in [`src/app/auth/turnkey/x/route.ts`](./src/app/auth/turnkey/x/route.ts#L86-L93) for how to decrypt it and use it to call `GET /2/users/me`.
+
+### 4/ Configuring your environment
+
+Copy the example env file:
 
 ```bash
 $ cp .env.local.example .env.local
 ```
 
-Now open `.env.local` and add the missing environment variables:
+Open `.env.local` and fill in all values:
 
-- `API_PUBLIC_KEY`
-- `API_PRIVATE_KEY`
-- `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
-- `NEXT_PUBLIC_ORGANIZATION_ID`
+- `NEXT_PUBLIC_BASE_URL` — Turnkey API base URL (`https://api.turnkey.com`)
+- `NEXT_PUBLIC_ORGANIZATION_ID` — your Turnkey organization ID
+- `API_PUBLIC_KEY` — your Turnkey API public key
+- `API_PRIVATE_KEY` — your Turnkey API private key
+- `X_CLIENT_ID` — your X OAuth 2.0 Client ID
+- `X_REDIRECT_URI` — the callback URI you registered on X (`http://127.0.0.1:3456/auth/x/redirect`)
+- `PORT` — port for the dev server (`3456`)
 
-### 3/ Setting up X
+> **Production note:** the PKCE cookies set by the backend use `secure: true` automatically when `NODE_ENV=production` (set by Next.js during `next build`). In local development the flag is omitted so cookies work over plain HTTP.
 
-Navigate to the [X developer portal](https://developer.twitter.com/en/portal/dashboard) and create an app. In the keys and tokens section you'll need to save your:
+### 5/ Uploading X credentials to Turnkey
 
-- Client ID
-- Client Secret
+The backend uses Turnkey's `oauth2Authenticate` to exchange X auth codes for OIDC tokens. To do this, Turnkey needs your X Client Secret uploaded and encrypted. Run the credential-upload script:
 
-![alt text](./doc/client_information.png)
+```bash
+pnpm run credential-upload -- <client_secret>
+```
 
-You will also need to set a Redirect URI found in the `User authentication settings` tab.
+On success it prints an **OAuth 2.0 Credential ID**. Add that value to `.env.local`:
 
-![alt text](./doc/redirect.png)
+- `OAUTH2_CREDENTIAL_ID` — the credential ID returned by the script
 
-For this demo application set your Callback URI / Redirect URL to the following:
-`http://127.0.0.1:3456/auth/x/redirect`.
-
-Ensure to use `127.0.0.1` and NOT `localhost`. The port used in your `X_REDIRECT_URI` should match the `PORT` value in your `.env.local` file.
-
-![alt text](./doc/redirect2.png)
-
-After you have obtained these values save them in your `.env.local`
-
-- `X_CLIENT_ID`
-- `X_REDIRECT_URI`
-
-### 4/ Upload your client secret
-
-To enable Turnkey to perform OAuth 2.0 authentication for your end users, our secure enclave will need access to your X client secret. This step will outline the process of encrypting this secret and passing the encrypted payload to our TLS Fetcher enclave, our enclave responsible for making external requests (in this case to X).
-
-This client secret is never decrypted outside of our secure enclave and no individual has access to this secret.
-
-To encrypt your client secret and upload it to Turnkey ensure you have the following environment variables setup in your `.env.local` file:
-
-- `API_PUBLIC_KEY`
-- `API_PRIVATE_KEY`
-- `NEXT_PUBLIC_ORGANIZATION_ID`
-- `NEXT_PUBLIC_BASE_URL`
-- `X_CLIENT_ID`
-
-Run `pnpm run credential-upload -- <client_secret>` with your X client secret (note: do NOT include the `<` and `>` characters). You can view the script that performs this encryption at [credential-upload.tsx](./credential-upload.tsx). For example, if your client secret is `123` you'll run `pnpm run credential-upload -- 123`.
-
-This script will output an OAuth 2.0 Credential ID. Paste this value in your `.env.local` file as the `OAUTH2_CREDENTIAL_ID` environment variable.
-
-### 4/ Running the app
-
-You should now have all of the environment variables in `.env.local` populated. You're now ready to run the application!
+### 6/ Running the app
 
 ```bash
 pnpm run dev
 ```
 
-This command will run a NextJS app on port 3456. If you navigate to http://localhost:3456 in your browser, you can follow the prompts to sign in with X.
+Navigate to http://127.0.0.1:3456 in your browser and follow the prompts to sign in with X.

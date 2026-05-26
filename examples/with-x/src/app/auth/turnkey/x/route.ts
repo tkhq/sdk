@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import {
   DEFAULT_SOLANA_ACCOUNTS,
   Turnkey as TurnkeySDKClient,
 } from "@turnkey/sdk-server";
 import { generateP256KeyPair } from "@turnkey/crypto";
+// import { decryptCredentialBundle } from "@turnkey/crypto"; // needed if you want to decrypt the bearer token (see commented-out code starting at line 86)
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 
@@ -19,14 +21,6 @@ export async function POST(req: Request) {
 
   if (!body?.public_key) {
     return NextResponse.json({ error: "Missing public_key" }, { status: 400 });
-  }
-
-  // in production your should check the state parameter to ensure that it matches what was generated
-  if (body?.state != "random_state") {
-    return NextResponse.json(
-      { error: "Invalid state value received from X" },
-      { status: 400 },
-    );
   }
 
   // ensure the X_CLIENT_ID environment variable has been set
@@ -51,6 +45,18 @@ export async function POST(req: Request) {
     );
   }
 
+  const cookieStore = await cookies();
+  const codeVerifier = cookieStore.get("pkce_verifier")?.value;
+  const expectedState = cookieStore.get("pkce_state")?.value;
+  if (!codeVerifier || !expectedState) {
+    return NextResponse.json(
+      { error: "Missing PKCE verifier" },
+      { status: 400 },
+    );
+  }
+  if (body.state !== expectedState) {
+    return NextResponse.json({ error: "Invalid state" }, { status: 400 });
+  }
   const sessionPublicKey = body.public_key;
 
   try {
@@ -73,15 +79,12 @@ export async function POST(req: Request) {
         oauth2CredentialId: process.env.OAUTH2_CREDENTIAL_ID!,
         authCode: body.auth_code,
         redirectUri: process.env.X_REDIRECT_URI!,
-        codeVerifier: "base64_encoded_sha256(code_verifier)", // in production this value should be a random value and the codeChallenge will be the base64_encoded_sha256(code_verifier)
+        codeVerifier,
         bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
         nonce: bytesToHex(sha256(sessionPublicKey)),
       });
-
-    // get the encryptedBearerToken
-    getEncryptedBearerTokenFromOidcToken(oauth2AuthenticateResponse.oidcToken);
-
     // you can now decrypt and store the bearer token as shown below (code commented out for security reasons)
+    // const encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(oauth2AuthenticateResponse.oidcToken);
     // if (encryptedBearerToken !== undefined) {
     //   const decryptedBearerToken = await decryptCredentialBundle(
     //     encryptedBearerToken,
@@ -126,7 +129,7 @@ export async function POST(req: Request) {
         });
 
       subOrgId =
-        createSubOrgResponse.activity.result.createSubOrganizationResultV7
+        createSubOrgResponse.activity.result.createSubOrganizationResultV8
           ?.subOrganizationId;
     } else if (getSubOrgIdsResponse.organizationIds.length > 1) {
       // multiple sub orgs with the same OIDC token, shouldn't be possible
@@ -145,10 +148,13 @@ export async function POST(req: Request) {
       publicKey: sessionPublicKey,
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       ok: true,
       session: loginWithOAuthResponse.session,
     });
+    response.cookies.delete("pkce_verifier");
+    response.cookies.delete("pkce_state");
+    return response;
   } catch (e) {
     return NextResponse.json(
       { error: `Error performing OAuth 2.0 authentication: ${e}` },
