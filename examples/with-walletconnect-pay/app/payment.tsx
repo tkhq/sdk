@@ -235,18 +235,10 @@ export default function PaymentScreen() {
             }
           }}
           onShouldStartLoadWithRequest={(request) => {
-            // Allow WC Pay URLs to load in WebView
             if (
-              request.url.includes("pay.walletconnect.com") ||
-              request.url.includes("walletconnect.org")
-            ) {
-              return true;
-            }
-            // Open external URLs in system browser
-            if (
-              request.url.startsWith("https://") &&
+              request.navigationType === "click" &&
               !request.url.includes("pay.walletconnect.com") &&
-              request.navigationType === "click"
+              !request.url.includes("walletconnect.org")
             ) {
               Linking.openURL(request.url);
               return false;
