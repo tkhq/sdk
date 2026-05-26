@@ -83,7 +83,12 @@ export default function PaymentScreen() {
     } catch (error: any) {
       console.error("[WCPay] getPaymentOptions error:", error);
       setStep("error");
-      setErrorMessage(error.message || "Failed to load payment options.");
+      const msg: string = error.message || "";
+      if (msg.toLowerCase().includes("expired")) {
+        setErrorMessage("This payment link has expired. Please request a new one from the merchant.");
+      } else {
+        setErrorMessage("Failed to load payment options. Please try again.");
+      }
     }
   };
 
