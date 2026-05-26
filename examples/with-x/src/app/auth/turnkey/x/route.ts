@@ -5,6 +5,7 @@ import {
   Turnkey as TurnkeySDKClient,
 } from "@turnkey/sdk-server";
 import { generateP256KeyPair } from "@turnkey/crypto";
+// import { decryptCredentialBundle } from "@turnkey/crypto"; // needed if you want to decrypt the bearer token (see commented-out code starting at line 86)
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 
