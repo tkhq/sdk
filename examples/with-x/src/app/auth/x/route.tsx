@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
   const cookieOptions = {
     httpOnly: true,
     sameSite: "lax" as const,
+    secure: process.env.NODE_ENV === "production", // use secure: true in production
     path: "/",
     maxAge: 600,
   };

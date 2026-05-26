@@ -70,6 +70,8 @@ Open `.env.local` and fill in all values:
 - `X_REDIRECT_URI` — the callback URI you registered on X (`http://127.0.0.1:3456/auth/x/redirect`)
 - `PORT` — port for the dev server (`3456`)
 
+> **Production note:** the PKCE cookies set by the backend use `secure: true` automatically when `NODE_ENV=production` (set by Next.js during `next build`). In local development the flag is omitted so cookies work over plain HTTP.
+
 ### 5/ Uploading X credentials to Turnkey
 
 The backend uses Turnkey's `oauth2Authenticate` to exchange X auth codes for OIDC tokens. To do this, Turnkey needs your X Client Secret uploaded and encrypted. Run the credential-upload script:
