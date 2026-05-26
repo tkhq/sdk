@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native builds
+ios/
+android/
+
+# Environment variables
+.env
+.env.local
+
+# Signing keys & provisioning
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Claude Code
+.claude/
+
+# macOS
+.DS_Store
+
+# Editor
+*.orig.*
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+
+# Metro
+.metro-health-check*
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
