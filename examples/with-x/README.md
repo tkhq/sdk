@@ -52,6 +52,8 @@ Navigate to the [X developer console](https://console.x.com/) and create an app.
 
 2. After setup completes, your **Client ID** and **Client Secret** are shown once — copy them immediately. The secret cannot be viewed again (only regenerated). Your Client ID can always be found later under **OAuth 2.0 Keys** in the app view.
 
+> **Note on email:** X does not return the user's email address as part of the OAuth login flow. To access additional user data via X's API (e.g. username, profile info), you can decrypt the X user access token that Turnkey returns — see the commented-out code in [`src/app/auth/turnkey/x/route.ts`](./src/app/auth/turnkey/x/route.ts#L86-L93) for how to decrypt it and use it to call `GET /2/users/me`.
+
 ### 4/ Configuring your environment
 
 Copy the example env file:
