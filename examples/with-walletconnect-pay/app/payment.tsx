@@ -85,7 +85,9 @@ export default function PaymentScreen() {
       setStep("error");
       const msg: string = error.message || "";
       if (msg.toLowerCase().includes("expired")) {
-        setErrorMessage("This payment link has expired. Please request a new one from the merchant.");
+        setErrorMessage(
+          "This payment link has expired. Please request a new one from the merchant.",
+        );
       } else {
         setErrorMessage("Failed to load payment options. Please try again.");
       }
