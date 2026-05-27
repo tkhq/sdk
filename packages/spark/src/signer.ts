@@ -206,9 +206,13 @@ export interface LightningReceiveResult {
 }
 
 export interface TurnkeySparkSignerOptions {
+  client: TurnkeyServerSDK;
+  sparkAddress: string;
+  ecdsaAddress: string;
+  identityPublicKeyHex: string;
   walletId?: string | undefined;
   depositPublicKeyHex?: string | undefined;
-  staticDepositPublicKeys?: Record<number, string> | undefined;
+  staticDepositPublicKeysHex?: Record<number, string> | undefined;
 }
 
 export class TurnkeySparkSigner implements SparkSigner {
@@ -223,13 +227,15 @@ export class TurnkeySparkSigner implements SparkSigner {
   private readonly secretKeyManager: TurnkeySparkSecretKeyManager;
   private readonly signingKeyManager: TurnkeySparkSigningKeyManager;
 
-  constructor(
-    client: TurnkeyServerSDK,
-    sparkAddress: string,
-    ecdsaAddress: string,
-    identityPublicKeyHex: string,
-    options: TurnkeySparkSignerOptions = {},
-  ) {
+  constructor({
+    client,
+    sparkAddress,
+    ecdsaAddress,
+    identityPublicKeyHex,
+    depositPublicKeyHex,
+    staticDepositPublicKeysHex,
+    walletId,
+  }: TurnkeySparkSignerOptions) {
     this.client = client;
     this.sparkAddress = sparkAddress;
     this.ecdsaAddress = ecdsaAddress;
@@ -238,19 +244,17 @@ export class TurnkeySparkSigner implements SparkSigner {
     this.signingKeyManager = new TurnkeySparkSigningKeyManager(
       client.apiClient(),
       sparkAddress,
-      options.walletId,
+      walletId,
     );
 
     this.secretKeyManager = new TurnkeySparkSecretKeyManager();
 
-    if (options.depositPublicKeyHex) {
-      this.setDepositSigningKey(
-        uint8ArrayFromHexString(options.depositPublicKeyHex),
-      );
+    if (depositPublicKeyHex) {
+      this.setDepositSigningKey(uint8ArrayFromHexString(depositPublicKeyHex));
     }
 
     for (const [index, publicKeyHex] of Object.entries(
-      options.staticDepositPublicKeys ?? {},
+      staticDepositPublicKeysHex ?? {},
     )) {
       this.setStaticDepositSigningKey(
         Number(index),

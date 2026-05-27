@@ -47,7 +47,8 @@ async function main() {
     "API_PUBLIC_KEY",
     "API_PRIVATE_KEY",
     "ORGANIZATION_ID",
-    "TURNKEY_IDENTITY_ADDRESS",
+    "TURNKEY_SPARK_ADDRESS",
+    "TURNKEY_ECDSA_ADDRESS",
     "IDENTITY_PUBLIC_KEY_HEX",
     "RECEIVER_SPARK_ADDRESS",
   ] as const;
@@ -65,7 +66,8 @@ async function main() {
     process.env.TRANSFER_AMOUNT ?? String(mintAmount),
   );
   const receiverSparkAddress = process.env.RECEIVER_SPARK_ADDRESS!;
-  const turnkeyIdentityAddress = process.env.TURNKEY_IDENTITY_ADDRESS!;
+  const turnkeyEcdsaAddress = process.env.TURNKEY_ECDSA_ADDRESS!;
+  const turnkeySparkAddress = process.env.TURNKEY_SPARK_ADDRESS!;
   const identityPublicKeyHex = process.env.IDENTITY_PUBLIC_KEY_HEX!;
 
   // Initialize Turnkey client
@@ -77,11 +79,12 @@ async function main() {
   });
 
   // Create the Turnkey-backed signer
-  const signer = new TurnkeySparkSigner(
-    turnkeyClient,
-    turnkeyIdentityAddress,
+  const signer = new TurnkeySparkSigner({
+    client: turnkeyClient,
+    sparkAddress: turnkeySparkAddress,
+    ecdsaAddress: turnkeyEcdsaAddress,
     identityPublicKeyHex,
-  );
+  });
 
   // Initialize IssuerSparkWallet with Turnkey signer.
   // Cast to `any` is safe: the mismatched methods (subtractAndSplitSecretWithProofsGivenDerivations,
