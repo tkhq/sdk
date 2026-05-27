@@ -55,7 +55,12 @@ function Redirect() {
 }
 
 export default function RedirectPage() {
-  return <main className="min-h-screen flex items-center justify-center bg-background p-4">
-    <Suspense fallback={<Loading />}><Redirect /></Suspense>;
-  </main>
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Suspense fallback={<Loading />}>
+        <Redirect />
+      </Suspense>
+      ;
+    </main>
+  );
 }

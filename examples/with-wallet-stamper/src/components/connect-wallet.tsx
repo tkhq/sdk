@@ -61,7 +61,9 @@ export function ConnectWallet() {
       if (signMessage) {
         setWallet({
           signMessage: async (message) => {
-            const signedMessage = await signMessage(Uint8Array.from(Buffer.from(message)));
+            const signedMessage = await signMessage(
+              Uint8Array.from(Buffer.from(message)),
+            );
             return Buffer.from(signedMessage).toString("hex");
           },
           getPublicKey: async () =>

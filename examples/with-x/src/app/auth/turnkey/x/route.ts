@@ -83,7 +83,7 @@ export async function POST(req: Request) {
         bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
         nonce: bytesToHex(sha256(sessionPublicKey)),
       });
-      
+
     // you can now decrypt and store the bearer token as shown below (code commented out for security reasons)
     // const encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(oauth2AuthenticateResponse.oidcToken);
     // if (encryptedBearerToken !== undefined) {

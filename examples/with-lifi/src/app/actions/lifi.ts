@@ -17,10 +17,10 @@ export interface StatusParams {
 }
 
 export interface TransactionRequest {
-  to: Address
-  from: Address
-  data: Hex
-  value: string
+  to: Address;
+  from: Address;
+  data: Hex;
+  value: string;
 }
 
 export interface LifiQuoteEstimate {

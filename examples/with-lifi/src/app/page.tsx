@@ -19,7 +19,13 @@ import {
   WalletClient,
 } from "viem";
 import { mainnet } from "viem/chains";
-import { getQuote, getStatus, QuoteParams, StatusParams, TransactionRequest } from "./actions/lifi";
+import {
+  getQuote,
+  getStatus,
+  QuoteParams,
+  StatusParams,
+  TransactionRequest,
+} from "./actions/lifi";
 
 function LoginButton() {
   const { handleLogin } = useTurnkey();
@@ -129,9 +135,8 @@ export default function BridgePage() {
   const [swapping, setSwapping] = useState(false);
   const [ethSwapHash, setEthSwapHash] = useState("");
   const [solSwapHash, setSolSwapHash] = useState("");
-  const [transactionRequest, setTransactionRequest] = useState<
-    TransactionRequest
-  >();
+  const [transactionRequest, setTransactionRequest] =
+    useState<TransactionRequest>();
   const [turnkeySolanaSigner, setTurnkeySolanaSigner] = useState<
     TurnkeySigner | undefined
   >(undefined);
@@ -290,7 +295,9 @@ export default function BridgePage() {
       setToAmount(
         toToken === "ETH"
           ? formatEther(getPriceResponse.estimate.toAmount as unknown as bigint)
-          : lamportsToSol(getPriceResponse.estimate.toAmount as unknown as number).toString(),
+          : lamportsToSol(
+              getPriceResponse.estimate.toAmount as unknown as number,
+            ).toString(),
       );
     } catch {
       setToAmount("0.0");
@@ -301,7 +308,7 @@ export default function BridgePage() {
     if (transactionRequest == null) {
       return;
     }
-    
+
     setSwapModalOpen(true);
     setSwapping(true);
     setToAmount("");
