@@ -4,7 +4,9 @@ This example shows how to integrate [`@walletconnect/pay`](https://www.npmjs.com
 
 ## Demo
 
-https://github.com/user-attachments/assets/01af3375-9bd8-4063-851b-0a90e84a0e70
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/01af3375-9bd8-4063-851b-0a90e84a0e70" controls width="400"></video>
+</div>
 
 ## Getting started
 
