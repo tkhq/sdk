@@ -148,7 +148,7 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     backgroundBlur?: string | number; // e.g., 10, "1rem"
     /** whether to render the modal in the provider. */
     renderModalInProvider?: boolean; // If true, the modal will be rendered as a child of the TurnkeyProvider instead of a sibling to the body. This is useful for font inheritance, and css manipulations to modals.
-    /** nonce applied to the injected theme override style tag for strict CSP support. Only supported in dynamically-rendered apps in React 19*/
+    /** Nonce applied to the injected theme override <style> tag for strict CSP. Only works in dynamically-rendered apps. */
     styleNonce?: string;
     /** whether to suppress missing styles error. */
     supressMissingStylesError?: boolean; // If true, the Turnkey styles missing error will no longer show. It's possible that styles can be imported but not detected properly. This will suppress the error in that case.
