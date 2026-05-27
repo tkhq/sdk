@@ -60,7 +60,7 @@ You could run various ad-hoc tests by using the [Turnkey CLI](https://github.com
 
 - Send a tx from the Delegated account sub-organization wallet address to the allowed Ethereum RECIPIENT_ADDRESS
 - Send a tx from the Delegated account sub-organization wallet address to a different Ethereum address
-- Sign a raw payload message using the the Delegated account sub-organization wallet address
+- Sign a raw payload message using the Delegated account sub-organization wallet address
 
 Open the `.env.local` and add the missing environment variables:
 
