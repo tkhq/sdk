@@ -483,7 +483,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
           });
         });
         describe("eth_getBalance", () => {
-          it("should get the correct chain id using the underlying RPC provider", async () => {
+          it("should get the correct balance using the underlying RPC provider", async () => {
             const balance = await eip1193Provider?.request({
               method: "eth_getBalance",
               params: [expectedWalletAddress, "latest"],
