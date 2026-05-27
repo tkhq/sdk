@@ -18,22 +18,27 @@ export interface BalanceWebhookMessage extends Record<string, unknown> {
   caip2?: string;
   txHash?: string;
   address?: string;
-  orgID?: string;
-  parentOrgID?: string;
+  organizationId?: string;
+  parentOrganizationId?: string;
   idempotencyKey?: string;
   asset?: BalanceWebhookAsset;
   block?: BalanceWebhookBlock;
 }
 
-export interface BalanceConfirmedWebhookPayload {
+export interface BalanceWebhookPayload {
   type: string;
+  organizationId?: string;
+  parentOrganizationId?: string;
   msg: BalanceWebhookMessage;
 }
+
+// Backwards-compatible alias while handlers migrate naming.
+export type BalanceConfirmedWebhookPayload = BalanceWebhookPayload;
 
 export interface BalanceWebhookEventEnvelope {
   id: string;
   receivedAt: string;
-  payload: BalanceConfirmedWebhookPayload;
+  payload: BalanceWebhookPayload;
 }
 
 export type BalanceWebhookSseMessage =

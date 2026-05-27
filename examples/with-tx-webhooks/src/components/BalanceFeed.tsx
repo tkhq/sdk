@@ -116,9 +116,10 @@ export function BalanceFeed({ onWebhookEvent }: Props) {
       <section className="panel">
         <div className="panel-header">
           <h2>
-            Balance Confirmed Events{" "}
+            Balance webhook events{" "}
             <small>
-              (<code>BALANCE_CONFIRMED_UPDATES</code>)
+              (<code>BALANCE_CONFIRMED_UPDATES</code> or{" "}
+              <code>BALANCE_FINALIZED_UPDATES</code>)
             </small>
           </h2>
           <div
@@ -129,7 +130,8 @@ export function BalanceFeed({ onWebhookEvent }: Props) {
         </div>
         {recentEvents.length === 0 ? (
           <p className="balances-empty">
-            Waiting for webhook events on <code>/webhook/balance-updates</code>.
+            Waiting for confirmed or finalized balance webhooks on{" "}
+            <code>/webhook/balance-updates</code>.
           </p>
         ) : (
           <ul className="event-list">
@@ -155,7 +157,7 @@ export function BalanceFeed({ onWebhookEvent }: Props) {
 
       {activeNotification ? (
         <aside className="notification">
-          <h3>Balance Confirmed Update</h3>
+          <h3>Balance update</h3>
           <p>{getEventSummary(activeNotification)}</p>
           <p>
             {new Date(activeNotification.receivedAt).toLocaleTimeString()} •{" "}

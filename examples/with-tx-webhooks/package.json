@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "register-webhook:balance": "NODE_NO_WARNINGS=1 EVENT_TYPE=BALANCE_CONFIRMED_UPDATES tsx src/scripts/register-webhook.ts",
+    "register-webhook:balance-confirmed": "NODE_NO_WARNINGS=1 EVENT_TYPE=BALANCE_CONFIRMED_UPDATES tsx src/scripts/register-webhook.ts",
+    "register-webhook:balance-finalized": "NODE_NO_WARNINGS=1 EVENT_TYPE=BALANCE_FINALIZED_UPDATES tsx src/scripts/register-webhook.ts",
     "register-webhook:tx-status": "NODE_NO_WARNINGS=1 EVENT_TYPE=SEND_TRANSACTION_STATUS_UPDATES tsx src/scripts/register-webhook.ts"
   },
   "dependencies": {

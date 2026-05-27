@@ -331,7 +331,8 @@ export default function Page() {
         <p className="subtitle">
           Fetches balances with Turnkey{" "}
           <code>getWalletAddressBalances (getBalances)</code> and listens for
-          live <code>BALANCE_CONFIRMED_UPDATES</code> and{" "}
+          live <code>BALANCE_CONFIRMED_UPDATES</code>,{" "}
+          <code>BALANCE_FINALIZED_UPDATES</code>, and{" "}
           <code>SEND_TRANSACTION_STATUS_UPDATES</code> webhook events across EVM
           and SVM networks.
         </p>
