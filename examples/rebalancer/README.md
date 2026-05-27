@@ -299,7 +299,7 @@ This command will output:
 - Activity ID: <ACTIVITY-ID>
 ```
 
-> **Note:** You can can also approve the transaction from the [Turnkey dashboard](https://app.turnkey.com/dashboard/activities).
+> **Note:** You can also approve the transaction from the [Turnkey dashboard](https://app.turnkey.com/dashboard/activities).
 
 Once approved, the transaction will be automatically broadcast to the Sepolia testnet.
 
