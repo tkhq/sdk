@@ -67,6 +67,7 @@
       "protobufjs": ">=8.0.2",
       "@babel/traverse": ">=7.23.2",
       "follow-redirects": ">=1.15.4",
+      "tmp": ">=0.2.6",
       "web3": ">=4.2.1",
       "web3-core": ">=4.2.1",
       "web3-utils": ">=4.2.1",
