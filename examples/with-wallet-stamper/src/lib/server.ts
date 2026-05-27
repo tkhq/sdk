@@ -17,7 +17,7 @@ const {
   TURNKEY_API_PRIVATE_KEY,
   NEXT_PUBLIC_ORGANIZATION_ID,
   NEXT_PUBLIC_BASE_URL,
-} = env;
+} = env();
 
 export const createAPIKeyStamper = async (options?: TApiKeyStamperConfig) => {
   const apiPublicKey = options?.apiPublicKey || TURNKEY_API_PUBLIC_KEY;

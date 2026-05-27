@@ -12,9 +12,12 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
   group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
 
+env:
+  NODE_ENV: production
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: 16-core-runner-fren-1
 
     steps:
       # https://github.com/actions/checkout
@@ -31,25 +34,25 @@ jobs:
 
       # Even though typecheck turbo task depends on ^build, we still want to run it explicitly
       - name: Build
-        run: pnpm build --filter='./packages/*'
+        run: pnpm build
 
       - name: Typecheck
         run: pnpm typecheck
 
       - name: Prettier
-        run: pnpm run prettier-all:check
+        run: pnpm prettier-all:check
 
       # This is to catch when someone forgets to run `pnpm run version` after bumping package versions as well as check to make sure codegen output is up to date.
       # Both of these things will cause git to be dirty after the build step.
       - name: Run version script
-        run: pnpm run version
+        run: pnpm version
 
       - name: Run codegen
-        run: pnpm run codegen-all
+        run: pnpm codegen-all
 
       # Run prettier again after codegen to ensure generated code is formatted correctly
       - name: Run prettier
-        run: pnpm run prettier-codegen:write
+        run: pnpm prettier-codegen:write
 
       - name: Ensure git is clean
         run: |
@@ -85,6 +88,7 @@ jobs:
       - name: Test (prod)
         run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
         env:
+          NODE_ENV: development
           API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
           BASE_URL: "https://api.turnkey.com"
@@ -120,6 +124,7 @@ jobs:
       - name: Test (preprod)
         run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
         env:
+          NODE_ENV: development
           API_PUBLIC_KEY: ${{ secrets.PREPROD_API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.PREPROD_API_PRIVATE_KEY }}
           BASE_URL: ${{ secrets.PREPROD_BASE_URL }}
@@ -180,6 +185,7 @@ jobs:
         working-directory: examples/with-sdk-js
         env:
           CI: "true"
+          NODE_ENV: development
           PLAYWRIGHT_BROWSERS_PATH: ${{ steps.playwright-setup.outputs.cache }}
 
       - name: Upload Playwright report

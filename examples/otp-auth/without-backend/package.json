@@ -16,15 +16,17 @@
     "@turnkey/react-wallet-kit": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/encoding": "workspace:*",
-    "@types/node": "20.3.1",
-    "@types/react": "18.2.14",
-    "@types/react-dom": "18.2.6",
     "next": "15.5.18",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-hook-form": "7.45.1",
     "tailwindcss": "4.1.13",
-    "typescript": "5.4.3",
     "viem": "2.34.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.3.1",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "typescript": "5.4.3"
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 import { useTurnkey } from "@turnkey/react-wallet-kit";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useBalance } from "wagmi";
 import { createAccount } from "@turnkey/viem";
 import {
@@ -10,7 +10,6 @@ import {
   erc20Abi,
   formatEther,
   formatUnits,
-  getContract,
   http,
   maxUint256,
   parseEther,
@@ -19,15 +18,16 @@ import {
   WalletClient,
 } from "viem";
 import { mainnet } from "viem/chains";
-import { getChains, getPrice, getQuote, PriceParams } from "./actions/0x";
+import { getPrice, getQuote, PriceParams } from "./actions/0x";
 
 function LoginButton() {
   const { handleLogin } = useTurnkey();
+  const handleClick = useCallback(() => handleLogin(), [handleLogin]);
 
   return (
     <button
       className="w-full mt-6 bg-black hover:bg-gray-800 text-white font-semibold py-4 rounded-xl transition-all active:scale-98"
-      onClick={handleLogin}
+      onClick={handleClick}
     >
       Login / Sign Up
     </button>
@@ -125,7 +125,7 @@ export default function SwapPage() {
 
         setSwapButtonDisabled(false);
         setSwapButtonText("Swap");
-      } catch (e: any) {
+      } catch {
         setAddress(undefined);
         setViemWalletClient(undefined);
         setViemPublicClient(undefined);
@@ -204,7 +204,7 @@ export default function SwapPage() {
           : formatUnits(getPriceResponse.buyAmount, 6),
       );
       // setConversionRate(fromToken === 'ETH' ? Number(parseUnits(formatUnits(resp.buyAmount, 0), 0) / parseEther(value)) : Number(parseUnits(value, 6) / resp.buyAmount as bigint));
-    } catch (e: any) {
+    } catch {
       setToAmount("0.0");
     }
   };
@@ -236,7 +236,7 @@ export default function SwapPage() {
         });
 
         // wait for the approval to be successful
-        const receipt = await viemPublicClient!.waitForTransactionReceipt({
+        await viemPublicClient!.waitForTransactionReceipt({
           hash: approveAllowanceHash!,
         });
       }
@@ -270,13 +270,13 @@ export default function SwapPage() {
     });
     setSwapHash(sendTransactionResponse!);
 
-    const receipt = await viemPublicClient!.waitForTransactionReceipt({
+    await viemPublicClient!.waitForTransactionReceipt({
       hash: sendTransactionResponse!,
     });
     setSwapping(false);
 
     // allow the successful modal to stay visible for 5 seconds
-    const timer = setTimeout(() => {
+    setTimeout(() => {
       setSwapModalOpen(false);
     }, 5000);
   };

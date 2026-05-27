@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
 import { Loading } from "@/components/Loading";
 
-export default function RedirectPage() {
+function Redirect() {
   const { createApiKeyPair, storeSession, clientState } = useTurnkey();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,9 +51,16 @@ export default function RedirectPage() {
     turnkeyAuth();
   }, [clientState, auth_code, state, router, createApiKeyPair, storeSession]);
 
+  return <Loading />;
+}
+
+export default function RedirectPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Loading />
+      <Suspense fallback={<Loading />}>
+        <Redirect />
+      </Suspense>
+      ;
     </main>
   );
 }

@@ -1,10 +1,11 @@
 import React from "react";
+import Link from "next/link";
 import "./Navbar.css";
 
 const Navbar = () => {
   return (
     <div className="navbar">
-      <a href="/" className="navbarLogo">
+      <Link href="/" className="navbarLogo">
         <svg
           width="auto"
           height="1.75rem"
@@ -28,7 +29,7 @@ const Navbar = () => {
             </clipPath>
           </defs>
         </svg>
-      </a>
+      </Link>
     </div>
   );
 };

@@ -43,12 +43,13 @@ export default function Home() {
   const { session, httpClient, wallets, authState, handleLogin, createWallet } =
     useTurnkey();
 
-  const iframeUrl = process.env.NEXT_PUBLIC_EXPORT_AND_SIGN_IFRAME_URL;
-
+  let iframeUrl = process.env.NEXT_PUBLIC_EXPORT_AND_SIGN_IFRAME_URL;
   if (!iframeUrl) {
-    throw new Error(
+    console.warn(
       "Export and Sign iframe URL is not configured. Please set it in the environment variables.",
     );
+
+    iframeUrl = "https://export-and-sign.turnkey.com";
   }
 
   // ── State ──────────────────────────────────────────────────────────────

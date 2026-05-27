@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "pnpm -w run build-all",
+    "build": "tsc --noEmit false",
     "createPolicy": "tsx src/createPolicy.ts",
     "deposit": "tsx src/deposit.ts",
     "withdraw": "tsx src/withdraw.ts",
@@ -17,5 +17,8 @@
     "@turnkey/viem": "workspace:*",
     "dotenv": "^16.0.3",
     "viem": "^2.24.2"
+  },
+  "devDependencies": {
+    "typescript": "5.4.3"
   }
 }

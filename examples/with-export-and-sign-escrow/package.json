@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "next": "15.5.18",
+    "@solana/web3.js": "^1.95.8",
     "@turnkey/sdk-types": "workspace:*",
     "tweetnacl": "^1.0.3",
     "@turnkey/iframe-stamper": "workspace:*",
@@ -25,6 +26,6 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.18",
     "tailwindcss": "^4",
-    "typescript": "^5.1.3"
+    "typescript": "5.4.3"
   }
 }

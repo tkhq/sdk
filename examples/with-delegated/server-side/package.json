@@ -3,7 +3,7 @@
   "version": "0.1.19",
   "private": true,
   "scripts": {
-    "build": "pnpm -w run build-all",
+    "build": "rollup -c",
     "start": "tsx src/index.ts",
     "validate": "tsx src/validate.ts",
     "clean": "rimraf ./dist ./.cache",
