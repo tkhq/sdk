@@ -24,15 +24,25 @@ export interface BalanceWebhookMessage extends Record<string, unknown> {
   block?: BalanceWebhookBlock;
 }
 
-export interface BalanceConfirmedWebhookPayload {
+export interface BalanceUpdateWebhookPayload {
   type: string;
   msg: BalanceWebhookMessage;
+}
+
+export type BalanceWebhookPhase = "confirmed" | "finalized" | "unknown";
+
+export function getBalanceWebhookPhase(
+  payload: BalanceUpdateWebhookPayload,
+): BalanceWebhookPhase {
+  if (payload.type === "balances:confirmed") return "confirmed";
+  if (payload.type === "balances:finalized") return "finalized";
+  return "unknown";
 }
 
 export interface BalanceWebhookEventEnvelope {
   id: string;
   receivedAt: string;
-  payload: BalanceConfirmedWebhookPayload;
+  payload: BalanceUpdateWebhookPayload;
 }
 
 export type BalanceWebhookSseMessage =

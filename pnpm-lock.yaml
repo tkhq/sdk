@@ -1497,7 +1497,7 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
 
-  examples/with-balance-confirmed-webhooks:
+  examples/with-balance-webhooks:
     dependencies:
       '@solana/spl-token':
         specifier: ^0.4.14

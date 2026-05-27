@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 
 const BALANCE_CONFIRMED_EVENT = "BALANCE_CONFIRMED_UPDATES";
+const BALANCE_FINALIZED_EVENT = "BALANCE_FINALIZED_UPDATES";
 
 function loadEnv() {
   const basePath = process.cwd();
@@ -56,6 +57,9 @@ async function main() {
       {
         eventType: BALANCE_CONFIRMED_EVENT,
       },
+      {
+        eventType: BALANCE_FINALIZED_EVENT,
+      },
     ],
   });
 
@@ -65,7 +69,7 @@ async function main() {
       `- Endpoint ID: ${response.endpointId}`,
       `- Name: ${response.webhookEndpoint?.name ?? webhookName}`,
       `- URL: ${response.webhookEndpoint?.url ?? webhookUrl}`,
-      `- Subscription: ${BALANCE_CONFIRMED_EVENT}`,
+      `- Subscriptions: ${BALANCE_CONFIRMED_EVENT}, ${BALANCE_FINALIZED_EVENT}`,
     ].join("\n"),
   );
 }

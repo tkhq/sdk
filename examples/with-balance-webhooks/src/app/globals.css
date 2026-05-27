@@ -212,9 +212,53 @@ body {
 
 .event-item {
   border: 1px solid #dbe8ff;
+  border-left-width: 4px;
   border-radius: 12px;
   background: #f7faff;
   padding: 10px 12px;
+}
+
+.event-item.confirmed {
+  border-left-color: var(--ok-text);
+}
+
+.event-item.finalized {
+  border-left-color: #5a3d9e;
+}
+
+.event-item.unknown {
+  border-left-color: var(--warn-text);
+}
+
+.event-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.phase-badge {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.phase-badge.confirmed {
+  background: var(--ok-bg);
+  color: var(--ok-text);
+}
+
+.phase-badge.finalized {
+  background: #ede8ff;
+  color: #4a2f8a;
+}
+
+.phase-badge.unknown {
+  background: var(--warn-bg);
+  color: var(--warn-text);
 }
 
 .event-title {
@@ -237,10 +281,23 @@ body {
   padding: 14px 16px;
   border-radius: 12px;
   border: 1px solid #cde0ff;
+  border-left-width: 4px;
   background: #ffffff;
   box-shadow: 0 14px 32px rgba(15, 47, 122, 0.25);
   z-index: 1000;
   animation: slide-in 240ms ease;
+}
+
+.notification.confirmed {
+  border-left-color: var(--ok-text);
+}
+
+.notification.finalized {
+  border-left-color: #5a3d9e;
+}
+
+.notification.unknown {
+  border-left-color: var(--warn-text);
 }
 
 .notification h3 {

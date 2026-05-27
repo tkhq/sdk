@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-with-balance-confirmed-webhooks",
+  "name": "@turnkey/example-with-balance-webhooks",
   "version": "0.1.0",
   "private": true,
   "scripts": {

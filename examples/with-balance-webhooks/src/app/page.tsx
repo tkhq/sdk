@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import {
   BalanceWebhookEventEnvelope,
+  BalanceWebhookPhase,
   BalanceWebhookSseMessage,
+  getBalanceWebhookPhase,
 } from "@/lib/types";
 
 type BalanceRow = {
@@ -81,8 +83,32 @@ function formatUnits(value: string | undefined, decimals: number | undefined) {
   return `${sign}${whole}.${fraction}`;
 }
 
+function getPhaseLabel(phase: BalanceWebhookPhase): string {
+  switch (phase) {
+    case "confirmed":
+      return "Confirmed";
+    case "finalized":
+      return "Finalized";
+    default:
+      return "Unknown";
+  }
+}
+
+function getNotificationHeading(phase: BalanceWebhookPhase): string {
+  switch (phase) {
+    case "confirmed":
+      return "Balance Confirmed Update Received";
+    case "finalized":
+      return "Balance Finalized Update Received";
+    default:
+      return "Balance Webhook Update Received";
+  }
+}
+
 function getEventSummary(event: BalanceWebhookEventEnvelope) {
-  const { msg, type } = event.payload;
+  const { msg } = event.payload;
+  const phase = getBalanceWebhookPhase(event.payload);
+  const phasePrefix = `[${getPhaseLabel(phase)}]`;
   const operation =
     typeof msg.operation === "string" ? msg.operation.toUpperCase() : "UPDATE";
   const symbol =
@@ -90,7 +116,7 @@ function getEventSummary(event: BalanceWebhookEventEnvelope) {
   const amount = formatUnits(msg.asset?.amount, msg.asset?.decimals);
   const caip2 = typeof msg.caip2 === "string" ? msg.caip2 : "unknown network";
 
-  return `${type} • ${operation} ${amount} ${symbol} on ${caip2}`;
+  return `${phasePrefix} ${operation} ${amount} ${symbol} on ${caip2}`;
 }
 
 function parseAmountToBaseUnits(
@@ -444,12 +470,13 @@ export default function Page() {
   return (
     <main className="page">
       <section className="panel">
-        <h1>Balance Confirmed Webhooks</h1>
+        <h1>Balance Lifecycle Webhooks</h1>
         <p className="subtitle">
           Fetches balances with Turnkey{" "}
           <code>getWalletAddressBalances (getBalances)</code> and listens for{" "}
-          <code>BALANCE_CONFIRMED_UPDATES</code> via webhook across EVM and SVM
-          networks.
+          <code>BALANCE_CONFIRMED_UPDATES</code> and{" "}
+          <code>BALANCE_FINALIZED_UPDATES</code> (at finalization threshold) on
+          one webhook URL across EVM and SVM networks.
         </p>
         <div
           className={`status-pill ${isWebhookConnected ? "connected" : "disconnected"}`}
@@ -565,6 +592,7 @@ export default function Page() {
         ) : (
           <ul className="event-list">
             {recentEvents.map((event) => {
+              const phase = getBalanceWebhookPhase(event.payload);
               const summary = getEventSummary(event);
               const txHash =
                 typeof event.payload.msg.txHash === "string"
@@ -572,8 +600,13 @@ export default function Page() {
                   : "n/a";
 
               return (
-                <li className="event-item" key={event.id}>
-                  <p className="event-title">{summary}</p>
+                <li className={`event-item ${phase}`} key={event.id}>
+                  <div className="event-header">
+                    <span className={`phase-badge ${phase}`}>
+                      {getPhaseLabel(phase)}
+                    </span>
+                    <p className="event-title">{summary}</p>
+                  </div>
                   <p className="event-meta">
                     {new Date(event.receivedAt).toLocaleString()} • txHash:{" "}
                     {txHash}
@@ -586,8 +619,14 @@ export default function Page() {
       </section>
 
       {activeNotification ? (
-        <aside className="notification">
-          <h3>Balance Confirmed Update Received</h3>
+        <aside
+          className={`notification ${getBalanceWebhookPhase(activeNotification.payload)}`}
+        >
+          <h3>
+            {getNotificationHeading(
+              getBalanceWebhookPhase(activeNotification.payload),
+            )}
+          </h3>
           <p>{getEventSummary(activeNotification)}</p>
           <p>
             {new Date(activeNotification.receivedAt).toLocaleTimeString()} •{" "}

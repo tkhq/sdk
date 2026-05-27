@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { BalanceConfirmedWebhookPayload } from "@/lib/types";
+import { BalanceUpdateWebhookPayload } from "@/lib/types";
 import { getBalanceWebhookEventStore } from "@/lib/webhook-events";
 
 export const runtime = "nodejs";
@@ -8,9 +8,9 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function isBalanceConfirmedWebhookPayload(
+function isBalanceUpdateWebhookPayload(
   value: unknown,
-): value is BalanceConfirmedWebhookPayload {
+): value is BalanceUpdateWebhookPayload {
   if (!isObject(value)) {
     return false;
   }
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!isBalanceConfirmedWebhookPayload(payload)) {
+  if (!isBalanceUpdateWebhookPayload(payload)) {
     return NextResponse.json(
       { error: "Payload must contain `type` and `msg` fields." },
       { status: 400 },
@@ -58,6 +58,6 @@ export function GET() {
   return NextResponse.json({
     ok: true,
     message:
-      "Send BALANCE_CONFIRMED_UPDATES webhooks to this endpoint with POST requests.",
+      "Send BALANCE_CONFIRMED_UPDATES and BALANCE_FINALIZED_UPDATES webhooks to this endpoint with POST requests.",
   });
 }

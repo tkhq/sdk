@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import {
-  BalanceConfirmedWebhookPayload,
+  BalanceUpdateWebhookPayload,
   BalanceWebhookEventEnvelope,
 } from "@/lib/types";
 
@@ -12,7 +12,7 @@ class BalanceWebhookEventStore {
   private readonly recentEvents: BalanceWebhookEventEnvelope[] = [];
 
   addEvent(
-    payload: BalanceConfirmedWebhookPayload,
+    payload: BalanceUpdateWebhookPayload,
   ): BalanceWebhookEventEnvelope {
     const event: BalanceWebhookEventEnvelope = {
       id: crypto.randomUUID(),
