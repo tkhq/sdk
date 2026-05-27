@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeySigner } from "@turnkey/ethers";
-import { ethers } from "ethers";
+import { ethers, TransactionResponse } from "ethers";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import Safe, {
@@ -13,7 +13,7 @@ import Safe, {
   SafeFactory,
   SafeAccountConfig,
 } from "@safe-global/protocol-kit";
-import type { SafeTransactionDataPartial } from "@safe-global/safe-core-sdk-types";
+import type { SafeTransactionDataPartial } from "@safe-global/types-kit";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
 import { print } from "./util";
 
@@ -189,7 +189,7 @@ async function main() {
   // but is left in for demonstration purposes.
   txHash = await safeSdk3.getTransactionHash(safeTransaction);
   let approveTxResponse = await safeSdk3.approveTransactionHash(txHash);
-  await approveTxResponse.transactionResponse?.wait();
+  await (approveTxResponse.transactionResponse as TransactionResponse)?.wait();
   print(
     `Approved transaction onchain using signer 3. Etherscan link:`,
     `https://${network}.etherscan.io/tx/${approveTxResponse.hash}`,
@@ -197,7 +197,7 @@ async function main() {
 
   // Execute transaction using signer 3
   const executeTxResponse = await safeSdk3.executeTransaction(safeTransaction);
-  await executeTxResponse.transactionResponse?.wait();
+  await (executeTxResponse.transactionResponse as TransactionResponse)?.wait();
   print(
     `Executed transaction. Etherscan link:`,
     `https://${network}.etherscan.io/tx/${executeTxResponse.hash}`,

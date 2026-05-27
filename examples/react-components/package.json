@@ -26,14 +26,9 @@
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
-    "@types/node": "20.3.1",
-    "@types/react": "18.2.14",
-    "@types/react-dom": "18.2.6",
     "axios": "^1.13.5",
     "buffer": "^6.0.3",
     "encoding": "^0.1.13",
-    "eslint": "8.56.0",
-    "eslint-config-next": "15.5.18",
     "esm": "^3.2.25",
     "ethers": "^6.10.0",
     "install": "^0.13.0",
@@ -45,7 +40,14 @@
     "react-international-phone": "^4.3.0",
     "sonner": "^1.4.41",
     "tweetnacl": "^1.0.3",
-    "typescript": "5.4.3",
     "viem": "2.44.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.3.1",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "eslint": "8.56.0",
+    "eslint-config-next": "15.5.18",
+    "typescript": "5.4.3"
   }
 }

@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": "true",
   "scripts": {
-    "build": "pnpm -w run build-all",
+    "build": "tsc --noEmit false",
     "createPolicies": "tsx src/createPolicies.ts",
     "enter": "tsx src/enter.ts",
     "exit": "tsx src/exit.ts",
