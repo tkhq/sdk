@@ -6,6 +6,7 @@
       "dependsOn": ["^build"],
       "outputs": [
         "build/**",
+        ".cache/**",
         ".vercel/**",
         "dist/**",
         ".next/**",
