@@ -1,13 +1,16 @@
 # Example: `with-tx-webhooks`
 
-This example demonstrates Turnkey webhook subscriptions for two event types:
+This example demonstrates Turnkey webhook subscriptions for three event types:
 
 - **`BALANCE_CONFIRMED_UPDATES`** — fires when a balance change is confirmed on-chain
+- **`BALANCE_FINALIZED_UPDATES`** — fires when a balance change is finalized on-chain
 - **`SEND_TRANSACTION_STATUS_UPDATES`** — fires when a sponsored transaction status changes
+
+Both balance event types use the same webhook URL (`/webhook/balance-updates`) and payload shape; register each subscription separately with Turnkey.
 
 It includes:
 
-- a script that registers a webhook endpoint for either event type using `@turnkey/sdk-server`
+- scripts that register webhook endpoints for each event type using `@turnkey/sdk-server`
 - webhook server endpoints at `/webhook/balance-updates` and `/webhook/tx-updates`
 - a frontend that fetches balances for an address (`getWalletAddressBalances`, surfaced as `getBalances` in this example)
 - a frontend popup notification when a webhook event arrives
@@ -38,7 +41,8 @@ Fill in:
 - `API_PUBLIC_KEY`
 - `API_PRIVATE_KEY`
 - `ORGANIZATION_ID`
-- `BALANCE_WEBHOOK_URL` (public URL that points to `/webhook/balance-updates`)
+- `BALANCE_WEBHOOK_URL` (public URL for both balance subscriptions; points to `/webhook/balance-updates`)
+- `BALANCE_WEBHOOK_NAME` (endpoint name when registering; use a different name for the second balance subscription)
 - `TX_STATUS_WEBHOOK_URL` (public URL that points to `/webhook/tx-updates`)
 - `NEXT_PUBLIC_DEFAULT_ADDRESS` should be an address controlled by your Turnkey org if you want to test withdrawals from the UI
   (it must have enough native balance on the selected network to cover value + fees, and for SPL sends it also needs enough SOL to create the recipient ATA when missing)
@@ -70,12 +74,18 @@ ngrok http 3000
 
 Update `BALANCE_WEBHOOK_URL` and `TX_STATUS_WEBHOOK_URL` in `.env` to match your ngrok URL.
 
-### 5/ Register the webhook with Turnkey (via SDK server)
+### 5/ Register webhooks with Turnkey (via SDK server)
 
-Register a **balance-confirmed** webhook:
+Register a **balance confirmed** webhook:
 
 ```bash
-pnpm register-webhook:balance
+pnpm register-webhook:balance-confirmed
+```
+
+Register a **balance finalized** webhook (same `BALANCE_WEBHOOK_URL`; set a distinct `BALANCE_WEBHOOK_NAME` in `.env` first):
+
+```bash
+pnpm register-webhook:balance-finalized
 ```
 
 Register a **transaction status** webhook:
@@ -84,13 +94,14 @@ Register a **transaction status** webhook:
 pnpm register-webhook:tx-status
 ```
 
-Both commands call `createWebhookEndpoint` and set the appropriate `eventType` subscription. You can register both at the same time — each call creates a separate endpoint.
+Each command calls `createWebhookEndpoint` with the matching `eventType` subscription. You can register all three — each call creates a separate Turnkey endpoint.
 
 ## Webhook endpoint details
 
 | Purpose                                            | Route                                               |
 | -------------------------------------------------- | --------------------------------------------------- |
 | Receive `BALANCE_CONFIRMED_UPDATES` webhooks       | `POST /webhook/balance-updates`                     |
+| Receive `BALANCE_FINALIZED_UPDATES` webhooks       | `POST /webhook/balance-updates`                     |
 | Receive `SEND_TRANSACTION_STATUS_UPDATES` webhooks | `POST /webhook/tx-updates`                          |
 | SSE stream for balance events (frontend)           | `GET /api/balance-events`                           |
 | SSE stream for tx-status events (frontend)         | `GET /api/tx-events`                                |
@@ -106,25 +117,56 @@ curl -X POST http://localhost:3000/webhook/balance-updates \
   -H "content-type: application/json" \
   -d '{
     "type": "balances:confirmed",
+    "organizationId": "95dfcd47-99bb-4433-9126-1524110d68e6",
+    "parentOrganizationId": "95dfcd47-99bb-4433-9126-1524110d68e6",
     "msg": {
-      "operation": "withdraw",
+      "operation": "deposit",
       "caip2": "eip155:8453",
-      "txHash": "0xa1f7f464f73cdf484daf24e59932baefbb71fadf6590f22dc50750a0809cbcdc",
-      "address": "0x527602f07b0a70ed2be48f55e2678bbf4ef57df3",
-      "orgID": "ac4763ff-4bb3-4350-b926-355d87882578",
-      "parentOrgID": "1875b49b-22ad-42c6-949f-04d5dd03ee3a",
-      "idempotencyKey": "8be5a6fa9d04d9474b41e659e5b9b0c4b8eaa5fba754b4154fb8f29b3b20ac9e",
+      "txHash": "0x5b6901be92e69781a7ce401dd9a2910e1f49aa77a5bdedcd2a23c8d563d88b24",
+      "address": "0x3400e577153101863f39ba41f7fd49bbea011628",
+      "idempotencyKey": "d3b8cef0ad7479433783c5707da9ded4fee9b254b4638f44758a2141c49416b7:balances:confirmed",
       "asset": {
-        "symbol": "USDC",
-        "name": "USDC",
-        "decimals": 6,
-        "caip19": "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
-        "amount": "1000000"
+        "symbol": "ETH",
+        "name": "Ethereum",
+        "decimals": 18,
+        "caip19": "eip155:8453/slip44:60",
+        "amount": "4793760441409"
       },
       "block": {
-        "number": 44442259,
-        "hash": "0x3cbf7799ed6ebe18549440898877720e2e1c5fb914d10e949c449f26be2f58eb",
-        "timestamp": "2026-04-08T18:44:25Z"
+        "number": 46343814,
+        "hash": "0x41a4e8d444e5410f83c1ac35c838c7d8be1e3d6f32a35a04c72096adae74d095",
+        "timestamp": "2026-05-22T19:09:35Z"
+      }
+    }
+  }'
+```
+
+Simulate a **balance finalized** event:
+
+```bash
+curl -X POST http://localhost:3000/webhook/balance-updates \
+  -H "content-type: application/json" \
+  -d '{
+    "type": "balances:finalized",
+    "organizationId": "95dfcd47-99bb-4433-9126-1524110d68e6",
+    "parentOrganizationId": "95dfcd47-99bb-4433-9126-1524110d68e6",
+    "msg": {
+      "operation": "deposit",
+      "caip2": "eip155:8453",
+      "txHash": "0x5b6901be92e69781a7ce401dd9a2910e1f49aa77a5bdedcd2a23c8d563d88b24",
+      "address": "0x3400e577153101863f39ba41f7fd49bbea011628",
+      "idempotencyKey": "d3b8cef0ad7479433783c5707da9ded4fee9b254b4638f44758a2141c49416b7:balances:finalized",
+      "asset": {
+        "symbol": "ETH",
+        "name": "Ethereum",
+        "decimals": 18,
+        "caip19": "eip155:8453/slip44:60",
+        "amount": "4793760441409"
+      },
+      "block": {
+        "number": 46343814,
+        "hash": "0x41a4e8d444e5410f83c1ac35c838c7d8be1e3d6f32a35a04c72096adae74d095",
+        "timestamp": "2026-05-22T19:09:35Z"
       }
     }
   }'
@@ -137,10 +179,11 @@ curl -X POST http://localhost:3000/webhook/tx-updates \
   -H "content-type: application/json" \
   -d '{
     "type": "transaction:status",
+    "organizationId": "ac4763ff-4bb3-4350-b926-355d87882578",
+    "parentOrganizationId": "ac4763ff-4bb3-4350-b926-355d87882578",
     "msg": {
       "sendTransactionStatusId": "abc123",
       "activityId": "activity-456",
-      "orgID": "ac4763ff-4bb3-4350-b926-355d87882578",
       "status": "CONFIRMED",
       "caip2": "eip155:8453",
       "idempotencyKey": "8be5a6fa9d04d9474b41e659e5b9b0c4b8eaa5fba754b4154fb8f29b3b20ac9e",
@@ -150,7 +193,7 @@ curl -X POST http://localhost:3000/webhook/tx-updates \
   }'
 ```
 
-When either request is received, the frontend shows a popup notification and appends the event to the corresponding feed.
+When any of these requests is received, the frontend shows a popup notification and appends the event to the corresponding feed (confirmed and finalized balance events both appear in the balance feed).
 
 ## Triggering a withdrawal event from UI
 

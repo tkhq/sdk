@@ -5,10 +5,16 @@ import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 
 const SUPPORTED_EVENT_TYPES = [
   "BALANCE_CONFIRMED_UPDATES",
+  "BALANCE_FINALIZED_UPDATES",
   "SEND_TRANSACTION_STATUS_UPDATES",
 ] as const;
 
 type EventType = (typeof SUPPORTED_EVENT_TYPES)[number];
+
+const BALANCE_EVENT_TYPES: readonly EventType[] = [
+  "BALANCE_CONFIRMED_UPDATES",
+  "BALANCE_FINALIZED_UPDATES",
+] as const;
 
 function loadEnv() {
   const basePath = process.cwd();
@@ -54,7 +60,7 @@ async function main() {
   const baseUrl = process.env.BASE_URL?.trim() || "https://api.turnkey.com";
 
   // Prefer event-specific env vars; fall back to generic WEBHOOK_URL / WEBHOOK_NAME
-  const isBalance = eventType === "BALANCE_CONFIRMED_UPDATES";
+  const isBalance = BALANCE_EVENT_TYPES.includes(eventType as EventType);
   const webhookUrlEnvVar = isBalance
     ? "BALANCE_WEBHOOK_URL"
     : "TX_STATUS_WEBHOOK_URL";

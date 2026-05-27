@@ -58,6 +58,6 @@ export function GET() {
   return NextResponse.json({
     ok: true,
     message:
-      "Send BALANCE_CONFIRMED_UPDATES webhooks to this endpoint with POST requests.",
+      "Send balance webhook events (BALANCE_CONFIRMED_UPDATES or BALANCE_FINALIZED_UPDATES) to this endpoint with POST requests.",
   });
 }
