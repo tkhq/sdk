@@ -1,14 +1,17 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2020",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -19,10 +22,21 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "react": ["./node_modules/@types/react"]
+      "@/*": [
+        "./src/*"
+      ],
+      "react": [
+        "./node_modules/@types/react"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "dist", "node_modules"
+  ]
 }

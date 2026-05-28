@@ -5,6 +5,12 @@
     "rootDir": "./src",
     "tsBuildInfoFile": "./.cache/.tsbuildinfo"
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js",
+    "src/**/*.json",
+    "src/**/*.mts",
+    "src/**/*.mjs"
+  ],
   "exclude": ["dist", "node_modules"]
 }

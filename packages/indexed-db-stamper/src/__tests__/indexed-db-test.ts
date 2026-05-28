@@ -1,5 +1,5 @@
 import { test, expect, beforeEach } from "@jest/globals";
-import { IndexedDbStamper } from "../index";
+import { IndexedDbStamper } from "../index.mjs";
 import { jest } from "@jest/globals";
 
 // Helper to mock browser APIs for IndexedDB and crypto.subtle

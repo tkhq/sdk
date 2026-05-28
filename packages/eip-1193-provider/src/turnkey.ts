@@ -3,8 +3,8 @@ import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type {
   TSignRawPayloadResponse,
   TSignTransactionResponse,
-} from "@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher";
-import type { definitions } from "@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.types";
+} from "@turnkey/http/generated/services/coordinator/public/v1/public_api.fetcher";
+import type { definitions } from "@turnkey/http/generated/services/coordinator/public/v1/public_api.types";
 
 import { signatureToHex } from "viem";
 import { pad } from "viem/utils";

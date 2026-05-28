@@ -5,7 +5,7 @@ import {
   uint8ArrayToHexString,
   base64StringToBase64UrlEncodedString,
   hexStringToBase64url,
-} from "..";
+} from "../index.mjs";
 
 // Test for stringToBase64urlString
 // These test vectors can be verified with NodeJS:

@@ -3,7 +3,7 @@ import { useMemo, useRef, useEffect, useState } from "react";
 import { MeshBasicMaterial, Group } from "three";
 import { useFrame } from "@react-three/fiber";
 import { useModal } from "@turnkey/react-wallet-kit";
-import { lerp } from "three/src/math/MathUtils";
+import { lerp } from "three/src/math/MathUtils.js";
 import { logoColour } from "@/utils";
 import { useTurnkeyConfig } from "@/providers/config/ConfigProvider";
 

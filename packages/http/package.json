@@ -9,6 +9,12 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "default": "./dist/index.mjs"
+    },
+    "./generated/*": {
+      "types": "./dist/__generated__/*.d.ts",
+      "import": "./dist/__generated__/*.mjs",
+      "require": "./dist/__generated__/*.js",
+      "default": "./dist/__generated__/*.mjs"
     }
   },
   "types": "./dist/index.d.ts",

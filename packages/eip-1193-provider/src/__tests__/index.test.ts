@@ -35,6 +35,7 @@ import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createEIP1193Provider } from "../";
 import type { AddEthereumChainParameter, Hash } from "viem";
 import { formatEther, getHttpRpcClient } from "viem/utils";
+import pkg from "./../../package.json";
 
 declare global {
   namespace NodeJS {
@@ -460,7 +461,6 @@ describe("Test Turnkey EIP-1193 Provider", () => {
         });
         describe("web3_clientVersion", () => {
           it("should return the version of the client matching package.json version", async () => {
-            const pkg = await import("./../../package.json");
             const version = await eip1193Provider?.request({
               method: "web3_clientVersion",
             });

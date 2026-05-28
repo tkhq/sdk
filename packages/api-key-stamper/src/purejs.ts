@@ -1,5 +1,5 @@
 import { p256 } from "@noble/curves/p256";
-import { createHash } from "sha256-uint8array";
+import { sha256 } from "@noble/hashes/sha2.js";
 import { uint8ArrayToHexString } from "@turnkey/encoding";
 
 export const signWithApiKey = async (input: {
@@ -18,7 +18,7 @@ export const signWithApiKey = async (input: {
     );
   }
 
-  const hash = createHash().update(input.content).digest();
+  const hash = sha256(new TextEncoder().encode(input.content));
   const signature = p256.sign(hash, input.privateKey);
   return signature.toDERHex();
 };
