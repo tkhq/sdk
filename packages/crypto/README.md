@@ -33,3 +33,39 @@ const decryptedData = hpkeDecrypt({
 // Convert decrypted data back to string
 const decryptedText = new TextDecoder().decode(decryptedData);
 ```
+
+## Verifying Turnkey webhooks
+
+Use `@turnkey/crypto` directly when you want to manage verification-key fetching and caching yourself. Verification must use the exact raw request body bytes that Turnkey sent, the Turnkey signature headers, Turnkey webhook verification keys, and an explicit `maxTimestampAgeMs` replay window.
+
+Turnkey sends these signature headers with the body: `x-turnkey-timestamp`, `x-turnkey-event-id`, `x-turnkey-signature-key-id`, `x-turnkey-signature-algorithm`, `x-turnkey-signature-version`, and `x-turnkey-signature`. Pass the complete headers object through as received.
+
+`x-turnkey-event-id` is stable across retry attempts for the same webhook event. Use it as the deduplication or idempotency key after signature verification succeeds.
+
+```ts
+import { verifyTurnkeyWebhookSignature } from "@turnkey/crypto";
+
+const body = req.body; // Buffer from express.raw(), not parsed JSON
+const verificationKeys = [
+  {
+    keyId: process.env.TURNKEY_WEBHOOK_KEY_ID!,
+    publicKey: process.env.TURNKEY_WEBHOOK_PUBLIC_KEY!, // Hex-encoded Ed25519 public key
+    algorithm: "ed25519",
+  },
+];
+
+const result = verifyTurnkeyWebhookSignature({
+  headers: req.headers,
+  body,
+  verificationKeys,
+  maxTimestampAgeMs: 5 * 60 * 1000,
+});
+
+if (!result.ok) {
+  throw new Error(`Invalid Turnkey webhook: ${result.reason}`);
+}
+
+const event = JSON.parse(body.toString("utf8"));
+```
+
+Do not verify a parsed and re-stringified JSON object. Even harmless-looking changes to whitespace or key ordering will change the signed payload.
