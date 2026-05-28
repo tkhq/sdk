@@ -664,6 +664,21 @@ importers:
 
   examples/oauth-cross-platform/web:
     dependencies:
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@react-oauth/google':
+        specifier: ^0.12.1
+        version: 0.12.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@turnkey/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
       next:
         specifier: 15.5.18
         version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -23462,6 +23477,11 @@ snapshots:
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  '@react-oauth/google@0.12.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   '@react-oauth/google@0.12.2(react-dom@19.2.4(react@18.3.1))(react@18.3.1)':
     dependencies:

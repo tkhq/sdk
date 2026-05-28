@@ -1,22 +1,20 @@
 import type { Metadata } from "next";
+import "@turnkey/react-wallet-kit/styles.css";
 import "./globals.css";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Turnkey Oauth Cross-Platform Demo",
-  description: "A demonstration of cross-platform OAuth users.",
+  title: "OAuth Cross-Platform — Turnkey",
+  description: "Sign up once, access your wallet from any platform",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body
-        className=""
-      >
-        {children}
+      <body>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
