@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { TxStatusWebhookPayload } from "@/lib/types";
+import type { TxStatusWebhookPayload } from "@/lib/types";
 import { getTxStatusWebhookEventStore } from "@/lib/webhook-events";
 
 export const runtime = "nodejs";

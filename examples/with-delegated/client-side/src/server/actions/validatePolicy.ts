@@ -51,6 +51,5 @@ export async function validatePolicyAction(
     }
   }
 
-  const ok = results.every((r) => r.ok);
   return { results };
 }

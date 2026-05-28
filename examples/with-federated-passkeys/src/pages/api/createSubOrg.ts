@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import {
   Turnkey as TurnkeyServerSDK,
-  TurnkeyApiTypes,
+  type TurnkeyApiTypes,
 } from "@turnkey/sdk-server";
-import { CreateSubOrgResponse } from "@/app/types";
+import type { CreateSubOrgResponse } from "@/app/types";
 
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
 
@@ -77,7 +77,7 @@ export default async function createUser(
 
     const subOrgId = refineNonNull(completedActivity?.subOrganizationId);
     const wallet = refineNonNull(completedActivity?.wallet);
-    const walletAddress = wallet.addresses?.[0];
+    const walletAddress = wallet.addresses?.[0]!;
 
     res.status(200).json({
       subOrgId: subOrgId,

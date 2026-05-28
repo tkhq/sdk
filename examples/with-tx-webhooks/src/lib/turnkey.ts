@@ -208,7 +208,7 @@ async function estimateGasLimit(params: {
   from: string;
   to: string;
   value: string;
-  data?: string;
+  data?: string | undefined;
   fallback: string;
 }) {
   try {
@@ -241,7 +241,7 @@ export async function sendEthTransactionUnsponsored(params: {
   amountBaseUnits: string;
   caip2: string;
   assetType: SendAssetType;
-  tokenContractAddress?: string;
+  tokenContractAddress?: string | undefined;
 }) {
   if (!isSupportedEvmCaip2(params.caip2)) {
     throw new Error(
@@ -330,7 +330,7 @@ async function buildUnsignedSolanaTransactionHex(params: {
   amountBaseUnits: string;
   caip2: SupportedSvmCaip2;
   assetType: "NATIVE" | "SPL";
-  tokenMintAddress?: string;
+  tokenMintAddress?: string | undefined;
 }) {
   const connection = new Connection(getSolanaRpcUrl(params.caip2), "confirmed");
   const fromPubkey = new PublicKey(params.from);
@@ -410,7 +410,7 @@ export async function sendSolanaTransactionUnsponsored(params: {
   amountBaseUnits: string;
   caip2: string;
   assetType: "NATIVE" | "SPL";
-  tokenMintAddress?: string;
+  tokenMintAddress?: string | undefined;
 }) {
   const normalizedCaip2 = normalizeSvmCaip2(params.caip2);
   if (!normalizedCaip2) {
@@ -469,8 +469,8 @@ export async function sendAssetTransactionUnsponsored(params: {
   amountBaseUnits: string;
   caip2: string;
   assetType: SendAssetType;
-  tokenContractAddress?: string;
-  tokenMintAddress?: string;
+  tokenContractAddress?: string | undefined;
+  tokenMintAddress?: string | undefined;
 }) {
   if (params.caip2.startsWith("eip155:")) {
     if (params.assetType === "SPL") {

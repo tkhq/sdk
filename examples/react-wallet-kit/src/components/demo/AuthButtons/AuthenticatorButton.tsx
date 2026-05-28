@@ -1,7 +1,6 @@
 import { KeySVG } from "@/components/Svg";
 import { AuthToggleButton } from "./index";
 import { useTurnkey } from "@turnkey/react-wallet-kit";
-import { toast } from "react-toastify";
 
 export default function AuthenticatorButton({
   canRemoveAuthMethod,
@@ -10,9 +9,6 @@ export default function AuthenticatorButton({
 }) {
   const { user, handleAddPasskey, handleRemovePasskey } = useTurnkey();
   const authenticator = user?.authenticators?.[0];
-
-  const notify = () =>
-    toast.error("Error: Cannot remove your last authenticator.");
 
   return (
     <AuthToggleButton

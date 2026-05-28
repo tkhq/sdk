@@ -13,7 +13,7 @@ async function waitForAnyError(page: Page, re: RegExp): Promise<string> {
   ]);
 }
 
-test("disallow removing last auth method", async ({ page, baseURL }) => {
+test("disallow removing last auth method", async ({ page }) => {
   await authenticateWithPasskey(page);
 
   await page.getByTestId(withSdkJsSelectors.modals.removePasskeyModal).click();

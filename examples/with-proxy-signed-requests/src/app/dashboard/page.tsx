@@ -38,7 +38,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!selectedAccount && embeddedAccounts.length > 0) {
-      setSelectedAccount(embeddedAccounts[0].account);
+      setSelectedAccount(embeddedAccounts[0]!.account);
     }
   }, [embeddedAccounts, selectedAccount]);
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { BalanceConfirmedWebhookPayload } from "@/lib/types";
+import type { BalanceConfirmedWebhookPayload } from "@/lib/types";
 import { getBalanceWebhookEventStore } from "@/lib/webhook-events";
 
 export const runtime = "nodejs";

@@ -101,7 +101,7 @@ export default function JupiterSwapPage() {
 
   useEffect(() => {
     if (!activeWalletAccount && solAccounts.length > 0) {
-      setActiveWalletAccount(solAccounts[0]);
+      setActiveWalletAccount(solAccounts[0]!);
     }
   }, [wallets]);
 

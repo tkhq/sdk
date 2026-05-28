@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import {
   Turnkey as TurnkeyServerSDK,
-  TurnkeyApiTypes,
+  type TurnkeyApiTypes,
 } from "@turnkey/sdk-server";
-import { GetWalletRequest, TFormattedWallet } from "@/app/types";
+import type { GetWalletRequest, TFormattedWallet } from "@/app/types";
 
 type TWalletAccount = TurnkeyApiTypes["v1WalletAccount"];
 
@@ -33,7 +33,7 @@ export default async function getWallet(
     });
     const accountsResponse = await turnkeyClient.apiClient().getWalletAccounts({
       organizationId: organizationId,
-      walletId: walletsResponse.wallets[0].walletId,
+      walletId: walletsResponse.wallets[0]!.walletId,
     });
 
     const accounts = accountsResponse.accounts.map((acc: TWalletAccount) => {
@@ -44,8 +44,8 @@ export default async function getWallet(
     });
 
     res.status(200).json({
-      id: walletsResponse.wallets[0].walletId,
-      name: walletsResponse.wallets[0].walletName,
+      id: walletsResponse.wallets[0]!.walletId,
+      name: walletsResponse.wallets[0]!.walletName,
       accounts: accounts,
     });
   } catch (e) {

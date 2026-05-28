@@ -1,4 +1,4 @@
-import {
+import type {
   CreateSubOrgParams,
   TurnkeyProviderConfig,
 } from "@turnkey/react-wallet-kit";
@@ -35,10 +35,12 @@ export const initialConfig: TurnkeyProviderConfig = {
     process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL || "https://export.turnkey.com",
   auth: {
     oauthConfig: {
-      google: { primaryClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID },
-      facebook: { primaryClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID },
-      apple: { primaryClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID },
-      oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
+      google: { primaryClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID! },
+      facebook: {
+        primaryClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!,
+      },
+      apple: { primaryClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID! },
+      oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!,
       openOauthInPage: true,
     },
     autoRefreshSession: true,

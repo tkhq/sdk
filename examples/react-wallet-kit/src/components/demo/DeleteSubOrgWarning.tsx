@@ -9,8 +9,7 @@ import { useState } from "react";
 import { Spinner } from "../Spinners";
 
 export default function DeleteSubOrgWarning() {
-  const { session, user, wallets, deleteSubOrganization, logout } =
-    useTurnkey();
+  const { session, wallets, deleteSubOrganization, logout } = useTurnkey();
   const { isMobile, closeModal } = useModal();
 
   const [deleteWithoutExport, setDeleteWithoutExport] = useState(false);

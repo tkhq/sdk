@@ -20,7 +20,7 @@ import { ThreeDimensionalBackground } from "@/components/3D/Background";
 import { TurnkeySVG } from "@/components/Svg";
 import { isHardwareAccelerationEnabled, kebab, useScreenSize } from "@/utils";
 import { Slide, ToastContainer } from "react-toastify";
-import { DemoConfig } from "@/types";
+import type { DemoConfig } from "@/types";
 import {
   TurnkeyProviderConfig,
   TurnkeyCallbacks,
@@ -48,7 +48,7 @@ export function useTurnkeyConfig() {
 
 interface TurnkeyConfigProviderProps {
   initialConfig: TurnkeyProviderConfig;
-  callbacks?: TurnkeyCallbacks;
+  callbacks: TurnkeyCallbacks;
   children: ReactNode;
 }
 

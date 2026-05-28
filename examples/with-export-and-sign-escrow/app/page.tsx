@@ -5,7 +5,7 @@ import nacl from "tweetnacl";
 import { PublicKey } from "@solana/web3.js";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { AuthState, useTurnkey, WalletSource } from "@turnkey/react-wallet-kit";
-import { v1PrivateKey } from "@turnkey/sdk-types";
+import type { v1PrivateKey } from "@turnkey/sdk-types";
 
 // Constants
 const IFRAME_CONTAINER_ID = "turnkey-export-and-sign-iframe-container-id";

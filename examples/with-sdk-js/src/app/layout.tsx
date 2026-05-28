@@ -2,7 +2,7 @@
 
 import "@turnkey/react-wallet-kit/styles.css";
 import "./global.css";
-import { StamperType, TurnkeyProvider } from "@turnkey/react-wallet-kit";
+import { TurnkeyProvider } from "@turnkey/react-wallet-kit";
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -27,19 +27,19 @@ function RootLayout({ children }: RootLayoutProps) {
             auth: {
               oauthConfig: {
                 google: {
-                  primaryClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+                  primaryClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
                 },
                 apple: {
-                  primaryClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
+                  primaryClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!,
                 },
                 facebook: {
-                  primaryClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID,
+                  primaryClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!,
                 },
-                x: { primaryClientId: process.env.NEXT_PUBLIC_X_CLIENT_ID },
+                x: { primaryClientId: process.env.NEXT_PUBLIC_X_CLIENT_ID! },
                 discord: {
-                  primaryClientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
+                  primaryClientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID!,
                 },
-                oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
+                oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!,
               },
               autoRefreshSession: true,
             },

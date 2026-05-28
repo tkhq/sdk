@@ -65,7 +65,7 @@ export default function Dashboard() {
   // Initialize default wallet & account
   useEffect(() => {
     if (!selectedWalletId && embeddedWallets.length > 0) {
-      setSelectedWalletId(embeddedWallets[0].walletId);
+      setSelectedWalletId(embeddedWallets[0]?.walletId ?? null);
     }
   }, [embeddedWallets, selectedWalletId]);
 
@@ -75,7 +75,7 @@ export default function Dashboard() {
       selectedWallet.accounts?.length &&
       !selectedAccountAddress
     ) {
-      setSelectedAccountAddress(selectedWallet.accounts[0].address);
+      setSelectedAccountAddress(selectedWallet.accounts[0]?.address ?? null);
     }
   }, [selectedWallet, selectedAccountAddress]);
 
@@ -509,11 +509,11 @@ export default function Dashboard() {
                       <>
                         <div className="font-mono break-all">
                           <span className="font-semibold">Address Format:</span>{" "}
-                          {selectedPrivateKey.addresses[0].format}
+                          {selectedPrivateKey.addresses[0]?.format}
                         </div>
                         <div className="font-mono break-all">
                           <span className="font-semibold">Address:</span>{" "}
-                          {selectedPrivateKey.addresses[0].address}
+                          {selectedPrivateKey.addresses[0]?.address}
                         </div>
                       </>
                     ) : (

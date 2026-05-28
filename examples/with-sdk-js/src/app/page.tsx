@@ -3,11 +3,10 @@ import Image from "next/image";
 
 import { useEffect, useState } from "react";
 import {
-  externaldatav1Address,
   OAuthProviders,
-  v1AddressFormat,
-  v1CreatePolicyIntentV3,
-  v1PrivateKey,
+  type v1AddressFormat,
+  type v1CreatePolicyIntentV3,
+  type v1PrivateKey,
 } from "@turnkey/sdk-types";
 import {
   AuthState,
@@ -219,7 +218,7 @@ export default function AuthPage() {
   };
   const handleOnRamp = async () => {
     try {
-      if (!wallets.length || !wallets[0].accounts?.length) {
+      if (!wallets.length || !wallets[0]?.accounts?.length) {
         console.error("No wallets available for onramp");
         return;
       }
@@ -248,7 +247,7 @@ export default function AuthPage() {
     const turnkeyAccount = await createAccount({
       client: httpClient!,
       organizationId: session?.organizationId!,
-      signWith: wallets[0].accounts[0].address,
+      signWith: wallets[0]!.accounts[0]!.address!,
     });
 
     const viemClient = createWalletClient({
@@ -311,8 +310,8 @@ export default function AuthPage() {
   const showSigningModal = async () => {
     if (
       (wallets.length === 0 && !wallets[0]) ||
-      !wallets[0].accounts ||
-      wallets[0].accounts.length < 1
+      !wallets[0]!.accounts ||
+      wallets[0]!.accounts.length < 1
     ) {
       console.error("No wallets available to sign message");
       return;
@@ -321,7 +320,7 @@ export default function AuthPage() {
     const result = await turnkey.handleSignMessage({
       message:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. . Sed id maximus elit. Mauris lacus ligula, dictum nec purus sit amet, mollis tempor nisl. Morbi neque lectus, tempor sed tristique sit amet, ornare eget dui",
-      walletAccount: wallets[0].accounts[0],
+      walletAccount: wallets[0]!.accounts[0]!,
     });
     console.log("Signing result:", result);
   };
@@ -405,7 +404,7 @@ export default function AuthPage() {
               Object.keys(allSessions).map((key: string) => (
                 <div
                   data-testid={`session-${key}`}
-                  key={allSessions[key].publicKey}
+                  key={allSessions[key]!.publicKey}
                   className="p-2 text-xs border bg-neutral-100 rounded"
                 >
                   <p className="truncate">
@@ -413,16 +412,18 @@ export default function AuthPage() {
                     <span data-testid={`session-key-${key}`}>{key}</span>
                   </p>
                   <p className="max-w-lg break-words line-clamp-3">
-                    Token: {allSessions[key].token}
+                    Token: {allSessions[key]!.token}
                   </p>
-                  <p className="truncate">Expiry: {allSessions[key].expiry}</p>
+                  <p className="truncate">Expiry: {allSessions[key]!.expiry}</p>
                   <p className="truncate">
-                    Session Public Key: {allSessions[key].publicKey}
+                    Session Public Key: {allSessions[key]!.publicKey}
                   </p>
                   <p className="truncate">
-                    Organization ID: {allSessions[key].organizationId}
+                    Organization ID: {allSessions[key]!.organizationId}
                   </p>
-                  <p className="truncate">User ID: {allSessions[key].userId}</p>
+                  <p className="truncate">
+                    User ID: {allSessions[key]!.userId}
+                  </p>
                 </div>
               ))}
           </div>
@@ -504,7 +505,7 @@ export default function AuthPage() {
           <div className="flex flex-wrap gap-2">
             {wallets && wallets.length > 0
               ? wallets.map((wallet: Wallet) => {
-                  let count = 0;
+                  const count = 0;
                   if (wallet.source === WalletSource.Embedded)
                     return (
                       <div
@@ -637,7 +638,8 @@ export default function AuthPage() {
                         </button>
                       </div>
                     );
-                  count++;
+
+                  return null;
                 })
               : null}
           </div>
@@ -697,7 +699,7 @@ export default function AuthPage() {
           <div className="flex flex-wrap gap-2">
             {privateKeys && privateKeys.length > 0
               ? privateKeys.map((privateKey: v1PrivateKey) => {
-                  let count = 0;
+                  const count = 0;
                   return (
                     <div
                       key={privateKey.privateKeyId}
@@ -741,7 +743,6 @@ export default function AuthPage() {
                       </button>
                     </div>
                   );
-                  count++;
                 })
               : null}
           </div>
@@ -808,7 +809,7 @@ export default function AuthPage() {
                   }
 
                   await turnkey.handleExportPrivateKey({
-                    privateKeyId: res.privateKeys[0].privateKeyId,
+                    privateKeyId: res.privateKeys[0]!.privateKeyId,
                     keyFormat: KeyFormat.BitcoinTestNetWIF,
                   });
                 }}
@@ -1136,7 +1137,8 @@ export default function AuthPage() {
                   }
                   console.log(
                     await turnkey.handleRemovePasskey({
-                      authenticatorId: user?.authenticators[0]?.authenticatorId,
+                      authenticatorId:
+                        user?.authenticators[0]?.authenticatorId ?? "",
                       successPageDuration: 5000,
                     }),
                   );
@@ -1530,7 +1532,7 @@ export default function AuthPage() {
                 console.log(
                   "Successfully signed message",
                   await turnkey.httpClient?.signRawPayload({
-                    signWith: res.privateKeys[0].privateKeyId,
+                    signWith: res.privateKeys[0]!.privateKeyId,
                     payload: "Hello, Turnkey!",
                     encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
                     hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
@@ -1874,6 +1876,8 @@ export default function AuthPage() {
                         </button>
                       </div>
                     );
+
+                  return null;
                 })
               : null}
           </div>
@@ -1900,7 +1904,7 @@ export default function AuthPage() {
             onClick={async () => {
               const providers = await turnkey.fetchWalletProviders();
               console.log("Wallet Providers:", providers);
-              await turnkey.connectWalletAccount(providers[4]);
+              await turnkey.connectWalletAccount(providers[4]!);
             }}
             style={{
               backgroundColor: "rebeccapurple",
@@ -1916,7 +1920,7 @@ export default function AuthPage() {
             onClick={async () => {
               const walletProviders = await turnkey.fetchWalletProviders();
               const request = await turnkey.buildWalletLoginRequest({
-                walletProvider: walletProviders[0],
+                walletProvider: walletProviders[0]!,
                 expirationSeconds: "123",
               });
 
@@ -1938,7 +1942,7 @@ export default function AuthPage() {
               const provider = await turnkey.fetchWalletProviders(Chain.Solana);
               console.log("Injected Solana Provider:", provider);
               await turnkey.signUpWithWallet({
-                walletProvider: provider[1],
+                walletProvider: provider[1]!,
               });
             }}
             style={{
@@ -1957,7 +1961,7 @@ export default function AuthPage() {
               const provider = await turnkey.fetchWalletProviders(Chain.Solana);
               console.log("Injected Solana Provider:", provider);
               await turnkey.loginWithWallet({
-                walletProvider: provider[0],
+                walletProvider: provider[0]!,
               });
             }}
             style={{
@@ -1976,7 +1980,7 @@ export default function AuthPage() {
               const provider = await turnkey.fetchWalletProviders(Chain.Solana);
               console.log("Injected Solana Provider:", provider);
               await turnkey.loginOrSignupWithWallet({
-                walletProvider: provider[0],
+                walletProvider: provider[0]!,
               });
             }}
             style={{
@@ -2573,7 +2577,7 @@ export default function AuthPage() {
               );
               setOrganizationId(session?.organizationId || "");
               setUserId(session?.userId || "");
-              setActiveWalletAccount(wallets[0].accounts[0]);
+              setActiveWalletAccount(wallets[0]?.accounts[0] || null);
             }}
             style={{
               backgroundColor: "salmon",

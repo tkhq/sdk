@@ -13,9 +13,9 @@ interface PolicyDetail {
   policyId: string;
   policyName: string;
   effect: string;
-  condition?: string;
-  consensus?: string;
-  notes?: string;
+  condition?: string | undefined;
+  consensus?: string | undefined;
+  notes?: string | undefined;
 }
 
 interface AgentSetup {

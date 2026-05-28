@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { refineNonNull } from "@/utils";
-import { TWalletDetails } from "@/types";
+import type { TWalletDetails } from "@/types";
 
 // Default path for the first Ethereum address in a new HD wallet.
 // See https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki, paths are in the form:
@@ -71,7 +71,7 @@ export default async function createUser(
     const wallet = refineNonNull(createSubOrgResponse.wallet);
 
     const walletId = wallet.walletId;
-    const walletAddress = wallet.addresses[0];
+    const walletAddress = wallet.addresses[0]!;
 
     res.status(200).json({
       id: walletId,

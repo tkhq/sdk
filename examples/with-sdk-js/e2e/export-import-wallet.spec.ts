@@ -1,5 +1,4 @@
-import { test, expect } from "@playwright/test";
-import { walletKitSelectors, withSdkJsSelectors } from "./helpers/selectors";
+import { test } from "@playwright/test";
 import { authenticateWithPasskey } from "./shared/auth";
 
 test.beforeEach(async ({ page }) => {

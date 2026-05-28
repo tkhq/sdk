@@ -32,7 +32,7 @@ function renderValue(value: any, indentLevel = 2, key?: string): string {
   const indent = " ".repeat(indentLevel);
 
   if (key && envVars[key]) {
-    return envVars[key];
+    return envVars[key]!;
   }
 
   if (Array.isArray(value)) {

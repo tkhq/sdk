@@ -1,4 +1,4 @@
-import { TFormattedWallet } from "./types";
+import type { TFormattedWallet } from "./types";
 
 export function refineNonNull<T>(
   input: T | null | undefined,
@@ -17,8 +17,8 @@ export function refineNonNull<T>(
  * @param wallet
  */
 export function getNextPath(wallet: TFormattedWallet): string {
-  const lastAccount = wallet.accounts[wallet.accounts.length - 1];
-  const lastAccountNum = parseInt(lastAccount.path.split("/")[5]);
+  const lastAccount = wallet.accounts[wallet.accounts.length - 1]!;
+  const lastAccountNum = parseInt(lastAccount.path.split("/")[5]!);
   return lastAccount.path
     .split("/")
     .slice(0, 5)

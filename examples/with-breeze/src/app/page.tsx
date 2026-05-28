@@ -48,7 +48,7 @@ export default function BreezeStakingPage() {
   const [processing, setProcessing] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [txid, setTxid] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const turnkeySigner = activeWalletAccount
     ? new TurnkeySigner({
@@ -72,7 +72,7 @@ export default function BreezeStakingPage() {
 
   useEffect(() => {
     if (!activeWalletAccount && solAccounts.length > 0) {
-      setActiveWalletAccount(solAccounts[0]);
+      setActiveWalletAccount(solAccounts[0]!);
     }
   }, [wallets]);
 

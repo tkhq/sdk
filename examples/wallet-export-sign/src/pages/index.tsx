@@ -10,7 +10,7 @@ import { WalletsTable } from "@/components/WalletsTable";
 
 // We can pull this import from @turnkey/sdk-browser, @turnkey/sdk-server, or @turnkey/http.
 // Electing to import from @turnkey/sdk-server as it's the only one we install for this example.
-import { TurnkeyApiTypes } from "@turnkey/sdk-server";
+import type { TurnkeyApiTypes } from "@turnkey/sdk-server";
 
 type TWallet = TurnkeyApiTypes["v1Wallet"];
 
@@ -19,7 +19,6 @@ export default function ExportPage() {
   const [wallets, setWallets] = useState<TWallet[]>([]);
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // Get current user and wallets
   useEffect(() => {
