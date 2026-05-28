@@ -32,7 +32,7 @@ export function ToggleSwitch(props: ToggleSwitchProps) {
       {label && <span className="text-sm">{label}</span>}
       <Switch
         checked={checked}
-        disabled={disabled}
+        disabled={disabled ?? false}
         onChange={onChange}
         className={clsx(
           "relative flex items-center rounded-full transition",

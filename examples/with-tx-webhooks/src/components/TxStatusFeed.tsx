@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
+import type {
   TxStatusWebhookEventEnvelope,
   TxStatusWebhookSseMessage,
 } from "@/lib/types";

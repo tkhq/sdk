@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { BalanceWebhookEventEnvelope } from "@/lib/types";
+import type { BalanceWebhookEventEnvelope } from "@/lib/types";
 import { BalanceFeed } from "@/components/BalanceFeed";
 import { TxStatusFeed } from "@/components/TxStatusFeed";
 

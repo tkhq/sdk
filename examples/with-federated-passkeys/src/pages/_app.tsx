@@ -1,4 +1,4 @@
-import { AppProps } from "next/app";
+import type { AppProps } from "next/app";
 import Head from "next/head";
 
 import { TurnkeyProvider } from "@turnkey/sdk-react";

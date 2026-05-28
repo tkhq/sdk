@@ -14,11 +14,8 @@ import {
 } from "@headlessui/react";
 import {
   ConnectedWallet,
-  ExportType,
   useModal,
   useTurnkey,
-  Wallet,
-  WalletAccount,
   WalletSource,
 } from "@turnkey/react-wallet-kit";
 import { useEffect, useState } from "react";
@@ -58,12 +55,10 @@ export default function DemoPanel() {
 
   const { pushPage } = useModal();
 
-  const [selectedWallet, setSelectedWallet] = useState<Wallet | undefined>(
-    wallets[0] || null, // Initialize with null if wallets[0] is undefined
+  const [selectedWallet, setSelectedWallet] = useState(wallets[0]);
+  const [selectedWalletAccount, setSelectedWalletAccount] = useState(
+    wallets[0]?.accounts[0],
   );
-  const [selectedWalletAccount, setSelectedWalletAccount] = useState<
-    WalletAccount | undefined
-  >(wallets[0]?.accounts[0] || null); // Initialize with null if no accounts exist
 
   const [connectedWallets, setConnectedWallets] = useState<
     ConnectedWallet[] | undefined
@@ -91,13 +86,13 @@ export default function DemoPanel() {
 
     if (
       !selectedWallet ||
-      !wallets.find((w) => w.walletId === selectedWallet.walletId)
+      !wallets?.find((w) => w.walletId === selectedWallet.walletId)
     ) {
-      setSelectedWallet(wallets[0]);
-      setSelectedWalletAccount(wallets[0]?.accounts[0]);
+      setSelectedWallet(wallets?.[0]);
+      setSelectedWalletAccount(wallets?.[0]?.accounts?.[0]);
     }
-    if (!selectedWalletAccount && wallets[0]?.accounts.length > 0) {
-      setSelectedWalletAccount(wallets[0].accounts[0]);
+    if (!selectedWalletAccount && wallets?.[0]?.accounts?.length) {
+      setSelectedWalletAccount(wallets?.[0]?.accounts?.[0]);
     }
 
     const cw = wallets.filter(
@@ -203,6 +198,8 @@ export default function DemoPanel() {
                           </div>
                         </MenuItem>
                       );
+
+                    return null;
                   })}
                 {wallets.length !== 1 && (
                   <hr className="border-icon-text-light dark:border-icon-text-dark w-full" />
@@ -226,7 +223,7 @@ export default function DemoPanel() {
                         newWallets[0];
                       setSelectedWallet(newWallet);
                       setSelectedWalletAccount(
-                        newWallet.accounts[0] || undefined,
+                        newWallet?.accounts?.[0] || undefined,
                       );
                     }}
                     className="relative hover:cursor-pointer flex items-center justify-center gap-2 w-full px-3 py-2 rounded-md text-xs bg-icon-background-light dark:bg-icon-background-dark text-icon-text-light dark:text-icon-text-dark"

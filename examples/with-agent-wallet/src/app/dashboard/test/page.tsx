@@ -386,7 +386,7 @@ export default function TestPage() {
                       ev.payload.status !==
                         "ACTIVITY_STATUS_CONSENSUS_NEEDED" && (
                         <div className="font-mono break-all">
-                          {approvalResults[ev.payload.id].startsWith("0x") ? (
+                          {approvalResults[ev.payload.id]?.startsWith("0x") ? (
                             <span className="text-green-700">
                               tx:{" "}
                               <a
@@ -398,11 +398,11 @@ export default function TestPage() {
                                 {approvalResults[ev.payload.id]}
                               </a>
                             </span>
-                          ) : approvalResults[ev.payload.id].startsWith(
+                          ) : approvalResults[ev.payload.id]?.startsWith(
                               "error:",
                             ) ? (
                             <span className="text-red-600">
-                              {approvalResults[ev.payload.id].slice(6)}
+                              {approvalResults[ev.payload.id]?.slice(6)}
                             </span>
                           ) : (
                             <span className="text-gray-400">

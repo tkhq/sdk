@@ -100,7 +100,7 @@ export async function POST(req: Request) {
       filterValue: oauth2AuthenticateResponse.oidcToken,
     });
 
-    let subOrgId;
+    let subOrgId: string;
 
     if (getSubOrgIdsResponse.organizationIds.length == 0) {
       // if no user was found with that OIDC Token create a new sub-organization
@@ -130,8 +130,8 @@ export async function POST(req: Request) {
         });
 
       subOrgId =
-        createSubOrgResponse.activity.result.createSubOrganizationResultV8
-          ?.subOrganizationId;
+        createSubOrgResponse.activity.result.createSubOrganizationResultV8!
+          .subOrganizationId;
     } else if (getSubOrgIdsResponse.organizationIds.length > 1) {
       // multiple sub orgs with the same OIDC token, shouldn't be possible
       return NextResponse.json(
@@ -139,7 +139,7 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     } else {
-      subOrgId = getSubOrgIdsResponse.organizationIds[0];
+      subOrgId = getSubOrgIdsResponse.organizationIds[0]!;
     }
 
     // a user was found with that OIDC token, try logging them in
@@ -164,20 +164,20 @@ export async function POST(req: Request) {
   }
 }
 
-// Gets the encrypted bearer token from the b64-encoded OIDC ID Token
-function getEncryptedBearerTokenFromOidcToken(
-  token: string,
-): string | undefined {
-  const payloadSeg = token.split(".")[1];
-  if (!payloadSeg) throw new Error("Invalid JWT");
+// // Gets the encrypted bearer token from the b64-encoded OIDC ID Token
+// function getEncryptedBearerTokenFromOidcToken(
+//   token: string,
+// ): string | undefined {
+//   const payloadSeg = token.split(".")[1];
+//   if (!payloadSeg) throw new Error("Invalid JWT");
 
-  // base64url -> base64 (and pad)
-  const b64 = payloadSeg.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = b64 + "===".slice((b64.length + 3) % 4);
+//   // base64url -> base64 (and pad)
+//   const b64 = payloadSeg.replace(/-/g, "+").replace(/_/g, "/");
+//   const padded = b64 + "===".slice((b64.length + 3) % 4);
 
-  const json = Buffer.from(padded, "base64").toString("utf8");
-  const claims = JSON.parse(json) as Record<string, unknown>;
+//   const json = Buffer.from(padded, "base64").toString("utf8");
+//   const claims = JSON.parse(json) as Record<string, unknown>;
 
-  // Your example token actually has "encrypted_bearer_token".
-  return claims["encrypted_bearer_token"] as string | undefined;
-}
+//   // Your example token actually has "encrypted_bearer_token".
+//   return claims["encrypted_bearer_token"] as string | undefined;
+// }

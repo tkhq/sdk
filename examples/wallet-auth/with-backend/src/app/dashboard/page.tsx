@@ -133,7 +133,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!selectedAccount && allAccounts.length > 0) {
-      setSelectedAccount(allAccounts[0].account);
+      setSelectedAccount(allAccounts[0]!.account);
     }
   }, [allAccounts, selectedAccount]);
 
@@ -301,7 +301,7 @@ export default function Dashboard() {
         // Build with a fresh nonce at submit time
         const tx = await buildEvmDemoTx({
           address: selectedAccount.address as `0x${string}`,
-          rpcUrl: ETH_RPC,
+          rpcUrl: ETH_RPC!,
         });
         const unsignedHex = serializeTransaction(tx);
         unsignedTransaction = unsignedHex.startsWith("0x")

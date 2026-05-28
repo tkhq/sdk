@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
+import type {
   BalanceWebhookEventEnvelope,
   BalanceWebhookSseMessage,
 } from "@/lib/types";

@@ -6,7 +6,7 @@ import {
 } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface PanelDisclosureProps {
   title: string;

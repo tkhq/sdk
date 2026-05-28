@@ -28,7 +28,7 @@ dotenv.config({ path: "./.env.local" });
   }
 
   // obtain the client secret from the arguments
-  const client_secret = args[0];
+  const client_secret = args[0]!;
 
   // encrypt the client secret to TLS Fetchers public key
   const encryptedClientSecret = await encryptOauth2ClientSecret(client_secret);

@@ -9,7 +9,7 @@ import {
   type WalletProvider,
 } from "@turnkey/react-wallet-kit";
 import { getSuborgsAction, createSuborgAction } from "@/server/actions/turnkey";
-import { TStampLoginResponse } from "@turnkey/sdk-types";
+import type { TStampLoginResponse } from "@turnkey/sdk-types";
 
 type CurveType = "API_KEY_CURVE_ED25519" | "API_KEY_CURVE_SECP256K1";
 
@@ -77,7 +77,7 @@ export default function AuthPage() {
   const handlePickWalletName = (name: string) => {
     const variants = providerGroups[name] || [];
     if (variants.length === 1) {
-      void handleProviderVariant(variants[0]);
+      void handleProviderVariant(variants[0]!);
     } else {
       setSelectedWalletName(name);
     }
@@ -216,7 +216,7 @@ export default function AuthPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {Object.keys(providerGroups).map((name) => {
-                  const first = providerGroups[name][0];
+                  const first = providerGroups[name]![0];
                   return (
                     <button
                       key={name}
@@ -225,14 +225,14 @@ export default function AuthPage() {
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={first.info.icon || ""}
+                        src={first!.info.icon || ""}
                         alt={name}
                         className="h-6 w-6 rounded-full"
                       />
                       <div className="text-sm font-medium text-gray-800">
                         {name}
                       </div>
-                      {providerGroups[name].length > 1 && (
+                      {providerGroups[name]!.length > 1 && (
                         <span className="ml-auto text-[10px] rounded bg-gray-100 px-2 py-0.5 text-gray-600">
                           multiple
                         </span>

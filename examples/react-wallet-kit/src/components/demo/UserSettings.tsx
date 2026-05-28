@@ -16,7 +16,7 @@ import SocialButton from "./AuthButtons/SocialButton";
 import AuthenticatorButton from "./AuthButtons/AuthenticatorButton";
 import DeleteSubOrgWarning from "./DeleteSubOrgWarning";
 import { Button, Transition } from "@headlessui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function UserSettings() {
   const {

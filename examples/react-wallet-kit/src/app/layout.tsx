@@ -22,7 +22,7 @@ function RootLayout({ children }: RootLayoutProps) {
       closeOnClick: false,
       pauseOnHover: true,
       draggable: true,
-      progress: undefined,
+      progress: 0,
       transition: Slide,
     });
 

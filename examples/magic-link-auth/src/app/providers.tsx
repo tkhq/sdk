@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import {
   TurnkeyProvider,
   type TurnkeyProviderConfig,
-  type CreateSubOrgParams,
 } from "@turnkey/react-wallet-kit";
 import "@turnkey/react-wallet-kit/styles.css";
 

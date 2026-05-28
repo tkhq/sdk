@@ -1,4 +1,4 @@
-import {
+import type {
   TxStatusWebhookEventEnvelope,
   TxStatusWebhookSseMessage,
 } from "@/lib/types";

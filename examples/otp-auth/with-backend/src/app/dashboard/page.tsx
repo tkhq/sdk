@@ -131,7 +131,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!selectedAccount && embeddedAccounts.length > 0) {
-      setSelectedAccount(embeddedAccounts[0].account);
+      setSelectedAccount(embeddedAccounts[0]!.account);
     }
   }, [embeddedAccounts, selectedAccount]);
 
@@ -299,14 +299,14 @@ export default function Dashboard() {
           throw new Error("Set NEXT_PUBLIC_RPC_ETH for embedded EVM.");
         const tx = await buildEvmDemoTx({
           address: selectedAccount.address as `0x${string}`,
-          rpcUrl: ETH_RPC,
+          rpcUrl: ETH_RPC!,
         });
         const unsignedHex = serializeTransaction(tx);
         unsignedTransaction = unsignedHex.startsWith("0x")
           ? unsignedHex
           : `0x${unsignedHex}`;
         transactionType = "TRANSACTION_TYPE_ETHEREUM";
-        rpcUrl = ETH_RPC;
+        rpcUrl = ETH_RPC!;
       } else if (isSol) {
         const solRpc = SOL_RPC || clusterApiUrl("devnet");
         unsignedTransaction = await buildUnsignedSolanaTxHex(

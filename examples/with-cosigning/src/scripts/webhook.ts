@@ -86,7 +86,7 @@ async function main() {
       process.exit(1);
     }
 
-    const endpoint = webhookEndpoints[0];
+    const endpoint = webhookEndpoints[0]!;
     await turnkey.apiClient().updateWebhookEndpoint({
       organizationId,
       endpointId: endpoint.endpointId,

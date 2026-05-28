@@ -1,6 +1,6 @@
 import { AuthToggleButton } from "./index";
 import { useTurnkey } from "@turnkey/react-wallet-kit";
-import { OAuthProviders } from "@turnkey/sdk-types";
+import type { OAuthProviders } from "@turnkey/sdk-types";
 
 interface SocialButtonProps {
   canRemoveAuthMethod: boolean;

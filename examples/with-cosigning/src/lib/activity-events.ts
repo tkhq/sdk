@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { ActivityEventEnvelope, ActivityWebhookPayload } from "./types";
+import type { ActivityEventEnvelope, ActivityWebhookPayload } from "./types";
 
 const ACTIVITY_EVENT = "activity-update";
 const MAX_RECENT_EVENTS = 50;

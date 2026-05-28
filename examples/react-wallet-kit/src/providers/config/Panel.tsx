@@ -15,11 +15,11 @@ import { SliderField } from "@/components/Slider";
 import { ColourPicker } from "@/components/Color";
 import { PanelDisclosure } from "@/components/Disclosure";
 import { useEffect } from "react";
-import { TurnkeyProviderConfig } from "@turnkey/react-wallet-kit";
+import type { TurnkeyProviderConfig } from "@turnkey/react-wallet-kit";
 import ConfigViewer from "@/components/demo/ConfigViewer";
 import { completeTheme, textColour } from "@/utils";
 import { Button, Checkbox } from "@headlessui/react";
-import { DemoConfig } from "@/types";
+import type { DemoConfig } from "@/types";
 import {
   AppleSVG,
   DiscordSVG,
@@ -129,7 +129,7 @@ export function TurnkeyConfigPanel() {
     const currentOrder = config.ui?.authModal?.methodOrder ?? [];
     const reordered = Array.from(currentOrder);
     const [moved] = reordered.splice(result.source.index, 1);
-    reordered.splice(result.destination.index, 0, moved);
+    reordered.splice(result.destination.index, 0, moved!);
 
     handleSetConfig({
       ui: {

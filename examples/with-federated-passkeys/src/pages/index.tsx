@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
 import { useTurnkey } from "@turnkey/sdk-react";
-import { CreateSubOrgResponse, TFormattedWallet } from "@/app/types";
+import type { CreateSubOrgResponse, TFormattedWallet } from "@/app/types";
 import { getNextPath } from "@/app/util";
 
 type subOrgFormData = {
@@ -17,7 +17,7 @@ type walletAccountFormData = {
 };
 
 export default function Home() {
-  const { turnkey, passkeyClient } = useTurnkey();
+  const { passkeyClient } = useTurnkey();
 
   const [subOrgId, setSubOrgId] = React.useState<string | null>(null);
   const [wallet, setWallet] = React.useState<TFormattedWallet | null>(null);

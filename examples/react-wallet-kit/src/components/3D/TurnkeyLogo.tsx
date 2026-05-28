@@ -73,6 +73,8 @@ export function TurnkeyLogo(props: TurnkeyLogoProps) {
 
       return () => clearTimeout(timeout);
     }
+
+    return () => {};
   }, [modalStack.length]);
 
   // Make Turnkey logo wireframe.

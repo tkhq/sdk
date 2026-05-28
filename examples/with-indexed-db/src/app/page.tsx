@@ -75,7 +75,7 @@ export default function AuthPage() {
         publicKey: { user: { name: siteInfo, displayName: siteInfo } },
       })) || {};
 
-    const resp = await server.createSuborg({
+    await server.createSuborg({
       passkey: {
         authenticatorName: "First Passkey",
         challenge: encodedChallenge,

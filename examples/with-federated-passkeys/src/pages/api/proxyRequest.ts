@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { TSignedRequest } from "@turnkey/http";
+import type { TSignedRequest } from "@turnkey/http";
 import axios from "axios";
 
 type TResponse = {

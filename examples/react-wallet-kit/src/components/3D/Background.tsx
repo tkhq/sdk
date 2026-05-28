@@ -18,12 +18,14 @@ function FadeInWrapper(props: {
   useEffect(() => {
     if (startVisible) {
       setVisible(true);
-      return;
+      return () => {};
     }
     if (progress === 100) {
       const timeout = setTimeout(() => setVisible(true), 50); // Fade in after a short delay
       return () => clearTimeout(timeout);
     }
+
+    return () => {};
   }, [progress, startVisible]);
 
   return (

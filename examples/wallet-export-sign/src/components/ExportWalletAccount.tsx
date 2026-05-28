@@ -4,7 +4,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 import styles from "../pages/index.module.css";
-import { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
+import { type IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import { Export } from "@/components/Export";
 
 type ExportWalletAccountProps = {

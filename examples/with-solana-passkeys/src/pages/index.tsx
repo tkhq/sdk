@@ -1,4 +1,4 @@
-import { Transaction, VersionedTransaction } from "@solana/web3.js";
+import { VersionedTransaction } from "@solana/web3.js";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -6,7 +6,7 @@ import { bs58 } from "@turnkey/encoding";
 import { useState, useEffect } from "react";
 
 import styles from "./index.module.css";
-import { TWalletDetails } from "../types";
+import type { TWalletDetails } from "../types";
 
 import { useTurnkey } from "@turnkey/sdk-react";
 import { TurnkeySigner } from "@turnkey/solana";
@@ -160,7 +160,7 @@ export default function Home() {
     });
 
     if (!credential?.encodedChallenge || !credential?.attestation) {
-      return false;
+      return;
     }
 
     const res = await axios.post("/api/createSubOrg", {
@@ -191,7 +191,7 @@ export default function Home() {
       }
 
       const walletsResponse = await passkeyClient?.getWallets();
-      if (!walletsResponse?.wallets[0].walletId) {
+      if (!walletsResponse?.wallets[0]?.walletId) {
         return;
       }
 
@@ -200,7 +200,7 @@ export default function Home() {
         organizationId: loginResponse?.organizationId,
         walletId,
       });
-      if (!walletAccountsResponse?.accounts[0].address) {
+      if (!walletAccountsResponse?.accounts[0]?.address) {
         return;
       }
 

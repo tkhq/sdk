@@ -1,6 +1,6 @@
 interface SVGProps {
-  className?: string;
-  style?: React.CSSProperties;
+  className?: string | undefined;
+  style?: React.CSSProperties | undefined;
 }
 
 export function TurnkeyLogoSVG(props: SVGProps) {

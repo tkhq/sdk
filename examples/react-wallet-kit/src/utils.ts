@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 import nacl from "tweetnacl";
 import { Buffer } from "buffer";
 
-import { createPublicClient, http, verifyMessage } from "viem";
+import { createPublicClient, http } from "viem";
 import { mainnet } from "viem/chains";
 import {
   normalizePadding,
@@ -33,7 +33,7 @@ export function useScreenSize() {
 export function completeTheme(modalBackgroundColour: string) {
   const { L, C, h } = hexToOklch(modalBackgroundColour);
 
-  const isLight = L > 0.7;
+  const isLight = L! > 0.7;
 
   const iconBackgroundLMultiplier = isLight ? 0.8 : 1.5;
   const iconTextLMultiplier = isLight ? 0.3 : 6;
@@ -43,27 +43,27 @@ export function completeTheme(modalBackgroundColour: string) {
   const panelBackgroundLMultiplier = isLight ? 0.95 : 0.7;
 
   const iconBackgroundL = isLight
-    ? Math.max(L * iconBackgroundLMultiplier, 0.95)
-    : Math.max(L * iconBackgroundLMultiplier, 0.2);
+    ? Math.max(L! * iconBackgroundLMultiplier, 0.95)
+    : Math.max(L! * iconBackgroundLMultiplier, 0.2);
   const iconTextL = isLight
-    ? Math.min(L * iconTextLMultiplier, 0.9)
-    : Math.max(L * iconTextLMultiplier, 0.7);
+    ? Math.min(L! * iconTextLMultiplier, 0.9)
+    : Math.max(L! * iconTextLMultiplier, 0.7);
 
   const buttonBackgroundL = isLight
-    ? Math.min(L * buttonBackgroundLMultiplier, 0.95)
-    : Math.max(L * buttonBackgroundLMultiplier, 0.2);
+    ? Math.min(L! * buttonBackgroundLMultiplier, 0.95)
+    : Math.max(L! * buttonBackgroundLMultiplier, 0.2);
 
   const backgroundL = isLight
-    ? L > 0.9
+    ? L! > 0.9
       ? 0.9
-      : Math.min(L * backgroundLMultiplier, 0.9)
-    : Math.max(L * backgroundLMultiplier, 0.25);
+      : Math.min(L! * backgroundLMultiplier, 0.9)
+    : Math.max(L! * backgroundLMultiplier, 0.25);
   const draggableBackgroundL = isLight
-    ? Math.min(L * draggableBackgroundLMultiplier, 0.9)
-    : Math.max(L * draggableBackgroundLMultiplier, 0.3);
+    ? Math.min(L! * draggableBackgroundLMultiplier, 0.9)
+    : Math.max(L! * draggableBackgroundLMultiplier, 0.3);
   const panelBackgroundL = isLight
-    ? Math.min(L * panelBackgroundLMultiplier, 1)
-    : Math.max(L * panelBackgroundLMultiplier, 0.2);
+    ? Math.min(L! * panelBackgroundLMultiplier, 1)
+    : Math.max(L! * panelBackgroundLMultiplier, 0.2);
 
   const iconBackground = oklchToHex({ L: iconBackgroundL, C, h });
   const iconText = oklchToHex({ L: iconTextL, C, h });
@@ -86,7 +86,7 @@ export function completeTheme(modalBackgroundColour: string) {
 export function textColour(colour: string, highContrast = false) {
   // Use OKLCh for perceptual lightness
   const { L, C, h } = hexToOklch(colour);
-  const isLight = L > 0.5;
+  const isLight = L! > 0.5;
 
   // Use pure black or white for maximum contrast
   return isLight
@@ -97,7 +97,7 @@ export function textColour(colour: string, highContrast = false) {
 export function logoColour(colour: string) {
   // Use OKLCh for perceptual lightness
   const { L, C, h } = hexToOklch(colour);
-  const isLight = L > 0.6;
+  const isLight = L! > 0.6;
 
   // Use a slightly darker or lighter shade for logo
   return isLight ? oklchToHex({ L: 0.5, C, h }) : oklchToHex({ L: 0.7, C, h });
@@ -128,9 +128,9 @@ function linearToSrgb(u: number) {
 // multiply a 3×3 matrix by a 3-vector
 function mat3Mul(mat: number[], [x, y, z]: [number, number, number]) {
   return [
-    mat[0] * x + mat[1] * y + mat[2] * z,
-    mat[3] * x + mat[4] * y + mat[5] * z,
-    mat[6] * x + mat[7] * y + mat[8] * z,
+    mat[0]! * x + mat[1]! * y + mat[2]! * z,
+    mat[3]! * x + mat[4]! * y + mat[5]! * z,
+    mat[6]! * x + mat[7]! * y + mat[8]! * z,
   ];
 }
 
@@ -153,9 +153,9 @@ function linearSrgbToOklab([lr, lg, lb]: [number, number, number]) {
   );
 
   // cube-root
-  let l = Math.cbrt(l_),
-    m = Math.cbrt(m_),
-    s = Math.cbrt(s_);
+  let l = Math.cbrt(l_!),
+    m = Math.cbrt(m_!),
+    s = Math.cbrt(s_!);
 
   // to OKLab
   return mat3Mul(
@@ -202,8 +202,8 @@ function hexToOklch(hex: string) {
   // to OKLab
   let [L, a, b] = linearSrgbToOklab(rgb01);
   // to cylindrical LCh
-  let C = Math.hypot(a, b);
-  let h = (Math.atan2(b, a) * 180) / Math.PI;
+  let C = Math.hypot(a!, b!);
+  let h = (Math.atan2(b!, a!) * 180) / Math.PI;
   if (h < 0) h += 360;
   return { L, C, h };
 }
@@ -221,9 +221,9 @@ function oklchToHex({ L, C, h }: { L: number; C: number; h: number }) {
   let [lr, lg, lb] = oklabToLinearSrgb([L, a, b]);
   // gamma-correct & clamp & scale
   const to255 = (x: number) => Math.round(clamp01(linearToSrgb(x)) * 255);
-  let r = to255(lr),
-    g = to255(lg),
-    b8 = to255(lb);
+  let r = to255(lr!),
+    g = to255(lg!),
+    b8 = to255(lb!);
   // hex
   return "#" + [r, g, b8].map((v) => v.toString(16).padStart(2, "0")).join("");
 }

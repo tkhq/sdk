@@ -17,7 +17,7 @@ import { createAccount } from "@turnkey/viem";
 import { useTurnkey } from "@turnkey/sdk-react";
 
 import styles from "./index.module.css";
-import { TWalletDetails } from "../types";
+import type { TWalletDetails } from "../types";
 
 type subOrgFormData = {
   subOrgName: string;
@@ -222,7 +222,7 @@ export default function Home() {
     });
 
     if (!credential?.encodedChallenge || !credential?.attestation) {
-      return false;
+      return;
     }
 
     const res = await axios.post("/api/createSubOrg", {
@@ -254,7 +254,7 @@ export default function Home() {
       }
 
       const walletsResponse = await passkeyClient?.getWallets();
-      if (!walletsResponse?.wallets[0].walletId) {
+      if (!walletsResponse?.wallets[0]?.walletId) {
         return;
       }
 
@@ -263,7 +263,7 @@ export default function Home() {
         organizationId: loginResponse?.organizationId,
         walletId,
       });
-      if (!walletAccountsResponse?.accounts[0].address) {
+      if (!walletAccountsResponse?.accounts[0]?.address) {
         return;
       }
 

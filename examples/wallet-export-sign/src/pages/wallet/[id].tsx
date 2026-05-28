@@ -11,7 +11,7 @@ import { ExportWalletAccount } from "@/components/ExportWalletAccount";
 
 // We can pull this import from @turnkey/sdk-browser, @turnkey/sdk-server, or @turnkey/http.
 // Electing to import from @turnkey/sdk-server as it's the only one we install for this example.
-import { TurnkeyApiTypes } from "@turnkey/sdk-server";
+import type { TurnkeyApiTypes } from "@turnkey/sdk-server";
 
 type TWalletAccount = TurnkeyApiTypes["v1WalletAccount"];
 type TWallet = TurnkeyApiTypes["v1Wallet"];
