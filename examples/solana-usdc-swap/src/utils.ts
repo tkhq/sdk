@@ -9,5 +9,6 @@ export function lamportsToSol(lamports: bigint | number): string {
   const value = BigInt(lamports);
   const whole = value / 1_000_000_000n;
   const fraction = (value % 1_000_000_000n).toString().padStart(9, "0");
-  return `${whole}.${fraction.slice(0, 4)}`;
+  const trimmedFraction = fraction.replace(/0+$/, "");
+  return trimmedFraction ? `${whole}.${trimmedFraction}` : whole.toString();
 }
