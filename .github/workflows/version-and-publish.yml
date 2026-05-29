@@ -136,6 +136,7 @@ jobs:
       - name: Test (preprod)
         run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
         env:
+          NODE_ENV: development
           API_PUBLIC_KEY: ${{ secrets.PREPROD_API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.PREPROD_API_PRIVATE_KEY }}
           BASE_URL: ${{ secrets.PREPROD_BASE_URL }}
@@ -181,6 +182,7 @@ jobs:
       - name: Test (prod)
         run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
         env:
+          NODE_ENV: development
           API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
           BASE_URL: "https://api.turnkey.com"
