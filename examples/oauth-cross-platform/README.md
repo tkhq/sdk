@@ -10,7 +10,7 @@ OAuth providers like Google issue a different `client_id` per platform (web, iOS
 
 ## The solution
 
-At web sign-up, register the user's iOS and Android `aud` values as `oidcClaims` alongside the verified web token. These secondary audiences share the same `iss`/`sub` and are trusted by association making it so that when the user later logs in from mobile, `getSubOrgIds` with `filterType: "OAUTH_CLAIM"` resolves the same sub-org regardless of which platform issued the token.
+At web sign-up, register the user's iOS and Android `aud` values as `oidcClaims` alongside the verified web token. Because these secondary audiences share the same `iss`/`sub`, they are trusted by association. When the user later logs in from mobile, `getSubOrgIds` with `filterType: "OAUTH_CLAIM"` resolves the same sub-org regardless of which platform issued the token.
 
 ## Parts
 
