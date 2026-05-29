@@ -25,7 +25,8 @@ export default function Dashboard() {
         <View style={styles.header}>
           <TurnkeyLogo width={100} />
           <Text style={[styles.demoLabel, { color: colors.secondaryText }]}>
-            OAuth Cross-Platform Demo{Platform.OS === "ios" ? " (iOS)" : " (Android)"}
+            OAuth Cross-Platform Demo
+            {Platform.OS === "ios" ? " (iOS)" : " (Android)"}
           </Text>
         </View>
 

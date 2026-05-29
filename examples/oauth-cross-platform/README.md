@@ -14,9 +14,9 @@ At web sign-up, register the user's iOS and Android `aud` values as `oidcClaims`
 
 ## Parts
 
-| Part | Directory | Description |
-|------|-----------|-------------|
-| Part 1: Web | [`web/`](./web/README.md) | Next.js app with Google sign-up, dashboard, and per-platform identity verification |
-| Part 2: Mobile | [`mobile/`](./mobile/README.md) | React Native (Expo) app that logs in using the identities registered in Part 1 |
+| Part           | Directory                       | Description                                                                        |
+| -------------- | ------------------------------- | ---------------------------------------------------------------------------------- |
+| Part 1: Web    | [`web/`](./web/README.md)       | Next.js app with Google sign-up, dashboard, and per-platform identity verification |
+| Part 2: Mobile | [`mobile/`](./mobile/README.md) | React Native (Expo) app that logs in using the identities registered in Part 1     |
 
 Start with Part 1, then run the mobile app to verify the cross-platform flow end-to-end.

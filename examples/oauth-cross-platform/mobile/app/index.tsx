@@ -118,7 +118,8 @@ export default function LoginScreen() {
         <View style={styles.header}>
           <TurnkeyLogo width={140} />
           <Text style={[styles.demoLabel, { color: colors.secondaryText }]}>
-            OAuth Cross-Platform Demo{Platform.OS === "ios" ? " (iOS)" : " (Android)"}
+            OAuth Cross-Platform Demo
+            {Platform.OS === "ios" ? " (iOS)" : " (Android)"}
           </Text>
           <Text style={[styles.subtitle, { color: colors.secondaryText }]}>
             Sign in with the same Google account you used on the web app to
