@@ -17,8 +17,6 @@ import type { SafeTransactionDataPartial } from "@safe-global/types-kit";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
 import { print } from "./util";
 
-type SafeEthAdapter = Parameters<typeof SafeFactory.create>[0]["ethAdapter"];
-
 async function main() {
   if (
     !(
@@ -105,9 +103,6 @@ async function main() {
     ethers,
     signerOrProvider: connectedSigner3,
   });
-  const safeEthAdapter1 = ethAdapter1 as unknown as SafeEthAdapter;
-  const safeEthAdapter2 = ethAdapter2 as unknown as SafeEthAdapter;
-  const safeEthAdapter3 = ethAdapter3 as unknown as SafeEthAdapter;
 
   // Configure Safe transaction
   const transactionAmount = "0.00001";
@@ -119,7 +114,7 @@ async function main() {
   };
 
   // Create new Safe using address 1
-  const safeFactory = await SafeFactory.create({ ethAdapter: safeEthAdapter1 });
+  const safeFactory = await SafeFactory.create({ ethAdapter: ethAdapter1 });
   const owners = [
     await connectedSigner1.getAddress(),
     await connectedSigner2.getAddress(),
@@ -138,13 +133,13 @@ async function main() {
 
   // Have other signers connect to deployed Safe
   const safeSdk2 = await safeSdk1.connect({
-    ethAdapter: safeEthAdapter2,
+    ethAdapter: ethAdapter2,
     safeAddress,
   });
 
   // Alternative method to connecting to a precreated Safe
   const safeSdk3 = await Safe.create({
-    ethAdapter: safeEthAdapter3,
+    ethAdapter: ethAdapter3,
     safeAddress,
   });
 
@@ -194,9 +189,7 @@ async function main() {
   // but is left in for demonstration purposes.
   txHash = await safeSdk3.getTransactionHash(safeTransaction);
   let approveTxResponse = await safeSdk3.approveTransactionHash(txHash);
-  await (
-    approveTxResponse.transactionResponse as unknown as TransactionResponse
-  )?.wait();
+  await (approveTxResponse.transactionResponse as TransactionResponse)?.wait();
   print(
     `Approved transaction onchain using signer 3. Etherscan link:`,
     `https://${network}.etherscan.io/tx/${approveTxResponse.hash}`,
@@ -204,9 +197,7 @@ async function main() {
 
   // Execute transaction using signer 3
   const executeTxResponse = await safeSdk3.executeTransaction(safeTransaction);
-  await (
-    executeTxResponse.transactionResponse as unknown as TransactionResponse
-  )?.wait();
+  await (executeTxResponse.transactionResponse as TransactionResponse)?.wait();
   print(
     `Executed transaction. Etherscan link:`,
     `https://${network}.etherscan.io/tx/${executeTxResponse.hash}`,
