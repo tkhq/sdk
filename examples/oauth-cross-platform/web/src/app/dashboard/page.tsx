@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import { useTurnkey, AuthState } from "@turnkey/react-wallet-kit";
 import { useRouter } from "next/navigation";
 import { verifyPlatformAction } from "@/server/actions/turnkey";
+import { Header } from "@/components/Header";
+import { OidcCard } from "@/components/OidcCard";
+import { SubOrgCard } from "@/components/SubOrgCard";
+import { ExistingAccountWarning } from "@/components/ExistingAccountWarning";
+import { PlatformsCard } from "@/components/PlatformsCard";
+import { VerificationModal } from "@/components/VerificationModal";
 
 const WEB_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 const IOS_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "";
@@ -18,12 +24,12 @@ type Platform = {
 };
 
 export default function Dashboard() {
-  const { authState, logout, session } = useTurnkey();
+  const { authState, session, wallets } = useTurnkey();
   const router = useRouter();
 
   const [claims, setClaims] = useState<OauthClaims | null>(null);
   const [isNewAccount, setIsNewAccount] = useState<boolean | null>(null);
-  const [verifyResults, setVerifyResults] = useState<Record<string, string | null>>({});
+  const [modalResult, setModalResult] = useState<{ platform: string; orgId: string | null } | null>(null);
   const [verifying, setVerifying] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -58,162 +64,52 @@ export default function Dashboard() {
         aud: platform.clientId,
       });
       const orgId = result.organizationIds?.[0];
-      setVerifyResults((r) => ({
-        ...r,
-        [platform.label]: orgId ?? "not found",
-      }));
+      setModalResult({ platform: platform.label, orgId: orgId ?? "not found" });
     } catch (e: unknown) {
-      setVerifyResults((r) => ({
-        ...r,
-        [platform.label]: e instanceof Error ? e.message : "error",
-      }));
+      setModalResult({ platform: platform.label, orgId: e instanceof Error ? e.message : "error" });
     } finally {
       setVerifying((v) => ({ ...v, [platform.label]: false }));
     }
   };
 
-  const handleLogout = async () => {
-    sessionStorage.removeItem("tk_oauth_claims");
-    await logout();
-    router.replace("/");
-  };
-
-  if (authState !== AuthState.Authenticated) {
-    return <p className="p-8 text-sm text-gray-500">Loading…</p>;
-  }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6 sm:p-8">
-      <div className="mx-auto max-w-2xl space-y-6">
+    <>
+      {modalResult && (
+        <VerificationModal
+          platform={modalResult.platform}
+          orgId={modalResult.orgId}
+          onClose={() => setModalResult(null)}
+        />
+      )}
+      <main className="min-h-screen bg-gray-50 p-6 sm:p-8">
+        <div className="mx-auto max-w-2xl space-y-6">
 
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-gray-900">Cross-Platform Identities</h1>
-          <button
-            onClick={handleLogout}
-            className="rounded bg-red-600 px-3 py-1.5 text-xs text-white hover:bg-red-700"
-          >
-            Logout
-          </button>
-        </div>
+          <Header />
 
-        {/* Sub-org + Google subject */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm space-y-3">
-          <Row label="Sub-org ID" value={session?.organizationId ?? "—"} mono />
-          {claims && (
-            <>
-              <Row label="Google subject (sub)" value={claims.sub} mono />
-              <Row label="Issuer (iss)" value={claims.iss} mono />
-            </>
-          )}
-        </section>
+          <SubOrgCard subOrgId={session?.organizationId ?? "—"} userId={session?.userId ?? "—"} wallets={wallets ?? []} />
+          <OidcCard aud={WEB_CLIENT_ID} claims={claims} />
 
-        {/* Platform identities */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">Registered platforms</h2>
-          <div className="space-y-3">
-            {platforms.map((p) => (
-              <div
-                key={p.label}
-                className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3"
-              >
-                <div className="flex-1 min-w-0 space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-800">{p.label}</span>
-                    {p.verified ? (
-                      <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-                        verified
-                      </span>
-                    ) : (
-                      <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700">
-                        unverified claim
-                      </span>
-                    )}
-                  </div>
-                  <p className="font-mono text-xs text-gray-500 truncate">{p.clientId}</p>
-                </div>
+          <PlatformsCard
+            platforms={platforms}
+            hasClaims={!!claims}
+            verifying={verifying}
+            onVerify={handleVerify}
+          />
 
-                {!p.verified && claims && (
-                  <button
-                    onClick={() => handleVerify(p)}
-                    disabled={verifying[p.label]}
-                    className="shrink-0 rounded bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {verifying[p.label] ? "Checking…" : "Verify access"}
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
 
-          {!claims && (
-            <p className="mt-3 text-xs text-gray-400">
-              Sign out and back in to load identity claims.
-            </p>
-          )}
-        </section>
+          {isNewAccount === false && platforms.length > 1 && <ExistingAccountWarning />}
 
-        {/* Verify results */}
-        {Object.keys(verifyResults).length > 0 && (
-          <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="text-sm font-semibold text-gray-700 mb-3">Verification results</h2>
-            <div className="space-y-2">
-              {Object.entries(verifyResults).map(([platform, orgId]) => (
-                <div key={platform} className="rounded-lg bg-gray-50 border border-gray-100 p-3">
-                  <div className="text-xs font-medium text-gray-600 mb-1">{platform}</div>
-                  {orgId && orgId !== "not found" ? (
-                    <>
-                      <p className="text-xs text-green-700 font-medium mb-1">
-                        Found — same sub-org
-                      </p>
-                      <p className="font-mono text-xs text-gray-500 break-all">{orgId}</p>
-                    </>
-                  ) : (
-                    <p className="text-xs text-red-600">{orgId ?? "not found"}</p>
-                  )}
-                </div>
-              ))}
+          {/* No secondary platforms configured */}
+          {platforms.length === 1 && (
+            <div className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500 text-center">
+              Add <code className="bg-gray-100 px-1 rounded text-xs">NEXT_PUBLIC_GOOGLE_IOS_CLIENT_ID</code> and/or{" "}
+              <code className="bg-gray-100 px-1 rounded text-xs">NEXT_PUBLIC_GOOGLE_ANDROID_CLIENT_ID</code> to{" "}
+              <code className="bg-gray-100 px-1 rounded text-xs">.env.local</code> to see cross-platform identities.
             </div>
-          </section>
-        )}
-
-        {/* Existing account warning */}
-        {isNewAccount === false && platforms.length > 1 && (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            <span className="font-semibold">Existing account detected.</span> Secondary platform
-            identities are registered at sign-up time. To test cross-platform verification,
-            sign up with another account. Alternatively, if you are using a test organization you can delete this sub-org and sign up again.
-          </div>
-        )}
-
-        {/* No secondary platforms configured */}
-        {platforms.length === 1 && (
-          <div className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500 text-center">
-            Add <code className="bg-gray-100 px-1 rounded text-xs">NEXT_PUBLIC_GOOGLE_IOS_CLIENT_ID</code> and/or{" "}
-            <code className="bg-gray-100 px-1 rounded text-xs">NEXT_PUBLIC_GOOGLE_ANDROID_CLIENT_ID</code> to{" "}
-            <code className="bg-gray-100 px-1 rounded text-xs">.env.local</code> to see cross-platform identities.
-          </div>
-        )}
-      </div>
-    </main>
-  );
-}
-
-function Row({
-  label,
-  value,
-  mono,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-}) {
-  return (
-    <div>
-      <p className="text-xs text-gray-400 mb-0.5">{label}</p>
-      <p className={`text-xs break-all ${mono ? "font-mono text-gray-700" : "text-gray-800"}`}>
-        {value}
-      </p>
-    </div>
+          )}
+        </div>
+      </main>
+    </>
   );
 }

@@ -5,12 +5,14 @@ import { useTurnkey, AuthState, ClientState } from "@turnkey/react-wallet-kit";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex } from "@noble/hashes/utils";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   getSuborgsAction,
   createSuborgAction,
   authAction,
 } from "@/server/actions/turnkey";
+import { Header } from "@/components/Header";
 
 const IOS_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "";
 const ANDROID_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ?? "";
@@ -85,8 +87,9 @@ export default function AuthPage() {
   };
 
   return (
-    <main className="relative min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-screen-sm px-4 pt-28">
+    <main className="min-h-screen bg-gray-50 p-6 sm:p-8">
+      <div className="mx-auto max-w-2xl space-y-6">
+        <Header />
         <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-7 shadow-sm space-y-4">
           <h1 className="text-lg font-semibold text-gray-900">Sign in to your wallet</h1>
           <p className="text-sm text-gray-600">
@@ -120,17 +123,11 @@ export default function AuthPage() {
           </div>
         </section>
 
-        <p className="mt-4 text-center text-xs text-gray-400">
-          Powered by{" "}
-          <a
-            href="https://www.turnkey.com"
-            className="underline"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Turnkey
+        <div className="flex justify-center mt-2">
+          <a href="https://www.turnkey.com" target="_blank" rel="noreferrer">
+            <Image src="/secured-by-turnkey.svg" alt="Secured by Turnkey" width={130} height={24} />
           </a>
-        </p>
+        </div>
       </div>
     </main>
   );

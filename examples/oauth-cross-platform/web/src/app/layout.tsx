@@ -6,6 +6,7 @@ import { Providers } from "./providers";
 export const metadata: Metadata = {
   title: "OAuth Cross-Platform — Turnkey",
   description: "Sign up once, access your wallet from any platform",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({
