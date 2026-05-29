@@ -1,5 +1,82 @@
 # @turnkey/core
 
+## 2.1.0
+
+### Minor Changes
+
+- [#1324](https://github.com/tkhq/sdk/pull/1324) [`f505818`](https://github.com/tkhq/sdk/commit/f505818e121c137d290156a32918a884ba80e5f5) Author [@janjakubnanista](https://github.com/janjakubnanista) - ### Breaking/Behavioral Changes
+
+  #### `nonce` parameter in `oauth2Authenticate` is now required
+
+  ```ts
+  # Before
+  apiClient.oauth2Authenticate({
+    oauth2CredentialId: ...,
+    authCode: ...,
+    redirectUri: ...,
+    codeVerifier: ...,
+    bearerTokenTargetPublicKey: ...,
+    // nonce can be undefined
+    nonce: undefined
+  })
+
+  # After
+  apiClient.oauth2Authenticate({
+    oauth2CredentialId: ...,
+    authCode: ...,
+    redirectUri: ...,
+    codeVerifier: ...,
+    bearerTokenTargetPublicKey: ...,
+    // nonce is required
+    nonce: ""
+  })
+  ```
+
+  #### Solana transactions in Transaction Management are now limited to the following `caip2` values:
+  - `solana:mainnet`
+  - `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`
+  - `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d`
+  - `solana:devnet`
+  - `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`
+  - `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG`
+
+  ### New SDK methods
+
+  #### TVC
+
+  These methods will only work if you are part of the [TVC beta](https://www.turnkey.com/turnkey-verifiable-cloud#waitlist)
+  - `getTvcApp`
+  - `getTvcDeployment`
+  - `getTvcAppDeployments`
+  - `getTvcApps`
+  - `validateTvcImage`
+  - `createTvcApp`
+  - `createTvcDeployment`
+  - `createTvcManifestApprovals`
+  - `deleteTvcAppAndDeployments`
+  - `deleteTvcDeployment`
+  - `restoreTvcDeployment`
+  - `updateTvcAppLiveDeployment`
+
+  #### Spark protocol support
+  - `sparkClaimTransfer`
+  - `sparkPrepareLightningReceive`
+  - `sparkPrepareTransfer`
+  - `sparkSignFrost`
+
+### Patch Changes
+
+- [#1299](https://github.com/tkhq/sdk/pull/1299) [`bf2c28f`](https://github.com/tkhq/sdk/commit/bf2c28fec690ec31254125405bf15a482139109b) Author [@ethankonk](https://github.com/ethankonk) - Patched the core sdk's client to allow passing in the `generateAppProofs` param to all activity requests
+
+- [#1308](https://github.com/tkhq/sdk/pull/1308) [`3adc0c9`](https://github.com/tkhq/sdk/commit/3adc0c96cf524b59584e5f5688f7830fc79ebeb4) Author [@hadrelandon](https://github.com/hadrelandon) - return actual `credentialId` from `loginWithPasskey()` instead of empty string
+
+- Updated dependencies [[`bf2c28f`](https://github.com/tkhq/sdk/commit/bf2c28fec690ec31254125405bf15a482139109b), [`f505818`](https://github.com/tkhq/sdk/commit/f505818e121c137d290156a32918a884ba80e5f5), [`ad044cd`](https://github.com/tkhq/sdk/commit/ad044cdcd41690c6479a81c56ebcd6d5108581fb)]:
+  - @turnkey/sdk-types@1.1.0
+  - @turnkey/http@4.1.0
+  - @turnkey/crypto@2.10.0
+  - @turnkey/react-native-passkey-stamper@1.2.15
+  - @turnkey/api-key-stamper@0.6.7
+
 ## 2.0.0
 
 ### Major Changes

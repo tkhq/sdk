@@ -1,5 +1,18 @@
 # @turnkey/sdk-react
 
+## 6.0.1
+
+### Patch Changes
+
+- [#1300](https://github.com/tkhq/sdk/pull/1300) [`1ae07ec`](https://github.com/tkhq/sdk/commit/1ae07ecbfa97e653fdb8742ada154d45d8459eab) Author [@ethankonk](https://github.com/ethankonk) - Bumped next dependency to next@15.5.18
+
+- Updated dependencies [[`bf2c28f`](https://github.com/tkhq/sdk/commit/bf2c28fec690ec31254125405bf15a482139109b), [`f505818`](https://github.com/tkhq/sdk/commit/f505818e121c137d290156a32918a884ba80e5f5), [`ad044cd`](https://github.com/tkhq/sdk/commit/ad044cdcd41690c6479a81c56ebcd6d5108581fb)]:
+  - @turnkey/sdk-types@1.1.0
+  - @turnkey/sdk-browser@6.1.0
+  - @turnkey/sdk-server@6.1.0
+  - @turnkey/crypto@2.10.0
+  - @turnkey/wallet-stamper@1.1.18
+
 ## 6.0.0
 
 ### Major Changes
