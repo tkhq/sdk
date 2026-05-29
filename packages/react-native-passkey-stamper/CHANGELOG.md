@@ -1,5 +1,12 @@
 # @turnkey/react-native-passkey-stamper
 
+## 1.2.15
+
+### Patch Changes
+
+- Updated dependencies [[`f505818`](https://github.com/tkhq/sdk/commit/f505818e121c137d290156a32918a884ba80e5f5)]:
+  - @turnkey/http@4.1.0
+
 ## 1.2.14
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @turnkey/crypto
 
+## 2.10.0
+
+### Minor Changes
+
+- [#1314](https://github.com/tkhq/sdk/pull/1314) [`ad044cd`](https://github.com/tkhq/sdk/commit/ad044cdcd41690c6479a81c56ebcd6d5108581fb) Author [@taylorjdawson](https://github.com/taylorjdawson) - Add a helper for verifying Turnkey webhook signatures.
+
+### Patch Changes
+
+- Updated dependencies [[`bf2c28f`](https://github.com/tkhq/sdk/commit/bf2c28fec690ec31254125405bf15a482139109b), [`f505818`](https://github.com/tkhq/sdk/commit/f505818e121c137d290156a32918a884ba80e5f5)]:
+  - @turnkey/sdk-types@1.1.0
+
 ## 2.9.0
 
 ### Minor Changes

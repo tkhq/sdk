@@ -1,5 +1,13 @@
 # with-delegated
 
+## 0.1.25
+
+### Patch Changes
+
+- Updated dependencies [[`f505818`](https://github.com/tkhq/sdk/commit/f505818e121c137d290156a32918a884ba80e5f5), [`5974020`](https://github.com/tkhq/sdk/commit/597402080af9d03cbdcc63b5b8f8a3aa462923b6)]:
+  - @turnkey/sdk-server@6.1.0
+  - @turnkey/react-wallet-kit@2.0.1
+
 ## 0.1.24
 
 ### Patch Changes
