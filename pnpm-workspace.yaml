@@ -4,3 +4,4 @@ packages:
   - examples/**
   - "!examples/with-react-native-wallet-kit/**"
   - "!examples/with-walletconnect-pay/**"
+  - "!examples/oauth-cross-platform/mobile/**"
