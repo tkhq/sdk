@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTurnkey, AuthState } from "@turnkey/react-wallet-kit";
+import { useTurnkey, AuthState, ClientState } from "@turnkey/react-wallet-kit";
 import { useRouter } from "next/navigation";
 import { verifyPlatformAction } from "@/server/actions/turnkey";
 import { Header } from "@/components/Header";
@@ -24,7 +24,7 @@ type Platform = {
 };
 
 export default function Dashboard() {
-  const { authState, session, wallets } = useTurnkey();
+  const { authState, clientState, session, wallets } = useTurnkey();
   const router = useRouter();
 
   const [claims, setClaims] = useState<OauthClaims | null>(null);
@@ -33,8 +33,10 @@ export default function Dashboard() {
   const [verifying, setVerifying] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    if (authState === AuthState.Unauthenticated) router.replace("/");
-  }, [authState, router]);
+    if (clientState === ClientState.Ready && authState === AuthState.Unauthenticated) {
+      router.replace("/");
+    }
+  }, [authState, clientState, router]);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("tk_oauth_claims");
