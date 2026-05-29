@@ -43,6 +43,8 @@ async function main() {
     throw new Error("SUI_ADDRESS or SUI_PUBLIC_KEY not set in .env.local");
   }
 
+  console.log(`Using Sui address: ${SUI_ADDRESS}`);
+
   const publicKey = new Ed25519PublicKey(Buffer.from(SUI_PUBLIC_KEY!, "hex"));
   if (publicKey.toSuiAddress() !== SUI_ADDRESS) {
     throw new Error("SUI_PUBLIC_KEY does not match SUI_ADDRESS");
@@ -64,11 +66,19 @@ async function main() {
   const provider = new SuiClient({ url: getFullnodeUrl("testnet") });
 
   // fetch the user's SUI coin objects
+  console.log("\nFetching SUI coin objects for sender...");
   const coins = await provider.getCoins({
     owner: SUI_ADDRESS!,
     coinType: "0x2::sui::SUI",
   });
-  if (!coins.data.length) throw new Error("No SUI coins");
+  if (!coins.data.length) {
+    console.log(
+      `Your account ${SUI_ADDRESS} has no SUI. Fund it before running this script.`,
+    );
+    process.exit(1);
+  }
+
+  console.log(`Found ${coins.data.length} SUI coin object(s) for sender.`);
 
   const tx = new Transaction();
   tx.setSender(SUI_ADDRESS!);
@@ -84,10 +94,26 @@ async function main() {
   const coin = tx.splitCoins(tx.gas, [tx.pure("u64", amount)]);
   tx.transferObjects([coin], tx.pure.address(recipient));
 
-  const txBytes = await tx.build();
+  console.log(
+    `\nPreparing to send ${Number(amount) / 10 ** 9} SUI (${amount} base units) to ${recipient}`,
+  );
+
+  const txBytes = await tx.build({ client: provider });
+  console.log("Transaction built successfully:", txBytes);
+  console.log("Transaction built successfully hex:", bytesToHex(txBytes));
+
+  const serializedTx = await tx.prepareForSerialization({ client: provider });
+  console.log("Serialized transaction:", serializedTx);
+
+  const txJson = await tx.toJSON();
+  console.log("Transaction JSON:", txJson);
 
   const intentMsg = messageWithIntent("TransactionData", txBytes);
+  console.log("Signing message:", intentMsg);
+  console.log("Signing message hex:", bytesToHex(intentMsg));
+
   const digest = blake2b(intentMsg, { dkLen: 32 });
+  console.log("Signing message digest hex:", bytesToHex(digest));
 
   const { r, s } = await turnkeyClient.apiClient().signRawPayload({
     signWith: SUI_ADDRESS!,
@@ -101,6 +127,7 @@ async function main() {
 
   // *** EXECUTION *** //
 
+  console.log("\nSubmitting transaction...");
   const result = await provider.executeTransactionBlock({
     transactionBlock: Buffer.from(txBytes).toString("base64"),
     signature: serialized,
@@ -108,7 +135,16 @@ async function main() {
     options: { showEffects: true },
   });
 
-  console.log("Transaction digest:", result.digest);
+  console.log("\nTransaction Digest:", result.digest);
+  console.log(
+    `View on explorer: https://suiscan.xyz/testnet/tx/${result.digest}`,
+  );
+
+  if (result.effects?.status?.status === "success") {
+    console.log("Transaction confirmed successfully!");
+  } else {
+    console.log("Transaction status:", result.effects?.status);
+  }
 }
 
 main().catch((err) => {
