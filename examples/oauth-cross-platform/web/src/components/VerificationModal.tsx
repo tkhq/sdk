@@ -33,13 +33,15 @@ export function VerificationModal({ platform, orgId, onClose }: Props) {
 
         {found ? (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-green-700">Found — same sub-org</p>
+            <p className="text-sm font-medium text-green-700">
+              Found — same sub-org
+            </p>
             <p className="font-mono text-xs text-gray-600 break-all bg-gray-50 rounded p-2">
               {orgId}
             </p>
             <p className="text-xs text-gray-500">
-              A mobile app authenticating with the {platform} client ID would resolve
-              to this sub-org and log in successfully.
+              A mobile app authenticating with the {platform} client ID would
+              resolve to this sub-org and log in successfully.
             </p>
           </div>
         ) : (

@@ -15,7 +15,8 @@ import {
 import { Header } from "@/components/Header";
 
 const IOS_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "";
-const ANDROID_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ?? "";
+const ANDROID_CLIENT_ID =
+  process.env.NEXT_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ?? "";
 
 function parseJwtPayload(token: string): Record<string, unknown> {
   try {
@@ -27,7 +28,8 @@ function parseJwtPayload(token: string): Record<string, unknown> {
 }
 
 export default function AuthPage() {
-  const { createApiKeyPair, storeSession, authState, clientState } = useTurnkey();
+  const { createApiKeyPair, storeSession, authState, clientState } =
+    useTurnkey();
   const router = useRouter();
 
   const pubKeyRef = useRef<string | null>(null);
@@ -50,7 +52,9 @@ export default function AuthPage() {
         setNonce(bytesToHex(sha256(pubKey)));
         createdOnceRef.current = true;
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Failed to initialize keypair");
+        setError(
+          e instanceof Error ? e.message : "Failed to initialize keypair",
+        );
       }
     })();
   }, [clientState, createApiKeyPair]);
@@ -74,14 +78,21 @@ export default function AuthPage() {
     let suborgId = existing?.organizationIds?.[0];
 
     if (!suborgId) {
-      const created = await createSuborgAction({ oidcToken, secondaryClientIds });
+      const created = await createSuborgAction({
+        oidcToken,
+        secondaryClientIds,
+      });
       suborgId = created.subOrganizationId;
       sessionStorage.setItem("tk_is_new_account", "true");
     } else {
       sessionStorage.setItem("tk_is_new_account", "false");
     }
 
-    const { session } = await authAction({ suborgId: suborgId!, oidcToken, publicKey: pubKey });
+    const { session } = await authAction({
+      suborgId: suborgId!,
+      oidcToken,
+      publicKey: pubKey,
+    });
     await storeSession({ sessionToken: session });
     window.location.replace("/dashboard");
   };
@@ -91,10 +102,12 @@ export default function AuthPage() {
       <div className="mx-auto max-w-2xl space-y-6">
         <Header />
         <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-7 shadow-sm space-y-4">
-          <h1 className="text-lg font-semibold text-gray-900">Sign in to your wallet</h1>
+          <h1 className="text-lg font-semibold text-gray-900">
+            Sign in to your wallet
+          </h1>
           <p className="text-sm text-gray-600">
-            Sign up with Google. Your identity will be registered for all configured
-            platforms so you can log in from any of them.
+            Sign up with Google. Your identity will be registered for all
+            configured platforms so you can log in from any of them.
           </p>
 
           {secondaryClientIds.length > 0 && (
@@ -114,10 +127,18 @@ export default function AuthPage() {
             ) : clientState !== ClientState.Ready ? (
               <p className="text-sm text-gray-500">Preparing…</p>
             ) : !nonce ? (
-              <p className="text-sm text-gray-500">{error ?? "Generating nonce…"}</p>
+              <p className="text-sm text-gray-500">
+                {error ?? "Generating nonce…"}
+              </p>
             ) : (
-              <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
-                <GoogleLogin nonce={nonce} onSuccess={handleGoogleSuccess} useOneTap={false} />
+              <GoogleOAuthProvider
+                clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+              >
+                <GoogleLogin
+                  nonce={nonce}
+                  onSuccess={handleGoogleSuccess}
+                  useOneTap={false}
+                />
               </GoogleOAuthProvider>
             )}
           </div>
@@ -125,7 +146,12 @@ export default function AuthPage() {
 
         <div className="flex justify-center mt-2">
           <a href="https://www.turnkey.com" target="_blank" rel="noreferrer">
-            <Image src="/secured-by-turnkey.svg" alt="Secured by Turnkey" width={130} height={24} />
+            <Image
+              src="/secured-by-turnkey.svg"
+              alt="Secured by Turnkey"
+              width={130}
+              height={24}
+            />
           </a>
         </div>
       </div>

@@ -43,15 +43,15 @@ cp .env.local.example .env.local
 
 Fill in `.env.local`:
 
-| Variable | Description |
-|---|---|
-| `API_PUBLIC_KEY` | Turnkey API public key |
-| `API_PRIVATE_KEY` | Turnkey API private key |
-| `NEXT_PUBLIC_ORGANIZATION_ID` | Your Turnkey parent org ID |
-| `NEXT_PUBLIC_BASE_URL` | `https://api.turnkey.com` |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google OAuth web client ID |
-| `NEXT_PUBLIC_GOOGLE_IOS_CLIENT_ID` | *(optional)* Google OAuth iOS client ID |
-| `NEXT_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` | *(optional)* Google OAuth Android client ID |
+| Variable                               | Description                                 |
+| -------------------------------------- | ------------------------------------------- |
+| `API_PUBLIC_KEY`                       | Turnkey API public key                      |
+| `API_PRIVATE_KEY`                      | Turnkey API private key                     |
+| `NEXT_PUBLIC_ORGANIZATION_ID`          | Your Turnkey parent org ID                  |
+| `NEXT_PUBLIC_BASE_URL`                 | `https://api.turnkey.com`                   |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID`         | Google OAuth web client ID                  |
+| `NEXT_PUBLIC_GOOGLE_IOS_CLIENT_ID`     | _(optional)_ Google OAuth iOS client ID     |
+| `NEXT_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` | _(optional)_ Google OAuth Android client ID |
 
 The secondary client IDs are optional — the app works as a standard OAuth example without them, but you won't see the cross-platform verification panel.
 

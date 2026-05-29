@@ -13,10 +13,17 @@ type Props = {
   onVerify: (platform: Platform) => void;
 };
 
-export function PlatformsCard({ platforms, hasClaims, verifying, onVerify }: Props) {
+export function PlatformsCard({
+  platforms,
+  hasClaims,
+  verifying,
+  onVerify,
+}: Props) {
   return (
     <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <h2 className="text-sm font-semibold text-gray-900 mb-4">Registered platforms</h2>
+      <h2 className="text-sm font-semibold text-gray-900 mb-4">
+        Registered platforms
+      </h2>
       <div className="space-y-3">
         {platforms.map((p) => (
           <div
@@ -25,7 +32,9 @@ export function PlatformsCard({ platforms, hasClaims, verifying, onVerify }: Pro
           >
             <div className="flex-1 min-w-0 space-y-0.5">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-800">{p.label}</span>
+                <span className="text-sm font-medium text-gray-800">
+                  {p.label}
+                </span>
                 {p.verified ? (
                   <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
                     verified
@@ -36,7 +45,9 @@ export function PlatformsCard({ platforms, hasClaims, verifying, onVerify }: Pro
                   </span>
                 )}
               </div>
-              <p className="font-mono text-xs text-gray-500 truncate">{p.clientId}</p>
+              <p className="font-mono text-xs text-gray-500 truncate">
+                {p.clientId}
+              </p>
             </div>
 
             {!p.verified && hasClaims && (
