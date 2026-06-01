@@ -1,0 +1,25 @@
+name: Test (pre-prod)
+
+on:
+  workflow_call:
+
+env:
+  NODE_ENV: production
+
+jobs:
+  test:
+    name: test-pre-prod
+    uses: ./.github/workflows/reusable-test.yml
+    secrets:
+      API_PUBLIC_KEY: ${{ secrets.PREPROD_API_PUBLIC_KEY }}
+      API_PRIVATE_KEY: ${{ secrets.PREPROD_API_PRIVATE_KEY }}
+      BANNED_TO_ADDRESS: ${{ secrets.PREPROD_BANNED_TO_ADDRESS }}
+      BASE_URL: ${{ secrets.PREPROD_BASE_URL }}
+      ORGANIZATION_ID: ${{ secrets.PREPROD_ORGANIZATION_ID }}
+      PRIVATE_KEY_ID: ${{ secrets.PREPROD_PRIVATE_KEY_ID }}
+      EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
+      EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2: ${{ secrets.PREPROD_EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2 }}
+      EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
+      EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2: ${{ secrets.PREPROD_EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2 }}
+      SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
+      WALLET_ID: ${{ secrets.PREPROD_WALLET_ID }}

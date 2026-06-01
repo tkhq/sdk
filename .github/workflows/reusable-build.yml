@@ -1,0 +1,58 @@
+name: Build
+
+on:
+  workflow_call:
+
+env:
+  NODE_ENV: production
+
+jobs:
+  build:
+    runs-on: 16-core-runner-fren-1
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      # Install and cache JS toolchain and dependencies (node_modules)
+      - name: Setup JS
+        uses: ./.github/actions/js-setup
+
+      # Just to stay on the safe side
+      - name: Clean
+        run: pnpm clean
+
+      # Even though typecheck turbo task depends on ^build, we still want to run it explicitly
+      - name: Build
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Prettier
+        run: pnpm prettier-all:check
+
+      # This is to catch when someone forgets to run `pnpm run version` after bumping package versions as well as check to make sure codegen output is up to date.
+      # Both of these things will cause git to be dirty after the build step.
+      - name: Run version script
+        run: pnpm version
+
+      - name: Run codegen
+        run: pnpm codegen-all
+
+      # Run prettier again after codegen to ensure generated code is formatted correctly
+      - name: Run prettier
+        run: pnpm prettier-codegen:write
+
+      - name: Ensure git is clean
+        run: |
+          if [ -z "$( git status --porcelain )" ]; then
+            echo "Git is clean!"
+            exit 0
+          else
+            echo "Git is dirty!"
+            git add -A
+            git --no-pager diff HEAD
+            exit 1
+          fi
