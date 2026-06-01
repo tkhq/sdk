@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.95.8",
     "@turnkey/sdk-server": "workspace:*",
     "cross-fetch": "^4.1.0",
