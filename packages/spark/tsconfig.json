@@ -3,9 +3,9 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "tsBuildInfoFile": "./.cache/.tsbuildinfo"
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
-  "exclude": ["dist", "node_modules"],
-  "references": [{ "path": "../http" }]
+  "exclude": ["dist", "node_modules"]
 }
