@@ -1,0 +1,25 @@
+name: Test (prod)
+
+on:
+  workflow_call:
+
+env:
+  NODE_ENV: production
+
+jobs:
+  test:
+    name: test-prod
+    uses: ./.github/workflows/reusable-test.yml
+    secrets:
+      API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
+      API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
+      BANNED_TO_ADDRESS: "0x6F72eDB2429820c2A0606a9FC3cA364f5E9b2375"
+      BASE_URL: "https://api.turnkey.com"
+      ORGANIZATION_ID: ${{ secrets.ORGANIZATION_ID }}
+      PRIVATE_KEY_ID: ${{ secrets.PRIVATE_KEY_ID }}
+      EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
+      EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2 }}
+      EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
+      EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2: ${{ secrets.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2 }}
+      SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
+      WALLET_ID: ${{ secrets.WALLET_ID }}

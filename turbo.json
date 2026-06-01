@@ -45,5 +45,19 @@
         "!.next/cache/**"
       ]
     }
-  }
+  },
+  "globalPassThroughEnv": [
+    "API_PUBLIC_KEY",
+    "API_PRIVATE_KEY",
+    "BASE_URL",
+    "ORGANIZATION_ID",
+    "PRIVATE_KEY_ID",
+    "EXPECTED_PRIVATE_KEY_ETH_ADDRESS",
+    "EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2",
+    "EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS",
+    "EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2",
+    "BANNED_TO_ADDRESS",
+    "SOLANA_TEST_ORG_API_PRIVATE_KEY",
+    "WALLET_ID"
+  ]
 }
