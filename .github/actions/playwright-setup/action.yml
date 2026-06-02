@@ -38,7 +38,7 @@ runs:
     # Install Playwright browsers + system deps
     - name: Install Playwright browsers
       run: pnpm playwright install chromium --with-deps
-      working-directory: examples/with-sdk-js
+      working-directory: examples/demos/with-sdk-js
       shell: bash
       env:
         PLAYWRIGHT_BROWSERS_PATH: ${{ inputs.cache }}

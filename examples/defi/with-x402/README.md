@@ -21,8 +21,8 @@ This means the server is responsible for gating the access to the protected page
 
 The payment page (`app/paywall/page.tsx`) uses Turnkey's embedded wallets to sign the payment authorization:
 
-1. **Authentication**: Users log in to a Turnkey sub-org using the [`@turnkey/react-wallet-kit`](../../packages/react-native-wallet-kit/) package, which handles authentication with different methods
-2. **Sign EIP-712 Payload**: The user signs an EIP-3009 `TransferWithAuthorization` message for USDC on Base Sepolia using the [`@turnkey/viem`](../../packages/viem/) package. This is a gasless transfer authorization that includes:
+1. **Authentication**: Users log in to a Turnkey sub-org using the [`@turnkey/react-wallet-kit`](../../../packages/react-native-wallet-kit/) package, which handles authentication with different methods
+2. **Sign EIP-712 Payload**: The user signs an EIP-3009 `TransferWithAuthorization` message for USDC on Base Sepolia using the [`@turnkey/viem`](../../../packages/viem/) package. This is a gasless transfer authorization that includes:
    - The sender (`from`) and recipient (`to`) addresses
    - The payment amount (0.01 USDC in this demo)
    - Validity period (5 minutes)

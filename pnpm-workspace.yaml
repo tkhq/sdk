@@ -2,5 +2,5 @@ packages:
   - packages/*
   - internal/*
   - examples/**
-  - "!examples/with-react-native-wallet-kit/**"
-  - "!examples/with-walletconnect-pay/**"
+  - "!examples/demos/with-react-native-wallet-kit/**"
+  - "!examples/defi/with-walletconnect-pay/**"

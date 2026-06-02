@@ -242,7 +242,7 @@ with-react-native-wallet-kit/
 
 ## 📄 License
 
-This project is part of the Turnkey SDK and is licensed under the Apache License 2.0. See the [LICENSE](../../LICENSE) file for details.
+This project is part of the Turnkey SDK and is licensed under the Apache License 2.0. See the [LICENSE](../../../LICENSE) file for details.
 
 ## 🤝 Contributing
 

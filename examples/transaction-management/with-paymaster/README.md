@@ -4,7 +4,7 @@ This example shows how to send an erc-20 token on evm networks using Turnkey's p
 
 See these for more paymaster examples:
 
-- [`eth-usdc-swap`](../eth-usdc-swap)
+- [`eth-usdc-swap`](../../defi/eth-usdc-swap)
 - [`sweeper`](../sweeper)
 
 ## Getting started
