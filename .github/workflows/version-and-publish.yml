@@ -115,22 +115,48 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Confirm environment variables
+      - name: Setup npm trusted publishing toolchain
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: Install npm CLI with trusted publishing support
+        run: npm install --global npm@11.6.0
+
+      - name: Confirm npm trusted publishing environment
         run: |
-          if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
-            echo "GITHUB_TOKEN is set"
+          echo "node: $(node --version)"
+          echo "npm: $(npm --version)"
+          echo "pnpm: $(pnpm --version)"
+
+          node -e '
+            const [major, minor, patch] = process.versions.node.split(".").map(Number);
+            if (major < 22 || (major === 22 && (minor < 14 || (minor === 14 && patch < 0)))) {
+              throw new Error(`npm trusted publishing requires Node >=22.14.0, got ${process.versions.node}`);
+            }
+          '
+
+          npm --version | node -e '
+            const version = require("fs").readFileSync(0, "utf8").trim();
+            const [major, minor, patch] = version.split(".").map(Number);
+            if (major < 11 || (major === 11 && (minor < 5 || (minor === 5 && patch < 1)))) {
+              throw new Error(`npm trusted publishing requires npm >=11.5.1, got ${version}`);
+            }
+          '
+
+          if [ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ] && [ -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]; then
+            echo "GitHub Actions OIDC request environment is set"
           else
-            echo "GITHUB_TOKEN is not set"
+            echo "GitHub Actions OIDC request environment is not set"
             exit 1
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to NPM (dry run)
         run: |
           pnpm publish -r --dry-run --no-git-checks --report-summary
           echo "npm publish dry run summary:"
-          cat publish-summary.json || echo "No NPM dry run summary generated"
+          cat pnpm-publish-summary.json || echo "No NPM dry run summary generated"
 
       - name: Publish packages to NPM
         run: |
@@ -140,7 +166,7 @@ jobs:
             exit 1;
           }
           echo "npm publish summary:"
-          cat publish-summary.json || echo "No NPM publish summary generated"
+          cat pnpm-publish-summary.json || echo "No NPM publish summary generated"
 
   prepare-release:
     runs-on: ubuntu-latest
