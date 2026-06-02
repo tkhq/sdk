@@ -61,10 +61,6 @@ jobs:
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
-      # Install foundry toolchain
-      - name: Setup Foundry
-        uses: ./.github/actions/foundry-setup
-
       # Install playwright browsers
       - name: Setup Playwright
         id: playwright-setup

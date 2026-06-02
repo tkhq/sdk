@@ -108,10 +108,6 @@ jobs:
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
-      # Install foundry toolchain
-      - name: Setup Foundry
-        uses: ./.github/actions/foundry-setup
-
       - name: Build
         run: pnpm build
 
