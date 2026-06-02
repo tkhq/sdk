@@ -6,10 +6,6 @@ packages:
   - "!examples/with-walletconnect-pay/**"
   - "!examples/oauth-cross-platform/mobile/**"
 
-auditConfig:
-  ignoreCves:
-    - CVE-2025-3194
-
 overrides:
   "@openzeppelin/contracts@<4.9.0": "4.9.6"
   "@openzeppelin/contracts@3.4.1-solc-0.7-2": "4.9.6"
