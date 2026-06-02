@@ -17,6 +17,13 @@ runs:
       with:
         cache: true
 
+    - name: Debug versions
+      shell: bash
+      run: |
+        node -v
+        npm -v
+        pnpm -v
+
     - name: Audit dependencies (before installing anything)
       # Ignore "low" and "moderate" advisories for now.
       run: pnpm audit --audit-level high
