@@ -1,0 +1,106 @@
+name: Test, Build, Publish
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Version tag (e.g. v2024.06.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+env:
+  NODE_ENV: production
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check version that "${{ inputs.version }}" matches expected format vXXXX.XX.X
+        run: ./.github/scripts/check-version.sh "${{ inputs.version }}"
+
+  build:
+    name: Build
+    needs: check-version
+    uses: ./.github/workflows/reusable-build.yml
+
+  test-pre-prod:
+    name: Test (pre-prod)
+    needs: build
+    uses: ./.github/workflows/reusable-test-pre-prod.yml
+    secrets: inherit
+
+  test-prod:
+    name: Test (prod)
+    needs: build
+    uses: ./.github/workflows/reusable-test-prod.yml
+    secrets: inherit
+
+  publish:
+    needs: [test-pre-prod, test-prod]
+    runs-on:
+      group: package-deploy
+    environment: production # require manual approval for production deployments
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0 # required for git tags and history
+
+      - name: Configure Git User
+        run: |
+          git config user.name "tkhq-deploy"
+          git config user.email "github@turnkey.engineering"
+
+      - name: Setup JS
+        uses: ./.github/actions/js-setup
+
+      - name: Build
+        run: pnpm build
+
+      - name: Publish to NPM (dry run)
+        run: |
+          pnpm publish -r --dry-run --no-git-checks --report-summary
+          echo "npm publish dry run summary:"
+          cat pnpm-publish-summary.json || echo "No NPM dry run summary generated"
+
+      - name: Publish packages to NPM
+        run: |
+          echo "Publishing packages to NPM..."
+          pnpm publish -r --no-git-checks --report-summary || {
+            echo "❌ Publish failed. Check logs above.";
+            exit 1;
+          }
+          echo "npm publish summary:"
+          cat pnpm-publish-summary.json || echo "No NPM publish summary generated"
+
+  prepare-release:
+    runs-on: ubuntu-latest
+    needs: [test-pre-prod, test-prod]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0 # required for git tags and history
+
+      - name: Setup JS
+        uses: ./.github/actions/js-setup
+
+      - name: Build
+        run: pnpm build
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
+        with:
+          tag_name: ${{ inputs.version }}
+          name: Release ${{ inputs.version }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

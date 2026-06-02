@@ -1,0 +1,40 @@
+name: Publish from release branch
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    # Only run this job if the PR was merged and the branch name starts with "releases/"
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'releases/')
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0 # required for git tags and history
+
+      - name: Extract version from branch name ${{ github.head_ref }}
+        id: get-version
+        run: |
+          VERSION=$(./.github/scripts/get-version.sh "${{ github.head_ref }}")
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish
+    needs: version
+    uses: ./.github/workflows/reusable-publish.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.version.outputs.version }}
