@@ -106,6 +106,10 @@ dist
 
 .DS_Store
 
+# Local Foundry library dependencies (gitignored, not present on CI)
+lib/
+examples/advanced/foundry/lib/
+
 # pnpm store
 .pnpm-store/
 
