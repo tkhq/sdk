@@ -148,6 +148,7 @@ export default function Dashboard() {
         <VerificationModal
           platform={modalResult.platform}
           orgId={modalResult.orgId}
+          currentSubOrgId={session?.organizationId}
           onClose={() => setModalResult(null)}
         />
       )}

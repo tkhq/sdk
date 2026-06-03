@@ -3,11 +3,18 @@
 type Props = {
   platform: string;
   orgId: string | null;
+  currentSubOrgId: string | undefined;
   onClose: () => void;
 };
 
-export function VerificationModal({ platform, orgId, onClose }: Props) {
+export function VerificationModal({
+  platform,
+  orgId,
+  currentSubOrgId,
+  onClose,
+}: Props) {
   const found = !!orgId && orgId !== "not found";
+  const sameSubOrg = found && !!currentSubOrgId && orgId === currentSubOrgId;
 
   return (
     <div
@@ -33,15 +40,20 @@ export function VerificationModal({ platform, orgId, onClose }: Props) {
 
         {found ? (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-green-700">
-              Found — same sub-org
+            <p
+              className={`text-sm font-medium ${sameSubOrg ? "text-green-700" : "text-red-600"}`}
+            >
+              {sameSubOrg
+                ? "Found — same sub-org"
+                : "Found — different sub-org"}
             </p>
             <p className="font-mono text-xs text-gray-600 break-all bg-gray-50 rounded p-2">
               {orgId}
             </p>
             <p className="text-xs text-gray-500">
-              A mobile app authenticating with the {platform} client ID would
-              resolve to this sub-org and log in successfully.
+              {sameSubOrg
+                ? `A mobile app authenticating with the ${platform} client ID would resolve to this sub-org and log in successfully.`
+                : `This resolves to a different sub-org than the one you are currently logged into. The ${platform} client ID may not have been registered during your web sign-up.`}
             </p>
           </div>
         ) : (
