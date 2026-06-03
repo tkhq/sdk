@@ -12,6 +12,14 @@ permissions:
   id-token: write
 
 jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug event payload
+        run: |
+          echo "Head ref: ${{ github.head_ref }}"
+          echo "Event payload: ${{ toJson(github.event.pull_request) }}"
+
   version:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'releases/')
