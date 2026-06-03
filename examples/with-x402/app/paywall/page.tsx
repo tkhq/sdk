@@ -34,8 +34,7 @@ export default function PaymentClient() {
   const handlePayment = async () => {
     if (
       authState !== AuthState.Authenticated ||
-      !wallets ||
-      wallets.length === 0
+      walletAddress == null
     ) {
       setError("Please sign in first");
       return;
@@ -209,7 +208,7 @@ export default function PaymentClient() {
 
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(walletAddress);
+                      navigator.clipboard.writeText(walletAddress!);
                     }}
                     className="text-blue-500 underline text-sm"
                   >

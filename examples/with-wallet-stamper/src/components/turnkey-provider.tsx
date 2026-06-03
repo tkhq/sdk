@@ -56,7 +56,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   children,
 }) => {
   const [wallet, setWallet] = useState<WalletInterface | null>(null);
-  const [client, setClient] = useState<TurnkeyClient | null>(null);
   const [passkeyClient, setPasskeyClient] = useState<TurnkeyClient | null>(
     null,
   );
@@ -97,8 +96,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     email?: Email,
     chainType: ChainType = ChainType.SOLANA,
   ) {
+    if (email == null || wallet == null) return;
+
     setAuthenticating(true);
-    const publicKey = await wallet?.getPublicKey();
+    const publicKey = await wallet.getPublicKey();
 
     const res = await createUserSubOrg({
       email,
@@ -135,7 +136,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       return null;
     }
     const { organizationIds } = await getSubOrgByPublicKey(publicKey);
-    const organizationId = organizationIds[0];
+    const organizationId = organizationIds[0]!;
 
     let whoami: User | null = null;
     if (walletClient) {
@@ -161,7 +162,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       requestFn: walletClient.createWallet,
     });
 
-    const completedActivity = await activityPoller({
+    await activityPoller({
       type: "ACTIVITY_TYPE_CREATE_WALLET",
       timestampMs: new Date().getTime().toString(),
       organizationId: user?.organizationId,
@@ -175,7 +176,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   return (
     <TurnkeyContext.Provider
       value={{
-        client,
+        client: null,
         passkeyClient,
         walletClient,
         createSubOrg,

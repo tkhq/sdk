@@ -169,7 +169,7 @@ export class TurnkeyError extends Error {
   constructor(
     message: string,
     public code?: TurnkeyErrorCodes,
-    public cause?: unknown,
+    public override cause?: unknown,
   ) {
     super(message);
     this.name = "TurnkeyError";

@@ -1,5 +1,8 @@
 {
-  "extends": "@tsconfig/node16-strictest/tsconfig.json",
+  "extends": [
+    "@tsconfig/node24/tsconfig.json",
+    "@tsconfig/strictest/tsconfig.json"
+  ],
   "compilerOptions": {
     "ignoreDeprecations": "5.0",
     "composite": true,
@@ -9,6 +12,8 @@
     "isolatedModules": true,
     "noPropertyAccessFromIndexSignature": false,
     "resolveJsonModule": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "module": "esnext",
+    "moduleResolution": "bundler"
   }
 }

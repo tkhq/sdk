@@ -17,14 +17,11 @@ const Address: React.FC<AddressProps> = ({
   prefixLength = 8,
   suffixLength = 6,
 }) => {
-  const [copied, setCopied] = useState(false);
   if (!(address?.length > 0)) return;
 
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(address);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
     } catch (err) {
       console.error("Failed to copy: ", err);
     }

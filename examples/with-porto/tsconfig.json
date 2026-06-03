@@ -4,7 +4,6 @@
     "noEmit": true,
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
     "target": "es5",
-    "module": "commonjs",
     "declaration": true,
     "outDir": "./lib",
     "strict": true,

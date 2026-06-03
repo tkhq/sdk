@@ -7,7 +7,6 @@
     "lib": ["es2020"],
     "jsx": "react-jsx",
     "esModuleInterop": true,
-    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true
   },

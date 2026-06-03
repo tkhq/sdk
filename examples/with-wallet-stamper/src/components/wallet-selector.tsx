@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Wallet } from "@solana/wallet-adapter-react";
 import { WalletName } from "@solana/wallet-adapter-base";
 import Image from "next/image";
-import { useEffect } from "react";
 
 interface WalletSelectorProps {
   wallets: Wallet[];

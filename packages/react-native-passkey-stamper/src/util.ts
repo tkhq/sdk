@@ -1,12 +1,11 @@
 // Buffer is available in Node and react-native contexts but needs to be imported
 import { Buffer } from "buffer";
-import { createHash } from "sha256-uint8array";
+import { sha256 } from "@noble/hashes/sha2.js";
 
 // Needs to return a base64-encoded string
 export function getChallengeFromPayload(payload: string): string {
-  const hexString = createHash().update(payload).digest("hex");
-  const hexBuffer = Buffer.from(hexString, "utf8");
-  return hexBuffer.toString("base64");
+  const sha = sha256(new TextEncoder().encode(payload));
+  return Buffer.from(sha).toString("base64");
 }
 
 // Function to return 32 random bytes encoded as hex

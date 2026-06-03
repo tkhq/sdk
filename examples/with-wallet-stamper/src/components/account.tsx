@@ -1,6 +1,6 @@
 "use client";
 
-import { Gem, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
@@ -8,13 +8,11 @@ import { Label } from "./ui/label";
 
 interface AccountProps {
   address: string | null;
-  balance: string;
   disconnect: () => void;
 }
 
 export default function Account({
   address,
-  balance,
   disconnect,
 }: AccountProps) {
   const truncatedAddress = `${address?.slice(0, 8)}•••${address?.slice(-6)}`;

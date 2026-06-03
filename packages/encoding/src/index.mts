@@ -4,5 +4,5 @@ export * from "./base64";
 export * from "./encode";
 export * from "./hex";
 
-export { bs58 } from "./bs58";
-export { bs58check } from "./bs58check";
+export { bs58 } from "./bs58.mjs";
+export { bs58check } from "./bs58check.mjs";

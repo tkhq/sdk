@@ -1,10 +1,8 @@
 "use client";
 
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 import ButtonSelect from "./ui/button-select";
-import { ChainType } from "@/lib/types";
 import { useEffect, useState } from "react";
 import Account from "./account";
 import WalletSelector from "./wallet-selector";
@@ -13,51 +11,21 @@ import { useTurnkey } from "./turnkey-provider";
 import { WalletType } from "@turnkey/wallet-stamper";
 
 export function ConnectWallet() {
-  const { connection } = useConnection();
   const {
     select,
     wallets,
     publicKey,
     disconnect,
-    connecting,
     connect: connectSolana,
-    wallet,
-    connected,
     signMessage,
   } = useWallet();
 
   const { setWallet } = useTurnkey();
 
-  const [balance, setBalance] = useState<number | null>(null);
-  const [userWalletAddress, setUserWalletAddress] = useState<string>("");
-
-  const [selectedChain, setSelectedChain] = useState<ChainType>();
   const [showWalletSelector, setShowWalletSelector] = useState(false); // State to manage visibility of WalletSelector
 
   useEffect(() => {
-    if (!connection || !publicKey) {
-      return;
-    }
-
-    connection.onAccountChange(
-      publicKey,
-      (updatedAccountInfo) => {
-        setBalance(updatedAccountInfo.lamports / LAMPORTS_PER_SOL);
-      },
-      "confirmed",
-    );
-
-    connection.getAccountInfo(publicKey).then((info) => {
-      if (info) {
-        setBalance(info.lamports / LAMPORTS_PER_SOL);
-      }
-    });
-  }, [publicKey, connection]);
-
-  useEffect(() => {
     if (publicKey) {
-      setUserWalletAddress(publicKey.toBase58()!);
-
       if (signMessage) {
         setWallet({
           signMessage: async (message) => {
@@ -93,7 +61,6 @@ export function ConnectWallet() {
     return (
       <Account
         address={publicKey.toString()}
-        balance={balance?.toString() || ""}
         disconnect={async () => {
           await disconnect();
         }}
@@ -104,7 +71,7 @@ export function ConnectWallet() {
     <div className="flex flex-col gap-2">
       <ButtonSelect
         connect={connect}
-        onSelect={(selection: ChainType) => setSelectedChain(selection)}
+        onSelect={() => {}}
       >
         Connect
       </ButtonSelect>
