@@ -10,6 +10,7 @@ import { useTurnkey } from "@turnkey/react-native-wallet-kit";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 import { TurnkeyLogo } from "@/components/TurnkeyLogo";
+import { DeleteSubOrg } from "@/components/DeleteSubOrg";
 import { Platform } from "react-native";
 
 export default function Dashboard() {
@@ -90,6 +91,8 @@ export default function Dashboard() {
         >
           <Text style={styles.logoutText}>Log out</Text>
         </TouchableOpacity>
+
+        <DeleteSubOrg />
       </ScrollView>
     </SafeAreaView>
   );
