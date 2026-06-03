@@ -17,6 +17,7 @@ jobs:
     steps:
       - name: Debug event payload
         run: |
+          echo Ref: ${{ github.ref }}
           echo Head ref: ${{ github.head_ref }}
           echo Event payload: ${{ toJson(github.event.pull_request) }}
 
