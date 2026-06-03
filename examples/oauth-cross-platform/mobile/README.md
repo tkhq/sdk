@@ -6,7 +6,7 @@ A React Native (Expo) app that demonstrates logging in with Google using the iOS
 
 ## How it works
 
-This app uses `expo-web-browser` to open a Google OAuth PKCE flow in the iOS system browser (`ASWebAuthenticationSession`). The resulting OIDC token has `aud = IOS_CLIENT_ID`, not the web client ID. Because that audience was registered as an `oidcClaims` entry during web sign-up, Turnkey finds the same sub-org and login succeeds without the need for a separate onboarding.
+This app uses `expo-web-browser` to open a Google OAuth PKCE flow in the platform system browser (`ASWebAuthenticationSession` on iOS, Custom Tab on Android). The resulting OIDC token has `aud = IOS_CLIENT_ID` or `aud = ANDROID_CLIENT_ID` depending on the platform. Because those audiences were registered as `oidcClaims` entries during web sign-up, Turnkey finds the same sub-org and login succeeds without the need for a separate onboarding.
 
 The flow in `app/index.tsx`:
 
@@ -14,11 +14,11 @@ The flow in `app/index.tsx`:
 const publicKey = await createApiKeyPair();
 const nonce = bytesToHex(sha256(publicKey)); // hex: stored verbatim in the JWT
 
-// Open Google OAuth in ASWebAuthenticationSession
+// Open Google OAuth in platform system browser
 await WebBrowser.openAuthSessionAsync(googleAuthUrl, redirectUri);
 
 // Exchange auth code for tokens, then complete with Turnkey
-// id_token.aud = IOS_CLIENT_ID, id_token.nonce = hex(sha256(publicKey))
+// id_token.aud = IOS_CLIENT_ID | ANDROID_CLIENT_ID, id_token.nonce = hex(sha256(publicKey))
 await completeOauth({ oidcToken: tokens.id_token, publicKey });
 ```
 
@@ -41,9 +41,11 @@ cd examples/oauth-cross-platform/mobile
 npm install
 ```
 
-### 2. Set the iOS URL scheme in `app.json`
+### 2. Set platform URL schemes in `app.json`
 
-Replace `REPLACE_WITH_REVERSED_IOS_CLIENT_ID` in `ios.infoPlist.CFBundleURLTypes` with the reversed form of your iOS client ID. For example, if your iOS client ID is `123456789-abc.apps.googleusercontent.com`, the reversed scheme is `com.googleusercontent.apps.123456789-abc`.
+**iOS:** Replace `REPLACE_WITH_REVERSED_IOS_CLIENT_ID` in `ios.infoPlist.CFBundleURLTypes` with the reversed form of your iOS client ID. For example, if your iOS client ID is `123456789-abc.apps.googleusercontent.com`, the reversed scheme is `com.googleusercontent.apps.123456789-abc`.
+
+**Android:** No changes needed — the Android intent filter in `app.json` already uses the package name (`xyz.tkhqlabs.oauthcrossplatform`) as the redirect scheme. Your Android OAuth client in Google Cloud must be configured with this package name and your app's SHA-1 signing fingerprint, and the **Custom URI scheme** option must be enabled — this is required for browser-based PKCE redirects back to the app.
 
 ### 3. Configure environment
 
@@ -65,12 +67,12 @@ Fill in `.env.local`:
 ### 4. Build and run
 
 ```bash
-# iOS
 npx expo prebuild
+
+# iOS
 npx expo run:ios
 
 # Android
-npx expo prebuild
 npx expo run:android
 ```
 

@@ -14,7 +14,7 @@ import { bytesToHex, randomBytes } from "@noble/hashes/utils";
 import { useTurnkey } from "@turnkey/react-native-wallet-kit";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
-import { IOS_CLIENT_ID } from "@/constants/turnkey";
+import { IOS_CLIENT_ID, ANDROID_CLIENT_ID } from "@/constants/turnkey";
 import { TurnkeyLogo } from "@/components/TurnkeyLogo";
 import { Platform } from "react-native";
 
@@ -27,9 +27,18 @@ const base64url = (bytes: Uint8Array): string =>
     .replace(/\//g, "_")
     .replace(/=/g, "");
 
-// Derives the iOS reversed-client-ID URL scheme from the client ID.
-// e.g. "xxx.apps.googleusercontent.com" → "com.googleusercontent.apps.xxx"
-const iosScheme = (clientId: string) => clientId.split(".").reverse().join(".");
+// iOS uses the reversed client-ID as its custom URL scheme (Google requirement).
+// Android uses the app package name — registered as an intent filter in app.json.
+const CLIENT_ID =
+  Platform.select({
+    ios: IOS_CLIENT_ID,
+    android: ANDROID_CLIENT_ID,
+  }) ?? "";
+const REDIRECT_URI =
+  Platform.select({
+    ios: `${IOS_CLIENT_ID.split(".").reverse().join(".")}:/oauth2redirect`,
+    android: "xyz.tkhqlabs.oauthcrossplatform:/oauth2redirect",
+  }) ?? "";
 
 export default function LoginScreen() {
   const { completeOauth, createApiKeyPair } = useTurnkey();
@@ -53,13 +62,10 @@ export default function LoginScreen() {
         sha256(new TextEncoder().encode(codeVerifier)),
       );
 
-      const scheme = iosScheme(IOS_CLIENT_ID);
-      const redirectUri = `${scheme}:/oauth2redirect`;
-
-      // 4. Open Google OAuth in ASWebAuthenticationSession (iOS system browser)
+      // 4. Open Google OAuth in system browser (ASWebAuthenticationSession on iOS, Custom Tab on Android)
       const params = new URLSearchParams({
-        client_id: IOS_CLIENT_ID,
-        redirect_uri: redirectUri,
+        client_id: CLIENT_ID,
+        redirect_uri: REDIRECT_URI,
         response_type: "code",
         scope: "openid email profile",
         nonce,
@@ -70,7 +76,7 @@ export default function LoginScreen() {
 
       const result = await WebBrowser.openAuthSessionAsync(
         `https://accounts.google.com/o/oauth2/v2/auth?${params}`,
-        redirectUri,
+        REDIRECT_URI,
       );
 
       if (result.type !== "success") return;
@@ -80,16 +86,16 @@ export default function LoginScreen() {
       const code = new URLSearchParams(queryString).get("code");
       if (!code) throw new Error("No authorization code in redirect");
 
-      // 6. Exchange code for tokens (no client_secret needed for iOS clients)
+      // 6. Exchange code for tokens (no client_secret needed for native clients)
       const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
-          client_id: IOS_CLIENT_ID,
+          client_id: CLIENT_ID,
           code,
           code_verifier: codeVerifier,
           grant_type: "authorization_code",
-          redirect_uri: redirectUri,
+          redirect_uri: REDIRECT_URI,
         }).toString(),
       });
 

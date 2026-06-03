@@ -28,7 +28,19 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "xyz.tkhqlabs.oauthcrossplatform"
+      "package": "xyz.tkhqlabs.oauthcrossplatform",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "xyz.tkhqlabs.oauthcrossplatform",
+              "path": "/oauth2redirect"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "plugins": [
       "expo-router",
