@@ -14,7 +14,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/sweeper/
+$ cd examples/transaction-management/sweeper/
 ```
 
 ### 2/ Setting up Turnkey

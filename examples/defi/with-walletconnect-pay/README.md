@@ -16,7 +16,7 @@ Make sure you have `Node.js` installed locally; we recommend using Node v18+.
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
-$ cd sdk/examples/with-walletconnect-pay/
+$ cd sdk/examples/defi/with-walletconnect-pay/
 $ npm install
 ```
 

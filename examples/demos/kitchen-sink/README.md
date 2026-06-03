@@ -19,7 +19,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/kitchen-sink/
+$ cd examples/demos/kitchen-sink/
 ```
 
 ### 2/ Setting up Turnkey
@@ -44,4 +44,4 @@ Now open `.env.local` and add the missing environment variables:
 
 ## Usage
 
-In order to run any of these scripts, from `sdk/examples/kitchen-sink`, you can run `pnpm tsx src/sdk-server/createEthereumWallet.ts` (where `sdk-server` can be replaced by `http`, and `createEthereumWallet.ts` can be replaced by any other script)
+In order to run any of these scripts, from `sdk/examples/demos/kitchen-sink`, you can run `pnpm tsx src/sdk-server/createEthereumWallet.ts` (where `sdk-server` can be replaced by `http`, and `createEthereumWallet.ts` can be replaced by any other script)

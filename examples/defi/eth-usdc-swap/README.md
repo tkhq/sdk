@@ -18,7 +18,7 @@ $ cd sdk/
 $ corepack enable
 $ pnpm install -r
 $ pnpm run build-all
-$ cd examples/eth-usdc-swap/
+$ cd examples/defi/eth-usdc-swap/
 ```
 
 ---

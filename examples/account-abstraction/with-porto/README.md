@@ -14,7 +14,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-porto/
+$ cd examples/account-abstraction/with-porto/
 ```
 
 ### 2/ Setting up Turnkey
@@ -55,7 +55,7 @@ Sample output from a successful execution:
 ```
 $ pnpm start
 
-> @turnkey/example-with-porto@0.1.0 start /Users/struong/tkhq-sdk/examples/with-porto
+> @turnkey/example-with-porto@0.1.0 start /Users/struong/tkhq-sdk/examples/account-abstraction/with-porto
 > tsx src/viem.ts
 
 [*] Setup complete, preparing to upgrade EOA to a Porto wallet... { turnkeyEoa: '0x5154D11253AE4a21e03b2eaF7E80A5D3aA451f24' }

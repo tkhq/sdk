@@ -47,7 +47,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/oauth/
+$ cd examples/authentication/oauth/
 ```
 
 ### 2/ Setting up Turnkey

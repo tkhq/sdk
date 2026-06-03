@@ -16,7 +16,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-biconomy-aa/
+$ cd examples/account-abstraction/with-biconomy-aa/
 ```
 
 ### 2a/ Setting up Turnkey

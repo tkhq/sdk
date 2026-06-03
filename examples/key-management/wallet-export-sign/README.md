@@ -33,7 +33,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/wallet-import-export/
+$ cd examples/key-management/wallet-import-export/
 ```
 
 ### 2/ Setting up Turnkey

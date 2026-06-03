@@ -16,7 +16,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-movement/
+$ cd examples/chain-integrations/with-movement/
 ```
 
 ### 2/ Setting up Turnkey

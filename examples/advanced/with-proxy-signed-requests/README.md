@@ -22,7 +22,7 @@ cd sdk/
 corepack enable
 pnpm install -r
 pnpm run build-all
-cd examples/with-proxy-signed-requests/
+cd examples/advanced/with-proxy-signed-requests/
 ```
 
 ### 2/ Set up Turnkey

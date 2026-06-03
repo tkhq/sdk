@@ -57,7 +57,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/wallet-auth/without-backend
+$ cd examples/authentication/wallet-auth/without-backend
 ```
 
 ### 2/ Setting up Turnkey

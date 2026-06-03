@@ -4,8 +4,8 @@
 >
 > **Recommended alternatives:**
 >
-> - **[Email OTP Authentication](https://github.com/tkhq/sdk/tree/main/examples/otp-auth)** - Authenticate users with one-time passcodes sent via email
-> - **[Magic Link Authentication](https://github.com/tkhq/sdk/tree/main/examples/magic-link-auth)** - Authenticate users with magic links sent via email
+> - **[Email OTP Authentication](https://github.com/tkhq/sdk/tree/main/examples/authentication/otp-auth)** - Authenticate users with one-time passcodes sent via email
+> - **[Magic Link Authentication](https://github.com/tkhq/sdk/tree/main/examples/authentication/magic-link-auth)** - Authenticate users with magic links sent via email
 
 ---
 
@@ -37,7 +37,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/email-auth/
+$ cd examples/authentication/email-auth/
 ```
 
 ### 2/ Setting up Turnkey

@@ -21,7 +21,7 @@ cd sdk/
 corepack enable
 pnpm install -r
 pnpm run build-all
-cd examples/tk-gas-station/
+cd examples/transaction-management/tk-gas-station/
 ```
 
 ### 2. Configure Environment

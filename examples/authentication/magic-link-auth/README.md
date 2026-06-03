@@ -80,7 +80,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/magic-link-auth/
+$ cd examples/authentication/magic-link-auth/
 ```
 
 ### 2/ Setting up Turnkey

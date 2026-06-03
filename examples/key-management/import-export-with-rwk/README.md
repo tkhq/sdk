@@ -59,7 +59,7 @@ All import/export operations use `@turnkey/iframe-stamper`, ensuring that:
 - private key material is encrypted and decrypted only inside an isolated iframe
 - your frontend never touches raw keys directly
 
-> For a lower-level example using `@turnkey/iframe-stamper` see → https://github.com/tkhq/sdk/tree/main/examples/import-export-with-iframe-stamper
+> For a lower-level example using `@turnkey/iframe-stamper` see → https://github.com/tkhq/sdk/tree/main/examples/key-management/import-export-with-iframe-stamper
 
 ## How it works
 
@@ -90,7 +90,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/import-export-with-rwk
+$ cd examples/key-management/import-export-with-rwk
 ```
 
 ### 2/ Setting up Turnkey

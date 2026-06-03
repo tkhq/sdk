@@ -21,7 +21,7 @@ The flow showcases 3 ways to make requests to Turnkey:
 - the request to sign a message is done 100% client-side via a Turnkey Solana signer (see [@turnkey/solana](https://github.com/tkhq/sdk/tree/main/packages/solana)): it's signed with your passkey, and submitted from the browser to the Turnkey API directly.
 - the request to sign a transaction is also done on the client-side, but the transaction is initially created on the server-side and signed by the fee payer, which is a wallet belonging to the parent org.
 
-If you want to see a Solana demo with API keys instead of passkeys, head to the example [`with-solana`](https://github.com/tkhq/sdk/tree/main/examples/with-solana).
+If you want to see a Solana demo with API keys instead of passkeys, head to the example [`with-solana`](https://github.com/tkhq/sdk/tree/main/examples/chain-integrations/with-solana).
 
 You can try this example quickly on Stackblitz. Follow the instructions below --> [Stackblitz Instructions](#4-stackblitz-example)
 
@@ -37,7 +37,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-solana-passkeys/
+$ cd examples/authentication/with-solana-passkeys/
 ```
 
 ### 2/ Setting up Turnkey

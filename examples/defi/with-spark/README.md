@@ -20,7 +20,7 @@ cd sdk/
 corepack enable
 pnpm install -r
 pnpm run build-all
-cd examples/with-spark/
+cd examples/defi/with-spark/
 ```
 
 ### 2. Configure `.env.local`

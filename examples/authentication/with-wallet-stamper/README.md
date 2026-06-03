@@ -14,7 +14,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-wallet-stamper/
+$ cd examples/authentication/with-wallet-stamper/
 ```
 
 ### 2/ Setting up

@@ -18,7 +18,7 @@ The flow showcases 3 ways to make requests to Turnkey:
 - the request to log back in is signed on the frontend with your passkey, but it's passed to the NextJS backend as a signed request (the body, stamp, and url are POSTed). This lets the backend submit this request on your behalf, get your sub-organization ID, and fetch details about your wallet (parent organizations have read-only access to their sub-organizations).
 - the request to sign a message is done 100% client-side via a Turnkey Viem or Ethers signer (see [@turnkey/viem](https://github.com/tkhq/sdk/tree/main/packages/viem) and [@turnkey/ethers](https://github.com/tkhq/sdk/tree/main/packages/ethers), respectively): it's signed with your passkey, and submitted from the browser to the Turnkey API directly.
 
-If you want to see a Viem or Ethers demo with API keys instead of passkeys, see these examples: [`with-viem`](https://github.com/tkhq/sdk/tree/main/examples/with-viem), [`with-ethers`](https://github.com/tkhq/sdk/tree/main/examples/with-ethers). See our [SDK repo](https://github.com/tkhq/sdk) for additional packages and examples.
+If you want to see a Viem or Ethers demo with API keys instead of passkeys, see these examples: [`with-viem`](https://github.com/tkhq/sdk/tree/main/examples/chain-integrations/with-viem), [`with-ethers`](https://github.com/tkhq/sdk/tree/main/examples/chain-integrations/with-ethers). See our [SDK repo](https://github.com/tkhq/sdk) for additional packages and examples.
 
 You can try this example quickly on Stackblitz. Follow the instructions below --> [Stackblitz Instructions](#4-stackblitz-example)
 

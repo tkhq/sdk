@@ -18,7 +18,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-gnosis/
+$ cd examples/account-abstraction/with-gnosis/
 ```
 
 ### 2/ Setting up Turnkey

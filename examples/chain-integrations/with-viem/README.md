@@ -16,7 +16,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-viem/
+$ cd examples/chain-integrations/with-viem/
 ```
 
 ### 2/ Setting up Turnkey
@@ -59,7 +59,7 @@ Sample output from a successful execution:
 $ pnpm start
 Fetching Node.js 18.0.0 ...
 
-> @turnkey/example-with-viem@0.0.0 start /Users/rno/tkhq/code/sdk/examples/with-viem
+> @turnkey/example-with-viem@0.0.0 start /Users/rno/tkhq/code/sdk/examples/chain-integrations/with-viem
 > pnpm -w run build-all && tsx src/index.ts
 
 

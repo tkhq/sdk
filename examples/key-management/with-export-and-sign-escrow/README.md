@@ -16,7 +16,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-export-and-sign-escrow/
+$ cd examples/key-management/with-export-and-sign-escrow/
 ```
 
 ## 2/ Setting up Turnkey

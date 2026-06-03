@@ -18,7 +18,7 @@ $ foundryup
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
-$ cd sdk/examples/foundry/
+$ cd sdk/examples/advanced/foundry/
 $ forge install foundry-rs/forge-std --no-git
 ```
 

@@ -11,7 +11,7 @@ This example shows a complete email auth flow using a locally stored target embe
 
 For general information about email auth, [check out our documentation](https://docs.turnkey.com/authentication/email).
 
-This example contains an auth page and enables you to create wallets using an email auth credential. Unlike our other [email auth example](https://github.com/tkhq/sdk/tree/main/examples/email-auth), this does not use an iframe. Instead of being in an iframe, the target embedded key is created within the application itself and stored in local storage.
+This example contains an auth page and enables you to create wallets using an email auth credential. Unlike our other [email auth example](https://github.com/tkhq/sdk/tree/main/examples/authentication/email-auth), this does not use an iframe. Instead of being in an iframe, the target embedded key is created within the application itself and stored in local storage.
 
 <p style="text-align:center">
     <img src="./img/demo.png" width="2000"/>
@@ -31,7 +31,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/email-auth-local-storage/
+$ cd examples/authentication/email-auth-local-storage/
 ```
 
 ### 2/ Setting up Turnkey

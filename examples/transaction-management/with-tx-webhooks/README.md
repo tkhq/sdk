@@ -32,7 +32,7 @@ pnpm install
 From this example directory:
 
 ```bash
-cd examples/with-tx-webhooks
+cd examples/transaction-management/with-tx-webhooks
 cp .env.example .env
 ```
 

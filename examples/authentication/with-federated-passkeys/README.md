@@ -2,7 +2,7 @@
 
 > **Note:** This example uses `@turnkey/sdk-react` which is deprecated in favor of **[`@turnkey/react-wallet-kit`](https://github.com/tkhq/sdk/tree/main/packages/react-wallet-kit)**.
 >
-> For a modern implementation of sub-organization creation with passkeys, see the **[React Wallet Kit demo](https://wallets.turnkey.com/)** ([source code](https://github.com/tkhq/sdk/tree/main/examples/react-wallet-kit)).
+> For a modern implementation of sub-organization creation with passkeys, see the **[React Wallet Kit demo](https://wallets.turnkey.com/)** ([source code](https://github.com/tkhq/sdk/tree/main/examples/demos/react-wallet-kit)).
 
 ---
 
@@ -22,7 +22,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-federated-passkeys/
+$ cd examples/authentication/with-federated-passkeys/
 ```
 
 ### 2/ Setting up Turnkey

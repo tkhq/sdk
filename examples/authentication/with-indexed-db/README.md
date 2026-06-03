@@ -32,7 +32,7 @@ cd sdk/
 corepack enable     # Install pnpm if needed
 pnpm install -r     # Install dependencies
 pnpm run build-all  # Compile the source
-cd examples/with-indexed-db/
+cd examples/authentication/with-indexed-db/
 ```
 
 ### 2. Set up Turnkey

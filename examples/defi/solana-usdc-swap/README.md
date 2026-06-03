@@ -12,7 +12,7 @@ cd sdk/
 corepack enable
 pnpm install -r
 pnpm run build-all
-cd examples/solana-usdc-swap/
+cd examples/defi/solana-usdc-swap/
 cp .env.local.example .env.local
 ```
 

@@ -69,7 +69,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/otp-auth/without-backend
+$ cd examples/authentication/otp-auth/without-backend
 ```
 
 ### 2/ Setting up Turnkey

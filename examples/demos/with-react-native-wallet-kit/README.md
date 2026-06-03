@@ -44,7 +44,7 @@ This demo app illustrates how to integrate Turnkey's embedded wallet kit into a 
 
 ```bash
 git clone https://github.com/tkhq/sdk.git
-cd examples/with-react-native-wallet-kit
+cd examples/demos/with-react-native-wallet-kit
 ```
 
 ### 2. Install Dependencies
