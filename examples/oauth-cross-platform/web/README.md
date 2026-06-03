@@ -55,7 +55,7 @@ Fill in `.env.local`:
 
 The secondary client IDs are optional — the app works as a standard OAuth example without them, but you won't see the cross-platform verification panel.
 
-> **Google Cloud setup:** In your Google Cloud project, create OAuth 2.0 credentials for each platform (Web, iOS, Android). For the web credential, add `http://localhost:3000` to the list of authorized JavaScript origins. All three can live in the same Google Cloud project and share the same user pool — that's what makes cross-platform work.
+> **Google Cloud setup:** In your Google Cloud project, open [APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials) and create OAuth 2.0 credentials for each platform (Web, iOS, Android). For the web credential, add `http://localhost:3000` to the list of authorized JavaScript origins. All three can live in the same Google Cloud project and share the same user pool — that's what makes cross-platform work.
 
 ### 3. Run
 
