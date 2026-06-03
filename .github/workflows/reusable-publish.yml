@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       version:
-        description: "Version tag (e.g. v2024.06.0)"
+        description: "Version tag (e.g. v2024.6.0)"
         required: true
         type: string
 
@@ -40,7 +40,7 @@ jobs:
     uses: ./.github/workflows/reusable-test-prod.yml
     secrets: inherit
 
-  publish:
+  publish-npm:
     needs: [test-pre-prod, test-prod]
     runs-on:
       group: package-deploy
@@ -79,9 +79,9 @@ jobs:
           echo "npm publish summary:"
           cat pnpm-publish-summary.json || echo "No NPM publish summary generated"
 
-  prepare-release:
+  publish-gh-release:
     runs-on: ubuntu-latest
-    needs: [test-pre-prod, test-prod]
+    needs: [publish-npm]
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3

@@ -14,8 +14,8 @@ permissions:
 jobs:
   version:
     runs-on: ubuntu-latest
-    # Only run this job if the PR was merged and the branch name starts with "releases/"
-    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'releases/')
+    # Only run this job if the PR was merged and the branch name starts with "release/"
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/')
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
