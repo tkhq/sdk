@@ -1,6 +1,6 @@
 # Example: `oauth-cross-platform`
 
-Demonstrates **cross-platform OAuth identity registration** with Turnkey. Sign up once on the web and log in from any platform (iOS, Android) with no extra onboarding.
+Demonstrates **cross-platform OAuth identity registration** with Turnkey. Sign up once on the web and log in from any platform (iOS, Android) with no extra onboarding. For more context, see the [Multi-Platform Oauth Identites](https://docs.turnkey.com/features/authentication/social-logins#multi-platform-oauth-identities) docs.
 
 > **Note:** This demo uses the web app as the sign-up platform, but the pattern works in either direction. Mobile-first sign-up with web as the secondary platform is equally valid.
 
