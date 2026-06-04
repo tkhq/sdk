@@ -161,6 +161,11 @@ export interface OperatorRecipientInput {
   encryptionPublicKey: string;
 }
 
+export interface OperatorPackage {
+  operatorId: string;
+  encryptedPackage: string;
+}
+
 /**
  * Claim leaf input for prepareClaim(). Matches SparkClaimLeaf proto.
  */
@@ -170,28 +175,27 @@ export interface ClaimLeafInput {
   senderSignature: string;
 }
 
+export interface LeafPublicKey {
+  leafId: string;
+  publicKey: string;
+}
+
 /**
  * Result from prepareTransfer(). Contains encrypted operator packages and
  * the DER user signature — ready to forward to Spark operators.
  */
 export interface TransferResult {
-  operatorPackages: Array<{
-    operatorId: string;
-    encryptedPackage: string;
-  }>;
+  operatorPackages: OperatorPackage[];
   transferUserSignature: string;
-  newLeafPublicKeys?: Array<{ leafId: string; publicKey: string }> | undefined;
+  newLeafPublicKeys?: LeafPublicKey[] | undefined;
 }
 
 /**
  * Result from prepareClaim().
  */
 export interface ClaimResult {
-  operatorPackages: Array<{
-    operatorId: string;
-    encryptedPackage: string;
-  }>;
-  newLeafPublicKeys?: Array<{ leafId: string; publicKey: string }> | undefined;
+  operatorPackages: OperatorPackage[];
+  newLeafPublicKeys?: LeafPublicKey[] | undefined;
 }
 
 /**
@@ -199,10 +203,7 @@ export interface ClaimResult {
  */
 export interface LightningReceiveResult {
   paymentHash: string;
-  operatorPackages: Array<{
-    operatorId: string;
-    encryptedPackage: string;
-  }>;
+  operatorPackages: OperatorPackage[];
 }
 
 export interface TurnkeySparkSignerOptions {
