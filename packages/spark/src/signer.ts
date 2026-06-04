@@ -1214,11 +1214,7 @@ export class TurnkeySparkSigner implements SparkSigner {
       ]);
     };
 
-    return this.signRefundsBatchedCore(
-      input,
-      createRefundTxs,
-      createMessage,
-    );
+    return this.signRefundsBatchedCore(input, createRefundTxs, createMessage);
   }
 
   async signRefundsBatchedClaim(input: SignRefundsBatchedClaimInput) {
