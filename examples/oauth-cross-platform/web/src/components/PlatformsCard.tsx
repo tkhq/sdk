@@ -36,11 +36,17 @@ export function PlatformsCard({
                   {p.label}
                 </span>
                 {p.verified ? (
-                  <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                  <span
+                    className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 cursor-help"
+                    title="Registered with a live OIDC token verified by Google's public keys"
+                  >
                     verified
                   </span>
                 ) : (
-                  <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700">
+                  <span
+                    className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700 cursor-help"
+                    title="Registered as an oidcClaim — trusted by association because it shares the same iss/sub as the verified token"
+                  >
                     unverified claim
                   </span>
                 )}
