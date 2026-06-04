@@ -1,0 +1,34 @@
+import type {
+  TurnkeyProviderConfig,
+  TurnkeyCallbacks,
+} from "@turnkey/react-native-wallet-kit";
+
+const ORGANIZATION_ID = process.env.EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID || "";
+const API_BASE_URL = process.env.EXPO_PUBLIC_TURNKEY_API_BASE_URL || "";
+const AUTH_PROXY_URL = process.env.EXPO_PUBLIC_TURNKEY_AUTH_PROXY_URL || "";
+const AUTH_PROXY_CONFIG_ID =
+  process.env.EXPO_PUBLIC_TURNKEY_AUTH_PROXY_CONFIG_ID;
+
+export const IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || "";
+export const ANDROID_CLIENT_ID =
+  process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || "";
+export const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "";
+
+export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
+  organizationId: ORGANIZATION_ID,
+  apiBaseUrl: API_BASE_URL,
+  authProxyUrl: AUTH_PROXY_URL,
+  ...(AUTH_PROXY_CONFIG_ID ? { authProxyConfigId: AUTH_PROXY_CONFIG_ID } : {}),
+  auth: {
+    autoRefreshSession: true,
+  },
+};
+
+export const TURNKEY_CALLBACKS: TurnkeyCallbacks = {
+  onAuthenticationSuccess: ({ action, method }) => {
+    console.log("[Turnkey] Auth success:", { action, method });
+  },
+  onError: (error) => {
+    console.error("[Turnkey] Error:", error);
+  },
+};
