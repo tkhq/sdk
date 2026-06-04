@@ -3012,8 +3012,8 @@ importers:
         specifier: ^0.1.23
         version: 0.1.23(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@buildonspark/spark-sdk':
-        specifier: 0.7.5
-        version: 0.7.5(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        specifier: 0.8.4
+        version: 0.8.4(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@noble/curves':
         specifier: ^1.9.7
         version: 1.9.7
@@ -4343,8 +4343,8 @@ importers:
   packages/spark:
     dependencies:
       '@buildonspark/spark-sdk':
-        specifier: ^0.7.5
-        version: 0.7.5(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        specifier: ^0.8.4
+        version: 0.8.4(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@noble/curves':
         specifier: ^1.9.7
         version: 1.9.7
@@ -4369,6 +4369,9 @@ importers:
       async-retry:
         specifier: 1.3.3
         version: 1.3.3
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
     devDependencies:
       '@types/async-retry':
         specifier: 1.4.8
@@ -5520,6 +5523,21 @@ packages:
 
   '@buildonspark/spark-sdk@0.7.5':
     resolution: {integrity: sha512-iwEEzL5FA2xLHwXJrbSgs2htDyP2S0/6MUM0mQVGylvesHqdaiIDn6vCfO3CWF87HdPQsK9FfA8hihDrPtElcQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: '>=18.2.0'
+      react-native: '>=0.71.0'
+      react-native-get-random-values: '>=1.11.0'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-native:
+        optional: true
+      react-native-get-random-values:
+        optional: true
+
+  '@buildonspark/spark-sdk@0.8.4':
+    resolution: {integrity: sha512-Hn/agiPK8RRwy9Si93JCAonjfpqz/vFLxXkejcAWDDu4Zg4yPVr2qWiU//dTfvZs2Z/9TB9dw5HMSRccQcc5fg==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: '>=18.2.0'
@@ -11125,6 +11143,17 @@ packages:
       bare-buffer:
         optional: true
 
+  bare-fetch@3.0.1:
+    resolution: {integrity: sha512-OWC8Z62E8JmomltTkXt9cCPMPj2DNi2vp66FOj3BkglNKNshZuk8n98Ba3afUxrrM4kv9/eMzh9+U9dXZSQyOg==}
+    peerDependencies:
+      bare-abort-controller: '*'
+      bare-buffer: '*'
+    peerDependenciesMeta:
+      bare-abort-controller:
+        optional: true
+      bare-buffer:
+        optional: true
+
   bare-form-data@1.2.1:
     resolution: {integrity: sha512-DFZhp5Tn0S7TjII/xhgLl2BNU6f7l5QbIW/YH7TjzQVnxLa8SaMSbl77jpy0ZR1oUnAo0a7NHJ9QAOU6PPr0Jg==}
 
@@ -11145,9 +11174,15 @@ packages:
   bare-https@2.1.3:
     resolution: {integrity: sha512-0TI/mJXQGYXmG7UUyWEG+KCJusayIAQLywUjFAskDoKuxfqVnGF+M/mTMrEV8J64DaIdU+5x761FvgmT7M68tA==}
 
+  bare-https@3.0.0:
+    resolution: {integrity: sha512-W1GRSCzn+xXKf5bMcPs/hg6Ga1bxPqb7owGfS+tvlBQfPe5Q2STcanRuKZrgU60v5uKrhXH5cgWwM+DLqvXZgQ==}
+
   bare-inspect@3.1.4:
     resolution: {integrity: sha512-jfW5KRA84o3REpI6Vr4nbvMn+hqVAw8GU1mMdRwUsY5yJovQamxYeKGVKGqdzs+8ZbG4jRzGUXP/3Ji/DnqfPg==}
     engines: {bare: '>=1.18.0'}
+
+  bare-mime@1.0.0:
+    resolution: {integrity: sha512-lUOswzBkfqham4zjLDueKOd4Qj3gS56BiZ3q2f0g0adoFhF+HFNupvTUfZBWoicl7fWJ7Hp2RUZjmkY47dxxOQ==}
 
   bare-module-resolve@1.11.1:
     resolution: {integrity: sha512-DCxeT9i8sTs3vUMA3w321OX/oXtNEu5EjObQOnTmCdNp5RXHBAvAaBDHvAi9ta0q/948QPz+co6SsGi6aQMYRg==}
@@ -11194,6 +11229,10 @@ packages:
 
   bare-tls@2.2.1:
     resolution: {integrity: sha512-hZ+ZqwrUO4dyH7/6WYkYWjgAFNJKjzwEYJiDaMnMs+eRleBDjQ3CvNZawpkw0Ar9jnM9NZK6+f6GqjkZ2FLGmQ==}
+    engines: {bare: '>=1.7.0'}
+
+  bare-tls@3.1.5:
+    resolution: {integrity: sha512-yoOtW3MyJF1mMwavLeuqOE7+qTKZ9cl1GRPxCUOXMUvYCfGltvXyRH48R4EKrRIfgUG6vil6n4Ea1i81fwmgZA==}
     engines: {bare: '>=1.7.0'}
 
   bare-type@1.1.0:
@@ -17799,10 +17838,12 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuidv4@6.2.13:
@@ -19967,6 +20008,45 @@ snapshots:
       - bufferutil
       - react-native-b4a
       - supports-color
+      - utf-8-validate
+      - ws
+
+  '@buildonspark/spark-sdk@0.8.4(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@bufbuild/protobuf': 2.11.0
+      '@lightsparkdev/core': 1.5.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      '@noble/curves': 1.9.7
+      '@noble/hashes': 1.8.0
+      '@scure/base': 1.2.6
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      '@scure/btc-signer': 1.8.1
+      abort-controller-x: 0.4.3
+      abortcontroller-polyfill: 1.7.8
+      async-mutex: 0.5.0
+      bare-crypto: 1.13.4(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-fetch: 3.0.1(bare-buffer@3.6.0)(bare-events@2.8.2)
+      buffer: 6.0.3
+      eventemitter3: 5.0.1
+      js-base64: 3.7.8
+      light-bolt11-decoder: 3.2.0
+      nice-grpc: 2.1.14
+      nice-grpc-client-middleware-retry: 3.1.13
+      nice-grpc-common: 2.0.2
+      nice-grpc-web: 3.3.9(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      ts-proto: 2.8.3
+      ua-parser-js: 2.0.9
+      uuidv7: 1.2.1
+    optionalDependencies:
+      react: 19.2.4
+      react-native: 0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)
+      react-native-get-random-values: 1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - bufferutil
+      - react-native-b4a
       - utf-8-validate
       - ws
 
@@ -32567,6 +32647,21 @@ snapshots:
       - bare-events
       - react-native-b4a
 
+  bare-fetch@3.0.1(bare-buffer@3.6.0)(bare-events@2.8.2):
+    dependencies:
+      bare-form-data: 1.2.1(bare-events@2.8.2)
+      bare-http1: 4.5.5(bare-buffer@3.6.0)(bare-url@2.4.0)
+      bare-https: 3.0.0(bare-buffer@3.6.0)(bare-events@2.8.2)(bare-url@2.4.0)
+      bare-mime: 1.0.0
+      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
+      bare-url: 2.4.0
+      bare-zlib: 1.3.1(bare-buffer@3.6.0)(bare-events@2.8.2)
+    optionalDependencies:
+      bare-buffer: 3.6.0
+    transitivePeerDependencies:
+      - bare-events
+      - react-native-b4a
+
   bare-form-data@1.2.1(bare-events@2.8.2):
     dependencies:
       bare-buffer: 3.6.0
@@ -32603,6 +32698,18 @@ snapshots:
       - bare-url
       - react-native-b4a
 
+  bare-https@3.0.0(bare-buffer@3.6.0)(bare-events@2.8.2)(bare-url@2.4.0):
+    dependencies:
+      bare-http1: 4.5.5(bare-buffer@3.6.0)(bare-url@2.4.0)
+      bare-tcp: 2.2.7(bare-buffer@3.6.0)
+      bare-tls: 3.1.5(bare-buffer@3.6.0)(bare-events@2.8.2)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - bare-url
+      - react-native-b4a
+
   bare-inspect@3.1.4(bare-buffer@3.6.0)(bare-events@2.8.2):
     dependencies:
       bare-ansi-escapes: 2.2.3(bare-buffer@3.6.0)(bare-events@2.8.2)
@@ -32612,6 +32719,8 @@ snapshots:
       - bare-buffer
       - bare-events
       - react-native-b4a
+
+  bare-mime@1.0.0: {}
 
   bare-module-resolve@1.11.1(bare-url@2.4.0):
     dependencies:
@@ -32670,6 +32779,16 @@ snapshots:
       - react-native-b4a
 
   bare-tls@2.2.1(bare-buffer@3.6.0)(bare-events@2.8.2):
+    dependencies:
+      bare-net: 2.3.1(bare-buffer@3.6.0)
+      bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bare-events
+      - react-native-b4a
+
+  bare-tls@3.1.5(bare-buffer@3.6.0)(bare-events@2.8.2):
     dependencies:
       bare-net: 2.3.1(bare-buffer@3.6.0)
       bare-stream: 2.12.0(bare-buffer@3.6.0)(bare-events@2.8.2)
