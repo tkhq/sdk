@@ -22,6 +22,10 @@ The `oidcToken` provider is verified by Google's public keys. The `oidcClaims` p
 
 On the dashboard you can confirm this by clicking **Verify access** for each platform, which calls `getSubOrgIds` with `filterType: "OAUTH_CLAIM"` and the platform's `aud`. All three resolve to the same sub-org ID.
 
+| Web dashboard | iOS | Android |
+| --- | --- | --- |
+| ![Web dashboard](../assets/oath_cross_platform_web.png) | ![iOS](../assets/oath_cross_platform_ios.png) | ![Android](../assets/oath_cross_platform_android.png) |
+
 ## Getting started
 
 ### 1. Clone and install
