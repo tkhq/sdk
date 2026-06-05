@@ -9,13 +9,7 @@
  * @buildonspark/spark-sdk and update this file when the SDK changes.
  */
 
-import type { NetworkType } from "@buildonspark/spark-sdk";
-import {
-  TurnkeyError,
-  TurnkeyErrorCodes,
-  type v1AddressFormat,
-  type v1WalletAccount,
-} from "@turnkey/core";
+import type { v1WalletAccount } from "@turnkey/core";
 import { secp256k1 } from "@noble/curves/secp256k1";
 
 const COMPRESSED_PUBLIC_KEY_REGEX = /^[0-9a-fA-F]{66}$/;

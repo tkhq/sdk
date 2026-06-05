@@ -10,7 +10,7 @@ import {
   SigningOperator,
   KeyDerivation,
 } from "@buildonspark/spark-sdk";
-import {
+import type {
   Transfer,
   TreeNode,
   ClaimPackage,
@@ -26,7 +26,7 @@ import {
   uint8ArrayFromHexString,
 } from "@turnkey/encoding";
 import { v7 as uuidv7 } from "uuid";
-import {
+import type {
   TurnkeySparkSigner,
   ClaimLeafInput,
   ClaimLeaf,
