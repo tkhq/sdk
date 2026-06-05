@@ -72,3 +72,9 @@ Visit [http://localhost:3000](http://localhost:3000), sign in with Google, then 
 ## Part 2 — Mobile login
 
 See [`../mobile/README.md`](../mobile/README.md) for how to wire up a React Native app that logs in using the iOS or Android client ID registered here.
+
+## Delete account
+
+The dashboard includes a **Delete account** button for testing convenience. Deleting a sub-organization can only be initiated by the authenticated user from within the app, so the button exists to make it easy to reset a test account and sign up again.
+
+> 🚨 **Warning:** It calls `deleteSubOrganization` with `deleteWithoutExport: true`, which **permanently and irreversibly deletes the sub-organization and all associated wallets**, even if private keys have never been exported. See the [root README](../README.md#testing-convenience-delete-account) for the full warning.
