@@ -1,4 +1,22 @@
-import type { v1WalletAccount } from "@turnkey/core";
+/**
+ * Shared helpers and SDK-internal type shims for the turnkey* orchestration
+ * modules.
+ *
+ * The turnkey{Transfer,Claim,Lightning,Swap,Withdraw} flows all reach into
+ * SparkWallet's private surface (transferService, leafManager, signingService,
+ * config, gRPC client). We declare the shapes once here and reuse them — the
+ * coupling to the SDK's internals is real, so make it explicit. Pin
+ * @buildonspark/spark-sdk and update this file when the SDK changes.
+ */
+
+import type { NetworkType } from "@buildonspark/spark-sdk";
+import {
+  TurnkeyError,
+  TurnkeyErrorCodes,
+  type v1AddressFormat,
+  type v1WalletAccount,
+} from "@turnkey/core";
+import { secp256k1 } from "@noble/curves/secp256k1";
 
 const COMPRESSED_PUBLIC_KEY_REGEX = /^[0-9a-fA-F]{66}$/;
 
@@ -39,4 +57,22 @@ export const isNotFoundError = (err: unknown): boolean => {
       .toLowerCase()
       .includes("not found")
   );
+};
+
+export const compactEcdsaSignature = (signature: Uint8Array): Uint8Array => {
+  if (signature.length === 64) {
+    return secp256k1.Signature.fromBytes(signature, "compact")
+      .normalizeS()
+      .toBytes("compact");
+  }
+
+  try {
+    return secp256k1.Signature.fromBytes(signature, "der")
+      .normalizeS()
+      .toBytes("compact");
+  } catch {
+    throw new Error(
+      `Expected compact or DER ECDSA sender signature, got ${signature.length} bytes`,
+    );
+  }
 };

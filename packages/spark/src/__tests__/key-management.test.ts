@@ -1,4 +1,3 @@
-import { describe } from "node:test";
 import { TurnkeyKeyManager } from "../key-management";
 
 describe("TurnkeyKeyManager", () => {
