@@ -106,12 +106,13 @@ describe("TurnkeySparkWallet", () => {
       senderSigner,
     );
 
+    // Before doing anything, we check any pending transfers
+    //
+    // This is how these wallets get funded - we request funds in their faucet,
+    // then this code claims those funds before running the tests
     const transferAddress = senderAccounts.sparkIdentityAccount.address;
     const pendingTransfers =
       await sparkClient.getPendingTransfers(transferAddress);
-
-    console.warn({ pendingTransfers });
-
     if (pendingTransfers.length > 0) {
       await senderWallet.__claimTransferBatch(pendingTransfers);
     }
@@ -135,7 +136,7 @@ to send 100000 sats to ${depositAddress} and claim the deposit by its transactio
 await senderWallet.claimDeposit(txId)
 
 You can also request funds from the faucet to the Spark address ${transferAddress}
-and the wallet should take care of claiming.
+and the test should take care of claiming.
 
 Original error: ${error}`,
       );
