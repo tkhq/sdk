@@ -10,7 +10,10 @@ import { Curve } from "@turnkey/core";
 import { SPARK_DEPOSIT_SUFFIX, SPARK_IDENTITY_SUFFIX } from "../constants";
 import { TurnkeySparkSigner } from "../signer";
 import { TurnkeySparkWallet } from "../wallet";
-import { Transfer, TreeNode } from "@buildonspark/spark-sdk/dist/proto/spark";
+import type {
+  Transfer,
+  TreeNode,
+} from "@buildonspark/spark-sdk/dist/proto/spark";
 
 const NETWORK = "REGTEST";
 
