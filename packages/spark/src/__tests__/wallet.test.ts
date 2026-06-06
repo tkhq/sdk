@@ -58,7 +58,7 @@ describe("TurnkeySparkWallet", () => {
       "Missing required env var: ORGANIZATION_ID",
     );
 
-    const apiBaseUrl = process.env.API_BASE_URL || "https://api.turnkey.com";
+    const apiBaseUrl = process.env.BASE_URL || "https://api.turnkey.com";
     const apiPrivateKey = process.env.API_PRIVATE_KEY;
     const apiPublicKey = process.env.API_PUBLIC_KEY;
     const organizationId = process.env.ORGANIZATION_ID;
