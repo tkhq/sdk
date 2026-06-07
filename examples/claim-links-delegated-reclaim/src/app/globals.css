@@ -1,0 +1,340 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+@font-face {
+  font-family: "ABC Favorit";
+  src: url("/fonts/ABCFavorit-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ABC Favorit";
+  src: url("/fonts/ABCFavorit-RegularItalic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("/fonts/RobotoMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Brand */
+  --tk-purple: #4c48ff;
+  --tk-purple-300: #948eff;
+  --tk-purple-600: #3d3acc;
+
+  /* Dark surfaces */
+  --tk-bg: #0a0a0a;
+  --tk-surface: #161616;
+  --tk-border: #242424;
+  --tk-border-strong: #383838;
+
+  /* Foreground */
+  --tk-fg: #ffffff;
+  --tk-fg-muted: #b0b0b0;
+  --tk-fg-subtle: #7a7a7a;
+  --tk-fg-accent: #948eff;
+
+  /* Status */
+  --tk-success: #17b26a;
+  --tk-success-bg: rgba(23, 178, 106, 0.08);
+  --tk-success-border: rgba(23, 178, 106, 0.25);
+  --tk-danger: #f04438;
+  --tk-danger-bg: rgba(240, 68, 56, 0.08);
+  --tk-danger-border: rgba(240, 68, 56, 0.25);
+  --tk-warning: #f79009;
+  --tk-warning-bg: rgba(247, 144, 9, 0.08);
+  --tk-warning-border: rgba(247, 144, 9, 0.25);
+
+  /* Typography */
+  --tk-font-display: "ABC Favorit", "Inter", system-ui, sans-serif;
+  --tk-font-body: "Inter", system-ui, sans-serif;
+  --tk-font-mono: "Roboto Mono", ui-monospace, Menlo, monospace;
+
+  /* Radius */
+  --tk-radius-sm: 6px;
+  --tk-radius-md: 8px;
+  --tk-radius-lg: 12px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--tk-bg);
+  color: var(--tk-fg);
+  font-family: var(--tk-font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--tk-font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+code,
+kbd,
+pre {
+  font-family: var(--tk-font-mono);
+}
+
+/* ---- Layout ---- */
+.tk-page {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---- Typography ---- */
+.tk-heading {
+  font-family: var(--tk-font-display);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--tk-fg);
+  margin: 0;
+}
+
+.tk-subheading {
+  font-size: 13px;
+  color: var(--tk-fg-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.tk-section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tk-fg);
+  margin: 0 0 12px;
+}
+
+.tk-field-label {
+  font-size: 12px;
+  color: var(--tk-fg-subtle);
+  margin: 0 0 2px;
+}
+
+.tk-field-value {
+  font-size: 13px;
+  color: var(--tk-fg);
+  margin: 0;
+  word-break: break-all;
+}
+
+.tk-body-sm {
+  font-size: 13px;
+  color: var(--tk-fg);
+  margin: 0;
+}
+
+.tk-body-muted {
+  font-size: 13px;
+  color: var(--tk-fg-muted);
+  margin: 0;
+}
+
+.tk-caption {
+  font-size: 12px;
+  color: var(--tk-fg-subtle);
+  margin: 0;
+}
+
+.tk-mono {
+  font-family: var(--tk-font-mono);
+  font-size: 12px;
+}
+
+.tk-url {
+  font-family: var(--tk-font-mono);
+  font-size: 11px;
+  color: var(--tk-fg-muted);
+  word-break: break-all;
+  margin: 0;
+}
+
+/* ---- Cards ---- */
+.tk-card {
+  background: var(--tk-surface);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-lg);
+  padding: 20px;
+}
+
+.tk-card-success {
+  border-color: var(--tk-success-border);
+  background: var(--tk-success-bg);
+}
+
+.tk-card-danger {
+  border-color: var(--tk-danger-border);
+  background: var(--tk-danger-bg);
+}
+
+.tk-card-warning {
+  border-color: var(--tk-warning-border);
+  background: var(--tk-warning-bg);
+}
+
+/* ---- Inputs ---- */
+.tk-input {
+  width: 100%;
+  background: var(--tk-bg);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-md);
+  padding: 8px 12px;
+  font-family: var(--tk-font-mono);
+  font-size: 13px;
+  color: var(--tk-fg);
+  outline: none;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.tk-input::placeholder {
+  color: var(--tk-fg-subtle);
+}
+
+.tk-input:focus {
+  border-color: var(--tk-purple);
+  box-shadow: 0 0 0 3px rgba(76, 72, 255, 0.15);
+}
+
+/* ---- Buttons ---- */
+.tk-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tk-purple);
+  color: #fff;
+  border: none;
+  border-radius: var(--tk-radius-md);
+  padding: 8px 18px;
+  font-family: var(--tk-font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 150ms,
+    transform 100ms;
+  width: 100%;
+}
+
+.tk-btn-primary:hover {
+  background: var(--tk-purple-600);
+}
+
+.tk-btn-primary:active {
+  transform: scale(0.98);
+}
+
+.tk-btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tk-link {
+  background: none;
+  border: none;
+  color: var(--tk-fg-subtle);
+  font-size: 12px;
+  font-family: var(--tk-font-body);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  text-align: left;
+}
+
+.tk-link:hover {
+  color: var(--tk-fg-muted);
+}
+
+.tk-divider {
+  border: none;
+  border-top: 1px solid var(--tk-border);
+  margin: 0;
+}
+
+/* ---- Wordmark ---- */
+.tk-wordmark {
+  height: 13px;
+  width: 58px;
+  flex-shrink: 0;
+  background-color: var(--tk-fg-subtle);
+  mask-image: url(/turnkey-wordmark.svg);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  -webkit-mask-image: url(/turnkey-wordmark.svg);
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.tk-wordmark-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tk-wordmark-sep {
+  color: var(--tk-border-strong);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.tk-wordmark-label {
+  color: var(--tk-fg-subtle);
+  font-size: 12px;
+  line-height: 1;
+  font-family: var(--tk-font-body);
+}
+
+/* ---- Countdown badge ---- */
+.tk-countdown-badge {
+  font-family: var(--tk-font-mono);
+  font-size: 13px;
+  color: var(--tk-fg-accent);
+  background: rgba(148, 142, 255, 0.1);
+  border: 1px solid rgba(148, 142, 255, 0.2);
+  border-radius: var(--tk-radius-sm);
+  padding: 2px 8px;
+}
+
+/* ---- Progress bar ---- */
+.tk-progress {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--tk-border);
+  overflow: hidden;
+}
+
+.tk-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--tk-purple);
+  transition: width 1s linear;
+}

@@ -1,0 +1,54 @@
+{
+  "name": "@turnkey/example-claim-links-delegated-reclaim",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint",
+    "db:migrate": "dotenv -e .env.local -- prisma migrate dev",
+    "db:generate": "dotenv -e .env.local -- prisma generate",
+    "db:reset": "dotenv -e .env.local -- prisma migrate reset --force"
+  },
+  "dependencies": {
+    "@prisma/client": "5.22.0",
+    "@t3-oss/env-nextjs": "0.11.1",
+    "@turnkey/crypto": "workspace:*",
+    "@turnkey/react-wallet-kit": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "next": "15.5.15",
+    "qrcode": "1.5.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "viem": "2.31.7",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.6",
+    "@types/qrcode": "1.5.5",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "dotenv-cli": "7.4.4",
+    "eslint": "9.14.0",
+    "eslint-config-next": "15.0.3",
+    "prisma": "5.22.0",
+    "typescript": "5.6.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma",
+      "sharp",
+      "unrs-resolver",
+      "sqlite3"
+    ],
+    "ignoredBuiltDependencies": [
+      "@prisma/engines",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}

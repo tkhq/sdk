@@ -1,0 +1,71 @@
+// Prisma schema for the claim-links-v2 ledger.
+//
+// Every claim link is one row. The row stores enough context to:
+//   1. Show the sender their outstanding claim links (`/my`)
+//   2. Let the recipient drain the escrow wallet (`/claim/[txId]`)
+//   3. Let the cron job sweep expired-but-unclaimed funds back to the sender
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Claim {
+  id                     String    @id @default(cuid())
+
+  // Chain + asset identifiers.
+  chain                  String    // "evm" | "solana"
+  asset                  String    // "native" or a token mint/contract
+  amountRaw              String    // wei or lamports (stringified bigint)
+  amountDisplay          String    // human-readable, e.g. "0.01 ETH"
+
+  // Turnkey sub-org that holds the escrow wallet.
+  subOrgId               String    @unique
+  escrowAddress          String    // 0x… or base58
+  walletId               String    // Turnkey wallet id (for downstream calls)
+
+  // Sender context. The sender is also the *reclaim destination*.
+  senderTurnkeyUserId    String    // identity inside the sub-org root quorum
+  senderEmail            String?
+  senderAddress          String    // 0x… or base58 — where reclaims go
+
+  // Optional UX hint shown on the claim page.
+  recipientHint          String?
+
+  // The claim P256 API key public half. The private half lives ONLY in the
+  // URL fragment given to the recipient — never persisted here.
+  claimKeyPublicKey      String
+
+  // The sweep P256 API key. Created server-side, registered as a root user
+  // in the sub-org just long enough to install a policy + demote itself,
+  // then stored here (encrypted) for cron-driven delegated reclaim.
+  sweepKeyPublicKey      String
+  sweepKeyPrivateKeyEnc  String    // AES-256-GCM ciphertext (envelope)
+  sweepPolicyId          String    // policy that locks sweep key to senderAddress
+
+  // TTL on the claim API key, in seconds. After `createdAt + expirationSeconds`
+  // the claim key stops working at Turnkey; the sender (manual) or the sweep
+  // key (delegated) can reclaim.
+  expirationSeconds      Int
+
+  // State machine + fund/claim/reclaim tx receipts.
+  state                  String    // "creating" | "funded" | "claimed" | "reclaimed" | "expired"
+  fundedAt               DateTime?
+  fundTxHash             String?
+  claimedAt              DateTime?
+  claimTxHash            String?
+  claimedToAddress       String?
+  reclaimedAt            DateTime?
+  reclaimTxHash          String?
+  reclaimMode            String?   // "manual" | "delegated" — set on reclaim
+
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@index([senderTurnkeyUserId])
+  @@index([state])
+}
