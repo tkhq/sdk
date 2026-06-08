@@ -144,7 +144,7 @@ describe("TurnkeySparkWallet", () => {
     // Since these tests can run in parallel, we want to wrap this in try/catch
     // to avoid race conditions between tests tearing down the suite
     try {
-      recoverAllFunds(receiverWallet, senderWallet);
+      await recoverAllFunds(receiverWallet, senderWallet);
     } catch (error) {
       await warn(`Failed to recover funds from receiver wallet:\n\n${error}`);
     }
@@ -387,8 +387,8 @@ const createGetWalletAccounts =
   };
 
 const recoverAllFunds = async (
-  fromWallet: TurnekySparkWalletTest,
-  toWallet: TurnekySparkWalletTest,
+  fromWallet: TurnkeySparkWalletTest,
+  toWallet: TurnkeySparkWalletTest,
 ) => {
   const {
     satsBalance: { available },
