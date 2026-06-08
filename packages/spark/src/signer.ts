@@ -59,6 +59,18 @@ import {
   type SubtractSplitAndEncryptResult,
   type VerifiableSecretShare,
   type SigningNonce,
+  Network,
+  getTxFromRawTxBytes,
+  SparkValidationError,
+  getCurrentTimelock,
+  createConnectorRefundTxs,
+  createCurrentTimelockRefundTxs,
+  getSigHashFromMultiInputTx,
+  getSigHashFromTx,
+  getNextHTLCTransactionSequence,
+  createRefundTxsForLightning,
+  getNetwork,
+  createDecrementedTimelockRefundTxs,
 } from "@buildonspark/spark-sdk";
 import {
   uint8ArrayToHexString,
@@ -81,6 +93,14 @@ import {
   TurnkeySparkSigningKeyManager,
 } from "./key-management";
 import { areBytesEqual, compressedPublicKeyHexFromString } from "./utils";
+import type {
+  ClaimPackage,
+  SigningResult,
+  TreeNode,
+  UserSignedTxSigningJob,
+} from "@buildonspark/spark-sdk/dist/proto/spark";
+import type { Transaction } from "@scure/btc-signer/transaction";
+import type { TransactionOutput } from "@scure/btc-signer/psbt";
 
 /**
  * Validate the new-leaf pubkey envelope returned by PREPARE_/SPARK_CLAIM_TRANSFER:
@@ -215,6 +235,87 @@ export interface TurnkeySparkSignerOptions {
   depositPublicKeyHex?: string | undefined;
   staticDepositPublicKeysHex?: Record<number, string> | undefined;
 }
+
+export interface OperatorSigningCommitment {
+  signingNonceCommitments?: Record<string, SigningCommitment>;
+  publicKeys?: Record<string, Uint8Array>;
+  signatureShares?: Record<string, Uint8Array>;
+  verifyingKey?: Uint8Array;
+  leafId?: string;
+  refundTxSigningResult?: SigningResult;
+}
+
+type RefundTxs = Awaited<ReturnType<typeof createConnectorRefundTxs>>;
+
+interface CreateRefundTxsParams {
+  leaf: ClaimLeaf;
+  sequence: number;
+  nodeTx: Transaction;
+  directNodeTx: Transaction | undefined;
+  signingPublicKey: Uint8Array;
+  receivingPubkey: Uint8Array;
+}
+
+type CreateRefundTxs = (
+  params: CreateRefundTxsParams,
+  index: number,
+) => Promise<RefundTxs>;
+
+interface CreateRefundTxMessageParams {
+  tx: Transaction;
+  nodeOutput: TransactionOutput;
+}
+
+type CreateRefundTxMessage = (
+  params: CreateRefundTxMessageParams,
+  index: number,
+) => Uint8Array;
+
+type ModifySignFrostParams = (params: SignFrostParams) => SignFrostParams;
+
+export interface ClaimLeaf {
+  leaf: TreeNode;
+  keyDerivation: KeyDerivation;
+  newKeyDerivation: KeyDerivation;
+  signingPublicKey?: Uint8Array | undefined;
+  receiverIdentityPublicKey?: Uint8Array | undefined;
+}
+
+export interface SignRefundsBatchedInput {
+  network: Network;
+  leaves: ClaimLeaf[];
+  commitments: OperatorSigningCommitment[];
+}
+
+export interface ConnectorOutput {
+  txid: Uint8Array;
+  index: number;
+}
+
+export interface SignRefundsBatchedCoopExitInput
+  extends SignRefundsBatchedInput {
+  connectorOutputs: ConnectorOutput[];
+  connectorTx: Uint8Array;
+}
+
+export interface SignRefundsBatchedClaimInput extends SignRefundsBatchedInput {}
+
+export interface SignRefundsBatchedTransferInput
+  extends SignRefundsBatchedInput {
+  adaptorPubKey?: Uint8Array | undefined;
+}
+
+export interface SignRefundsBatchedLightningInput
+  extends SignRefundsBatchedInput {
+  network: Network;
+  paymentHash: Uint8Array;
+  sequenceLockDestinationPubkey: Uint8Array;
+}
+
+export type SignRefundsResult = Pick<
+  ClaimPackage,
+  "leavesToClaim" | "directLeavesToClaim" | "directFromCpfpLeavesToClaim"
+>;
 
 export class TurnkeySparkSigner implements SparkSigner {
   private readonly client: TurnkeyServerSDK;
@@ -781,6 +882,423 @@ export class TurnkeySparkSigner implements SparkSigner {
     this.secretKeyManager.set(idx, new Uint8Array(secretKey));
   }
 
+  protected async resolveLeafSigningPublicKey(
+    leaf: ClaimLeaf,
+  ): Promise<Uint8Array> {
+    if (leaf.signingPublicKey && leaf.signingPublicKey.length > 0) {
+      return leaf.signingPublicKey;
+    }
+
+    if (leaf.keyDerivation.type !== "leaf") {
+      throw new SparkValidationError(
+        "Leaf signing requires leaf key derivation",
+        {
+          field: "keyDerivation",
+          value: leaf.keyDerivation,
+          expected: "leaf key derivation",
+        },
+      );
+    }
+
+    return this.getLeafSigningKey(String(leaf.keyDerivation.path));
+  }
+
+  /**
+   * Assert that an operator-commitment entry exists and is non-empty before
+   * we forward it into a FROST signing request. Without this, a missing
+   * commitment silently becomes `{}` and the wasted Turnkey round-trip only
+   * surfaces the failure inside the enclave (`operator_commitments must
+   * include at least one operator commitment`). The likely root cause when
+   * this throws is `fetchRefundCommitments` returning fewer entries than
+   * expected — check the coordinator response.
+   */
+  protected partitionOperatorCommitments(
+    commitments: OperatorSigningCommitment[],
+  ): [
+    cpfp: OperatorSigningCommitment,
+    direct: OperatorSigningCommitment,
+    directFromCpfp: OperatorSigningCommitment,
+  ][] {
+    if (commitments.length % 3 !== 0) {
+      throw new SparkValidationError(
+        `Expected commitments length to be a multiple of 3 (for cpfp, direct, and direct-from-cpfp), got ${commitments.length}`,
+        {
+          field: "operatorCommitments",
+          value: commitments.length,
+          expected: "multiple of 3",
+        },
+      );
+    }
+
+    for (const commitment of commitments) {
+      if (commitment == null) {
+        throw new SparkValidationError(`Missing operator commitment`, {
+          field: "operatorCommitments",
+          value: null,
+          expected: "operator commitment object",
+        });
+      }
+
+      const { signingNonceCommitments } = commitment;
+      if (
+        signingNonceCommitments == null ||
+        Object.keys(signingNonceCommitments).length === 0
+      ) {
+        throw new SparkValidationError(`Missing operator commitment`, {
+          field: "operatorCommitments.signingNonceCommitments",
+          value: signingNonceCommitments,
+          expected: "non-empty signingNonceCommitments map",
+        });
+      }
+    }
+
+    const n = commitments.length / 3;
+    return Array.from({ length: n }).map((_, i) => [
+      commitments[i]!,
+      commitments[i + n]!,
+      commitments[i + n + n]!,
+    ]);
+  }
+
+  protected async signRefundsBatchedCore(
+    { leaves, commitments }: SignRefundsBatchedInput,
+    createRefundTxs: CreateRefundTxs,
+    createMessage: CreateRefundTxMessage = createDefaultMessage,
+    modifySignFrostParams: ModifySignFrostParams = dontModifySignFrostParams,
+  ): Promise<SignRefundsResult> {
+    interface UserUnsignedTxSigningJob {
+      message: Uint8Array;
+      rawTx: Uint8Array;
+      signingPublicKey: Uint8Array;
+      selfCommitment: SigningCommitmentWithOptionalNonce;
+      commitment: OperatorSigningCommitment;
+    }
+
+    // We first validate & partition the commitments provided
+    //
+    // We end up with an array with the same length as leaves, where each entry is a triple of [cpfCommitment, directCommitment, directFromCpfCommitment] for the corresponding leaf. We can then iterate over the leaves and pull the right commitment triple for each leaf to build the params for createSignFrostParams.
+    const commitmentsForLeaves = this.partitionOperatorCommitments(commitments);
+    if (commitmentsForLeaves.length !== leaves.length) {
+      throw new SparkValidationError(
+        `Expected operator commitments length (${commitments.length}) to match leaves length (${leaves.length})`,
+        {
+          field: "operatorCommitments",
+          value: commitments.length,
+          expected: leaves.length,
+        },
+      );
+    }
+
+    const jobs: UserUnsignedTxSigningJob[][] = [];
+
+    for (let i = 0; i < leaves.length; i++) {
+      const leaf = leaves[i]!;
+
+      const nodeTx = getTxFromRawTxBytes(leaf.leaf.nodeTx);
+      const nodeOutput = nodeTx.getOutput(0);
+      const currRefundTx = getTxFromRawTxBytes(leaf.leaf.refundTx);
+      const sequence = currRefundTx.getInput(0).sequence;
+      if (sequence == null) {
+        throw new SparkValidationError("Invalid refund transaction", {
+          field: "sequence",
+          value: currRefundTx.getInput(0),
+          expected: "Non-null sequence",
+        });
+      }
+
+      const isZeroNode = !getCurrentTimelock(nodeTx.getInput(0).sequence);
+      const signingPublicKey = await this.resolveLeafSigningPublicKey(leaf);
+      const receivingPubkey =
+        leaf.receiverIdentityPublicKey ?? signingPublicKey;
+
+      // signRefundsForCoopExit additionally gates directNodeTx on !isZeroNode;
+      // signRefundsCore (transfer/claim) builds it whenever directTx is present
+      // and only checks isZeroNode at the signing branch. Either way the signing
+      // branch below uses the same condition, so the difference is academic.
+      const directNodeTx =
+        leaf.leaf.directTx.length > 0
+          ? getTxFromRawTxBytes(leaf.leaf.directTx)
+          : undefined;
+
+      const refundTxs = await createRefundTxs(
+        {
+          leaf,
+          sequence,
+          nodeTx,
+          directNodeTx,
+          receivingPubkey,
+          signingPublicKey,
+        },
+        i,
+      );
+
+      const jobsForLeaf: UserUnsignedTxSigningJob[] = Array.from({ length: 3 });
+
+      // cpfp tx
+      const cpfpMessage = createMessage(
+        { tx: refundTxs.cpfpRefundTx, nodeOutput },
+        i,
+      );
+      jobsForLeaf[0] = {
+        message: cpfpMessage,
+        rawTx: refundTxs.cpfpRefundTx.toBytes(),
+        signingPublicKey,
+        selfCommitment: emptyCommitment(),
+        commitment: commitmentsForLeaves[i]![0],
+      };
+
+      // direct tx
+      if (refundTxs.directRefundTx && !isZeroNode) {
+        if (directNodeTx == null) {
+          throw new SparkValidationError(
+            "Direct node transaction undefined while direct refund transaction is defined",
+            {
+              field: "directNodeTx",
+              value: directNodeTx,
+              expected: "Non-null direct node tx",
+            },
+          );
+        }
+
+        const directOutput = directNodeTx.getOutput(0);
+        const directMessage = createMessage(
+          { tx: refundTxs.directRefundTx, nodeOutput: directOutput },
+          i,
+        );
+
+        jobsForLeaf[1] = {
+          message: directMessage,
+          rawTx: refundTxs.directRefundTx.toBytes(),
+          signingPublicKey,
+          selfCommitment: emptyCommitment(),
+          commitment: commitmentsForLeaves[i]![1],
+        };
+      }
+
+      // directFromCpfp tx
+      if (refundTxs.directFromCpfpRefundTx) {
+        const directFromCpfpMessage = createMessage(
+          { tx: refundTxs.directFromCpfpRefundTx, nodeOutput },
+          i,
+        );
+
+        jobsForLeaf[2] = {
+          message: directFromCpfpMessage,
+          rawTx: refundTxs.directFromCpfpRefundTx.toBytes(),
+          signingPublicKey,
+          selfCommitment: emptyCommitment(),
+          commitment: commitmentsForLeaves[i]![2],
+        };
+      }
+
+      jobs.push(jobsForLeaf);
+    }
+
+    const signFrostParamsForLeaves: SignFrostParams[] = jobs.flatMap(
+      (jobsForLeaf, index) => {
+        const leaf = leaves[index]!;
+
+        return jobsForLeaf.flatMap((job): SignFrostParams[] =>
+          job
+            ? [
+                modifySignFrostParams({
+                  message: job.message,
+                  keyDerivation: leaf.keyDerivation,
+                  publicKey: job.signingPublicKey,
+                  verifyingKey: leaf.leaf.verifyingPublicKey,
+                  selfCommitment: job.selfCommitment,
+                  statechainCommitments:
+                    job.commitment?.signingNonceCommitments!,
+                }),
+              ]
+            : [],
+        );
+      },
+    );
+
+    const signatures = await this.signFrostBatch(signFrostParamsForLeaves);
+    const signedJobs: UserSignedTxSigningJob[][] = jobs.map(
+      (jobsForLeaf, index) => {
+        const leaf = leaves[index]!;
+
+        return jobsForLeaf.flatMap((job): UserSignedTxSigningJob[] => {
+          if (job == null) return [];
+
+          const userSignature = signatures.shift()!;
+
+          return [
+            {
+              leafId: leaf.leaf.id,
+              userSignature,
+              signingPublicKey: job.signingPublicKey,
+              rawTx: job.rawTx,
+              signingNonceCommitment: job.selfCommitment.commitment,
+              signingCommitments: {
+                signingCommitments: job.commitment.signingNonceCommitments!,
+              },
+              additionalInputs: [],
+            },
+          ];
+        });
+      },
+    );
+
+    return {
+      leavesToClaim: signedJobs.flatMap(([job]) => (job ? [job] : [])),
+      directLeavesToClaim: signedJobs.flatMap(([, job]) => (job ? [job] : [])),
+      directFromCpfpLeavesToClaim: signedJobs.flatMap(([, , job]) =>
+        job ? [job] : [],
+      ),
+    };
+  }
+
+  async signRefundsBatchedCoopExit({
+    connectorTx,
+    connectorOutputs,
+    ...input
+  }: SignRefundsBatchedCoopExitInput) {
+    const connectorTxParsed = getTxFromRawTxBytes(connectorTx);
+
+    const createRefundTxs: CreateRefundTxs = async (
+      { sequence, nodeTx, directNodeTx, receivingPubkey },
+      index,
+    ) => {
+      const connectorOutput = connectorOutputs[index];
+      if (!connectorOutput || connectorOutput.index === undefined) {
+        throw new SparkValidationError("Missing connector output", {
+          field: "connectorOutput",
+          value: connectorOutput,
+          expected: "Valid connector output with index",
+        });
+      }
+
+      const isZeroNode = !getCurrentTimelock(nodeTx.getInput(0).sequence);
+      const effectiveDirectNodeTx = isZeroNode ? undefined : directNodeTx;
+
+      return createConnectorRefundTxs({
+        nodeTx,
+        ...(effectiveDirectNodeTx
+          ? { directNodeTx: effectiveDirectNodeTx }
+          : {}),
+        sequence,
+        connectorOutput,
+        receivingPubkey,
+        network: input.network,
+      });
+    };
+
+    const getConnectorOutputForLeaf = (index: number): TransactionOutput => {
+      const connectorPrevOutput = connectorTxParsed.getOutput(
+        connectorOutputs[index]!.index,
+      );
+      if (connectorPrevOutput == null || connectorPrevOutput.script == null) {
+        throw new SparkValidationError("Invalid connector transaction output", {
+          field: "connectorPrevOutput",
+          value: connectorPrevOutput,
+          expected: "Valid output with script",
+        });
+      }
+
+      return connectorPrevOutput;
+    };
+
+    const createMessage: CreateRefundTxMessage = (
+      { tx, nodeOutput },
+      index,
+    ) => {
+      const connectorPrevOutput = getConnectorOutputForLeaf(index);
+
+      return getSigHashFromMultiInputTx(tx, 0, [
+        nodeOutput,
+        connectorPrevOutput,
+      ]);
+    };
+
+    return this.signRefundsBatchedCore(input, createRefundTxs, createMessage);
+  }
+
+  async signRefundsBatchedClaim(input: SignRefundsBatchedClaimInput) {
+    const createRefundTxs: CreateRefundTxs = async ({
+      sequence,
+      nodeTx,
+      directNodeTx,
+      receivingPubkey,
+    }) =>
+      createCurrentTimelockRefundTxs({
+        nodeTx,
+        ...(directNodeTx ? { directNodeTx } : {}),
+        sequence,
+        receivingPubkey,
+        network: input.network,
+      });
+
+    return this.signRefundsBatchedCore(input, createRefundTxs);
+  }
+
+  async signRefundsBatchedLightning(input: SignRefundsBatchedLightningInput) {
+    const createRefundTxs: CreateRefundTxs = async ({
+      leaf,
+      sequence,
+      nodeTx,
+      directNodeTx,
+    }) => {
+      // hashLockDestinationPubkey is the receiver's identity pubkey (per-leaf
+      // metadata via leaf.receiverIdentityPublicKey, set by makeLeafTweaks).
+      // sequenceLockDestinationPubkey is the sender's (our) identity pubkey,
+      // carried on the mode so callers fetch it once.
+      if (!leaf.receiverIdentityPublicKey) {
+        throw new SparkValidationError(
+          "lightning refund signing requires leaf.receiverIdentityPublicKey",
+          { field: "receiverIdentityPublicKey" },
+        );
+      }
+      const { nextSequence, nextDirectSequence } =
+        getNextHTLCTransactionSequence(sequence);
+
+      return createRefundTxsForLightning({
+        nodeTx,
+        directNodeTx,
+        vout: 0,
+        sequence: nextSequence,
+        directSequence: nextDirectSequence,
+        network: getNetwork(input.network),
+        hash: input.paymentHash,
+        hashLockDestinationPubkey: leaf.receiverIdentityPublicKey,
+        sequenceLockDestinationPubkey: input.sequenceLockDestinationPubkey,
+      });
+    };
+
+    return this.signRefundsBatchedCore(input, createRefundTxs);
+  }
+
+  async signRefundsBatchedTransfer(input: SignRefundsBatchedTransferInput) {
+    const createRefundTxs: CreateRefundTxs = async ({
+      sequence,
+      nodeTx,
+      directNodeTx,
+      receivingPubkey,
+    }) =>
+      createDecrementedTimelockRefundTxs({
+        nodeTx,
+        ...(directNodeTx ? { directNodeTx } : {}),
+        sequence,
+        receivingPubkey,
+        network: input.network,
+      });
+
+    const modifySignFrostParams: ModifySignFrostParams = (params) => ({
+      ...params,
+      adaptorPubKey: input.adaptorPubKey,
+    });
+
+    return this.signRefundsBatchedCore(
+      input,
+      createRefundTxs,
+      undefined,
+      modifySignFrostParams,
+    );
+  }
+
   /**
    * Returns the cached static-deposit secret for `idx`. Throws if no
    * secret was pre-loaded via `setStaticDepositSecretKey`.
@@ -971,3 +1489,15 @@ const statechainCommitmentToSparkFrostCommitment = (
     binding: uint8ArrayToHexString(commitment.binding),
   };
 };
+
+const emptyCommitment = (): SigningCommitmentWithOptionalNonce => ({
+  commitment: {
+    hiding: new Uint8Array(33),
+    binding: new Uint8Array(33),
+  },
+});
+
+const dontModifySignFrostParams: ModifySignFrostParams = (params) => params;
+
+const createDefaultMessage: CreateRefundTxMessage = ({ tx, nodeOutput }) =>
+  getSigHashFromTx(tx, 0, nodeOutput);
