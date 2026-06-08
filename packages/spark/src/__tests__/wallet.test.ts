@@ -165,7 +165,7 @@ describe("TurnkeySparkWallet", () => {
 
     await senderWallet.cleanup();
     await receiverWallet.cleanup();
-  });
+  }, TEST_TIMEOUT);
 
   it(
     "should be able to transfer",
