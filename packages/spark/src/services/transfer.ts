@@ -368,7 +368,7 @@ const isLeafWithTreeNode = (
   value: TransferLeaf,
 ): value is TransferLeafWithTreeNode => value.leaf != null;
 
-const leafKeyTweakToTransferInputLeaf = (
+export const leafKeyTweakToTransferInputLeaf = (
   leaf: LeafKeyTweak,
 ): TransferLeafInput => ({
   leafId: leaf.leaf.id,
@@ -376,7 +376,7 @@ const leafKeyTweakToTransferInputLeaf = (
   newLeafDerivation: leaf.newKeyDerivation,
 });
 
-const normalizeTransferLeafKeyTweak = (
+export const normalizeTransferLeafKeyTweak = (
   leafKeyTweak: LeafKeyTweak,
 ): LeafKeyTweak => ({
   ...leafKeyTweak,
@@ -393,7 +393,7 @@ const normalizeTransferLeafKeyTweak = (
  * Pre-sort, `Object.values()` insertion order would scramble the assignment and
  * operators couldn't reconstruct. See commit 558d66361 for the original incident.
  */
-const operatorsToOperatorRecipients = (
+export const operatorsToOperatorRecipients = (
   operators: Readonly<Record<string, SigningOperator>>,
 ): OperatorRecipientInput[] =>
   Object.values(operators)
@@ -410,7 +410,7 @@ interface LeafKeyTweak {
   receiverIdentityPublicKey: Uint8Array;
 }
 
-interface TransferPackageWithSelfCommitments extends TransferPackage {
+export interface TransferPackageWithSelfCommitments extends TransferPackage {
   leavesToSend: UserSignedTxSigningJobWithSelfCommitment[];
   directLeavesToSend: UserSignedTxSigningJobWithSelfCommitment[];
   directFromCpfpLeavesToSend: UserSignedTxSigningJobWithSelfCommitment[];
@@ -419,7 +419,7 @@ interface TransferPackageWithSelfCommitments extends TransferPackage {
 /**
  * Assemble a TransferPackage from a Turnkey enclave result + signed refund jobs.
  * */
-const transferResultToTransferPackage = (
+export const transferResultToTransferPackage = (
   transferResult: TransferResult,
   signRefundsResult: SignRefundsResult,
 ): TransferPackageWithSelfCommitments => {
@@ -437,7 +437,7 @@ const transferResultToTransferPackage = (
   };
 };
 
-const operatorPackagesToKeyTweakPackage = (
+export const operatorPackagesToKeyTweakPackage = (
   operatorPackages: OperatorPackage[],
 ): Record<string, Uint8Array> =>
   Object.fromEntries(
