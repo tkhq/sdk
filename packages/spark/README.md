@@ -18,4 +18,4 @@ $ npm install @turnkey/spark
 
 | Example                                    | Description                                                                                  |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| [`with-spark`](../../examples/with-spark/) | Demonstrates [Spark](https://spark.money) operations using **Turnkey as the key custodian**. |
+| [`with-spark`](../../examples/chain-integrations/with-spark/) | Demonstrates [Spark](https://spark.money) operations using **Turnkey as the key custodian**. |

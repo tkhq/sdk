@@ -884,7 +884,7 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/demos/react-wallet-kit:
+  examples/demos/with-react-wallet-kit:
     dependencies:
       '@fortawesome/fontawesome-svg-core':
         specifier: ^6.7.2
@@ -2701,7 +2701,7 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/demos/with-sdk-js:
+  examples/demos/react-wallet-kit-playground:
     dependencies:
       '@noble/hashes':
         specifier: 1.4.0
@@ -2951,7 +2951,7 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/defi/with-spark:
+  examples/chain-integrations/with-spark:
     dependencies:
       '@buildonspark/issuer-sdk':
         specifier: ^0.1.23
