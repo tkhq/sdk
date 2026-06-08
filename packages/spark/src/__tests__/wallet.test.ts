@@ -4,16 +4,12 @@ import {
   v1WalletAccount,
 } from "@turnkey/sdk-server";
 import { SparkReadonlyClient, SparkWalletEvent } from "@buildonspark/spark-sdk";
-
+import type { WalletTransfer } from "@buildonspark/spark-sdk/dist/types";
 import assert from "node:assert";
 import { Curve } from "@turnkey/core";
 import { SPARK_DEPOSIT_SUFFIX, SPARK_IDENTITY_SUFFIX } from "../constants";
 import { TurnkeySparkSigner } from "../signer";
-import { TurnkeySparkWallet } from "../wallet";
-import type {
-  Transfer,
-  TreeNode,
-} from "@buildonspark/spark-sdk/dist/proto/spark";
+import { TurnekySparkWalletTest } from "../test-wallet";
 
 const NETWORK = "REGTEST";
 
@@ -26,7 +22,10 @@ const BTC_PATH = "m/86'/1'/0'/0/0";
 const SENDER_WALLET_NAME = "Spark E2E Sender";
 const RECEIVER_WALLET_NAME = "Spark E2E Receiver";
 
+const SATS_CLOSE_TO_DEPLETED = 1000_000;
 const SATS_REQUIRED_FOR_TESTS = 1000;
+
+const TEST_TIMEOUT = 60_000; // 60 seconds, because claiming transfers can take a while
 
 const DEFAULT_SPARK_REGTEST_ELECTRS_URL =
   "https://regtest-mempool.us-west-2.sparkinfra.net/api";
@@ -92,12 +91,17 @@ describe("TurnkeySparkWallet", () => {
     receiverSigner = await createSparkSigner(receiverAccounts);
     receiverWallet = await createSparkWallet(receiverSigner);
 
-    // const txId = "a4b3b389a95053c83786ea51d0f1285c7d2207e6c3e006859314e14d3b3c9a7e"
-    // const txId = "23c6755668ac34de0adb80bda653de5eb0f31dac546a4b14a315a7711927fc09"
-    // const txId = "ac5fdd3ca9cc40ea6e6e3a8fc3752171e9d770e406b6ad47cb77b328901923fe"
-    // const txId = "66e21c39acd22e41ef0c2727f0578f393c9a9a734983f8e6ea83446ca0dd8c76"
-    // await senderWallet.claimDeposit(txId)
+    // We'll print out the addresses so that we can fund them if need be
+    console.table({
+      sparkSender: { address: senderAccounts.sparkIdentityAccount.address },
+      sparkReceiver: { address: receiverAccounts.sparkIdentityAccount.address },
+      btcSender: { address: senderAccounts.btcAccount.address },
+    });
 
+    // Before doing anything, we check any pending transfers
+    //
+    // This is how these wallets get funded - we request funds in their faucet,
+    // then this code claims those funds before running the tests
     const sparkClient = SparkReadonlyClient.createWithSigner(
       {
         network: NETWORK,
@@ -105,96 +109,99 @@ describe("TurnkeySparkWallet", () => {
       },
       senderSigner,
     );
-
-    // Before doing anything, we check any pending transfers
-    //
-    // This is how these wallets get funded - we request funds in their faucet,
-    // then this code claims those funds before running the tests
     const transferAddress = senderAccounts.sparkIdentityAccount.address;
     const pendingTransfers =
       await sparkClient.getPendingTransfers(transferAddress);
     if (pendingTransfers.length > 0) {
-      await senderWallet.__claimTransferBatch(pendingTransfers);
+      await senderWallet.__claimTransferBatch__(pendingTransfers);
     }
 
-    // Check that we got enough balance to run the tests
+    // Now that we claimed any pending transfers, we check that we got enough balance to run the tests
     const { satsBalance } = await senderWallet.getBalance();
-    try {
-      expect(satsBalance.available).toBeGreaterThanOrEqual(
-        SATS_REQUIRED_FOR_TESTS,
-      );
-    } catch (error: unknown) {
-      const transferAddress = senderAccounts.sparkIdentityAccount.address;
-      const depositAddress = await senderWallet.getSingleUseDepositAddress();
 
-      throw new Error(
-        `Sender wallet has insufficient balance for tests (${satsBalance.available} available, ${satsBalance.incoming} incoming). Please fund the wallet with at least ${SATS_REQUIRED_FOR_TESTS} sats on regtest.
+    if (satsBalance.available < SATS_CLOSE_TO_DEPLETED) {
+      // We'll create a github actions warning if the sender wallet is close to being depleted
+      warn(createWalletAlmostDepletedMessage(transferAddress, satsBalance));
+    } else if (satsBalance.available < SATS_REQUIRED_FOR_TESTS) {
+      const message = createWalletDepletedMessage(transferAddress, satsBalance);
 
-You can use the regtest faucet at https://app.lightspark.com/regtest-faucet 
-to send 100000 sats to ${depositAddress} and claim the deposit by its transaction ID:
+      // We'll create a github actions error if the sender wallet is depleted and doesn't have enough balance for the tests
+      warn(message);
 
-await senderWallet.claimDeposit(txId)
-
-You can also request funds from the faucet to the Spark address ${transferAddress}
-and the test should take care of claiming.
-
-Original error: ${error}`,
-      );
+      // And stop the tests
+      throw new Error(message);
     }
-  }, 60_000);
+  }, TEST_TIMEOUT);
 
   afterAll(async () => {
     await senderWallet.cleanup();
     await receiverWallet.cleanup();
   });
 
-  it("should be able to transfer", async () => {
-    const receiverSparkAddress = await receiverWallet.getSparkAddress();
+  it(
+    "should be able to transfer",
+    async () => {
+      let transfer: WalletTransfer | undefined;
+      const receiverSparkAddress = await receiverWallet.getSparkAddress();
 
-    let resolve: () => void;
-    const promise = new Promise<void>((res) => (resolve = res));
+      // We need to setup the event listeners before creating the transfer, otherwise we might miss the events
+      const claimed = waitForTransferToBeClaimed(
+        receiverWallet,
+        (id) => id === transfer?.id,
+      );
 
-    receiverWallet.on(SparkWalletEvent.TransferClaimed, (transferId) => {
-      if (transferId === transfer.id) {
-        resolve();
-      }
-    });
+      transfer = await senderWallet.transfer({
+        amountSats: 100,
+        receiverSparkAddress,
+      });
 
-    const transfer = await senderWallet.transfer({
-      amountSats: 100,
-      receiverSparkAddress,
-    });
+      expect(transfer).toBeDefined();
 
-    return promise;
-  }, 60_000);
+      return claimed;
+    },
+    TEST_TIMEOUT,
+  );
 });
 
-interface WalletWithClaimTransfer {
-  claimTransfer({
-    transfer,
-    emit,
-  }: {
-    transfer: Transfer;
-    emit?: boolean;
-  }): Promise<TreeNode[]>;
-  claimTransferBatch(transfers: Transfer[], emit?: boolean): Promise<string[]>;
-}
-class TurnekySparkWalletTest extends TurnkeySparkWallet {
-  async __claimTransfer(transfer: Transfer) {
-    return (this as unknown as WalletWithClaimTransfer).claimTransfer({
-      transfer,
-      emit: true,
-    });
-  }
+/**
+ * Helper function that waits for a particular transfer to be claimed by the wallet
+ *
+ * Waiting for a transfer to be claimed is a bit tricky since we need to set the event handlers
+ * before we have a reference to the actual transfer.
+ *
+ * What we do is setup the event handler on the wallet and let the onTransfer handle them,
+ * instead of passing the transfer ID which we don't have
+ */
+const waitForTransferToBeClaimed = (
+  wallet: TurnekySparkWalletTest,
+  onTransfer: (claimedTransferId: string) => boolean,
+): Promise<void> => {
+  const { promise, resolve, reject } = Promise.withResolvers<void>();
 
-  async __claimTransferBatch(transfers: Transfer[]) {
-    return (this as unknown as WalletWithClaimTransfer).claimTransferBatch(
-      transfers,
-      true,
-    );
-  }
-}
+  const handler = (claimedTransferId: string): void => {
+    try {
+      // onTransfer should return true if this is the transfer we are waiting for
+      if (onTransfer(claimedTransferId)) {
+        wallet.off(SparkWalletEvent.TransferClaimed, handler);
 
+        resolve();
+      }
+    } catch (error: unknown) {
+      // If the handler errors out, we propagate the error
+      wallet.off(SparkWalletEvent.TransferClaimed, handler);
+
+      reject(error);
+    }
+  };
+
+  wallet.on(SparkWalletEvent.TransferClaimed, handler);
+
+  return promise;
+};
+
+/**
+ * Factory for a function that creates a TurnkeySparkSigner from the wallet accounts
+ */
 const createSparkSignerFactory =
   (turnkey: Turnkey) => async (accounts: WalletAccounts) =>
     new TurnkeySparkSigner({
@@ -206,6 +213,9 @@ const createSparkSignerFactory =
       walletId: accounts.walletId,
     });
 
+/**
+ * Initializes a TurnkeySparkWalletTest instance from a TurnkeySparkSigner
+ */
 const createSparkWallet = (signer: TurnkeySparkSigner) =>
   TurnekySparkWalletTest.initialize({
     signer,
@@ -216,6 +226,9 @@ const createSparkWallet = (signer: TurnkeySparkSigner) =>
     },
   }).then(({ wallet }) => wallet);
 
+/**
+ * Factory for a function that finds an existing wallet by name
+ */
 const createGetWalletIdByName =
   (client: TurnkeyApiClient) => async (walletName: string) =>
     client
@@ -225,6 +238,9 @@ const createGetWalletIdByName =
           wallets.find((w) => w.walletName === walletName)?.walletId,
       );
 
+/**
+ * Factory for a function that creates a wallet by name
+ */
 const createWalletFactory =
   (client: TurnkeyApiClient) => (walletName: string) =>
     client
@@ -270,6 +286,9 @@ interface WalletAccounts {
   btcAccount: v1WalletAccount;
 }
 
+/**
+ * Factory for a function that finds the accounts needed for tests
+ */
 const createGetWalletAccounts =
   (client: TurnkeyApiClient) =>
   async (walletId: string): Promise<WalletAccounts> => {
@@ -315,3 +334,36 @@ const createGetWalletAccounts =
       btcAccount,
     };
   };
+
+const createFaucetMessage = (address: string) =>
+  `You can use the regtest faucet at https://app.lightspark.com/regtest-faucet 
+to send 100000 sats to ${address} and this test will take care of claiming and pending transfers.`;
+
+const createWalletAlmostDepletedMessage = (
+  address: string,
+  balance: { available: bigint; incoming: bigint },
+) =>
+  `Sender wallet is close to being depleted with only ${balance.available} sats available and ${balance.incoming} sats incoming.
+
+${createFaucetMessage(address)}`;
+
+const createWalletDepletedMessage = (
+  address: string,
+  balance: { available: bigint; incoming: bigint },
+) =>
+  `Sender wallet has insufficient balance for tests with only ${balance.available} sats available and ${balance.incoming} sats incoming.
+
+${createFaucetMessage(address)}`;
+
+/**
+ * Helper function that detects the runtime (github actions or local) and logs a warning message accordingly.
+ */
+const warn = async (message: string) => {
+  if (process.env.GITHUB_ACTIONS) {
+    const { warning } = await import("@actions/core");
+
+    warning(message, { file: __filename });
+  } else {
+    console.warn(message);
+  }
+};
