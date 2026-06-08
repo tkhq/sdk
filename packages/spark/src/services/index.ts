@@ -1,1 +1,1 @@
-export * from "./transfer";
+export { TurnkeyTransferService } from "./transfer";
