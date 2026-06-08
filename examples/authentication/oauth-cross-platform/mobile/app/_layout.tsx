@@ -1,0 +1,44 @@
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import "react-native-reanimated";
+
+import {
+  TurnkeyProvider,
+  AuthState,
+  useTurnkey,
+} from "@turnkey/react-native-wallet-kit";
+import { TURNKEY_CONFIG, TURNKEY_CALLBACKS } from "@/constants/turnkey";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+
+function AuthGate() {
+  const { authState } = useTurnkey();
+  const isLoggedIn = authState === AuthState.Authenticated;
+  return (
+    <Stack>
+      <Stack.Protected guard={isLoggedIn}>
+        <Stack.Screen name="(main)" options={{ headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Protected guard={!isLoggedIn}>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+      </Stack.Protected>
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  const colorScheme = useColorScheme();
+
+  return (
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <TurnkeyProvider config={TURNKEY_CONFIG} callbacks={TURNKEY_CALLBACKS}>
+        <AuthGate />
+        <StatusBar style="auto" />
+      </TurnkeyProvider>
+    </ThemeProvider>
+  );
+}

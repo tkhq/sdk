@@ -5,3 +5,4 @@ packages:
   - "!examples/demos/with-react-native-wallet-kit/**"
   - "!examples/defi/with-walletconnect-pay/**"
   - "!examples/advanced/foundry/lib/**"
+  - "!examples/authentication/oauth-cross-platform/mobile/**"
