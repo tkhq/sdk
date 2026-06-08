@@ -119,12 +119,7 @@ describe("TurnkeySparkWallet", () => {
     // Now that we claimed any pending transfers, we check that we got enough balance to run the tests
     const { satsBalance } = await senderWallet.getBalance();
 
-    if (satsBalance.available < SATS_CLOSE_TO_DEPLETED) {
-      // We'll create a github actions warning if the sender wallet is close to being depleted
-      await warn(
-        createWalletAlmostDepletedMessage(transferAddress, satsBalance),
-      );
-    } else if (satsBalance.available < SATS_REQUIRED_FOR_TESTS) {
+    if (satsBalance.available < SATS_REQUIRED_FOR_TESTS) {
       const message = createWalletDepletedMessage(transferAddress, satsBalance);
 
       // We'll create a github actions error if the sender wallet is depleted and doesn't have enough balance for the tests
@@ -132,6 +127,11 @@ describe("TurnkeySparkWallet", () => {
 
       // And stop the tests
       throw new Error(message);
+    } else if (satsBalance.available < SATS_CLOSE_TO_DEPLETED) {
+      // We'll create a github actions warning if the sender wallet is close to being depleted
+      await warn(
+        createWalletAlmostDepletedMessage(transferAddress, satsBalance),
+      );
     }
   }, TEST_TIMEOUT);
 
