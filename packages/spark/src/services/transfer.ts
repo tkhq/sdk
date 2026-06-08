@@ -178,9 +178,7 @@ export class TurnkeyTransferService extends TransferService {
 
     const ownerIdentityPublicKey = await signer.getIdentityPublicKey();
     const receiverPublicKey = leaves[0]!.receiverIdentityPublicKey;
-    const receiverPublicKeyHex = uint8ArrayToHexString(
-      leaves[0]!.receiverIdentityPublicKey,
-    );
+    const receiverPublicKeyHex = uint8ArrayToHexString(receiverPublicKey);
     const operatorRecipients = operatorsToOperatorRecipients(
       this.config.getSigningOperators(),
     );
