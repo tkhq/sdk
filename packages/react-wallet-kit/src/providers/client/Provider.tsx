@@ -281,7 +281,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const proxyAuthConfigRef = useRef<ProxyTGetWalletKitConfigResponse | null>(
     null,
   );
-
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
   >(undefined);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTurnkey } from "@turnkey/react-wallet-kit";
+import { useTurnkey, ClientState } from "@turnkey/react-wallet-kit";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/server/actions/turnkey";
 
 function CallbackInner() {
-  const { storeSession } = useTurnkey();
+  const { storeSession, clientState } = useTurnkey();
   const router = useRouter();
   const searchParams = useSearchParams();
   const handledRef = useRef(false);
@@ -21,8 +21,12 @@ function CallbackInner() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (clientState !== ClientState.Ready) return;
     if (handledRef.current) return;
     handledRef.current = true;
+
+    // Clean the URL so TurnkeyProvider doesn't also try to handle the OAuth params
+    window.history.replaceState(null, "", "/callback");
 
     const code = searchParams.get("code");
     const stateParam = searchParams.get("state");
@@ -89,12 +93,12 @@ function CallbackInner() {
         });
 
         await storeSession({ sessionToken: session });
-        window.location.replace("/dashboard");
+        router.replace("/dashboard");
       } catch (e: any) {
         setError(e?.message ?? "Sign-in failed. Please try again.");
       }
     })();
-  }, [searchParams, storeSession]);
+  }, [searchParams, storeSession, clientState]);
 
   if (error) {
     return (
