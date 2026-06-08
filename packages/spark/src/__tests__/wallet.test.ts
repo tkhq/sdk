@@ -121,12 +121,14 @@ describe("TurnkeySparkWallet", () => {
 
     if (satsBalance.available < SATS_CLOSE_TO_DEPLETED) {
       // We'll create a github actions warning if the sender wallet is close to being depleted
-      warn(createWalletAlmostDepletedMessage(transferAddress, satsBalance));
+      await warn(
+        createWalletAlmostDepletedMessage(transferAddress, satsBalance),
+      );
     } else if (satsBalance.available < SATS_REQUIRED_FOR_TESTS) {
       const message = createWalletDepletedMessage(transferAddress, satsBalance);
 
       // We'll create a github actions error if the sender wallet is depleted and doesn't have enough balance for the tests
-      warn(message);
+      await warn(message);
 
       // And stop the tests
       throw new Error(message);
@@ -134,6 +136,33 @@ describe("TurnkeySparkWallet", () => {
   }, TEST_TIMEOUT);
 
   afterAll(async () => {
+    // We'll try to recover any funds transferred to the receiver wallet
+    //
+    // Since these tests can run in parallel, we want to wrap this in try/catch
+    // to avoid race conditions between tests tearing down the suite
+    try {
+      let transfer: WalletTransfer | undefined;
+      const receiverSparkAddress = await senderWallet.getSparkAddress();
+      const {
+        satsBalance: { available },
+      } = await receiverWallet.getBalance();
+
+      // We need to setup the event listeners before creating the transfer, otherwise we might miss the events
+      const claimed = waitForTransferToBeClaimed(
+        senderWallet,
+        (id) => id === transfer?.id,
+      );
+
+      transfer = await receiverWallet.transfer({
+        amountSats: Number(available),
+        receiverSparkAddress,
+      });
+
+      await claimed;
+    } catch (error: unknown) {
+      await warn(`Failed to recover funds from receiver wallet:\n\n${error}`);
+    }
+
     await senderWallet.cleanup();
     await receiverWallet.cleanup();
   });
