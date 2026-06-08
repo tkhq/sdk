@@ -20,7 +20,7 @@ interface WalletWithClaimTransfer {
  *
  * It is not supposed to be used outside of tests and should not be used in production code.
  */
-export class TurnekySparkWalletTest extends TurnkeySparkWallet {
+export class TurnkeySparkWalletTest extends TurnkeySparkWallet {
   async __claimTransfer__(transfer: Transfer) {
     return (this as unknown as WalletWithClaimTransfer).claimTransfer({
       transfer,

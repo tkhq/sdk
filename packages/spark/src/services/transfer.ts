@@ -39,7 +39,7 @@ import type {
 } from "../signer";
 import { compactEcdsaSignature } from "../utils";
 
-export class TurneyTransferService extends TransferService {
+export class TurnkeyTransferService extends TransferService {
   override async claimTransferCore(transfer: Transfer): Promise<TreeNode[]> {
     const config = this.config;
     const signer = config.signer as TurnkeySparkSigner;

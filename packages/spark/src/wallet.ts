@@ -3,13 +3,13 @@ import {
   SparkSigner,
   SparkWallet,
 } from "@buildonspark/spark-sdk";
-import { TurneyTransferService } from "./services/transfer";
+import { TurnkeyTransferService } from "./services/transfer";
 
 export class TurnkeySparkWallet extends SparkWallet {
   constructor(options?: ConfigOptions, signerArg?: SparkSigner) {
     super(options, signerArg);
 
-    this.transferService = new TurneyTransferService(
+    this.transferService = new TurnkeyTransferService(
       this.config,
       this.connectionManager,
       this.signingService,

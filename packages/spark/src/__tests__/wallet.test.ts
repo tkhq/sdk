@@ -9,7 +9,7 @@ import assert from "node:assert";
 import { Curve } from "@turnkey/core";
 import { SPARK_DEPOSIT_SUFFIX, SPARK_IDENTITY_SUFFIX } from "../constants";
 import { TurnkeySparkSigner } from "../signer";
-import { TurnekySparkWalletTest } from "../test-wallet";
+import { TurnkeySparkWalletTest } from "../test-wallet";
 
 const NETWORK = "REGTEST";
 
@@ -40,8 +40,8 @@ describe("TurnkeySparkWallet", () => {
   let senderSigner: TurnkeySparkSigner;
   let receiverSigner: TurnkeySparkSigner;
 
-  let senderWallet: TurnekySparkWalletTest;
-  let receiverWallet: TurnekySparkWalletTest;
+  let senderWallet: TurnkeySparkWalletTest;
+  let receiverWallet: TurnkeySparkWalletTest;
 
   beforeAll(async () => {
     assert(
@@ -202,7 +202,7 @@ describe("TurnkeySparkWallet", () => {
  * instead of passing the transfer ID which we don't have
  */
 const waitForTransferToBeClaimed = (
-  wallet: TurnekySparkWalletTest,
+  wallet: TurnkeySparkWalletTest,
   onTransfer: (claimedTransferId: string) => boolean,
 ): Promise<void> => {
   const { promise, resolve, reject } = Promise.withResolvers<void>();
@@ -246,7 +246,7 @@ const createSparkSignerFactory =
  * Initializes a TurnkeySparkWalletTest instance from a TurnkeySparkSigner
  */
 const createSparkWallet = (signer: TurnkeySparkSigner) =>
-  TurnekySparkWalletTest.initialize({
+  TurnkeySparkWalletTest.initialize({
     signer,
     options: {
       network: NETWORK,
