@@ -6,8 +6,7 @@ import { useState, ReactNode } from "react";
 import clsx from "clsx";
 import { ConnectedIndicator } from "../../design/ConnectedIndicator";
 import type { Chain } from "@turnkey/core";
-
-export const WALLET_BUTTON_HEIGHT = 56; // Height of each wallet button in pixels.
+import { WALLET_BUTTON_HEIGHT } from "./constants";
 
 interface WalletButtonProps {
   icon: string | ReactNode;

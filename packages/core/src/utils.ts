@@ -1626,8 +1626,20 @@ export async function buildWalletConnectAppEntries(
   // we derive a unique chains list from the namespaces
   const chains = new Set<Chain>();
   for (const ns of namespaces) {
-    if (ns.startsWith("eip155:")) chains.add(Chain.Ethereum);
-    else if (ns.startsWith("solana:")) chains.add(Chain.Solana);
+    const [chainPrefix] = ns.split(":");
+
+    switch (chainPrefix) {
+      case "eip155":
+        chains.add(Chain.Ethereum);
+        break;
+      case "solana":
+        chains.add(Chain.Solana);
+        break;
+      default:
+        // Unknown CAIP-2 namespace — WalletConnect surfaces many chains we don't
+        // support; skip these.
+        continue;
+    }
   }
 
   for (const app of rawApps) {

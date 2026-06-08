@@ -119,7 +119,6 @@ export function WalletConnectFlow(props: WalletConnectFlowProps) {
           }
         />
       ),
-
     });
   };
 

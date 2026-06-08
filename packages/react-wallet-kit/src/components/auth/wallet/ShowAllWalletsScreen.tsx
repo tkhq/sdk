@@ -14,17 +14,22 @@ import {
   findWalletConnectProvider,
   useDebouncedCallback,
 } from "../../../utils/utils";
-import { WalletButton, WALLET_BUTTON_HEIGHT } from "./WalletButton";
+import { WalletButton } from "./WalletButton";
 import { WalletConnectAppChainSelector } from "./WalletConnectAppChainSelector";
 import { SearchInputBox } from "../../design/Inputs";
 import { Spinner } from "../../design/Spinners";
+import { BUFFER_SIZE, INITIAL_VISIBLE_ROWS, ROW_STRIDE } from "./constants";
+import { WalletButtonSkeleton } from "./WalletButtonSkeleton";
+
+type RowRange = { start: number; end: number };
+
+const sameRange = (a: RowRange, b: RowRange) =>
+  a.start === b.start && a.end === b.end;
 
 interface ShowAllWalletsScreenProps {
   onSelect: (provider: WalletProvider) => Promise<void>;
   onSelectQRCode: () => Promise<void>;
 }
-
-const BUFFER_SIZE = 5; // Number of items to render outside visible area
 
 export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
   const { onSelect, onSelectQRCode } = props;
@@ -33,12 +38,18 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
   const { isMobile, pushPage, popPage } = useModal();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 20 });
+  // renderRange (buffered, debounced) governs which real WalletButtons are mounted.
+  // viewportRange (unbuffered, rAF-synchronous) governs the skeleton layer behind them.
+  const [renderRange, setRenderRange] = useState<RowRange>({
+    start: 0,
+    end: INITIAL_VISIBLE_ROWS,
+  });
+  const [viewportRange, setViewportRange] = useState<RowRange>({
+    start: 0,
+    end: INITIAL_VISIBLE_ROWS,
+  });
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Data processing
-  // ─────────────────────────────────────────────────────────────────────────────
+  const rafIdRef = useRef<number | null>(null);
 
   // Group wallet apps by id (same wallet across different chains)
   const grouped = useMemo(
@@ -66,9 +77,11 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
     });
   }, [grouped, searchQuery]);
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Selection handlers
-  // ─────────────────────────────────────────────────────────────────────────────
+  // The QR-code row takes the slot at global row 0 when not searching.
+  // renderRange/viewportRange are in *global* row indices, so wallet entry i
+  // lives at global row (qrRowCount + i).
+  const qrRowCount = searchQuery ? 0 : 1;
+  const totalRows = walletEntries.length + qrRowCount;
 
   /**
    * Merges WalletConnectAppEntry (display info) with the actual WalletProvider
@@ -124,52 +137,73 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
     [selectApp, pushPage],
   );
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Virtual scrolling
-  // ─────────────────────────────────────────────────────────────────────────────
+  const computeRange = useCallback(
+    (buffer: number): RowRange | null => {
+      if (!scrollContainerRef.current) return null;
+      const { scrollTop, clientHeight } = scrollContainerRef.current;
+      return {
+        start: Math.max(0, Math.floor(scrollTop / ROW_STRIDE) - buffer),
+        end: Math.min(
+          totalRows,
+          Math.ceil((scrollTop + clientHeight) / ROW_STRIDE) + buffer,
+        ),
+      };
+    },
+    [totalRows],
+  );
 
   const handleScroll = useDebouncedCallback(() => {
-    if (!scrollContainerRef.current) return;
-
-    const { scrollTop, clientHeight } = scrollContainerRef.current;
-
-    const start = Math.max(
-      0,
-      Math.floor(scrollTop / WALLET_BUTTON_HEIGHT) - BUFFER_SIZE,
-    );
-    const end = Math.min(
-      walletEntries.length,
-      Math.ceil((scrollTop + clientHeight) / WALLET_BUTTON_HEIGHT) +
-        BUFFER_SIZE,
-    );
-
-    setVisibleRange({ start, end });
+    const next = computeRange(BUFFER_SIZE);
+    if (next) setRenderRange((prev) => (sameRange(prev, next) ? prev : next));
   }, 50);
 
-  // Reset scroll when search results change
+  const onScroll = useCallback(() => {
+    if (rafIdRef.current === null) {
+      rafIdRef.current = requestAnimationFrame(() => {
+        rafIdRef.current = null;
+        const next = computeRange(0);
+        if (next)
+          setViewportRange((prev) => (sameRange(prev, next) ? prev : next));
+      });
+    }
+    handleScroll();
+  }, [computeRange, handleScroll]);
+
   useEffect(() => {
-    setVisibleRange({ start: 0, end: Math.min(20, walletEntries.length) });
+    return () => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, []);
+
+  // Reset scroll when search results change (or QR row toggles)
+  useEffect(() => {
+    const initial: RowRange = {
+      start: 0,
+      end: Math.min(INITIAL_VISIBLE_ROWS, totalRows),
+    };
+    setRenderRange(initial);
+    setViewportRange(initial);
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
     }
-  }, [walletEntries.length]);
+  }, [totalRows]);
 
   const debouncedSetSearch = useDebouncedCallback(
     (value: string) => setSearchQuery(value),
     300,
   );
 
-  const visibleItems = useMemo(
-    () => walletEntries.slice(visibleRange.start, visibleRange.end),
-    [walletEntries, visibleRange],
-  );
+  // renderRange is in global row indices; subtract qrRowCount to slice walletEntries
+  const visibleItems = useMemo(() => {
+    const sliceStart = Math.max(0, renderRange.start - qrRowCount);
+    const sliceEnd = Math.max(0, renderRange.end - qrRowCount);
+    return walletEntries.slice(sliceStart, sliceEnd);
+  }, [walletEntries, renderRange, qrRowCount]);
 
-  const totalHeight = walletEntries.length * WALLET_BUTTON_HEIGHT;
-  const offsetY = visibleRange.start * WALLET_BUTTON_HEIGHT;
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Render
-  // ─────────────────────────────────────────────────────────────────────────────
+  const totalHeight = totalRows * ROW_STRIDE;
+  const offsetY = renderRange.start * ROW_STRIDE;
 
   if (isLoadingApps) {
     return (
@@ -196,13 +230,31 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
       {/* Wallet List with Virtual Scrolling */}
       <div
         ref={scrollContainerRef}
-        onScroll={handleScroll}
+        onScroll={onScroll}
         className={clsx(
           "min-h-42 overflow-y-auto tk-scrollbar p-0.5",
           isMobile ? "max-h-80" : "max-h-72", // We actually want a bit more height on mobile. Easier to scroll thru with finger. Large heights on desktop look weird
         )}
       >
         <div style={{ height: totalHeight, position: "relative" }}>
+          {/* Skeleton layer - sync with viewport via rAF, covered by real items once renderRange catches up */}
+          <div
+            style={{
+              transform: `translateY(${viewportRange.start * ROW_STRIDE}px)`,
+              position: "absolute",
+              width: "100%",
+            }}
+            className="flex flex-col gap-2"
+            aria-hidden="true"
+          >
+            {Array.from({
+              length: Math.max(0, viewportRange.end - viewportRange.start),
+            }).map((_, i) => (
+              <WalletButtonSkeleton
+                key={`skeleton-${viewportRange.start + i}`}
+              />
+            ))}
+          </div>
           <div
             style={{
               transform: `translateY(${offsetY}px)`,
@@ -212,7 +264,7 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
             className="flex flex-col gap-2"
           >
             {/* QR Code option always on top (only when not searching) */}
-            {visibleRange.start === 0 && !searchQuery && (
+            {qrRowCount > 0 && renderRange.start === 0 && (
               <WalletButton
                 key="qr-code-walletconnect"
                 icon={
