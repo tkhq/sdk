@@ -4,7 +4,10 @@ import {
   v1WalletAccount,
 } from "@turnkey/sdk-server";
 import { SparkReadonlyClient, SparkWalletEvent } from "@buildonspark/spark-sdk";
-import type { WalletTransfer } from "@buildonspark/spark-sdk/dist/types";
+import type {
+  ExitSpeed,
+  WalletTransfer,
+} from "@buildonspark/spark-sdk/dist/types";
 import assert from "node:assert";
 import { Curve } from "@turnkey/core";
 import { SPARK_DEPOSIT_SUFFIX, SPARK_IDENTITY_SUFFIX } from "../constants";
@@ -141,25 +144,8 @@ describe("TurnkeySparkWallet", () => {
     // Since these tests can run in parallel, we want to wrap this in try/catch
     // to avoid race conditions between tests tearing down the suite
     try {
-      let transfer: WalletTransfer | undefined;
-      const receiverSparkAddress = await senderWallet.getSparkAddress();
-      const {
-        satsBalance: { available },
-      } = await receiverWallet.getBalance();
-
-      // We need to setup the event listeners before creating the transfer, otherwise we might miss the events
-      const claimed = waitForTransferToBeClaimed(
-        senderWallet,
-        (id) => id === transfer?.id,
-      );
-
-      transfer = await receiverWallet.transfer({
-        amountSats: Number(available),
-        receiverSparkAddress,
-      });
-
-      await claimed;
-    } catch (error: unknown) {
+      await recoverAllFunds(receiverWallet, senderWallet);
+    } catch (error) {
       await warn(`Failed to recover funds from receiver wallet:\n\n${error}`);
     }
 
@@ -170,7 +156,7 @@ describe("TurnkeySparkWallet", () => {
   it(
     "should be able to transfer",
     async () => {
-      let transfer: WalletTransfer | undefined;
+      let transfer: WalletTransfer | undefined = undefined;
       const receiverSparkAddress = await receiverWallet.getSparkAddress();
 
       // We need to setup the event listeners before creating the transfer, otherwise we might miss the events
@@ -187,6 +173,42 @@ describe("TurnkeySparkWallet", () => {
       expect(transfer).toBeDefined();
 
       return claimed;
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    "should be able to withdraw a specific amount",
+    async () => {
+      const amountSats = 1000;
+      const withdrawalAddress = receiverAccounts.btcAccount.address;
+
+      const feeQuote = await senderWallet.getWithdrawalFeeQuote({
+        amountSats,
+        withdrawalAddress,
+      });
+
+      expect(feeQuote).not.toBeNull();
+
+      const feeAmountSats =
+        (feeQuote!.l1BroadcastFeeFast?.originalValue || 0) +
+        (feeQuote!.userFeeFast?.originalValue || 0);
+
+      const coopExitRequest = await senderWallet.withdraw({
+        amountSats,
+        onchainAddress: withdrawalAddress,
+        deductFeeFromWithdrawalAmount: false,
+        feeQuoteId: feeQuote?.id!,
+        feeAmountSats,
+        exitSpeed: "FAST" as ExitSpeed,
+      });
+
+      expect(coopExitRequest).toBeDefined();
+      expect(coopExitRequest!.coopExitTxid).toBeDefined();
+
+      await warn(`Sent withdrawal request with txid ${coopExitRequest!.coopExitTxid}.
+            
+At the moment, withdrawal requests are leaking test funds into the BTC wallet ${withdrawalAddress}`);
     },
     TEST_TIMEOUT,
   );
@@ -363,6 +385,36 @@ const createGetWalletAccounts =
       btcAccount,
     };
   };
+
+const recoverAllFunds = async (
+  fromWallet: TurnkeySparkWalletTest,
+  toWallet: TurnkeySparkWalletTest,
+) => {
+  const {
+    satsBalance: { available },
+  } = await fromWallet.getBalance();
+
+  // Don't do anything if there is nothing to recover
+  if (available === BigInt(0)) {
+    return;
+  }
+
+  const toAddress = await toWallet.getSparkAddress();
+
+  // We need to setup the event listeners before creating the transfer, otherwise we might miss the events
+  let transfer: WalletTransfer | undefined = undefined;
+  const claimed = waitForTransferToBeClaimed(
+    toWallet,
+    (id) => id === transfer?.id,
+  );
+
+  transfer = await fromWallet.transfer({
+    amountSats: Number(available),
+    receiverSparkAddress: toAddress,
+  });
+
+  await claimed;
+};
 
 const createFaucetMessage = (address: string) =>
   `You can use the regtest faucet at https://app.lightspark.com/regtest-faucet 
