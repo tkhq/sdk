@@ -39,7 +39,6 @@ import {
 } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import type { TurnkeySDKApiTypes as BrowserApiTypes } from "@turnkey/sdk-browser";
-import type { TurnkeySDKApiTypes as ServerApiTypes } from "@turnkey/sdk-server";
 import type {
   TGetPrivateKeyBody as SdkTypesGetPrivateKeyBody,
   TSignTransactionBody as SdkTypesSignTransactionBody,
@@ -51,19 +50,16 @@ import type {
  */
 export type TGetPrivateKeyBody =
   | BrowserApiTypes.TGetPrivateKeyBody
-  | ServerApiTypes.TGetPrivateKeyBody
   | SdkTypesGetPrivateKeyBody
   | HttpApiTypes.TGetPrivateKeyBody;
 
 export type TSignTransactionBody =
   | BrowserApiTypes.TSignTransactionBody
-  | ServerApiTypes.TSignTransactionBody
   | SdkTypesSignTransactionBody
   | HttpApiTypes.TSignTransactionBody;
 
 export type TSignRawPayloadBody =
   | BrowserApiTypes.TSignRawPayloadBody
-  | ServerApiTypes.TSignRawPayloadBody
   | SdkTypesSignRawPayloadBody
   | HttpApiTypes.TSignRawPayloadBody;
 
