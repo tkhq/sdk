@@ -4,6 +4,7 @@ import { useTurnkey } from "@turnkey/react-wallet-kit";
 import { useState, useEffect, type ReactElement } from "react";
 import {
   Horizon,
+  NetworkError,
   TransactionBuilder,
   Operation,
   Asset,
@@ -58,8 +59,8 @@ export default function SendTransaction(): ReactElement {
       // Always refresh balance — a non-ok response just means the account
       // was already funded, which is fine.
       await fetchBalance(stellarAccount.address);
-    } catch (err: any) {
-      setError(err?.message ?? "Funding failed.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Funding failed.");
     } finally {
       setFunding(false);
     }
@@ -141,7 +142,10 @@ export default function SendTransaction(): ReactElement {
       setTxHash(result.hash);
       await fetchBalance(stellarAccount.address);
     } catch (err) {
-      const horizonError = (err as any)?.response?.data?.extras?.result_codes;
+      const horizonError =
+        err instanceof NetworkError
+          ? (err.response.data as Horizon.HorizonApi.ErrorResponseData.TransactionFailed | undefined)?.extras?.result_codes
+          : undefined;
       if (horizonError) {
         setError(JSON.stringify(horizonError));
       } else {

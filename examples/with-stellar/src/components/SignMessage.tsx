@@ -27,9 +27,8 @@ export default function SignMessage(): ReactElement {
       const { r, s } = await handleSignMessage({
         message,
         walletAccount: stellarAccount,
-        // ed25519 requires HASH_FUNCTION_NOT_APPLICABLE
-        encoding: "PAYLOAD_ENCODING_TEXT_UTF8" as any,
-        hashFunction: "HASH_FUNCTION_NOT_APPLICABLE" as any,
+        encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+        hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
       const rHex = r.startsWith("0x") ? r.slice(2) : r;
       const sHex = s.startsWith("0x") ? s.slice(2) : s;
