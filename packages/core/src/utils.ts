@@ -31,6 +31,8 @@ import {
   type CreateSubOrgParams,
   type WalletProvider,
   type TPasskeyStamperConfig,
+  type WalletConnectApp,
+  type WalletConnectAppEntry,
   Chain,
   EvmChainInfo,
   SolanaChainInfo,
@@ -1568,4 +1570,97 @@ export async function resetPasskeyScope(
   await client.overridePasskeyStamper({
     config: buildScopedPasskeyConfig(passkeyConfig, undefined),
   });
+}
+
+export async function fetchWalletConnectApps(
+  projectId: string,
+): Promise<WalletConnectApp[]> {
+  const url =
+    `https://explorer-api.walletconnect.com/v3/wallets` +
+    `?projectId=${projectId}`;
+
+  const res = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      `Failed to fetch WalletConnect apps: ${res.status} ${res.statusText}`,
+    );
+  }
+
+  const json = await res.json();
+
+  /**
+   * API shape:
+   * {
+   *   listings: {
+   *     [id: string]: WalletConnectApp
+   *   }
+   * }
+   */
+  const listings = json.listings ?? {};
+
+  return Object.values(listings) as WalletConnectApp[];
+}
+
+/**
+ * Fetches WalletConnect apps and transforms them into simplified app entries
+ * for display in the wallet selection UI.
+ *
+ * Only apps that support all of the provided namespaces are included
+ *
+ * @param projectId - WalletConnect project ID
+ * @param namespaces - CAIP-2 namespace strings to require (e.g. ["eip155:1", "solana:mainnet"])
+ * @returns Array of WalletConnectAppEntry objects, one per app per unique chain
+ */
+export async function buildWalletConnectAppEntries(
+  projectId: string,
+  namespaces: string[],
+): Promise<WalletConnectAppEntry[]> {
+  const rawApps = await fetchWalletConnectApps(projectId);
+  const entries: WalletConnectAppEntry[] = [];
+
+  // we derive a unique chains list from the namespaces
+  const chains = new Set<Chain>();
+  for (const ns of namespaces) {
+    const [chainPrefix] = ns.split(":");
+
+    switch (chainPrefix) {
+      case "eip155":
+        chains.add(Chain.Ethereum);
+        break;
+      case "solana":
+        chains.add(Chain.Solana);
+        break;
+      default:
+        // Unknown CAIP-2 namespace — WalletConnect surfaces many chains we don't
+        // support; skip these.
+        continue;
+    }
+  }
+
+  for (const app of rawApps) {
+    // we only include apps that support ALL namespaces
+    if (!namespaces.every((ns) => app.chains.includes(ns))) {
+      continue;
+    }
+
+    // at this point, all remaining apps support all of the namespaces
+    // so it's safe to assume they support all of the corresponding chains that
+    // we derived from the namespaces as well
+    for (const chain of chains) {
+      entries.push({
+        id: app.id,
+        name: app.name,
+        icon: app.image_url?.md ?? "",
+        uri: app.mobile?.native ?? app.mobile?.universal ?? "",
+        chain,
+      });
+    }
+  }
+
+  return entries;
 }
