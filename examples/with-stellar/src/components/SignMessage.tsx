@@ -72,7 +72,7 @@ export default function SignMessage(): ReactElement {
         <p className="text-sm text-amber-600">No Stellar account found.</p>
       )}
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-red-500">Error: {error}</p>}
 
       {signature && (
         <div className="flex flex-col gap-1">

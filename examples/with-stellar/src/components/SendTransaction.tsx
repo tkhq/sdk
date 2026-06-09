@@ -55,9 +55,21 @@ export default function SendTransaction(): ReactElement {
     setFunding(true);
     setError(null);
     try {
-      await fetch(`${FRIENDBOT_URL}/?addr=${stellarAccount.address}`);
-      // Always refresh balance — a non-ok response just means the account
-      // was already funded, which is fine.
+      const res = await fetch(`${FRIENDBOT_URL}/?addr=${stellarAccount.address}`);
+      if (!res.ok) {
+        const body = await res.json().catch(() => null) as {
+          title?: string;
+          detail?: string;
+          extras?: { invalid_field?: string; reason?: string };
+        } | null;
+        const extras = body?.extras;
+        if (extras?.reason) {
+          setError(extras.invalid_field ? `${extras.invalid_field}: ${extras.reason}` : extras.reason);
+        } else {
+          setError(body?.detail ?? body?.title ?? "Friendbot funding failed.");
+        }
+        return;
+      }
       await fetchBalance(stellarAccount.address);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Funding failed.");
@@ -215,7 +227,7 @@ export default function SendTransaction(): ReactElement {
         <p className="text-sm text-amber-600">No Stellar account found.</p>
       )}
 
-      {error && <p className="text-sm text-red-500 break-all">{error}</p>}
+      {error && <p className="text-sm text-red-500 break-all">Error: {error}</p>}
 
       {txHash && (
         <div className="flex flex-col gap-1">
