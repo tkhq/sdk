@@ -18,4 +18,4 @@ $ npm install @turnkey/solana
 
 | Example                                      | Description                                                                         |
 | -------------------------------------------- | ----------------------------------------------------------------------------------- |
-| [`with-solana`](../../examples/with-solana/) | Create a new Solana address, then sign and broadcast a transaction on Solana devnet |
+| [`with-solana`](../../examples/chain-integrations/with-solana/) | Create a new Solana address, then sign and broadcast a transaction on Solana devnet |

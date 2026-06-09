@@ -30,7 +30,7 @@ Make sure you have `Node.js` installed locally; we recommend using Node v18+.
 
 ```bash
 $ git clone https://github.com/tkhq/sdk.git
-$ cd sdk/examples/with-
+$ cd sdk/examples/demos/with-eth-passkeys-galore
 $ corepack enable  # Install `pnpm`
 $ pnpm install # Install dependencies
 $ pnpm run build  # Compile source code

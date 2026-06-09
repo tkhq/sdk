@@ -4,5 +4,5 @@ description: "[`@turnkey/viem`](https://www.npmjs.com/package/@turnkey/viem) pro
 mode: wide
 ---
 
-See [`with-viem`](https://github.com/tkhq/sdk/tree/main/examples/with-viem) and [`with-viem-and-passkeys`](https://github.com/tkhq/sdk/tree/main/examples/with-viem-and-passkeys) for examples.
-See [`with-viem`](https://github.com/tkhq/sdk/tree/main/examples/with-viem) and [`with-viem-and-passkeys`](https://github.com/tkhq/sdk/tree/main/examples/with-viem-and-passkeys) for examples.
+See [`with-viem`](https://github.com/tkhq/sdk/tree/main/examples/chain-integrations/with-viem) and [`with-viem-and-passkeys`](https://github.com/tkhq/sdk/tree/main/examples/with-viem-and-passkeys) for examples.
+See [`with-viem`](https://github.com/tkhq/sdk/tree/main/examples/chain-integrations/with-viem) and [`with-viem-and-passkeys`](https://github.com/tkhq/sdk/tree/main/examples/with-viem-and-passkeys) for examples.
