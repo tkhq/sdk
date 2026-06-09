@@ -993,6 +993,11 @@ export class TurnkeySparkSigner implements SparkSigner {
       );
     }
 
+    // The jobs array will hold three items per element:
+    //
+    // - the cpfp job at index 0
+    // - the direct job at index 1
+    // - the directFromCpfp job at index 2
     const jobs: Triple<UserUnsignedTxSigningJob | undefined>[] = [];
 
     for (let i = 0; i < leaves.length; i++) {
@@ -1100,6 +1105,7 @@ export class TurnkeySparkSigner implements SparkSigner {
       jobs.push(jobsForLeaf);
     }
 
+    // Now we flatten the jobs array into SignFrostParams[] for the batch signing call
     const signFrostParamsForLeaves: SignFrostParams[] = jobs.flatMap(
       (jobsForLeaf, index) => {
         const leaf = leaves[index]!;
@@ -1123,6 +1129,15 @@ export class TurnkeySparkSigner implements SparkSigner {
     );
 
     const signatures = await this.signFrostBatch(signFrostParamsForLeaves);
+
+    // Finally we construct the response
+    //
+    // We iterate over the jobs in the same order as when we were flattening.
+    // That way, we can just shift the signatures off the batch signing response,
+    // since the orders of iterations match.
+    //
+    // The resulting signedJobs array will have the same structure as the jobs array,
+    // but with the userSignature field populated.
     const signedJobs = jobs.map((jobsForLeaf, index) => {
       const leaf = leaves[index]!;
 
