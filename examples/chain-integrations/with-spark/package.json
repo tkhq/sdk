@@ -3,7 +3,11 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "start": "tsx src/index.ts",
+    "setup": "tsx src/setup.ts",
+    "hello-world": "tsx src/hello-world.ts",
+    "claim-deposit": "tsx src/claim-deposit.ts",
+    "transfer": "tsx src/transfer.ts",
+    "withdraw": "tsx src/withdraw.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -13,7 +17,7 @@
     "@noble/curves": "^1.9.7",
     "@noble/hashes": "^1.4.0",
     "@scure/bip39": "^1.3.0",
-    "@scure/btc-signer": "^1.5.0",
+    "@turnkey/encoding": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/spark": "workspace:*",
     "dotenv": "^16.0.3"

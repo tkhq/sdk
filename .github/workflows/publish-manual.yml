@@ -45,5 +45,9 @@ jobs:
     needs: version
     uses: ./.github/workflows/reusable-publish.yml
     secrets: inherit
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
     with:
       version: ${{ needs.version.outputs.version }}

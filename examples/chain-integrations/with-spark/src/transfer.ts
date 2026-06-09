@@ -1,0 +1,48 @@
+/**
+ * Transfer: Spark → Spark (send side)
+ *
+ * Sends sats from the Turnkey-backed wallet to another Spark address.
+ * Refund FROST signing happens via SPARK_SIGN_FROST; key tweak encryption
+ * and operator package construction happen via SPARK_PREPARE_TRANSFER.
+ *
+ * Required env vars:
+ *   API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID
+ *   TURNKEY_SPARK_ADDRESS, TURNKEY_ECDSA_ADDRESS, IDENTITY_PUBLIC_KEY_HEX
+ *   RECEIVER_SPARK_ADDRESS
+ *
+ * Optional:
+ *   TRANSFER_AMOUNT_SATS (default: 50000)
+ */
+
+import { initSparkWallet, requireEnv, env } from "./init";
+
+async function main() {
+  const receiverSparkAddress = requireEnv("RECEIVER_SPARK_ADDRESS");
+  const transferSats = Number(env("TRANSFER_AMOUNT_SATS", "50000"));
+
+  const { wallet } = await initSparkWallet();
+  console.log(`Authenticated to Spark SO`);
+
+  const balance = await wallet.getBalance();
+  console.log(`Balance: ${balance.satsBalance?.available ?? 0} sats available`);
+
+  console.log(`Transferring ${transferSats} sats → ${receiverSparkAddress}...`);
+  const result = await wallet.transfer({
+    amountSats: transferSats,
+    receiverSparkAddress,
+  });
+  console.log(`Transfer initiated: ${result.id}`);
+
+  const balanceAfter = await wallet.getBalance();
+  console.log(
+    `Balance: ${balanceAfter.satsBalance?.available ?? 0} sats available`,
+  );
+
+  console.log(`\nDone.`);
+  await wallet.cleanup();
+}
+
+main().catch((err) => {
+  console.error("Error:", err);
+  process.exit(1);
+});
