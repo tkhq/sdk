@@ -148,7 +148,9 @@ export default function SendTransaction(): ReactElement {
         sigHex.match(/.{2}/g)!.map((b) => parseInt(b, 16)),
       );
 
-      // Attach signature to transaction
+      // Attach signature to transaction. Keypair is constructed solely to call
+      // signatureHint(), which returns the last 4 bytes of the raw public key,
+      //   a discriminator Horizon uses to match signatures to signers.
       const keypair = Keypair.fromPublicKey(stellarAccount.address);
       type DecoratedSigArgs = ConstructorParameters<
         typeof xdr.DecoratedSignature
