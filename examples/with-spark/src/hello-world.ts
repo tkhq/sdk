@@ -44,7 +44,7 @@ async function main() {
   console.log(`Network:           ${network}`);
   console.log(`Spark address:     ${sparkAddress}`);
   console.log(`Identity pubkey:   ${uint8ArrayToHexString(identityPubkey)}`);
-  console.log(`Balance (sats):    ${satsBalance ?? 0}`);
+  console.log(`Balance (sats):    ${satsBalance?.available ?? 0}`);
   console.log(``);
   console.log(
     `Signer is wired up. Try \`pnpm transfer\`, \`pnpm claim\`, ` +
