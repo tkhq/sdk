@@ -5,6 +5,7 @@ import { useState, useEffect, type ReactElement } from "react";
 import {
   Horizon,
   NetworkError,
+  StrKey,
   TransactionBuilder,
   Operation,
   Asset,
@@ -85,6 +86,14 @@ export default function SendTransaction(): ReactElement {
     }
     if (!httpClient) {
       setError("Client not initialized.");
+      return;
+    }
+    if (!StrKey.isValidEd25519PublicKey(destination)) {
+      setError("Invalid destination address.");
+      return;
+    }
+    if (parseFloat(amount) < 0.0000001) {
+      setError("Amount must be at least 0.0000001 XLM.");
       return;
     }
     setError(null);
@@ -205,10 +214,13 @@ export default function SendTransaction(): ReactElement {
           <label className="text-sm text-gray-600">Amount (XLM)</label>
           <input
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if ((val.split(".")[1] ?? "").length <= 7) setAmount(val);
+            }}
             type="number"
             min="0.0000001"
-            step="0.1"
+            step="0.0000001"
             className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="10"
           />
