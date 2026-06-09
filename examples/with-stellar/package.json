@@ -15,7 +15,7 @@
     "@turnkey/sdk-types": "workspace:*",
     "@tailwindcss/postcss": "^4.1.10",
     "next": "15.5.18",
-    "postcss": "^8.5.6",
+    "postcss": ">=8.5.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "tailwindcss": "^4.1.11"
