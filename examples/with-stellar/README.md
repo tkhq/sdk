@@ -14,7 +14,7 @@ The app is a single-page Next.js application. Authentication is handled by `@tur
 
 ### 1/ Cloning the example
 
-Make sure you have `Node.js` installed locally; we recommend using Node v18+.
+Make sure you have `Node.js` installed locally; we recommend using Node v20+.
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
