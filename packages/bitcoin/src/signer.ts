@@ -1,5 +1,6 @@
-import type { TurnkeyBrowserClient as TurnkeyApiClientBrowser } from "@turnkey/sdk-browser";
-import type { TurnkeyApiClient as TurnkeyApiClientServer } from "@turnkey/sdk-server";
+import type { TurnkeySDKClientBase as TurnkeyClientCore } from "@turnkey/core";
+import type { TurnkeyBrowserClient as TurnkeyClientBrowser } from "@turnkey/sdk-browser";
+import type { TurnkeyApiClient as TurnkeyClientServer } from "@turnkey/sdk-server";
 
 /**
  * Signer which supports P2TR and P2WPKH addresses.
@@ -24,7 +25,7 @@ import type { TurnkeyApiClient as TurnkeyApiClientServer } from "@turnkey/sdk-se
  * -------------------------------------------------------
  */
 export class TurnkeyBitcoinSigner<
-  TClient extends TurnkeyApiClientBitcoinSigner = TurnkeyApiClientBitcoinSigner,
+  TClient extends TurnkeyClientBitcoinSigner = TurnkeyClientBitcoinSigner,
 > {
   /**
    * @param client The turnkey API client
@@ -60,8 +61,11 @@ export class TurnkeyBitcoinSigner<
   }
 }
 
-export type TurnkeyApiClientBitcoinSigner<
-  T extends TurnkeyApiClientServer | TurnkeyApiClientBrowser =
-    | TurnkeyApiClientServer
-    | TurnkeyApiClientBrowser,
+type CompatibleTurnkeyClient =
+  | TurnkeyClientServer
+  | TurnkeyClientBrowser
+  | TurnkeyClientCore;
+
+export type TurnkeyClientBitcoinSigner<
+  T extends CompatibleTurnkeyClient = CompatibleTurnkeyClient,
 > = Pick<T, "signRawPayload">;

@@ -3683,6 +3683,9 @@ importers:
 
   packages/bitcoin:
     dependencies:
+      '@turnkey/core':
+        specifier: workspace:*
+        version: link:../core
       '@turnkey/sdk-browser':
         specifier: workspace:*
         version: link:../sdk-browser
