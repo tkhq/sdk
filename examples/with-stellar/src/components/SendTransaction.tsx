@@ -56,16 +56,22 @@ export default function SendTransaction(): ReactElement {
     setFunding(true);
     setError(null);
     try {
-      const res = await fetch(`${FRIENDBOT_URL}/?addr=${stellarAccount.address}`);
+      const res = await fetch(
+        `${FRIENDBOT_URL}/?addr=${stellarAccount.address}`,
+      );
       if (!res.ok) {
-        const body = await res.json().catch(() => null) as {
+        const body = (await res.json().catch(() => null)) as {
           title?: string;
           detail?: string;
           extras?: { invalid_field?: string; reason?: string };
         } | null;
         const extras = body?.extras;
         if (extras?.reason) {
-          setError(extras.invalid_field ? `${extras.invalid_field}: ${extras.reason}` : extras.reason);
+          setError(
+            extras.invalid_field
+              ? `${extras.invalid_field}: ${extras.reason}`
+              : extras.reason,
+          );
         } else {
           setError(body?.detail ?? body?.title ?? "Friendbot funding failed.");
         }
@@ -167,7 +173,11 @@ export default function SendTransaction(): ReactElement {
     } catch (err) {
       const horizonError =
         err instanceof NetworkError
-          ? (err.response.data as Horizon.HorizonApi.ErrorResponseData.TransactionFailed | undefined)?.extras?.result_codes
+          ? (
+              err.response.data as
+                | Horizon.HorizonApi.ErrorResponseData.TransactionFailed
+                | undefined
+            )?.extras?.result_codes
           : undefined;
       if (horizonError) {
         setError(JSON.stringify(horizonError));
@@ -241,7 +251,9 @@ export default function SendTransaction(): ReactElement {
         <p className="text-sm text-amber-600">No Stellar account found.</p>
       )}
 
-      {error && <p className="text-sm text-red-500 break-all">Error: {error}</p>}
+      {error && (
+        <p className="text-sm text-red-500 break-all">Error: {error}</p>
+      )}
 
       {txHash && (
         <div className="flex flex-col gap-1">
