@@ -65,3 +65,4 @@ overrides:
   "ip-address@<=10.1.0": ">=10.1.1"
   "cookie@<0.7.0": ">=0.7.0"
   "@tootallnate/once@<2.0.1": ">=2.0.1"
+  "shell-quote@<1.8.4": ">=1.8.4"

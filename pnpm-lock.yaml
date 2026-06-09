@@ -62,6 +62,7 @@ overrides:
   ip-address@<=10.1.0: '>=10.1.1'
   cookie@<0.7.0: '>=0.7.0'
   '@tootallnate/once@<2.0.1': '>=2.0.1'
+  shell-quote@<1.8.4: '>=1.8.4'
 
 importers:
 
@@ -149,6 +150,295 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  examples/access-control/with-agent-wallet:
+    dependencies:
+      '@tailwindcss/postcss':
+        specifier: 4.1.13
+        version: 4.1.13
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      tailwindcss:
+        specifier: 4.1.13
+        version: 4.1.13
+      tsx:
+        specifier: ^3.12.7
+        version: 3.12.7
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/access-control/with-cosigning:
+    dependencies:
+      '@tailwindcss/postcss':
+        specifier: 4.1.13
+        version: 4.1.13
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../../packages/encoding
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-types
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      tailwindcss:
+        specifier: 4.1.13
+        version: 4.1.13
+      tsx:
+        specifier: ^3.12.7
+        version: 3.12.7
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/access-control/with-delegated/client-side:
+    dependencies:
+      '@tailwindcss/postcss':
+        specifier: 4.1.13
+        version: 4.1.13
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../../packages/react-wallet-kit
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../../packages/sdk-server
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      dotenv:
+        specifier: 16.0.3
+        version: 16.0.3
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      tailwindcss:
+        specifier: 4.1.13
+        version: 4.1.13
+      viem:
+        specifier: 2.37.9
+        version: 2.37.9(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/access-control/with-delegated/server-side:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+      viem:
+        specifier: ^2.26.2
+        version: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+
+  examples/account-abstraction/with-biconomy-aa:
+    dependencies:
+      '@biconomy/account':
+        specifier: ^4.5.6
+        version: 4.5.7(typescript@5.4.3)(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+      '@biconomy/sdk':
+        specifier: ^0.0.10
+        version: 0.0.10(@rhinestone/module-sdk@0.1.32(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)))(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)
+      '@rhinestone/module-sdk':
+        specifier: ^0.1.28
+        version: 0.1.32(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      viem:
+        specifier: ^2.24.2
+        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+
+  examples/account-abstraction/with-gnosis:
+    dependencies:
+      '@safe-global/protocol-kit':
+        specifier: ~3.0.1
+        version: 3.0.2(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      '@safe-global/types-kit':
+        specifier: ~3.1.0
+        version: 3.1.0(typescript@5.4.3)(zod@4.1.11)
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/api-key-stamper
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+
+  examples/account-abstraction/with-porto:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      porto:
+        specifier: ^0.2.14
+        version: 0.2.19(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(@wagmi/core@2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.2.4)(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)))(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(wagmi@2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@19.2.4)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(zod@4.1.11))
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+      viem:
+        specifier: ^2.24.2
+        version: 2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.7
+        version: 22.18.1
+      tslib:
+        specifier: ^2.8.0
+        version: 2.8.1
+      tsx:
+        specifier: ^4.16.2
+        version: 4.20.6
+
+  examples/account-abstraction/with-zerodev-aa:
+    dependencies:
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      '@zerodev/ecdsa-validator':
+        specifier: ^5.4.8
+        version: 5.4.9(@zerodev/sdk@5.4.41(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)))(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
+      '@zerodev/sdk':
+        specifier: ^5.4.32
+        version: 5.4.41(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      permissionless:
+        specifier: ^0.1.45
+        version: 0.1.49(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+      viem:
+        specifier: ^2.24.2
+        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.7
+        version: 22.18.1
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      tslib:
+        specifier: ^2.8.0
+        version: 2.8.1
+
   examples/advanced/deployer:
     dependencies:
       '@turnkey/ethers':
@@ -167,36 +457,66 @@ importers:
         specifier: 0.8.13
         version: 0.8.13
 
-  examples/key-management/disaster-recovery:
+  examples/advanced/with-offline:
     dependencies:
-      '@peculiar/webcrypto':
-        specifier: ^1.4.3
-        version: 1.5.0
-      '@turnkey/crypto':
+      '@turnkey/api-key-stamper':
         specifier: workspace:*
-        version: link:../../../packages/crypto
-      '@turnkey/encoding':
+        version: link:../../../packages/api-key-stamper
+      '@turnkey/http':
         specifier: workspace:*
-        version: link:../../../packages/encoding
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
+        version: link:../../../packages/http
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
-      viem:
-        specifier: 2.37.5
-        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
     devDependencies:
       '@types/prompts':
         specifier: ^2.4.2
         version: 2.4.2
+
+  examples/advanced/with-proxy-signed-requests:
+    dependencies:
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@tailwindcss/postcss':
+        specifier: 4.1.13
+        version: 4.1.13
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-types
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      tailwindcss:
+        specifier: 4.1.13
+        version: 4.1.13
       typescript:
         specifier: 5.4.3
         version: 5.4.3
@@ -316,255 +636,6 @@ importers:
       typescript:
         specifier: 5.4.3
         version: 5.4.3
-
-  examples/key-management/encryption-key-escrow:
-    dependencies:
-      '@peculiar/webcrypto':
-        specifier: ^1.4.3
-        version: 1.5.0
-      '@turnkey/crypto':
-        specifier: workspace:*
-        version: link:../../../packages/crypto
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.3.1
-        version: 16.6.1
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-      viem:
-        specifier: 2.37.5
-        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-    devDependencies:
-      '@types/node':
-        specifier: ^20.3.1
-        version: 20.3.1
-      '@types/prompts':
-        specifier: ^2.4.9
-        version: 2.4.9
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@types/node@20.3.1)(typescript@5.4.3)
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/defi/eth-usdc-swap:
-    dependencies:
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@uniswap/sdk-core':
-        specifier: ^3.1.1
-        version: 3.2.6
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/key-management/export-in-node:
-    dependencies:
-      '@peculiar/webcrypto':
-        specifier: ^1.5.0
-        version: 1.5.0
-      '@turnkey/crypto':
-        specifier: workspace:*
-        version: link:../../../packages/crypto
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../../../packages/encoding
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      async-retry:
-        specifier: ^1.3.3
-        version: 1.3.3
-      cross-fetch:
-        specifier: ^4.0.0
-        version: 4.0.0(encoding@0.1.13)
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/async-retry':
-        specifier: ^1.4.8
-        version: 1.4.8
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-
-  examples/key-management/import-export-with-iframe-stamper:
-    dependencies:
-      '@turnkey/iframe-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/iframe-stamper
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      axios:
-        specifier: '>=1.15.1'
-        version: 1.16.0
-      classnames:
-        specifier: ^2.3.2
-        version: 2.5.1
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      npm:
-        specifier: ^9.7.2
-        version: 9.9.4
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.45.1(react@18.3.1)
-    devDependencies:
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/key-management/import-export-with-rwk:
-    dependencies:
-      '@tailwindcss/postcss':
-        specifier: 4.1.13
-        version: 4.1.13
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-types
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-hook-form:
-        specifier: 7.45.1
-        version: 7.45.1(react@18.3.1)
-      tailwindcss:
-        specifier: 4.1.13
-        version: 4.1.13
-    devDependencies:
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/key-management/import-in-node:
-    dependencies:
-      '@peculiar/webcrypto':
-        specifier: ^1.5.0
-        version: 1.5.0
-      '@turnkey/crypto':
-        specifier: workspace:*
-        version: link:../../../packages/crypto
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../../../packages/encoding
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      async-retry:
-        specifier: ^1.3.3
-        version: 1.3.3
-      cross-fetch:
-        specifier: ^4.0.0
-        version: 4.0.0(encoding@0.1.13)
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/async-retry':
-        specifier: ^1.4.8
-        version: 1.4.8
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-
-  examples/demos/kitchen-sink:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/api-key-stamper
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-browser':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-browser
-      '@turnkey/sdk-react':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-react
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
 
   examples/authentication/magic-link-auth:
     dependencies:
@@ -835,439 +906,6 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/demos/react-components:
-    dependencies:
-      '@coinbase/onchainkit':
-        specifier: 0.38.13
-        version: 0.38.13(@tanstack/query-core@5.90.2)(@types/react@18.2.14)(bufferutil@4.0.9)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@18.2.0))(utf-8-validate@5.0.10)(zod@4.1.11)
-      '@emotion/react':
-        specifier: ^11.13.3
-        version: 11.14.0(@types/react@18.2.14)(react@18.2.0)
-      '@emotion/styled':
-        specifier: ^11.13.0
-        version: 11.14.1(@emotion/react@11.14.0(@types/react@18.2.14)(react@18.2.0))(@types/react@18.2.14)(react@18.2.0)
-      '@hello-pangea/dnd':
-        specifier: ^17.0.0
-        version: 17.0.0(@types/react@18.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@moonpay/moonpay-js':
-        specifier: ^0.7.0
-        version: 0.7.5
-      '@moonpay/moonpay-react':
-        specifier: ^1.10.1
-        version: 1.10.5(react@18.2.0)
-      '@mui/icons-material':
-        specifier: ^6.1.5
-        version: 6.5.0(@mui/material@6.5.0(@emotion/react@11.14.0(@types/react@18.2.14)(react@18.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.2.14)(react@18.2.0))(@types/react@18.2.14)(react@18.2.0))(@types/react@18.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.14)(react@18.2.0)
-      '@mui/material':
-        specifier: ^6.1.5
-        version: 6.5.0(@emotion/react@11.14.0(@types/react@18.2.14)(react@18.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.2.14)(react@18.2.0))(@types/react@18.2.14)(react@18.2.0))(@types/react@18.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@turnkey/indexed-db-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/indexed-db-stamper
-      '@turnkey/sdk-browser':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-browser
-      '@turnkey/sdk-react':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-react
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-types
-      '@turnkey/wallet-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/wallet-stamper
-      axios:
-        specifier: '>=1.15.1'
-        version: 1.16.0
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      jwt-decode:
-        specifier: ^4.0.0
-        version: 4.0.0
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      npm:
-        specifier: ^9.7.2
-        version: 9.9.4
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-international-phone:
-        specifier: ^4.3.0
-        version: 4.6.0(react@18.2.0)
-      sonner:
-        specifier: ^1.4.41
-        version: 1.7.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      tweetnacl:
-        specifier: ^1.0.3
-        version: 1.0.3
-      viem:
-        specifier: 2.44.0
-        version: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-    devDependencies:
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/demos/with-react-wallet-kit:
-    dependencies:
-      '@fortawesome/fontawesome-svg-core':
-        specifier: ^6.7.2
-        version: 6.7.2
-      '@fortawesome/free-brands-svg-icons':
-        specifier: ^6.7.2
-        version: 6.7.2
-      '@fortawesome/free-solid-svg-icons':
-        specifier: ^6.7.2
-        version: 6.7.2
-      '@fortawesome/react-fontawesome':
-        specifier: ^0.2.2
-        version: 0.2.6(@fortawesome/fontawesome-svg-core@6.7.2)(react@19.2.4)
-      '@headlessui/react':
-        specifier: ^2.2.4
-        version: 2.2.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@hello-pangea/dnd':
-        specifier: ^17.0.0
-        version: 17.0.0(@types/react@18.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@react-three/drei':
-        specifier: ^10.6.1
-        version: 10.7.5(@react-three/fiber@9.5.0(@types/react@18.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.160.1))(@types/react@18.2.14)(@types/three@0.178.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.160.1)
-      '@react-three/fiber':
-        specifier: ^9.5.0
-        version: 9.5.0(@types/react@18.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.160.1)
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@tailwindcss/postcss':
-        specifier: ^4.1.10
-        version: 4.1.13
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../../../packages/encoding
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-types
-      axios:
-        specifier: '>=1.15.1'
-        version: 1.16.0
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      maath:
-        specifier: ^0.10.8
-        version: 0.10.8(@types/three@0.178.1)(three@0.160.1)
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      npm:
-        specifier: ^9.7.2
-        version: 9.9.4
-      postcss:
-        specifier: '>=8.5.10'
-        version: 8.5.15
-      react:
-        specifier: 19.2.4
-        version: 19.2.4
-      react-dom:
-        specifier: 19.2.4
-        version: 19.2.4(react@19.2.4)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.62.0(react@19.2.4)
-      react-toastify:
-        specifier: ^11.0.5
-        version: 11.0.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      tailwindcss:
-        specifier: ^4.1.11
-        version: 4.1.13
-      three:
-        specifier: ^0.160.0
-        version: 0.160.1
-      tweetnacl:
-        specifier: ^1.0.3
-        version: 1.0.3
-      viem:
-        specifier: ^2.33.2
-        version: 2.34.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-    devDependencies:
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      '@types/three':
-        specifier: ^0.178.1
-        version: 0.178.1
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/transaction-management/rebalancer:
-    dependencies:
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-types
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-
-  examples/transaction-management/solana-sweeper:
-    dependencies:
-      '@solana/spl-token':
-        specifier: ^0.4.9
-        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/defi/solana-usdc-swap:
-    dependencies:
-      '@solana/spl-token':
-        specifier: ^0.4.14
-        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      cross-fetch:
-        specifier: ^4.1.0
-        version: 4.1.0(encoding@0.1.13)
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/transaction-management/sweeper:
-    dependencies:
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@uniswap/sdk-core':
-        specifier: ^3.1.1
-        version: 3.2.6
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/transaction-management/tk-gas-station:
-    dependencies:
-      '@turnkey/crypto':
-        specifier: workspace:*
-        version: link:../../../packages/crypto
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/gas-station':
-        specifier: workspace:*
-        version: link:../../../packages/gas-station
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
-      '@uniswap/sdk-core':
-        specifier: ^6.0.0
-        version: 6.1.1
-      '@uniswap/universal-router-sdk':
-        specifier: ^3.0.0
-        version: 3.4.0(bufferutil@4.0.9)(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
-      '@uniswap/v3-sdk':
-        specifier: ^3.9.0
-        version: 3.25.2(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-      viem:
-        specifier: ^2.34.0
-        version: 2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-      zod:
-        specifier: ^3.23.8
-        version: 3.25.76
-    devDependencies:
-      '@types/jest':
-        specifier: ^29.5.14
-        version: 29.5.14
-      '@types/node':
-        specifier: ^24.6.2
-        version: 24.7.1
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.7.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))
-      tsx:
-        specifier: ^4.7.0
-        version: 4.20.6
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/defi/trading-runner:
-    dependencies:
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@uniswap/sdk-core':
-        specifier: ^3.1.1
-        version: 3.2.6
-      '@uniswap/v3-core':
-        specifier: ^1.0.1
-        version: 1.0.1
-      '@uniswap/v3-sdk':
-        specifier: ^3.9.0
-        version: 3.25.2(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.13.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      jsbi:
-        specifier: ^3.2.5
-        version: 3.2.5
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
   examples/authentication/wallet-auth/with-backend:
     dependencies:
       '@noble/hashes':
@@ -1374,856 +1012,6 @@ importers:
         specifier: 2.34.0
         version: 2.34.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
 
-  examples/key-management/wallet-export-sign:
-    dependencies:
-      '@turnkey/iframe-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/iframe-stamper
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      axios:
-        specifier: '>=1.15.1'
-        version: 1.16.0
-      classnames:
-        specifier: ^2.3.2
-        version: 2.5.1
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      npm:
-        specifier: ^9.7.2
-        version: 9.9.4
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.62.0(react@18.2.0)
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-    devDependencies:
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-
-  examples/defi/with-0x:
-    dependencies:
-      '@tanstack/react-query':
-        specifier: ^5.90.2
-        version: 5.90.2(react@19.1.0)
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      react:
-        specifier: 19.1.0
-        version: 19.1.0
-      react-dom:
-        specifier: 19.1.0
-        version: 19.1.0(react@19.1.0)
-      viem:
-        specifier: ^2.37.11
-        version: 2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-      wagmi:
-        specifier: ^2.17.5
-        version: 2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.1.0))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)
-    devDependencies:
-      '@eslint/eslintrc':
-        specifier: ^3
-        version: 3.3.1
-      '@tailwindcss/postcss':
-        specifier: ^4
-        version: 4.1.13
-      '@types/node':
-        specifier: ^20
-        version: 20.3.1
-      '@types/react':
-        specifier: ^19
-        version: 19.1.17
-      '@types/react-dom':
-        specifier: ^19
-        version: 19.1.11(@types/react@19.1.17)
-      eslint:
-        specifier: ^9
-        version: 9.35.0(jiti@2.5.1)
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@9.35.0(jiti@2.5.1))(typescript@5.4.3)
-      tailwindcss:
-        specifier: ^4
-        version: 4.1.13
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/defi/with-aave:
-    dependencies:
-      '@bgd-labs/aave-address-book':
-        specifier: ^4.28.2
-        version: 4.29.1(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      viem:
-        specifier: ^2.24.2
-        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-    devDependencies:
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/access-control/with-agent-wallet:
-    dependencies:
-      '@tailwindcss/postcss':
-        specifier: 4.1.13
-        version: 4.1.13
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.6.1
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      tailwindcss:
-        specifier: 4.1.13
-        version: 4.1.13
-      tsx:
-        specifier: ^3.12.7
-        version: 3.12.7
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/chain-integrations/with-aptos:
-    dependencies:
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      aptos:
-        specifier: ^1.21.0
-        version: 1.21.0
-      async-retry:
-        specifier: ^1.3.3
-        version: 1.3.3
-      cross-fetch:
-        specifier: ^4.0.0
-        version: 4.0.0(encoding@0.1.13)
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/async-retry':
-        specifier: ^1.4.8
-        version: 1.4.8
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      tsx:
-        specifier: ^3.12.7
-        version: 3.12.7
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/chain-integrations/with-arc:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/api-key-stamper
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-      viem:
-        specifier: 2.38.0
-        version: 2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-
-  examples/transaction-management/with-balances:
-    dependencies:
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/account-abstraction/with-biconomy-aa:
-    dependencies:
-      '@biconomy/account':
-        specifier: ^4.5.6
-        version: 4.5.7(typescript@5.4.3)(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      '@biconomy/sdk':
-        specifier: ^0.0.10
-        version: 0.0.10(@rhinestone/module-sdk@0.1.32(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)))(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)
-      '@rhinestone/module-sdk':
-        specifier: ^0.1.28
-        version: 0.1.32(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-      viem:
-        specifier: ^2.24.2
-        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-
-  examples/chain-integrations/with-bitcoin:
-    dependencies:
-      '@turnkey/crypto':
-        specifier: workspace:*
-        version: link:../../../packages/crypto
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      bip32:
-        specifier: ^4.0.0
-        version: 4.0.0
-      bip39:
-        specifier: ^3.1.0
-        version: 3.1.0
-      bitcoinjs-lib:
-        specifier: ^6.1.6
-        version: 6.1.7
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ecpair:
-        specifier: ^2.1.0
-        version: 2.1.0
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-      tiny-secp256k1:
-        specifier: '>=1.1.7'
-        version: 2.2.4
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-
-  examples/defi/with-breeze:
-    dependencies:
-      '@breezebaby/breeze-sdk':
-        specifier: ^1.5.0
-        version: 1.5.0(@babel/core@7.28.5)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.5))(bufferutil@4.0.9)(encoding@0.1.13)(jest-util@29.7.0)(jest@29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3)))(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@fortawesome/free-solid-svg-icons':
-        specifier: ^6.7.2
-        version: 6.7.2
-      '@fortawesome/react-fontawesome':
-        specifier: ^0.2.2
-        version: 0.2.6(@fortawesome/fontawesome-svg-core@6.7.2)(react@18.2.0)
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@react-oauth/google':
-        specifier: ^0.12.1
-        version: 0.12.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@tailwindcss/postcss':
-        specifier: ^4.1.12
-        version: 4.1.13
-      '@turnkey/core':
-        specifier: workspace:*
-        version: link:../../../packages/core
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../../../packages/encoding
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
-      '@turnkey/sdk-react':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-react
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-types
-      '@turnkey/solana':
-        specifier: workspace:*
-        version: link:../../../packages/solana
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      axios:
-        specifier: '>=1.15.1'
-        version: 1.16.0
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      i:
-        specifier: ^0.3.7
-        version: 0.3.7
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      npm:
-        specifier: ^9.9.4
-        version: 9.9.4
-      postcss:
-        specifier: '>=8.5.10'
-        version: 8.5.15
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.62.0(react@18.2.0)
-      tailwindcss:
-        specifier: ^4.1.12
-        version: 4.1.13
-      viem:
-        specifier: 2.34.0
-        version: 2.34.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-    devDependencies:
-      '@playwright/test':
-        specifier: ^1.55.1
-        version: 1.56.1
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/access-control/with-cosigning:
-    dependencies:
-      '@tailwindcss/postcss':
-        specifier: 4.1.13
-        version: 4.1.13
-      '@turnkey/crypto':
-        specifier: workspace:*
-        version: link:../../../packages/crypto
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../../../packages/encoding
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-types
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.6.1
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      tailwindcss:
-        specifier: 4.1.13
-        version: 4.1.13
-      tsx:
-        specifier: ^3.12.7
-        version: 3.12.7
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/chain-integrations/with-cosmjs:
-    dependencies:
-      '@cosmjs/encoding':
-        specifier: ^0.33.0
-        version: 0.33.1
-      '@cosmjs/stargate':
-        specifier: ^0.33.0
-        version: 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@turnkey/cosmjs':
-        specifier: workspace:*
-        version: link:../../../packages/cosmjs
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:^
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-
-  examples/access-control/with-delegated/client-side:
-    dependencies:
-      '@tailwindcss/postcss':
-        specifier: 4.1.13
-        version: 4.1.13
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../../packages/react-wallet-kit
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../../packages/sdk-server
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      dotenv:
-        specifier: 16.0.3
-        version: 16.0.3
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-      tailwindcss:
-        specifier: 4.1.13
-        version: 4.1.13
-      viem:
-        specifier: 2.37.9
-        version: 2.37.9(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-    devDependencies:
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/access-control/with-delegated/server-side:
-    dependencies:
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.6.1
-      viem:
-        specifier: ^2.26.2
-        version: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-
-  examples/chain-integrations/with-doge:
-    dependencies:
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      axios:
-        specifier: '>=1.15.1'
-        version: 1.16.0
-      bitcoinjs-lib:
-        specifier: 6.1.6
-        version: 6.1.6
-      dotenv:
-        specifier: 16.0.3
-        version: 16.0.3
-      path:
-        specifier: 0.12.7
-        version: 0.12.7
-
-  examples/chain-integrations/with-eip-1193-provider:
-    dependencies:
-      '@radix-ui/react-dialog':
-        specifier: ^1.0.5
-        version: 1.1.15(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-dropdown-menu':
-        specifier: ^2.0.6
-        version: 2.1.16(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-icons':
-        specifier: ^1.3.0
-        version: 1.3.2(react@18.3.1)
-      '@radix-ui/react-label':
-        specifier: ^2.0.2
-        version: 2.1.7(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-select':
-        specifier: ^2.0.0
-        version: 2.2.6(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-slot':
-        specifier: ^1.0.2
-        version: 1.2.3(@types/react@18.2.14)(react@18.3.1)
-      '@radix-ui/react-toast':
-        specifier: ^1.1.5
-        version: 1.2.15(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/api-key-stamper
-      '@turnkey/eip-1193-provider':
-        specifier: workspace:*
-        version: link:../../../packages/eip-1193-provider
-      '@turnkey/http':
-        specifier: workspace:^
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/webauthn-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/webauthn-stamper
-      class-variance-authority:
-        specifier: ^0.7.0
-        version: 0.7.1
-      clsx:
-        specifier: ^2.1.0
-        version: 2.1.1
-      lucide-react:
-        specifier: ^0.363.0
-        version: 0.363.0(react@18.3.1)
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      next-themes:
-        specifier: ^0.3.0
-        version: 0.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
-      sonner:
-        specifier: ^1.4.41
-        version: 1.7.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      tailwind-merge:
-        specifier: ^2.2.2
-        version: 2.6.0
-      tailwindcss-animate:
-        specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3)))
-      viem:
-        specifier: ^2.9.5
-        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-    devDependencies:
-      '@types/node':
-        specifier: ^20
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      autoprefixer:
-        specifier: ^10.0.1
-        version: 10.4.21(postcss@8.5.15)
-      eslint:
-        specifier: ^8
-        version: 8.56.0
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
-      postcss:
-        specifier: '>=8.5.10'
-        version: 8.5.15
-      tailwindcss:
-        specifier: ^3.3.0
-        version: 3.4.17(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/demos/with-eth-passkeys-galore:
-    dependencies:
-      '@biconomy/account':
-        specifier: ^4.5.6
-        version: 4.5.7(typescript@5.4.3)(viem@2.23.13(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/api-key-stamper
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-react':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-react
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
-      '@turnkey/webauthn-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/webauthn-stamper
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      axios:
-        specifier: '>=1.15.1'
-        version: 1.16.0
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.62.0(react@18.3.1)
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-      viem:
-        specifier: 2.23.13
-        version: 2.23.13(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-
-  examples/chain-integrations/with-ethers:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/api-key-stamper
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-
-  examples/key-management/with-export-and-sign-escrow:
-    dependencies:
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@turnkey/iframe-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/iframe-stamper
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-types
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      react:
-        specifier: 19.2.4
-        version: 19.2.4
-      react-dom:
-        specifier: 19.2.4
-        version: 19.2.4(react@19.2.4)
-      tweetnacl:
-        specifier: ^1.0.3
-        version: 1.0.3
-    devDependencies:
-      '@tailwindcss/postcss':
-        specifier: ^4
-        version: 4.1.13
-      '@types/node':
-        specifier: ^20
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      eslint:
-        specifier: ^9
-        version: 9.35.0(jiti@2.5.1)
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@9.35.0(jiti@2.5.1))(typescript@5.4.3)
-      tailwindcss:
-        specifier: ^4
-        version: 4.1.13
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
   examples/authentication/with-federated-passkeys:
     dependencies:
       '@turnkey/api-key-stamper':
@@ -2287,33 +1075,6 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/account-abstraction/with-gnosis:
-    dependencies:
-      '@safe-global/protocol-kit':
-        specifier: ~3.0.1
-        version: 3.0.2(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)
-      '@safe-global/types-kit':
-        specifier: ~3.1.0
-        version: 3.1.0(typescript@5.4.3)(zod@4.1.11)
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/api-key-stamper
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-
   examples/authentication/with-indexed-db:
     dependencies:
       '@turnkey/sdk-react':
@@ -2371,553 +1132,6 @@ importers:
       typescript:
         specifier: 5.4.3
         version: 5.4.3
-
-  examples/chain-integrations/with-iota:
-    dependencies:
-      '@iota/iota-sdk':
-        specifier: 1.6.1
-        version: 1.6.1(typescript@5.4.3)
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      async-retry:
-        specifier: 1.3.3
-        version: 1.3.3
-      cross-fetch:
-        specifier: 4.0.0
-        version: 4.0.0(encoding@0.1.13)
-      dotenv:
-        specifier: 16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: 2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/async-retry':
-        specifier: 1.4.8
-        version: 1.4.8
-      '@types/prompts':
-        specifier: 2.4.2
-        version: 2.4.2
-      tsx:
-        specifier: 3.12.7
-        version: 3.12.7
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/defi/with-jupiter:
-    dependencies:
-      '@breezebaby/breeze-sdk':
-        specifier: ^1.5.0
-        version: 1.5.0(@babel/core@7.28.5)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.5))(bufferutil@4.0.9)(encoding@0.1.13)(jest-util@29.7.0)(jest@29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3)))(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@fortawesome/free-solid-svg-icons':
-        specifier: ^6.7.2
-        version: 6.7.2
-      '@fortawesome/react-fontawesome':
-        specifier: ^0.2.2
-        version: 0.2.6(@fortawesome/fontawesome-svg-core@6.7.2)(react@18.2.0)
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@react-oauth/google':
-        specifier: ^0.12.1
-        version: 0.12.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@tailwindcss/postcss':
-        specifier: ^4.1.12
-        version: 4.1.13
-      '@turnkey/core':
-        specifier: workspace:*
-        version: link:../../../packages/core
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../../../packages/encoding
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-types
-      '@turnkey/solana':
-        specifier: workspace:*
-        version: link:../../../packages/solana
-      axios:
-        specifier: '>=1.15.1'
-        version: 1.16.0
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      i:
-        specifier: ^0.3.7
-        version: 0.3.7
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      npm:
-        specifier: ^9.9.4
-        version: 9.9.4
-      postcss:
-        specifier: '>=8.5.10'
-        version: 8.5.15
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.62.0(react@18.2.0)
-      tailwindcss:
-        specifier: ^4.1.12
-        version: 4.1.13
-      viem:
-        specifier: 2.34.0
-        version: 2.34.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-    devDependencies:
-      '@playwright/test':
-        specifier: ^1.55.1
-        version: 1.56.1
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/defi/with-lifi:
-    dependencies:
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@tanstack/react-query':
-        specifier: ^5.90.2
-        version: 5.90.2(react@19.1.0)
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
-      '@turnkey/solana':
-        specifier: workspace:*
-        version: link:../../../packages/solana
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      react:
-        specifier: 19.1.0
-        version: 19.1.0
-      react-dom:
-        specifier: 19.1.0
-        version: 19.1.0(react@19.1.0)
-      viem:
-        specifier: ^2.37.11
-        version: 2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-      wagmi:
-        specifier: ^2.17.5
-        version: 2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.1.0))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)
-    devDependencies:
-      '@eslint/eslintrc':
-        specifier: ^3
-        version: 3.3.1
-      '@tailwindcss/postcss':
-        specifier: ^4
-        version: 4.1.13
-      '@types/node':
-        specifier: ^20
-        version: 20.3.1
-      '@types/react':
-        specifier: ^19
-        version: 19.1.17
-      '@types/react-dom':
-        specifier: ^19
-        version: 19.1.11(@types/react@19.1.17)
-      eslint:
-        specifier: ^9
-        version: 9.35.0(jiti@2.5.1)
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@9.35.0(jiti@2.5.1))(typescript@5.4.3)
-      tailwindcss:
-        specifier: ^4
-        version: 4.1.13
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/defi/with-morpho:
-    dependencies:
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      viem:
-        specifier: ^2.24.2
-        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-    devDependencies:
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/chain-integrations/with-movement:
-    dependencies:
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      aptos:
-        specifier: 1.21.0
-        version: 1.21.0
-      async-retry:
-        specifier: ^1.3.3
-        version: 1.3.3
-      cross-fetch:
-        specifier: ^4.0.0
-        version: 4.0.0(encoding@0.1.13)
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/async-retry':
-        specifier: ^1.4.8
-        version: 1.4.8
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      tsx:
-        specifier: ^3.12.7
-        version: 3.12.7
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/transaction-management/with-nonce-manager:
-    dependencies:
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-
-  examples/advanced/with-offline:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/api-key-stamper
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-
-  examples/transaction-management/with-paymaster:
-    dependencies:
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/account-abstraction/with-porto:
-    dependencies:
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      porto:
-        specifier: ^0.2.14
-        version: 0.2.19(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(@wagmi/core@2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.2.4)(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)))(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(wagmi@2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@19.2.4)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(zod@4.1.11))
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-      viem:
-        specifier: ^2.24.2
-        version: 2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-    devDependencies:
-      '@types/node':
-        specifier: ^22.7.7
-        version: 22.18.1
-      tslib:
-        specifier: ^2.8.0
-        version: 2.8.1
-      tsx:
-        specifier: ^4.16.2
-        version: 4.20.6
-
-  examples/advanced/with-proxy-signed-requests:
-    dependencies:
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@tailwindcss/postcss':
-        specifier: 4.1.13
-        version: 4.1.13
-      '@turnkey/crypto':
-        specifier: workspace:*
-        version: link:../../../packages/crypto
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-types
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      tailwindcss:
-        specifier: 4.1.13
-        version: 4.1.13
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/demos/react-wallet-kit-playground:
-    dependencies:
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@react-oauth/google':
-        specifier: ^0.12.1
-        version: 0.12.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@tailwindcss/postcss':
-        specifier: ^4.1.12
-        version: 4.1.13
-      '@turnkey/core':
-        specifier: workspace:*
-        version: link:../../../packages/core
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
-      '@turnkey/sdk-react':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-react
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-types
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      axios:
-        specifier: '>=1.15.1'
-        version: 1.16.0
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      npm:
-        specifier: ^9.7.2
-        version: 9.9.4
-      postcss:
-        specifier: '>=8.5.10'
-        version: 8.5.15
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.62.0(react@18.2.0)
-      tailwindcss:
-        specifier: ^4.1.12
-        version: 4.1.13
-      viem:
-        specifier: 2.34.0
-        version: 2.34.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-    devDependencies:
-      '@playwright/test':
-        specifier: ^1.55.1
-        version: 1.56.1
-      playwright-core:
-        specifier: ^1.55.1
-        version: 1.56.1
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/demos/with-sdk-server:
-    dependencies:
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-
-  examples/chain-integrations/with-solana:
-    dependencies:
-      '@project-serum/anchor':
-        specifier: ^0.26.0
-        version: 0.26.0(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@solana/spl-token':
-        specifier: ^0.4.8
-        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/api-key-stamper
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../../../packages/encoding
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/solana':
-        specifier: workspace:*
-        version: link:../../../packages/solana
-      async-retry:
-        specifier: ^1.3.3
-        version: 1.3.3
-      cross-fetch:
-        specifier: ^4.0.0
-        version: 4.0.0(encoding@0.1.13)
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-      tweetnacl:
-        specifier: ^1.0.3
-        version: 1.0.3
-    devDependencies:
-      '@types/async-retry':
-        specifier: ^1.4.8
-        version: 1.4.8
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
 
   examples/authentication/with-solana-passkeys:
     dependencies:
@@ -2991,342 +1205,6 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.0
         version: 18.3.7(@types/react@18.3.24)
-
-  examples/transaction-management/with-solana-paymaster:
-    dependencies:
-      '@solana/spl-token':
-        specifier: ^0.4.9
-        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/chain-integrations/with-spark:
-    dependencies:
-      '@buildonspark/issuer-sdk':
-        specifier: ^0.1.23
-        version: 0.1.23(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
-      '@buildonspark/spark-sdk':
-        specifier: 0.8.4
-        version: 0.8.4(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
-      '@noble/curves':
-        specifier: ^1.9.7
-        version: 1.9.7
-      '@noble/hashes':
-        specifier: ^1.4.0
-        version: 1.8.0
-      '@scure/bip39':
-        specifier: ^1.3.0
-        version: 1.6.0
-      '@scure/btc-signer':
-        specifier: ^1.5.0
-        version: 1.8.1
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/spark':
-        specifier: workspace:*
-        version: link:../../../packages/spark
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.6.1
-    devDependencies:
-      tsx:
-        specifier: ^4.7.0
-        version: 4.20.6
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/chain-integrations/with-stacks:
-    dependencies:
-      '@stacks/common':
-        specifier: ^7.0.2
-        version: 7.0.2
-      '@stacks/transactions':
-        specifier: ^7.1.0
-        version: 7.2.0(encoding@0.1.13)
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      path:
-        specifier: ^0.12.7
-        version: 0.12.7
-
-  examples/chain-integrations/with-sui:
-    dependencies:
-      '@mysten/sui':
-        specifier: 1.37.6
-        version: 1.37.6(typescript@5.4.3)
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      async-retry:
-        specifier: 1.3.3
-        version: 1.3.3
-      cross-fetch:
-        specifier: 4.0.0
-        version: 4.0.0(encoding@0.1.13)
-      dotenv:
-        specifier: 16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: 2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/async-retry':
-        specifier: 1.4.8
-        version: 1.4.8
-      '@types/prompts':
-        specifier: 2.4.2
-        version: 2.4.2
-      tsx:
-        specifier: 3.12.7
-        version: 3.12.7
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/chain-integrations/with-tempo:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/api-key-stamper
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-      tempo.ts:
-        specifier: ^0.13.0
-        version: 0.13.0(@remix-run/headers@0.17.2)(@remix-run/route-pattern@0.15.3)(@remix-run/session@0.4.0)(typescript@5.4.3)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(zod@4.1.11)
-      viem:
-        specifier: ^2.44.0
-        version: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-
-  examples/chain-integrations/with-ton:
-    dependencies:
-      '@inquirer/prompts':
-        specifier: ^2.1.0
-        version: 2.3.1
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@ton/core':
-        specifier: ^0.59.0
-        version: 0.59.1(@ton/crypto@3.3.0)
-      '@ton/crypto':
-        specifier: ^3.3.0
-        version: 3.3.0
-      '@ton/ton':
-        specifier: ^15.1.0
-        version: 15.3.1(@ton/core@0.59.1(@ton/crypto@3.3.0))(@ton/crypto@3.3.0)
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      async-retry:
-        specifier: ^1.3.3
-        version: 1.3.3
-      cross-fetch:
-        specifier: ^4.0.0
-        version: 4.0.0(encoding@0.1.13)
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-    devDependencies:
-      '@types/async-retry':
-        specifier: ^1.4.8
-        version: 1.4.8
-      tsx:
-        specifier: ^3.12.7
-        version: 3.12.7
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/chain-integrations/with-tron:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/api-key-stamper
-      '@turnkey/crypto':
-        specifier: workspace:^
-        version: link:../../../packages/crypto
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      tronweb:
-        specifier: ^6.0.3
-        version: 6.0.4(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-    devDependencies:
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@types/node@24.13.1)(typescript@5.4.3)
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/transaction-management/with-tx-webhooks:
-    dependencies:
-      '@solana/spl-token':
-        specifier: ^0.4.14
-        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@solana/web3.js':
-        specifier: ^1.98.4
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.6.1
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-    devDependencies:
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      tsx:
-        specifier: ^3.12.7
-        version: 3.12.7
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/defi/with-uniswap:
-    dependencies:
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@uniswap/sdk-core':
-        specifier: ^3.1.1
-        version: 3.2.6
-      '@uniswap/v3-core':
-        specifier: ^1.0.1
-        version: 1.0.1
-      '@uniswap/v3-sdk':
-        specifier: ^3.9.0
-        version: 3.25.2(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.13.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      hardhat:
-        specifier: ^2.12.7
-        version: 2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.13.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10)
-      jsbi:
-        specifier: ^3.2.5
-        version: 3.2.5
-    devDependencies:
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/chain-integrations/with-viem:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/api-key-stamper
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../../packages/viem
-      '@zerodev/sdk':
-        specifier: ^5.4.32
-        version: 5.4.41(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      fetch:
-        specifier: ^1.1.0
-        version: 1.1.0
-      kzg-wasm:
-        specifier: 0.5.0
-        version: 0.5.0
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-      viem:
-        specifier: ^2.24.2
-        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
 
   examples/authentication/with-wallet-stamper:
     dependencies:
@@ -3540,6 +1418,1143 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  examples/chain-integrations/with-aptos:
+    dependencies:
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      aptos:
+        specifier: ^1.21.0
+        version: 1.21.0
+      async-retry:
+        specifier: ^1.3.3
+        version: 1.3.3
+      cross-fetch:
+        specifier: ^4.0.0
+        version: 4.0.0(encoding@0.1.13)
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/async-retry':
+        specifier: ^1.4.8
+        version: 1.4.8
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      tsx:
+        specifier: ^3.12.7
+        version: 3.12.7
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/chain-integrations/with-arc:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/api-key-stamper
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      viem:
+        specifier: 2.38.0
+        version: 2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+
+  examples/chain-integrations/with-bitcoin:
+    dependencies:
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      bip32:
+        specifier: ^4.0.0
+        version: 4.0.0
+      bip39:
+        specifier: ^3.1.0
+        version: 3.1.0
+      bitcoinjs-lib:
+        specifier: ^6.1.6
+        version: 6.1.7
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ecpair:
+        specifier: ^2.1.0
+        version: 2.1.0
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      tiny-secp256k1:
+        specifier: '>=1.1.7'
+        version: 2.2.4
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+
+  examples/chain-integrations/with-cosmjs:
+    dependencies:
+      '@cosmjs/encoding':
+        specifier: ^0.33.0
+        version: 0.33.1
+      '@cosmjs/stargate':
+        specifier: ^0.33.0
+        version: 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      '@turnkey/cosmjs':
+        specifier: workspace:*
+        version: link:../../../packages/cosmjs
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:^
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+
+  examples/chain-integrations/with-doge:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      axios:
+        specifier: '>=1.15.1'
+        version: 1.16.0
+      bitcoinjs-lib:
+        specifier: 6.1.6
+        version: 6.1.6
+      dotenv:
+        specifier: 16.0.3
+        version: 16.0.3
+      path:
+        specifier: 0.12.7
+        version: 0.12.7
+
+  examples/chain-integrations/with-eip-1193-provider:
+    dependencies:
+      '@radix-ui/react-dialog':
+        specifier: ^1.0.5
+        version: 1.1.15(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-dropdown-menu':
+        specifier: ^2.0.6
+        version: 2.1.16(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-icons':
+        specifier: ^1.3.0
+        version: 1.3.2(react@18.3.1)
+      '@radix-ui/react-label':
+        specifier: ^2.0.2
+        version: 2.1.7(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-select':
+        specifier: ^2.0.0
+        version: 2.2.6(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot':
+        specifier: ^1.0.2
+        version: 1.2.3(@types/react@18.2.14)(react@18.3.1)
+      '@radix-ui/react-toast':
+        specifier: ^1.1.5
+        version: 1.2.15(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/api-key-stamper
+      '@turnkey/eip-1193-provider':
+        specifier: workspace:*
+        version: link:../../../packages/eip-1193-provider
+      '@turnkey/http':
+        specifier: workspace:^
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/webauthn-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/webauthn-stamper
+      class-variance-authority:
+        specifier: ^0.7.0
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.0
+        version: 2.1.1
+      lucide-react:
+        specifier: ^0.363.0
+        version: 0.363.0(react@18.3.1)
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next-themes:
+        specifier: ^0.3.0
+        version: 0.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+      sonner:
+        specifier: ^1.4.41
+        version: 1.7.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tailwind-merge:
+        specifier: ^2.2.2
+        version: 2.6.0
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3)))
+      viem:
+        specifier: ^2.9.5
+        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      '@types/node':
+        specifier: ^20
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      autoprefixer:
+        specifier: ^10.0.1
+        version: 10.4.21(postcss@8.5.15)
+      eslint:
+        specifier: ^8
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
+      postcss:
+        specifier: '>=8.5.10'
+        version: 8.5.15
+      tailwindcss:
+        specifier: ^3.3.0
+        version: 3.4.17(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/chain-integrations/with-ethers:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/api-key-stamper
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+
+  examples/chain-integrations/with-iota:
+    dependencies:
+      '@iota/iota-sdk':
+        specifier: 1.6.1
+        version: 1.6.1(typescript@5.4.3)
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      async-retry:
+        specifier: 1.3.3
+        version: 1.3.3
+      cross-fetch:
+        specifier: 4.0.0
+        version: 4.0.0(encoding@0.1.13)
+      dotenv:
+        specifier: 16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: 2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/async-retry':
+        specifier: 1.4.8
+        version: 1.4.8
+      '@types/prompts':
+        specifier: 2.4.2
+        version: 2.4.2
+      tsx:
+        specifier: 3.12.7
+        version: 3.12.7
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/chain-integrations/with-movement:
+    dependencies:
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      aptos:
+        specifier: 1.21.0
+        version: 1.21.0
+      async-retry:
+        specifier: ^1.3.3
+        version: 1.3.3
+      cross-fetch:
+        specifier: ^4.0.0
+        version: 4.0.0(encoding@0.1.13)
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/async-retry':
+        specifier: ^1.4.8
+        version: 1.4.8
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      tsx:
+        specifier: ^3.12.7
+        version: 3.12.7
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/chain-integrations/with-solana:
+    dependencies:
+      '@project-serum/anchor':
+        specifier: ^0.26.0
+        version: 0.26.0(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@solana/spl-token':
+        specifier: ^0.4.8
+        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/api-key-stamper
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../../packages/encoding
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/solana':
+        specifier: workspace:*
+        version: link:../../../packages/solana
+      async-retry:
+        specifier: ^1.3.3
+        version: 1.3.3
+      cross-fetch:
+        specifier: ^4.0.0
+        version: 4.0.0(encoding@0.1.13)
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      tweetnacl:
+        specifier: ^1.0.3
+        version: 1.0.3
+    devDependencies:
+      '@types/async-retry':
+        specifier: ^1.4.8
+        version: 1.4.8
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+
+  examples/chain-integrations/with-spark:
+    dependencies:
+      '@buildonspark/issuer-sdk':
+        specifier: ^0.1.23
+        version: 0.1.23(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@buildonspark/spark-sdk':
+        specifier: 0.8.4
+        version: 0.8.4(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@18.3.24)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@noble/curves':
+        specifier: ^1.9.7
+        version: 1.9.7
+      '@noble/hashes':
+        specifier: ^1.4.0
+        version: 1.8.0
+      '@scure/bip39':
+        specifier: ^1.3.0
+        version: 1.6.0
+      '@scure/btc-signer':
+        specifier: ^1.5.0
+        version: 1.8.1
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/spark':
+        specifier: workspace:*
+        version: link:../../../packages/spark
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+    devDependencies:
+      tsx:
+        specifier: ^4.7.0
+        version: 4.20.6
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/chain-integrations/with-stacks:
+    dependencies:
+      '@stacks/common':
+        specifier: ^7.0.2
+        version: 7.0.2
+      '@stacks/transactions':
+        specifier: ^7.1.0
+        version: 7.2.0(encoding@0.1.13)
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      path:
+        specifier: ^0.12.7
+        version: 0.12.7
+
+  examples/chain-integrations/with-sui:
+    dependencies:
+      '@mysten/sui':
+        specifier: 1.37.6
+        version: 1.37.6(typescript@5.4.3)
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      async-retry:
+        specifier: 1.3.3
+        version: 1.3.3
+      cross-fetch:
+        specifier: 4.0.0
+        version: 4.0.0(encoding@0.1.13)
+      dotenv:
+        specifier: 16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: 2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/async-retry':
+        specifier: 1.4.8
+        version: 1.4.8
+      '@types/prompts':
+        specifier: 2.4.2
+        version: 2.4.2
+      tsx:
+        specifier: 3.12.7
+        version: 3.12.7
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/chain-integrations/with-tempo:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/api-key-stamper
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      tempo.ts:
+        specifier: ^0.13.0
+        version: 0.13.0(@remix-run/headers@0.17.2)(@remix-run/route-pattern@0.15.3)(@remix-run/session@0.4.0)(typescript@5.4.3)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(zod@4.1.11)
+      viem:
+        specifier: ^2.44.0
+        version: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+
+  examples/chain-integrations/with-ton:
+    dependencies:
+      '@inquirer/prompts':
+        specifier: ^2.1.0
+        version: 2.3.1
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@ton/core':
+        specifier: ^0.59.0
+        version: 0.59.1(@ton/crypto@3.3.0)
+      '@ton/crypto':
+        specifier: ^3.3.0
+        version: 3.3.0
+      '@ton/ton':
+        specifier: ^15.1.0
+        version: 15.3.1(@ton/core@0.59.1(@ton/crypto@3.3.0))(@ton/crypto@3.3.0)
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      async-retry:
+        specifier: ^1.3.3
+        version: 1.3.3
+      cross-fetch:
+        specifier: ^4.0.0
+        version: 4.0.0(encoding@0.1.13)
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+    devDependencies:
+      '@types/async-retry':
+        specifier: ^1.4.8
+        version: 1.4.8
+      tsx:
+        specifier: ^3.12.7
+        version: 3.12.7
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/chain-integrations/with-tron:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/api-key-stamper
+      '@turnkey/crypto':
+        specifier: workspace:^
+        version: link:../../../packages/crypto
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      tronweb:
+        specifier: ^6.0.3
+        version: 6.0.4(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+    devDependencies:
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@24.13.1)(typescript@5.4.3)
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/chain-integrations/with-viem:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/api-key-stamper
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      '@zerodev/sdk':
+        specifier: ^5.4.32
+        version: 5.4.41(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      fetch:
+        specifier: ^1.1.0
+        version: 1.1.0
+      kzg-wasm:
+        specifier: 0.5.0
+        version: 0.5.0
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      viem:
+        specifier: ^2.24.2
+        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/defi/eth-usdc-swap:
+    dependencies:
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@uniswap/sdk-core':
+        specifier: ^3.1.1
+        version: 3.2.6
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/defi/solana-usdc-swap:
+    dependencies:
+      '@solana/spl-token':
+        specifier: ^0.4.14
+        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      cross-fetch:
+        specifier: ^4.1.0
+        version: 4.1.0(encoding@0.1.13)
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/defi/trading-runner:
+    dependencies:
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@uniswap/sdk-core':
+        specifier: ^3.1.1
+        version: 3.2.6
+      '@uniswap/v3-core':
+        specifier: ^1.0.1
+        version: 1.0.1
+      '@uniswap/v3-sdk':
+        specifier: ^3.9.0
+        version: 3.25.2(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.13.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      jsbi:
+        specifier: ^3.2.5
+        version: 3.2.5
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/defi/with-0x:
+    dependencies:
+      '@tanstack/react-query':
+        specifier: ^5.90.2
+        version: 5.90.2(react@19.1.0)
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: 19.1.0
+        version: 19.1.0(react@19.1.0)
+      viem:
+        specifier: ^2.37.11
+        version: 2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+      wagmi:
+        specifier: ^2.17.5
+        version: 2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.1.0))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)
+    devDependencies:
+      '@eslint/eslintrc':
+        specifier: ^3
+        version: 3.3.1
+      '@tailwindcss/postcss':
+        specifier: ^4
+        version: 4.1.13
+      '@types/node':
+        specifier: ^20
+        version: 20.3.1
+      '@types/react':
+        specifier: ^19
+        version: 19.1.17
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.1.11(@types/react@19.1.17)
+      eslint:
+        specifier: ^9
+        version: 9.35.0(jiti@2.5.1)
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@9.35.0(jiti@2.5.1))(typescript@5.4.3)
+      tailwindcss:
+        specifier: ^4
+        version: 4.1.13
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/defi/with-aave:
+    dependencies:
+      '@bgd-labs/aave-address-book':
+        specifier: ^4.28.2
+        version: 4.29.1(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      viem:
+        specifier: ^2.24.2
+        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/defi/with-breeze:
+    dependencies:
+      '@breezebaby/breeze-sdk':
+        specifier: ^1.5.0
+        version: 1.5.0(@babel/core@7.28.5)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.5))(bufferutil@4.0.9)(encoding@0.1.13)(jest-util@29.7.0)(jest@29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3)))(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^6.7.2
+        version: 6.7.2
+      '@fortawesome/react-fontawesome':
+        specifier: ^0.2.2
+        version: 0.2.6(@fortawesome/fontawesome-svg-core@6.7.2)(react@18.2.0)
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@react-oauth/google':
+        specifier: ^0.12.1
+        version: 0.12.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@tailwindcss/postcss':
+        specifier: ^4.1.12
+        version: 4.1.13
+      '@turnkey/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../../packages/encoding
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-react':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-react
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-types
+      '@turnkey/solana':
+        specifier: workspace:*
+        version: link:../../../packages/solana
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      axios:
+        specifier: '>=1.15.1'
+        version: 1.16.0
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      i:
+        specifier: ^0.3.7
+        version: 0.3.7
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      npm:
+        specifier: ^9.9.4
+        version: 9.9.4
+      postcss:
+        specifier: '>=8.5.10'
+        version: 8.5.15
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-hook-form:
+        specifier: ^7.45.1
+        version: 7.62.0(react@18.2.0)
+      tailwindcss:
+        specifier: ^4.1.12
+        version: 4.1.13
+      viem:
+        specifier: 2.34.0
+        version: 2.34.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.55.1
+        version: 1.56.1
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/defi/with-jupiter:
+    dependencies:
+      '@breezebaby/breeze-sdk':
+        specifier: ^1.5.0
+        version: 1.5.0(@babel/core@7.28.5)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.5))(bufferutil@4.0.9)(encoding@0.1.13)(jest-util@29.7.0)(jest@29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3)))(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^6.7.2
+        version: 6.7.2
+      '@fortawesome/react-fontawesome':
+        specifier: ^0.2.2
+        version: 0.2.6(@fortawesome/fontawesome-svg-core@6.7.2)(react@18.2.0)
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@react-oauth/google':
+        specifier: ^0.12.1
+        version: 0.12.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@tailwindcss/postcss':
+        specifier: ^4.1.12
+        version: 4.1.13
+      '@turnkey/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../../packages/encoding
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-types
+      '@turnkey/solana':
+        specifier: workspace:*
+        version: link:../../../packages/solana
+      axios:
+        specifier: '>=1.15.1'
+        version: 1.16.0
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      i:
+        specifier: ^0.3.7
+        version: 0.3.7
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      npm:
+        specifier: ^9.9.4
+        version: 9.9.4
+      postcss:
+        specifier: '>=8.5.10'
+        version: 8.5.15
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-hook-form:
+        specifier: ^7.45.1
+        version: 7.62.0(react@18.2.0)
+      tailwindcss:
+        specifier: ^4.1.12
+        version: 4.1.13
+      viem:
+        specifier: 2.34.0
+        version: 2.34.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.55.1
+        version: 1.56.1
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/defi/with-lifi:
+    dependencies:
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@tanstack/react-query':
+        specifier: ^5.90.2
+        version: 5.90.2(react@19.1.0)
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/solana':
+        specifier: workspace:*
+        version: link:../../../packages/solana
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: 19.1.0
+        version: 19.1.0(react@19.1.0)
+      viem:
+        specifier: ^2.37.11
+        version: 2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+      wagmi:
+        specifier: ^2.17.5
+        version: 2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.76.5(@babel/core@7.28.5)(@babel/preset-env@7.20.2(@babel/core@7.28.5))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.1.0))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)
+    devDependencies:
+      '@eslint/eslintrc':
+        specifier: ^3
+        version: 3.3.1
+      '@tailwindcss/postcss':
+        specifier: ^4
+        version: 4.1.13
+      '@types/node':
+        specifier: ^20
+        version: 20.3.1
+      '@types/react':
+        specifier: ^19
+        version: 19.1.17
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.1.11(@types/react@19.1.17)
+      eslint:
+        specifier: ^9
+        version: 9.35.0(jiti@2.5.1)
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@9.35.0(jiti@2.5.1))(typescript@5.4.3)
+      tailwindcss:
+        specifier: ^4
+        version: 4.1.13
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/defi/with-morpho:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      viem:
+        specifier: ^2.24.2
+        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/defi/with-uniswap:
+    dependencies:
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@uniswap/sdk-core':
+        specifier: ^3.1.1
+        version: 3.2.6
+      '@uniswap/v3-core':
+        specifier: ^1.0.1
+        version: 1.0.1
+      '@uniswap/v3-sdk':
+        specifier: ^3.9.0
+        version: 3.25.2(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.13.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      hardhat:
+        specifier: ^2.12.7
+        version: 2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.13.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10)
+      jsbi:
+        specifier: ^3.2.5
+        version: 3.2.5
+    devDependencies:
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/defi/with-x402:
     dependencies:
       '@turnkey/react-wallet-kit':
@@ -3607,7 +2622,786 @@ importers:
         specifier: ^6.10.0
         version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
 
-  examples/account-abstraction/with-zerodev-aa:
+  examples/demos/kitchen-sink:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/api-key-stamper
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-browser':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-browser
+      '@turnkey/sdk-react':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-react
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+
+  examples/demos/react-components:
+    dependencies:
+      '@coinbase/onchainkit':
+        specifier: 0.38.13
+        version: 0.38.13(@tanstack/query-core@5.90.2)(@types/react@18.2.14)(bufferutil@4.0.9)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@18.2.0))(utf-8-validate@5.0.10)(zod@4.1.11)
+      '@emotion/react':
+        specifier: ^11.13.3
+        version: 11.14.0(@types/react@18.2.14)(react@18.2.0)
+      '@emotion/styled':
+        specifier: ^11.13.0
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@18.2.14)(react@18.2.0))(@types/react@18.2.14)(react@18.2.0)
+      '@hello-pangea/dnd':
+        specifier: ^17.0.0
+        version: 17.0.0(@types/react@18.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@moonpay/moonpay-js':
+        specifier: ^0.7.0
+        version: 0.7.5
+      '@moonpay/moonpay-react':
+        specifier: ^1.10.1
+        version: 1.10.5(react@18.2.0)
+      '@mui/icons-material':
+        specifier: ^6.1.5
+        version: 6.5.0(@mui/material@6.5.0(@emotion/react@11.14.0(@types/react@18.2.14)(react@18.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.2.14)(react@18.2.0))(@types/react@18.2.14)(react@18.2.0))(@types/react@18.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.14)(react@18.2.0)
+      '@mui/material':
+        specifier: ^6.1.5
+        version: 6.5.0(@emotion/react@11.14.0(@types/react@18.2.14)(react@18.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.2.14)(react@18.2.0))(@types/react@18.2.14)(react@18.2.0))(@types/react@18.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@turnkey/indexed-db-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/indexed-db-stamper
+      '@turnkey/sdk-browser':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-browser
+      '@turnkey/sdk-react':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-react
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-types
+      '@turnkey/wallet-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/wallet-stamper
+      axios:
+        specifier: '>=1.15.1'
+        version: 1.16.0
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      jwt-decode:
+        specifier: ^4.0.0
+        version: 4.0.0
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      npm:
+        specifier: ^9.7.2
+        version: 9.9.4
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-international-phone:
+        specifier: ^4.3.0
+        version: 4.6.0(react@18.2.0)
+      sonner:
+        specifier: ^1.4.41
+        version: 1.7.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      tweetnacl:
+        specifier: ^1.0.3
+        version: 1.0.3
+      viem:
+        specifier: 2.44.0
+        version: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/demos/react-wallet-kit-playground:
+    dependencies:
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@react-oauth/google':
+        specifier: ^0.12.1
+        version: 0.12.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@tailwindcss/postcss':
+        specifier: ^4.1.12
+        version: 4.1.13
+      '@turnkey/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-react':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-react
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-types
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      axios:
+        specifier: '>=1.15.1'
+        version: 1.16.0
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      npm:
+        specifier: ^9.7.2
+        version: 9.9.4
+      postcss:
+        specifier: '>=8.5.10'
+        version: 8.5.15
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-hook-form:
+        specifier: ^7.45.1
+        version: 7.62.0(react@18.2.0)
+      tailwindcss:
+        specifier: ^4.1.12
+        version: 4.1.13
+      viem:
+        specifier: 2.34.0
+        version: 2.34.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.55.1
+        version: 1.56.1
+      playwright-core:
+        specifier: ^1.55.1
+        version: 1.56.1
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/demos/with-eth-passkeys-galore:
+    dependencies:
+      '@biconomy/account':
+        specifier: ^4.5.6
+        version: 4.5.7(typescript@5.4.3)(viem@2.23.13(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/api-key-stamper
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../packages/http
+      '@turnkey/sdk-react':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-react
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      '@turnkey/webauthn-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/webauthn-stamper
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      axios:
+        specifier: '>=1.15.1'
+        version: 1.16.0
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+      react-hook-form:
+        specifier: ^7.45.1
+        version: 7.62.0(react@18.3.1)
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+      viem:
+        specifier: 2.23.13
+        version: 2.23.13(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+
+  examples/demos/with-react-wallet-kit:
+    dependencies:
+      '@fortawesome/fontawesome-svg-core':
+        specifier: ^6.7.2
+        version: 6.7.2
+      '@fortawesome/free-brands-svg-icons':
+        specifier: ^6.7.2
+        version: 6.7.2
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^6.7.2
+        version: 6.7.2
+      '@fortawesome/react-fontawesome':
+        specifier: ^0.2.2
+        version: 0.2.6(@fortawesome/fontawesome-svg-core@6.7.2)(react@19.2.4)
+      '@headlessui/react':
+        specifier: ^2.2.4
+        version: 2.2.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@hello-pangea/dnd':
+        specifier: ^17.0.0
+        version: 17.0.0(@types/react@18.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@react-three/drei':
+        specifier: ^10.6.1
+        version: 10.7.5(@react-three/fiber@9.5.0(@types/react@18.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.160.1))(@types/react@18.2.14)(@types/three@0.178.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.160.1)
+      '@react-three/fiber':
+        specifier: ^9.5.0
+        version: 9.5.0(@types/react@18.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.160.1)
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@tailwindcss/postcss':
+        specifier: ^4.1.10
+        version: 4.1.13
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../../packages/encoding
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-types
+      axios:
+        specifier: '>=1.15.1'
+        version: 1.16.0
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      maath:
+        specifier: ^0.10.8
+        version: 0.10.8(@types/three@0.178.1)(three@0.160.1)
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      npm:
+        specifier: ^9.7.2
+        version: 9.9.4
+      postcss:
+        specifier: '>=8.5.10'
+        version: 8.5.15
+      react:
+        specifier: 19.2.4
+        version: 19.2.4
+      react-dom:
+        specifier: 19.2.4
+        version: 19.2.4(react@19.2.4)
+      react-hook-form:
+        specifier: ^7.45.1
+        version: 7.62.0(react@19.2.4)
+      react-toastify:
+        specifier: ^11.0.5
+        version: 11.0.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      tailwindcss:
+        specifier: ^4.1.11
+        version: 4.1.13
+      three:
+        specifier: ^0.160.0
+        version: 0.160.1
+      tweetnacl:
+        specifier: ^1.0.3
+        version: 1.0.3
+      viem:
+        specifier: ^2.33.2
+        version: 2.34.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+    devDependencies:
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      '@types/three':
+        specifier: ^0.178.1
+        version: 0.178.1
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/demos/with-sdk-server:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+
+  examples/key-management/disaster-recovery:
+    dependencies:
+      '@peculiar/webcrypto':
+        specifier: ^1.4.3
+        version: 1.5.0
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../../packages/encoding
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      viem:
+        specifier: 2.37.5
+        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/key-management/encryption-key-escrow:
+    dependencies:
+      '@peculiar/webcrypto':
+        specifier: ^1.4.3
+        version: 1.5.0
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.6.1
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      viem:
+        specifier: 2.37.5
+        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      '@types/node':
+        specifier: ^20.3.1
+        version: 20.3.1
+      '@types/prompts':
+        specifier: ^2.4.9
+        version: 2.4.9
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@20.3.1)(typescript@5.4.3)
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/key-management/export-in-node:
+    dependencies:
+      '@peculiar/webcrypto':
+        specifier: ^1.5.0
+        version: 1.5.0
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../../packages/encoding
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      async-retry:
+        specifier: ^1.3.3
+        version: 1.3.3
+      cross-fetch:
+        specifier: ^4.0.0
+        version: 4.0.0(encoding@0.1.13)
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/async-retry':
+        specifier: ^1.4.8
+        version: 1.4.8
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+
+  examples/key-management/import-export-with-iframe-stamper:
+    dependencies:
+      '@turnkey/iframe-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/iframe-stamper
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      axios:
+        specifier: '>=1.15.1'
+        version: 1.16.0
+      classnames:
+        specifier: ^2.3.2
+        version: 2.5.1
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      npm:
+        specifier: ^9.7.2
+        version: 9.9.4
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-hook-form:
+        specifier: ^7.45.1
+        version: 7.45.1(react@18.3.1)
+    devDependencies:
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/key-management/import-export-with-rwk:
+    dependencies:
+      '@tailwindcss/postcss':
+        specifier: 4.1.13
+        version: 4.1.13
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-types
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-hook-form:
+        specifier: 7.45.1
+        version: 7.45.1(react@18.3.1)
+      tailwindcss:
+        specifier: 4.1.13
+        version: 4.1.13
+    devDependencies:
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/key-management/import-in-node:
+    dependencies:
+      '@peculiar/webcrypto':
+        specifier: ^1.5.0
+        version: 1.5.0
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../../packages/encoding
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      async-retry:
+        specifier: ^1.3.3
+        version: 1.3.3
+      cross-fetch:
+        specifier: ^4.0.0
+        version: 4.0.0(encoding@0.1.13)
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/async-retry':
+        specifier: ^1.4.8
+        version: 1.4.8
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+
+  examples/key-management/wallet-export-sign:
+    dependencies:
+      '@turnkey/iframe-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/iframe-stamper
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      axios:
+        specifier: '>=1.15.1'
+        version: 1.16.0
+      classnames:
+        specifier: ^2.3.2
+        version: 2.5.1
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      npm:
+        specifier: ^9.7.2
+        version: 9.9.4
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-hook-form:
+        specifier: ^7.45.1
+        version: 7.62.0(react@18.2.0)
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+
+  examples/key-management/with-export-and-sign-escrow:
+    dependencies:
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@turnkey/iframe-stamper':
+        specifier: workspace:*
+        version: link:../../../packages/iframe-stamper
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-types
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: 19.2.4
+        version: 19.2.4
+      react-dom:
+        specifier: 19.2.4
+        version: 19.2.4(react@19.2.4)
+      tweetnacl:
+        specifier: ^1.0.3
+        version: 1.0.3
+    devDependencies:
+      '@tailwindcss/postcss':
+        specifier: ^4
+        version: 4.1.13
+      '@types/node':
+        specifier: ^20
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      eslint:
+        specifier: ^9
+        version: 9.35.0(jiti@2.5.1)
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@9.35.0(jiti@2.5.1))(typescript@5.4.3)
+      tailwindcss:
+        specifier: ^4
+        version: 4.1.13
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/transaction-management/rebalancer:
     dependencies:
       '@turnkey/ethers':
         specifier: workspace:*
@@ -3615,43 +3409,250 @@ importers:
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../../packages/sdk-server
-      '@turnkey/viem':
+      '@turnkey/sdk-types':
         specifier: workspace:*
-        version: link:../../../packages/viem
-      '@zerodev/ecdsa-validator':
-        specifier: ^5.4.8
-        version: 5.4.9(@zerodev/sdk@5.4.41(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)))(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
-      '@zerodev/sdk':
-        specifier: ^5.4.32
-        version: 5.4.41(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
+        version: link:../../../packages/sdk-types
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
       ethers:
         specifier: ^6.10.0
         version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      permissionless:
-        specifier: ^0.1.45
-        version: 0.1.49(viem@2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
+
+  examples/transaction-management/solana-sweeper:
+    dependencies:
+      '@solana/spl-token':
+        specifier: ^0.4.9
+        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
       prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
         specifier: ^2.4.2
         version: 2.4.2
       typescript:
         specifier: 5.4.3
         version: 5.4.3
-      viem:
-        specifier: ^2.24.2
-        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+
+  examples/transaction-management/sweeper:
+    dependencies:
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@uniswap/sdk-core':
+        specifier: ^3.1.1
+        version: 3.2.6
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
     devDependencies:
-      '@types/node':
-        specifier: ^22.7.7
-        version: 22.18.1
       '@types/prompts':
         specifier: ^2.4.2
         version: 2.4.2
-      tslib:
-        specifier: ^2.8.0
-        version: 2.8.1
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/transaction-management/tk-gas-station:
+    dependencies:
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/gas-station':
+        specifier: workspace:*
+        version: link:../../../packages/gas-station
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      '@uniswap/sdk-core':
+        specifier: ^6.0.0
+        version: 6.1.1
+      '@uniswap/universal-router-sdk':
+        specifier: ^3.0.0
+        version: 3.4.0(bufferutil@4.0.9)(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
+      '@uniswap/v3-sdk':
+        specifier: ^3.9.0
+        version: 3.25.2(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      viem:
+        specifier: ^2.34.0
+        version: 2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@types/jest':
+        specifier: ^29.5.14
+        version: 29.5.14
+      '@types/node':
+        specifier: ^24.6.2
+        version: 24.7.1
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@24.7.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))
+      tsx:
+        specifier: ^4.7.0
+        version: 4.20.6
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/transaction-management/with-balances:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/transaction-management/with-nonce-manager:
+    dependencies:
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+
+  examples/transaction-management/with-paymaster:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/transaction-management/with-solana-paymaster:
+    dependencies:
+      '@solana/spl-token':
+        specifier: ^0.4.9
+        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/transaction-management/with-tx-webhooks:
+    dependencies:
+      '@solana/spl-token':
+        specifier: ^0.4.14
+        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@solana/web3.js':
+        specifier: ^1.98.4
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+    devDependencies:
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      tsx:
+        specifier: ^3.12.7
+        version: 3.12.7
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
 
   internal/jest-config:
     dependencies:
@@ -15837,8 +15838,8 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
-  shell-quote@1.8.3:
-    resolution: {integrity: sha512-ObmnIF4hXNg1BqhnHmgbDETF8dLPCggZWBjkQfhZpbszZnYur5DUljTcCHii5LC3J5E0yeO/1LIMyH+UvHQgyw==}
+  shell-quote@1.8.4:
+    resolution: {integrity: sha512-VsC6n6vz1ihYYyZZwX7YZSF5l5x36ca17OC+a69h94YqB7X6XLwf+5MOgynYir2SLFUbl8gIYvBo8K8RoNQ6bQ==}
     engines: {node: '>= 0.4'}
 
   side-channel-list@1.0.0:
@@ -30957,7 +30958,7 @@ snapshots:
 
   asn1.js@4.10.1:
     dependencies:
-      bn.js: 4.12.3
+      bn.js: 5.2.3
       inherits: 2.0.4
       minimalistic-assert: 1.0.1
 
@@ -33403,7 +33404,7 @@ snapshots:
 
   eth-lib@0.1.29(bufferutil@4.0.9)(utf-8-validate@5.0.10):
     dependencies:
-      bn.js: 4.12.3
+      bn.js: 5.2.3
       elliptic: 6.6.1
       nano-json-stream-parser: 0.1.2
       servify: 0.1.12
@@ -33416,7 +33417,7 @@ snapshots:
 
   eth-lib@0.2.8:
     dependencies:
-      bn.js: 4.12.3
+      bn.js: 5.2.3
       elliptic: 6.6.1
       xhr-request-promise: 0.1.3
 
@@ -36020,7 +36021,7 @@ snapshots:
 
   miller-rabin@4.0.1:
     dependencies:
-      bn.js: 4.12.3
+      bn.js: 5.2.3
       brorand: 1.1.0
 
   mime-db@1.52.0: {}
@@ -37513,7 +37514,7 @@ snapshots:
 
   react-devtools-core@5.3.2(bufferutil@4.0.9)(utf-8-validate@5.0.10):
     dependencies:
-      shell-quote: 1.8.3
+      shell-quote: 1.8.4
       ws: 8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
@@ -38667,7 +38668,7 @@ snapshots:
 
   shebang-regex@3.0.0: {}
 
-  shell-quote@1.8.3: {}
+  shell-quote@1.8.4: {}
 
   side-channel-list@1.0.0:
     dependencies:
