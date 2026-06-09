@@ -64,13 +64,13 @@ import {
   SparkValidationError,
   getCurrentTimelock,
   createConnectorRefundTxs,
-  createCurrentTimelockRefundTxs,
   getSigHashFromMultiInputTx,
   getSigHashFromTx,
   getNextHTLCTransactionSequence,
   createRefundTxsForLightning,
   getNetwork,
   createDecrementedTimelockRefundTxs,
+  KeyDerivationType,
 } from "@buildonspark/spark-sdk";
 import {
   uint8ArrayToHexString,
@@ -94,7 +94,6 @@ import {
 } from "./key-management";
 import { areBytesEqual, compressedPublicKeyHexFromString } from "./utils";
 import type {
-  ClaimPackage,
   SigningResult,
   TreeNode,
   UserSignedTxSigningJob,
@@ -312,10 +311,16 @@ export interface SignRefundsBatchedLightningInput
   sequenceLockDestinationPubkey: Uint8Array;
 }
 
-export type SignRefundsResult = Pick<
-  ClaimPackage,
-  "leavesToClaim" | "directLeavesToClaim" | "directFromCpfpLeavesToClaim"
->;
+export interface UserSignedTxSigningJobWithSelfCommitment
+  extends UserSignedTxSigningJob {
+  selfCommitment: SigningCommitmentWithOptionalNonce;
+}
+
+export interface SignRefundsResult {
+  leaves: UserSignedTxSigningJobWithSelfCommitment[];
+  directLeaves: UserSignedTxSigningJobWithSelfCommitment[];
+  directFromCpfpLeaves: UserSignedTxSigningJobWithSelfCommitment[];
+}
 
 export class TurnkeySparkSigner implements SparkSigner {
   private readonly client: TurnkeyServerSDK;
@@ -1117,36 +1122,39 @@ export class TurnkeySparkSigner implements SparkSigner {
     );
 
     const signatures = await this.signFrostBatch(signFrostParamsForLeaves);
-    const signedJobs: UserSignedTxSigningJob[][] = jobs.map(
+    const signedJobs: UserSignedTxSigningJobWithSelfCommitment[][] = jobs.map(
       (jobsForLeaf, index) => {
         const leaf = leaves[index]!;
 
-        return jobsForLeaf.flatMap((job): UserSignedTxSigningJob[] => {
-          if (job == null) return [];
+        return jobsForLeaf.flatMap(
+          (job): UserSignedTxSigningJobWithSelfCommitment[] => {
+            if (job == null) return [];
 
-          const userSignature = signatures.shift()!;
+            const userSignature = signatures.shift()!;
 
-          return [
-            {
-              leafId: leaf.leaf.id,
-              userSignature,
-              signingPublicKey: job.signingPublicKey,
-              rawTx: job.rawTx,
-              signingNonceCommitment: job.selfCommitment.commitment,
-              signingCommitments: {
-                signingCommitments: job.commitment.signingNonceCommitments!,
+            return [
+              {
+                leafId: leaf.leaf.id,
+                userSignature,
+                signingPublicKey: job.signingPublicKey,
+                rawTx: job.rawTx,
+                selfCommitment: job.selfCommitment,
+                signingNonceCommitment: job.selfCommitment.commitment,
+                signingCommitments: {
+                  signingCommitments: job.commitment.signingNonceCommitments!,
+                },
+                additionalInputs: [],
               },
-              additionalInputs: [],
-            },
-          ];
-        });
+            ];
+          },
+        );
       },
     );
 
     return {
-      leavesToClaim: signedJobs.flatMap(([job]) => (job ? [job] : [])),
-      directLeavesToClaim: signedJobs.flatMap(([, job]) => (job ? [job] : [])),
-      directFromCpfpLeavesToClaim: signedJobs.flatMap(([, , job]) =>
+      leaves: signedJobs.flatMap(([job]) => (job ? [job] : [])),
+      directLeaves: signedJobs.flatMap(([, job]) => (job ? [job] : [])),
+      directFromCpfpLeaves: signedJobs.flatMap(([, , job]) =>
         job ? [job] : [],
       ),
     };
@@ -1224,7 +1232,7 @@ export class TurnkeySparkSigner implements SparkSigner {
       directNodeTx,
       receivingPubkey,
     }) =>
-      createCurrentTimelockRefundTxs({
+      createDecrementedTimelockRefundTxs({
         nodeTx,
         ...(directNodeTx ? { directNodeTx } : {}),
         sequence,
@@ -1243,7 +1251,7 @@ export class TurnkeySparkSigner implements SparkSigner {
       directNodeTx,
     }) => {
       // hashLockDestinationPubkey is the receiver's identity pubkey (per-leaf
-      // metadata via leaf.receiverIdentityPublicKey, set by makeLeafTweaks).
+      // metadata via leaf.receiverIdentityPublicKey, while
       // sequenceLockDestinationPubkey is the sender's (our) identity pubkey,
       // carried on the mode so callers fetch it once.
       if (!leaf.receiverIdentityPublicKey) {
@@ -1469,7 +1477,7 @@ const adaptorPubKeyToSparkAdaptorPublicKey = (
 const keyDerivationToSparkKeyDerivation = (
   kd: KeyDerivation,
 ): v1SparkKeyDerivation => {
-  if (kd.type !== "leaf") {
+  if (kd.type !== KeyDerivationType.LEAF) {
     throw new Error(
       `Expected leaf KeyDerivation for SparkKeyDerivation signingLeaf, got ${kd.type}`,
     );
