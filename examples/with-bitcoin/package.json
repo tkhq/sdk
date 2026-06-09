@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@turnkey/bitcoin": "workspace:*",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",

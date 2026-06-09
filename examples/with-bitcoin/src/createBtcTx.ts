@@ -10,7 +10,7 @@ import * as ecc from "tiny-secp256k1";
 import { ECPairFactory } from "ecpair";
 
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
-import { TurnkeySigner } from "./signer";
+import { TurnkeyBitcoinSigner } from "@turnkey/bitcoin";
 import { getNetwork, isMainnet, parseAddressAgainstPublicKey } from "./util";
 import { estimateFees } from "./fees";
 
@@ -203,17 +203,21 @@ async function main() {
     network,
   } = result;
 
-  var signer: TurnkeySigner;
+  var signer: TurnkeyBitcoinSigner;
   if (addressType === "MainnetP2TR" || addressType === "TestnetP2TR") {
     // For taproot public key needs to be the decoded address, in order to match the output's "public key" (tweaked)
     // See https://github.com/bitcoinjs/bitcoinjs-lib/blob/34e1644b5fb60055793ec3078f2e4f48b2648ca6/ts_src/psbt.ts#L1786
-    signer = new TurnkeySigner(
-      turnkeyClient,
+    signer = new TurnkeyBitcoinSigner(
+      turnkeyClient.apiClient(),
       bitcoinAddress,
       bitcoin.address.fromBech32(bitcoinAddress).data,
     );
   } else {
-    signer = new TurnkeySigner(turnkeyClient, bitcoinAddress, pair.publicKey);
+    signer = new TurnkeyBitcoinSigner(
+      turnkeyClient.apiClient(),
+      bitcoinAddress,
+      pair.publicKey,
+    );
   }
 
   // Sign the transaction inputs
