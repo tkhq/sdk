@@ -272,6 +272,9 @@ type CreateRefundTxMessage = (
 
 type ModifySignFrostParams = (params: SignFrostParams) => SignFrostParams;
 
+// Helper type for working with [cpfp, direct, directFromCpfp] structures
+type Triple<T> = [cpfp: T, direct: T, directFromCpfp: T];
+
 export interface ClaimLeaf {
   leaf: TreeNode;
   keyDerivation: KeyDerivation;
@@ -919,11 +922,7 @@ export class TurnkeySparkSigner implements SparkSigner {
    */
   protected partitionOperatorCommitments(
     commitments: OperatorSigningCommitment[],
-  ): [
-    cpfp: OperatorSigningCommitment,
-    direct: OperatorSigningCommitment,
-    directFromCpfp: OperatorSigningCommitment,
-  ][] {
+  ): Triple<OperatorSigningCommitment>[] {
     if (commitments.length % 3 !== 0) {
       throw new SparkValidationError(
         `Expected commitments length to be a multiple of 3 (for cpfp, direct, and direct-from-cpfp), got ${commitments.length}`,
@@ -994,7 +993,7 @@ export class TurnkeySparkSigner implements SparkSigner {
       );
     }
 
-    const jobs: UserUnsignedTxSigningJob[][] = [];
+    const jobs: Triple<UserUnsignedTxSigningJob | undefined>[] = [];
 
     for (let i = 0; i < leaves.length; i++) {
       const leaf = leaves[i]!;
@@ -1037,7 +1036,9 @@ export class TurnkeySparkSigner implements SparkSigner {
         i,
       );
 
-      const jobsForLeaf: UserUnsignedTxSigningJob[] = Array.from({ length: 3 });
+      const jobsForLeaf = Array.from({ length: 3 }) as Triple<
+        UserUnsignedTxSigningJob | undefined
+      >;
 
       // cpfp tx
       const cpfpMessage = createMessage(
@@ -1122,20 +1123,15 @@ export class TurnkeySparkSigner implements SparkSigner {
     );
 
     const signatures = await this.signFrostBatch(signFrostParamsForLeaves);
-    const signedJobs: UserSignedTxSigningJobWithSelfCommitment[][] = jobs.map(
-      (jobsForLeaf, index) => {
-        const leaf = leaves[index]!;
+    const signedJobs = jobs.map((jobsForLeaf, index) => {
+      const leaf = leaves[index]!;
 
-        return jobsForLeaf.flatMap(
-          (job): UserSignedTxSigningJobWithSelfCommitment[] => {
-            if (job == null) return [];
-
-            const userSignature = signatures.shift()!;
-
-            return [
-              {
+      return jobsForLeaf.map(
+        (job): UserSignedTxSigningJobWithSelfCommitment | undefined =>
+          job
+            ? {
                 leafId: leaf.leaf.id,
-                userSignature,
+                userSignature: signatures.shift()!,
                 signingPublicKey: job.signingPublicKey,
                 rawTx: job.rawTx,
                 selfCommitment: job.selfCommitment,
@@ -1144,12 +1140,10 @@ export class TurnkeySparkSigner implements SparkSigner {
                   signingCommitments: job.commitment.signingNonceCommitments!,
                 },
                 additionalInputs: [],
-              },
-            ];
-          },
-        );
-      },
-    );
+              }
+            : undefined,
+      ) as Triple<UserSignedTxSigningJobWithSelfCommitment | undefined>;
+    });
 
     return {
       leaves: signedJobs.flatMap(([job]) => (job ? [job] : [])),
@@ -1180,14 +1174,9 @@ export class TurnkeySparkSigner implements SparkSigner {
         });
       }
 
-      const isZeroNode = !getCurrentTimelock(nodeTx.getInput(0).sequence);
-      const effectiveDirectNodeTx = isZeroNode ? undefined : directNodeTx;
-
       return createConnectorRefundTxs({
         nodeTx,
-        ...(effectiveDirectNodeTx
-          ? { directNodeTx: effectiveDirectNodeTx }
-          : {}),
+        directNodeTx: directNodeTx!,
         sequence,
         connectorOutput,
         receivingPubkey,

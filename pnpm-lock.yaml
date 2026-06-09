@@ -3024,8 +3024,8 @@ importers:
         specifier: ^0.1.23
         version: 0.1.23(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@buildonspark/spark-sdk':
-        specifier: 0.8.4
-        version: 0.8.4(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        specifier: 0.8.6
+        version: 0.8.6(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@noble/curves':
         specifier: ^1.9.7
         version: 1.9.7
@@ -4355,8 +4355,8 @@ importers:
   packages/spark:
     dependencies:
       '@buildonspark/spark-sdk':
-        specifier: ^0.8.4
-        version: 0.8.4(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        specifier: ^0.8.6
+        version: 0.8.6(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@noble/curves':
         specifier: ^1.9.7
         version: 1.9.7
@@ -5470,8 +5470,8 @@ packages:
       react-native-get-random-values:
         optional: true
 
-  '@buildonspark/spark-sdk@0.8.4':
-    resolution: {integrity: sha512-Hn/agiPK8RRwy9Si93JCAonjfpqz/vFLxXkejcAWDDu4Zg4yPVr2qWiU//dTfvZs2Z/9TB9dw5HMSRccQcc5fg==}
+  '@buildonspark/spark-sdk@0.8.6':
+    resolution: {integrity: sha512-rpdmeDvGtXzOmRTGuGUH7HK5fJjLUbPmD01agHry/rdpdzLH/F8eHznmqK1YD/m8EvQ5l0FP/UKxfo01ehNcqw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: '>=18.2.0'
@@ -20392,7 +20392,7 @@ snapshots:
       - utf-8-validate
       - ws
 
-  '@buildonspark/spark-sdk@0.8.4(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+  '@buildonspark/spark-sdk@0.8.6(bare-buffer@3.6.0)(bare-events@2.8.2)(bufferutil@4.0.9)(react-native-get-random-values@1.11.0(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(react-native@0.81.4(@babel/core@7.28.5)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
       '@bufbuild/protobuf': 2.11.0
       '@lightsparkdev/core': 1.5.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
