@@ -1,4 +1,5 @@
-import type { TurnkeyApiClient } from "@turnkey/sdk-server";
+import type { TurnkeyBrowserClient as TurnkeyApiClientBrowser } from "@turnkey/sdk-browser";
+import type { TurnkeyApiClient as TurnkeyApiClientServer } from "@turnkey/sdk-server";
 
 /**
  * Signer which supports P2TR and P2WPKH addresses.
@@ -22,7 +23,9 @@ import type { TurnkeyApiClient } from "@turnkey/sdk-server";
  * at signing time if the address type is P2TR. See BIP141 for a more thorough explainer on taproot!
  * -------------------------------------------------------
  */
-export class TurnkeyBitcoinSigner {
+export class TurnkeyBitcoinSigner<
+  TClient extends TurnkeyApiClientBitcoinSigner = TurnkeyApiClientBitcoinSigner,
+> {
   /**
    * @param client The turnkey API client
    * @param address The Turnkey-derived address in bech32 format (e.g. bc1pdyzj6qxu6q40jdkcslh0uqmnppx4vtg0l0a7kfdccr5833wfjwqqnp949w)
@@ -30,7 +33,7 @@ export class TurnkeyBitcoinSigner {
    *                  For P2WPKH it should be the key pair's underlying public key buffer, uncompressed.
    */
   constructor(
-    public readonly client: TurnkeyApiClient,
+    public readonly client: TClient,
     public readonly address: string,
     public readonly publicKey: Buffer,
   ) {}
@@ -56,3 +59,9 @@ export class TurnkeyBitcoinSigner {
     return Buffer.from(r + s, "hex");
   }
 }
+
+export type TurnkeyApiClientBitcoinSigner<
+  T extends TurnkeyApiClientServer | TurnkeyApiClientBrowser =
+    | TurnkeyApiClientServer
+    | TurnkeyApiClientBrowser,
+> = Pick<T, "signRawPayload">;
