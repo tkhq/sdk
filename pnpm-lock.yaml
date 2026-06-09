@@ -684,13 +684,13 @@ importers:
         version: 0.12.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@turnkey/core':
         specifier: workspace:*
-        version: link:../../../packages/core
+        version: link:../../../../packages/core
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
+        version: link:../../../../packages/react-wallet-kit
       '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../../packages/sdk-server
+        version: link:../../../../packages/sdk-server
       next:
         specifier: 15.5.18
         version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -739,19 +739,19 @@ importers:
         version: 4.1.13
       '@turnkey/crypto':
         specifier: workspace:*
-        version: link:../../../packages/crypto
+        version: link:../../../../packages/crypto
       '@turnkey/encoding':
         specifier: workspace:*
-        version: link:../../../packages/encoding
+        version: link:../../../../packages/encoding
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
+        version: link:../../../../packages/react-wallet-kit
       '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../../packages/sdk-server
+        version: link:../../../../packages/sdk-server
       '@turnkey/sdk-types':
         specifier: workspace:*
-        version: link:../../../packages/sdk-types
+        version: link:../../../../packages/sdk-types
       next:
         specifier: 15.5.18
         version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -797,13 +797,13 @@ importers:
         version: 4.1.13
       '@turnkey/encoding':
         specifier: workspace:*
-        version: link:../../../packages/encoding
+        version: link:../../../../packages/encoding
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
+        version: link:../../../../packages/react-wallet-kit
       '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../../packages/sdk-server
+        version: link:../../../../packages/sdk-server
       next:
         specifier: 15.5.18
         version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1282,16 +1282,16 @@ importers:
         version: 4.1.13
       '@turnkey/encoding':
         specifier: workspace:*
-        version: link:../../../packages/encoding
+        version: link:../../../../packages/encoding
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
+        version: link:../../../../packages/react-wallet-kit
       '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../../packages/sdk-server
+        version: link:../../../../packages/sdk-server
       '@turnkey/sdk-types':
         specifier: workspace:*
-        version: link:../../../packages/sdk-types
+        version: link:../../../../packages/sdk-types
       next:
         specifier: 15.5.18
         version: 15.5.18(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1337,13 +1337,13 @@ importers:
         version: 4.1.13
       '@turnkey/encoding':
         specifier: workspace:*
-        version: link:../../../packages/encoding
+        version: link:../../../../packages/encoding
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
+        version: link:../../../../packages/react-wallet-kit
       '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../../packages/sdk-server
+        version: link:../../../../packages/sdk-server
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1
@@ -1904,10 +1904,10 @@ importers:
         version: 4.1.13
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
-        version: link:../../../packages/react-wallet-kit
+        version: link:../../../../packages/react-wallet-kit
       '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../../packages/sdk-server
+        version: link:../../../../packages/sdk-server
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1
@@ -1944,7 +1944,7 @@ importers:
     dependencies:
       '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../../packages/sdk-server
+        version: link:../../../../packages/sdk-server
       dotenv:
         specifier: ^16.0.3
         version: 16.6.1
