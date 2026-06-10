@@ -63,7 +63,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/access-control/with-delegated/
+$ cd examples/access-control/with-delegated/client-side/
 ```
 
 ### 2/ Setting up Turnkey
