@@ -1,4 +1,4 @@
-# ⚠️ Deprecated: Use the New Core SDK
+# ⚠️ Deprecated: Use the New Core SDK (or else!!!!!)
 
 > This package is deprecated and no longer actively maintained.
 >
