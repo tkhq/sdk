@@ -1683,7 +1683,7 @@ importers:
     dependencies:
       '@turnkey/bitcoin':
         specifier: workspace:*
-        version: link:../../packages/bitcoin
+        version: link:../../../packages/bitcoin
       '@turnkey/crypto':
         specifier: workspace:*
         version: link:../../../packages/crypto
