@@ -376,11 +376,6 @@ export class TurnkeyTransferService extends TransferService {
       this.config.getCoordinatorAddress(),
     );
 
-    // const keyTweakInputMap = await this.prepareSendTransferKeyTweaks(
-    //   transferID,
-    //   leaves,
-    // );
-
     const normalizedLeaves = leaves.map(normalizeTransferLeafKeyTweak);
     const { signingCommitments: commitments } =
       await sparkClient.get_signing_commitments({
