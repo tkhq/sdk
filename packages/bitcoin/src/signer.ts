@@ -1,4 +1,6 @@
-import type { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+import type { TurnkeySDKClientBase as TurnkeyClientCore } from "@turnkey/core";
+import type { TurnkeyBrowserClient as TurnkeyClientBrowser } from "@turnkey/sdk-browser";
+import type { TurnkeyApiClient as TurnkeyClientServer } from "@turnkey/sdk-server";
 
 /**
  * Signer which supports P2TR and P2WPKH addresses.
@@ -22,25 +24,23 @@ import type { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
  * at signing time if the address type is P2TR. See BIP141 for a more thorough explainer on taproot!
  * -------------------------------------------------------
  */
-export class TurnkeySigner {
-  client: TurnkeyServerSDK;
-  publicKey: Buffer;
-  address: string;
-
+export class TurnkeyBitcoinSigner<
+  TClient extends TurnkeyClientBitcoinSigner = TurnkeyClientBitcoinSigner,
+> {
   /**
-   * @param client The turnkey SDK client
+   * @param client The turnkey API client
    * @param address The Turnkey-derived address in bech32 format (e.g. bc1pdyzj6qxu6q40jdkcslh0uqmnppx4vtg0l0a7kfdccr5833wfjwqqnp949w)
    * @param publicKey public key buffer. To sign P2TR outputs it needs to be the decoded address (`bitcoin.address.fromBech32(address).data`).
    *                  For P2WPKH it should be the key pair's underlying public key buffer, uncompressed.
    */
-  constructor(client: TurnkeyServerSDK, address: string, publicKey: Buffer) {
-    this.client = client;
-    this.address = address;
-    this.publicKey = publicKey;
-  }
+  constructor(
+    public readonly client: TClient,
+    public readonly address: string,
+    public readonly publicKey: Buffer,
+  ) {}
 
   async sign(hash: Buffer, _lowrR: boolean): Promise<Buffer> {
-    const { r, s } = await this.client.apiClient().signRawPayload({
+    const { r, s } = await this.client.signRawPayload({
       signWith: this.address,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",
@@ -50,7 +50,7 @@ export class TurnkeySigner {
   }
 
   async signSchnorr(hash: Buffer): Promise<Buffer> {
-    const { r, s } = await this.client.apiClient().signRawPayload({
+    const { r, s } = await this.client.signRawPayload({
       signWith: this.address,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",
@@ -60,3 +60,12 @@ export class TurnkeySigner {
     return Buffer.from(r + s, "hex");
   }
 }
+
+type CompatibleTurnkeyClient =
+  | TurnkeyClientServer
+  | TurnkeyClientBrowser
+  | TurnkeyClientCore;
+
+export type TurnkeyClientBitcoinSigner<
+  T extends CompatibleTurnkeyClient = CompatibleTurnkeyClient,
+> = Pick<T, "signRawPayload">;

@@ -1,5 +1,12 @@
 # @turnkey/eth-usdc-swap
 
+## 0.1.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/ethers@1.3.31
+
 ## 0.1.10
 
 ### Patch Changes
