@@ -239,9 +239,18 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
 
       const depositAddress = await senderWallet.getSingleUseDepositAddress();
 
-      assert(typeof process.env.SPARK_API_URL === "string", "Missing required env var: SPARK_API_URL");
-      assert(typeof process.env.SPARK_API_USERNAME === "string", "Missing required env var: SPARK_API_USERNAME");
-      assert(typeof process.env.SPARK_API_PASSWORD === "string", "Missing required env var: SPARK_API_PASSWORD");
+      assert(
+        typeof process.env.SPARK_API_URL === "string",
+        "Missing required env var: SPARK_API_URL",
+      );
+      assert(
+        typeof process.env.SPARK_API_USERNAME === "string",
+        "Missing required env var: SPARK_API_USERNAME",
+      );
+      assert(
+        typeof process.env.SPARK_API_PASSWORD === "string",
+        "Missing required env var: SPARK_API_PASSWORD",
+      );
 
       const mempoolUrl = process.env.SPARK_API_URL;
       const username = process.env.SPARK_API_USERNAME;
@@ -252,11 +261,7 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
         senderAddress,
         bitcoin.address.fromBech32(senderAddress).data,
       );
-      const mempoolApi = createMempoolApi(
-        mempoolUrl,
-        username,
-        password,
-      );
+      const mempoolApi = createMempoolApi(mempoolUrl, username, password);
 
       // Instead of doing the two-step signature process that would be appropriate for production
       // bitcoin transaction signing, we simply run our broadcast code with increasing fee amounts
