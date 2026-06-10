@@ -16,6 +16,6 @@ $ npm install @turnkey/bitcoin
 
 ## Examples
 
-| Example                                        | Description                                                             |
-| ---------------------------------------------- | ----------------------------------------------------------------------- |
+| Example                                                           | Description                                                             |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | [`with-bitcoin`](../../examples/chain-integrations/with-bitcoin/) | Demonstrates Bitcoin operations using **Turnkey as the key custodian**. |
