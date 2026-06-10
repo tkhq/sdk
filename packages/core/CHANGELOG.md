@@ -1,5 +1,11 @@
 # @turnkey/core
 
+## 2.2.0
+
+### Minor Changes
+
+- [#1391](https://github.com/tkhq/sdk/pull/1391) [`fb82279`](https://github.com/tkhq/sdk/commit/fb82279ed954a25bd0a23418664315fb43d0e2ec) Author [@ethankonk](https://github.com/ethankonk) - Exposes new `fetchWalletConnectApps` and `buildWalletConnectAppEntries` helpers (plus `WalletConnectApp` / `WalletConnectAppEntry` types).
+
 ## 2.1.0
 
 ### Minor Changes
