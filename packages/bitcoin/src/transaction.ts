@@ -17,7 +17,7 @@ export interface UTXOLike<TValue extends number | bigint = number | bigint> {
  *
  * @param inputs The list of available UTXOs to select from.
  * @param outputValue The target value that the selected UTXOs should meet or exceed.
- * @returns A tuple containing the selected UTXOs and the change amount.
+ * @returns A tuple containing the selected UTXOs, the change amount, and any unused UTXOs.
  */
 export const selectInputUTXOs = <
   TValue extends number | bigint = number | bigint,
@@ -64,11 +64,9 @@ export const smallestUTXOValueFirst = <
   TValue extends number | bigint = number | bigint,
   TUTXO extends UTXOLike<TValue> = UTXOLike<TValue>,
 >(
-  a: TUTXO,
-  b: TUTXO,
-): number => {
-  return BigInt(a.value) < BigInt(b.value) ? -1 : 1;
-};
+  { value: a }: TUTXO,
+  { value: b }: TUTXO,
+): number => sign(BigInt(a) - BigInt(b));
 
 /**
  * Helper UTXO comparator function to sort UTXOs in descending order by value.
@@ -77,8 +75,11 @@ export const largestUTXOValueFirst = <
   TValue extends number | bigint = number | bigint,
   TUTXO extends UTXOLike<TValue> = UTXOLike<TValue>,
 >(
-  a: TUTXO,
-  b: TUTXO,
-): number => {
-  return BigInt(a.value) > BigInt(b.value) ? -1 : 1;
-};
+  { value: a }: TUTXO,
+  { value: b }: TUTXO,
+): number => sign(BigInt(b) - BigInt(a));
+
+/**
+ * Local helper function to determine the sign of a bigint
+ */
+const sign = (n: bigint): number => (n < 0n ? -1 : n > 0n ? 1 : 0);

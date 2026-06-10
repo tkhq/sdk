@@ -70,6 +70,7 @@ export class TurnkeyBitcoinSigner<
   ): Promise<v1SignTransactionResult> {
     const {
       activity: {
+        id,
         result: { signTransactionResult },
       },
     } = await this.client.signTransaction({
@@ -80,7 +81,7 @@ export class TurnkeyBitcoinSigner<
 
     if (signTransactionResult == null) {
       throw new TurnkeyError(
-        "Failed to sign transaction: no result returned from API",
+        `Failed to sign transaction: no result returned from API (activity ID ${id})`,
         TurnkeyErrorCodes.INTERNAL_ERROR,
       );
     }

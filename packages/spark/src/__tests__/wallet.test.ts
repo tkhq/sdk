@@ -362,6 +362,8 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
           });
 
           if (status.confirmed) break;
+
+          await sleep(500);
         }
 
         // And finally, we claim the deposit in the wallet
@@ -636,6 +638,8 @@ const warn = async (message: string) => {
     console.warn(message);
   }
 };
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const createMempoolApi = (
   baseUrl: string,
