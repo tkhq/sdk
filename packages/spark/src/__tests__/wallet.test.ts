@@ -41,7 +41,14 @@ const TEST_TIMEOUT = 60_000; // 60 seconds, because claiming transfers can take 
 const DEFAULT_SPARK_REGTEST_ELECTRS_URL =
   "https://regtest-mempool.us-west-2.sparkinfra.net/api";
 
-describe("TurnkeySparkWallet", () => {
+// Since these tests can take some time and depend on account balances
+// and availability of a regtest mempool API, we might want to disable them if need be.
+const DISABLE_SPARK_E2E_TESTS = !!process.env.DISABLE_SPARK_E2E_TESTS?.trim();
+
+// If the tests are disabled, we just want to mark them as skipped
+const describeMaybe = DISABLE_SPARK_E2E_TESTS ? describe.skip : describe;
+
+describeMaybe("TurnkeySparkWallet", () => {
   let turnkey: Turnkey;
   let client: TurnkeyApiClient;
 
@@ -232,8 +239,13 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
 
       const depositAddress = await senderWallet.getSingleUseDepositAddress();
 
-      const username = process.env.EXPLORER_USERNAME;
-      const password = process.env.EXPLORER_PASSWORD;
+      assert(typeof process.env.SPARK_API_URL === "string", "Missing required env var: SPARK_API_URL");
+      assert(typeof process.env.SPARK_API_USERNAME === "string", "Missing required env var: SPARK_API_USERNAME");
+      assert(typeof process.env.SPARK_API_PASSWORD === "string", "Missing required env var: SPARK_API_PASSWORD");
+
+      const mempoolUrl = process.env.SPARK_API_URL;
+      const username = process.env.SPARK_API_USERNAME;
+      const password = process.env.SPARK_API_PASSWORD;
 
       const senderSigner = new TurnkeyBitcoinSigner(
         client,
@@ -241,7 +253,7 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
         bitcoin.address.fromBech32(senderAddress).data,
       );
       const mempoolApi = createMempoolApi(
-        "https://regtest-mempool.us-west-2.sparkinfra.net",
+        mempoolUrl,
         username,
         password,
       );
@@ -647,3 +659,8 @@ const createMempoolApi = (
     },
   });
 };
+
+// Print out a warning / github annotation if the tests are disabled
+if (DISABLE_SPARK_E2E_TESTS) {
+  warn("Spark E2E tests are disabled");
+}
