@@ -314,10 +314,21 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
             txhex: txHex,
           });
 
+          expect(typeof response).toBe("string");
           expect(response).toBe(txId);
-        } catch (error: any) {
+
+          console.log(
+            `Successfully broadcasted transaction with txid ${txId} and fee ${fee} sats.`,
+          );
+        } catch (error) {
+          // We might get all sorts of errors back (AxiosError, Error etc)
+          const message =
+            (error as any)?.response?.data ||
+            (error as any)?.message ||
+            String(error);
+
           await warn(
-            `Failed to broadcast Spark deposit transaction with txid ${txId} and fee ${fee} sats. Retrying with higher fee...\n\nError: ${error}`,
+            `Failed to broadcast Spark deposit transaction with txid ${txId} and fee ${fee} sats. Retrying with higher fee...\n\nError: ${message}`,
           );
 
           continue;
@@ -325,6 +336,10 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
 
         // Wait for the confirmation
         while (true) {
+          console.log(
+            `Polling for transaction with txid ${txId} to be confirmed`,
+          );
+
           const status = await mempoolApi.bitcoin.transactions.getTxStatus({
             txid: txId,
           });
