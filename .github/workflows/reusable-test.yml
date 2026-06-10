@@ -53,7 +53,11 @@ jobs:
         run: git fetch origin ${{ github.base_ref }}
 
       - name: Test
-        run: pnpm test --concurrency=1 --filter="$(./.github/scripts/get-turbo-affected.sh ${{ github.base_ref && format('origin/{0}', github.base_ref) }} HEAD)"
+        run: |
+          BASE_REF=${{ github.base_ref && format('origin/{0}', github.base_ref) }}
+          FILTER=$(./.github/scripts/get-turbo-affected.sh "$BASE_REF" HEAD)
+
+          pnpm test --concurrency=1 --filter="$FILTER"
         env:
           NODE_ENV: development
           API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
