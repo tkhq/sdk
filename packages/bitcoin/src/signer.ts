@@ -1,7 +1,11 @@
 import type { TurnkeySDKClientBase as TurnkeyClientCore } from "@turnkey/core";
 import type { TurnkeyBrowserClient as TurnkeyClientBrowser } from "@turnkey/sdk-browser";
 import type { TurnkeyApiClient as TurnkeyClientServer } from "@turnkey/sdk-server";
-import { TurnkeyError, TurnkeyErrorCodes, v1SignTransactionResult } from "@turnkey/sdk-server";
+import {
+  TurnkeyError,
+  TurnkeyErrorCodes,
+  v1SignTransactionResult,
+} from "@turnkey/sdk-server";
 
 /**
  * Signer which supports P2TR and P2WPKH addresses.
@@ -61,15 +65,24 @@ export class TurnkeyBitcoinSigner<
     return Buffer.from(r + s, "hex");
   }
 
-  async signTransaction(unsignedTransaction: string): Promise<v1SignTransactionResult> {
-    const { activity: { result: { signTransactionResult } } } = await this.client.signTransaction({
+  async signTransaction(
+    unsignedTransaction: string,
+  ): Promise<v1SignTransactionResult> {
+    const {
+      activity: {
+        result: { signTransactionResult },
+      },
+    } = await this.client.signTransaction({
       signWith: this.address,
       unsignedTransaction,
-      type: "TRANSACTION_TYPE_BITCOIN"
-    })
+      type: "TRANSACTION_TYPE_BITCOIN",
+    });
 
     if (signTransactionResult == null) {
-      throw new TurnkeyError("Failed to sign transaction: no result returned from API", TurnkeyErrorCodes.INTERNAL_ERROR);
+      throw new TurnkeyError(
+        "Failed to sign transaction: no result returned from API",
+        TurnkeyErrorCodes.INTERNAL_ERROR,
+      );
     }
 
     return signTransactionResult;

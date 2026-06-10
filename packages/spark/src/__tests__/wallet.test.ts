@@ -10,13 +10,17 @@ import type {
 } from "@buildonspark/spark-sdk/dist/types";
 import assert from "node:assert";
 import { Curve } from "@turnkey/core";
-import { selectInputUTXOs, TurnkeyBitcoinSigner, smallestUTXOValueFirst } from "@turnkey/bitcoin";
+import {
+  selectInputUTXOs,
+  TurnkeyBitcoinSigner,
+  smallestUTXOValueFirst,
+} from "@turnkey/bitcoin";
 import { SPARK_DEPOSIT_SUFFIX, SPARK_IDENTITY_SUFFIX } from "../constants";
 import { TurnkeySparkSigner } from "../signer";
 import { TurnkeySparkWalletTest } from "../test-wallet";
 import * as bitcoin from "bitcoinjs-lib";
 import * as ecc from "tiny-secp256k1";
-import mempoolJS from '@mempool/mempool.js';
+import mempoolJS from "@mempool/mempool.js";
 
 const NETWORK = "REGTEST";
 
@@ -219,93 +223,129 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
     TEST_TIMEOUT,
   );
 
-  it("should be able to claim a deposit from bitcoin regtest", async () => {
-    const amount = 1000;
-    const network = bitcoin.networks.regtest;
-    const senderAddress = senderAccounts.btcAccount.address;
+  it(
+    "should be able to claim a deposit from bitcoin regtest",
+    async () => {
+      const amount = 1000;
+      const network = bitcoin.networks.regtest;
+      const senderAddress = senderAccounts.btcAccount.address;
 
-    const depositAddress = await senderWallet.getSingleUseDepositAddress()
+      const depositAddress = await senderWallet.getSingleUseDepositAddress();
 
-    const username = process.env.EXPLORER_USERNAME;
-    const password = process.env.EXPLORER_PASSWORD;
+      const username = process.env.EXPLORER_USERNAME;
+      const password = process.env.EXPLORER_PASSWORD;
 
-    const senderSigner = new TurnkeyBitcoinSigner(client, senderAddress, bitcoin.address.fromBech32(senderAddress).data)
-    const mempoolApi = createMempoolApi("https://regtest-mempool.us-west-2.sparkinfra.net", username, password);
+      const senderSigner = new TurnkeyBitcoinSigner(
+        client,
+        senderAddress,
+        bitcoin.address.fromBech32(senderAddress).data,
+      );
+      const mempoolApi = createMempoolApi(
+        "https://regtest-mempool.us-west-2.sparkinfra.net",
+        username,
+        password,
+      );
 
-    // Instead of doing the two-step signature process that would be appropriate for production
-    // bitcoin transaction signing, we simply run our broadcast code with increasing fee amounts
-    for (const fee of createIncreasingFee(500, 2000, 1.2)) {
-      const amountWithFee = amount + fee;
+      // Instead of doing the two-step signature process that would be appropriate for production
+      // bitcoin transaction signing, we simply run our broadcast code with increasing fee amounts
+      for (const fee of createIncreasingFee(500, 2000, 1.2)) {
+        const amountWithFee = amount + fee;
 
-      // Grab the UTXOs for the sender address from the mempool API
-      const utxos = await mempoolApi.bitcoin.addresses.getAddressTxsUtxo({ address: senderAddress })
+        // Grab the UTXOs for the sender address from the mempool API
+        const utxos = await mempoolApi.bitcoin.addresses.getAddressTxsUtxo({
+          address: senderAddress,
+        });
 
-      // We want to optimize for consolidation by using the smallest UTXOs first
-      utxos.sort(smallestUTXOValueFirst)
+        // We want to optimize for consolidation by using the smallest UTXOs first
+        utxos.sort(smallestUTXOValueFirst);
 
-      // Select the UTXOs we want to use for the transaction
-      const [selectedUtxos, change] = selectInputUTXOs(utxos, amountWithFee)
+        // Select the UTXOs we want to use for the transaction
+        const [selectedUtxos, change] = selectInputUTXOs(utxos, amountWithFee);
 
-      // Construct the psbt
-      // 
-      // - First we add all selected input UTXOs
-      // - Then we add the output for the actual deposit
-      // - Finally we add the change that will be returned to the sender
-      const psbt = selectedUtxos.reduce((psbt, utxo) => psbt.addInput({
-        hash: utxo.txid,
-        index: utxo.vout,
-        witnessUtxo: {
-          script: bitcoin.address.toOutputScript(senderAddress, network),
-          value: utxo.value,
-        },
-      }), new bitcoin.Psbt({ network })).addOutput({
-        script: bitcoin.address.toOutputScript(depositAddress, network),
-        value: amount,
-      }).addOutput({
-        script: bitcoin.address.toOutputScript(senderAddress, network),
-        value: Number(change),
-      });
+        // Construct the psbt
+        //
+        // - First we add all selected input UTXOs
+        // - Then we add the output for the actual deposit
+        // - Finally we add the change that will be returned to the sender
+        const psbt = selectedUtxos
+          .reduce(
+            (psbt, utxo) =>
+              psbt.addInput({
+                hash: utxo.txid,
+                index: utxo.vout,
+                witnessUtxo: {
+                  script: bitcoin.address.toOutputScript(
+                    senderAddress,
+                    network,
+                  ),
+                  value: utxo.value,
+                },
+              }),
+            new bitcoin.Psbt({ network }),
+          )
+          .addOutput({
+            script: bitcoin.address.toOutputScript(depositAddress, network),
+            value: amount,
+          })
+          .addOutput({
+            script: bitcoin.address.toOutputScript(senderAddress, network),
+            value: Number(change),
+          });
 
-      // Sign the transaction with Turnkey
-      const { signedTransaction } = await senderSigner.signTransaction(psbt.toHex());
-      
-      // Finalize all inputs (Turnkey doesn't do this automatically)
-      const signedPsbt = bitcoin.Psbt.fromHex(signedTransaction, { network }).finalizeAllInputs();
+        // Sign the transaction with Turnkey
+        const { signedTransaction } = await senderSigner.signTransaction(
+          psbt.toHex(),
+        );
 
-      const rawTransaction = signedPsbt.extractTransaction();
-      const txId = rawTransaction.getId();
-      const txHex = rawTransaction.toHex();
+        // Finalize all inputs (Turnkey doesn't do this automatically)
+        const signedPsbt = bitcoin.Psbt.fromHex(signedTransaction, {
+          network,
+        }).finalizeAllInputs();
 
-      // Broadcast the transaction
-      // 
-      // If an error occurs, we assume it has to do with low fees and we try again with a higher fee
-      try {
-        const response = await mempoolApi.bitcoin.transactions.postTx({ txhex: txHex })
+        const rawTransaction = signedPsbt.extractTransaction();
+        const txId = rawTransaction.getId();
+        const txHex = rawTransaction.toHex();
 
-        expect(response).toBe(txId);
-      } catch(error: any) {
-        await warn(`Failed to broadcast Spark deposit transaction with txid ${txId} and fee ${fee} sats. Retrying with higher fee...\n\nError: ${error}`);
+        // Broadcast the transaction
+        //
+        // If an error occurs, we assume it has to do with low fees and we try again with a higher fee
+        try {
+          const response = await mempoolApi.bitcoin.transactions.postTx({
+            txhex: txHex,
+          });
 
-        continue;
+          expect(response).toBe(txId);
+        } catch (error: any) {
+          await warn(
+            `Failed to broadcast Spark deposit transaction with txid ${txId} and fee ${fee} sats. Retrying with higher fee...\n\nError: ${error}`,
+          );
+
+          continue;
+        }
+
+        // Wait for the confirmation
+        while (true) {
+          const status = await mempoolApi.bitcoin.transactions.getTxStatus({
+            txid: txId,
+          });
+
+          if (status.confirmed) break;
+        }
+
+        // And finally, we claim the deposit in the wallet
+        const leaves = await senderWallet.claimDeposit(txId);
+        expect(leaves).toBeDefined();
+
+        // We break out of the fee loop after a successful claim
+        return;
       }
 
-      // Wait for the confirmation
-      while (true) {
-        const status = await mempoolApi.bitcoin.transactions.getTxStatus({ txid: txId })
-
-        if (status.confirmed) break
-      }
-
-      // And finally, we claim the deposit in the wallet
-      const leaves = await senderWallet.claimDeposit(txId)
-      expect(leaves).toBeDefined();
-
-      // We break out of the fee loop after a successful claim
-      return;
-    }
-
-    throw new Error(`Failed to claim deposit after trying multiple fee amounts.`);
-  }, TEST_TIMEOUT)
+      throw new Error(
+        `Failed to claim deposit after trying multiple fee amounts.`,
+      );
+    },
+    TEST_TIMEOUT,
+  );
 });
 
 /**
@@ -352,7 +392,11 @@ const waitForTransferToBeClaimed = (
  * @param end The maximum fee amount.
  * @param multiplier The multiplier to increase the fee by on each iteration.
  */
-function* createIncreasingFee(start: number, end: number, multiplier: number): Generator<number> {
+function* createIncreasingFee(
+  start: number,
+  end: number,
+  multiplier: number,
+): Generator<number> {
   let current = start;
 
   while (current <= end) {
@@ -454,49 +498,49 @@ interface WalletAccounts {
  */
 const createGetWalletAccounts =
   (client: TurnkeyApiClient) =>
-    async (walletId: string): Promise<WalletAccounts> => {
-      const { accounts } = await client.getWalletAccounts({
-        walletId,
-      });
+  async (walletId: string): Promise<WalletAccounts> => {
+    const { accounts } = await client.getWalletAccounts({
+      walletId,
+    });
 
-      const ecdsaIdentityAccount = accounts.find(
-        ({ path, addressFormat }) =>
-          path === SPARK_IDENTITY_PATH &&
-          addressFormat === "ADDRESS_FORMAT_COMPRESSED",
-      );
-      const sparkIdentityAccount = accounts.find(
-        ({ path, addressFormat }) =>
-          path === SPARK_IDENTITY_PATH &&
-          addressFormat === "ADDRESS_FORMAT_SPARK_REGTEST",
-      );
-      const sparkDepositAccount = accounts.find(
-        ({ path }) => path === SPARK_DEPOSIT_PATH,
-      );
-      const btcAccount = accounts.find(
-        ({ path, addressFormat }) =>
-          path === BTC_PATH &&
-          addressFormat === "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR",
-      );
+    const ecdsaIdentityAccount = accounts.find(
+      ({ path, addressFormat }) =>
+        path === SPARK_IDENTITY_PATH &&
+        addressFormat === "ADDRESS_FORMAT_COMPRESSED",
+    );
+    const sparkIdentityAccount = accounts.find(
+      ({ path, addressFormat }) =>
+        path === SPARK_IDENTITY_PATH &&
+        addressFormat === "ADDRESS_FORMAT_SPARK_REGTEST",
+    );
+    const sparkDepositAccount = accounts.find(
+      ({ path }) => path === SPARK_DEPOSIT_PATH,
+    );
+    const btcAccount = accounts.find(
+      ({ path, addressFormat }) =>
+        path === BTC_PATH &&
+        addressFormat === "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR",
+    );
 
-      assert(
-        ecdsaIdentityAccount != null,
-        "Missing ECDSA identity account in wallet",
-      );
-      assert(
-        sparkIdentityAccount != null,
-        "Missing Spark identity account in wallet",
-      );
-      assert(sparkDepositAccount != null, "Missing deposit account in wallet");
-      assert(btcAccount != null, "Missing BTC account in wallet");
+    assert(
+      ecdsaIdentityAccount != null,
+      "Missing ECDSA identity account in wallet",
+    );
+    assert(
+      sparkIdentityAccount != null,
+      "Missing Spark identity account in wallet",
+    );
+    assert(sparkDepositAccount != null, "Missing deposit account in wallet");
+    assert(btcAccount != null, "Missing BTC account in wallet");
 
-      return {
-        walletId,
-        ecdsaIdentityAccount,
-        sparkIdentityAccount,
-        sparkDepositAccount,
-        btcAccount,
-      };
+    return {
+      walletId,
+      ecdsaIdentityAccount,
+      sparkIdentityAccount,
+      sparkDepositAccount,
+      btcAccount,
     };
+  };
 
 const recoverAllFunds = async (
   fromWallet: TurnkeySparkWalletTest,
@@ -561,9 +605,16 @@ const warn = async (message: string) => {
   }
 };
 
-const createMempoolApi = (baseUrl: string, username?: string, password?: string) => {
+const createMempoolApi = (
+  baseUrl: string,
+  username?: string,
+  password?: string,
+) => {
   const url = new URL(baseUrl);
-  const Authorization = username && password ? `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}` : '';
+  const Authorization =
+    username && password
+      ? `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`
+      : "";
 
   return mempoolJS({
     protocol: url.protocol.replaceAll(":", "") as "http" | "https",
@@ -572,12 +623,12 @@ const createMempoolApi = (baseUrl: string, username?: string, password?: string)
       headers: {
         Authorization,
         // We need to force the content type to be text/plain to be able to broadcast a transaction
-        // 
+        //
         // This is because of axios default behavior when it comes to content type.
-        // If the body is a string (which is the case for /api/tx payload), 
+        // If the body is a string (which is the case for /api/tx payload),
         // it sets the content type (incorrectly) to application/x-www-form-urlencoded
         "Content-Type": "text/plain",
-      }
-    }
+      },
+    },
   });
-}
+};
