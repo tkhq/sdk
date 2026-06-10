@@ -65,6 +65,7 @@ jobs:
           BANNED_TO_ADDRESS: ${{ secrets.BANNED_TO_ADDRESS }}
           SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
           WALLET_ID: ${{ secrets.WALLET_ID }}
+          DISABLE_SPARK_E2E_TESTS: ${{ vars.DISABLE_SPARK_E2E_TESTS }}
           SPARK_API_URL: ${{ secrets.SPARK_API_URL }}
           SPARK_API_USERNAME: ${{ secrets.SPARK_API_USERNAME }}
           SPARK_API_PASSWORD: ${{ secrets.SPARK_API_PASSWORD }}
