@@ -41,6 +41,8 @@ jobs:
       # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0 # We need the full history to be able to calculate the affected packages with turbo
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
@@ -49,8 +51,16 @@ jobs:
       - name: Build
         run: pnpm build --filter='./packages/*'
 
+      - name: Fetch base branch
+        if: ${{ github.base_ref }}
+        run: git fetch origin ${{ github.base_ref }}
+
       - name: Test
-        run: pnpm test --concurrency=1
+        run: |
+          BASE_REF=${{ github.base_ref && format('origin/{0}', github.base_ref) }}
+          FILTER=$(./.github/scripts/get-turbo-affected.sh "$BASE_REF" HEAD)
+
+          pnpm test --concurrency=1 --filter="$FILTER"
         env:
           NODE_ENV: development
           API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
