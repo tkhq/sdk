@@ -50,8 +50,14 @@ export function LinkedPlatformsCard({
             setLinkStatus((s) => ({ ...s, [p.label]: "linked" }));
             return;
           }
+          if (orgId && orgId !== currentSubOrgId) {
+            throw new Error(
+              `This OIDC claim is already linked to a different sub-organization (${orgId}).`,
+            );
+          }
           setLinkStatus((s) => ({ ...s, [p.label]: "linking" }));
           await httpClient.createOauthProviders({
+            organizationId: currentSubOrgId,
             userId: session.userId,
             oauthProviders: [
               {
