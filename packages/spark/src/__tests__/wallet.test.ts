@@ -3,7 +3,11 @@ import {
   TurnkeyApiClient,
   v1WalletAccount,
 } from "@turnkey/sdk-server";
-import { SparkReadonlyClient, SparkWalletEvent } from "@buildonspark/spark-sdk";
+import {
+  SparkReadonlyClient,
+  SparkRequestError,
+  SparkWalletEvent,
+} from "@buildonspark/spark-sdk";
 import type {
   ExitSpeed,
   WalletTransfer,
@@ -21,6 +25,7 @@ import { TurnkeySparkWalletTest } from "../test-wallet";
 import * as bitcoin from "bitcoinjs-lib";
 import * as ecc from "tiny-secp256k1";
 import mempoolJS from "@mempool/mempool.js";
+import asyncRetry from "async-retry";
 
 const NETWORK = "REGTEST";
 
@@ -182,10 +187,14 @@ describeMaybe("TurnkeySparkWallet", () => {
         (id) => id === transfer?.id,
       );
 
-      transfer = await senderWallet.transfer({
-        amountSats: 100,
-        receiverSparkAddress,
-      });
+      transfer = await asyncRetry(
+        createBailOnUnexpectedTransferError(() =>
+          senderWallet.transfer({
+            amountSats: 100,
+            receiverSparkAddress,
+          }),
+        ),
+      );
 
       expect(transfer).toBeDefined();
 
@@ -668,6 +677,34 @@ const createMempoolApi = (
     },
   });
 };
+
+/**
+ * Since we are reusing the same account for all tests, we might run into TRANSFER_LOCKED errors
+ * if we try to transfer funds that are already locked by a pending transfer.
+ *
+ * This function wraps a call that can potentially throw a TRANSFER_LOCKED error and retries it if that happens,
+ * while bailing on any other error.
+ *
+ * See https://github.com/tkhq/sdk/actions/runs/27298318153/job/80637353586
+ */
+const createBailOnUnexpectedTransferError =
+  <T>(fn: () => Promise<T>) =>
+  async (bail: (e: Error) => void) => {
+    try {
+      return await fn();
+    } catch (error) {
+      if (
+        !(error instanceof SparkRequestError) ||
+        !error.message.includes("TRANSFER_LOCKED")
+      ) {
+        bail(error as Error);
+
+        return undefined;
+      } else {
+        throw error;
+      }
+    }
+  };
 
 // Print out a warning / github annotation if the tests are disabled
 if (DISABLE_SPARK_E2E_TESTS) {
