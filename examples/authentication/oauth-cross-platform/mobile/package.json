@@ -3,12 +3,12 @@
   "main": "index.js",
   "version": "1.0.0",
   "scripts": {
+    "build": "expo export --platform android",
     "start": "expo start",
     "prebuild": "expo prebuild",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "clean:npm": "rm -rf node_modules && npm install",
-    "clean:app": "rm -rf ios android",
+    "clean": "rm -rf ios android",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit"
   },
