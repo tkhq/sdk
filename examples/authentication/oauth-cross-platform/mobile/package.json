@@ -8,7 +8,7 @@
     "prebuild": "expo prebuild",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "clean": "rm -rf ios android",
+    "clean": "rimraf ios android dist web .expo",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit"
   },
