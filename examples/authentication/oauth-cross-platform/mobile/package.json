@@ -40,13 +40,11 @@
   "devDependencies": {
     "@expo/metro-runtime": "~56.0.15",
     "@react-native/metro-config": "~0.86.0",
-    "@rnx-kit/metro-config": "~2.2.4",
-    "@rnx-kit/metro-resolver-symlinks": "~0.3.1",
     "@types/react": "18.2.14",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~56.0.4",
     "metro-cache": "~0.84.4",
-    "typescript": "~6.0.3"
+    "typescript": "5.4.3"
   },
   "private": true
 }
