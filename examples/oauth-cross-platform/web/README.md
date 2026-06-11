@@ -20,7 +20,7 @@ oauthProviders: [
 
 The `oidcToken` provider is verified by Google's public keys. The `oidcClaims` providers share the same `iss`/`sub` (same user, same provider) and are marked **verified-by-association** — because the token proves the user's Google identity, the secondary audiences for the same identity are also trusted.
 
-On the dashboard, each platform shows its link status automatically. The app calls `getSubOrgIds` with `filterType: "OAUTH_CLAIM"` for each secondary platform in the background and if a platform is not yet linked it calls `addOauthProvider` silently, so the user never has to take manual action.
+On the dashboard, each platform shows its link status automatically. The app calls `getSubOrgIds` with `filterType: "OAUTH_CLAIM"` for each secondary platform in the background and if a platform is not yet linked it calls `createOauthProviders` silently, so the user never has to take manual action.
 
 | Web dashboard                                           | iOS                                           | Android                                               |
 | ------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------- |
