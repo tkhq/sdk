@@ -29,14 +29,26 @@ export default function Dashboard() {
   const { authState, clientState, session, wallets } = useTurnkey();
   const router = useRouter();
 
-  const [dataReady, setDataReady] = useState(false);
-  const [claims, setClaims] = useState<OauthClaims | null>(null);
-  const [isNewAccount, setIsNewAccount] = useState<boolean | null>(null);
+  const sessionStorage =
+    typeof window !== "undefined" ? window.sessionStorage : undefined;
+  const stored = sessionStorage?.getItem("tk_oauth_claims");
+  const [claims] = useState(
+    stored ? (JSON.parse(stored) as OauthClaims) : null,
+  );
+  const [isNewAccount] = useState(
+    sessionStorage?.getItem("tk_is_new_account") === "true",
+  );
+
   const [modalResult, setModalResult] = useState<{
     platform: string;
     orgId: string | null;
   } | null>(null);
   const [verifying, setVerifying] = useState<Record<string, boolean>>({});
+
+  const dataReady =
+    clientState === ClientState.Ready &&
+    authState === AuthState.Authenticated &&
+    wallets.length > 0;
 
   useEffect(() => {
     if (
@@ -46,24 +58,6 @@ export default function Dashboard() {
       router.replace("/");
     }
   }, [authState, clientState, router]);
-
-  useEffect(() => {
-    if (
-      clientState === ClientState.Ready &&
-      authState === AuthState.Authenticated &&
-      wallets.length > 0
-    ) {
-      setDataReady(true);
-    }
-  }, [clientState, authState, wallets]);
-
-  useEffect(() => {
-    const stored = sessionStorage.getItem("tk_oauth_claims");
-    if (stored) {
-      setClaims(JSON.parse(stored));
-    }
-    setIsNewAccount(sessionStorage.getItem("tk_is_new_account") === "true");
-  }, []);
 
   const platforms: Platform[] = [
     { label: "Web", clientId: WEB_CLIENT_ID, verified: true },
