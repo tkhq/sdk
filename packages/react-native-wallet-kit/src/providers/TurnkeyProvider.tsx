@@ -94,7 +94,6 @@ import {
   useState,
 } from "react";
 import { Platform } from "react-native";
-import DeviceInfo from "react-native-device-info";
 import { InAppBrowser } from "react-native-inappbrowser-reborn";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
@@ -154,6 +153,7 @@ interface TurnkeyProviderProps {
   children: ReactNode;
   config: TurnkeyProviderConfig;
   callbacks?: TurnkeyCallbacks | undefined;
+  applicationName?: string | null | undefined;
 }
 
 /**
@@ -186,6 +186,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   config,
   children,
   callbacks,
+  applicationName,
 }) => {
   const [client, setClient] = useState<TurnkeyClient | undefined>(undefined);
   const [session, setSession] = useState<Session | undefined>(undefined);
@@ -912,9 +913,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       const websiteName =
         Platform.OS === "web" && typeof window !== "undefined"
           ? window.location.hostname
-          : DeviceInfo.getApplicationName() ||
-            DeviceInfo.getBundleId() ||
-            "mobile-app";
+          : applicationName || "mobile-app";
       const timestamp =
         new Date().toLocaleDateString() +
         "-" +
