@@ -36,7 +36,7 @@ export function LinkedPlatformsCard({
   useEffect(() => {
     if (!claims || !currentSubOrgId || !httpClient || !session?.userId) return;
 
-    for (const p of platforms.filter((p) => !p.verified)) {
+    for (const p of platforms.filter((p) => !p.verified && !linkStatus[p.label])) {
       setLinkStatus((s) => ({ ...s, [p.label]: "checking" }));
 
       verifyPlatformAction({
