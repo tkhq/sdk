@@ -4,7 +4,7 @@
 >
 > We’ve released a new, improved React package — [@turnkey/react-wallet-kit](https://docs.turnkey.com/sdks/react/index) which provides a simpler, more powerful developer experience and better integration with modern React apps.
 >
-> Check out the updated [demo](https://wallets.turnkey.com) here: https://github.com/tkhq/sdk/tree/main/examples/react-wallet-kit
+> Check out the updated [demo](https://wallets.turnkey.com) here: https://github.com/tkhq/sdk/tree/main/examples/demos/with-react-wallet-kit
 
 # @turnkey/sdk-react
 

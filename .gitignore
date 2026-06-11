@@ -149,3 +149,5 @@ examples/keymaker/
 examples/payflow-example/
 
 examples/scratch/
+
+.claude/

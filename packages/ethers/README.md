@@ -98,14 +98,14 @@ See `.env.example` to get your local testing environment right. Run `pnpm jest` 
 
 ## More examples
 
-| Example                                               | Description                                                                                                        |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| [`with-ethers`](/examples/with-ethers/)               | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura           |
-| [`with-gnosis`](/examples/with-gnosis/)               | Create new Ethereum addresses, configure a 3/3 Gnosis safe, and create + execute a transaction from it             |
-| [`with-uniswap`](/examples/with-uniswap/)             | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                          |
-| [`with-nonce-manager`](/examples/with-nonce-manager/) | Create a new Ethereum address, then sign and broadcast multiple transactions in a sequential or optimistic manner. |
-| [`sweeper`](/examples/sweeper/)                       | Sweep funds from one address to a different address                                                                |
-| [`deployer`](/examples/deployer/)                     | Compile and deploy a smart contract                                                                                |
+| Example                                                                      | Description                                                                                                        |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| [`with-ethers`](/examples/chain-integrations/with-ethers/)                   | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura           |
+| [`with-gnosis`](/examples/account-abstraction/with-gnosis/)                  | Create new Ethereum addresses, configure a 3/3 Gnosis safe, and create + execute a transaction from it             |
+| [`with-uniswap`](/examples/defi/with-uniswap/)                               | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                          |
+| [`with-nonce-manager`](/examples/transaction-management/with-nonce-manager/) | Create a new Ethereum address, then sign and broadcast multiple transactions in a sequential or optimistic manner. |
+| [`sweeper`](/examples/transaction-management/sweeper/)                       | Sweep funds from one address to a different address                                                                |
+| [`deployer`](/examples/advanced/deployer/)                                   | Compile and deploy a smart contract                                                                                |
 
 ## See also
 
