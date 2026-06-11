@@ -120,6 +120,13 @@ export function LinkedPlatformsCard({
                       </Badge>
                     ) : status === "error" ? (
                       <Badge color="red">oidcClaim · error</Badge>
+                    ) : !claims ? (
+                      <Badge
+                        color="yellow"
+                        title="Sign out and back in to load identity claims."
+                      >
+                        oidcClaim · not loaded
+                      </Badge>
                     ) : (
                       <Badge color="yellow">
                         {status === "linking"
