@@ -66,3 +66,4 @@ overrides:
   "cookie@<0.7.0": ">=0.7.0"
   "@tootallnate/once@<2.0.1": ">=2.0.1"
   "shell-quote@<=1.8.3": "^1.8.4"
+  "@grpc/grpc-js@>=1.14.0 <1.14.4": ">=1.14.4"
