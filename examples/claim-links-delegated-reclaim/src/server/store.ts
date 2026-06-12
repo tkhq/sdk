@@ -102,7 +102,8 @@ export function markReclaimed(args: {
 export function listExpiredUnclaimed(now = new Date()): Claim[] {
   return [...claims.values()].filter((c) => {
     if (c.state !== "funded") return false;
-    const expiresAt = c.createdAt.getTime() + c.expirationSeconds * 1000;
+    const baseTime = (c.fundedAt ?? c.createdAt).getTime();
+    const expiresAt = baseTime + c.expirationSeconds * 1000;
     return expiresAt < now.getTime();
   });
 }
