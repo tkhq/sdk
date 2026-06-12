@@ -3,7 +3,6 @@ packages:
   - internal/*
   - examples/**
   - "!examples/demos/with-react-native-wallet-kit/**"
-  - "!examples/defi/with-walletconnect-pay/**"
   - "!examples/advanced/foundry/lib/**"
 
 overrides:
