@@ -12,7 +12,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/theme";
-import { useTurnkey, OtpType } from "@turnkey/react-native-wallet-kit";
+import {
+  useTurnkey,
+  OtpType,
+  InitOtpResult,
+} from "@turnkey/react-native-wallet-kit";
 
 const colors = Colors.dark;
 
@@ -33,7 +37,7 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
-  const [otpId, setOtpId] = useState<string | null>(null);
+  const [otp, setOtp] = useState<InitOtpResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"email" | "otp">("email");
 
@@ -44,12 +48,13 @@ export default function LoginScreen() {
     }
     try {
       setLoading(true);
-      const id = await initOtp({
+      const otpResult = await initOtp({
         otpType: OtpType.Email,
         contact: email.trim(),
       });
-      if (id) {
-        setOtpId(id);
+
+      if (otpResult) {
+        setOtp(otpResult);
         setStep("otp");
       } else {
         Alert.alert("Error", "Failed to send verification code.");
@@ -63,11 +68,12 @@ export default function LoginScreen() {
   };
 
   const handleCompleteOtp = async () => {
-    if (!otpCode.trim() || !otpId) return;
+    if (!otpCode.trim() || !otp) return;
     try {
       setLoading(true);
       await completeOtp({
-        otpId,
+        otpId: otp.otpId,
+        otpEncryptionTargetBundle: otp.otpEncryptionTargetBundle,
         otpCode: otpCode.trim(),
         otpType: OtpType.Email,
         contact: email.trim(),
@@ -208,7 +214,7 @@ export default function LoginScreen() {
                 onPress={() => {
                   setStep("email");
                   setOtpCode("");
-                  setOtpId(null);
+                  setOtp(null);
                 }}
               >
                 <Text

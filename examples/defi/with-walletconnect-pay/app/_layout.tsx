@@ -1,5 +1,4 @@
-import { DarkTheme, ThemeProvider } from "@react-navigation/native";
-import { Stack } from "expo-router";
+import { DarkTheme, ThemeProvider, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
@@ -42,6 +41,8 @@ function AuthGate() {
     </Stack>
   );
 }
+
+console.warn({ TURNKEY_CONFIG });
 
 export default function RootLayout() {
   return (
