@@ -16,8 +16,11 @@
 
 - [#1390](https://github.com/tkhq/sdk/pull/1390) [`d082ab9`](https://github.com/tkhq/sdk/commit/d082ab9f4b86647426b973a18fdc690ae953a083) Author [@janjakubnanista](https://github.com/janjakubnanista) - Bump required @buildonspark/spark-sdk version
 
+- [#1365](https://github.com/tkhq/sdk/pull/1365) [`325fded`](https://github.com/tkhq/sdk/commit/325fdedf2c647c9a93f28aa7355b1ff0053689f9) Author [@MasterHW](https://github.com/MasterHW) - Update example links in READMEs and docs to reflect new category-based directory structure under `examples/`
+
 - Updated dependencies [[`fb82279`](https://github.com/tkhq/sdk/commit/fb82279ed954a25bd0a23418664315fb43d0e2ec)]:
   - @turnkey/core@2.2.0
+  - @turnkey/sdk-server@6.1.1
 
 ## 0.1.1
 

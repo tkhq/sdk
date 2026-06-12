@@ -8,8 +8,9 @@
 
 ### Patch Changes
 
-- Updated dependencies [[`fb82279`](https://github.com/tkhq/sdk/commit/fb82279ed954a25bd0a23418664315fb43d0e2ec)]:
+- Updated dependencies [[`fb82279`](https://github.com/tkhq/sdk/commit/fb82279ed954a25bd0a23418664315fb43d0e2ec), [`325fded`](https://github.com/tkhq/sdk/commit/325fdedf2c647c9a93f28aa7355b1ff0053689f9)]:
   - @turnkey/core@2.2.0
+  - @turnkey/iframe-stamper@2.11.1
 
 ## 2.0.1
 

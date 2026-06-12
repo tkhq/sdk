@@ -1,5 +1,11 @@
 # @turnkey/wallet-stamper
 
+## 1.1.19
+
+### Patch Changes
+
+- [#1365](https://github.com/tkhq/sdk/pull/1365) [`325fded`](https://github.com/tkhq/sdk/commit/325fdedf2c647c9a93f28aa7355b1ff0053689f9) Author [@MasterHW](https://github.com/MasterHW) - Update example links in READMEs and docs to reflect new category-based directory structure under `examples/`
+
 ## 1.1.18
 
 ### Patch Changes
