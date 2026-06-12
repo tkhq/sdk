@@ -1,10 +1,10 @@
 # with-telegram
 
-A Next.js example showing how to use **Telegram Login** (OIDC) to create and access a Turnkey embedded wallet.
+A Next.js example showing how to use [Telegram Login (OIDC)](https://core.telegram.org/bots/telegram-login) to create and access a [Turnkey embedded wallet](https://docs.turnkey.com/solutions/embedded-wallets/overview). See the [Social Logins documentation](https://docs.turnkey.com/features/authentication/social-logins) for more context.
 
 ## How it works
 
-Telegram now exposes a standard OIDC provider at `https://oauth.telegram.org`. This example uses the authorization code + PKCE flow:
+Telegram exposes a standard OIDC provider at `https://oauth.telegram.org`. This example uses the authorization code + PKCE flow:
 
 ```
 Browser → oauth.telegram.org/auth  (code_challenge, nonce = sha256(pubKey))
@@ -31,7 +31,16 @@ The token exchange happens in a Next.js server action — the `client_secret` (b
 pnpm install
 ```
 
-### 2. Configure environment
+### 2. Set up Turnkey
+
+Follow the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) to create a Turnkey organization and generate a root API key pair. You should have:
+
+- A public/private API key pair for Turnkey
+- An organization ID
+
+Note: your API private key should be securely managed and **_never_** committed to git.
+
+### 3. Configure environment
 
 ```bash
 cp .env.local.example .env.local
@@ -49,7 +58,7 @@ cp .env.local.example .env.local
 
 > The bot token from @BotFather looks like `123456789:ABCdefGHI...`. The numeric ID is `123456789` and the secret is `ABCdefGHI...`.
 
-### 3. Configure your bot in @BotFather
+### 4. Configure your bot in @BotFather
 
 Telegram requires a registered domain — `localhost` is not accepted. Use a tunnel for local development:
 
@@ -66,7 +75,7 @@ Then in [@BotFather](https://t.me/BotFather):
    - `https://abc123.ngrok-free.app/callback` (your redirect URI)
 4. Update `NEXT_PUBLIC_REDIRECT_URI` in `.env.local` to `https://abc123.ngrok-free.app/callback`
 
-### 4. Run
+### 5. Run
 
 ```bash
 pnpm dev
@@ -76,7 +85,6 @@ Open the ngrok URL (not localhost) in your browser.
 
 ## Notes
 
-- **Known issue:** Telegram's JWKS endpoint returns a mixed key set (RSA + EC/EdDSA). Turnkey's backend JWKS parser currently requires all keys to be RSA and fails on the non-RSA entries. A fix is in progress in mono — once deployed, this example will work end-to-end.
 - Telegram requires `client_secret` in the token exchange (confirmed via CORS testing — the token endpoint does not allow browser requests). The `client_secret` stays in the Next.js server action and is never exposed to the browser.
 - The `nonce` in the authorization request is bound to the Turnkey API key pair (`sha256(pubKey)`), same pattern as the Google OAuth example.
 - Telegram does not expose a `userinfo_endpoint`, but Turnkey's token verification uses only the ID token JWT and the provider's JWKS — no UserInfo call needed.
