@@ -50,7 +50,7 @@ export function ClaimClient({ claim }: { claim: PublicClaim }) {
       </div>
     );
   }
-  if (claim.state === "reclaimed" || claim.state === "expired") {
+  if (claim.state === "reclaimed") {
     return (
       <div className="tk-card tk-card-warning">
         <p className="tk-body-sm">
