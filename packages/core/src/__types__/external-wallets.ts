@@ -161,6 +161,58 @@ export interface WalletConnectInterface extends BaseWalletInterface {
 }
 
 /**
+ * Type for a WalletConnect app retrieved from the WalletConnect `wallets` endpoint.
+ */
+export interface WalletConnectApp {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  homepage?: string;
+  chains: string[];
+  versions: string[];
+  sdks: string[];
+  app_type: "wallet" | string;
+  category?: string;
+  image_url?: {
+    sm?: string;
+    md?: string;
+    lg?: string;
+  };
+  mobile?: {
+    native?: string;
+    universal?: string;
+  };
+  desktop?: {
+    native?: string;
+    universal?: string | null;
+  };
+  injected?: Array<{
+    namespace: string;
+    injected_id: string;
+  }>;
+  rdns?: string;
+}
+
+/**
+ * A WalletConnect app entry for display in the wallet selection UI.
+ * This is a simplified representation of a WalletConnect app, containing only
+ * the information needed for display and deep linking.
+ */
+export interface WalletConnectAppEntry {
+  /** Unique identifier for the app (from WalletConnect registry) */
+  id: string;
+  /** Display name of the wallet app */
+  name: string;
+  /** Icon URL for the wallet app */
+  icon: string;
+  /** Deep link URI for opening the wallet app on mobile */
+  uri: string;
+  /** Which chain this entry represents (an app may have multiple entries for different chains) */
+  chain: Chain;
+}
+
+/**
  * Union of supported wallet behavior interfaces.
  * @internal
  */

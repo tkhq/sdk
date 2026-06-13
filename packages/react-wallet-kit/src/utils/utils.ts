@@ -4,6 +4,7 @@ import {
   type Wallet,
   WalletProvider,
   WalletInterfaceType,
+  Chain,
 } from "@turnkey/core";
 
 export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
@@ -142,6 +143,18 @@ export function useScreenSize() {
 
 export function isWalletConnect(wallet: WalletProvider): boolean {
   return wallet.interfaceType == WalletInterfaceType.WalletConnect;
+}
+
+// Finds and returns the WalletConnect provider for the specified chain
+export function findWalletConnectProvider(
+  walletProviders: WalletProvider[],
+  chain: Chain,
+): WalletProvider | undefined {
+  return walletProviders.find(
+    (p) =>
+      p.interfaceType === WalletInterfaceType.WalletConnect &&
+      p.chainInfo.namespace === chain,
+  );
 }
 
 export function useWalletProviderState(initialState: WalletProvider[] = []) {
