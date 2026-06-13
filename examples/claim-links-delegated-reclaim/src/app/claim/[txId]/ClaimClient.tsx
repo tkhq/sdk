@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { executeClaim } from "@/server/actions/executeClaim";
 import type { PublicClaim } from "@/server/actions/getClaim";
 
 export function ClaimClient({ claim }: { claim: PublicClaim }) {
-  const sp = useSearchParams();
   const [keyFromUrl, setKeyFromUrl] = useState<string>("");
   const [recipient, setRecipient] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -24,9 +22,7 @@ export function ClaimClient({ claim }: { claim: PublicClaim }) {
         return;
       }
     }
-    const q = sp.get("key");
-    if (q) setKeyFromUrl(q);
-  }, [sp]);
+  }, []);
 
   async function onClaim(e: React.FormEvent) {
     e.preventDefault();
