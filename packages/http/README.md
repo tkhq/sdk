@@ -86,7 +86,7 @@ try {
 
 ## More examples
 
-See [`createNewEthereumPrivateKey.ts`](/examples/with-ethers/src/createNewEthereumPrivateKey.ts) in the [`with-ethers`](/examples/with-ethers/) example.
+See [`createNewEthereumPrivateKey.ts`](/examples/chain-integrations/with-ethers/src/createNewEthereumPrivateKey.ts) in the [`with-ethers`](/examples/chain-integrations/with-ethers/) example.
 
 ## See also
 

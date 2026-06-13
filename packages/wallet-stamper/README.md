@@ -88,7 +88,7 @@ To use the `@turnkey/wallet-stamper` package, follow these steps:
 ### Example: Signing with a Solana Wallet
 
 In this example, we are using a local Solana wallet.
-For information on using an injected Solana wallet such as Solflare, please refer to the [`with-wallet-stamper`](../../examples/with-wallet-stamper) example.
+For information on using an injected Solana wallet such as Solflare, please refer to the [`with-wallet-stamper`](../../examples/authentication/with-wallet-stamper) example.
 
 ```typescript
 import { Keypair } from "@solana/web3.js";

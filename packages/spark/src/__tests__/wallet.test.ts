@@ -3,16 +3,29 @@ import {
   TurnkeyApiClient,
   v1WalletAccount,
 } from "@turnkey/sdk-server";
-import { SparkReadonlyClient, SparkWalletEvent } from "@buildonspark/spark-sdk";
+import {
+  SparkReadonlyClient,
+  SparkRequestError,
+  SparkWalletEvent,
+} from "@buildonspark/spark-sdk";
 import type {
   ExitSpeed,
   WalletTransfer,
 } from "@buildonspark/spark-sdk/dist/types";
 import assert from "node:assert";
 import { Curve } from "@turnkey/core";
+import {
+  selectInputUTXOs,
+  TurnkeyBitcoinSigner,
+  smallestUTXOValueFirst,
+} from "@turnkey/bitcoin";
 import { SPARK_DEPOSIT_SUFFIX, SPARK_IDENTITY_SUFFIX } from "../constants";
 import { TurnkeySparkSigner } from "../signer";
 import { TurnkeySparkWalletTest } from "../test-wallet";
+import * as bitcoin from "bitcoinjs-lib";
+import * as ecc from "tiny-secp256k1";
+import mempoolJS from "@mempool/mempool.js";
+import asyncRetry from "async-retry";
 
 const NETWORK = "REGTEST";
 
@@ -33,7 +46,14 @@ const TEST_TIMEOUT = 60_000; // 60 seconds, because claiming transfers can take 
 const DEFAULT_SPARK_REGTEST_ELECTRS_URL =
   "https://regtest-mempool.us-west-2.sparkinfra.net/api";
 
-describe("TurnkeySparkWallet", () => {
+// Since these tests can take some time and depend on account balances
+// and availability of a regtest mempool API, we might want to disable them if need be.
+const DISABLE_SPARK_E2E_TESTS = !!process.env.DISABLE_SPARK_E2E_TESTS?.trim();
+
+// If the tests are disabled, we just want to mark them as skipped
+const describeMaybe = DISABLE_SPARK_E2E_TESTS ? describe.skip : describe;
+
+describeMaybe("TurnkeySparkWallet", () => {
   let turnkey: Turnkey;
   let client: TurnkeyApiClient;
 
@@ -47,6 +67,8 @@ describe("TurnkeySparkWallet", () => {
   let receiverWallet: TurnkeySparkWalletTest;
 
   beforeAll(async () => {
+    bitcoin.initEccLib(ecc);
+
     assert(
       typeof process.env.API_PRIVATE_KEY === "string",
       "Missing required env var: API_PRIVATE_KEY",
@@ -165,10 +187,14 @@ describe("TurnkeySparkWallet", () => {
         (id) => id === transfer?.id,
       );
 
-      transfer = await senderWallet.transfer({
-        amountSats: 100,
-        receiverSparkAddress,
-      });
+      transfer = await asyncRetry(
+        createBailOnUnexpectedTransferError(() =>
+          senderWallet.transfer({
+            amountSats: 100,
+            receiverSparkAddress,
+          }),
+        ),
+      );
 
       expect(transfer).toBeDefined();
 
@@ -212,6 +238,157 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
     },
     TEST_TIMEOUT,
   );
+
+  it(
+    "should be able to claim a deposit from bitcoin regtest",
+    async () => {
+      const amount = 1000;
+      const network = bitcoin.networks.regtest;
+      const senderAddress = senderAccounts.btcAccount.address;
+
+      const depositAddress = await senderWallet.getSingleUseDepositAddress();
+
+      assert(
+        typeof process.env.SPARK_API_URL === "string",
+        "Missing required env var: SPARK_API_URL",
+      );
+      assert(
+        typeof process.env.SPARK_API_USERNAME === "string",
+        "Missing required env var: SPARK_API_USERNAME",
+      );
+      assert(
+        typeof process.env.SPARK_API_PASSWORD === "string",
+        "Missing required env var: SPARK_API_PASSWORD",
+      );
+
+      const mempoolUrl = process.env.SPARK_API_URL;
+      const username = process.env.SPARK_API_USERNAME;
+      const password = process.env.SPARK_API_PASSWORD;
+
+      const senderSigner = new TurnkeyBitcoinSigner(
+        client,
+        senderAddress,
+        bitcoin.address.fromBech32(senderAddress).data,
+      );
+      const mempoolApi = createMempoolApi(mempoolUrl, username, password);
+
+      // Instead of doing the two-step signature process that would be appropriate for production
+      // bitcoin transaction signing, we simply run our broadcast code with increasing fee amounts
+      for (const fee of createIncreasingFee(500, 2000, 1.2)) {
+        const amountWithFee = amount + fee;
+
+        // Grab the UTXOs for the sender address from the mempool API
+        const utxos = await mempoolApi.bitcoin.addresses.getAddressTxsUtxo({
+          address: senderAddress,
+        });
+
+        // We want to optimize for consolidation by using the smallest UTXOs first
+        utxos.sort(smallestUTXOValueFirst);
+
+        // Select the UTXOs we want to use for the transaction
+        const [selectedUtxos, change] = selectInputUTXOs(utxos, amountWithFee);
+
+        // Construct the psbt
+        //
+        // - First we add all selected input UTXOs
+        // - Then we add the output for the actual deposit
+        // - Finally we add the change that will be returned to the sender
+        const psbt = selectedUtxos
+          .reduce(
+            (psbt, utxo) =>
+              psbt.addInput({
+                hash: utxo.txid,
+                index: utxo.vout,
+                witnessUtxo: {
+                  script: bitcoin.address.toOutputScript(
+                    senderAddress,
+                    network,
+                  ),
+                  value: utxo.value,
+                },
+              }),
+            new bitcoin.Psbt({ network }),
+          )
+          .addOutput({
+            script: bitcoin.address.toOutputScript(depositAddress, network),
+            value: amount,
+          })
+          .addOutput({
+            script: bitcoin.address.toOutputScript(senderAddress, network),
+            value: Number(change),
+          });
+
+        // Sign the transaction with Turnkey
+        const { signedTransaction } = await senderSigner.signTransaction(
+          psbt.toHex(),
+        );
+
+        // Finalize all inputs (Turnkey doesn't do this automatically)
+        const signedPsbt = bitcoin.Psbt.fromHex(signedTransaction, {
+          network,
+        }).finalizeAllInputs();
+
+        const rawTransaction = signedPsbt.extractTransaction();
+        const txId = rawTransaction.getId();
+        const txHex = rawTransaction.toHex();
+
+        // Broadcast the transaction
+        //
+        // If an error occurs, we assume it has to do with low fees and we try again with a higher fee
+        try {
+          const response = await mempoolApi.bitcoin.transactions.postTx({
+            txhex: txHex,
+          });
+
+          expect(typeof response).toBe("string");
+          expect(response).toBe(txId);
+
+          console.log(
+            `Successfully broadcasted transaction with txid ${txId} and fee ${fee} sats.`,
+          );
+        } catch (error) {
+          // We might get all sorts of errors back (AxiosError, Error etc)
+          const message =
+            (error as any)?.response?.data ||
+            (error as any)?.message ||
+            String(error);
+
+          await warn(
+            `Failed to broadcast Spark deposit transaction with txid ${txId} and fee ${fee} sats. Retrying with higher fee...\n\nError: ${message}`,
+          );
+
+          continue;
+        }
+
+        // Wait for the confirmation
+        while (true) {
+          console.log(
+            `Polling for transaction with txid ${txId} to be confirmed`,
+          );
+
+          const status = await mempoolApi.bitcoin.transactions.getTxStatus({
+            txid: txId,
+          });
+
+          if (status.confirmed) break;
+
+          await sleep(500);
+        }
+
+        // And finally, we claim the deposit in the wallet
+        const leaves = await senderWallet.claimDeposit(txId);
+        expect(leaves).toBeDefined();
+
+        // We break out of the fee loop after a successful claim
+        return;
+      }
+
+      throw new Error(
+        `Failed to claim deposit after trying multiple fee amounts.`,
+      );
+    },
+    TEST_TIMEOUT,
+  );
 });
 
 /**
@@ -249,6 +426,28 @@ const waitForTransferToBeClaimed = (
 
   return promise;
 };
+
+/**
+ * Generator function for creating increasing fee amounts to try broadcasting a transaction with
+ * different fee levels.
+ *
+ * @param start The starting fee amount.
+ * @param end The maximum fee amount.
+ * @param multiplier The multiplier to increase the fee by on each iteration.
+ */
+function* createIncreasingFee(
+  start: number,
+  end: number,
+  multiplier: number,
+): Generator<number> {
+  let current = start;
+
+  while (current <= end) {
+    yield current;
+
+    current = Math.ceil(current * multiplier);
+  }
+}
 
 /**
  * Factory for a function that creates a TurnkeySparkSigner from the wallet accounts
@@ -448,3 +647,66 @@ const warn = async (message: string) => {
     console.warn(message);
   }
 };
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const createMempoolApi = (
+  baseUrl: string,
+  username?: string,
+  password?: string,
+) => {
+  const url = new URL(baseUrl);
+  const Authorization =
+    username && password
+      ? `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`
+      : "";
+
+  return mempoolJS({
+    protocol: url.protocol.replaceAll(":", "") as "http" | "https",
+    hostname: url.host,
+    config: {
+      headers: {
+        Authorization,
+        // We need to force the content type to be text/plain to be able to broadcast a transaction
+        //
+        // This is because of axios default behavior when it comes to content type.
+        // If the body is a string (which is the case for /api/tx payload),
+        // it sets the content type (incorrectly) to application/x-www-form-urlencoded
+        "Content-Type": "text/plain",
+      },
+    },
+  });
+};
+
+/**
+ * Since we are reusing the same account for all tests, we might run into TRANSFER_LOCKED errors
+ * if we try to transfer funds that are already locked by a pending transfer.
+ *
+ * This function wraps a call that can potentially throw a TRANSFER_LOCKED error and retries it if that happens,
+ * while bailing on any other error.
+ *
+ * See https://github.com/tkhq/sdk/actions/runs/27298318153/job/80637353586
+ */
+const createBailOnUnexpectedTransferError =
+  <T>(fn: () => Promise<T>) =>
+  async (bail: (e: Error) => void) => {
+    try {
+      return await fn();
+    } catch (error) {
+      if (
+        !(error instanceof SparkRequestError) ||
+        !error.message.includes("TRANSFER_LOCKED")
+      ) {
+        bail(error as Error);
+
+        return undefined;
+      } else {
+        throw error;
+      }
+    }
+  };
+
+// Print out a warning / github annotation if the tests are disabled
+if (DISABLE_SPARK_E2E_TESTS) {
+  warn("Spark E2E tests are disabled");
+}

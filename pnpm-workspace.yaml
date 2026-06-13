@@ -2,9 +2,10 @@ packages:
   - packages/*
   - internal/*
   - examples/**
-  - "!examples/with-react-native-wallet-kit/**"
-  - "!examples/with-walletconnect-pay/**"
-  - "!examples/oauth-cross-platform/mobile/**"
+  - "!examples/demos/with-react-native-wallet-kit/**"
+  - "!examples/defi/with-walletconnect-pay/**"
+  - "!examples/advanced/foundry/lib/**"
+  - "!examples/authentication/oauth-cross-platform/mobile/**"
 
 overrides:
   "@openzeppelin/contracts@<4.9.0": "4.9.6"
@@ -65,3 +66,5 @@ overrides:
   "cookie@<0.7.0": ">=0.7.0"
   "@tootallnate/once@<2.0.1": ">=2.0.1"
   "shell-quote@<=1.8.3": "^1.8.4"
+  "@grpc/grpc-js@>=1.14.0 <1.14.4": ">=1.14.4"
+  "esbuild@>=0.17.0 <0.28.1": "^0.28.1"
