@@ -50,12 +50,18 @@
     "@turnkey/core": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/react-native-passkey-stamper": "workspace:*",
-    "@turnkey/sdk-types": "workspace:*",
-    "react-native-device-info": "^11.1.0"
+    "@turnkey/sdk-types": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "7.26.9",
+    "@invertase/react-native-apple-authentication": "~2.5.1",
     "@rollup/plugin-babel": "5.3.0",
+    "@types/react": "18.2.14",
+    "react": "19.1.0",
+    "react-native": "0.81.4",
+    "react-native-gesture-handler": "~2.28.0",
+    "react-native-inappbrowser-reborn": "^3.7.1",
+    "react-native-safe-area-context": "~5.6.0",
     "typescript": "5.4.3"
   },
   "peerDependencies": {

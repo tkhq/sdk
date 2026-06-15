@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "oauthcrossplatform",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "xyz.tkhqlabs.oauthcrossplatform",
@@ -26,7 +25,6 @@
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#0a0a0a"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "xyz.tkhqlabs.oauthcrossplatform",
       "intentFilters": [
@@ -55,7 +53,10 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-font",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

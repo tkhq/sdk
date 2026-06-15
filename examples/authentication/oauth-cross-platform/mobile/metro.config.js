@@ -1,5 +1,14 @@
-const { getDefaultConfig } = require("expo/metro-config");
+import { getDefaultConfig } from "expo/metro-config";
 
-const config = getDefaultConfig(__dirname);
+/** @type {import('expo/metro-config').MetroConfig} */
+const expoConfig = getDefaultConfig(__dirname);
 
-module.exports = config;
+expoConfig.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (moduleName === "ws") {
+    return { type: "empty" };
+  }
+
+  return context.resolveRequest(context, moduleName, platform);
+};
+
+export default expoConfig;
