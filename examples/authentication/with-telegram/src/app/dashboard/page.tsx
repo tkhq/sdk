@@ -43,10 +43,11 @@ export default function Dashboard() {
     ethSendTransaction,
     solSendTransaction,
     pollTransactionStatus,
+    deleteSubOrganization,
   } = useTurnkey();
   const router = useRouter();
 
-  // Guard unauthenticated users
+  // Guard unauthenticated users — only redirect once auth state is resolved
   useEffect(() => {
     if (authState === AuthState.Unauthenticated) router.replace("/");
   }, [authState, router]);
@@ -296,18 +297,91 @@ export default function Dashboard() {
     }
   };
 
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const unexportedWallets = wallets.filter(
+    (w) => !w.exported && w.source !== WalletSource.Connected,
+  );
+
+  const handleDeleteAccount = async () => {
+    try {
+      setDeleting(true);
+      await deleteSubOrganization({ deleteWithoutExport: true });
+      await logout();
+      router.replace("/");
+    } catch (e) {
+      console.error("Delete failed:", e);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (authState !== AuthState.Authenticated) {
     return <p className="p-6">Loading…</p>;
   }
 
   return (
     <main className="relative min-h-screen p-6 sm:p-8 bg-gray-50">
-      <button
-        onClick={handleLogout}
-        className="absolute top-4 right-4 rounded bg-red-600 px-3 py-1.5 text-white text-xs sm:text-sm hover:bg-red-700"
-      >
-        Logout
-      </button>
+      <div className="absolute top-4 right-4 flex gap-2">
+        <button
+          onClick={() => setShowDeleteWarning(true)}
+          className="rounded border border-red-600 px-3 py-1.5 text-red-600 text-xs sm:text-sm hover:bg-red-50"
+        >
+          Delete Account
+        </button>
+        <button
+          onClick={handleLogout}
+          className="rounded bg-red-600 px-3 py-1.5 text-white text-xs sm:text-sm hover:bg-red-700"
+        >
+          Logout
+        </button>
+      </div>
+
+      {showDeleteWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full mx-4">
+            <div className="flex flex-col items-center gap-3 mb-4">
+              <span className="text-4xl">⚠️</span>
+              <h2 className="text-xl font-bold">Delete Account</h2>
+              <p className="text-sm text-gray-500 text-center">
+                This action is irreversible. Your sub-organization and all its
+                wallets will be permanently deleted.
+              </p>
+            </div>
+            <div className="rounded border border-gray-200 bg-gray-50 p-3 text-xs font-mono text-gray-600 mb-4 space-y-1">
+              <div>Sub-org: {session?.organizationId}</div>
+              {unexportedWallets.map((w) => (
+                <div key={w.walletId}>
+                  Wallet: {w.walletName} (unexported)
+                </div>
+              ))}
+            </div>
+            {unexportedWallets.length > 0 && (
+              <p className="text-xs text-red-600 mb-4 text-center">
+                You have unexported wallets. Deleting will permanently lose
+                access to them.
+              </p>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteWarning(false)}
+                disabled={deleting}
+                className="flex-1 rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                className="flex-1 rounded bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleting ? "Deleting…" : "Delete Account"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mx-auto mt-10 max-w-screen-xl px-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">

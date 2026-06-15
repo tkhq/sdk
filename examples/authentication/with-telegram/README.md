@@ -85,6 +85,7 @@ Open the ngrok URL (not localhost) in your browser.
 
 ## Notes
 
+- The root user's `userName` is set to the user's Telegram @handle (`preferred_username` claim), falling back to their display name, then `tg-<sub>`. See [available scopes](https://core.telegram.org/bots/telegram-login#available-scopes) for the full list of OIDC claims Telegram exposes.
 - Telegram requires `client_secret` in the token exchange (confirmed via CORS testing — the token endpoint does not allow browser requests). The `client_secret` stays in the Next.js server action and is never exposed to the browser.
 - The `nonce` in the authorization request is bound to the Turnkey API key pair (`sha256(pubKey)`), same pattern as the Google OAuth example.
 - Telegram does not expose a `userinfo_endpoint`, but Turnkey's token verification uses only the ID token JWT and the provider's JWKS — no UserInfo call needed.

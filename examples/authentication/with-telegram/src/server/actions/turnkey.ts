@@ -24,12 +24,23 @@ export async function getSuborgsAction(params: { filterValue: string }) {
 export async function createSuborgAction(params: {
   oauthProviders: Array<{ providerName: string; oidcToken: string }>;
 }) {
+  // Decode the OIDC token to extract the Telegram username and display name.
+  const payload = JSON.parse(
+    Buffer.from(
+      params.oauthProviders[0].oidcToken.split(".")[1],
+      "base64url",
+    ).toString(),
+  ) as { preferred_username?: string; name?: string; sub: string };
+
+  const userName =
+    payload.preferred_username ?? payload.name ?? `tg-${payload.sub}`;
+
   return await turnkey.apiClient().createSubOrganization({
     subOrganizationName: `telegram-suborg-${Date.now()}`,
     rootQuorumThreshold: 1,
     rootUsers: [
       {
-        userName: `telegram-user-${Date.now()}`,
+        userName,
         apiKeys: [],
         authenticators: [],
         oauthProviders: params.oauthProviders,
@@ -58,9 +69,6 @@ export async function authAction(params: {
 
 // Exchange a Telegram authorization code for an ID token.
 // The client_secret must stay server-side — never expose it to the browser.
-//
-// Note: if Telegram ever supports PKCE-only (no client_secret) for public clients,
-// the Authorization header can be removed and this action becomes unnecessary.
 export async function exchangeTelegramCodeAction(params: {
   code: string;
   codeVerifier: string;

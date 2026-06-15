@@ -16,21 +16,36 @@ function CallbackInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const handledRef = useRef(false);
+  const urlCleanedRef = useRef(false);
+  const codeRef = useRef<string | null>(null);
+  const stateRef = useRef<string | null>(null);
+  const errorRef = useRef<string | null>(null);
 
   const [status, setStatus] = useState("Completing sign-in…");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Capture params before cleaning the URL — useSearchParams may return null
+    // after history.replaceState removes the query string.
+    if (!codeRef.current) codeRef.current = searchParams.get("code");
+    if (!stateRef.current) stateRef.current = searchParams.get("state");
+    if (!errorRef.current) errorRef.current = searchParams.get("error");
+
+    // Clean the URL once so TurnkeyProvider never sees the OAuth params.
+    // Only do this once — subsequent runs must not overwrite a navigation
+    // already initiated by router.replace("/dashboard").
+    if (!urlCleanedRef.current) {
+      urlCleanedRef.current = true;
+      window.history.replaceState(null, "", "/callback");
+    }
+
     if (clientState !== ClientState.Ready) return;
     if (handledRef.current) return;
     handledRef.current = true;
 
-    // Clean the URL so TurnkeyProvider doesn't also try to handle the OAuth params
-    window.history.replaceState(null, "", "/callback");
-
-    const code = searchParams.get("code");
-    const stateParam = searchParams.get("state");
-    const errorParam = searchParams.get("error");
+    const code = codeRef.current;
+    const stateParam = stateRef.current;
+    const errorParam = errorRef.current;
 
     if (errorParam) {
       setError(`Telegram returned an error: ${errorParam}`);
@@ -98,7 +113,7 @@ function CallbackInner() {
         setError(e?.message ?? "Sign-in failed. Please try again.");
       }
     })();
-  }, [searchParams, storeSession, clientState]);
+  }, [searchParams, storeSession, clientState]); // searchParams kept to capture params on first render
 
   if (error) {
     return (
