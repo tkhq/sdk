@@ -145,6 +145,8 @@ export default function Dashboard() {
 
       setSigning(true);
 
+      // Assumes Solana addresses use Ed25519 — true for the default wallet
+      // accounts created by this example (ADDRESS_FORMAT_SOLANA).
       const isEd25519 = solAddresses.includes(signAddress);
       const res = await httpClient.signRawPayload({
         organizationId: session.organizationId,
@@ -160,7 +162,14 @@ export default function Dashboard() {
       const r = activity?.result?.signRawPayloadResult?.r;
       const s = activity?.result?.signRawPayloadResult?.s;
       const v = activity?.result?.signRawPayloadResult?.v;
-      setSignature(r && s && v ? `0x${r}${s}${v}` : "(no signature returned)");
+      // ECDSA (secp256k1): signature is r || s || v (65 bytes as hex)
+      // Ed25519 (Solana): signature is r || s only — v is always "" and the
+      // 0x${r}${s}${v} format still produces the correct 64-byte hex string.
+      setSignature(
+        r && s !== undefined
+          ? `0x${r}${s}${v ?? ""}`
+          : "(no signature returned)",
+      );
     } catch (e: any) {
       console.error(e);
       setSignErr(e?.message ?? "Failed to sign message.");
@@ -268,11 +277,14 @@ export default function Dashboard() {
 
       const balRes = await httpClient?.getWalletAddressBalances({
         address: solAddress,
+        // getWalletAddressBalances currently only accepts the 32-char genesis
+        // hash form of Solana CAIP-2 IDs, while solSendTransaction accepts the
+        // full 44-char form. Truncate until the server side is unified.
         caip2:
           solNetwork.caip2 ==
           "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
             ? "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
-            : solNetwork.caip2, // TODO: hacky fix - need to consolidate this in our API
+            : solNetwork.caip2,
       });
       const native = balRes?.balances?.[0];
       if (native) {

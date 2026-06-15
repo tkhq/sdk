@@ -65,12 +65,14 @@ export default function AuthPage() {
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = generateCodeChallenge(codeVerifier);
 
-    // Encode pubKey + codeVerifier in the state param so they survive the
-    // redirect regardless of origin (sessionStorage is origin-scoped and
-    // would be lost if the callback URL is a different origin, e.g. ngrok).
-    // Production apps should use a server-side state store instead.
-    const state = base64URLEncode(
-      new TextEncoder().encode(JSON.stringify({ pubKey, codeVerifier })),
+    // Use a random opaque state token; store pubKey + codeVerifier in
+    // sessionStorage keyed by it. This keeps code_verifier out of the URL
+    // (browser history, referrer headers) while still surviving the redirect,
+    // since login and callback share the same origin.
+    const state = crypto.randomUUID();
+    sessionStorage.setItem(
+      `pkce:${state}`,
+      JSON.stringify({ pubKey, codeVerifier }),
     );
 
     const params = new URLSearchParams({

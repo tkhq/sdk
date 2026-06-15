@@ -24,12 +24,19 @@ export async function getSuborgsAction(params: { filterValue: string }) {
 export async function createSuborgAction(params: {
   oauthProviders: Array<{ providerName: string; oidcToken: string }>;
 }) {
-  // Decode the OIDC token to extract the Telegram username and display name.
+  // Precondition: callers must pass at least one provider with a valid JWT.
+  const oidcToken = params.oauthProviders[0]?.oidcToken;
+  if (!oidcToken)
+    throw new Error(
+      "oauthProviders must contain at least one entry with an oidcToken",
+    );
+
+  // Decode the OIDC payload to read preferred_username/name. The payload is
+  // NOT verified here — we trust these claims only because Turnkey verifies
+  // the token signature as part of createSubOrganization; a forged token
+  // would be rejected there before any persistent state is written.
   const payload = JSON.parse(
-    Buffer.from(
-      params.oauthProviders[0].oidcToken.split(".")[1],
-      "base64url",
-    ).toString(),
+    Buffer.from(oidcToken.split(".")[1] ?? "", "base64url").toString(),
   ) as { preferred_username?: string; name?: string; sub: string };
 
   const userName =

@@ -57,19 +57,18 @@ function CallbackInner() {
       return;
     }
 
+    const stored = sessionStorage.getItem(`pkce:${stateParam}`);
+    sessionStorage.removeItem(`pkce:${stateParam}`);
+    if (!stored) {
+      setError("Invalid or expired state — please try again.");
+      return;
+    }
     let pubKey: string;
     let codeVerifier: string;
     try {
-      const decoded = JSON.parse(
-        new TextDecoder().decode(
-          Uint8Array.from(
-            atob(stateParam.replace(/-/g, "+").replace(/_/g, "/")),
-            (c) => c.charCodeAt(0),
-          ),
-        ),
-      );
-      pubKey = decoded.pubKey;
-      codeVerifier = decoded.codeVerifier;
+      const parsed = JSON.parse(stored);
+      pubKey = parsed.pubKey;
+      codeVerifier = parsed.codeVerifier;
       if (!pubKey || !codeVerifier) throw new Error();
     } catch {
       setError("Invalid state parameter — please try again.");
