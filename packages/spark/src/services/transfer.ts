@@ -19,6 +19,7 @@ import type {
   StartTransferResponse,
   TransferLeaf,
   TransferPackage,
+  StartTransferRequest,
 } from "@buildonspark/spark-sdk/dist/proto/spark";
 import { secp256k1 } from "@noble/curves/secp256k1";
 import {
@@ -304,9 +305,7 @@ export class TurnkeyTransferService extends TransferService {
     });
 
     const receiverPublicKey = leaves[0]!.receiverIdentityPublicKey;
-    const receiverPublicKeyHex = uint8ArrayToHexString(
-      leaves[0]!.receiverIdentityPublicKey,
-    );
+    const receiverPublicKeyHex = uint8ArrayToHexString(receiverPublicKey);
     const operatorRecipients = operatorsToOperatorRecipients(
       this.config.getSigningOperators(),
     );
@@ -360,6 +359,70 @@ export class TurnkeyTransferService extends TransferService {
     }
 
     return response.transfer;
+  }
+
+  override async prepareTransferForLightning(
+    leaves: LeafKeyTweak[],
+    paymentHash: Uint8Array,
+    expiryTime: Date,
+    transferId: string,
+  ): Promise<StartTransferRequest> {
+    if (leaves.length === 0) {
+      throw new SparkValidationError("leaves must not be empty");
+    }
+
+    const signer = this.config.signer as TurnkeySparkSigner;
+    const sparkClient = await this.connectionManager.createSparkClient(
+      this.config.getCoordinatorAddress(),
+    );
+
+    const normalizedLeaves = leaves.map(normalizeTransferLeafKeyTweak);
+    const { signingCommitments: commitments } =
+      await sparkClient.get_signing_commitments({
+        nodeIds: leaves.map(({ leaf }) => leaf.id),
+        count: 3,
+      });
+
+    const identityPublicKey = await signer.getIdentityPublicKey();
+    const signRefundsResult = await signer.signRefundsBatchedLightning({
+      network: this.config.getNetwork(),
+      leaves: normalizedLeaves,
+      commitments,
+      paymentHash,
+      sequenceLockDestinationPubkey: identityPublicKey,
+    });
+
+    const receiverPublicKey = leaves[0]!.receiverIdentityPublicKey;
+    const receiverPublicKeyHex = uint8ArrayToHexString(receiverPublicKey);
+    const operatorRecipients = operatorsToOperatorRecipients(
+      this.config.getSigningOperators(),
+    );
+
+    const transferLeafInputs = normalizedLeaves.map(
+      leafKeyTweakToTransferInputLeaf,
+    );
+    const transferResult = await signer.prepareTransfer({
+      transferId,
+      leaves: transferLeafInputs,
+      threshold: this.config.getThreshold(),
+      operatorRecipients,
+      receiverPublicKey: receiverPublicKeyHex,
+    });
+
+    const transferPackage = transferResultToTransferPackage(
+      transferResult,
+      signRefundsResult,
+    );
+
+    return {
+      transferId,
+      ownerIdentityPublicKey: identityPublicKey,
+      receiverIdentityPublicKey: leaves[0]!.receiverIdentityPublicKey,
+      transferPackage,
+      sparkInvoice: "",
+      leavesToSend: [],
+      expiryTime,
+    };
   }
 }
 
