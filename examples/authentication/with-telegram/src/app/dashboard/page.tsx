@@ -352,9 +352,7 @@ export default function Dashboard() {
             <div className="rounded border border-gray-200 bg-gray-50 p-3 text-xs font-mono text-gray-600 mb-4 space-y-1">
               <div>Sub-org: {session?.organizationId}</div>
               {unexportedWallets.map((w) => (
-                <div key={w.walletId}>
-                  Wallet: {w.walletName} (unexported)
-                </div>
+                <div key={w.walletId}>Wallet: {w.walletName} (unexported)</div>
               ))}
             </div>
             {unexportedWallets.length > 0 && (
