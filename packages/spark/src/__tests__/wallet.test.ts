@@ -9,6 +9,7 @@ import {
   SparkWalletEvent,
 } from "@buildonspark/spark-sdk";
 import type {
+  LightningSendRequest,
   ExitSpeed,
   WalletTransfer,
 } from "@buildonspark/spark-sdk/dist/types";
@@ -389,6 +390,84 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
     },
     TEST_TIMEOUT,
   );
+
+  it(
+    "should be able to create and pay a lightning invoice using spark",
+    async () => {
+      // We create a lightning invoice with the wallet and include a Spark invoice
+      const invoice = await receiverWallet.createLightningInvoice({
+        amountSats: 100,
+        includeSparkInvoice: true,
+      });
+
+      let transfer: LightningSendRequest | WalletTransfer | undefined =
+        undefined;
+
+      // We setup a claim listener on the receiver wallet
+      const claimed = waitForTransferToBeClaimed(
+        receiverWallet,
+        (id) => id === transfer?.id,
+      );
+
+      transfer = await senderWallet.payLightningInvoice({
+        invoice: invoice.invoice.encodedInvoice,
+        maxFeeSats: 2000,
+        preferSpark: true,
+      });
+
+      // We check whether we got a WalletTransfer back
+      expect(transfer).toEqual(
+        expect.objectContaining({
+          type: expect.any(String),
+        }),
+      );
+
+      return claimed;
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    "should be able to create and pay a lightning invoice not using spark",
+    async () => {
+      // We create a lightning invoice with the wallet
+      const invoice = await receiverWallet.createLightningInvoice({
+        amountSats: 100,
+        includeSparkInvoice: false,
+      });
+
+      let lightningSendRequest: LightningSendRequest | undefined = undefined;
+
+      // We setup a claim listener on the receiver wallet
+      //
+      // We can't match the claimed transfer ID with the invoice directly -
+      // we need to get the transfer's userRequest and match that against the invoice ID
+      const claimed = waitForTransferToBeClaimed(receiverWallet, async (id) => {
+        const claimedTransfer = await receiverWallet.getTransfer(id);
+
+        return claimedTransfer?.userRequest?.id === invoice.id;
+      });
+
+      lightningSendRequest = (await senderWallet.payLightningInvoice({
+        invoice: invoice.invoice.encodedInvoice,
+        maxFeeSats: 2000,
+        preferSpark: false,
+      })) as LightningSendRequest;
+
+      // We check whether we really got a LightningSendRequest
+      expect(lightningSendRequest).toEqual(
+        expect.objectContaining({
+          typename: "LightningSendRequest",
+          transfer: expect.objectContaining({
+            sparkId: expect.any(String),
+          }),
+        }),
+      );
+
+      return claimed;
+    },
+    TEST_TIMEOUT,
+  );
 });
 
 /**
@@ -402,14 +481,14 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
  */
 const waitForTransferToBeClaimed = (
   wallet: TurnkeySparkWalletTest,
-  onTransfer: (claimedTransferId: string) => boolean,
+  onTransfer: (claimedTransferId: string) => boolean | Promise<boolean>,
 ): Promise<void> => {
   const { promise, resolve, reject } = Promise.withResolvers<void>();
 
-  const handler = (claimedTransferId: string): void => {
+  const handler = async (claimedTransferId: string): Promise<void> => {
     try {
       // onTransfer should return true if this is the transfer we are waiting for
-      if (onTransfer(claimedTransferId)) {
+      if (await onTransfer(claimedTransferId)) {
         wallet.off(SparkWalletEvent.TransferClaimed, handler);
 
         resolve();
