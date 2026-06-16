@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useTurnkey, ClientState } from "@turnkey/react-wallet-kit";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 import {
   getSuborgsAction,
   createSuborgAction,
@@ -36,7 +35,7 @@ function CallbackInner() {
     // already initiated by router.replace("/dashboard").
     if (!urlCleanedRef.current) {
       urlCleanedRef.current = true;
-      window.history.replaceState(null, "", "/callback");
+      window.history.replaceState(null, "", window.location.pathname);
     }
 
     if (clientState !== ClientState.Ready) return;

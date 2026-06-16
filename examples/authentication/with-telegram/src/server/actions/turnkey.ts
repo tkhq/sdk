@@ -35,12 +35,17 @@ export async function createSuborgAction(params: {
   // NOT verified here — we trust these claims only because Turnkey verifies
   // the token signature as part of createSubOrganization; a forged token
   // would be rejected there before any persistent state is written.
-  const payload = JSON.parse(
-    Buffer.from(oidcToken.split(".")[1] ?? "", "base64url").toString(),
-  ) as { preferred_username?: string; name?: string; sub: string };
-
-  const userName =
-    payload.preferred_username ?? payload.name ?? `tg-${payload.sub}`;
+  let userName = `tg-${Date.now()}`;
+  try {
+    const payload = JSON.parse(
+      Buffer.from(oidcToken.split(".")[1] ?? "", "base64url").toString(),
+    ) as { preferred_username?: string; name?: string; sub?: string };
+    userName =
+      payload.preferred_username ?? payload.name ?? `tg-${payload.sub ?? Date.now()}`;
+  } catch {
+    // Malformed token — Turnkey will reject it during createSubOrganization;
+    // use a safe fallback name rather than crashing here.
+  }
 
   return await turnkey.apiClient().createSubOrganization({
     subOrganizationName: `telegram-suborg-${Date.now()}`,
@@ -104,15 +109,17 @@ export async function exchangeTelegramCodeAction(params: {
   });
 
   if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Telegram token exchange failed: ${err}`);
+    // Log status server-side; don't forward the raw response body to the
+    // browser since it may contain sensitive fields (e.g. token hints).
+    console.error(`Telegram token exchange failed: HTTP ${response.status}`);
+    throw new Error("Telegram token exchange failed. Please try again.");
   }
 
   const data = await response.json();
-  if (!data.id_token)
-    throw new Error(
-      `No id_token in Telegram response: ${JSON.stringify(data)}`,
-    );
+  if (!data.id_token) {
+    console.error("No id_token in Telegram response");
+    throw new Error("Telegram token exchange failed. Please try again.");
+  }
 
   return { idToken: data.id_token };
 }

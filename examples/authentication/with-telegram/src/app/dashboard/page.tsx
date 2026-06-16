@@ -186,8 +186,9 @@ export default function Dashboard() {
 
       if (!evmAddress) throw new Error("No EVM account found.");
       if (!ethTo) throw new Error("Destination address required.");
-      if (!ethAmount || isNaN(parseFloat(ethAmount)))
-        throw new Error("Invalid amount.");
+      const ethAmountNum = parseFloat(ethAmount);
+      if (!ethAmount || isNaN(ethAmountNum) || ethAmountNum <= 0)
+        throw new Error("Amount must be a positive number.");
 
       setEthSending(true);
 
@@ -233,14 +234,15 @@ export default function Dashboard() {
 
       if (!solAddress) throw new Error("No Solana account found.");
       if (!solTo) throw new Error("Destination address required.");
-      if (!solAmount || isNaN(parseFloat(solAmount)))
-        throw new Error("Invalid amount.");
+      const solAmountNum = parseFloat(solAmount);
+      if (!solAmount || isNaN(solAmountNum) || solAmountNum <= 0)
+        throw new Error("Amount must be a positive number.");
 
       setSolSending(true);
 
       const fromPubkey = new PublicKey(solAddress);
       const toPubkey = new PublicKey(solTo);
-      const lamports = Math.round(parseFloat(solAmount) * 1e9);
+      const lamports = Math.round(solAmountNum * 1e9);
 
       // recentBlockhash is required for serialization.
       // Turnkey replaces it with a fresh one at broadcast time when sponsor=true.
