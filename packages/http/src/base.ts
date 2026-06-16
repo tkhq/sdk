@@ -135,6 +135,66 @@ export async function request<
   return data as ResponseData;
 }
 
+export async function* requestStream<
+  ResponseData = never,
+  B extends TBodyShape = never,
+  Q extends TQueryShape = never,
+  S extends TSubstitutionShape = never,
+  H extends THeadersShape = never,
+>(input: {
+  uri: string;
+  method: "POST";
+  headers?: H;
+  query?: Q;
+  body?: B;
+  substitution?: S;
+}): AsyncGenerator<ResponseData> {
+  const {
+    uri: inputUri,
+    method,
+    headers: inputHeaders = {},
+    query: inputQuery = {},
+    substitution: inputSubstitution = {},
+    body: inputBody = {},
+  } = input;
+
+  const url = constructUrl({
+    uri: inputUri,
+    query: inputQuery,
+    substitution: inputSubstitution,
+  });
+
+  const { sealedBody, xStamp } = await sealAndStampRequestBody({
+    body: inputBody,
+  });
+
+  const response = await fetch(url.toString(), {
+    ...sharedRequestOptions,
+    method,
+    headers: {
+      ...sharedHeaders,
+      ...inputHeaders,
+      "X-Stamp": xStamp,
+    },
+    body: sealedBody,
+  });
+
+  if (!response.ok) {
+    let res: GrpcStatus;
+    try {
+      res = await response.json();
+    } catch (_) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+
+    throw new TurnkeyRequestError(res);
+  }
+
+  yield* parseGrpcGatewayStream<ResponseData>(response.body, (status) => {
+    return new TurnkeyRequestError(status);
+  });
+}
+
 function constructUrl(input: {
   uri: string;
   query: TQueryShape;
@@ -207,6 +267,160 @@ function invariant(condition: any, message: string) {
 
 function stableStringify(input: Record<string, any>): string {
   return JSON.stringify(input);
+}
+
+type StreamChunk = ArrayBuffer | ArrayBufferView | string;
+
+type ReadableStreamReaderLike = {
+  read: () => Promise<{ done?: boolean; value?: StreamChunk }>;
+  cancel?: () => Promise<void>;
+  releaseLock?: () => void;
+};
+
+type ReadableStreamLike = {
+  getReader: () => ReadableStreamReaderLike;
+};
+
+type AsyncIterableBody = AsyncIterable<StreamChunk> & {
+  destroy?: () => void;
+};
+
+type GrpcGatewayStreamFrame<T> = {
+  result?: T;
+  error?: GrpcStatus;
+};
+
+export async function* parseGrpcGatewayStream<T>(
+  body: unknown,
+  makeError: (status: GrpcStatus) => Error,
+): AsyncGenerator<T> {
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  for await (const chunk of iterateResponseBody(body)) {
+    buffer += decodeStreamChunk(decoder, chunk, true);
+    let newlineIndex = buffer.indexOf("\n");
+
+    while (newlineIndex !== -1) {
+      const line = buffer.slice(0, newlineIndex).trim();
+      buffer = buffer.slice(newlineIndex + 1);
+      if (line !== "") {
+        yield parseGrpcGatewayStreamLine<T>(line, makeError);
+      }
+      newlineIndex = buffer.indexOf("\n");
+    }
+  }
+
+  buffer += decoder.decode();
+  const finalLine = buffer.trim();
+  if (finalLine !== "") {
+    yield parseGrpcGatewayStreamLine<T>(finalLine, makeError);
+  }
+}
+
+async function* iterateResponseBody(
+  body: unknown,
+): AsyncGenerator<StreamChunk> {
+  if (body == null) {
+    throw new Error("Streaming response is missing a response body");
+  }
+
+  if (isReadableStreamLike(body)) {
+    const reader = body.getReader();
+    let completed = false;
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          completed = true;
+          return;
+        }
+
+        if (value != null) {
+          yield value;
+        }
+      }
+    } finally {
+      if (!completed) {
+        await reader.cancel?.();
+      }
+      reader.releaseLock?.();
+    }
+  }
+
+  if (isAsyncIterableBody(body)) {
+    let completed = false;
+
+    try {
+      for await (const chunk of body) {
+        yield chunk;
+      }
+      completed = true;
+    } finally {
+      if (!completed) {
+        body.destroy?.();
+      }
+    }
+
+    return;
+  }
+
+  throw new Error("Streaming response body is not readable");
+}
+
+function parseGrpcGatewayStreamLine<T>(
+  line: string,
+  makeError: (status: GrpcStatus) => Error,
+): T {
+  const frame = JSON.parse(line) as GrpcGatewayStreamFrame<T>;
+
+  if (frame.error != null) {
+    throw makeError(frame.error);
+  }
+
+  if (frame.result != null) {
+    return frame.result;
+  }
+
+  throw new Error("Streaming response frame is missing result and error");
+}
+
+function decodeStreamChunk(
+  decoder: TextDecoder,
+  chunk: StreamChunk,
+  stream: boolean,
+): string {
+  if (typeof chunk === "string") {
+    return chunk;
+  }
+
+  if (chunk instanceof ArrayBuffer) {
+    return decoder.decode(chunk, { stream });
+  }
+
+  return decoder.decode(
+    new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength),
+    { stream },
+  );
+}
+
+function isReadableStreamLike(body: unknown): body is ReadableStreamLike {
+  const candidate = body as { getReader?: unknown };
+  return (
+    typeof body === "object" &&
+    body != null &&
+    typeof candidate.getReader === "function"
+  );
+}
+
+function isAsyncIterableBody(body: unknown): body is AsyncIterableBody {
+  const candidate = body as { [Symbol.asyncIterator]?: unknown };
+  return (
+    typeof body === "object" &&
+    body != null &&
+    typeof candidate[Symbol.asyncIterator] === "function"
+  );
 }
 
 /**

@@ -35,6 +35,11 @@ export { withAsyncPolling, createActivityPoller } from "./async";
 
 export { TurnkeyApi };
 
-export { sealAndStampRequestBody, isHttpClient } from "./base";
+export {
+  isHttpClient,
+  parseGrpcGatewayStream,
+  requestStream,
+  sealAndStampRequestBody,
+} from "./base";
 
 export { VERSION } from "./version";

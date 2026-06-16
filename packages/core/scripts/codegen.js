@@ -155,6 +155,24 @@ const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
 ];
 
 /**
+ * @param {object} operation
+ * @returns {boolean}
+ */
+function isStreamingOperation(operation) {
+  const response = operation?.responses?.["200"];
+  const schema = response?.schema;
+  return (
+    typeof response?.description === "string" &&
+    response.description.includes("(streaming responses)") &&
+    schema?.type === "object" &&
+    typeof schema?.title === "string" &&
+    schema.title.startsWith("Stream result of ") &&
+    schema.properties?.result != null &&
+    schema.properties?.error?.$ref === "#/definitions/rpcStatus"
+  );
+}
+
+/**
  * @param {string} methodName
  * @returns {string}
  */
@@ -225,6 +243,9 @@ const generateSDKClientFromSwagger = async (
   const authProxyNamespace = authProxySwaggerSpec.tags?.find(
     (item) => item.name != null,
   )?.name;
+  const hasStreamingOperation = Object.values(swaggerSpec.paths).some(
+    (methodMap) => isStreamingOperation(methodMap.post),
+  );
 
   /** @type {Array<string>} */
   const codeBuffer = [];
@@ -242,6 +263,9 @@ const generateSDKClientFromSwagger = async (
   imports.push(
     'import { TurnkeyError, TurnkeyErrorCodes, TStamper, TActivityResponse, TActivityStatus, TERMINAL_ACTIVITY_STATUSES, TSignedRequest, GrpcStatus, TurnkeyRequestError } from "@turnkey/sdk-types";',
   );
+  if (hasStreamingOperation) {
+    imports.push('import { parseGrpcGatewayStream } from "@turnkey/http";');
+  }
 
   imports.push('import { StamperType } from "../__types__";');
 
@@ -537,6 +561,49 @@ const generateSDKClientFromSwagger = async (
 
         return data as TResponseType;
     }`);
+
+  if (hasStreamingOperation) {
+    codeBuffer.push(`
+    async *requestStream<TBodyType, TResponseType>(
+        url: string,
+        body: TBodyType,
+        stampWith?: StamperType
+    ): AsyncGenerator<TResponseType> {
+        const fullUrl = this.config.apiBaseUrl + url;
+        const stringifiedBody = JSON.stringify(body);
+        var headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        "X-Client-Version": VERSION
+        }
+
+        const activeStamper = this.getStamper(stampWith);
+
+        if (activeStamper) {
+        const stamp = await activeStamper.stamp(stringifiedBody);
+        headers[stamp.stampHeaderName] = stamp.stampHeaderValue
+        }
+
+        const response = await fetch(fullUrl, {
+        method: "POST",
+        headers: headers,
+        body: stringifiedBody,
+        redirect: "follow"
+        });
+
+        if (!response.ok) {
+        let res: GrpcStatus;
+        try {
+            res = await response.json();
+        } catch (_) {
+            throw new Error(\`\${response.status} \${response.statusText}\`);
+        }
+
+        throw new TurnkeyRequestError(res);
+        }
+
+        yield* parseGrpcGatewayStream<TResponseType>(response.body, (status) => new TurnkeyRequestError(status));
+    }`);
+  }
   const latestVersions = extractLatestVersions(swaggerSpec.definitions);
 
   for (const endpointPath in swaggerSpec.paths) {
@@ -576,8 +643,22 @@ const generateSDKClientFromSwagger = async (
         rawActivityType)
       : null;
 
-    // for query methods, we use flat body structure
-    if (methodType === "query") {
+    if (isStreamingOperation(operation)) {
+      codeBuffer.push(
+        `\n\tasync *${methodName}(input: SdkTypes.${inputType}${
+          METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
+            ? " = {}"
+            : ""
+        }, stampWith?: StamperType): AsyncGenerator<SdkTypes.${responseType}> {
+      const session = await this.storageManager?.getActiveSession();
+      yield* this.requestStream("${endpointPath}", {
+        ...input,
+        organizationId: input.organizationId ?? session?.organizationId ?? this.config.organizationId
+      }, stampWith);
+    }`,
+      );
+    } else if (methodType === "query") {
+      // for query methods, we use flat body structure
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkTypes.${inputType}${
           METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)

@@ -51,6 +51,24 @@ const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "listUserTags",
 ];
 
+/**
+ * @param {object} operation
+ * @returns {boolean}
+ */
+function isStreamingOperation(operation) {
+  const response = operation?.responses?.["200"];
+  const schema = response?.schema;
+  return (
+    typeof response?.description === "string" &&
+    response.description.includes("(streaming responses)") &&
+    schema?.type === "object" &&
+    typeof schema?.title === "string" &&
+    schema.title.startsWith("Stream result of ") &&
+    schema.properties?.result != null &&
+    schema.properties?.error?.$ref === "#/definitions/rpcStatus"
+  );
+}
+
 // Helper Functions
 /**
  * @param {Array<string | null>} input
@@ -125,6 +143,9 @@ function extractLatestVersions(definitions) {
 
 const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   const namespace = swaggerSpec.tags?.find((item) => item.name != null)?.name;
+  const hasStreamingOperation = Object.values(swaggerSpec.paths).some(
+    (methodMap) => isStreamingOperation(methodMap.post),
+  );
 
   /** @type {Array<string>} */
   const codeBuffer = [];
@@ -140,6 +161,9 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   imports.push(
     'import { TStamper, TERMINAL_ACTIVITY_STATUSES, TActivityResponse, TActivityStatus, TSignedRequest, GrpcStatus, TurnkeyRequestError } from "@turnkey/sdk-types";',
   );
+  if (hasStreamingOperation) {
+    imports.push('import { parseGrpcGatewayStream } from "@turnkey/http";');
+  }
 
   imports.push('import type * as SdkApiTypes from "@turnkey/sdk-types";');
 
@@ -252,6 +276,42 @@ export class TurnkeySDKClientBase {
     } as TResponseType;
   }`);
 
+  if (hasStreamingOperation) {
+    codeBuffer.push(`
+  async *requestStream<TBodyType, TResponseType>(
+    url: string,
+    body: TBodyType
+  ): AsyncGenerator<TResponseType> {
+    const fullUrl = this.config.apiBaseUrl + url;
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+
+    const response = await fetch(fullUrl, {
+      method: "POST",
+      headers: {
+        [stamp.stampHeaderName]: stamp.stampHeaderValue,
+        "Content-Type": "application/json",
+        "X-Client-Version": VERSION
+      },
+      body: stringifiedBody,
+      redirect: "follow"
+    });
+
+    if (!response.ok) {
+      let res: GrpcStatus;
+      try {
+        res = await response.json();
+      } catch (_) {
+        throw new Error(\`\${response.status} \${response.statusText}\`);
+      }
+
+      throw new TurnkeyRequestError(res);
+    }
+
+    yield* parseGrpcGatewayStream<TResponseType>(response.body, (status) => new TurnkeyRequestError(status));
+  }`);
+  }
+
   const latestVersions = extractLatestVersions(swaggerSpec.definitions);
 
   for (const endpointPath in swaggerSpec.paths) {
@@ -283,7 +343,20 @@ export class TurnkeySDKClientBase {
     const versionedActivityType =
       VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
 
-    if (methodType === "query") {
+    if (isStreamingOperation(operation)) {
+      codeBuffer.push(
+        `\n\tasync *${methodName}(input: SdkApiTypes.${inputType}${
+          METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
+            ? " = {}"
+            : ""
+        }): AsyncGenerator<SdkApiTypes.${responseType}> {
+    yield* this.requestStream("${endpointPath}", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId
+    });
+  }`,
+      );
+    } else if (methodType === "query") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}${
           METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)

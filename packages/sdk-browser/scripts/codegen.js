@@ -65,6 +65,24 @@ function joinPropertyList(input) {
 }
 
 /**
+ * @param {object} operation
+ * @returns {boolean}
+ */
+function isStreamingOperation(operation) {
+  const response = operation?.responses?.["200"];
+  const schema = response?.schema;
+  return (
+    typeof response?.description === "string" &&
+    response.description.includes("(streaming responses)") &&
+    schema?.type === "object" &&
+    typeof schema?.title === "string" &&
+    schema.title.startsWith("Stream result of ") &&
+    schema.properties?.result != null &&
+    schema.properties?.error?.$ref === "#/definitions/rpcStatus"
+  );
+}
+
+/**
  * @param {string} methodName
  * @returns {string}
  */
@@ -166,7 +184,9 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
     const parameterList = operation["parameters"] ?? [];
 
     let responseValue = "void";
-    if (methodType === "command") {
+    if (isStreamingOperation(operation)) {
+      responseValue = `NonNullable<operations["${operationId}"]["responses"]["200"]["schema"]["result"]>`;
+    } else if (methodType === "command") {
       const resultKey = operationNameWithoutNamespace + "Result";
       const versionedMethodName = latestVersions[resultKey].formattedKeyName;
 
@@ -252,6 +272,9 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
 
 const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   const namespace = swaggerSpec.tags?.find((item) => item.name != null)?.name;
+  const hasStreamingOperation = Object.values(swaggerSpec.paths).some(
+    (methodMap) => isStreamingOperation(methodMap.post),
+  );
 
   /** @type {Array<string>} */
   const codeBuffer = [];
@@ -262,6 +285,9 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   imports.push(
     'import { TERMINAL_ACTIVITY_STATUSES, TActivityResponse, TActivityStatus, TSignedRequest } from "@turnkey/http";',
   );
+  if (hasStreamingOperation) {
+    imports.push('import { parseGrpcGatewayStream } from "@turnkey/http";');
+  }
 
   imports.push(
     'import type { definitions } from "../__inputs__/public_api.types";',
@@ -396,6 +422,49 @@ export class TurnkeySDKClientBase {
     } as TResponseType;
   }`);
 
+  if (hasStreamingOperation) {
+    codeBuffer.push(`
+  async *requestStream<TBodyType, TResponseType>(
+    url: string,
+    body: TBodyType
+  ): AsyncGenerator<TResponseType> {
+    const fullUrl = this.config.apiBaseUrl + url;
+    const stringifiedBody = JSON.stringify(body);
+    var headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "X-Client-Version": VERSION
+    }
+    if (this.stamper) {
+      const stamp = await this.stamper.stamp(stringifiedBody);
+      headers[stamp.stampHeaderName] = stamp.stampHeaderValue
+    }
+
+    if (this.config.readOnlySession){
+      headers["X-Session"] = this.config.readOnlySession
+    }
+
+    const response = await fetch(fullUrl, {
+      method: "POST",
+      headers: headers,
+      body: stringifiedBody,
+      redirect: "follow"
+    });
+
+    if (!response.ok) {
+      let res: GrpcStatus;
+      try {
+        res = await response.json();
+      } catch (_) {
+        throw new Error(\`\${response.status} \${response.statusText}\`);
+      }
+
+      throw new TurnkeyRequestError(res);
+    }
+
+    yield* parseGrpcGatewayStream<TResponseType>(response.body, (status) => new TurnkeyRequestError(status));
+  }`);
+  }
+
   const latestVersions = extractLatestVersions(swaggerSpec.definitions);
 
   for (const endpointPath in swaggerSpec.paths) {
@@ -427,7 +496,22 @@ export class TurnkeySDKClientBase {
     const versionedActivityType =
       VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
 
-    if (methodType === "query") {
+    if (isStreamingOperation(operation)) {
+      codeBuffer.push(
+        `\n\tasync *${methodName}(input: SdkApiTypes.${inputType}${
+          METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
+            ? " = {}"
+            : ""
+        }): AsyncGenerator<SdkApiTypes.${responseType}> {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    yield* this.requestStream("${endpointPath}", {
+      ...input,
+      organizationId: input.organizationId ?? session?.organizationId ?? this.config.organizationId
+    });
+  }`,
+      );
+    } else if (methodType === "query") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}${
           METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)

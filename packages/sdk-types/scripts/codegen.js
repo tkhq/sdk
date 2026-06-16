@@ -193,6 +193,24 @@ function refToTs(ref) {
   return ref.replace(/^#\/definitions\//, "");
 }
 
+/**
+ * @param {object} operation
+ * @returns {boolean}
+ */
+function isStreamingOperation(operation) {
+  const response = operation?.responses?.["200"];
+  const schema = response?.schema;
+  return (
+    typeof response?.description === "string" &&
+    response.description.includes("(streaming responses)") &&
+    schema?.type === "object" &&
+    typeof schema?.title === "string" &&
+    schema.title.startsWith("Stream result of ") &&
+    schema.properties?.result != null &&
+    schema.properties?.error?.$ref === "#/definitions/rpcStatus"
+  );
+}
+
 // Helper that takes in swagger definitions and returns a map containing the latest version of a field.
 // The intent is to consolidate a field with multiple versions (e.g. v1CreateSubOrganizationResult, v1CreateSubOrganizationResultV2...)
 // in order to get just the latest (v1CreateSubOrganizationResultV4).
@@ -375,11 +393,13 @@ function generateApiTypes(swagger, prefix = "") {
     const methodType = methodTypeFromMethodName(methodName);
 
     // Get response schema $ref
-    const responseSchema =
+    const responseSchemaValue =
       operation.responses &&
       operation.responses["200"] &&
-      operation.responses["200"].schema &&
-      operation.responses["200"].schema.$ref;
+      operation.responses["200"].schema;
+    const responseSchema = isStreamingOperation(operation)
+      ? responseSchemaValue?.properties?.result?.$ref
+      : responseSchemaValue?.$ref;
     const responseTypeName = responseSchema ? refToTs(responseSchema) : null;
 
     // Compose API Response type name
