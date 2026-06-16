@@ -1882,6 +1882,55 @@ importers:
         specifier: ^0.12.7
         version: 0.12.7
 
+  examples/chain-integrations/with-stellar:
+    dependencies:
+      '@stellar/stellar-sdk':
+        specifier: ^13.3.0
+        version: 13.3.0(bare-url@2.4.5)
+      '@tailwindcss/postcss':
+        specifier: ^4.1.10
+        version: 4.1.13
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-types
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.26.9)(@playwright/test@1.60.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      postcss:
+        specifier: '>=8.5.10'
+        version: 8.5.15
+      react:
+        specifier: 19.2.4
+        version: 19.2.4
+      react-dom:
+        specifier: 19.2.4
+        version: 19.2.4(react@19.2.4)
+      tailwindcss:
+        specifier: ^4.1.11
+        version: 4.1.13
+    devDependencies:
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 15.5.18
+        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/chain-integrations/with-sui:
     dependencies:
       '@mysten/sui':
@@ -3659,55 +3708,6 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/with-stellar:
-    dependencies:
-      '@stellar/stellar-sdk':
-        specifier: ^13.3.0
-        version: 13.3.0(bare-url@2.4.5)
-      '@tailwindcss/postcss':
-        specifier: ^4.1.10
-        version: 4.1.13
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../packages/react-wallet-kit
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../../packages/sdk-types
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.26.9)(@playwright/test@1.60.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      postcss:
-        specifier: '>=8.5.10'
-        version: 8.5.15
-      react:
-        specifier: 19.2.4
-        version: 19.2.4
-      react-dom:
-        specifier: 19.2.4
-        version: 19.2.4(react@19.2.4)
-      tailwindcss:
-        specifier: ^4.1.11
-        version: 4.1.13
-    devDependencies:
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-config-next:
-        specifier: 15.5.18
-        version: 15.5.18(eslint@8.56.0)(typescript@5.4.3)
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
   internal/jest-config:
     dependencies:
       '@babel/core':
@@ -3914,7 +3914,7 @@ importers:
         version: 29.5.14
       jest:
         specifier: 29.7.0
-        version: 29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
+        version: 29.7.0(@types/node@24.13.2)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@24.13.2)(typescript@5.4.3))
 
   packages/eip-1193-provider:
     dependencies:
