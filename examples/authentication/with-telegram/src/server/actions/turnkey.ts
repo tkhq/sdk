@@ -41,7 +41,9 @@ export async function createSuborgAction(params: {
       Buffer.from(oidcToken.split(".")[1] ?? "", "base64url").toString(),
     ) as { preferred_username?: string; name?: string; sub?: string };
     userName =
-      payload.preferred_username ?? payload.name ?? `tg-${payload.sub ?? Date.now()}`;
+      payload.preferred_username ??
+      payload.name ??
+      `tg-${payload.sub ?? Date.now()}`;
   } catch {
     // Malformed token — Turnkey will reject it during createSubOrganization;
     // use a safe fallback name rather than crashing here.

@@ -71,10 +71,11 @@ Then in [@BotFather](https://t.me/BotFather):
 1. `/mybots` → select your bot → **Bot Settings** → **Web Login**
 2. **Switch to OAuth 2.0 Login** — confirm when prompted. This enables the new OIDC flow; the old Login Widget uses a different protocol and won't work with this example.
 
-> **Tip:** If you don't see **Web Login** in Bot Settings, your BotFather version may show a different UI. Try: open the BotFather bot profile → **App** → select your bot → **Login Widget** → **New OIDC**. 3. Under **Allowed URLs**, add both:
+   > **Tip:** If you don't see **Web Login** in Bot Settings, your BotFather version may show a different UI. Try: open the BotFather bot profile → **App** → select your bot → **Login Widget** → **New OIDC**.
 
-- `https://abc123.ngrok-free.app` (your origin)
-- `https://abc123.ngrok-free.app/callback` (your redirect URI)
+3. Under **Allowed URLs**, add both:
+   - `https://abc123.ngrok-free.app` (your origin)
+   - `https://abc123.ngrok-free.app/callback` (your redirect URI)
 
 4. Update `NEXT_PUBLIC_REDIRECT_URI` in `.env.local` to `https://abc123.ngrok-free.app/callback`
 
