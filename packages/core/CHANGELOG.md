@@ -1,5 +1,17 @@
 # @turnkey/core
 
+## 2.2.0
+
+### Minor Changes
+
+- [#1391](https://github.com/tkhq/sdk/pull/1391) [`fb82279`](https://github.com/tkhq/sdk/commit/fb82279ed954a25bd0a23418664315fb43d0e2ec) Author [@ethankonk](https://github.com/ethankonk) - Exposes new `fetchWalletConnectApps` and `buildWalletConnectAppEntries` helpers (plus `WalletConnectApp` / `WalletConnectAppEntry` types).
+
+### Patch Changes
+
+- Updated dependencies [[`325fded`](https://github.com/tkhq/sdk/commit/325fdedf2c647c9a93f28aa7355b1ff0053689f9)]:
+  - @turnkey/http@4.1.1
+  - @turnkey/react-native-passkey-stamper@1.2.16
+
 ## 2.1.0
 
 ### Minor Changes

@@ -1,5 +1,17 @@
 # @turnkey/ethers
 
+## 1.3.31
+
+### Patch Changes
+
+- [#1365](https://github.com/tkhq/sdk/pull/1365) [`325fded`](https://github.com/tkhq/sdk/commit/325fdedf2c647c9a93f28aa7355b1ff0053689f9) Author [@MasterHW](https://github.com/MasterHW) - Update example links in READMEs and docs to reflect new category-based directory structure under `examples/`
+
+- Updated dependencies [[`fb82279`](https://github.com/tkhq/sdk/commit/fb82279ed954a25bd0a23418664315fb43d0e2ec), [`325fded`](https://github.com/tkhq/sdk/commit/325fdedf2c647c9a93f28aa7355b1ff0053689f9)]:
+  - @turnkey/core@2.2.0
+  - @turnkey/http@4.1.1
+  - @turnkey/sdk-browser@6.1.1
+  - @turnkey/sdk-server@6.1.1
+
 ## 1.3.30
 
 ### Patch Changes

@@ -1,5 +1,5 @@
 ---
 title: "Solana"
-description: "We have released a package that you can use to sign transactions and messages: [`@turnkey/solana`](https://www.npmjs.com/package/@turnkey/solana). See [here](https://github.com/tkhq/sdk/tree/main/examples/with-solana) for an example."
+description: "We have released a package that you can use to sign transactions and messages: [`@turnkey/solana`](https://www.npmjs.com/package/@turnkey/solana). See [here](https://github.com/tkhq/sdk/tree/main/examples/chain-integrations/with-solana) for an example."
 mode: wide
 ---

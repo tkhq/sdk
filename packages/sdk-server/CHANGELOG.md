@@ -1,5 +1,13 @@
 # @turnkey/sdk-server
 
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`325fded`](https://github.com/tkhq/sdk/commit/325fdedf2c647c9a93f28aa7355b1ff0053689f9)]:
+  - @turnkey/http@4.1.1
+  - @turnkey/wallet-stamper@1.1.19
+
 ## 6.1.0
 
 ### Minor Changes

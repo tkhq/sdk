@@ -89,7 +89,7 @@ type TIframeStamperConfig = {
 
 #### Example
 
-For full example check out the [email-auth](https://github.com/tkhq/sdk/tree/main/examples/email-auth) example in our SDK repo. You should also read up [Email Auth](/authentication/email) for more information on the technical details of how it works.
+For full example check out the [email-auth](https://github.com/tkhq/sdk/tree/main/examples/authentication/email-auth) example in our SDK repo. You should also read up [Email Auth](/authentication/email) for more information on the technical details of how it works.
 
 ## Methods
 

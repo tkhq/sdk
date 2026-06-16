@@ -4,4 +4,4 @@ description: "[`@turnkey/eip-1193-provider`](https://www.npmjs.com/package/@turn
 mode: wide
 ---
 
-See [`with-eip-1193-provider`](https://github.com/tkhq/sdk/tree/main/examples/with-eip-1193-provider) for an example.
+See [`with-eip-1193-provider`](https://github.com/tkhq/sdk/tree/main/examples/chain-integrations/with-eip-1193-provider) for an example.

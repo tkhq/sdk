@@ -174,6 +174,7 @@ import { RemoveOAuthProvider } from "../../components/user/RemoveOAuthProvider";
 import { RemovePasskey } from "../../components/user/RemovePasskey";
 import { ConnectWalletModal } from "../../components/user/ConnectWallet";
 import { ClientContext } from "./Types";
+import { WalletConnectProvider } from "../WalletConnectProvider";
 import { OtpVerification } from "../../components/auth/OTP";
 import { RemoveEmail } from "../../components/user/RemoveEmail";
 import { RemovePhoneNumber } from "../../components/user/RemovePhoneNumber";
@@ -4199,6 +4200,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           />
         ),
         showTitle: logo ? false : true,
+        contextProvider: WalletConnectProvider,
       });
     },
     [pushPage, masterConfig],
@@ -5566,6 +5568,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 TurnkeyErrorCodes.USER_CANCELED,
               ),
             ),
+          contextProvider: WalletConnectProvider,
         });
       });
     },

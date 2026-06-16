@@ -1,5 +1,15 @@
 # @turnkey/sdk-react-native
 
+## 1.5.23
+
+### Patch Changes
+
+- [#1365](https://github.com/tkhq/sdk/pull/1365) [`325fded`](https://github.com/tkhq/sdk/commit/325fdedf2c647c9a93f28aa7355b1ff0053689f9) Author [@MasterHW](https://github.com/MasterHW) - Update example links in READMEs and docs to reflect new category-based directory structure under `examples/`
+
+- Updated dependencies [[`325fded`](https://github.com/tkhq/sdk/commit/325fdedf2c647c9a93f28aa7355b1ff0053689f9)]:
+  - @turnkey/http@4.1.1
+  - @turnkey/react-native-passkey-stamper@1.2.16
+
 ## 1.5.22
 
 ### Patch Changes

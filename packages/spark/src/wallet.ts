@@ -1,0 +1,129 @@
+import {
+  type ConfigOptions,
+  type CreateLightningInvoiceParams,
+  LeafManager,
+  SparkSigner,
+  SparkWallet,
+  SparkWalletEvent,
+  SwapService,
+} from "@buildonspark/spark-sdk";
+import {
+  operatorsToOperatorRecipients,
+  TurnkeyTransferService,
+} from "./services/transfer";
+import { TurnkeyCoopExitService } from "./services/coop-exit";
+import type { TurnkeySparkSigner } from "./signer";
+import { uint8ArrayFromHexString } from "@turnkey/encoding";
+import type { LightningReceiveRequest } from "@buildonspark/spark-sdk/dist/types";
+
+export class TurnkeySparkWallet extends SparkWallet {
+  constructor(options?: ConfigOptions, signerArg?: SparkSigner) {
+    super(options, signerArg);
+
+    this.transferService = new TurnkeyTransferService(
+      this.config,
+      this.connectionManager,
+      this.signingService,
+      this.__getLogging__(),
+    );
+
+    this.swapService = new SwapService(
+      this.config,
+      this.transferService,
+      this.sspClient!,
+      this.__getLogging__(),
+    );
+
+    this.coopExitService = new TurnkeyCoopExitService(
+      this.config,
+      this.connectionManager,
+      this.signingService,
+      this.__getLogging__(),
+    );
+
+    // Disable the SDK's claim-time auto-optimize swap. The optimizer splits a
+    // freshly-claimed leaf into binary denominations via the swap path, leaving
+    // each new leaf in SWAP_PENDING locally. The SO-side state transitions to
+    // AVAILABLE only after the swap finalizes, which the in-process LeafManager
+    // sees only via a fresh sync — short-lived example runs that try to
+    // withdraw/transfer immediately after a claim see available=0 because every
+    // local leaf is SWAP_PENDING. Disabling the auto-optimize keeps the claim's
+    // leaf AVAILABLE so the next operation proceeds. Users who want
+    // optimization can call wallet.optimizeLeaves() explicitly and await it.
+    this.leafManager = new LeafManager(
+      this.config,
+      this.swapService,
+      this.transferService,
+      this.connectionManager,
+      (balance) => {
+        this.emit(SparkWalletEvent.BalanceUpdate, {
+          available: BigInt(balance.available),
+          owned: BigInt(balance.owned),
+          incoming: BigInt(balance.incoming),
+        });
+      },
+      undefined,
+      this.__getLogging__(),
+    );
+  }
+
+  override async createLightningInvoice(
+    params: CreateLightningInvoiceParams,
+  ): Promise<LightningReceiveRequest> {
+    const config = this.config;
+    const signer = this.config.signer as TurnkeySparkSigner;
+    const threshold = config.getThreshold();
+
+    const operatorRecipients = operatorsToOperatorRecipients(
+      config.getSigningOperators(),
+    );
+    const prepared = await signer.prepareLightningReceive({
+      threshold,
+      operatorRecipients,
+    });
+
+    // If storing the encrypted preimage shares fails after invoice creation, rerun
+    // invoice creation instead of reusing the printed invoice; the old hodl invoice
+    // may time out because Spark operators do not have the shares for its hash.
+    const invoice = await this.createLightningHodlInvoice({
+      ...params,
+      paymentHash: prepared.paymentHash,
+    });
+
+    const encryptedPreimageShares: Record<string, Uint8Array> = {};
+    for (const pkg of prepared.operatorPackages) {
+      encryptedPreimageShares[pkg.operatorId] = uint8ArrayFromHexString(
+        pkg.encryptedPackage,
+      );
+    }
+
+    const receiverIdentityPubkey = params.receiverIdentityPubkey
+      ? uint8ArrayFromHexString(params.receiverIdentityPubkey)
+      : await signer.getIdentityPublicKey();
+
+    const sparkClient = await this.connectionManager.createSparkClient(
+      this.config.getCoordinatorAddress(),
+    );
+
+    await sparkClient.store_preimage_share_v2({
+      paymentHash: uint8ArrayFromHexString(prepared.paymentHash),
+      encryptedPreimageShares,
+      threshold,
+      invoiceString: invoice.invoice.encodedInvoice,
+      userIdentityPublicKey: receiverIdentityPubkey,
+    });
+
+    return invoice;
+  }
+
+  /**
+   * this.logging is not being exposed by SparkWallet so we'll need to work around TypeScript to get it
+   */
+  private __getLogging__() {
+    // This method seems the fastest way to get the LoggingService type
+    type BuildConnectionManager = typeof this.buildConnectionManager;
+    type LoggingService = Parameters<BuildConnectionManager>[1];
+
+    return (this as any).logging as LoggingService | undefined;
+  }
+}

@@ -19,6 +19,13 @@ export type OauthProviderConfig = {
   secondaryClientIds?: string[];
 };
 
+export enum WalletSelectorMode {
+  /** Auth mode: user is logging in or signing up with a wallet */
+  Auth = "auth",
+  /** Connect mode: user is connecting/disconnecting an external wallet */
+  Connect = "connect",
+}
+
 export interface TurnkeyCallbacks {
   onOauthRedirect?: (response: {
     idToken: string;

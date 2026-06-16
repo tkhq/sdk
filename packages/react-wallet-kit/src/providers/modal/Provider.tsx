@@ -1,7 +1,7 @@
 "use client";
 
 import { useScreenSize } from "../../utils/utils";
-import { createContext, useState, ReactNode } from "react";
+import { createContext, useState, ReactNode, ComponentType } from "react";
 
 export type ModalPage = {
   key: string;
@@ -10,6 +10,8 @@ export type ModalPage = {
   showTurnkeyBranding?: boolean;
   preventBack?: boolean;
   onClose?: () => void;
+  /** A context provider component that wraps all pages in the modal stack. Only applies from the root page. */
+  contextProvider?: ComponentType<{ children: ReactNode }>;
 };
 
 export type ModalContextType = {
