@@ -1,0 +1,29 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*",
+        "daml",
+        "daml.yaml",
+        "docker-compose.yaml",
+        "src/**",
+        "src/__generated__/proto",
+        "!src/__generated__/**"
+      ],
+      "outputs": [
+        "src/__generated__/daml",
+        "src/__generated__/dar",
+        "src/__generated__/api"
+      ]
+    },
+    "test": {
+      "dependsOn": ["build"]
+    },
+    "typecheck": {
+      "dependsOn": ["build"]
+    }
+  }
+}

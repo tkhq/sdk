@@ -1,0 +1,9 @@
+sdk-version: 3.5.1
+name: canton
+source: daml
+version: 1.0.0
+dependencies:
+  - daml-prim
+  - daml-stdlib
+exposed-modules:
+  - Token

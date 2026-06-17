@@ -1,0 +1,38 @@
+{
+  "name": "@turnkey/with-canton",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "$npm_execpath run build:api && $npm_execpath run build:dar",
+    "build:dar": "$npm_execpath run build:dar:dir && $npm_execpath run build:dar:archive && $npm_execpath run build:dar:inspect && $npm_execpath run build:dar:bindings",
+    "build:dar:dir": "mkdir -p ./src/__generated__/dar",
+    "build:dar:archive": "docker compose run --rm build",
+    "build:dar:inspect": "docker compose run --rm inspect > ./src/__generated__/dar/canton.dar.json",
+    "build:dar:bindings": "docker compose run --rm bindings",
+    "build:api": "$npm_execpath run build:api:dir && $npm_execpath run build:api:spec && $npm_execpath run build:api:types",
+    "build:api:dir": "mkdir -p ./src/__generated__/api/ledger",
+    "build:api:spec": "docker compose run --rm spec > ./src/__generated__/api/ledger/spec.yaml",
+    "build:api:types": "openapi-typescript ./src/__generated__/api/ledger/spec.yaml --output ./src/__generated__/api/ledger/spec.d.ts",
+    "clean": "rimraf ./src/__generated__/api ./src/__generated__/dar ./src/__generated__/daml",
+    "test": "jest",
+    "sandbox": "docker compose up sandbox",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@bufbuild/protobuf": "^2.12.0",
+    "@daml/types": "3.5.1",
+    "@noble/curves": "^1.9.7",
+    "@noble/hashes": "^1.8.0",
+    "@turnkey/core": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "@types/jest": "^29.5.3",
+    "@types/node": "~24.13.1",
+    "jest": "29.7.0",
+    "openapi-fetch": "~0.17.0",
+    "openapi-typescript": "~7.13.0",
+    "typescript": "5.4.3",
+    "uuid": "^11.1.0"
+  }
+}

@@ -1,0 +1,61 @@
+x-dpm: &dpm # See https://github.com/tkhq/dpm/
+  image: ghcr.io/tkhq/dpm:3.5.1@sha256:8921180f13e89a3e667daeb10cc49dba7d802c3c6dc35e01411d46651f12e82c
+
+services:
+  # This is the only long-lived service here, a Canton sanbox
+  sandbox:
+    <<: *dpm
+    # There is no prettier way to configure the dpm sandbox to listen on 0.0.0.0
+    command:
+      [
+        "sandbox",
+        "-C",
+        "canton.participants.sandbox.ledger-api.address=0.0.0.0",
+        "-C",
+        "canton.participants.sandbox.http-ledger-api.address=0.0.0.0",
+      ]
+    ports:
+      - 6864:6864
+      - 6865:6865
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6864/livez"]
+      interval: 3s
+      timeout: 10s
+      retries: 5
+
+  # Builds the DAR archive from the daml sources
+  build:
+    <<: *dpm
+    command: ["build", "--output", "./dist/canton.dar"]
+    volumes:
+      - ./daml.yaml:/app/daml.yaml
+      - ./daml:/app/daml
+      - ./src/__generated__/dar:/app/dist
+
+  # Inspects the generated DAR archive
+  inspect:
+    <<: *dpm
+    command: ["damlc", "inspect-dar", "--json", "./dist/canton.dar"]
+    volumes:
+      - ./daml.yaml:/app/daml.yaml
+      - ./daml:/app/daml
+      - ./src/__generated__/dar:/app/dist
+
+  # Generates TypeScript bindings from the DAR archive
+  bindings:
+    <<: *dpm
+    command: ["codegen-js", "./dar/canton.dar", "-o", "./dist", "-s", "turnkey"]
+    volumes:
+      - ./daml.yaml:/app/daml.yaml
+      - ./daml:/app/daml
+      - ./src/__generated__/dar:/app/dar
+      - ./src/__generated__/daml:/app/dist
+
+  # Fetches the OpenAPI spec from the running sandbox and saves it to src/__generated__/api/ledger/spec.yaml
+  spec:
+    depends_on:
+      sandbox:
+        condition: service_healthy
+    image: alpine/curl:8.20.0
+    entrypoint: curl
+    command: ["-sSf", "http://sandbox:6864/docs/openapi"]

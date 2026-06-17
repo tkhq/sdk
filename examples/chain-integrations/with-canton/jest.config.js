@@ -1,0 +1,13 @@
+/** @type {import("@jest/types").Config.InitialOptions} */
+const config = {
+  transform: {
+    "\\.[jt]sx?$": "@turnkey/jest-config/transformer.js",
+  },
+  testPathIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/node_modules/"],
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^@generated/(.*)$": "<rootDir>/src/__generated__/$1",
+  },
+};
+
+module.exports = config;
