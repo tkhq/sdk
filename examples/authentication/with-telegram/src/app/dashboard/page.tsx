@@ -559,7 +559,7 @@ export default function Dashboard() {
             </h2>
 
             <div className="p-3 rounded border bg-gray-50 text-left overflow-x-auto">
-              <pre className="font-mono text-[11px] leading-snug min-w-[60ch]">
+              <pre className="font-mono text-[11px] leading-snug min-w-[60ch] text-gray-800">
                 {JSON.stringify(embeddedWallets, null, 2)}
               </pre>
             </div>
