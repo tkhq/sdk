@@ -138,7 +138,7 @@ async function main() {
     default: "<recipient_ton_address>",
   });
 
-  console.log(`\nSending 0.015 TON to ${recipientAddress}`);
+  console.log(`\nSending 0.015 GRAM to ${recipientAddress}`);
 
   const tonWallet = WalletContractV4.create({
     workchain: 0,
