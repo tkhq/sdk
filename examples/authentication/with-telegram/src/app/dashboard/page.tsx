@@ -565,8 +565,8 @@ export default function Dashboard() {
             </div>
 
             <div className="p-3 rounded border bg-gray-50">
-              <div className="text-xs text-gray-500">Sub-org ID</div>
-              <div className="text-xs font-mono break-all">
+              <div className="text-xs font-medium text-gray-700">Sub-org ID</div>
+              <div className="text-xs font-mono break-all text-gray-800">
                 {session?.organizationId ?? "—"}
               </div>
             </div>
@@ -588,8 +588,8 @@ function ErrorBox({ msg }: { msg: string }) {
 function ResultBox({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded border bg-gray-50 p-3 max-h-48 overflow-auto">
-      <div className="mb-1 text-xs text-gray-500">{label}</div>
-      <pre className="overflow-x-auto text-[11px] font-mono break-all whitespace-pre-wrap">
+      <div className="mb-1 text-xs font-medium text-gray-700">{label}</div>
+      <pre className="overflow-x-auto text-[11px] font-mono break-all whitespace-pre-wrap text-gray-800">
         {value}
       </pre>
     </div>

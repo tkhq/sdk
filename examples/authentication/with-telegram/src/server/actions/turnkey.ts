@@ -88,8 +88,8 @@ export async function exchangeTelegramCodeAction(params: {
   codeVerifier: string;
   redirectUri: string;
 }): Promise<{ idToken: string }> {
-  const botId = process.env.NEXT_PUBLIC_TELEGRAM_BOT_ID!;
-  const botSecret = process.env.TELEGRAM_BOT_SECRET!;
+  const botId = process.env.NEXT_PUBLIC_TELEGRAM_CLIENT_ID!;
+  const botSecret = process.env.TELEGRAM_CLIENT_SECRET!;
 
   const body = new URLSearchParams({
     grant_type: "authorization_code",

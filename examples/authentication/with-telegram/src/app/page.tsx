@@ -77,7 +77,7 @@ export default function AuthPage() {
 
     const params = new URLSearchParams({
       response_type: "code",
-      client_id: process.env.NEXT_PUBLIC_TELEGRAM_BOT_ID!,
+      client_id: process.env.NEXT_PUBLIC_TELEGRAM_CLIENT_ID!,
       redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI!,
       scope: "openid",
       nonce,
