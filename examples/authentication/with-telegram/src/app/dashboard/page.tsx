@@ -565,7 +565,9 @@ export default function Dashboard() {
             </div>
 
             <div className="p-3 rounded border bg-gray-50">
-              <div className="text-xs font-medium text-gray-700">Sub-org ID</div>
+              <div className="text-xs font-medium text-gray-700">
+                Sub-org ID
+              </div>
               <div className="text-xs font-mono break-all text-gray-800">
                 {session?.organizationId ?? "—"}
               </div>

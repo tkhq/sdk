@@ -46,15 +46,15 @@ Note: your API private key should be securely managed and **_never_** committed 
 cp .env.local.example .env.local
 ```
 
-| Variable                      | Description                                           |
-| ----------------------------- | ----------------------------------------------------- |
-| `API_PUBLIC_KEY`              | Turnkey root API key public key                       |
-| `API_PRIVATE_KEY`             | Turnkey root API key private key                      |
-| `NEXT_PUBLIC_ORGANIZATION_ID` | Your Turnkey organization ID                          |
-| `NEXT_PUBLIC_BASE_URL`        | Turnkey API base URL                                  |
-| `NEXT_PUBLIC_TELEGRAM_CLIENT_ID` | Telegram OAuth 2.0 Client ID (from @BotFather)        |
-| `TELEGRAM_CLIENT_SECRET`         | Telegram OAuth 2.0 Client Secret (from @BotFather)    |
-| `NEXT_PUBLIC_REDIRECT_URI`    | Callback URL (e.g. `http://localhost:3000/callback`)  |
+| Variable                         | Description                                          |
+| -------------------------------- | ---------------------------------------------------- |
+| `API_PUBLIC_KEY`                 | Turnkey root API key public key                      |
+| `API_PRIVATE_KEY`                | Turnkey root API key private key                     |
+| `NEXT_PUBLIC_ORGANIZATION_ID`    | Your Turnkey organization ID                         |
+| `NEXT_PUBLIC_BASE_URL`           | Turnkey API base URL                                 |
+| `NEXT_PUBLIC_TELEGRAM_CLIENT_ID` | Telegram OAuth 2.0 Client ID (from @BotFather)       |
+| `TELEGRAM_CLIENT_SECRET`         | Telegram OAuth 2.0 Client Secret (from @BotFather)   |
+| `NEXT_PUBLIC_REDIRECT_URI`       | Callback URL (e.g. `http://localhost:3000/callback`) |
 
 ### 4. Configure your bot in @BotFather
 
