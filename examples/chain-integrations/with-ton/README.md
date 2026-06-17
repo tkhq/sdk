@@ -54,7 +54,7 @@ You should see output similar to the following:
 ```
 ? Recipient address: (<recipient_ton_address>)
 
-Sending 0.015 TON to <recipient_ton_address>
+Sending 0.015 GRAM to <recipient_ton_address>
 
 Transaction sent successfully
 ```
