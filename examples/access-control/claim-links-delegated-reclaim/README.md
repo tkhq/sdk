@@ -16,7 +16,7 @@ Sender signs in and funds a claim link. The escrow is funded server-side via a s
 
 <p align="center"><img src="screenshots/claim-link-ready-countdown.png" width="600" /></p>
 
-The claim URL is shown alongside a countdown. TTL is set to 30s here to showcase the automated reclaim - in production this would be hours or days. When it expires, the sweep key policy returns funds to the sender automatically. In production a cron job replaces the local `setTimeout`.
+The claim URL is shown alongside a countdown. TTL is set to 60s here to showcase the automated reclaim - in production this would be hours or days. When it expires, the sweep key policy returns funds to the sender automatically. In production a cron job replaces the local `setTimeout`.
 
 ---
 
@@ -57,7 +57,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/claim-links-delegated-reclaim/
+$ cd examples/access-control/claim-links-delegated-reclaim/
 ```
 
 ### 2/ Setting up Turnkey

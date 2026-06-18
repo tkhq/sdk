@@ -6,7 +6,7 @@ import { createClaimLink } from "@/server/actions/createClaimLink";
 import { fundEscrow } from "@/server/actions/fundEscrow";
 import { getClaim } from "@/server/actions/getClaim";
 
-const TTL_SECONDS = 30;
+const TTL_SECONDS = 60;
 const USDC_CONTRACT = process.env.NEXT_PUBLIC_USDC_CONTRACT!;
 
 export function SendForm() {

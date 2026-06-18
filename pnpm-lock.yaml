@@ -154,6 +154,61 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  examples/access-control/claim-links-delegated-reclaim:
+    dependencies:
+      '@t3-oss/env-nextjs':
+        specifier: 0.11.1
+        version: 0.11.1(typescript@5.6.3)(zod@3.23.8)
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../../packages/react-wallet-kit
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      next:
+        specifier: 15.5.18
+        version: 15.5.18(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      qrcode:
+        specifier: 1.5.4
+        version: 1.5.4
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      viem:
+        specifier: 2.31.7
+        version: 2.31.7(bufferutil@4.0.9)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@types/node':
+        specifier: 20.17.6
+        version: 20.17.6
+      '@types/qrcode':
+        specifier: 1.5.5
+        version: 1.5.5
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.3.1
+        version: 18.3.1
+      eslint:
+        specifier: 9.14.0
+        version: 9.14.0(jiti@2.5.1)
+      eslint-config-next:
+        specifier: 15.0.3
+        version: 15.0.3(eslint@9.14.0(jiti@2.5.1))(typescript@5.6.3)
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+
   examples/access-control/with-agent-wallet:
     dependencies:
       '@tailwindcss/postcss':
@@ -2114,61 +2169,6 @@ importers:
       typescript:
         specifier: 5.4.3
         version: 5.4.3
-
-  examples/claim-links-delegated-reclaim:
-    dependencies:
-      '@t3-oss/env-nextjs':
-        specifier: 0.11.1
-        version: 0.11.1(typescript@5.6.3)(zod@3.23.8)
-      '@turnkey/crypto':
-        specifier: workspace:*
-        version: link:../../packages/crypto
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../packages/react-wallet-kit
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../packages/sdk-server
-      next:
-        specifier: 15.5.18
-        version: 15.5.18(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      qrcode:
-        specifier: 1.5.4
-        version: 1.5.4
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      viem:
-        specifier: 2.31.7
-        version: 2.31.7(bufferutil@4.0.9)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
-      zod:
-        specifier: 3.23.8
-        version: 3.23.8
-    devDependencies:
-      '@types/node':
-        specifier: 20.17.6
-        version: 20.17.6
-      '@types/qrcode':
-        specifier: 1.5.5
-        version: 1.5.5
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.3.1
-        version: 18.3.1
-      eslint:
-        specifier: 9.14.0
-        version: 9.14.0(jiti@2.5.1)
-      eslint-config-next:
-        specifier: 15.0.3
-        version: 15.0.3(eslint@9.14.0(jiti@2.5.1))(typescript@5.6.3)
-      typescript:
-        specifier: 5.6.3
-        version: 5.6.3
 
   examples/defi/eth-usdc-swap:
     dependencies:
@@ -28041,7 +28041,7 @@ snapshots:
       dataloader: 2.2.3
       symbol.inspect: 1.0.1
       teslabot: 1.5.0
-      zod: 3.25.76
+      zod: 3.23.8
     transitivePeerDependencies:
       - debug
 
@@ -28623,7 +28623,7 @@ snapshots:
 
   '@types/prompts@2.4.2':
     dependencies:
-      '@types/node': 20.3.1
+      '@types/node': 20.17.6
       kleur: 3.0.3
 
   '@types/prompts@2.4.9':
