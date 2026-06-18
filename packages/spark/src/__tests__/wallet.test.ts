@@ -784,8 +784,3 @@ const createBailOnUnexpectedTransferError =
       }
     }
   };
-
-// Print out a warning / github annotation if the tests are disabled
-if (DISABLE_SPARK_E2E_TESTS) {
-  warn("Spark E2E tests are disabled");
-}
