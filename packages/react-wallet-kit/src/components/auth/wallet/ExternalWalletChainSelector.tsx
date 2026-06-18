@@ -27,13 +27,18 @@ export function ExternalWalletChainSelector(
 
   const [loadingProvider, setLoadingProvider] = useState<WalletProvider>();
 
-  // we find matching providers in current state
+  // we find matching providers in current state, matching by wallet identity
+  // (rdns preferred, name as fallback) in addition to interfaceType + namespace
+  // to avoid picking a different wallet that happens to support the same chain
   const currentProviders = providers
     .map((inputProvider) =>
       walletProviders.find(
         (p) =>
           p.interfaceType === inputProvider.interfaceType &&
-          p.chainInfo.namespace === inputProvider.chainInfo.namespace,
+          p.chainInfo.namespace === inputProvider.chainInfo.namespace &&
+          (p.info.rdns && inputProvider.info.rdns
+            ? p.info.rdns === inputProvider.info.rdns
+            : p.info.name === inputProvider.info.name),
       ),
     )
     .filter((p): p is WalletProvider => p !== undefined);
