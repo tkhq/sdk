@@ -1,5 +1,11 @@
 # @turnkey/spark
 
+## 0.3.0
+
+### Minor Changes
+
+- [#1398](https://github.com/tkhq/sdk/pull/1398) [`3f969f2`](https://github.com/tkhq/sdk/commit/3f969f2b5f55b5934d1e182af04b1f5a47680042) Author [@janjakubnanista](https://github.com/janjakubnanista) - Add support for lightning invoices
+
 ## 0.2.0
 
 ### Minor Changes
