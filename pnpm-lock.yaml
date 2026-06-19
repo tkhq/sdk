@@ -36074,7 +36074,7 @@ snapshots:
       stacktrace-parser: 0.1.11
       tinyglobby: 0.2.15
       tsort: 0.0.1
-      undici: 7.24.4
+      undici: 8.5.0
       uuid: 8.3.2
       ws: 8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     optionalDependencies:
