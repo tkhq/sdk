@@ -85,6 +85,18 @@ pnpm dev
 
 Open the ngrok URL (not localhost) in your browser.
 
+## Dashboard
+
+Once logged in, the dashboard is split into two main panels:
+
+**Left side — actions:**
+
+- **Sign Message** — sign an arbitrary message with any EVM or Solana account (`signRawPayload`). Automatically selects `HASH_FUNCTION_SHA256` for secp256k1 (EVM) keys and `HASH_FUNCTION_NOT_APPLICABLE` for Ed25519 (Solana) keys.
+- **Send ETH** — submit a Gas Station–sponsored Ethereum transfer on Sepolia or Mainnet via `ethSendTransaction`, then poll for the tx hash with `pollTransactionStatus`. Fetches the updated ETH balance afterwards via `getWalletAddressBalances`. See [Transaction Management](https://docs.turnkey.com/features/transaction-management).
+- **Send SOL** — submit a Gas Station–sponsored Solana transfer on Devnet or Mainnet via `solSendTransaction`, then poll for the transaction signature with `pollTransactionStatus`. Fetches the updated SOL balance afterwards via `getWalletAddressBalances`. See [Transaction Management](https://docs.turnkey.com/features/transaction-management).
+
+**Right side** — displays the raw embedded wallet data and the sub-organization ID.
+
 ## Notes
 
 - The root user's `userName` is set to the user's Telegram @handle (`preferred_username` claim), falling back to their display name, then `tg-<sub>`. See [available scopes](https://core.telegram.org/bots/telegram-login#available-scopes) for the full list of OIDC claims Telegram exposes.
