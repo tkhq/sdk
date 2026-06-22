@@ -24,7 +24,7 @@ The first step is to set up your Turnkey organization and account. By following 
 - A public/private API key pair for Turnkey
 - An organization ID
 
-Once you've gathered these values, add them to a new `.env` file for future reference. See [./.env.example](./.env.example) for a template. Notice that your private key should be securely managed and **_never_** be committed to git.
+Once you've gathered these values, add them to a new `.env.local` file. See [./.env.example](./.env.example) for a template. Notice that your private key should be securely managed and **_never_** be committed to git.
 
 ### 3/ Setting up a local Canton network
 
@@ -34,7 +34,8 @@ The example runs against a local Canton network created using `dpm sandbox`. The
 # Either
 pnpm sandbox
 
-# Or directly docker compose up sandbox
+# Or directly
+docker compose up sandbox
 ```
 
 ### 3/ Running the tests
@@ -51,3 +52,15 @@ The test will:
 - Prepare & execute a `Create` command on the example contract, showcasing both `v2` and `v3` transactions
 
 The test also uses TypeScript code for encoding & hashing the prepared transactions, based on [Canton documentation](https://docs.digitalasset.com/build/3.5/explanations/external-signing/external_signing_hashing_algorithm.html). At the moment, we don't provide this code in an NPM package that you can conveniently install.
+
+### 4/ Running the tests against a live node
+
+You can point the tests to a live Canton Ledger API using the `CANTON_LEDGER_API_URL` environment variable.
+
+```sh
+# Either run the test command with the variable defined
+CANTON_LEDGER_API_URL=http://my-node pnpm test
+
+# Or add the variable to your .env
+CANTON_LEDGER_API_URL=http://my-node
+```

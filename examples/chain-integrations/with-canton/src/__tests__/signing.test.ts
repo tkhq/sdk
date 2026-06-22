@@ -16,7 +16,7 @@ import { fromBinary } from "@bufbuild/protobuf";
 import { hashPreparedTransactionV2 } from "@/hashing/v2";
 import { hashPreparedTransactionV3 } from "@/hashing/v3";
 
-const API_URL = process.env.DPK_SANDBOX_API_URL || "http://localhost:6864";
+const API_URL = process.env.CANTON_LEDGER_API_URL || "http://localhost:6864";
 
 const ALICE_WALLET_NAME = "Canton E2E Wallet - Alice";
 
@@ -31,15 +31,18 @@ describe("Signing", () => {
 
   beforeAll(async () => {
     assert(
-      typeof process.env.API_PRIVATE_KEY === "string",
+      typeof process.env.API_PRIVATE_KEY === "string" &&
+        !!process.env.API_PRIVATE_KEY,
       "Missing required env var: API_PRIVATE_KEY",
     );
     assert(
-      typeof process.env.API_PUBLIC_KEY === "string",
+      typeof process.env.API_PUBLIC_KEY === "string" &&
+        !!process.env.API_PUBLIC_KEY,
       "Missing required env var: API_PUBLIC_KEY",
     );
     assert(
-      typeof process.env.ORGANIZATION_ID === "string",
+      typeof process.env.ORGANIZATION_ID === "string" &&
+        !!process.env.ORGANIZATION_ID,
       "Missing required env var: ORGANIZATION_ID",
     );
 

@@ -14,6 +14,6 @@
       "@generated/*": ["./src/__generated__/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "jest.setup.ts", "jest.config.ts"],
   "exclude": ["dist", "node_modules", "src/__generated__/daml"]
 }

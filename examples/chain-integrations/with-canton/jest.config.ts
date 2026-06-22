@@ -1,5 +1,6 @@
-/** @type {import("@jest/types").Config.InitialOptions} */
-const config = {
+import type { Config } from "@jest/types";
+
+export default {
   transform: {
     "\\.[jt]sx?$": "@turnkey/jest-config/transformer.js",
   },
@@ -8,6 +9,5 @@ const config = {
     "^@/(.*)$": "<rootDir>/src/$1",
     "^@generated/(.*)$": "<rootDir>/src/__generated__/$1",
   },
-};
-
-module.exports = config;
+  setupFilesAfterEnv: ["dotenv/config"],
+} satisfies Config.InitialOptions;
