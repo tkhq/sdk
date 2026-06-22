@@ -103,7 +103,7 @@ Open [http://localhost:3000](http://localhost:3000).
 Generate `ENCRYPTION_KEY`:
 
 ```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+pnpm generate-encryption-key
 ```
 
 ## Note on funding
