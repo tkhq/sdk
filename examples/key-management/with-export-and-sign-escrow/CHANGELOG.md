@@ -1,5 +1,12 @@
 # with-export-and-sign-escrow
 
+## 0.1.9
+
+### Patch Changes
+
+- Updated dependencies [[`14710ee`](https://github.com/tkhq/sdk/commit/14710ee1e281424fa4c2702df84c84741162dd6e)]:
+  - @turnkey/react-wallet-kit@2.1.1
+
 ## 0.1.8
 
 ### Patch Changes

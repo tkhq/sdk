@@ -1,5 +1,11 @@
 # @turnkey/react-wallet-kit
 
+## 2.1.1
+
+### Patch Changes
+
+- [#1414](https://github.com/tkhq/sdk/pull/1414) [`14710ee`](https://github.com/tkhq/sdk/commit/14710ee1e281424fa4c2702df84c84741162dd6e) Thanks [@t-vila](https://github.com/t-vila)! - Fix chain selector picking wrong wallet when multiple EVM wallets are installed. The provider lookup now matches by wallet identity (rdns preferred, name as fallback) in addition to interface type and chain namespace.
+
 ## 2.1.0
 
 ### Minor Changes
