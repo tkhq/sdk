@@ -1,0 +1,13 @@
+.daml
+log
+
+# We ignore everything in __generated__ since by default
+src/__generated__/*
+
+# We cannot ignore the DAML bindings since the generated code is a bunch
+# of NPM packages that import each other.
+!src/__generated__/daml
+
+# For now I'll keep these unignored, the protos need to be fetched from a github release
+# and the types need to be generated using buf generate
+!src/__generated__/proto

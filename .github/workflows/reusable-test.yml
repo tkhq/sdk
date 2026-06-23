@@ -37,6 +37,20 @@ jobs:
           --health-retries 5
         ports:
           - 8545:8545
+      dpm:
+        # See https://github.com/tkhq/dpm/
+        #
+        # Containerized dpm (DAML package manager) for working with Canton
+        image: ghcr.io/tkhq/dpm:3.5.1@sha256:8921180f13e89a3e667daeb10cc49dba7d802c3c6dc35e01411d46651f12e82c
+        # There is no prettier way to configure the dpm sandbox to listen on 0.0.0.0
+        command: sandbox -C canton.participants.sandbox.ledger-api.address=0.0.0.0 -C canton.participants.sandbox.http-ledger-api.address=0.0.0.0
+        options: --health-cmd "curl -f http://localhost:6864/livez"
+          --health-interval 3s
+          --health-timeout 10s
+          --health-retries 5
+        ports:
+          - 6864:6864
+          - 6865:6865
     steps:
       # https://github.com/actions/checkout
       - name: Checkout

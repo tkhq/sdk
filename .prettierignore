@@ -110,6 +110,9 @@ dist
 lib/
 examples/advanced/foundry/lib/
 
+# Canton example
+examples/chain-integrations/with-canton/src/__generated__/
+
 # pnpm store
 .pnpm-store/
 
