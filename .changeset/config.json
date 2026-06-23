@@ -9,8 +9,16 @@
   "bumpVersionsWithWorkspaceProtocolOnly": true,
   "ignore": [
     "@turnkey/jest-config",
+    "@turnkey/*-usdc-swap",
     "@turnkey/example-*",
+    "@turnkey/import-export-with-*",
     "@turnkey/kitchen-sink",
-    "@turnkey/with-*"
+    "@turnkey/otp-auth-*",
+    "@turnkey/paymaster-usdc-transfer",
+    "@turnkey/react-wallet-kit-playground",
+    "@turnkey/wallet-auth-*",
+    "@turnkey/with-*",
+    "magic-link-auth",
+    "with-*"
   ]
 }

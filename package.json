@@ -4,7 +4,9 @@
   "description": "Public monorepo for Turnkey SDK & API",
   "scripts": {
     "changeset": "changeset",
-    "version": "pnpm run --r --filter \"./packages/**\" version",
+    "check:example-changeset-ignore": "node scripts/check-example-changeset-ignore.mjs",
+    "version": "pnpm run check:example-changeset-ignore && pnpm run version:packages",
+    "version:packages": "pnpm run --r --filter \"./packages/**\" version",
     "build-all": "pnpm run --r --filter \"./packages/**\" build",
     "build:watch": "tsc --build tsconfig.mono.json --watch",
     "build": "turbo build",
@@ -19,7 +21,7 @@
     "typecheck-all": "pnpm run -r typecheck",
     "typecheck": "turbo typecheck",
     "codegen-all": "pnpm run -r codegen",
-    "prepare-release": "pnpm changeset version && pnpm run version"
+    "prepare-release": "pnpm run check:example-changeset-ignore && pnpm changeset version && pnpm run version:packages"
   },
   "license": "Apache-2.0",
   "engines": {
