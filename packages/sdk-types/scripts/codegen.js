@@ -114,6 +114,11 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1VerifyOtpIntentV2",
     "v1VerifyOtpResultV2",
   ],
+  ACTIVITY_TYPE_ETH_SEND_TRANSACTION: [
+    "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
+    "v1EthSendTransactionIntent",
+    "v1EthSendTransactionResult",
+  ],
 };
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
