@@ -1,0 +1,32 @@
+{
+  "name": "@turnkey/example-with-telegram",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@noble/hashes": "1.4.0",
+    "@solana/web3.js": "1.95.8",
+    "@turnkey/react-wallet-kit": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "next": "15.5.18",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "viem": "2.23.2",
+    "@tailwindcss/postcss": "4.1.13",
+    "tailwindcss": "4.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "20.3.1",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "eslint": "8.56.0",
+    "eslint-config-next": "15.5.18",
+    "typescript": "5.4.3"
+  }
+}
