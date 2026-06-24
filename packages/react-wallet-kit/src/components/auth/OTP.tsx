@@ -55,6 +55,9 @@ export function OtpVerification(props: OtpVerificationProps) {
     setTimeout(() => setShaking(false), 250);
   };
 
+  // No captchaToken needed here: the backend skips captcha for email/phone
+  // signups that include a verificationToken (which completeOtp obtains from
+  // verifyOtp). The user already passed captcha during initOtp.
   const handleContinue = async (otpCode: string) => {
     try {
       setSubmitting(true);
@@ -68,7 +71,6 @@ export function OtpVerification(props: OtpVerificationProps) {
           contact,
           otpType,
           ...(sessionKey && { sessionKey }),
-          ...(await consumeToken()),
         });
         closeModal();
       }
