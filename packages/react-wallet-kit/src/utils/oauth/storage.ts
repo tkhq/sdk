@@ -3,6 +3,11 @@ import {
   TurnkeyErrorCodes,
   OAuthProviders,
 } from "@turnkey/sdk-types";
+import {
+  encryptAndStore,
+  retrieveAndDecrypt,
+  removeStoredValue,
+} from "../crypto";
 
 export const OAUTH_INTENT_ADD_PROVIDER = "addProvider";
 export const OAUTH_ADD_PROVIDER_METADATA_KEY = "oauth_add_provider_metadata";
@@ -25,15 +30,20 @@ export type PKCEProvider =
 // might leave the current browsing context during the OAuth flow. We ran into this
 // with X OAuth on Android where if the user has the X app installed, oauth would
 // open the native app and when they come back to the browser, sessionStorage is gone
+//
+// All values are encrypted at rest using AES-GCM with a non-extractable CryptoKey
+// stored in IndexedDB (Cure53 audit finding TUR-02-004). If Web Crypto API or
+// IndexedDB is unavailable, storage falls back to plaintext localStorage so the
+// auth flow is never broken.
 
 /**
- * Stores OAuth add provider metadata in local storage
+ * Stores OAuth add provider metadata in local storage (encrypted at rest)
  * Used for addOauthProvider flow if opening in-page
  */
-export function storeOAuthAddProviderMetadata(
+export async function storeOAuthAddProviderMetadata(
   metadata: OAuthAddProviderMetadata,
-): void {
-  localStorage.setItem(
+): Promise<void> {
+  await encryptAndStore(
     OAUTH_ADD_PROVIDER_METADATA_KEY,
     JSON.stringify(metadata),
   );
@@ -42,8 +52,8 @@ export function storeOAuthAddProviderMetadata(
 /**
  * Retrieves OAuth add provider metadata from local storage
  */
-export function getOAuthAddProviderMetadata(): OAuthAddProviderMetadata | null {
-  const stored = localStorage.getItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
+export async function getOAuthAddProviderMetadata(): Promise<OAuthAddProviderMetadata | null> {
+  const stored = await retrieveAndDecrypt(OAUTH_ADD_PROVIDER_METADATA_KEY);
   if (!stored) return null;
   try {
     return JSON.parse(stored) as OAuthAddProviderMetadata;
@@ -65,29 +75,29 @@ export function getPKCEVerifierKey(provider: PKCEProvider): string {
  * @returns The verifier string
  * @throws TurnkeyError if verifier is not found
  */
-export function consumePKCEVerifier(provider: PKCEProvider): string {
+export async function consumePKCEVerifier(provider: PKCEProvider): Promise<string> {
   const key = getPKCEVerifierKey(provider);
-  const verifier = localStorage.getItem(key);
+  const verifier = await retrieveAndDecrypt(key);
   if (!verifier) {
     throw new TurnkeyError(
       `Missing PKCE verifier for ${provider} authentication`,
       TurnkeyErrorCodes.NO_PKCE_VERIFIER_FOUND,
     );
   }
-  localStorage.removeItem(key);
+  removeStoredValue(key);
   return verifier;
 }
 
 /**
- * Stores the PKCE verifier in local storage
+ * Stores the PKCE verifier in local storage (encrypted at rest)
  * @param provider - The OAuth provider
  * @param verifier - The verifier string to store
  */
-export function storePKCEVerifier(
+export async function storePKCEVerifier(
   provider: PKCEProvider,
   verifier: string,
-): void {
-  localStorage.setItem(getPKCEVerifierKey(provider), verifier);
+): Promise<void> {
+  await encryptAndStore(getPKCEVerifierKey(provider), verifier);
 }
 
 /**
@@ -95,25 +105,26 @@ export function storePKCEVerifier(
  * @param provider - The OAuth provider
  * @returns true if verifier exists
  */
-export function hasPKCEVerifier(provider: PKCEProvider): boolean {
-  return localStorage.getItem(getPKCEVerifierKey(provider)) !== null;
+export async function hasPKCEVerifier(provider: PKCEProvider): Promise<boolean> {
+  const value = await retrieveAndDecrypt(getPKCEVerifierKey(provider));
+  return value !== null;
 }
 
 /**
- * Stores the OAuth state string in local storage for later validation
+ * Stores the OAuth state string in local storage (encrypted at rest) for later validation
  * @param state - The OAuth state string to store
  */
-export function storeOAuthState(state: string) {
-  localStorage.setItem(OAUTH_STATE_KEY, state);
+export async function storeOAuthState(state: string): Promise<void> {
+  await encryptAndStore(OAUTH_STATE_KEY, state);
 }
 
 /**
  * Consumes the OAuth state string from local storage for validation
  * @param returnedState - The OAuth state string returned from the provider
  */
-export function consumeOAuthState(returnedState: string) {
+export async function consumeOAuthState(returnedState: string): Promise<void> {
   try {
-    const stored = localStorage.getItem(OAUTH_STATE_KEY);
+    const stored = await retrieveAndDecrypt(OAUTH_STATE_KEY);
 
     if (!stored) {
       throw new TurnkeyError(
@@ -129,7 +140,7 @@ export function consumeOAuthState(returnedState: string) {
       );
     }
   } finally {
-    localStorage.removeItem(OAUTH_STATE_KEY);
+    removeStoredValue(OAUTH_STATE_KEY);
   }
 }
 
@@ -137,14 +148,14 @@ export function consumeOAuthState(returnedState: string) {
  * Clears all OAuth-related data from local storage
  */
 export function clearAllOAuthData(): void {
-  localStorage.removeItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
-  localStorage.removeItem(OAUTH_STATE_KEY);
+  removeStoredValue(OAUTH_ADD_PROVIDER_METADATA_KEY);
+  removeStoredValue(OAUTH_STATE_KEY);
   const pkceProviders: PKCEProvider[] = [
     OAuthProviders.FACEBOOK,
     OAuthProviders.DISCORD,
     OAuthProviders.X,
   ];
   for (const provider of pkceProviders) {
-    localStorage.removeItem(getPKCEVerifierKey(provider));
+    removeStoredValue(getPKCEVerifierKey(provider));
   }
 }

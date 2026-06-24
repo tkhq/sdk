@@ -145,10 +145,10 @@ export interface OAuthResponseResult {
  * @param expectedProvider - Optional provider if already known (for popup flows)
  * @returns Parsed OAuth response data including tokens, codes, and state parameters, or null if invalid
  */
-export function parseOAuthResponse(
+export async function parseOAuthResponse(
   url: string,
   expectedProvider?: OAuthProviders,
-): OAuthResponseResult | null {
+): Promise<OAuthResponseResult | null> {
   let idToken: string | null | undefined = null;
   let authCode: string | null | undefined = null;
   let stateString: string | null = null;
@@ -192,7 +192,7 @@ export function parseOAuthResponse(
   }
 
   // Validate state parameter
-  consumeOAuthState(stateString);
+  await consumeOAuthState(stateString);
 
   // Parse state parameters
   const {
@@ -252,7 +252,7 @@ export interface BuildOAuthUrlParams {
 /**
  * Builds the complete OAuth authorization URL for a provider
  */
-export function buildOAuthUrl(params: BuildOAuthUrlParams): string {
+export async function buildOAuthUrl(params: BuildOAuthUrlParams): Promise<string> {
   const {
     provider,
     clientId,
@@ -311,7 +311,7 @@ export function buildOAuthUrl(params: BuildOAuthUrlParams): string {
   // Generate state string and store for validation
   const state = buildOAuthState(stateParams);
   authUrl.searchParams.set("state", state);
-  storeOAuthState(state);
+  await storeOAuthState(state);
 
   return authUrl.toString();
 }
