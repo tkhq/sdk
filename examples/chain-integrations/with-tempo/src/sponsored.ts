@@ -62,8 +62,48 @@ async function ensureFunded(
   print(
     "Receipts:",
     receipts
-      .map((r) => `https://explore.testnet.tempo.xyz/receipt/${r.transactionHash}`)
+      .map(
+        (r) => `https://explore.testnet.tempo.xyz/receipt/${r.transactionHash}`,
+      )
       .join("\n\t"),
+  );
+}
+
+// Fetches the sponsored gas budget for the current window via Turnkey's
+// `getGasUsage` query, returning the limit, the amount used and the remainder.
+//
+// Note: on testnet (e.g. Tempo Moderato), the configured limit won't change
+// and usage will always report $0. Usage is denominated in the USD value of
+// fees at broadcast time, and testnet fees are paid in a valueless test token,
+// so there is nothing to meter. The numbers only move on mainnet.
+async function fetchGasUsage(
+  apiClient: ReturnType<TurnkeySDKServer["apiClient"]>,
+) {
+  const { usageUsd, windowLimitUsd, windowDurationMinutes } =
+    await apiClient.getGasUsage({});
+
+  const remainingUsd = Number(windowLimitUsd) - Number(usageUsd);
+
+  return { usageUsd, windowLimitUsd, windowDurationMinutes, remainingUsd };
+}
+
+type GasUsage = Awaited<ReturnType<typeof fetchGasUsage>>;
+
+function printGasRemaining(usage: GasUsage) {
+  print(
+    `Sponsored gas remaining (last ${usage.windowDurationMinutes} min window):`,
+    `$${usage.remainingUsd} (of $${usage.windowLimitUsd} limit)`,
+  );
+}
+
+function printGasUsage(usage: GasUsage) {
+  print(
+    `Sponsored gas usage (last ${usage.windowDurationMinutes} min window):`,
+    [
+      `used      $${usage.usageUsd}`,
+      `limit     $${usage.windowLimitUsd}`,
+      `remaining $${usage.remainingUsd}`,
+    ].join("\n\t"),
   );
 }
 
@@ -108,6 +148,9 @@ async function main() {
   print("Address:", signWith);
   print("Token:", `${name} (${decimals} decimals)`);
   print("Gas sponsorship:", "Turnkey Gas Station (sponsor: true)");
+
+  // Check the remaining sponsored gas budget before spending any of it.
+  printGasRemaining(await fetchGasUsage(apiClient));
 
   const { amount, destination } = await prompts([
     {
@@ -183,6 +226,8 @@ async function main() {
     `Sent ${formatUnits(BigInt(amount), decimals)} ${name} to ${destination} (gas sponsored by Turnkey)!`,
     "https://docs.turnkey.com/features/transaction-management",
   );
+
+  printGasUsage(await fetchGasUsage(apiClient));
 }
 
 main().catch((e) => {
