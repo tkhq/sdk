@@ -62,9 +62,7 @@ async function ensureFunded(
   print(
     "Receipts:",
     receipts
-      .map(
-        (r) => `https://explore.testnet.tempo.xyz/receipt/${r.transactionHash}`,
-      )
+      .map((r) => `https://explore.testnet.tempo.xyz/tx/${r.transactionHash}`)
       .join("\n\t"),
   );
 }
@@ -221,7 +219,7 @@ async function main() {
     );
   }
 
-  print("Receipt:", `https://explore.testnet.tempo.xyz/receipt/${txHash}`);
+  print("Receipt:", `https://explore.testnet.tempo.xyz/tx/${txHash}`);
   print(
     `Sent ${formatUnits(BigInt(amount), decimals)} ${name} to ${destination} (gas sponsored by Turnkey)!`,
     "https://docs.turnkey.com/features/transaction-management",

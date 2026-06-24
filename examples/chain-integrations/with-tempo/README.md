@@ -185,7 +185,7 @@ Send transaction status ID:
         f3a2b1c0-1234-5678-abcd-ef0123456789
 
 Receipt:
-        https://explore.testnet.tempo.xyz/receipt/0x71ab0cbbd90b0774be500da229e81596b9402f90fe8cf91ee49002eec77307ec
+        https://explore.testnet.tempo.xyz/tx/0x71ab0cbbd90b0774be500da229e81596b9402f90fe8cf91ee49002eec77307ec
 
 Sent 1 AlphaUSD to 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7 (gas sponsored by Turnkey)!
         https://docs.turnkey.com/features/transaction-management
