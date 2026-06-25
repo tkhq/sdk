@@ -52,6 +52,13 @@ function matchesAnyIgnore(packageName, ignorePatterns) {
   );
 }
 
+function privatePackageVersioningDisabled(changesetConfig) {
+  return (
+    changesetConfig.privatePackages === false ||
+    changesetConfig.privatePackages?.version === false
+  );
+}
+
 function readWorkspacePackages() {
   return JSON.parse(
     execFileSync("pnpm", ["list", "--recursive", "--depth", "-1", "--json"], {
@@ -67,7 +74,9 @@ function readWorkspacePackages() {
       name: workspacePackage.name,
       private: workspacePackage.private,
       relativeDir,
-      packageJsonPath: `${relativeDir}/package.json`,
+      packageJsonPath: relativeDir
+        ? `${relativeDir}/package.json`
+        : "package.json",
     };
   });
 }
@@ -97,9 +106,11 @@ const examplePackages = workspacePackages.filter(({ relativeDir }) => {
   );
 });
 
-const packagesMissingIgnore = examplePackages.filter(({ name }) => {
-  return typeof name !== "string" || !matchesAnyIgnore(name, ignorePatterns);
-});
+const nonPrivateExamplePackages = examplePackages.filter(
+  ({ private: isPrivate }) => {
+    return isPrivate !== true;
+  },
+);
 
 const publishablePackagesMatchingIgnore = workspacePackages.filter(
   ({ name, private: isPrivate, relativeDir }) => {
@@ -114,18 +125,23 @@ const publishablePackagesMatchingIgnore = workspacePackages.filter(
 
 let hasFailure = false;
 
-if (packagesMissingIgnore.length > 0) {
+if (!privatePackageVersioningDisabled(changesetConfig)) {
   hasFailure = true;
   console.error(
-    "The following workspace example packages are not ignored by Changesets:",
+    ".changeset/config.json must set privatePackages.version to false so private workspace examples are not versioned by Changesets.",
   );
-  for (const examplePackage of packagesMissingIgnore) {
+}
+
+if (nonPrivateExamplePackages.length > 0) {
+  hasFailure = true;
+  console.error("The following workspace example packages are not private:");
+  for (const examplePackage of nonPrivateExamplePackages) {
     console.error(
       `- ${examplePackage.name ?? "(missing name)"} (${examplePackage.packageJsonPath})`,
     );
   }
   console.error(
-    "Rename the example package to an ignored convention or add a narrow ignore pattern in .changeset/config.json.",
+    "Set private: true in each example package.json so Changesets skips it.",
   );
 }
 
@@ -166,5 +182,5 @@ if (hasFailure) {
 }
 
 console.log(
-  `Verified ${examplePackages.length} workspace example packages are ignored by Changesets and publishable packages are not ignored.`,
+  `Verified ${examplePackages.length} workspace example packages are private, private package versioning is disabled, and publishable packages are not ignored.`,
 );

@@ -33,8 +33,8 @@ jobs:
       - name: Prettier
         run: pnpm prettier-all:check
 
-      # This catches missed package-version scripts and enforces Changesets ignore
-      # policy before the final generated-code dirty check below.
+      # This catches missed package-version scripts and enforces the example
+      # Changesets skip policy before the final generated-code dirty check below.
       - name: Run version script
         run: pnpm run version
 
