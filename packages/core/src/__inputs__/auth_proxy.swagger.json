@@ -1207,6 +1207,10 @@
         "addressFormat": {
           "$ref": "#/definitions/v1AddressFormat",
           "description": "Address format used to generate a wallet Acccount."
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional human-readable name for the account."
         }
       },
       "required": ["curve", "pathFormat", "path", "addressFormat"]

@@ -21,6 +21,7 @@ import {
 import {
   getAuthProxyConfig,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+  type MfaContext,
   OtpType,
   TurnkeyClient,
   type AddOauthProviderParams,
@@ -203,6 +204,14 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const proxyAuthConfigRef = useRef<ProxyTGetWalletKitConfigResponse | null>(
     null,
   );
+  // Default built-in MFA handler. Used unless the developer overrides via setMfaHandler.
+  const defaultMfaHandler = useCallback(async (_ctx: MfaContext) => {
+    // TODO: implement built-in default MFA handler (show modal UI)
+  }, []);
+
+  // Stores the active MFA handler. Either the developer's custom handler or the default built-in one.
+  const mfaHandlerRef =
+    useRef<(context: MfaContext) => Promise<void>>(defaultMfaHandler);
 
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
@@ -2617,6 +2626,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [masterConfig, refreshWallets],
   );
 
+  const setMfaHandler = useCallback(
+    (handler: ((context: MfaContext) => Promise<void>) | undefined) => {
+      mfaHandlerRef.current = handler ?? defaultMfaHandler;
+    },
+    [defaultMfaHandler],
+  );
+
   const handleDiscordOauth = useCallback(
     async (params?: HandleDiscordOauthParams): Promise<void> => {
       const {
@@ -3601,6 +3617,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setClientState(ClientState.Ready);
     });
 
+    // This will set the onMfaRequired callback on the httpClient config to our custom handler or one that the developer can set via setMfaHandler.
+    client.httpClient.config.onMfaRequired = async (ctx) => {
+      await mfaHandlerRef.current(ctx);
+    };
+
     return () => {
       clearSessionTimeouts();
     };
@@ -3685,6 +3706,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         handleAppleWebOauth,
         handleFacebookOauth,
         fetchBootProofForAppProof,
+        setMfaHandler,
       }}
     >
       {children}

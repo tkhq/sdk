@@ -548,6 +548,8 @@ export class TurnkeyClient {
           await this.overridePasskeyStamper({ config: mergedConfig });
         }
 
+        const sessionProfileId = params?.sessionProfileId;
+
         if (!generatedPublicKey) {
           throw new TurnkeyError(
             "A publickey could not be found or generated.",
@@ -559,6 +561,7 @@ export class TurnkeyClient {
           publicKey: generatedPublicKey,
           organizationId: params?.organizationId ?? this.config.organizationId,
           expirationSeconds,
+          ...(sessionProfileId && { sessionProfileId }),
         };
 
         const passkeyLoginRequest = await this.httpClient.stampStampLogin(
@@ -659,6 +662,7 @@ export class TurnkeyClient {
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       createSubOrgParams,
       sessionKey = SessionKey.DefaultSessionkey,
+      sessionProfileId,
     } = params || {};
 
     const generatedPublicKey = await this.createApiKeyPair();
@@ -728,6 +732,7 @@ export class TurnkeyClient {
           publicKey: newGeneratedKeyPair!,
           organizationId: res.organizationId,
           expirationSeconds,
+          ...(sessionProfileId && { sessionProfileId }),
         });
 
         await this.storeSession({
@@ -956,7 +961,11 @@ export class TurnkeyClient {
   buildWalletLoginRequest = async (
     params: BuildWalletLoginRequestParams,
   ): Promise<BuildWalletLoginRequestResult> => {
-    const { walletProvider, publicKey: providedPublicKey } = params;
+    const {
+      walletProvider,
+      publicKey: providedPublicKey,
+      sessionProfileId,
+    } = params;
     const expirationSeconds =
       params.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
@@ -994,6 +1003,7 @@ export class TurnkeyClient {
                 publicKey: futureSessionPublicKey,
                 organizationId: this.config.organizationId,
                 expirationSeconds,
+                ...(sessionProfileId && { sessionProfileId }),
               },
               StamperType.Wallet,
             );
@@ -4966,6 +4976,7 @@ export class TurnkeyClient {
       publicKey,
       stampWith = this.config.defaultStamperType,
       invalidateExisitng = false,
+      sessionProfileId,
     } = params || {};
     if (!sessionKey) {
       throw new TurnkeyError(
@@ -5005,6 +5016,7 @@ export class TurnkeyClient {
             publicKey: keyPair,
             expirationSeconds,
             invalidateExisting: invalidateExisitng,
+            ...(sessionProfileId && { sessionProfileId }),
           },
           stampWith,
         );
