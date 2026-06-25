@@ -17,7 +17,7 @@ import {
 } from "viem";
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { createNewWallet } from "./turnkey";
-import { print, sleep } from "./util";
+import { print } from "./util";
 
 // @ts-ignore
 const ALPHA_USD = "0x20c0000000000000000000000000000000000001" as const;
@@ -194,29 +194,17 @@ async function main() {
 
   print("Send transaction status ID:", sendTransactionStatusId);
 
-  // Poll until Turnkey reports an on-chain transaction hash (or a failure).
-  let txHash: string | undefined;
-  for (let attempt = 0; attempt < 30; attempt += 1) {
-    const status = await apiClient.getSendTransactionStatus({
-      sendTransactionStatusId,
-    });
+  // Poll until Turnkey reports a terminal state (resolves on success, rejects
+  // on failure).
+  const status = await apiClient.pollTransactionStatus({
+    sendTransactionStatusId,
+    pollingIntervalMs: 1000,
+    timeoutMs: 30_000,
+  });
 
-    if (status.eth?.txHash) {
-      txHash = status.eth.txHash;
-      break;
-    }
-
-    if (status.txStatus === "TX_STATUS_FAILED") {
-      throw new Error(status.txError ?? "Sponsored transaction failed");
-    }
-
-    await sleep(1000);
-  }
-
+  const txHash = status.eth?.txHash;
   if (!txHash) {
-    throw new Error(
-      `Timed out waiting for transaction to be included. Check status ID ${sendTransactionStatusId}.`,
-    );
+    throw new Error(`No tx hash in terminal status ${status.txStatus}`);
   }
 
   print("Receipt:", `https://explore.testnet.tempo.xyz/tx/${txHash}`);
