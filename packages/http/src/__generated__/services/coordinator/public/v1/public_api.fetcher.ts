@@ -388,6 +388,52 @@ export const signGetGasUsage = (
   });
 
 /**
+ * `POST /public/v1/query/get_ip_allowlist`
+ */
+export type TGetIpAllowlistResponse =
+  operations["PublicApiService_GetIpAllowlist"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_ip_allowlist`
+ */
+export type TGetIpAllowlistInput = { body: TGetIpAllowlistBody };
+
+/**
+ * `POST /public/v1/query/get_ip_allowlist`
+ */
+export type TGetIpAllowlistBody =
+  operations["PublicApiService_GetIpAllowlist"]["parameters"]["body"]["body"];
+
+/**
+ * Get IP Allowlist
+ *
+ * Get IP allowlist and rules for an organization.
+ *
+ * `POST /public/v1/query/get_ip_allowlist`
+ */
+export const getIpAllowlist = (input: TGetIpAllowlistInput) =>
+  request<TGetIpAllowlistResponse, TGetIpAllowlistBody, never, never, never>({
+    uri: "/public/v1/query/get_ip_allowlist",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetIpAllowlist` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetIpAllowlist}
+ */
+export const signGetIpAllowlist = (
+  input: TGetIpAllowlistInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetIpAllowlistBody, never, never>({
+    uri: "/public/v1/query/get_ip_allowlist",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_latest_boot_proof`
  */
 export type TGetLatestBootProofResponse =
@@ -1342,6 +1388,118 @@ export const signGetTvcDeployment = (
   });
 
 /**
+ * `POST /public/v1/query/get_tvc_deployment_debug_logs`
+ */
+export type TGetTvcDeploymentDebugLogsResponse =
+  operations["PublicApiService_GetTvcDeploymentDebugLogs"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_tvc_deployment_debug_logs`
+ */
+export type TGetTvcDeploymentDebugLogsInput = {
+  body: TGetTvcDeploymentDebugLogsBody;
+};
+
+/**
+ * `POST /public/v1/query/get_tvc_deployment_debug_logs`
+ */
+export type TGetTvcDeploymentDebugLogsBody =
+  operations["PublicApiService_GetTvcDeploymentDebugLogs"]["parameters"]["body"]["body"];
+
+/**
+ * Get TVC Deployment debug logs
+ *
+ * Get a bounded window of application logs from a debug-mode TVC deployment. Returned lines are collected from every running replica and sorted by platform timestamp.
+ *
+ * `POST /public/v1/query/get_tvc_deployment_debug_logs`
+ */
+export const getTvcDeploymentDebugLogs = (
+  input: TGetTvcDeploymentDebugLogsInput,
+) =>
+  request<
+    TGetTvcDeploymentDebugLogsResponse,
+    TGetTvcDeploymentDebugLogsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_tvc_deployment_debug_logs",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetTvcDeploymentDebugLogs` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetTvcDeploymentDebugLogs}
+ */
+export const signGetTvcDeploymentDebugLogs = (
+  input: TGetTvcDeploymentDebugLogsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetTvcDeploymentDebugLogsBody, never, never>({
+    uri: "/public/v1/query/get_tvc_deployment_debug_logs",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_tvc_deployment_provisioning_details`
+ */
+export type TGetTvcDeploymentProvisioningDetailsResponse =
+  operations["PublicApiService_GetTvcDeploymentProvisioningDetails"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_tvc_deployment_provisioning_details`
+ */
+export type TGetTvcDeploymentProvisioningDetailsInput = {
+  body: TGetTvcDeploymentProvisioningDetailsBody;
+};
+
+/**
+ * `POST /public/v1/query/get_tvc_deployment_provisioning_details`
+ */
+export type TGetTvcDeploymentProvisioningDetailsBody =
+  operations["PublicApiService_GetTvcDeploymentProvisioningDetails"]["parameters"]["body"]["body"];
+
+/**
+ * Get TVC Deployment's Provisioning Details
+ *
+ * Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment
+ *
+ * `POST /public/v1/query/get_tvc_deployment_provisioning_details`
+ */
+export const getTvcDeploymentProvisioningDetails = (
+  input: TGetTvcDeploymentProvisioningDetailsInput,
+) =>
+  request<
+    TGetTvcDeploymentProvisioningDetailsResponse,
+    TGetTvcDeploymentProvisioningDetailsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_tvc_deployment_provisioning_details",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetTvcDeploymentProvisioningDetails` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetTvcDeploymentProvisioningDetails}
+ */
+export const signGetTvcDeploymentProvisioningDetails = (
+  input: TGetTvcDeploymentProvisioningDetailsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetTvcDeploymentProvisioningDetailsBody, never, never>({
+    uri: "/public/v1/query/get_tvc_deployment_provisioning_details",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_user`
  */
 export type TGetUserResponse =
@@ -1507,7 +1665,7 @@ export type TGetWalletAddressBalancesBody =
 /**
  * Get balances
  *
- * Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access.
+ * Get balances of supported assets for an address on the specified network. Only non-zero balances are returned.
  *
  * `POST /public/v1/query/get_wallet_address_balances`
  */
@@ -2007,7 +2165,7 @@ export type TListSupportedAssetsBody =
 /**
  * List supported assets
  *
- * List supported assets for the specified network. This feature is in beta - please contact support for access.
+ * List supported assets for the specified network.
  *
  * `POST /public/v1/query/list_supported_assets`
  */
@@ -2427,6 +2585,58 @@ export const signListWebhookEndpoints = (
 ) =>
   signedRequest<TListWebhookEndpointsBody, never, never>({
     uri: "/public/v1/query/list_webhook_endpoints",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/validate_tvc_image`
+ */
+export type TValidateTvcImageResponse =
+  operations["PublicApiService_ValidateTvcImage"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/validate_tvc_image`
+ */
+export type TValidateTvcImageInput = { body: TValidateTvcImageBody };
+
+/**
+ * `POST /public/v1/query/validate_tvc_image`
+ */
+export type TValidateTvcImageBody =
+  operations["PublicApiService_ValidateTvcImage"]["parameters"]["body"]["body"];
+
+/**
+ * Validate Container Image for TVC
+ *
+ * Validate a container image URL and pull secret for TVC deployment
+ *
+ * `POST /public/v1/query/validate_tvc_image`
+ */
+export const validateTvcImage = (input: TValidateTvcImageInput) =>
+  request<
+    TValidateTvcImageResponse,
+    TValidateTvcImageBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/validate_tvc_image",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ValidateTvcImage` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ValidateTvcImage}
+ */
+export const signValidateTvcImage = (
+  input: TValidateTvcImageInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TValidateTvcImageBody, never, never>({
+    uri: "/public/v1/query/validate_tvc_image",
     body: input.body,
     options,
   });
@@ -4454,6 +4664,114 @@ export const signDeleteSubOrganization = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_tvc_app_and_deployments`
+ */
+export type TDeleteTvcAppAndDeploymentsResponse =
+  operations["PublicApiService_DeleteTvcAppAndDeployments"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_tvc_app_and_deployments`
+ */
+export type TDeleteTvcAppAndDeploymentsInput = {
+  body: TDeleteTvcAppAndDeploymentsBody;
+};
+
+/**
+ * `POST /public/v1/submit/delete_tvc_app_and_deployments`
+ */
+export type TDeleteTvcAppAndDeploymentsBody =
+  operations["PublicApiService_DeleteTvcAppAndDeployments"]["parameters"]["body"]["body"];
+
+/**
+ * Delete a TVC App and all of its deployments
+ *
+ * Delete a TVC App and all of its deployments
+ *
+ * `POST /public/v1/submit/delete_tvc_app_and_deployments`
+ */
+export const deleteTvcAppAndDeployments = (
+  input: TDeleteTvcAppAndDeploymentsInput,
+) =>
+  request<
+    TDeleteTvcAppAndDeploymentsResponse,
+    TDeleteTvcAppAndDeploymentsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_tvc_app_and_deployments",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteTvcAppAndDeployments` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteTvcAppAndDeployments}
+ */
+export const signDeleteTvcAppAndDeployments = (
+  input: TDeleteTvcAppAndDeploymentsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteTvcAppAndDeploymentsBody, never, never>({
+    uri: "/public/v1/submit/delete_tvc_app_and_deployments",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_tvc_deployment`
+ */
+export type TDeleteTvcDeploymentResponse =
+  operations["PublicApiService_DeleteTvcDeployment"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_tvc_deployment`
+ */
+export type TDeleteTvcDeploymentInput = { body: TDeleteTvcDeploymentBody };
+
+/**
+ * `POST /public/v1/submit/delete_tvc_deployment`
+ */
+export type TDeleteTvcDeploymentBody =
+  operations["PublicApiService_DeleteTvcDeployment"]["parameters"]["body"]["body"];
+
+/**
+ * Delete a TVC Deployment
+ *
+ * Delete a TVC Deployment
+ *
+ * `POST /public/v1/submit/delete_tvc_deployment`
+ */
+export const deleteTvcDeployment = (input: TDeleteTvcDeploymentInput) =>
+  request<
+    TDeleteTvcDeploymentResponse,
+    TDeleteTvcDeploymentBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_tvc_deployment",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteTvcDeployment` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteTvcDeployment}
+ */
+export const signDeleteTvcDeployment = (
+  input: TDeleteTvcDeploymentInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteTvcDeploymentBody, never, never>({
+    uri: "/public/v1/submit/delete_tvc_deployment",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/delete_user_tags`
  */
 export type TDeleteUserTagsResponse =
@@ -5624,6 +5942,58 @@ export const signOtpLogin = (
   });
 
 /**
+ * `POST /public/v1/submit/post_tvc_quorum_key_share`
+ */
+export type TPostTvcQuorumKeyShareResponse =
+  operations["PublicApiService_PostTvcQuorumKeyShare"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/post_tvc_quorum_key_share`
+ */
+export type TPostTvcQuorumKeyShareInput = { body: TPostTvcQuorumKeyShareBody };
+
+/**
+ * `POST /public/v1/submit/post_tvc_quorum_key_share`
+ */
+export type TPostTvcQuorumKeyShareBody =
+  operations["PublicApiService_PostTvcQuorumKeyShare"]["parameters"]["body"]["body"];
+
+/**
+ * Post TVC Quorum Key Share
+ *
+ * Post re-encrypted quorum key share for a TVC deployment.
+ *
+ * `POST /public/v1/submit/post_tvc_quorum_key_share`
+ */
+export const postTvcQuorumKeyShare = (input: TPostTvcQuorumKeyShareInput) =>
+  request<
+    TPostTvcQuorumKeyShareResponse,
+    TPostTvcQuorumKeyShareBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/post_tvc_quorum_key_share",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `PostTvcQuorumKeyShare` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link PostTvcQuorumKeyShare}
+ */
+export const signPostTvcQuorumKeyShare = (
+  input: TPostTvcQuorumKeyShareInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TPostTvcQuorumKeyShareBody, never, never>({
+    uri: "/public/v1/submit/post_tvc_quorum_key_share",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/recover_user`
  */
 export type TRecoverUserResponse =
@@ -5716,6 +6086,58 @@ export const signRejectActivity = (
   });
 
 /**
+ * `POST /public/v1/submit/remove_ip_allowlist`
+ */
+export type TRemoveIpAllowlistResponse =
+  operations["PublicApiService_RemoveIpAllowlist"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/remove_ip_allowlist`
+ */
+export type TRemoveIpAllowlistInput = { body: TRemoveIpAllowlistBody };
+
+/**
+ * `POST /public/v1/submit/remove_ip_allowlist`
+ */
+export type TRemoveIpAllowlistBody =
+  operations["PublicApiService_RemoveIpAllowlist"]["parameters"]["body"]["body"];
+
+/**
+ * Remove IP Allowlist
+ *
+ * Delete IP allowlist and all associated rules for organization or API key. After removal, access will be determined by organization-level allowlist (for API keys) or allowed from all IPs (for organizations).
+ *
+ * `POST /public/v1/submit/remove_ip_allowlist`
+ */
+export const removeIpAllowlist = (input: TRemoveIpAllowlistInput) =>
+  request<
+    TRemoveIpAllowlistResponse,
+    TRemoveIpAllowlistBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/remove_ip_allowlist",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `RemoveIpAllowlist` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link RemoveIpAllowlist}
+ */
+export const signRemoveIpAllowlist = (
+  input: TRemoveIpAllowlistInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TRemoveIpAllowlistBody, never, never>({
+    uri: "/public/v1/submit/remove_ip_allowlist",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/remove_organization_feature`
  */
 export type TRemoveOrganizationFeatureResponse =
@@ -5772,6 +6194,104 @@ export const signRemoveOrganizationFeature = (
   });
 
 /**
+ * `POST /public/v1/submit/restore_tvc_deployment`
+ */
+export type TRestoreTvcDeploymentResponse =
+  operations["PublicApiService_RestoreTvcDeployment"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/restore_tvc_deployment`
+ */
+export type TRestoreTvcDeploymentInput = { body: TRestoreTvcDeploymentBody };
+
+/**
+ * `POST /public/v1/submit/restore_tvc_deployment`
+ */
+export type TRestoreTvcDeploymentBody =
+  operations["PublicApiService_RestoreTvcDeployment"]["parameters"]["body"]["body"];
+
+/**
+ * Restore a TVC Deployment
+ *
+ * Restore a deleted TVC Deployment
+ *
+ * `POST /public/v1/submit/restore_tvc_deployment`
+ */
+export const restoreTvcDeployment = (input: TRestoreTvcDeploymentInput) =>
+  request<
+    TRestoreTvcDeploymentResponse,
+    TRestoreTvcDeploymentBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/restore_tvc_deployment",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `RestoreTvcDeployment` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link RestoreTvcDeployment}
+ */
+export const signRestoreTvcDeployment = (
+  input: TRestoreTvcDeploymentInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TRestoreTvcDeploymentBody, never, never>({
+    uri: "/public/v1/submit/restore_tvc_deployment",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/set_ip_allowlist`
+ */
+export type TSetIpAllowlistResponse =
+  operations["PublicApiService_SetIpAllowlist"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/set_ip_allowlist`
+ */
+export type TSetIpAllowlistInput = { body: TSetIpAllowlistBody };
+
+/**
+ * `POST /public/v1/submit/set_ip_allowlist`
+ */
+export type TSetIpAllowlistBody =
+  operations["PublicApiService_SetIpAllowlist"]["parameters"]["body"]["body"];
+
+/**
+ * Set IP Allowlist
+ *
+ * Create or update IP allowlist and rules for organization or API key. The IP allowlist restricts API access to specific CIDR blocks. Organization-level allowlists apply to all API keys unless overridden by a key-specific allowlist.
+ *
+ * `POST /public/v1/submit/set_ip_allowlist`
+ */
+export const setIpAllowlist = (input: TSetIpAllowlistInput) =>
+  request<TSetIpAllowlistResponse, TSetIpAllowlistBody, never, never, never>({
+    uri: "/public/v1/submit/set_ip_allowlist",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `SetIpAllowlist` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link SetIpAllowlist}
+ */
+export const signSetIpAllowlist = (
+  input: TSetIpAllowlistInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TSetIpAllowlistBody, never, never>({
+    uri: "/public/v1/submit/set_ip_allowlist",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/set_organization_feature`
  */
 export type TSetOrganizationFeatureResponse =
@@ -5821,6 +6341,62 @@ export const signSetOrganizationFeature = (
 ) =>
   signedRequest<TSetOrganizationFeatureBody, never, never>({
     uri: "/public/v1/submit/set_organization_feature",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/set_tvc_app_live_deployment`
+ */
+export type TUpdateTvcAppLiveDeploymentResponse =
+  operations["PublicApiService_UpdateTvcAppLiveDeployment"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/set_tvc_app_live_deployment`
+ */
+export type TUpdateTvcAppLiveDeploymentInput = {
+  body: TUpdateTvcAppLiveDeploymentBody;
+};
+
+/**
+ * `POST /public/v1/submit/set_tvc_app_live_deployment`
+ */
+export type TUpdateTvcAppLiveDeploymentBody =
+  operations["PublicApiService_UpdateTvcAppLiveDeployment"]["parameters"]["body"]["body"];
+
+/**
+ * Set TVC App live deployment
+ *
+ * Set the live deployment for a TVC App
+ *
+ * `POST /public/v1/submit/set_tvc_app_live_deployment`
+ */
+export const updateTvcAppLiveDeployment = (
+  input: TUpdateTvcAppLiveDeploymentInput,
+) =>
+  request<
+    TUpdateTvcAppLiveDeploymentResponse,
+    TUpdateTvcAppLiveDeploymentBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/set_tvc_app_live_deployment",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateTvcAppLiveDeployment` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateTvcAppLiveDeployment}
+ */
+export const signUpdateTvcAppLiveDeployment = (
+  input: TUpdateTvcAppLiveDeploymentInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateTvcAppLiveDeploymentBody, never, never>({
+    uri: "/public/v1/submit/set_tvc_app_live_deployment",
     body: input.body,
     options,
   });
@@ -6011,6 +6587,212 @@ export const signSolSendTransaction = (
 ) =>
   signedRequest<TSolSendTransactionBody, never, never>({
     uri: "/public/v1/submit/sol_send_transaction",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/spark_claim_transfer`
+ */
+export type TSparkClaimTransferResponse =
+  operations["PublicApiService_SparkClaimTransfer"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/spark_claim_transfer`
+ */
+export type TSparkClaimTransferInput = { body: TSparkClaimTransferBody };
+
+/**
+ * `POST /public/v1/submit/spark_claim_transfer`
+ */
+export type TSparkClaimTransferBody =
+  operations["PublicApiService_SparkClaimTransfer"]["parameters"]["body"]["body"];
+
+/**
+ * Claim Spark transfer
+ *
+ * Construct receiver-side encrypted operator packages to claim a Spark transfer. Does not perform FROST signing.
+ *
+ * `POST /public/v1/submit/spark_claim_transfer`
+ */
+export const sparkClaimTransfer = (input: TSparkClaimTransferInput) =>
+  request<
+    TSparkClaimTransferResponse,
+    TSparkClaimTransferBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/spark_claim_transfer",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `SparkClaimTransfer` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link SparkClaimTransfer}
+ */
+export const signSparkClaimTransfer = (
+  input: TSparkClaimTransferInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TSparkClaimTransferBody, never, never>({
+    uri: "/public/v1/submit/spark_claim_transfer",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/spark_prepare_lightning_receive`
+ */
+export type TSparkPrepareLightningReceiveResponse =
+  operations["PublicApiService_SparkPrepareLightningReceive"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/spark_prepare_lightning_receive`
+ */
+export type TSparkPrepareLightningReceiveInput = {
+  body: TSparkPrepareLightningReceiveBody;
+};
+
+/**
+ * `POST /public/v1/submit/spark_prepare_lightning_receive`
+ */
+export type TSparkPrepareLightningReceiveBody =
+  operations["PublicApiService_SparkPrepareLightningReceive"]["parameters"]["body"]["body"];
+
+/**
+ * Spark prepare Lightning receive
+ *
+ * Generate a Lightning preimage and distribute Feldman shares to operators for a Spark Lightning receive. Does not perform FROST signing.
+ *
+ * `POST /public/v1/submit/spark_prepare_lightning_receive`
+ */
+export const sparkPrepareLightningReceive = (
+  input: TSparkPrepareLightningReceiveInput,
+) =>
+  request<
+    TSparkPrepareLightningReceiveResponse,
+    TSparkPrepareLightningReceiveBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/spark_prepare_lightning_receive",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `SparkPrepareLightningReceive` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link SparkPrepareLightningReceive}
+ */
+export const signSparkPrepareLightningReceive = (
+  input: TSparkPrepareLightningReceiveInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TSparkPrepareLightningReceiveBody, never, never>({
+    uri: "/public/v1/submit/spark_prepare_lightning_receive",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/spark_prepare_transfer`
+ */
+export type TSparkPrepareTransferResponse =
+  operations["PublicApiService_SparkPrepareTransfer"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/spark_prepare_transfer`
+ */
+export type TSparkPrepareTransferInput = { body: TSparkPrepareTransferBody };
+
+/**
+ * `POST /public/v1/submit/spark_prepare_transfer`
+ */
+export type TSparkPrepareTransferBody =
+  operations["PublicApiService_SparkPrepareTransfer"]["parameters"]["body"]["body"];
+
+/**
+ * Prepare Spark transfer
+ *
+ * Construct sender-side encrypted operator packages for a Spark BTC transfer. Does not perform FROST signing.
+ *
+ * `POST /public/v1/submit/spark_prepare_transfer`
+ */
+export const sparkPrepareTransfer = (input: TSparkPrepareTransferInput) =>
+  request<
+    TSparkPrepareTransferResponse,
+    TSparkPrepareTransferBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/spark_prepare_transfer",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `SparkPrepareTransfer` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link SparkPrepareTransfer}
+ */
+export const signSparkPrepareTransfer = (
+  input: TSparkPrepareTransferInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TSparkPrepareTransferBody, never, never>({
+    uri: "/public/v1/submit/spark_prepare_transfer",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/spark_sign_frost`
+ */
+export type TSparkSignFrostResponse =
+  operations["PublicApiService_SparkSignFrost"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/spark_sign_frost`
+ */
+export type TSparkSignFrostInput = { body: TSparkSignFrostBody };
+
+/**
+ * `POST /public/v1/submit/spark_sign_frost`
+ */
+export type TSparkSignFrostBody =
+  operations["PublicApiService_SparkSignFrost"]["parameters"]["body"]["body"];
+
+/**
+ * Sign Frost Spark
+ *
+ * Perform pure FROST partial signing for a Spark wallet. Produces partial signatures without constructing operator packages.
+ *
+ * `POST /public/v1/submit/spark_sign_frost`
+ */
+export const sparkSignFrost = (input: TSparkSignFrostInput) =>
+  request<TSparkSignFrostResponse, TSparkSignFrostBody, never, never, never>({
+    uri: "/public/v1/submit/spark_sign_frost",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `SparkSignFrost` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link SparkSignFrost}
+ */
+export const signSparkSignFrost = (
+  input: TSparkSignFrostInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TSparkSignFrostBody, never, never>({
+    uri: "/public/v1/submit/spark_sign_frost",
     body: input.body,
     options,
   });

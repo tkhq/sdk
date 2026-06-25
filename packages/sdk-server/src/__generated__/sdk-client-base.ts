@@ -994,6 +994,38 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getTvcDeploymentDebugLogs = async (
+    input: SdkApiTypes.TGetTvcDeploymentDebugLogsBody,
+  ): Promise<SdkApiTypes.TGetTvcDeploymentDebugLogsResponse> => {
+    return this.request("/public/v1/query/get_tvc_deployment_debug_logs", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetTvcDeploymentDebugLogs = async (
+    input: SdkApiTypes.TGetTvcDeploymentDebugLogsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_tvc_deployment_debug_logs";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getUser = async (
     input: SdkApiTypes.TGetUserBody,
   ): Promise<SdkApiTypes.TGetUserResponse> => {
@@ -3690,7 +3722,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
       },
-      "ethSendTransactionResult",
+      "ethSendTransactionResultV2",
     );
   };
 
