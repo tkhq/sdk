@@ -95,6 +95,17 @@ export type TGetGasUsageBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetIpAllowlistResponse =
+  operations["PublicApiService_GetIpAllowlist"]["responses"]["200"]["schema"];
+
+export type TGetIpAllowlistInput = { body: TGetIpAllowlistBody };
+
+export type TGetIpAllowlistBody = Omit<
+  operations["PublicApiService_GetIpAllowlist"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetLatestBootProofResponse =
   operations["PublicApiService_GetLatestBootProof"]["responses"]["200"]["schema"];
 
@@ -279,6 +290,41 @@ export type TGetSmartContractInterfaceBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetTvcAppResponse =
+  operations["PublicApiService_GetTvcApp"]["responses"]["200"]["schema"];
+
+export type TGetTvcAppInput = { body: TGetTvcAppBody };
+
+export type TGetTvcAppBody = Omit<
+  operations["PublicApiService_GetTvcApp"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetTvcDeploymentResponse =
+  operations["PublicApiService_GetTvcDeployment"]["responses"]["200"]["schema"];
+
+export type TGetTvcDeploymentInput = { body: TGetTvcDeploymentBody };
+
+export type TGetTvcDeploymentBody = Omit<
+  operations["PublicApiService_GetTvcDeployment"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetTvcDeploymentDebugLogsResponse =
+  operations["PublicApiService_GetTvcDeploymentDebugLogs"]["responses"]["200"]["schema"];
+
+export type TGetTvcDeploymentDebugLogsInput = {
+  body: TGetTvcDeploymentDebugLogsBody;
+};
+
+export type TGetTvcDeploymentDebugLogsBody = Omit<
+  operations["PublicApiService_GetTvcDeploymentDebugLogs"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetUserResponse =
   operations["PublicApiService_GetUser"]["responses"]["200"]["schema"];
 
@@ -439,6 +485,28 @@ export type TListSupportedAssetsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetTvcAppDeploymentsResponse =
+  operations["PublicApiService_GetTvcAppDeployments"]["responses"]["200"]["schema"];
+
+export type TGetTvcAppDeploymentsInput = { body: TGetTvcAppDeploymentsBody };
+
+export type TGetTvcAppDeploymentsBody = Omit<
+  operations["PublicApiService_GetTvcAppDeployments"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetTvcAppsResponse =
+  operations["PublicApiService_GetTvcApps"]["responses"]["200"]["schema"];
+
+export type TGetTvcAppsInput = { body: TGetTvcAppsBody };
+
+export type TGetTvcAppsBody = Omit<
+  operations["PublicApiService_GetTvcApps"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TListUserTagsResponse =
   operations["PublicApiService_ListUserTags"]["responses"]["200"]["schema"];
 
@@ -501,6 +569,17 @@ export type TListWebhookEndpointsInput = { body: TListWebhookEndpointsBody };
 
 export type TListWebhookEndpointsBody = Omit<
   operations["PublicApiService_ListWebhookEndpoints"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TValidateTvcImageResponse =
+  operations["PublicApiService_ValidateTvcImage"]["responses"]["200"]["schema"];
+
+export type TValidateTvcImageInput = { body: TValidateTvcImageBody };
+
+export type TValidateTvcImageBody = Omit<
+  operations["PublicApiService_ValidateTvcImage"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -694,6 +773,38 @@ export type TCreateSubOrganizationBody =
   operations["PublicApiService_CreateSubOrganization"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateTvcAppResponse =
+  operations["PublicApiService_CreateTvcApp"]["responses"]["200"]["schema"]["activity"]["result"]["createTvcAppResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateTvcAppInput = { body: TCreateTvcAppBody };
+
+export type TCreateTvcAppBody =
+  operations["PublicApiService_CreateTvcApp"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateTvcDeploymentResponse =
+  operations["PublicApiService_CreateTvcDeployment"]["responses"]["200"]["schema"]["activity"]["result"]["createTvcDeploymentResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateTvcDeploymentInput = { body: TCreateTvcDeploymentBody };
+
+export type TCreateTvcDeploymentBody =
+  operations["PublicApiService_CreateTvcDeployment"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateTvcManifestApprovalsResponse =
+  operations["PublicApiService_CreateTvcManifestApprovals"]["responses"]["200"]["schema"]["activity"]["result"]["createTvcManifestApprovalsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateTvcManifestApprovalsInput = {
+  body: TCreateTvcManifestApprovalsBody;
+};
+
+export type TCreateTvcManifestApprovalsBody =
+  operations["PublicApiService_CreateTvcManifestApprovals"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateUserTagResponse =
   operations["PublicApiService_CreateUserTag"]["responses"]["200"]["schema"]["activity"]["result"]["createUserTagResult"] &
     definitions["v1ActivityResponse"];
@@ -880,6 +991,28 @@ export type TDeleteSubOrganizationBody =
   operations["PublicApiService_DeleteSubOrganization"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TDeleteTvcAppAndDeploymentsResponse =
+  operations["PublicApiService_DeleteTvcAppAndDeployments"]["responses"]["200"]["schema"]["activity"]["result"]["deleteTvcAppAndDeploymentsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteTvcAppAndDeploymentsInput = {
+  body: TDeleteTvcAppAndDeploymentsBody;
+};
+
+export type TDeleteTvcAppAndDeploymentsBody =
+  operations["PublicApiService_DeleteTvcAppAndDeployments"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TDeleteTvcDeploymentResponse =
+  operations["PublicApiService_DeleteTvcDeployment"]["responses"]["200"]["schema"]["activity"]["result"]["deleteTvcDeploymentResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteTvcDeploymentInput = { body: TDeleteTvcDeploymentBody };
+
+export type TDeleteTvcDeploymentBody =
+  operations["PublicApiService_DeleteTvcDeployment"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TDeleteUserTagsResponse =
   operations["PublicApiService_DeleteUserTags"]["responses"]["200"]["schema"]["activity"]["result"]["deleteUserTagsResult"] &
     definitions["v1ActivityResponse"];
@@ -941,7 +1074,7 @@ export type TEmailAuthBody =
     commandOverrideParams;
 
 export type TEthSendTransactionResponse =
-  operations["PublicApiService_EthSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["ethSendTransactionResult"] &
+  operations["PublicApiService_EthSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["ethSendTransactionResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TEthSendTransactionInput = { body: TEthSendTransactionBody };
@@ -1130,6 +1263,16 @@ export type TRejectActivityBody =
   operations["PublicApiService_RejectActivity"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TRemoveIpAllowlistResponse =
+  operations["PublicApiService_RemoveIpAllowlist"]["responses"]["200"]["schema"]["activity"]["result"]["removeIpAllowlistResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TRemoveIpAllowlistInput = { body: TRemoveIpAllowlistBody };
+
+export type TRemoveIpAllowlistBody =
+  operations["PublicApiService_RemoveIpAllowlist"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TRemoveOrganizationFeatureResponse =
   operations["PublicApiService_RemoveOrganizationFeature"]["responses"]["200"]["schema"]["activity"]["result"]["removeOrganizationFeatureResult"] &
     definitions["v1ActivityResponse"];
@@ -1142,6 +1285,26 @@ export type TRemoveOrganizationFeatureBody =
   operations["PublicApiService_RemoveOrganizationFeature"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TRestoreTvcDeploymentResponse =
+  operations["PublicApiService_RestoreTvcDeployment"]["responses"]["200"]["schema"]["activity"]["result"]["restoreTvcDeploymentResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TRestoreTvcDeploymentInput = { body: TRestoreTvcDeploymentBody };
+
+export type TRestoreTvcDeploymentBody =
+  operations["PublicApiService_RestoreTvcDeployment"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TSetIpAllowlistResponse =
+  operations["PublicApiService_SetIpAllowlist"]["responses"]["200"]["schema"]["activity"]["result"]["setIpAllowlistResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TSetIpAllowlistInput = { body: TSetIpAllowlistBody };
+
+export type TSetIpAllowlistBody =
+  operations["PublicApiService_SetIpAllowlist"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TSetOrganizationFeatureResponse =
   operations["PublicApiService_SetOrganizationFeature"]["responses"]["200"]["schema"]["activity"]["result"]["setOrganizationFeatureResult"] &
     definitions["v1ActivityResponse"];
@@ -1152,6 +1315,18 @@ export type TSetOrganizationFeatureInput = {
 
 export type TSetOrganizationFeatureBody =
   operations["PublicApiService_SetOrganizationFeature"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpdateTvcAppLiveDeploymentResponse =
+  operations["PublicApiService_UpdateTvcAppLiveDeployment"]["responses"]["200"]["schema"]["activity"]["result"]["updateTvcAppLiveDeploymentResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateTvcAppLiveDeploymentInput = {
+  body: TUpdateTvcAppLiveDeploymentBody;
+};
+
+export type TUpdateTvcAppLiveDeploymentBody =
+  operations["PublicApiService_UpdateTvcAppLiveDeployment"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TSignRawPayloadResponse =
@@ -1192,6 +1367,48 @@ export type TSolSendTransactionInput = { body: TSolSendTransactionBody };
 
 export type TSolSendTransactionBody =
   operations["PublicApiService_SolSendTransaction"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TSparkClaimTransferResponse =
+  operations["PublicApiService_SparkClaimTransfer"]["responses"]["200"]["schema"]["activity"]["result"]["sparkClaimTransferResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TSparkClaimTransferInput = { body: TSparkClaimTransferBody };
+
+export type TSparkClaimTransferBody =
+  operations["PublicApiService_SparkClaimTransfer"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TSparkPrepareLightningReceiveResponse =
+  operations["PublicApiService_SparkPrepareLightningReceive"]["responses"]["200"]["schema"]["activity"]["result"]["sparkPrepareLightningReceiveResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TSparkPrepareLightningReceiveInput = {
+  body: TSparkPrepareLightningReceiveBody;
+};
+
+export type TSparkPrepareLightningReceiveBody =
+  operations["PublicApiService_SparkPrepareLightningReceive"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TSparkPrepareTransferResponse =
+  operations["PublicApiService_SparkPrepareTransfer"]["responses"]["200"]["schema"]["activity"]["result"]["sparkPrepareTransferResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TSparkPrepareTransferInput = { body: TSparkPrepareTransferBody };
+
+export type TSparkPrepareTransferBody =
+  operations["PublicApiService_SparkPrepareTransfer"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TSparkSignFrostResponse =
+  operations["PublicApiService_SparkSignFrost"]["responses"]["200"]["schema"]["activity"]["result"]["sparkSignFrostResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TSparkSignFrostInput = { body: TSparkSignFrostBody };
+
+export type TSparkSignFrostBody =
+  operations["PublicApiService_SparkSignFrost"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TStampLoginResponse =
