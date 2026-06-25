@@ -33,8 +33,8 @@ jobs:
       - name: Prettier
         run: pnpm prettier-all:check
 
-      # This is to catch when someone forgets to run `pnpm run version` after bumping package versions as well as check to make sure codegen output is up to date.
-      # Both of these things will cause git to be dirty after the build step.
+      # This catches missed package-version scripts and enforces Changesets ignore
+      # policy before the final generated-code dirty check below.
       - name: Run version script
         run: pnpm run version
 

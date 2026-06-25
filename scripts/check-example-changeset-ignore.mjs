@@ -7,9 +7,8 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, "..");
 
 const changesetConfigPath = path.join(repoRoot, ".changeset/config.json");
-const workspacePath = path.join(repoRoot, "pnpm-workspace.yaml");
-const examplesDir = path.join(repoRoot, "examples");
 const generatedDirectoryNames = new Set([
+  "__generated__",
   ".next",
   ".turbo",
   ".vercel",
@@ -24,72 +23,6 @@ function readJson(filePath) {
 
 function normalizePath(filePath) {
   return filePath.split(path.sep).join("/");
-}
-
-function readWorkspaceExampleExclusions() {
-  const lines = fs.readFileSync(workspacePath, "utf8").split(/\r?\n/);
-  const exclusions = [];
-  let inPackages = false;
-  let hasExamplesInclude = false;
-
-  for (const line of lines) {
-    if (/^packages:\s*$/.test(line)) {
-      inPackages = true;
-      continue;
-    }
-
-    if (inPackages && line.trim() && /^\S/.test(line)) {
-      break;
-    }
-
-    if (!inPackages) {
-      continue;
-    }
-
-    const match = line.match(/^\s*-\s+["']?(.+?)["']?\s*$/);
-    if (!match) {
-      continue;
-    }
-
-    const pattern = match[1];
-    if (pattern === "examples/**") {
-      hasExamplesInclude = true;
-    } else if (pattern.startsWith("!examples/")) {
-      exclusions.push(pattern.slice(1));
-    }
-  }
-
-  if (!hasExamplesInclude) {
-    throw new Error("pnpm-workspace.yaml does not include examples/**");
-  }
-
-  return exclusions;
-}
-
-function workspacePatternMatches(relativeDir, pattern) {
-  if (pattern.endsWith("/**")) {
-    const base = pattern.slice(0, -3).replace(/\/$/, "");
-    return relativeDir === base || relativeDir.startsWith(`${base}/`);
-  }
-
-  return relativeDir === pattern;
-}
-
-function walkPackageJsonFiles(dir, files = []) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const entryPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (generatedDirectoryNames.has(entry.name)) {
-        continue;
-      }
-
-      walkPackageJsonFiles(entryPath, files);
-    } else if (entry.name === "package.json") {
-      files.push(entryPath);
-    }
-  }
-
-  return files;
 }
 
 function globToRegExp(glob) {
@@ -119,6 +52,36 @@ function matchesAnyIgnore(packageName, ignorePatterns) {
   );
 }
 
+function readWorkspacePackages() {
+  return JSON.parse(
+    execFileSync("pnpm", ["list", "--recursive", "--depth", "-1", "--json"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }),
+  ).map((workspacePackage) => {
+    const relativeDir = normalizePath(
+      path.relative(repoRoot, workspacePackage.path),
+    );
+
+    return {
+      name: workspacePackage.name,
+      private: workspacePackage.private,
+      relativeDir,
+      packageJsonPath: `${relativeDir}/package.json`,
+    };
+  });
+}
+
+function isInDirectory(relativeDir, directory) {
+  return relativeDir === directory || relativeDir.startsWith(`${directory}/`);
+}
+
+function isInGeneratedDirectory(relativeDir) {
+  return relativeDir
+    .split("/")
+    .some((segment) => generatedDirectoryNames.has(segment));
+}
+
 const changesetConfig = readJson(changesetConfigPath);
 const ignorePatterns = changesetConfig.ignore ?? [];
 
@@ -126,28 +89,28 @@ if (!Array.isArray(ignorePatterns)) {
   throw new Error(".changeset/config.json ignore must be an array");
 }
 
-const workspaceExclusions = readWorkspaceExampleExclusions();
-const examplePackages = walkPackageJsonFiles(examplesDir)
-  .map((filePath) => {
-    const packageJson = readJson(filePath);
-    const relativeFile = normalizePath(path.relative(repoRoot, filePath));
-    const relativeDir = normalizePath(path.dirname(relativeFile));
-
-    return {
-      file: relativeFile,
-      name: packageJson.name,
-      relativeDir,
-    };
-  })
-  .filter(({ relativeDir }) => {
-    return !workspaceExclusions.some((pattern) =>
-      workspacePatternMatches(relativeDir, pattern),
-    );
-  });
+const workspacePackages = readWorkspacePackages();
+const examplePackages = workspacePackages.filter(({ relativeDir }) => {
+  return (
+    isInDirectory(relativeDir, "examples") &&
+    !isInGeneratedDirectory(relativeDir)
+  );
+});
 
 const packagesMissingIgnore = examplePackages.filter(({ name }) => {
   return typeof name !== "string" || !matchesAnyIgnore(name, ignorePatterns);
 });
+
+const publishablePackagesMatchingIgnore = workspacePackages.filter(
+  ({ name, private: isPrivate, relativeDir }) => {
+    return (
+      isInDirectory(relativeDir, "packages") &&
+      isPrivate !== true &&
+      typeof name === "string" &&
+      matchesAnyIgnore(name, ignorePatterns)
+    );
+  },
+);
 
 let hasFailure = false;
 
@@ -158,11 +121,26 @@ if (packagesMissingIgnore.length > 0) {
   );
   for (const examplePackage of packagesMissingIgnore) {
     console.error(
-      `- ${examplePackage.name ?? "(missing name)"} (${examplePackage.file})`,
+      `- ${examplePackage.name ?? "(missing name)"} (${examplePackage.packageJsonPath})`,
     );
   }
   console.error(
     "Rename the example package to an ignored convention or add a narrow ignore pattern in .changeset/config.json.",
+  );
+}
+
+if (publishablePackagesMatchingIgnore.length > 0) {
+  hasFailure = true;
+  console.error(
+    "The following publishable packages unexpectedly match the Changesets ignore list:",
+  );
+  for (const publishablePackage of publishablePackagesMatchingIgnore) {
+    console.error(
+      `- ${publishablePackage.name} (${publishablePackage.packageJsonPath})`,
+    );
+  }
+  console.error(
+    "Narrow the ignore pattern so publishable packages continue to receive release changelogs and version bumps.",
   );
 }
 
@@ -188,5 +166,5 @@ if (hasFailure) {
 }
 
 console.log(
-  `Verified ${examplePackages.length} workspace example packages are ignored by Changesets.`,
+  `Verified ${examplePackages.length} workspace example packages are ignored by Changesets and publishable packages are not ignored.`,
 );
