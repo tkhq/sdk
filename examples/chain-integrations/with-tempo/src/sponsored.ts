@@ -14,13 +14,13 @@ import {
   erc20Abi,
   formatUnits,
   isAddress,
+  type Hex,
 } from "viem";
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { createNewWallet } from "./turnkey";
 import { print } from "./util";
 
-// @ts-ignore
-const ALPHA_USD = "0x20c0000000000000000000000000000000000001" as const;
+const ALPHA_USD = "0x20c0000000000000000000000000000000000001" as Hex;
 
 // CAIP-2 identifier for Tempo Moderato. The generated SDK `caip2` union is
 // currently stale and does not yet include Tempo, so we cast when passing it
@@ -29,8 +29,8 @@ const TEMPO_MODERATO_CAIP2 = "eip155:42431";
 
 async function ensureFunded(
   client: ReturnType<typeof createClient>,
-  address: `0x${string}`,
-  token: { address: `0x${string}`; name: string; decimals: number },
+  address: Hex,
+  token: { address: Hex; name: string; decimals: number },
 ) {
   const balance = await Actions.token.getBalance(client, {
     token: token.address,
@@ -176,7 +176,7 @@ async function main() {
   const data = encodeFunctionData({
     abi: erc20Abi,
     functionName: "transfer",
-    args: [destination as `0x${string}`, BigInt(amount)],
+    args: [destination as Hex, BigInt(amount)],
   });
 
   console.log("Submitting sponsored transaction via Turnkey...\n");
