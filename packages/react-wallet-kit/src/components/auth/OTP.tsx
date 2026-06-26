@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { Spinner } from "../design/Spinners";
@@ -46,9 +46,33 @@ export function OtpVerification(props: OtpVerificationProps) {
 
   const turnstileRef = useRef<TurnstileInstance>(null);
   const [showTurnstilePrompt, setShowTurnstilePrompt] = useState(false);
+  // Fail-open: set to true when Turnstile errors or times out so that
+  // consumeToken resolves immediately without waiting for a token.
+  const captchaSkippedRef = useRef(false);
 
-  const consumeToken = () =>
-    consumeCaptchaToken(getTurnstileToken, setTurnstileToken, turnstileRef);
+  // Fail-open timeout: if no token arrives within 7s, skip the captcha wait
+  // so OTP submission is not blocked indefinitely.
+  const CAPTCHA_TIMEOUT_MS = 7000;
+  useEffect(() => {
+    if (!config?.turnstileSiteKey) return;
+
+    const timer = setTimeout(() => {
+      if (!captchaSkippedRef.current) {
+        console.warn(
+          "Turnstile: captcha token not received within timeout on OTP screen — failing open.",
+        );
+        captchaSkippedRef.current = true;
+      }
+    }, CAPTCHA_TIMEOUT_MS);
+
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const consumeToken = () => {
+    if (captchaSkippedRef.current) return Promise.resolve({});
+    return consumeCaptchaToken(getTurnstileToken, setTurnstileToken, turnstileRef);
+  };
 
   const shakeInput = () => {
     setShaking(true);
@@ -181,7 +205,12 @@ export function OtpVerification(props: OtpVerificationProps) {
               setTurnstileToken(token);
             }}
             onError={() => {
+              console.error(
+                "Turnstile error on OTP screen — failing open so submission is not blocked.",
+              );
               setTurnstileToken(null);
+              // Fail open: bypass captcha wait on future submissions.
+              captchaSkippedRef.current = true;
             }}
             onExpire={() => {
               setTurnstileToken(null);

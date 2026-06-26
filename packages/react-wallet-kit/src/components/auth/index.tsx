@@ -27,7 +27,7 @@ import {
   WalletSelectorMode,
 } from "./wallet/ExternalWalletSelector";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { consumeCaptchaToken } from "../../utils/captcha";
 
 type AuthComponentProps = {
@@ -69,6 +69,29 @@ export function AuthComponent({
   const [authEnabled, setAuthEnabled] = useState(
     !config?.turnstileSiteKey || hadTokenOnMount,
   );
+
+  // Fail-open: if Turnstile hasn't produced a token within the timeout window,
+  // re-enable auth buttons so the user is never permanently locked out.
+  // The backend already handles missing/invalid captcha tokens gracefully.
+  const CAPTCHA_TIMEOUT_MS = 7000;
+  useEffect(() => {
+    // No captcha configured, or we already have a token — nothing to do.
+    if (!config?.turnstileSiteKey || hadTokenOnMount) return;
+
+    const timer = setTimeout(() => {
+      setAuthEnabled((prev) => {
+        if (!prev) {
+          console.warn(
+            "Turnstile: captcha token not received within timeout — failing open.",
+          );
+        }
+        return true;
+      });
+    }, CAPTCHA_TIMEOUT_MS);
+
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!config || clientState === ClientState.Loading) {
     // Don't check ClientState.Error here. We already check in the modal root
@@ -501,9 +524,14 @@ export function AuthComponent({
               setAuthEnabled(true);
             }}
             onError={() => {
-              console.error("Turnstile error occurred");
+              console.error(
+                "Turnstile error occurred — failing open so the user can proceed.",
+              );
               setTurnstileToken(null);
               setShowTurnstileError(true);
+              // Fail open: re-enable auth buttons even without a token.
+              // The backend handles missing captcha tokens gracefully.
+              setAuthEnabled(true);
             }}
             onExpire={() => {
               setTurnstileToken(null);
