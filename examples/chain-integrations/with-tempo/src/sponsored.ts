@@ -80,7 +80,7 @@ async function fetchGasUsage(
   const { usageUsd, windowLimitUsd, windowDurationMinutes } =
     await apiClient.getGasUsage({});
 
-  const remainingUsd = Number(windowLimitUsd) - Number(usageUsd);
+  const remainingUsd = (Number(windowLimitUsd) - Number(usageUsd)).toFixed(2);
 
   return { usageUsd, windowLimitUsd, windowDurationMinutes, remainingUsd };
 }
