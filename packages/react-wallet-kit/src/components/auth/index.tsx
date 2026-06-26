@@ -66,6 +66,7 @@ export function AuthComponent({
   // Auth is enabled immediately if no turnstile is configured, or if the Provider already has a token
 
   const [showTurnstileError, setShowTurnstileError] = useState(false);
+  const [showTurnstileExpired, setShowTurnstileExpired] = useState(false);
   const [authEnabled, setAuthEnabled] = useState(
     !config?.turnstileSiteKey || hadTokenOnMount,
   );
@@ -486,11 +487,15 @@ export function AuthComponent({
 
       {config.turnstileSiteKey && (!hadTokenOnMount || showTurnstileError) && (
         <div className="mt-3 flex flex-col text-left w-full">
-          {showTurnstilePrompt && (
-            <p className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-sm mb-0.5">
-              Let us know you're human
-            </p>
-          )}
+          {showTurnstileExpired ? (
+              <p className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-sm mb-0.5">
+                Verification expired — retrying...
+              </p>
+            ) : showTurnstilePrompt ? (
+              <p className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-sm mb-0.5">
+                Let us know you're human
+              </p>
+            ) : null}
           <Turnstile
             ref={turnstileRef}
             id="auth-component-turnstile"
@@ -499,6 +504,7 @@ export function AuthComponent({
             onSuccess={(token) => {
               setTurnstileToken(token);
               setAuthEnabled(true);
+              setShowTurnstileExpired(false);
             }}
             onError={() => {
               console.error("Turnstile error occurred");
@@ -508,6 +514,8 @@ export function AuthComponent({
             onExpire={() => {
               setTurnstileToken(null);
               setAuthEnabled(false);
+              setShowTurnstileExpired(true);
+              turnstileRef.current?.reset();
             }}
             onBeforeInteractive={() => {
               setShowTurnstilePrompt(true);

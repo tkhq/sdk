@@ -46,6 +46,7 @@ export function OtpVerification(props: OtpVerificationProps) {
 
   const turnstileRef = useRef<TurnstileInstance>(null);
   const [showTurnstilePrompt, setShowTurnstilePrompt] = useState(false);
+  const [showTurnstileExpired, setShowTurnstileExpired] = useState(false);
 
   const consumeToken = () =>
     consumeCaptchaToken(getTurnstileToken, setTurnstileToken, turnstileRef);
@@ -168,23 +169,30 @@ export function OtpVerification(props: OtpVerificationProps) {
       )}
       {config?.turnstileSiteKey && !submitting && (
         <div className="mt-3 flex flex-col text-left w-full">
-          {showTurnstilePrompt && (
+          {showTurnstileExpired ? (
+            <p className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-sm mb-0.5">
+              Verification expired — retrying...
+            </p>
+          ) : showTurnstilePrompt ? (
             <p className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-sm mb-0.5">
               Let us know you're human
             </p>
-          )}
+          ) : null}
           <Turnstile
             ref={turnstileRef}
             siteKey={config.turnstileSiteKey}
             className="!w-full !block [&>iframe]:!w-full"
             onSuccess={(token) => {
               setTurnstileToken(token);
+              setShowTurnstileExpired(false);
             }}
             onError={() => {
               setTurnstileToken(null);
             }}
             onExpire={() => {
               setTurnstileToken(null);
+              setShowTurnstileExpired(true);
+              turnstileRef.current?.reset();
             }}
             onBeforeInteractive={() => {
               setShowTurnstilePrompt(true);
