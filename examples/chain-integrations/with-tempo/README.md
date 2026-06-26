@@ -136,6 +136,66 @@ AlphaUSD balance for destination (0xD91d92a978AC1E8d5F22EcAb787A10c7676D8311):
         7
 ```
 
+#### Turnkey-sponsored transfer (gas abstraction)
+
+```bash
+$ pnpm start-sponsored
+```
+
+The scripts above use Tempo's native fee-payer to sponsor fees. This script instead uses [Turnkey's gas sponsorship](https://docs.turnkey.com/features/transaction-management) (aka gas abstraction / gasless transactions). You pass a minimal payload to a single `ethSendTransaction` call with `sponsor: true`, and Turnkey constructs, signs, broadcasts, and **pays the fees** via its Gas Station — your sender never needs to hold a native gas token. The script then polls `getSendTransactionStatus` until the transaction is included on-chain.
+
+It demonstrates sending a TIP-20 (AlphaUSD) transfer on Tempo Moderato (`caip2: eip155:42431`). The sender still needs the asset being transferred (AlphaUSD), which the faucet provides; only the fees are sponsored.
+
+The script also reports your sponsored gas budget via the [`getGasUsage`](https://docs.turnkey.com/api-reference/queries/get-gas-usage) query — the remaining budget before sending, and the limit / used / remaining breakdown afterwards.
+
+Notes:
+
+- Gas sponsorship must be enabled in your Turnkey dashboard, and is available on Enterprise plans. See the [docs](https://docs.turnkey.com/features/transaction-management) for spend limits and billing.
+- `SIGN_WITH` must be an address (`0x...`) — either a wallet account address or a private key address; `ethSendTransaction` does not support private key IDs.
+- `SPONSOR_WITH` is not used here — Turnkey covers the fees directly.
+- **On testnet the reported limit won't change and usage always shows `$0`.** Usage is denominated in the USD value of fees at broadcast time, and testnet fees are paid in a valueless test token, so there is nothing to meter. The numbers only move on mainnet.
+
+See the following for a sample output:
+
+```
+Network:
+        Tempo Testnet (Moderato) (chain ID 42431)
+
+Address:
+        0xDC608F098255C89B36da905D9132A9Ee3DD266D9
+
+Token:
+        AlphaUSD (6 decimals)
+
+Gas sponsorship:
+        Turnkey Gas Station (sponsor: true)
+
+Sponsored gas remaining (last 1440 min window):
+        $10 (of $10.00000000 limit)
+
+✔ Amount to send (atomic units, 6 decimals) … 1000000
+✔ Destination address (default to TKHQ warchest) … 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7
+
+AlphaUSD balance for 0xDC608F098255C89B36da905D9132A9Ee3DD266D9:
+        1000000
+
+Submitting sponsored transaction via Turnkey...
+
+Send transaction status ID:
+        f3a2b1c0-1234-5678-abcd-ef0123456789
+
+Receipt:
+        https://explore.testnet.tempo.xyz/tx/0x71ab0cbbd90b0774be500da229e81596b9402f90fe8cf91ee49002eec77307ec
+
+Sent 1 AlphaUSD to 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7 (gas sponsored by Turnkey)!
+        https://docs.turnkey.com/features/transaction-management
+
+Sponsored gas usage (last 1440 min window):
+        used      $0
+        limit     $10.00000000
+        remaining $10
+```
+
 Note: if you have a consensus-related policy resembling the following
 
 ```
