@@ -151,7 +151,7 @@ The script also reports your sponsored gas budget via the [`getGasUsage`](https:
 Notes:
 
 - Gas sponsorship must be enabled in your Turnkey dashboard, and is available on Enterprise plans. See the [docs](https://docs.turnkey.com/features/transaction-management) for spend limits and billing.
-- `SIGN_WITH` must be a wallet account address (`0x...`); `ethSendTransaction` does not support private key IDs.
+- `SIGN_WITH` must be an address (`0x...`) — either a wallet account address or a private key address; `ethSendTransaction` does not support private key IDs.
 - `SPONSOR_WITH` is not used here — Turnkey covers the fees directly.
 - **On testnet the reported limit won't change and usage always shows `$0`.** Usage is denominated in the USD value of fees at broadcast time, and testnet fees are paid in a valueless test token, so there is nothing to meter. The numbers only move on mainnet.
 

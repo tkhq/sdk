@@ -116,7 +116,7 @@ async function main() {
   const signWith = process.env.SIGN_WITH;
   if (!isAddress(signWith)) {
     throw new Error(
-      "SIGN_WITH must be a wallet account address (0x...) for the sponsored flow; private key IDs are not supported by ethSendTransaction.",
+      "SIGN_WITH must be an address (0x...) — a wallet account or private key address — for the sponsored flow; private key IDs are not supported by ethSendTransaction.",
     );
   }
 
