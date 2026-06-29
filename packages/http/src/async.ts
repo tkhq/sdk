@@ -48,6 +48,14 @@ export function withAsyncPolling<
             activityType: activity.type,
           });
         }
+        case "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED": {
+          throw new TurnkeyActivityError({
+            message: `Authenticators needed for activity ${activity.id}`,
+            activityId: activity.id,
+            activityStatus: activity.status,
+            activityType: activity.type,
+          });
+        }
         case "ACTIVITY_STATUS_FAILED": {
           // Activity failed
           throw new TurnkeyActivityError({
@@ -136,6 +144,14 @@ export function createActivityPoller<
           // when the required approvals/rejections are in place.
           throw new TurnkeyActivityError({
             message: `Consensus needed for activity ${activity.id}`,
+            activityId: activity.id,
+            activityStatus: activity.status,
+            activityType: activity.type,
+          });
+        }
+        case "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED": {
+          throw new TurnkeyActivityError({
+            message: `Authenticators needed for activity ${activity.id}`,
             activityId: activity.id,
             activityStatus: activity.status,
             activityType: activity.type,

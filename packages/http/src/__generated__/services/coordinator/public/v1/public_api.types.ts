@@ -44,6 +44,18 @@ export type paths = {
     /** Get the latest boot proof for a given enclave app name. */
     post: operations["PublicApiService_GetLatestBootProof"];
   };
+  "/public/v1/query/get_mfa_policies": {
+    /** Get all MFA policies for a user. */
+    post: operations["PublicApiService_GetMfaPolicies"];
+  };
+  "/public/v1/query/get_mfa_policy": {
+    /** Get a single MFA policy for a user. */
+    post: operations["PublicApiService_GetMfaPolicy"];
+  };
+  "/public/v1/query/get_mfa_status": {
+    /** Get the MFA status of an activity for a specific user or all voting users. */
+    post: operations["PublicApiService_GetMfaStatus"];
+  };
   "/public/v1/query/get_nonces": {
     /** Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions. */
     post: operations["PublicApiService_GetNonces"];
@@ -59,10 +71,6 @@ export type paths = {
   "/public/v1/query/get_onramp_transaction_status": {
     /** Get the status of an on ramp transaction. */
     post: operations["PublicApiService_GetOnRampTransactionStatus"];
-  };
-  "/public/v1/query/get_organization": {
-    /** Get details about an organization. */
-    post: operations["PublicApiService_GetOrganization"];
   };
   "/public/v1/query/get_organization_configs": {
     /** Get quorum settings and features for an organization. */
@@ -84,6 +92,14 @@ export type paths = {
     /** Get the status of a send transaction request. */
     post: operations["PublicApiService_GetSendTransactionStatus"];
   };
+  "/public/v1/query/get_session_profile": {
+    /** Get a single session profile for an organization. */
+    post: operations["PublicApiService_GetSessionProfile"];
+  };
+  "/public/v1/query/get_session_profiles": {
+    /** Get all session profiles for an organization. */
+    post: operations["PublicApiService_GetSessionProfiles"];
+  };
   "/public/v1/query/get_smart_contract_interface": {
     /** Get details about a smart contract interface. */
     post: operations["PublicApiService_GetSmartContractInterface"];
@@ -96,9 +112,9 @@ export type paths = {
     /** Get details about a single TVC Deployment */
     post: operations["PublicApiService_GetTvcDeployment"];
   };
-  "/public/v1/query/get_tvc_deployment_provisioning_details": {
-    /** Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment */
-    post: operations["PublicApiService_GetTvcDeploymentProvisioningDetails"];
+  "/public/v1/query/get_tvc_deployment_debug_logs": {
+    /** Get a bounded window of application logs from a debug-mode TVC deployment. Returned lines are collected from every running replica and sorted by platform timestamp. */
+    post: operations["PublicApiService_GetTvcDeploymentDebugLogs"];
   };
   "/public/v1/query/get_user": {
     /** Get details about a user. */
@@ -113,7 +129,7 @@ export type paths = {
     post: operations["PublicApiService_GetWalletAccount"];
   };
   "/public/v1/query/get_wallet_address_balances": {
-    /** Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access. */
+    /** Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. */
     post: operations["PublicApiService_GetWalletAddressBalances"];
   };
   "/public/v1/query/list_activities": {
@@ -153,7 +169,7 @@ export type paths = {
     post: operations["PublicApiService_GetSubOrgIds"];
   };
   "/public/v1/query/list_supported_assets": {
-    /** List supported assets for the specified network. This feature is in beta - please contact support for access. */
+    /** List supported assets for the specified network. */
     post: operations["PublicApiService_ListSupportedAssets"];
   };
   "/public/v1/query/list_tvc_app_deployments": {
@@ -204,10 +220,6 @@ export type paths = {
     /** Add API keys to an existing user. */
     post: operations["PublicApiService_CreateApiKeys"];
   };
-  "/public/v1/submit/create_api_only_users": {
-    /** Create API-only users in an existing organization. */
-    post: operations["PublicApiService_CreateApiOnlyUsers"];
-  };
   "/public/v1/submit/create_authenticators": {
     /** Create authenticators to authenticate requests to Turnkey. */
     post: operations["PublicApiService_CreateAuthenticators"];
@@ -219,6 +231,10 @@ export type paths = {
   "/public/v1/submit/create_invitations": {
     /** Create invitations to join an existing organization. */
     post: operations["PublicApiService_CreateInvitations"];
+  };
+  "/public/v1/submit/create_mfa_policy": {
+    /** Create a new MFA policy for a user. */
+    post: operations["PublicApiService_CreateMfaPolicy"];
   };
   "/public/v1/submit/create_oauth2_credential": {
     /** Enable authentication for end users with an OAuth 2.0 provider */
@@ -251,6 +267,10 @@ export type paths = {
   "/public/v1/submit/create_read_write_session": {
     /** Create a read write session for a user. */
     post: operations["PublicApiService_CreateReadWriteSession"];
+  };
+  "/public/v1/submit/create_session_profile": {
+    /** Create a new session profile for an organization. */
+    post: operations["PublicApiService_CreateSessionProfile"];
   };
   "/public/v1/submit/create_smart_contract_interface": {
     /** Create an ABI/IDL in JSON. */
@@ -307,6 +327,10 @@ export type paths = {
   "/public/v1/submit/delete_invitation": {
     /** Delete an existing invitation. */
     post: operations["PublicApiService_DeleteInvitation"];
+  };
+  "/public/v1/submit/delete_mfa_policy": {
+    /** Delete an MFA policy for a user. */
+    post: operations["PublicApiService_DeleteMfaPolicy"];
   };
   "/public/v1/submit/delete_oauth2_credential": {
     /** Disable authentication for end users with an OAuth 2.0 provider */
@@ -371,10 +395,6 @@ export type paths = {
   "/public/v1/submit/email_auth": {
     /** Authenticate a user via email. */
     post: operations["PublicApiService_EmailAuth"];
-  };
-  "/public/v1/submit/eth_send_raw_transaction": {
-    /** Submit a raw transaction (serialized and signed) for broadcasting to the network. */
-    post: operations["PublicApiService_EthSendRawTransaction"];
   };
   "/public/v1/submit/eth_send_transaction": {
     /** Submit a transaction intent describing an EVM transaction you would like to broadcast. */
@@ -443,10 +463,6 @@ export type paths = {
   "/public/v1/submit/otp_login": {
     /** Create an OTP session for a user. */
     post: operations["PublicApiService_OtpLogin"];
-  };
-  "/public/v1/submit/post_tvc_quorum_key_share": {
-    /** Post re-encrypted quorum key share for a TVC deployment. */
-    post: operations["PublicApiService_PostTvcQuorumKeyShare"];
   };
   "/public/v1/submit/recover_user": {
     /** Complete the process of recovering a user by adding an authenticator. */
@@ -520,6 +536,10 @@ export type paths = {
     /** Update a fiat on ramp provider credential */
     post: operations["PublicApiService_UpdateFiatOnRampCredential"];
   };
+  "/public/v1/submit/update_mfa_policy": {
+    /** Update an MFA policy for a user. */
+    post: operations["PublicApiService_UpdateMfaPolicy"];
+  };
   "/public/v1/submit/update_oauth2_credential": {
     /** Update an OAuth 2.0 provider credential */
     post: operations["PublicApiService_UpdateOauth2Credential"];
@@ -574,14 +594,6 @@ export type paths = {
   };
   "/tkhq/api/v1/noop-codegen-anchor": {
     post: operations["PublicApiService_NOOPCodegenAnchor"];
-  };
-  "/tkhq/api/v1/refresh_feature_flags": {
-    /** Refresh feature flags by triggering a DB read to flush the in-memory cache. */
-    post: operations["PublicApiService_RefreshFeatureFlags"];
-  };
-  "/tkhq/api/v1/test_rate_limits": {
-    /** Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite. */
-    post: operations["PublicApiService_TestRateLimits"];
   };
 };
 
@@ -671,6 +683,8 @@ export type definitions = {
     /** @description The public component of a cryptographic key pair used to sign messages and transactions. */
     publicKey: string;
     type: definitions["v1CredentialType"];
+    /** @description The session profile associated with this credential, if any. This field is only applicable for credentials of type CREDENTIAL_TYPE_LOGIN. */
+    sessionProfileId?: string;
   };
   externaldatav1Quorum: {
     /**
@@ -783,7 +797,8 @@ export type definitions = {
     | "ACTIVITY_STATUS_COMPLETED"
     | "ACTIVITY_STATUS_FAILED"
     | "ACTIVITY_STATUS_CONSENSUS_NEEDED"
-    | "ACTIVITY_STATUS_REJECTED";
+    | "ACTIVITY_STATUS_REJECTED"
+    | "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED";
   /** @enum {string} */
   v1ActivityType:
     | "ACTIVITY_TYPE_CREATE_API_KEYS"
@@ -923,7 +938,16 @@ export type definitions = {
     | "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER"
     | "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER"
     | "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE"
-    | "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE";
+    | "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE"
+    | "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2"
+    | "ACTIVITY_TYPE_CREATE_MFA_POLICY"
+    | "ACTIVITY_TYPE_UPDATE_MFA_POLICY"
+    | "ACTIVITY_TYPE_DELETE_MFA_POLICY"
+    | "ACTIVITY_TYPE_CREATE_SESSION_PROFILE"
+    | "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER"
+    | "ACTIVITY_TYPE_EARN_DEPOSIT"
+    | "ACTIVITY_TYPE_EARN_WITHDRAW"
+    | "ACTIVITY_TYPE_UPSERT_EARN_CLIENT_FEE_CONFIG";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1084,6 +1108,26 @@ export type definitions = {
     /** @description The type of authenticator transports. */
     transports: definitions["v1AuthenticatorTransport"][];
   };
+  v1AuthenticationMethod: {
+    /** @description The type of authenticator (e.g., AUTHENTICATION_TYPE_EMAIL, AUTHENTICATION_TYPE_SESSION) required for this MFA step. */
+    type: definitions["v1AuthenticationType"];
+    /** @description Optional specific authenticator ID required (e.g., for requiring a specific session profile id) */
+    id?: string;
+  };
+  v1AuthenticationMethodParams: {
+    /** @description The type of authenticator (e.g., AUTHENTICATION_TYPE_PASSKEY for passkey authentication). */
+    type: definitions["v1AuthenticationType"];
+    /** @description Optional specific authenticator ID required (e.g., UUID of a passkey authenticator). If not provided, any authenticator of the specified type can be used. */
+    id?: string;
+  };
+  /** @enum {string} */
+  v1AuthenticationType:
+    | "AUTHENTICATION_TYPE_EMAIL_OTP"
+    | "AUTHENTICATION_TYPE_SMS_OTP"
+    | "AUTHENTICATION_TYPE_PASSKEY"
+    | "AUTHENTICATION_TYPE_API_KEY"
+    | "AUTHENTICATION_TYPE_OAUTH"
+    | "AUTHENTICATION_TYPE_SESSION";
   v1Authenticator: {
     /** @description Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
     transports: definitions["v1AuthenticatorTransport"][];
@@ -1139,9 +1183,9 @@ export type definitions = {
     ephemeralPublicKeyHex: string;
     /** @description The DER encoded COSE Sign1 struct Attestation doc. */
     awsAttestationDocB64: string;
-    /** @description The borsch serialized base64 encoded Manifest. */
+    /** @description The base64 encoded QOS manifest. Encoding depends on qos_manifest_version. */
     qosManifestB64: string;
-    /** @description The borsch serialized base64 encoded Manifest Envelope. */
+    /** @description The base64 encoded QOS manifest envelope. Encoding depends on qos_manifest_version. */
     qosManifestEnvelopeB64: string;
     /** @description The label under which the enclave app was deployed. */
     deploymentLabel: string;
@@ -1150,6 +1194,8 @@ export type definitions = {
     /** @description Owner of the app i.e. 'tkhq' */
     owner: string;
     createdAt: definitions["externaldatav1Timestamp"];
+    /** @description QOS manifest schema version. */
+    qosManifestVersion?: string;
   };
   v1BootProofResponse: {
     bootProof: definitions["v1BootProof"];
@@ -1199,16 +1245,6 @@ export type definitions = {
   v1CreateApiOnlyUsersIntent: {
     /** @description A list of API-only Users to create. */
     apiOnlyUsers: definitions["v1ApiOnlyUserParams"][];
-  };
-  v1CreateApiOnlyUsersRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1CreateApiOnlyUsersIntent"];
-    generateAppProofs?: boolean;
   };
   v1CreateApiOnlyUsersResult: {
     /** @description A list of API-only User IDs. */
@@ -1285,6 +1321,36 @@ export type definitions = {
   v1CreateInvitationsResult: {
     /** @description A list of Invitation IDs */
     invitationIds: string[];
+  };
+  v1CreateMfaPolicyIntent: {
+    /** @description The ID of the User to add the MFA Policy to. */
+    userId: string;
+    /** @description Human-readable name for a Policy. */
+    mfaPolicyName: string;
+    /** @description A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+    condition: string;
+    /** @description An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+    requiredAuthenticationMethods: definitions["v1RequiredAuthenticationMethodParams"][];
+    /**
+     * Format: int64
+     * @description The order in which this MFA policy is evaluated, starting from 0, relative to other MFA policies. Lower order values are evaluated first.
+     */
+    order: number;
+    /** @description Notes for an MFA Policy. */
+    notes?: string;
+  };
+  v1CreateMfaPolicyRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_MFA_POLICY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateMfaPolicyIntent"];
+  };
+  v1CreateMfaPolicyResult: {
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
   };
   v1CreateOauth2CredentialIntent: {
     /** @description The OAuth 2.0 provider */
@@ -1560,6 +1626,29 @@ export type definitions = {
     /** @description HPKE encrypted credential bundle */
     credentialBundle: string;
   };
+  v1CreateSessionProfileIntent: {
+    /** @description Human-readable name for a Session Profile. */
+    sessionProfileName: string;
+    /** @description The scope string that defines the permissions for this Session Profile. */
+    scope: string;
+    /** @description The duration in seconds for which sessions created with this Session Profile are valid. If not set, expiration will be determined by the value passed in to the intent of login activities. */
+    expirationSeconds?: string;
+    /** @description Notes for a Session Profile. */
+    notes?: string;
+  };
+  v1CreateSessionProfileRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_SESSION_PROFILE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateSessionProfileIntent"];
+  };
+  v1CreateSessionProfileResult: {
+    /** @description Unique identifier for a given Session Profile. */
+    sessionProfileId: string;
+  };
   v1CreateSmartContractInterfaceIntent: {
     /** @description Corresponding contract address or program ID */
     smartContractAddress: string;
@@ -1776,6 +1865,8 @@ export type definitions = {
     shareSetParams?: definitions["v1TvcOperatorSetParams"];
     /** @description Enables network egress for this TVC app. Default if not provided: false. */
     enableEgress?: boolean;
+    /** @description When true, this app may create deployments in debug-mode. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. Cannot be changed after app creation. Setting this true means the app's quorum key is considered permanently insecure, and a new app with a fresh quorum key must be created. Default if not provided: false. */
+    enableDebugModeDeployments?: boolean;
   };
   v1CreateTvcAppRequest: {
     /** @enum {string} */
@@ -2091,6 +2182,25 @@ export type definitions = {
   v1DeleteInvitationResult: {
     /** @description Unique identifier for a given Invitation. */
     invitationId: string;
+  };
+  v1DeleteMfaPolicyIntent: {
+    /** @description The ID of the User to delete the MFA Policy from. */
+    userId: string;
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
+  };
+  v1DeleteMfaPolicyRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_MFA_POLICY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteMfaPolicyIntent"];
+  };
+  v1DeleteMfaPolicyResult: {
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
   };
   v1DeleteOauth2CredentialIntent: {
     /** @description The ID of the OAuth 2.0 credential to delete */
@@ -2408,6 +2518,96 @@ export type definitions = {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
   };
+  v1EarnDeployWrapperIntent: {
+    /** @description Address of the underlying yield vault to wrap (from the EarnVaults catalog). */
+    vaultAddress: string;
+    /**
+     * @description CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base).
+     * @enum {string}
+     */
+    chainCaip2:
+      | "eip155:1"
+      | "eip155:8453"
+      | "eip155:42161"
+      | "eip155:137"
+      | "eip155:56"
+      | "eip155:4217";
+  };
+  v1EarnDeployWrapperResult: {
+    /** @description Address of the deployed fee wrapper (the deposit target). */
+    wrapperAddress: string;
+    /** @description Address of the deployed fee splitter (PaymentSplitter for Morpho, RevenueSplitterOwner for Aave). */
+    splitterAddress: string;
+    /** @description Transaction hash of the wrapper deployment. */
+    deployTxHash: string;
+  };
+  v1EarnDepositIntent: {
+    /** @description Address of the underlying yield vault to deposit into. The org must have an enabled wrapper for this vault. */
+    vaultAddress: string;
+    /** @description A Wallet account address or Private Key address to deposit from and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
+    signWith: string;
+    /** @description Amount of the underlying asset to deposit, in raw on-chain units (e.g., '1000000' for 1 USDC at 6 decimals). */
+    assets: string;
+    /**
+     * @description CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base).
+     * @enum {string}
+     */
+    chainCaip2:
+      | "eip155:1"
+      | "eip155:8453"
+      | "eip155:42161"
+      | "eip155:137"
+      | "eip155:56"
+      | "eip155:4217";
+    /** @description Whether to sponsor this transaction via Gas Station. */
+    sponsor?: boolean;
+  };
+  v1EarnDepositResult: {
+    /** @description Transaction hash of the deposit. */
+    depositTxHash: string;
+    /** @description Number of wrapper shares minted to the depositor, in raw on-chain units. */
+    sharesMinted: string;
+    /** @description Address of the fee wrapper the deposit was routed to. */
+    wrapperAddress: string;
+    /** @description Identifier to poll deposit status via EarnDepositStatus (for the async/sponsored path). */
+    depositRequestId: string;
+  };
+  v1EarnWithdrawIntent: {
+    /** @description Address of the underlying yield vault to withdraw from. The org must have an enabled wrapper for this vault. */
+    vaultAddress: string;
+    /** @description A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
+    signWith: string;
+    /**
+     * @description CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base).
+     * @enum {string}
+     */
+    chainCaip2:
+      | "eip155:1"
+      | "eip155:8453"
+      | "eip155:42161"
+      | "eip155:137"
+      | "eip155:56"
+      | "eip155:4217";
+    /** @description Whether to sponsor this transaction via Gas Station. */
+    sponsor?: boolean;
+    /**
+     * @description Whether amount_value is denominated in shares or assets. 'SHARES' redeems wrapper shares (calls redeem()); 'ASSETS' withdraws underlying assets (calls withdraw(), enabling yield-only claims).
+     * @enum {string}
+     */
+    amountType: "SHARES" | "ASSETS";
+    /** @description The amount to withdraw, in raw on-chain units, interpreted according to amount_type. */
+    amountValue: string;
+  };
+  v1EarnWithdrawResult: {
+    /** @description Transaction hash of the withdrawal. */
+    withdrawTxHash: string;
+    /** @description Identifier to poll withdrawal status via EarnWithdrawStatus. */
+    withdrawRequestId: string;
+    /** @description Amount of the underlying asset received, in raw on-chain units. */
+    assetsReceived: string;
+    /** @description Number of wrapper shares burned, in raw on-chain units. */
+    sharesBurned: string;
+  };
   /** @enum {string} */
   v1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
   v1EmailAuthCustomizationParams: {
@@ -2525,6 +2725,14 @@ export type definitions = {
     /** @description A User ID with permission to initiate authentication. */
     userId: string;
   };
+  v1EthCallParams: {
+    /** @description Recipient address as a hex string with 0x prefix. */
+    to: string;
+    /** @description Amount of native asset to send in wei. */
+    value?: string;
+    /** @description Hex-encoded call data for contract interactions. */
+    data?: string;
+  };
   v1EthFailureDetails: {
     /** @description Ethereum revert chain, ordered from outermost to innermost. */
     revertChain?: definitions["v1RevertChainEntry"][];
@@ -2542,17 +2750,9 @@ export type definitions = {
       | "eip155:8453"
       | "eip155:84532"
       | "eip155:137"
-      | "eip155:80002";
-  };
-  v1EthSendRawTransactionRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1EthSendRawTransactionIntent"];
-    generateAppProofs?: boolean;
+      | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97";
   };
   v1EthSendRawTransactionResult: {
     /** @description The transaction hash of the sent transaction */
@@ -2573,7 +2773,9 @@ export type definitions = {
       | "eip155:8453"
       | "eip155:84532"
       | "eip155:137"
-      | "eip155:80002";
+      | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97";
     /** @description Recipient address as a hex string with 0x prefix. */
     to: string;
     /** @description Amount of native asset to send in wei. */
@@ -2593,17 +2795,54 @@ export type definitions = {
     /** @description The gas station delegate contract nonce. Only used when sponsor=true. Include this if you want maximal security posture. */
     gasStationNonce?: string;
   };
+  v1EthSendTransactionIntentV2: {
+    /** @description A wallet or private key address to sign with. This does not support private key IDs. */
+    from: string;
+    /**
+     * @description CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
+     * @enum {string}
+     */
+    caip2:
+      | "eip155:1"
+      | "eip155:11155111"
+      | "eip155:8453"
+      | "eip155:84532"
+      | "eip155:137"
+      | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97";
+    /** @description Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station. */
+    sponsor?: boolean;
+    /** @description Outer transaction nonce. Omit to auto-fetch. */
+    nonce?: string;
+    /** @description Maximum amount of gas for the outer transaction. Omit to auto-estimate. */
+    gasLimit?: string;
+    /** @description Maximum total fee per gas unit (base fee + priority fee) in wei. Omit to auto-estimate. */
+    maxFeePerGas?: string;
+    /** @description Maximum priority fee (tip) per gas unit in wei. Omit to auto-estimate. */
+    maxPriorityFeePerGas?: string;
+    /** @description Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true. */
+    deadline?: string;
+    /** @description The gas station delegate contract nonce. Only used when sponsor=true. Omit to auto-fetch. */
+    gasStationNonce?: string;
+    /** @description Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station. */
+    calls: definitions["v1EthCallParams"][];
+  };
   v1EthSendTransactionRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION";
+    type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1EthSendTransactionIntent"];
+    parameters: definitions["v1EthSendTransactionIntentV2"];
     generateAppProofs?: boolean;
   };
   v1EthSendTransactionResult: {
+    /** @description The send_transaction_status ID associated with the transaction submission */
+    sendTransactionStatusId: string;
+  };
+  v1EthSendTransactionResultV2: {
     /** @description The send_transaction_status ID associated with the transaction submission */
     sendTransactionStatusId: string;
   };
@@ -2896,6 +3135,40 @@ export type definitions = {
     /** @description Name of enclave app. */
     appName: string;
   };
+  v1GetMfaPoliciesRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given user. */
+    userId: string;
+  };
+  v1GetMfaPoliciesResponse: {
+    /** @description A list of multi-factor authentication policies for a user. */
+    mfaPolicies: definitions["v1MfaPolicy"][];
+  };
+  v1GetMfaPolicyRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given user. */
+    userId: string;
+    /** @description Unique identifier for a given MFA policy. */
+    mfaPolicyId: string;
+  };
+  v1GetMfaPolicyResponse: {
+    /** @description Multi-factor authentication policy for a user. */
+    mfaPolicy: definitions["v1MfaPolicy"];
+  };
+  v1GetMfaStatusRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description The unique identifier of the activity to get MFA status for. */
+    activityId: string;
+    /** @description Optional user ID to filter MFA status for a specific user. */
+    userId?: string;
+  };
+  v1GetMfaStatusResponse: {
+    /** @description A list of MFA statuses for the activity's votes. */
+    mfaStatuses: definitions["v1MfaStatus"][];
+  };
   v1GetNoncesRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -2911,7 +3184,9 @@ export type definitions = {
       | "eip155:8453"
       | "eip155:84532"
       | "eip155:137"
-      | "eip155:80002";
+      | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97";
     /** @description Whether to fetch the standard on-chain nonce. */
     nonce?: boolean;
     /** @description Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -2967,14 +3242,6 @@ export type definitions = {
   v1GetOrganizationConfigsResponse: {
     /** @description Organization configs including quorum settings and organization features. */
     configs: definitions["v1Config"];
-  };
-  v1GetOrganizationRequest: {
-    /** @description Unique identifier for a given organization. */
-    organizationId: string;
-  };
-  v1GetOrganizationResponse: {
-    /** @description Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization. */
-    organizationData: definitions["v1OrganizationData"];
   };
   v1GetPoliciesRequest: {
     /** @description Unique identifier for a given organization. */
@@ -3039,6 +3306,24 @@ export type definitions = {
     /** @description Structured error information including revert details, if available. */
     error?: definitions["v1TxError"];
   };
+  v1GetSessionProfileRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a session profile. */
+    sessionProfileId: string;
+  };
+  v1GetSessionProfileResponse: {
+    /** @description Session profile for a user, including details about the user's authenticators, Oauth providers, API keys, and MFA policies. */
+    sessionProfile: definitions["v1SessionProfile"];
+  };
+  v1GetSessionProfilesRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+  };
+  v1GetSessionProfilesResponse: {
+    /** @description A list of session profiles for users in the organization. */
+    sessionProfiles: definitions["v1SessionProfile"][];
+  };
   v1GetSmartContractInterfaceRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
@@ -3099,23 +3384,25 @@ export type definitions = {
     /** @description A list of TVC Apps. */
     tvcApps: definitions["v1TvcApp"][];
   };
-  v1GetTvcDeploymentProvisioningDetailsRequest: {
+  v1GetTvcDeploymentDebugLogsRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    /** @description Unique identifier for a given TVC Deployment. */
+    /** @description Unique identifier for a given TVC Deployment. The deployment must be running in debug mode. */
     deploymentId: string;
+    /**
+     * Format: int32
+     * @description Limit returned history to the last N lines per replica. If unset or zero, no tail-line limit is applied.
+     */
+    tailLines?: number;
+    /**
+     * Format: int64
+     * @description Return logs newer than this many seconds ago. If unset or zero, no since-time limit is applied. Useful for clients that poll to follow logs.
+     */
+    sinceSeconds?: string;
   };
-  v1GetTvcDeploymentProvisioningDetailsResponse: {
-    /**
-     * Format: byte
-     * @description The attestation document of the provisioning enclave in a TVC deployment.
-     */
-    attestationDocument: string;
-    /**
-     * Format: byte
-     * @description The manifest envelope containing the TVC deployment's manifest and signatures.
-     */
-    manifestEnvelope: string;
+  v1GetTvcDeploymentDebugLogsResponse: {
+    /** @description Application log entries sorted by platform timestamp. */
+    entries: definitions["v1TvcDeploymentDebugLogEntry"][];
   };
   v1GetTvcDeploymentRequest: {
     /** @description Unique identifier for a given organization. */
@@ -3203,6 +3490,12 @@ export type definitions = {
       | "eip155:84532"
       | "eip155:137"
       | "eip155:80002"
+      | "eip155:42161"
+      | "eip155:4217"
+      | "eip155:42431"
+      | "eip155:421614"
+      | "eip155:56"
+      | "eip155:97"
       | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
@@ -3760,24 +4053,15 @@ export type definitions = {
     sparkClaimTransferIntent?: definitions["v1SparkClaimTransferIntent"];
     sparkPrepareLightningReceiveIntent?: definitions["v1SparkPrepareLightningReceiveIntent"];
     postTvcQuorumKeyShareIntent?: definitions["v1PostTvcQuorumKeyShareIntent"];
-  };
-  v1Invitation: {
-    /** @description Unique identifier for a given Invitation object. */
-    invitationId: string;
-    /** @description The name of the intended Invitation recipient. */
-    receiverUserName: string;
-    /** @description The email address of the intended Invitation recipient. */
-    receiverEmail: string;
-    /** @description A list of tags assigned to the Invitation recipient. */
-    receiverUserTags: string[];
-    /** @description The User's permissible access method(s). */
-    accessType: definitions["v1AccessType"];
-    /** @description The current processing status of a specified Invitation. */
-    status: definitions["v1InvitationStatus"];
-    createdAt: definitions["externaldatav1Timestamp"];
-    updatedAt: definitions["externaldatav1Timestamp"];
-    /** @description Unique identifier for the Sender of an Invitation. */
-    senderUserId: string;
+    ethSendTransactionIntentV2?: definitions["v1EthSendTransactionIntentV2"];
+    createMfaPolicyIntent?: definitions["v1CreateMfaPolicyIntent"];
+    updateMfaPolicyIntent?: definitions["v1UpdateMfaPolicyIntent"];
+    deleteMfaPolicyIntent?: definitions["v1DeleteMfaPolicyIntent"];
+    createSessionProfileIntent?: definitions["v1CreateSessionProfileIntent"];
+    earnDeployWrapperIntent?: definitions["v1EarnDeployWrapperIntent"];
+    earnDepositIntent?: definitions["v1EarnDepositIntent"];
+    earnWithdrawIntent?: definitions["v1EarnWithdrawIntent"];
+    upsertEarnClientFeeConfigIntent?: definitions["v1UpsertEarnClientFeeConfigIntent"];
   };
   v1InvitationParams: {
     /** @description The name of the intended Invitation recipient. */
@@ -3791,11 +4075,6 @@ export type definitions = {
     /** @description Unique identifier for the Sender of an Invitation. */
     senderUserId: string;
   };
-  /** @enum {string} */
-  v1InvitationStatus:
-    | "INVITATION_STATUS_CREATED"
-    | "INVITATION_STATUS_ACCEPTED"
-    | "INVITATION_STATUS_REVOKED";
   v1IpAllowlist: {
     /** @description Unique identifier for the organization this allowlist belongs to. */
     organizationId: string;
@@ -3858,6 +4137,12 @@ export type definitions = {
       | "eip155:84532"
       | "eip155:137"
       | "eip155:80002"
+      | "eip155:42161"
+      | "eip155:4217"
+      | "eip155:42431"
+      | "eip155:421614"
+      | "eip155:56"
+      | "eip155:97"
       | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
@@ -3880,9 +4165,46 @@ export type definitions = {
   v1ListWebhookEndpointsResponse: {
     webhookEndpoints: definitions["v1WebhookEndpointData"][];
   };
+  v1LogLine: {
+    /** @description One log line, exactly as the application printed it (without the trailing newline) */
+    content: string;
+    /** @description When the line was logged. Stable across replays, so lines can be chronologically merged across pods */
+    ts?: definitions["externaldatav1Timestamp"];
+  };
   v1LoginUsage: {
     /** @description Public key for authentication */
     publicKey: string;
+  };
+  v1MfaPolicy: {
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
+    /** @description Human-readable name for an MFA Policy. */
+    mfaPolicyName: string;
+    /** @description A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+    condition: string;
+    /** @description An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+    requiredAuthenticationMethods: definitions["v1RequiredAuthenticationMethod"][];
+    /**
+     * Format: int64
+     * @description The order in which this policy is evaluated relative to other MFA policies.
+     */
+    order: number;
+    /** @description Optional human-readable notes added by a User to describe a particular MFA policy. */
+    notes?: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1MfaStatus: {
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
+    /** @description Unique identifier for a given User. */
+    userId: string;
+    /** @description Whether the MFA policy requirements are currently satisfied. */
+    satisfied: boolean;
+    /** @description A list of authentication methods already satisfied for this MFA policy. */
+    satisfiedMethods: definitions["v1AuthenticationMethod"][];
+    /** @description An ordered list of authentication requirements needed to satisfy this MFA policy. */
+    requiredMethods: definitions["v1RequiredAuthenticationMethod"][];
   };
   /** @enum {string} */
   v1MnemonicLanguage:
@@ -3975,6 +4297,8 @@ export type definitions = {
     expirationSeconds?: string;
     /** @description Invalidate all other previously generated Login API keys */
     invalidateExisting?: boolean;
+    /** @description Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+    sessionProfileId?: string;
   };
   v1OauthLoginRequest: {
     /** @enum {string} */
@@ -4057,19 +4381,6 @@ export type definitions = {
     | "OPERATOR_NOT_IN"
     | "OPERATOR_CONTAINS_ONE"
     | "OPERATOR_CONTAINS_ALL";
-  v1OrganizationData: {
-    organizationId?: string;
-    name?: string;
-    users?: definitions["v1User"][];
-    policies?: definitions["v1Policy"][];
-    privateKeys?: definitions["v1PrivateKey"][];
-    invitations?: definitions["v1Invitation"][];
-    tags?: definitions["datav1Tag"][];
-    rootQuorum?: definitions["externaldatav1Quorum"];
-    features?: definitions["v1Feature"][];
-    wallets?: definitions["v1Wallet"][];
-    smartContractInterfaceReferences?: definitions["v1SmartContractInterfaceReference"][];
-  };
   v1OtpAuthIntent: {
     /** @description ID representing the result of an init OTP activity. */
     otpId: string;
@@ -4113,6 +4424,8 @@ export type definitions = {
     invalidateExisting?: boolean;
     /** @description Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
     clientSignature?: definitions["v1ClientSignature"];
+    /** @description Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+    sessionProfileId?: string;
   };
   v1OtpLoginIntentV2: {
     /** @description Signed Verification Token containing a unique id, expiry, verification type, contact */
@@ -4125,6 +4438,8 @@ export type definitions = {
     expirationSeconds?: string;
     /** @description Invalidate all other previously generated Login sessions */
     invalidateExisting?: boolean;
+    /** @description Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+    sessionProfileId?: string;
   };
   v1OtpLoginRequest: {
     /** @enum {string} */
@@ -4147,7 +4462,8 @@ export type definitions = {
     | "OUTCOME_DENY_IMPLICIT"
     | "OUTCOME_REQUIRES_CONSENSUS"
     | "OUTCOME_REJECTED"
-    | "OUTCOME_ERROR";
+    | "OUTCOME_ERROR"
+    | "OUTCOME_REQUIRES_AUTHENTICATORS";
   v1Pagination: {
     /** @description A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
     limit?: string;
@@ -4187,15 +4503,6 @@ export type definitions = {
     ephemeralPublicKeyHex: string;
     /** @description Re-encrypted quorum key share and approval */
     shareApprovalBundle: definitions["v1QuorumKeyShareApprovalBundle"];
-  };
-  v1PostTvcQuorumKeyShareRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1PostTvcQuorumKeyShareIntent"];
   };
   v1PostTvcQuorumKeyShareResult: {
     /** @description The unique identifier for the provisioning quorum key share */
@@ -4273,8 +4580,6 @@ export type definitions = {
     /** @description ID of the authenticator created. */
     authenticatorId: string[];
   };
-  v1RefreshFeatureFlagsRequest: { [key: string]: unknown };
-  v1RefreshFeatureFlagsResponse: { [key: string]: unknown };
   v1RejectActivityIntent: {
     /** @description An artifact verifying a User's action. */
     fingerprint: string;
@@ -4321,6 +4626,14 @@ export type definitions = {
   v1RemoveOrganizationFeatureResult: {
     /** @description Resulting list of organization features. */
     features: definitions["v1Feature"][];
+  };
+  v1RequiredAuthenticationMethod: {
+    /** @description A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them. */
+    any: definitions["v1AuthenticationMethod"][];
+  };
+  v1RequiredAuthenticationMethodParams: {
+    /** @description A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them. */
+    any: definitions["v1AuthenticationMethodParams"][];
   };
   v1RestoreTvcDeploymentIntent: {
     /** @description The unique identifier of the TVC deployment to restore. */
@@ -4457,6 +4770,15 @@ export type definitions = {
     sparkClaimTransferResult?: definitions["v1SparkClaimTransferResult"];
     sparkPrepareLightningReceiveResult?: definitions["v1SparkPrepareLightningReceiveResult"];
     postTvcQuorumKeyShareResult?: definitions["v1PostTvcQuorumKeyShareResult"];
+    ethSendTransactionResultV2?: definitions["v1EthSendTransactionResultV2"];
+    createMfaPolicyResult?: definitions["v1CreateMfaPolicyResult"];
+    updateMfaPolicyResult?: definitions["v1UpdateMfaPolicyResult"];
+    deleteMfaPolicyResult?: definitions["v1DeleteMfaPolicyResult"];
+    createSessionProfileResult?: definitions["v1CreateSessionProfileResult"];
+    earnDeployWrapperResult?: definitions["v1EarnDeployWrapperResult"];
+    earnDepositResult?: definitions["v1EarnDepositResult"];
+    earnWithdrawResult?: definitions["v1EarnWithdrawResult"];
+    upsertEarnClientFeeConfigResult?: definitions["v1UpsertEarnClientFeeConfigResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -4543,6 +4865,20 @@ export type definitions = {
     subject?: string;
     operator?: definitions["v1Operator"];
     targets?: string[];
+  };
+  v1SessionProfile: {
+    /** @description Unique identifier for a given Session Profile. */
+    sessionProfileId: string;
+    /** @description Human-readable name for a Session Profile. */
+    sessionProfileName: string;
+    /** @description The specific scope that a session created with this profile is limited to. */
+    scope: string;
+    /** @description Optional window (in seconds) indicating how long sessions created with this profile should last. */
+    expirationSeconds?: string;
+    /** @description Optional human-readable notes added by a User to describe a particular Session Profile. */
+    notes?: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
   };
   v1SetIpAllowlistIntent: {
     /** @description The public component of an API key. If null, the IP allowlist applies at the organization level. If set, it applies only to this specific API key. */
@@ -4691,11 +5027,6 @@ export type definitions = {
     appid?: boolean;
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
-  };
-  v1SmartContractInterfaceReference: {
-    smartContractInterfaceId?: string;
-    smartContractAddress?: string;
-    digest?: string;
   };
   /** @enum {string} */
   v1SmartContractInterfaceType:
@@ -4994,6 +5325,8 @@ export type definitions = {
     expirationSeconds?: string;
     /** @description Invalidate all other previously generated Login API keys */
     invalidateExisting?: boolean;
+    /** @description Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+    sessionProfileId?: string;
   };
   v1StampLoginRequest: {
     /** @enum {string} */
@@ -5011,18 +5344,6 @@ export type definitions = {
   };
   /** @enum {string} */
   v1TagType: "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
-  v1TestRateLimitsRequest: {
-    /** @description Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons. */
-    organizationId: string;
-    /** @description Whether or not to set a limit on this request. */
-    isSetLimit: boolean;
-    /**
-     * Format: int64
-     * @description Rate limit to set for org, if is_set_limit is set to true.
-     */
-    limit: number;
-  };
-  v1TestRateLimitsResponse: { [key: string]: unknown };
   v1TokenUsage: {
     /** @description Type of token usage */
     type: definitions["v1UsageType"];
@@ -5060,6 +5381,8 @@ export type definitions = {
     liveDeploymentId?: string;
     /** @description The public domain for ingress to this TVC App (in the format "app-<ID>.turnkey.cloud"). */
     publicDomain: string;
+    /** @description Whether this app permits debug-mode deployments. Set at app creation via CreateTvcAppIntent.enable_debug_mode_deployments and never updated thereafter. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. The app's quorum key is therefore considered permanently insecure once enabled — a new app with a fresh quorum key must be created to return to a secure posture. */
+    enableDebugModeDeployments: boolean;
   };
   v1TvcContainerSpec: {
     /** @description The URL for this container image. */
@@ -5106,6 +5429,12 @@ export type definitions = {
     updatedAt: definitions["externaldatav1Timestamp"];
     /** @description Whether or not the user wants this deployment deleted from the cluster. */
     delete: boolean;
+  };
+  v1TvcDeploymentDebugLogEntry: {
+    /** @description Application log line with its platform timestamp. */
+    line: definitions["v1LogLine"];
+    /** @description Public replica label that produced this log line, for example 'replica 2/3'. */
+    replicaLabel: string;
   };
   /** @enum {string} */
   v1TvcHealthCheckType:
@@ -5289,6 +5618,38 @@ export type definitions = {
   v1UpdateFiatOnRampCredentialResult: {
     /** @description Unique identifier of the Fiat On-Ramp credential that was updated */
     fiatOnRampCredentialId: string;
+  };
+  v1UpdateMfaPolicyIntent: {
+    /** @description The ID of the User to update the MFA Policy for. */
+    userId: string;
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
+    /** @description Human-readable name for a Policy. */
+    mfaPolicyName?: string;
+    /** @description A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+    condition?: string;
+    /** @description An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+    requiredAuthenticationMethods?: definitions["v1RequiredAuthenticationMethodParams"][];
+    /**
+     * Format: int64
+     * @description The order in which this MFA policy is evaluated, starting from 0, relative to other MFA policies. Lower order values are evaluated first.
+     */
+    order?: number;
+    /** @description Notes for an MFA Policy. */
+    notes?: string;
+  };
+  v1UpdateMfaPolicyRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_MFA_POLICY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateMfaPolicyIntent"];
+  };
+  v1UpdateMfaPolicyResult: {
+    /** @description Unique identifier for a given MFA Policy. */
+    mfaPolicyId: string;
   };
   v1UpdateOauth2CredentialIntent: {
     /** @description The ID of the OAuth 2.0 credential to update */
@@ -5599,6 +5960,16 @@ export type definitions = {
     /** @description The updated webhook endpoint data. */
     webhookEndpoint: definitions["v1WebhookEndpointData"];
   };
+  v1UpsertEarnClientFeeConfigIntent: {
+    /** @description Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield. */
+    clientFeeBps: string;
+    /** @description The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
+    clientFeeWallet: string;
+  };
+  v1UpsertEarnClientFeeConfigResult: {
+    /** @description Transaction hash of the fee configuration update. */
+    feeUpdateTxHash: string;
+  };
   v1UpsertGasUsageConfigIntent: {
     /** @description Gas sponsorship USD limit for the billing organization window. */
     orgWindowLimitUsd: string;
@@ -5636,6 +6007,8 @@ export type definitions = {
     oauthProviders: definitions["v1OauthProvider"][];
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description A list of MFA Policies that define multi-factor authentication requirements for this user. */
+    mfaPolicies: definitions["v1MfaPolicy"][];
   };
   v1UserParams: {
     /** @description Human-readable name for a User. */
@@ -5794,6 +6167,8 @@ export type definitions = {
     publicKey?: string;
     /** @description Wallet details for this account. This is only present when include_wallet_details=true. */
     walletDetails?: definitions["v1Wallet"];
+    /** @description Human-readable name for this Wallet Account, unique within the organization. */
+    name?: string;
   };
   v1WalletAccountParams: {
     /** @description Cryptographic curve used to generate a wallet Account. */
@@ -5804,6 +6179,8 @@ export type definitions = {
     path: string;
     /** @description Address format used to generate a wallet Acccount. */
     addressFormat: definitions["v1AddressFormat"];
+    /** @description Optional human-readable name for the account. */
+    name?: string;
   };
   v1WalletKitSettingsParams: {
     /**
@@ -6053,6 +6430,60 @@ export type operations = {
       };
     };
   };
+  /** Get all MFA policies for a user. */
+  PublicApiService_GetMfaPolicies: {
+    parameters: {
+      body: {
+        body: definitions["v1GetMfaPoliciesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetMfaPoliciesResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get a single MFA policy for a user. */
+  PublicApiService_GetMfaPolicy: {
+    parameters: {
+      body: {
+        body: definitions["v1GetMfaPolicyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetMfaPolicyResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the MFA status of an activity for a specific user or all voting users. */
+  PublicApiService_GetMfaStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetMfaStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetMfaStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions. */
   PublicApiService_GetNonces: {
     parameters: {
@@ -6118,24 +6549,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetOnRampTransactionStatusResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get details about an organization. */
-  PublicApiService_GetOrganization: {
-    parameters: {
-      body: {
-        body: definitions["v1GetOrganizationRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetOrganizationResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -6233,6 +6646,42 @@ export type operations = {
       };
     };
   };
+  /** Get a single session profile for an organization. */
+  PublicApiService_GetSessionProfile: {
+    parameters: {
+      body: {
+        body: definitions["v1GetSessionProfileRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetSessionProfileResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get all session profiles for an organization. */
+  PublicApiService_GetSessionProfiles: {
+    parameters: {
+      body: {
+        body: definitions["v1GetSessionProfilesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetSessionProfilesResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get details about a smart contract interface. */
   PublicApiService_GetSmartContractInterface: {
     parameters: {
@@ -6287,17 +6736,17 @@ export type operations = {
       };
     };
   };
-  /** Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment */
-  PublicApiService_GetTvcDeploymentProvisioningDetails: {
+  /** Get a bounded window of application logs from a debug-mode TVC deployment. Returned lines are collected from every running replica and sorted by platform timestamp. */
+  PublicApiService_GetTvcDeploymentDebugLogs: {
     parameters: {
       body: {
-        body: definitions["v1GetTvcDeploymentProvisioningDetailsRequest"];
+        body: definitions["v1GetTvcDeploymentDebugLogsRequest"];
       };
     };
     responses: {
       /** A successful response. */
       200: {
-        schema: definitions["v1GetTvcDeploymentProvisioningDetailsResponse"];
+        schema: definitions["v1GetTvcDeploymentDebugLogsResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -6359,7 +6808,7 @@ export type operations = {
       };
     };
   };
-  /** Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access. */
+  /** Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. */
   PublicApiService_GetWalletAddressBalances: {
     parameters: {
       body: {
@@ -6539,7 +6988,7 @@ export type operations = {
       };
     };
   };
-  /** List supported assets for the specified network. This feature is in beta - please contact support for access. */
+  /** List supported assets for the specified network. */
   PublicApiService_ListSupportedAssets: {
     parameters: {
       body: {
@@ -6773,24 +7222,6 @@ export type operations = {
       };
     };
   };
-  /** Create API-only users in an existing organization. */
-  PublicApiService_CreateApiOnlyUsers: {
-    parameters: {
-      body: {
-        body: definitions["v1CreateApiOnlyUsersRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
   /** Create authenticators to authenticate requests to Turnkey. */
   PublicApiService_CreateAuthenticators: {
     parameters: {
@@ -6832,6 +7263,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreateInvitationsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create a new MFA policy for a user. */
+  PublicApiService_CreateMfaPolicy: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateMfaPolicyRequest"];
       };
     };
     responses: {
@@ -6976,6 +7425,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreateReadWriteSessionRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create a new session profile for an organization. */
+  PublicApiService_CreateSessionProfile: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateSessionProfileRequest"];
       };
     };
     responses: {
@@ -7228,6 +7695,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1DeleteInvitationRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Delete an MFA policy for a user. */
+  PublicApiService_DeleteMfaPolicy: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteMfaPolicyRequest"];
       };
     };
     responses: {
@@ -7516,24 +8001,6 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1EmailAuthRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Submit a raw transaction (serialized and signed) for broadcasting to the network. */
-  PublicApiService_EthSendRawTransaction: {
-    parameters: {
-      body: {
-        body: definitions["v1EthSendRawTransactionRequest"];
       };
     };
     responses: {
@@ -7840,24 +8307,6 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1OtpLoginRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Post re-encrypted quorum key share for a TVC deployment. */
-  PublicApiService_PostTvcQuorumKeyShare: {
-    parameters: {
-      body: {
-        body: definitions["v1PostTvcQuorumKeyShareRequest"];
       };
     };
     responses: {
@@ -8195,6 +8644,24 @@ export type operations = {
       };
     };
   };
+  /** Update an MFA policy for a user. */
+  PublicApiService_UpdateMfaPolicy: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateMfaPolicyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Update an OAuth 2.0 provider credential */
   PublicApiService_UpdateOauth2Credential: {
     parameters: {
@@ -8434,42 +8901,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1NOOPCodegenAnchorResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Refresh feature flags by triggering a DB read to flush the in-memory cache. */
-  PublicApiService_RefreshFeatureFlags: {
-    parameters: {
-      body: {
-        body: definitions["v1RefreshFeatureFlagsRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1RefreshFeatureFlagsResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite. */
-  PublicApiService_TestRateLimits: {
-    parameters: {
-      body: {
-        body: definitions["v1TestRateLimitsRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1TestRateLimitsResponse"];
       };
       /** An unexpected error response. */
       default: {
