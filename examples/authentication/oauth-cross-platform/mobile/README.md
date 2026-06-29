@@ -81,3 +81,9 @@ npx expo run:android
 1. Sign up in the web app with a Google account
 2. Open the mobile app and tap **Continue with Google** using the same account
 3. The dashboard shows the same sub-org ID, OIDC subject, and wallets as the web app. The login resolved the same account via `OAUTH_CLAIM` lookup with no extra steps
+
+## Delete account
+
+The app includes a **Delete account** button for testing convenience. Deleting a sub-organization can only be initiated by the authenticated user from within the app, so the button exists to make it easy to reset a test account and sign up again.
+
+> 🚨 **Warning:** It calls `deleteSubOrganization` with `deleteWithoutExport: true`, which **permanently and irreversibly deletes the sub-organization and all associated wallets**, even if private keys have never been exported. See the [root README](../README.md#testing-convenience-delete-account) for the full warning.

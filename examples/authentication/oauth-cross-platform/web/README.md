@@ -20,7 +20,7 @@ oauthProviders: [
 
 The `oidcToken` provider is verified by Google's public keys. The `oidcClaims` providers share the same `iss`/`sub` (same user, same provider) and are marked **verified-by-association** — because the token proves the user's Google identity, the secondary audiences for the same identity are also trusted.
 
-On the dashboard you can confirm this by clicking **Verify access** for each platform, which calls `getSubOrgIds` with `filterType: "OAUTH_CLAIM"` and the platform's `aud`. All three resolve to the same sub-org ID.
+On the dashboard, each platform shows its link status automatically. The app calls `getSubOrgIds` with `filterType: "OAUTH_CLAIM"` for each secondary platform in the background and if a platform is not yet linked it calls `createOauthProviders` silently, so the user never has to take manual action.
 
 | Web dashboard                                           | iOS                                           | Android                                               |
 | ------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------- |
@@ -72,3 +72,9 @@ Visit [http://localhost:3000](http://localhost:3000), sign in with Google, then 
 ## Part 2 — Mobile login
 
 See [`../mobile/README.md`](../mobile/README.md) for how to wire up a React Native app that logs in using the iOS or Android client ID registered here.
+
+## Delete account
+
+The dashboard includes a **Delete account** button for testing convenience. Deleting a sub-organization can only be initiated by the authenticated user from within the app, so the button exists to make it easy to reset a test account and sign up again.
+
+> 🚨 **Warning:** It calls `deleteSubOrganization` with `deleteWithoutExport: true`, which **permanently and irreversibly deletes the sub-organization and all associated wallets**, even if private keys have never been exported. See the [root README](../README.md#testing-convenience-delete-account) for the full warning.

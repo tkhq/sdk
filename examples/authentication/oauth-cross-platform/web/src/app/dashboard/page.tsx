@@ -3,14 +3,11 @@
 import { useEffect, useState } from "react";
 import { useTurnkey, AuthState, ClientState } from "@turnkey/react-wallet-kit";
 import { useRouter } from "next/navigation";
-import { verifyPlatformAction } from "@/server/actions/turnkey";
 import { Header } from "@/components/Header";
 import { OidcCard } from "@/components/OidcCard";
 import { SubOrgCard } from "@/components/SubOrgCard";
-import { ExistingAccountWarning } from "@/components/ExistingAccountWarning";
-import { PlatformsCard } from "@/components/PlatformsCard";
+import { LinkedPlatformsCard } from "@/components/LinkedPlatformsCard";
 import { Loading } from "@/components/Loading";
-import { VerificationModal } from "@/components/VerificationModal";
 
 const WEB_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 const IOS_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "";
@@ -32,11 +29,6 @@ export default function Dashboard() {
   const [dataReady, setDataReady] = useState(false);
   const [claims, setClaims] = useState<OauthClaims | null>(null);
   const [isNewAccount, setIsNewAccount] = useState<boolean | null>(null);
-  const [modalResult, setModalResult] = useState<{
-    platform: string;
-    orgId: string | null;
-  } | null>(null);
-  const [verifying, setVerifying] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (
@@ -75,27 +67,6 @@ export default function Dashboard() {
       : []),
   ];
 
-  const handleVerify = async (platform: Platform) => {
-    if (!claims) return;
-    setVerifying((v) => ({ ...v, [platform.label]: true }));
-    try {
-      const result = await verifyPlatformAction({
-        iss: claims.iss,
-        sub: claims.sub,
-        aud: platform.clientId,
-      });
-      const orgId = result.organizationIds?.[0];
-      setModalResult({ platform: platform.label, orgId: orgId ?? "not found" });
-    } catch (e: unknown) {
-      setModalResult({
-        platform: platform.label,
-        orgId: e instanceof Error ? e.message : "error",
-      });
-    } finally {
-      setVerifying((v) => ({ ...v, [platform.label]: false }));
-    }
-  };
-
   return (
     <>
       {!dataReady ? (
@@ -112,16 +83,12 @@ export default function Dashboard() {
             />
             <OidcCard aud={WEB_CLIENT_ID} claims={claims} />
 
-            <PlatformsCard
+            <LinkedPlatformsCard
               platforms={platforms}
-              hasClaims={!!claims}
-              verifying={verifying}
-              onVerify={handleVerify}
+              claims={claims}
+              currentSubOrgId={session?.organizationId}
+              isNewAccount={isNewAccount}
             />
-
-            {isNewAccount === false && platforms.length > 1 && (
-              <ExistingAccountWarning />
-            )}
 
             {/* No secondary platforms configured */}
             {platforms.length === 1 && (
@@ -143,14 +110,6 @@ export default function Dashboard() {
             )}
           </div>
         </main>
-      )}
-      {modalResult && (
-        <VerificationModal
-          platform={modalResult.platform}
-          orgId={modalResult.orgId}
-          currentSubOrgId={session?.organizationId}
-          onClose={() => setModalResult(null)}
-        />
       )}
     </>
   );

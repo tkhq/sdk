@@ -20,3 +20,9 @@ At web sign-up, register the user's iOS and Android `aud` values as `oidcClaims`
 | Part 2: Mobile | [`mobile/`](./mobile/README.md) | React Native (Expo) app that logs in using the identities registered in Part 1     |
 
 Start with Part 1, then run the mobile app to verify the cross-platform flow end-to-end.
+
+## Testing convenience: Delete account
+
+Both the web and mobile apps include a **Delete account** button. It is included purely as a convenience for iterating during development. Deleting a sub-organization can only be initiated by the authenticated user from within the app, so the button exists to make it easy to reset a test account and sign up again.
+
+> 🚨 **Warning:** The button calls `deleteSubOrganization` with `deleteWithoutExport: true`. This **permanently and irreversibly deletes the sub-organization and all associated wallets**, even if private keys have never been exported. Do not surface this feature in production without additional safeguards.
