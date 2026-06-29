@@ -392,6 +392,102 @@
         "tags": ["Boot Proof"]
       }
     },
+    "/public/v1/query/get_mfa_policies": {
+      "post": {
+        "summary": "Get MFA policies",
+        "description": "Get all MFA policies for a user.",
+        "operationId": "PublicApiService_GetMfaPolicies",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaPoliciesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaPoliciesRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
+      }
+    },
+    "/public/v1/query/get_mfa_policy": {
+      "post": {
+        "summary": "Get MFA policy",
+        "description": "Get a single MFA policy for a user.",
+        "operationId": "PublicApiService_GetMfaPolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaPolicyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaPolicyRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
+      }
+    },
+    "/public/v1/query/get_mfa_status": {
+      "post": {
+        "summary": "Get MFA status",
+        "description": "Get the MFA status of an activity for a specific user or all voting users.",
+        "operationId": "PublicApiService_GetMfaStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaStatusRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
+      }
+    },
     "/public/v1/query/get_nonces": {
       "post": {
         "summary": "Get nonces",
@@ -518,38 +614,6 @@
           }
         ],
         "tags": ["On Ramp"]
-      }
-    },
-    "/public/v1/query/get_organization": {
-      "post": {
-        "summary": "Get organization",
-        "description": "Get details about an organization.",
-        "operationId": "PublicApiService_GetOrganization",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetOrganizationResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetOrganizationRequest"
-            }
-          }
-        ],
-        "tags": ["Organizations"]
       }
     },
     "/public/v1/query/get_organization_configs": {
@@ -712,6 +776,70 @@
         "tags": ["Send Transactions"]
       }
     },
+    "/public/v1/query/get_session_profile": {
+      "post": {
+        "summary": "Get session profile",
+        "description": "Get a single session profile for an organization.",
+        "operationId": "PublicApiService_GetSessionProfile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSessionProfileResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetSessionProfileRequest"
+            }
+          }
+        ],
+        "tags": ["Session Profiles"]
+      }
+    },
+    "/public/v1/query/get_session_profiles": {
+      "post": {
+        "summary": "Get session profiles",
+        "description": "Get all session profiles for an organization.",
+        "operationId": "PublicApiService_GetSessionProfiles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSessionProfilesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetSessionProfilesRequest"
+            }
+          }
+        ],
+        "tags": ["Session Profiles"]
+      }
+    },
     "/public/v1/query/get_smart_contract_interface": {
       "post": {
         "summary": "Get smart contract interface",
@@ -808,16 +936,16 @@
         "tags": ["TVC"]
       }
     },
-    "/public/v1/query/get_tvc_deployment_provisioning_details": {
+    "/public/v1/query/get_tvc_deployment_debug_logs": {
       "post": {
-        "summary": "Get TVC Deployment's Provisioning Details",
-        "description": "Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment",
-        "operationId": "PublicApiService_GetTvcDeploymentProvisioningDetails",
+        "summary": "Get TVC Deployment debug logs",
+        "description": "Get a bounded window of application logs from a debug-mode TVC deployment. Returned lines are collected from every running replica and sorted by platform timestamp.",
+        "operationId": "PublicApiService_GetTvcDeploymentDebugLogs",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1GetTvcDeploymentProvisioningDetailsResponse"
+              "$ref": "#/definitions/v1GetTvcDeploymentDebugLogsResponse"
             }
           },
           "default": {
@@ -833,7 +961,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1GetTvcDeploymentProvisioningDetailsRequest"
+              "$ref": "#/definitions/v1GetTvcDeploymentDebugLogsRequest"
             }
           }
         ],
@@ -939,7 +1067,7 @@
     "/public/v1/query/get_wallet_address_balances": {
       "post": {
         "summary": "Get balances",
-        "description": "Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access.",
+        "description": "Get balances of supported assets for an address on the specified network. Only non-zero balances are returned.",
         "operationId": "PublicApiService_GetWalletAddressBalances",
         "responses": {
           "200": {
@@ -1259,7 +1387,7 @@
     "/public/v1/query/list_supported_assets": {
       "post": {
         "summary": "List supported assets",
-        "description": "List supported assets for the specified network. This feature is in beta - please contact support for access.",
+        "description": "List supported assets for the specified network.",
         "operationId": "PublicApiService_ListSupportedAssets",
         "responses": {
           "200": {
@@ -1672,38 +1800,6 @@
         "tags": ["API Keys"]
       }
     },
-    "/public/v1/submit/create_api_only_users": {
-      "post": {
-        "summary": "Create API-only users",
-        "description": "Create API-only users in an existing organization.",
-        "operationId": "PublicApiService_CreateApiOnlyUsers",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreateApiOnlyUsersRequest"
-            }
-          }
-        ],
-        "tags": ["Users"]
-      }
-    },
     "/public/v1/submit/create_authenticators": {
       "post": {
         "summary": "Create authenticators",
@@ -1798,6 +1894,38 @@
           }
         ],
         "tags": ["Invitations"]
+      }
+    },
+    "/public/v1/submit/create_mfa_policy": {
+      "post": {
+        "summary": "Create MFA policy",
+        "description": "Create a new MFA policy for a user.",
+        "operationId": "PublicApiService_CreateMfaPolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateMfaPolicyRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
       }
     },
     "/public/v1/submit/create_oauth2_credential": {
@@ -2054,6 +2182,38 @@
           }
         ],
         "tags": ["Sessions"]
+      }
+    },
+    "/public/v1/submit/create_session_profile": {
+      "post": {
+        "summary": "Create session profile",
+        "description": "Create a new session profile for an organization.",
+        "operationId": "PublicApiService_CreateSessionProfile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateSessionProfileRequest"
+            }
+          }
+        ],
+        "tags": ["Session Profiles"]
       }
     },
     "/public/v1/submit/create_smart_contract_interface": {
@@ -2502,6 +2662,38 @@
           }
         ],
         "tags": ["Invitations"]
+      }
+    },
+    "/public/v1/submit/delete_mfa_policy": {
+      "post": {
+        "summary": "Delete MFA policy",
+        "description": "Delete an MFA policy for a user.",
+        "operationId": "PublicApiService_DeleteMfaPolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteMfaPolicyRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
       }
     },
     "/public/v1/submit/delete_oauth2_credential": {
@@ -3014,38 +3206,6 @@
           }
         ],
         "tags": ["User Auth"]
-      }
-    },
-    "/public/v1/submit/eth_send_raw_transaction": {
-      "post": {
-        "summary": "Submit a raw transaction for broadcasting.",
-        "description": "Submit a raw transaction (serialized and signed) for broadcasting to the network.",
-        "operationId": "PublicApiService_EthSendRawTransaction",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1EthSendRawTransactionRequest"
-            }
-          }
-        ],
-        "tags": ["Broadcasting"]
       }
     },
     "/public/v1/submit/eth_send_transaction": {
@@ -3590,38 +3750,6 @@
           }
         ],
         "tags": ["Sessions"]
-      }
-    },
-    "/public/v1/submit/post_tvc_quorum_key_share": {
-      "post": {
-        "summary": "Post TVC Quorum Key Share",
-        "description": "Post re-encrypted quorum key share for a TVC deployment.",
-        "operationId": "PublicApiService_PostTvcQuorumKeyShare",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1PostTvcQuorumKeyShareRequest"
-            }
-          }
-        ],
-        "tags": ["TVC"]
       }
     },
     "/public/v1/submit/recover_user": {
@@ -4200,6 +4328,38 @@
         "tags": ["On Ramp"]
       }
     },
+    "/public/v1/submit/update_mfa_policy": {
+      "post": {
+        "summary": "Update MFA policy",
+        "description": "Update an MFA policy for a user.",
+        "operationId": "PublicApiService_UpdateMfaPolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateMfaPolicyRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
+      }
+    },
     "/public/v1/submit/update_oauth2_credential": {
       "post": {
         "summary": "Update an OAuth 2.0 Credential",
@@ -4635,70 +4795,6 @@
         },
         "tags": ["PublicApiService"]
       }
-    },
-    "/tkhq/api/v1/refresh_feature_flags": {
-      "post": {
-        "summary": "Refresh feature flags",
-        "description": "Refresh feature flags by triggering a DB read to flush the in-memory cache.",
-        "operationId": "PublicApiService_RefreshFeatureFlags",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1RefreshFeatureFlagsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1RefreshFeatureFlagsRequest"
-            }
-          }
-        ],
-        "tags": ["FeatureFlags"]
-      }
-    },
-    "/tkhq/api/v1/test_rate_limits": {
-      "post": {
-        "summary": "Test rate limit",
-        "description": "Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite.",
-        "operationId": "PublicApiService_TestRateLimits",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1TestRateLimitsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1TestRateLimitsRequest"
-            }
-          }
-        ],
-        "tags": ["RateLimit"]
-      }
     }
   },
   "definitions": {
@@ -4919,6 +5015,10 @@
         },
         "type": {
           "$ref": "#/definitions/v1CredentialType"
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "The session profile associated with this credential, if any. This field is only applicable for credentials of type CREDENTIAL_TYPE_LOGIN."
         }
       },
       "required": ["publicKey", "type"]
@@ -5208,7 +5308,8 @@
         "ACTIVITY_STATUS_COMPLETED",
         "ACTIVITY_STATUS_FAILED",
         "ACTIVITY_STATUS_CONSENSUS_NEEDED",
-        "ACTIVITY_STATUS_REJECTED"
+        "ACTIVITY_STATUS_REJECTED",
+        "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED"
       ]
     },
     "v1ActivityType": {
@@ -5351,7 +5452,16 @@
         "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER",
         "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER",
         "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
-        "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE"
+        "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE",
+        "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
+        "ACTIVITY_TYPE_CREATE_MFA_POLICY",
+        "ACTIVITY_TYPE_UPDATE_MFA_POLICY",
+        "ACTIVITY_TYPE_DELETE_MFA_POLICY",
+        "ACTIVITY_TYPE_CREATE_SESSION_PROFILE",
+        "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER",
+        "ACTIVITY_TYPE_EARN_DEPOSIT",
+        "ACTIVITY_TYPE_EARN_WITHDRAW",
+        "ACTIVITY_TYPE_UPSERT_EARN_CLIENT_FEE_CONFIG"
       ]
     },
     "v1AddressFormat": {
@@ -5668,6 +5778,45 @@
         "transports"
       ]
     },
+    "v1AuthenticationMethod": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1AuthenticationType",
+          "description": "The type of authenticator (e.g., AUTHENTICATION_TYPE_EMAIL, AUTHENTICATION_TYPE_SESSION) required for this MFA step."
+        },
+        "id": {
+          "type": "string",
+          "description": "Optional specific authenticator ID required (e.g., for requiring a specific session profile id)"
+        }
+      },
+      "required": ["type"]
+    },
+    "v1AuthenticationMethodParams": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1AuthenticationType",
+          "description": "The type of authenticator (e.g., AUTHENTICATION_TYPE_PASSKEY for passkey authentication)."
+        },
+        "id": {
+          "type": "string",
+          "description": "Optional specific authenticator ID required (e.g., UUID of a passkey authenticator). If not provided, any authenticator of the specified type can be used."
+        }
+      },
+      "required": ["type"]
+    },
+    "v1AuthenticationType": {
+      "type": "string",
+      "enum": [
+        "AUTHENTICATION_TYPE_EMAIL_OTP",
+        "AUTHENTICATION_TYPE_SMS_OTP",
+        "AUTHENTICATION_TYPE_PASSKEY",
+        "AUTHENTICATION_TYPE_API_KEY",
+        "AUTHENTICATION_TYPE_OAUTH",
+        "AUTHENTICATION_TYPE_SESSION"
+      ]
+    },
     "v1Authenticator": {
       "type": "object",
       "properties": {
@@ -5810,11 +5959,11 @@
         },
         "qosManifestB64": {
           "type": "string",
-          "description": "The borsch serialized base64 encoded Manifest."
+          "description": "The base64 encoded QOS manifest. Encoding depends on qos_manifest_version."
         },
         "qosManifestEnvelopeB64": {
           "type": "string",
-          "description": "The borsch serialized base64 encoded Manifest Envelope."
+          "description": "The base64 encoded QOS manifest envelope. Encoding depends on qos_manifest_version."
         },
         "deploymentLabel": {
           "type": "string",
@@ -5830,6 +5979,10 @@
         },
         "createdAt": {
           "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "qosManifestVersion": {
+          "type": "string",
+          "description": "QOS manifest schema version."
         }
       },
       "required": [
@@ -5979,30 +6132,6 @@
         }
       },
       "required": ["apiOnlyUsers"]
-    },
-    "v1CreateApiOnlyUsersRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_API_ONLY_USERS"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1CreateApiOnlyUsersIntent"
-        },
-        "generateAppProofs": {
-          "type": "boolean"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateApiOnlyUsersResult": {
       "type": "object",
@@ -6208,6 +6337,78 @@
         }
       },
       "required": ["invitationIds"]
+    },
+    "v1CreateMfaPolicyIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User to add the MFA Policy to."
+        },
+        "mfaPolicyName": {
+          "type": "string",
+          "description": "Human-readable name for a Policy."
+        },
+        "condition": {
+          "type": "string",
+          "description": "A condition expression that evaluates to true or false, determining when this MFA policy applies."
+        },
+        "requiredAuthenticationMethods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RequiredAuthenticationMethodParams"
+          },
+          "description": "An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA."
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The order in which this MFA policy is evaluated, starting from 0, relative to other MFA policies. Lower order values are evaluated first."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Notes for an MFA Policy."
+        }
+      },
+      "required": [
+        "userId",
+        "mfaPolicyName",
+        "condition",
+        "requiredAuthenticationMethods",
+        "order"
+      ]
+    },
+    "v1CreateMfaPolicyRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_MFA_POLICY"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateMfaPolicyIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateMfaPolicyResult": {
+      "type": "object",
+      "properties": {
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        }
+      },
+      "required": ["mfaPolicyId"]
     },
     "v1CreateOauth2CredentialIntent": {
       "type": "object",
@@ -6910,6 +7111,59 @@
         "credentialBundle"
       ]
     },
+    "v1CreateSessionProfileIntent": {
+      "type": "object",
+      "properties": {
+        "sessionProfileName": {
+          "type": "string",
+          "description": "Human-readable name for a Session Profile."
+        },
+        "scope": {
+          "type": "string",
+          "description": "The scope string that defines the permissions for this Session Profile."
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "The duration in seconds for which sessions created with this Session Profile are valid. If not set, expiration will be determined by the value passed in to the intent of login activities."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Notes for a Session Profile."
+        }
+      },
+      "required": ["sessionProfileName", "scope"]
+    },
+    "v1CreateSessionProfileRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_SESSION_PROFILE"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateSessionProfileIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateSessionProfileResult": {
+      "type": "object",
+      "properties": {
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Unique identifier for a given Session Profile."
+        }
+      },
+      "required": ["sessionProfileId"]
+    },
     "v1CreateSmartContractInterfaceIntent": {
       "type": "object",
       "properties": {
@@ -7436,6 +7690,10 @@
         "enableEgress": {
           "type": "boolean",
           "description": "Enables network egress for this TVC app. Default if not provided: false."
+        },
+        "enableDebugModeDeployments": {
+          "type": "boolean",
+          "description": "When true, this app may create deployments in debug-mode. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. Cannot be changed after app creation. Setting this true means the app's quorum key is considered permanently insecure, and a new app with a fresh quorum key must be created. Default if not provided: false."
         }
       },
       "required": ["name", "quorumPublicKey"]
@@ -8219,6 +8477,51 @@
         }
       },
       "required": ["invitationId"]
+    },
+    "v1DeleteMfaPolicyIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User to delete the MFA Policy from."
+        },
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        }
+      },
+      "required": ["userId", "mfaPolicyId"]
+    },
+    "v1DeleteMfaPolicyRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_MFA_POLICY"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteMfaPolicyIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteMfaPolicyResult": {
+      "type": "object",
+      "properties": {
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        }
+      },
+      "required": ["mfaPolicyId"]
     },
     "v1DeleteOauth2CredentialIntent": {
       "type": "object",
@@ -9032,6 +9335,179 @@
       },
       "required": ["privateKeyId"]
     },
+    "v1EarnDeployWrapperIntent": {
+      "type": "object",
+      "properties": {
+        "vaultAddress": {
+          "type": "string",
+          "description": "Address of the underlying yield vault to wrap (from the EarnVaults catalog)."
+        },
+        "chainCaip2": {
+          "type": "string",
+          "enum": [
+            "eip155:1",
+            "eip155:8453",
+            "eip155:42161",
+            "eip155:137",
+            "eip155:56",
+            "eip155:4217"
+          ],
+          "description": "CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base)."
+        }
+      },
+      "required": ["vaultAddress", "chainCaip2"]
+    },
+    "v1EarnDeployWrapperResult": {
+      "type": "object",
+      "properties": {
+        "wrapperAddress": {
+          "type": "string",
+          "description": "Address of the deployed fee wrapper (the deposit target)."
+        },
+        "splitterAddress": {
+          "type": "string",
+          "description": "Address of the deployed fee splitter (PaymentSplitter for Morpho, RevenueSplitterOwner for Aave)."
+        },
+        "deployTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the wrapper deployment."
+        }
+      },
+      "required": ["wrapperAddress", "splitterAddress", "deployTxHash"]
+    },
+    "v1EarnDepositIntent": {
+      "type": "object",
+      "properties": {
+        "vaultAddress": {
+          "type": "string",
+          "description": "Address of the underlying yield vault to deposit into. The org must have an enabled wrapper for this vault."
+        },
+        "signWith": {
+          "type": "string",
+          "description": "A Wallet account address or Private Key address to deposit from and sign with. Must be an on-chain address; Private Key identifiers are not supported."
+        },
+        "assets": {
+          "type": "string",
+          "description": "Amount of the underlying asset to deposit, in raw on-chain units (e.g., '1000000' for 1 USDC at 6 decimals)."
+        },
+        "chainCaip2": {
+          "type": "string",
+          "enum": [
+            "eip155:1",
+            "eip155:8453",
+            "eip155:42161",
+            "eip155:137",
+            "eip155:56",
+            "eip155:4217"
+          ],
+          "description": "CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base)."
+        },
+        "sponsor": {
+          "type": "boolean",
+          "description": "Whether to sponsor this transaction via Gas Station."
+        }
+      },
+      "required": ["vaultAddress", "signWith", "assets", "chainCaip2"]
+    },
+    "v1EarnDepositResult": {
+      "type": "object",
+      "properties": {
+        "depositTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the deposit."
+        },
+        "sharesMinted": {
+          "type": "string",
+          "description": "Number of wrapper shares minted to the depositor, in raw on-chain units."
+        },
+        "wrapperAddress": {
+          "type": "string",
+          "description": "Address of the fee wrapper the deposit was routed to."
+        },
+        "depositRequestId": {
+          "type": "string",
+          "description": "Identifier to poll deposit status via EarnDepositStatus (for the async/sponsored path)."
+        }
+      },
+      "required": [
+        "depositTxHash",
+        "sharesMinted",
+        "wrapperAddress",
+        "depositRequestId"
+      ]
+    },
+    "v1EarnWithdrawIntent": {
+      "type": "object",
+      "properties": {
+        "vaultAddress": {
+          "type": "string",
+          "description": "Address of the underlying yield vault to withdraw from. The org must have an enabled wrapper for this vault."
+        },
+        "signWith": {
+          "type": "string",
+          "description": "A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported."
+        },
+        "chainCaip2": {
+          "type": "string",
+          "enum": [
+            "eip155:1",
+            "eip155:8453",
+            "eip155:42161",
+            "eip155:137",
+            "eip155:56",
+            "eip155:4217"
+          ],
+          "description": "CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base)."
+        },
+        "sponsor": {
+          "type": "boolean",
+          "description": "Whether to sponsor this transaction via Gas Station."
+        },
+        "amountType": {
+          "type": "string",
+          "enum": ["SHARES", "ASSETS"],
+          "description": "Whether amount_value is denominated in shares or assets. 'SHARES' redeems wrapper shares (calls redeem()); 'ASSETS' withdraws underlying assets (calls withdraw(), enabling yield-only claims)."
+        },
+        "amountValue": {
+          "type": "string",
+          "description": "The amount to withdraw, in raw on-chain units, interpreted according to amount_type."
+        }
+      },
+      "required": [
+        "vaultAddress",
+        "signWith",
+        "chainCaip2",
+        "amountType",
+        "amountValue"
+      ]
+    },
+    "v1EarnWithdrawResult": {
+      "type": "object",
+      "properties": {
+        "withdrawTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the withdrawal."
+        },
+        "withdrawRequestId": {
+          "type": "string",
+          "description": "Identifier to poll withdrawal status via EarnWithdrawStatus."
+        },
+        "assetsReceived": {
+          "type": "string",
+          "description": "Amount of the underlying asset received, in raw on-chain units."
+        },
+        "sharesBurned": {
+          "type": "string",
+          "description": "Number of wrapper shares burned, in raw on-chain units."
+        }
+      },
+      "required": [
+        "withdrawTxHash",
+        "withdrawRequestId",
+        "assetsReceived",
+        "sharesBurned"
+      ]
+    },
     "v1Effect": {
       "type": "string",
       "enum": ["EFFECT_ALLOW", "EFFECT_DENY"]
@@ -9285,6 +9761,24 @@
       },
       "required": ["userId"]
     },
+    "v1EthCallParams": {
+      "type": "object",
+      "properties": {
+        "to": {
+          "type": "string",
+          "description": "Recipient address as a hex string with 0x prefix."
+        },
+        "value": {
+          "type": "string",
+          "description": "Amount of native asset to send in wei."
+        },
+        "data": {
+          "type": "string",
+          "description": "Hex-encoded call data for contract interactions."
+        }
+      },
+      "required": ["to"]
+    },
     "v1EthFailureDetails": {
       "type": "object",
       "properties": {
@@ -9313,36 +9807,14 @@
             "eip155:8453",
             "eip155:84532",
             "eip155:137",
-            "eip155:80002"
+            "eip155:80002",
+            "eip155:56",
+            "eip155:97"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         }
       },
       "required": ["signedTransaction", "caip2"]
-    },
-    "v1EthSendRawTransactionRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1EthSendRawTransactionIntent"
-        },
-        "generateAppProofs": {
-          "type": "boolean"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1EthSendRawTransactionResult": {
       "type": "object",
@@ -9373,7 +9845,9 @@
             "eip155:8453",
             "eip155:84532",
             "eip155:137",
-            "eip155:80002"
+            "eip155:80002",
+            "eip155:56",
+            "eip155:97"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
@@ -9416,12 +9890,72 @@
       },
       "required": ["from", "caip2", "to"]
     },
+    "v1EthSendTransactionIntentV2": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "A wallet or private key address to sign with. This does not support private key IDs."
+        },
+        "caip2": {
+          "type": "string",
+          "enum": [
+            "eip155:1",
+            "eip155:11155111",
+            "eip155:8453",
+            "eip155:84532",
+            "eip155:137",
+            "eip155:80002",
+            "eip155:56",
+            "eip155:97"
+          ],
+          "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
+        },
+        "sponsor": {
+          "type": "boolean",
+          "description": "Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station."
+        },
+        "nonce": {
+          "type": "string",
+          "description": "Outer transaction nonce. Omit to auto-fetch."
+        },
+        "gasLimit": {
+          "type": "string",
+          "description": "Maximum amount of gas for the outer transaction. Omit to auto-estimate."
+        },
+        "maxFeePerGas": {
+          "type": "string",
+          "description": "Maximum total fee per gas unit (base fee + priority fee) in wei. Omit to auto-estimate."
+        },
+        "maxPriorityFeePerGas": {
+          "type": "string",
+          "description": "Maximum priority fee (tip) per gas unit in wei. Omit to auto-estimate."
+        },
+        "deadline": {
+          "type": "string",
+          "description": "Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true."
+        },
+        "gasStationNonce": {
+          "type": "string",
+          "description": "The gas station delegate contract nonce. Only used when sponsor=true. Omit to auto-fetch."
+        },
+        "calls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EthCallParams"
+          },
+          "description": "Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station."
+        }
+      },
+      "required": ["from", "caip2", "calls"]
+    },
     "v1EthSendTransactionRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_ETH_SEND_TRANSACTION"]
+          "enum": ["ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -9432,7 +9966,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1EthSendTransactionIntent"
+          "$ref": "#/definitions/v1EthSendTransactionIntentV2"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -9441,6 +9975,16 @@
       "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1EthSendTransactionResult": {
+      "type": "object",
+      "properties": {
+        "sendTransactionStatusId": {
+          "type": "string",
+          "description": "The send_transaction_status ID associated with the transaction submission"
+        }
+      },
+      "required": ["sendTransactionStatusId"]
+    },
+    "v1EthSendTransactionResultV2": {
       "type": "object",
       "properties": {
         "sendTransactionStatusId": {
@@ -10069,6 +10613,94 @@
       },
       "required": ["organizationId", "appName"]
     },
+    "v1GetMfaPoliciesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given user."
+        }
+      },
+      "required": ["organizationId", "userId"]
+    },
+    "v1GetMfaPoliciesResponse": {
+      "type": "object",
+      "properties": {
+        "mfaPolicies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MfaPolicy"
+          },
+          "description": "A list of multi-factor authentication policies for a user."
+        }
+      },
+      "required": ["mfaPolicies"]
+    },
+    "v1GetMfaPolicyRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given user."
+        },
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA policy."
+        }
+      },
+      "required": ["organizationId", "userId", "mfaPolicyId"]
+    },
+    "v1GetMfaPolicyResponse": {
+      "type": "object",
+      "properties": {
+        "mfaPolicy": {
+          "$ref": "#/definitions/v1MfaPolicy",
+          "description": "Multi-factor authentication policy for a user."
+        }
+      },
+      "required": ["mfaPolicy"]
+    },
+    "v1GetMfaStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "activityId": {
+          "type": "string",
+          "description": "The unique identifier of the activity to get MFA status for."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Optional user ID to filter MFA status for a specific user."
+        }
+      },
+      "required": ["organizationId", "activityId"]
+    },
+    "v1GetMfaStatusResponse": {
+      "type": "object",
+      "properties": {
+        "mfaStatuses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MfaStatus"
+          },
+          "description": "A list of MFA statuses for the activity's votes."
+        }
+      },
+      "required": ["mfaStatuses"]
+    },
     "v1GetNoncesRequest": {
       "type": "object",
       "properties": {
@@ -10088,7 +10720,9 @@
             "eip155:8453",
             "eip155:84532",
             "eip155:137",
-            "eip155:80002"
+            "eip155:80002",
+            "eip155:56",
+            "eip155:97"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
@@ -10216,26 +10850,6 @@
         }
       },
       "required": ["configs"]
-    },
-    "v1GetOrganizationRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given organization."
-        }
-      },
-      "required": ["organizationId"]
-    },
-    "v1GetOrganizationResponse": {
-      "type": "object",
-      "properties": {
-        "organizationData": {
-          "$ref": "#/definitions/v1OrganizationData",
-          "description": "Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization."
-        }
-      },
-      "required": ["organizationData"]
     },
     "v1GetPoliciesRequest": {
       "type": "object",
@@ -10400,6 +11014,54 @@
       },
       "required": ["txStatus"]
     },
+    "v1GetSessionProfileRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Unique identifier for a session profile."
+        }
+      },
+      "required": ["organizationId", "sessionProfileId"]
+    },
+    "v1GetSessionProfileResponse": {
+      "type": "object",
+      "properties": {
+        "sessionProfile": {
+          "$ref": "#/definitions/v1SessionProfile",
+          "description": "Session profile for a user, including details about the user's authenticators, Oauth providers, API keys, and MFA policies."
+        }
+      },
+      "required": ["sessionProfile"]
+    },
+    "v1GetSessionProfilesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetSessionProfilesResponse": {
+      "type": "object",
+      "properties": {
+        "sessionProfiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SessionProfile"
+          },
+          "description": "A list of session profiles for users in the organization."
+        }
+      },
+      "required": ["sessionProfiles"]
+    },
     "v1GetSmartContractInterfaceRequest": {
       "type": "object",
       "properties": {
@@ -10559,7 +11221,7 @@
       },
       "required": ["tvcApps"]
     },
-    "v1GetTvcDeploymentProvisioningDetailsRequest": {
+    "v1GetTvcDeploymentDebugLogsRequest": {
       "type": "object",
       "properties": {
         "organizationId": {
@@ -10568,26 +11230,34 @@
         },
         "deploymentId": {
           "type": "string",
-          "description": "Unique identifier for a given TVC Deployment."
+          "description": "Unique identifier for a given TVC Deployment. The deployment must be running in debug mode."
+        },
+        "tailLines": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit returned history to the last N lines per replica. If unset or zero, no tail-line limit is applied."
+        },
+        "sinceSeconds": {
+          "type": "string",
+          "format": "int64",
+          "description": "Return logs newer than this many seconds ago. If unset or zero, no since-time limit is applied. Useful for clients that poll to follow logs."
         }
       },
       "required": ["organizationId", "deploymentId"]
     },
-    "v1GetTvcDeploymentProvisioningDetailsResponse": {
+    "v1GetTvcDeploymentDebugLogsResponse": {
       "type": "object",
       "properties": {
-        "attestationDocument": {
-          "type": "string",
-          "format": "byte",
-          "description": "The attestation document of the provisioning enclave in a TVC deployment."
-        },
-        "manifestEnvelope": {
-          "type": "string",
-          "format": "byte",
-          "description": "The manifest envelope containing the TVC deployment's manifest and signatures."
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcDeploymentDebugLogEntry"
+          },
+          "description": "Application log entries sorted by platform timestamp."
         }
       },
-      "required": ["attestationDocument", "manifestEnvelope"]
+      "required": ["entries"]
     },
     "v1GetTvcDeploymentRequest": {
       "type": "object",
@@ -10784,6 +11454,12 @@
             "eip155:84532",
             "eip155:137",
             "eip155:80002",
+            "eip155:42161",
+            "eip155:4217",
+            "eip155:42431",
+            "eip155:421614",
+            "eip155:56",
+            "eip155:97",
             "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
             "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
           ],
@@ -12134,61 +12810,35 @@
         },
         "postTvcQuorumKeyShareIntent": {
           "$ref": "#/definitions/v1PostTvcQuorumKeyShareIntent"
+        },
+        "ethSendTransactionIntentV2": {
+          "$ref": "#/definitions/v1EthSendTransactionIntentV2"
+        },
+        "createMfaPolicyIntent": {
+          "$ref": "#/definitions/v1CreateMfaPolicyIntent"
+        },
+        "updateMfaPolicyIntent": {
+          "$ref": "#/definitions/v1UpdateMfaPolicyIntent"
+        },
+        "deleteMfaPolicyIntent": {
+          "$ref": "#/definitions/v1DeleteMfaPolicyIntent"
+        },
+        "createSessionProfileIntent": {
+          "$ref": "#/definitions/v1CreateSessionProfileIntent"
+        },
+        "earnDeployWrapperIntent": {
+          "$ref": "#/definitions/v1EarnDeployWrapperIntent"
+        },
+        "earnDepositIntent": {
+          "$ref": "#/definitions/v1EarnDepositIntent"
+        },
+        "earnWithdrawIntent": {
+          "$ref": "#/definitions/v1EarnWithdrawIntent"
+        },
+        "upsertEarnClientFeeConfigIntent": {
+          "$ref": "#/definitions/v1UpsertEarnClientFeeConfigIntent"
         }
       }
-    },
-    "v1Invitation": {
-      "type": "object",
-      "properties": {
-        "invitationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Invitation object."
-        },
-        "receiverUserName": {
-          "type": "string",
-          "description": "The name of the intended Invitation recipient."
-        },
-        "receiverEmail": {
-          "type": "string",
-          "description": "The email address of the intended Invitation recipient."
-        },
-        "receiverUserTags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "A list of tags assigned to the Invitation recipient."
-        },
-        "accessType": {
-          "$ref": "#/definitions/v1AccessType",
-          "description": "The User's permissible access method(s)."
-        },
-        "status": {
-          "$ref": "#/definitions/v1InvitationStatus",
-          "description": "The current processing status of a specified Invitation."
-        },
-        "createdAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "updatedAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "senderUserId": {
-          "type": "string",
-          "description": "Unique identifier for the Sender of an Invitation."
-        }
-      },
-      "required": [
-        "invitationId",
-        "receiverUserName",
-        "receiverEmail",
-        "receiverUserTags",
-        "accessType",
-        "status",
-        "createdAt",
-        "updatedAt",
-        "senderUserId"
-      ]
     },
     "v1InvitationParams": {
       "type": "object",
@@ -12223,14 +12873,6 @@
         "receiverUserTags",
         "accessType",
         "senderUserId"
-      ]
-    },
-    "v1InvitationStatus": {
-      "type": "string",
-      "enum": [
-        "INVITATION_STATUS_CREATED",
-        "INVITATION_STATUS_ACCEPTED",
-        "INVITATION_STATUS_REVOKED"
       ]
     },
     "v1IpAllowlist": {
@@ -12381,6 +13023,12 @@
             "eip155:84532",
             "eip155:137",
             "eip155:80002",
+            "eip155:42161",
+            "eip155:4217",
+            "eip155:42431",
+            "eip155:421614",
+            "eip155:56",
+            "eip155:97",
             "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
             "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
           ],
@@ -12449,6 +13097,20 @@
       },
       "required": ["webhookEndpoints"]
     },
+    "v1LogLine": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "One log line, exactly as the application printed it (without the trailing newline)"
+        },
+        "ts": {
+          "$ref": "#/definitions/externaldatav1Timestamp",
+          "description": "When the line was logged. Stable across replays, so lines can be chronologically merged across pods"
+        }
+      },
+      "required": ["content"]
+    },
     "v1LoginUsage": {
       "type": "object",
       "properties": {
@@ -12458,6 +13120,95 @@
         }
       },
       "required": ["publicKey"]
+    },
+    "v1MfaPolicy": {
+      "type": "object",
+      "properties": {
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        },
+        "mfaPolicyName": {
+          "type": "string",
+          "description": "Human-readable name for an MFA Policy."
+        },
+        "condition": {
+          "type": "string",
+          "description": "A condition expression that evaluates to true or false, determining when this MFA policy applies."
+        },
+        "requiredAuthenticationMethods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RequiredAuthenticationMethod"
+          },
+          "description": "An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA."
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The order in which this policy is evaluated relative to other MFA policies."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional human-readable notes added by a User to describe a particular MFA policy."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "mfaPolicyId",
+        "mfaPolicyName",
+        "condition",
+        "requiredAuthenticationMethods",
+        "order",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1MfaStatus": {
+      "type": "object",
+      "properties": {
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        },
+        "satisfied": {
+          "type": "boolean",
+          "description": "Whether the MFA policy requirements are currently satisfied."
+        },
+        "satisfiedMethods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticationMethod"
+          },
+          "description": "A list of authentication methods already satisfied for this MFA policy."
+        },
+        "requiredMethods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RequiredAuthenticationMethod"
+          },
+          "description": "An ordered list of authentication requirements needed to satisfy this MFA policy."
+        }
+      },
+      "required": [
+        "mfaPolicyId",
+        "userId",
+        "satisfied",
+        "satisfiedMethods",
+        "requiredMethods"
+      ]
     },
     "v1MnemonicLanguage": {
       "type": "string",
@@ -12661,6 +13412,10 @@
         "invalidateExisting": {
           "type": "boolean",
           "description": "Invalidate all other previously generated Login API keys"
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used."
         }
       },
       "required": ["oidcToken", "publicKey"]
@@ -12847,76 +13602,6 @@
         "OPERATOR_CONTAINS_ALL"
       ]
     },
-    "v1OrganizationData": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "users": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1User"
-          }
-        },
-        "policies": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Policy"
-          }
-        },
-        "privateKeys": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1PrivateKey"
-          }
-        },
-        "invitations": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Invitation"
-          }
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/datav1Tag"
-          }
-        },
-        "rootQuorum": {
-          "$ref": "#/definitions/externaldatav1Quorum"
-        },
-        "features": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Feature"
-          }
-        },
-        "wallets": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Wallet"
-          }
-        },
-        "smartContractInterfaceReferences": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1SmartContractInterfaceReference"
-          }
-        }
-      }
-    },
     "v1OtpAuthIntent": {
       "type": "object",
       "properties": {
@@ -13011,6 +13696,10 @@
         "clientSignature": {
           "$ref": "#/definitions/v1ClientSignature",
           "description": "Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step."
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used."
         }
       },
       "required": ["verificationToken", "publicKey"]
@@ -13037,6 +13726,10 @@
         "invalidateExisting": {
           "type": "boolean",
           "description": "Invalidate all other previously generated Login sessions"
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used."
         }
       },
       "required": ["verificationToken", "publicKey", "clientSignature"]
@@ -13083,7 +13776,8 @@
         "OUTCOME_DENY_IMPLICIT",
         "OUTCOME_REQUIRES_CONSENSUS",
         "OUTCOME_REJECTED",
-        "OUTCOME_ERROR"
+        "OUTCOME_ERROR",
+        "OUTCOME_REQUIRES_AUTHENTICATORS"
       ]
     },
     "v1Pagination": {
@@ -13182,27 +13876,6 @@
         "ephemeralPublicKeyHex",
         "shareApprovalBundle"
       ]
-    },
-    "v1PostTvcQuorumKeyShareRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1PostTvcQuorumKeyShareIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1PostTvcQuorumKeyShareResult": {
       "type": "object",
@@ -13420,12 +14093,6 @@
       },
       "required": ["authenticatorId"]
     },
-    "v1RefreshFeatureFlagsRequest": {
-      "type": "object"
-    },
-    "v1RefreshFeatureFlagsResponse": {
-      "type": "object"
-    },
     "v1RejectActivityIntent": {
       "type": "object",
       "properties": {
@@ -13543,6 +14210,34 @@
         }
       },
       "required": ["features"]
+    },
+    "v1RequiredAuthenticationMethod": {
+      "type": "object",
+      "properties": {
+        "any": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticationMethod"
+          },
+          "description": "A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them."
+        }
+      },
+      "required": ["any"]
+    },
+    "v1RequiredAuthenticationMethodParams": {
+      "type": "object",
+      "properties": {
+        "any": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticationMethodParams"
+          },
+          "description": "A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them."
+        }
+      },
+      "required": ["any"]
     },
     "v1RestoreTvcDeploymentIntent": {
       "type": "object",
@@ -13938,6 +14633,33 @@
         },
         "postTvcQuorumKeyShareResult": {
           "$ref": "#/definitions/v1PostTvcQuorumKeyShareResult"
+        },
+        "ethSendTransactionResultV2": {
+          "$ref": "#/definitions/v1EthSendTransactionResultV2"
+        },
+        "createMfaPolicyResult": {
+          "$ref": "#/definitions/v1CreateMfaPolicyResult"
+        },
+        "updateMfaPolicyResult": {
+          "$ref": "#/definitions/v1UpdateMfaPolicyResult"
+        },
+        "deleteMfaPolicyResult": {
+          "$ref": "#/definitions/v1DeleteMfaPolicyResult"
+        },
+        "createSessionProfileResult": {
+          "$ref": "#/definitions/v1CreateSessionProfileResult"
+        },
+        "earnDeployWrapperResult": {
+          "$ref": "#/definitions/v1EarnDeployWrapperResult"
+        },
+        "earnDepositResult": {
+          "$ref": "#/definitions/v1EarnDepositResult"
+        },
+        "earnWithdrawResult": {
+          "$ref": "#/definitions/v1EarnWithdrawResult"
+        },
+        "upsertEarnClientFeeConfigResult": {
+          "$ref": "#/definitions/v1UpsertEarnClientFeeConfigResult"
         }
       }
     },
@@ -14190,6 +14912,44 @@
           }
         }
       }
+    },
+    "v1SessionProfile": {
+      "type": "object",
+      "properties": {
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Unique identifier for a given Session Profile."
+        },
+        "sessionProfileName": {
+          "type": "string",
+          "description": "Human-readable name for a Session Profile."
+        },
+        "scope": {
+          "type": "string",
+          "description": "The specific scope that a session created with this profile is limited to."
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "Optional window (in seconds) indicating how long sessions created with this profile should last."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional human-readable notes added by a User to describe a particular Session Profile."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "sessionProfileId",
+        "sessionProfileName",
+        "scope",
+        "createdAt",
+        "updatedAt"
+      ]
     },
     "v1SetIpAllowlistIntent": {
       "type": "object",
@@ -14584,20 +15344,6 @@
         },
         "credProps": {
           "$ref": "#/definitions/v1CredPropsAuthenticationExtensionsClientOutputs"
-        }
-      }
-    },
-    "v1SmartContractInterfaceReference": {
-      "type": "object",
-      "properties": {
-        "smartContractInterfaceId": {
-          "type": "string"
-        },
-        "smartContractAddress": {
-          "type": "string"
-        },
-        "digest": {
-          "type": "string"
         }
       }
     },
@@ -15300,6 +16046,10 @@
         "invalidateExisting": {
           "type": "boolean",
           "description": "Invalidate all other previously generated Login API keys"
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used."
         }
       },
       "required": ["publicKey"]
@@ -15341,28 +16091,6 @@
     "v1TagType": {
       "type": "string",
       "enum": ["TAG_TYPE_USER", "TAG_TYPE_PRIVATE_KEY"]
-    },
-    "v1TestRateLimitsRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons."
-        },
-        "isSetLimit": {
-          "type": "boolean",
-          "description": "Whether or not to set a limit on this request."
-        },
-        "limit": {
-          "type": "integer",
-          "format": "int64",
-          "description": "Rate limit to set for org, if is_set_limit is set to true."
-        }
-      },
-      "required": ["organizationId", "isSetLimit", "limit"]
-    },
-    "v1TestRateLimitsResponse": {
-      "type": "object"
     },
     "v1TokenUsage": {
       "type": "object",
@@ -15441,6 +16169,10 @@
         "publicDomain": {
           "type": "string",
           "description": "The public domain for ingress to this TVC App (in the format \"app-\u003cID\u003e.turnkey.cloud\")."
+        },
+        "enableDebugModeDeployments": {
+          "type": "boolean",
+          "description": "Whether this app permits debug-mode deployments. Set at app creation via CreateTvcAppIntent.enable_debug_mode_deployments and never updated thereafter. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. The app's quorum key is therefore considered permanently insecure once enabled — a new app with a fresh quorum key must be created to return to a secure posture."
         }
       },
       "required": [
@@ -15453,7 +16185,8 @@
         "enableEgress",
         "createdAt",
         "updatedAt",
-        "publicDomain"
+        "publicDomain",
+        "enableDebugModeDeployments"
       ]
     },
     "v1TvcContainerSpec": {
@@ -15571,6 +16304,20 @@
         "updatedAt",
         "delete"
       ]
+    },
+    "v1TvcDeploymentDebugLogEntry": {
+      "type": "object",
+      "properties": {
+        "line": {
+          "$ref": "#/definitions/v1LogLine",
+          "description": "Application log line with its platform timestamp."
+        },
+        "replicaLabel": {
+          "type": "string",
+          "description": "Public replica label that produced this log line, for example 'replica 2/3'."
+        }
+      },
+      "required": ["line", "replicaLabel"]
     },
     "v1TvcHealthCheckType": {
       "type": "string",
@@ -15977,6 +16724,76 @@
         }
       },
       "required": ["fiatOnRampCredentialId"]
+    },
+    "v1UpdateMfaPolicyIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User to update the MFA Policy for."
+        },
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        },
+        "mfaPolicyName": {
+          "type": "string",
+          "description": "Human-readable name for a Policy."
+        },
+        "condition": {
+          "type": "string",
+          "description": "A condition expression that evaluates to true or false, determining when this MFA policy applies."
+        },
+        "requiredAuthenticationMethods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RequiredAuthenticationMethodParams"
+          },
+          "description": "An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA."
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The order in which this MFA policy is evaluated, starting from 0, relative to other MFA policies. Lower order values are evaluated first."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Notes for an MFA Policy."
+        }
+      },
+      "required": ["userId", "mfaPolicyId"]
+    },
+    "v1UpdateMfaPolicyRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_MFA_POLICY"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateMfaPolicyIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateMfaPolicyResult": {
+      "type": "object",
+      "properties": {
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        }
+      },
+      "required": ["mfaPolicyId"]
     },
     "v1UpdateOauth2CredentialIntent": {
       "type": "object",
@@ -16720,6 +17537,30 @@
       },
       "required": ["endpointId", "webhookEndpoint"]
     },
+    "v1UpsertEarnClientFeeConfigIntent": {
+      "type": "object",
+      "properties": {
+        "clientFeeBps": {
+          "type": "string",
+          "description": "Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield."
+        },
+        "clientFeeWallet": {
+          "type": "string",
+          "description": "The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address."
+        }
+      },
+      "required": ["clientFeeBps", "clientFeeWallet"]
+    },
+    "v1UpsertEarnClientFeeConfigResult": {
+      "type": "object",
+      "properties": {
+        "feeUpdateTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the fee configuration update."
+        }
+      },
+      "required": ["feeUpdateTxHash"]
+    },
     "v1UpsertGasUsageConfigIntent": {
       "type": "object",
       "properties": {
@@ -16819,6 +17660,14 @@
         },
         "updatedAt": {
           "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "mfaPolicies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MfaPolicy"
+          },
+          "description": "A list of MFA Policies that define multi-factor authentication requirements for this user."
         }
       },
       "required": [
@@ -16829,7 +17678,8 @@
         "userTags",
         "oauthProviders",
         "createdAt",
-        "updatedAt"
+        "updatedAt",
+        "mfaPolicies"
       ]
     },
     "v1UserParams": {
@@ -17265,6 +18115,10 @@
         "walletDetails": {
           "$ref": "#/definitions/v1Wallet",
           "description": "Wallet details for this account. This is only present when include_wallet_details=true."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for this Wallet Account, unique within the organization."
         }
       },
       "required": [
@@ -17298,6 +18152,10 @@
         "addressFormat": {
           "$ref": "#/definitions/v1AddressFormat",
           "description": "Address format used to generate a wallet Acccount."
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional human-readable name for the account."
         }
       },
       "required": ["curve", "pathFormat", "path", "addressFormat"]

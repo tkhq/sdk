@@ -4,6 +4,7 @@ import {
   TurnkeyApi,
   init,
   withAsyncPolling,
+  createActivityPoller,
   TurnkeyActivityError,
 } from "../index";
 import { readFixture } from "../__fixtures__/shared";
@@ -128,6 +129,101 @@ test("`withAsyncPolling` should throw a rich error when activity requires consen
   }
 
   expect(fetch).toHaveBeenCalledTimes(expectedCallCount);
+});
+
+test("`withAsyncPolling` should throw a rich error when activity needs authenticators", async () => {
+  const mutation = withAsyncPolling({
+    request: TurnkeyApi.createPrivateKeys,
+  });
+
+  const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
+
+  const { expectedCallCount } = chainMockResponseSequence(mockedFetch, [
+    {
+      activity: {
+        status: "ACTIVITY_STATUS_PENDING",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+        id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+      },
+    },
+    {
+      activity: {
+        status: "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+        id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+      },
+    },
+  ]);
+
+  try {
+    await mutation(sampleCreatePrivateKeysInput);
+
+    expect("the mutation above must throw").toEqual("an error");
+  } catch (error) {
+    expect(error).toBeInstanceOf(TurnkeyActivityError);
+    const richError = error as TurnkeyActivityError;
+    const { message, activityId, activityStatus, activityType } = richError;
+
+    expect({
+      message,
+      activityId,
+      activityStatus,
+      activityType,
+    }).toMatchInlineSnapshot(`
+      {
+        "activityId": "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+        "activityStatus": "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED",
+        "activityType": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+        "message": "Authenticators needed for activity ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+      }
+    `);
+  }
+
+  expect(fetch).toHaveBeenCalledTimes(expectedCallCount);
+});
+
+test("`createActivityPoller` should throw a rich error when activity needs authenticators", async () => {
+  const requestFn = jest.fn(async () => ({
+    activity: createActivityFixture({
+      status: "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED",
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+      id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+    }),
+  }));
+  const client = {
+    getActivity: jest.fn(),
+  };
+  const mutation = createActivityPoller({
+    client: client as any,
+    requestFn,
+  });
+
+  try {
+    await mutation(sampleCreatePrivateKeysInput.body);
+
+    expect("the mutation above must throw").toEqual("an error");
+  } catch (error) {
+    expect(error).toBeInstanceOf(TurnkeyActivityError);
+    const richError = error as TurnkeyActivityError;
+    const { message, activityId, activityStatus, activityType } = richError;
+
+    expect({
+      message,
+      activityId,
+      activityStatus,
+      activityType,
+    }).toMatchInlineSnapshot(`
+      {
+        "activityId": "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+        "activityStatus": "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED",
+        "activityType": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+        "message": "Authenticators needed for activity ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+      }
+    `);
+  }
+
+  expect(requestFn).toHaveBeenCalledTimes(1);
+  expect(client.getActivity).not.toHaveBeenCalled();
 });
 
 test("`withAsyncPolling` should throw a rich error when activity is rejected", async () => {
@@ -311,6 +407,30 @@ function createMockResponse(result: { activity: Partial<TActivity> }) {
   response.ok = true;
   response.json = async () => result;
   return Promise.resolve(response);
+}
+
+function createActivityFixture(overrides: Partial<TActivity> = {}): TActivity {
+  return {
+    id: "activity-id",
+    organizationId: "organization-id",
+    status: "ACTIVITY_STATUS_PENDING",
+    type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+    intent: {},
+    result: {},
+    votes: [],
+    fingerprint: "fingerprint",
+    canApprove: false,
+    canReject: false,
+    createdAt: {
+      seconds: "0",
+      nanos: "0",
+    },
+    updatedAt: {
+      seconds: "0",
+      nanos: "0",
+    },
+    ...overrides,
+  };
 }
 
 function chainMockResponseSequence(

@@ -384,6 +384,8 @@ export type v1WalletAccountParams = {
   path: string;
   /** Address format used to generate a wallet Acccount. */
   addressFormat: v1AddressFormat;
+  /** Optional human-readable name for the account. */
+  name?: string;
 };
 
 export type v1WalletParams = {
@@ -497,6 +499,8 @@ export type externaldatav1Credential = {
   /** The public component of a cryptographic key pair used to sign messages and transactions. */
   publicKey: string;
   type: v1CredentialType;
+  /** The session profile associated with this credential, if any. This field is only applicable for credentials of type CREDENTIAL_TYPE_LOGIN. */
+  sessionProfileId?: string;
 };
 
 export type externaldatav1Quorum = {
@@ -608,7 +612,8 @@ export type v1ActivityStatus =
   | "ACTIVITY_STATUS_COMPLETED"
   | "ACTIVITY_STATUS_FAILED"
   | "ACTIVITY_STATUS_CONSENSUS_NEEDED"
-  | "ACTIVITY_STATUS_REJECTED";
+  | "ACTIVITY_STATUS_REJECTED"
+  | "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED";
 
 export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_API_KEYS"
@@ -748,7 +753,16 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER"
   | "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER"
   | "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE"
-  | "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE";
+  | "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE"
+  | "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2"
+  | "ACTIVITY_TYPE_CREATE_MFA_POLICY"
+  | "ACTIVITY_TYPE_UPDATE_MFA_POLICY"
+  | "ACTIVITY_TYPE_DELETE_MFA_POLICY"
+  | "ACTIVITY_TYPE_CREATE_SESSION_PROFILE"
+  | "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER"
+  | "ACTIVITY_TYPE_EARN_DEPOSIT"
+  | "ACTIVITY_TYPE_EARN_WITHDRAW"
+  | "ACTIVITY_TYPE_UPSERT_EARN_CLIENT_FEE_CONFIG";
 
 export type v1ApiKey = {
   /** A User credential that can be used to authenticate to Turnkey. */
@@ -833,6 +847,28 @@ export type v1AssetMetadata = {
   name?: string;
 };
 
+export type v1AuthenticationMethod = {
+  /** The type of authenticator (e.g., AUTHENTICATION_TYPE_EMAIL, AUTHENTICATION_TYPE_SESSION) required for this MFA step. */
+  type: v1AuthenticationType;
+  /** Optional specific authenticator ID required (e.g., for requiring a specific session profile id) */
+  id?: string;
+};
+
+export type v1AuthenticationMethodParams = {
+  /** The type of authenticator (e.g., AUTHENTICATION_TYPE_PASSKEY for passkey authentication). */
+  type: v1AuthenticationType;
+  /** Optional specific authenticator ID required (e.g., UUID of a passkey authenticator). If not provided, any authenticator of the specified type can be used. */
+  id?: string;
+};
+
+export type v1AuthenticationType =
+  | "AUTHENTICATION_TYPE_EMAIL_OTP"
+  | "AUTHENTICATION_TYPE_SMS_OTP"
+  | "AUTHENTICATION_TYPE_PASSKEY"
+  | "AUTHENTICATION_TYPE_API_KEY"
+  | "AUTHENTICATION_TYPE_OAUTH"
+  | "AUTHENTICATION_TYPE_SESSION";
+
 export type v1Authenticator = {
   /** Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
   transports: v1AuthenticatorTransport[];
@@ -875,9 +911,9 @@ export type v1BootProof = {
   ephemeralPublicKeyHex: string;
   /** The DER encoded COSE Sign1 struct Attestation doc. */
   awsAttestationDocB64: string;
-  /** The borsch serialized base64 encoded Manifest. */
+  /** The base64 encoded QOS manifest. Encoding depends on qos_manifest_version. */
   qosManifestB64: string;
-  /** The borsch serialized base64 encoded Manifest Envelope. */
+  /** The base64 encoded QOS manifest envelope. Encoding depends on qos_manifest_version. */
   qosManifestEnvelopeB64: string;
   /** The label under which the enclave app was deployed. */
   deploymentLabel: string;
@@ -886,6 +922,8 @@ export type v1BootProof = {
   /** Owner of the app i.e. 'tkhq' */
   owner: string;
   createdAt: externaldatav1Timestamp;
+  /** QOS manifest schema version. */
+  qosManifestVersion?: string;
 };
 
 export type v1BootProofResponse = {
@@ -1013,6 +1051,35 @@ export type v1CreateInvitationsRequest = {
 export type v1CreateInvitationsResult = {
   /** A list of Invitation IDs */
   invitationIds: string[];
+};
+
+export type v1CreateMfaPolicyIntent = {
+  /** The ID of the User to add the MFA Policy to. */
+  userId: string;
+  /** Human-readable name for a Policy. */
+  mfaPolicyName: string;
+  /** A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+  condition: string;
+  /** An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+  requiredAuthenticationMethods: v1RequiredAuthenticationMethodParams[];
+  /** The order in which this MFA policy is evaluated, starting from 0, relative to other MFA policies. Lower order values are evaluated first. */
+  order: number;
+  /** Notes for an MFA Policy. */
+  notes?: string;
+};
+
+export type v1CreateMfaPolicyRequest = {
+  type: "ACTIVITY_TYPE_CREATE_MFA_POLICY";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateMfaPolicyIntent;
+};
+
+export type v1CreateMfaPolicyResult = {
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
 };
 
 export type v1CreateOauth2CredentialIntent = {
@@ -1312,6 +1379,31 @@ export type v1CreateReadWriteSessionResultV2 = {
   credentialBundle: string;
 };
 
+export type v1CreateSessionProfileIntent = {
+  /** Human-readable name for a Session Profile. */
+  sessionProfileName: string;
+  /** The scope string that defines the permissions for this Session Profile. */
+  scope: string;
+  /** The duration in seconds for which sessions created with this Session Profile are valid. If not set, expiration will be determined by the value passed in to the intent of login activities. */
+  expirationSeconds?: string;
+  /** Notes for a Session Profile. */
+  notes?: string;
+};
+
+export type v1CreateSessionProfileRequest = {
+  type: "ACTIVITY_TYPE_CREATE_SESSION_PROFILE";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateSessionProfileIntent;
+};
+
+export type v1CreateSessionProfileResult = {
+  /** Unique identifier for a given Session Profile. */
+  sessionProfileId: string;
+};
+
 export type v1CreateSmartContractInterfaceIntent = {
   /** Corresponding contract address or program ID */
   smartContractAddress: string;
@@ -1524,6 +1616,8 @@ export type v1CreateTvcAppIntent = {
   shareSetParams?: v1TvcOperatorSetParams;
   /** Enables network egress for this TVC app. Default if not provided: false. */
   enableEgress?: boolean;
+  /** When true, this app may create deployments in debug-mode. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. Cannot be changed after app creation. Setting this true means the app's quorum key is considered permanently insecure, and a new app with a fresh quorum key must be created. Default if not provided: false. */
+  enableDebugModeDeployments?: boolean;
 };
 
 export type v1CreateTvcAppRequest = {
@@ -1850,6 +1944,27 @@ export type v1DeleteInvitationRequest = {
 export type v1DeleteInvitationResult = {
   /** Unique identifier for a given Invitation. */
   invitationId: string;
+};
+
+export type v1DeleteMfaPolicyIntent = {
+  /** The ID of the User to delete the MFA Policy from. */
+  userId: string;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+};
+
+export type v1DeleteMfaPolicyRequest = {
+  type: "ACTIVITY_TYPE_DELETE_MFA_POLICY";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1DeleteMfaPolicyIntent;
+};
+
+export type v1DeleteMfaPolicyResult = {
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
 };
 
 export type v1DeleteOauth2CredentialIntent = {
@@ -2197,6 +2312,90 @@ export type v1DisablePrivateKeyResult = {
   privateKeyId: string;
 };
 
+export type v1EarnDeployWrapperIntent = {
+  /** Address of the underlying yield vault to wrap (from the EarnVaults catalog). */
+  vaultAddress: string;
+  /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
+  chainCaip2:
+    | "eip155:1"
+    | "eip155:8453"
+    | "eip155:42161"
+    | "eip155:137"
+    | "eip155:56"
+    | "eip155:4217";
+};
+
+export type v1EarnDeployWrapperResult = {
+  /** Address of the deployed fee wrapper (the deposit target). */
+  wrapperAddress: string;
+  /** Address of the deployed fee splitter (PaymentSplitter for Morpho, RevenueSplitterOwner for Aave). */
+  splitterAddress: string;
+  /** Transaction hash of the wrapper deployment. */
+  deployTxHash: string;
+};
+
+export type v1EarnDepositIntent = {
+  /** Address of the underlying yield vault to deposit into. The org must have an enabled wrapper for this vault. */
+  vaultAddress: string;
+  /** A Wallet account address or Private Key address to deposit from and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
+  signWith: string;
+  /** Amount of the underlying asset to deposit, in raw on-chain units (e.g., '1000000' for 1 USDC at 6 decimals). */
+  assets: string;
+  /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
+  chainCaip2:
+    | "eip155:1"
+    | "eip155:8453"
+    | "eip155:42161"
+    | "eip155:137"
+    | "eip155:56"
+    | "eip155:4217";
+  /** Whether to sponsor this transaction via Gas Station. */
+  sponsor?: boolean;
+};
+
+export type v1EarnDepositResult = {
+  /** Transaction hash of the deposit. */
+  depositTxHash: string;
+  /** Number of wrapper shares minted to the depositor, in raw on-chain units. */
+  sharesMinted: string;
+  /** Address of the fee wrapper the deposit was routed to. */
+  wrapperAddress: string;
+  /** Identifier to poll deposit status via EarnDepositStatus (for the async/sponsored path). */
+  depositRequestId: string;
+};
+
+export type v1EarnWithdrawIntent = {
+  /** Address of the underlying yield vault to withdraw from. The org must have an enabled wrapper for this vault. */
+  vaultAddress: string;
+  /** A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
+  signWith: string;
+  /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
+  chainCaip2:
+    | "eip155:1"
+    | "eip155:8453"
+    | "eip155:42161"
+    | "eip155:137"
+    | "eip155:56"
+    | "eip155:4217";
+  /** Whether to sponsor this transaction via Gas Station. */
+  sponsor?: boolean;
+  /** Whether amount_value is denominated in shares or assets. 'SHARES' redeems wrapper shares (calls redeem()); 'ASSETS' withdraws underlying assets (calls withdraw(), enabling yield-only claims). */
+  amountType: "SHARES" | "ASSETS";
+  /** The amount to withdraw, in raw on-chain units, interpreted according to amount_type. */
+  amountValue: string;
+};
+
+export type v1EarnWithdrawResult = {
+  /** Transaction hash of the withdrawal. */
+  withdrawTxHash: string;
+  /** Identifier to poll withdrawal status via EarnWithdrawStatus. */
+  withdrawRequestId: string;
+  /** Amount of the underlying asset received, in raw on-chain units. */
+  assetsReceived: string;
+  /** Number of wrapper shares burned, in raw on-chain units. */
+  sharesBurned: string;
+};
+
 export type v1Effect = "EFFECT_ALLOW" | "EFFECT_DENY";
 
 export type v1EmailAuthCustomizationParams = {
@@ -2322,6 +2521,15 @@ export type v1EnableAuthProxyResult = {
   userId: string;
 };
 
+export type v1EthCallParams = {
+  /** Recipient address as a hex string with 0x prefix. */
+  to: string;
+  /** Amount of native asset to send in wei. */
+  value?: string;
+  /** Hex-encoded call data for contract interactions. */
+  data?: string;
+};
+
 export type v1EthFailureDetails = {
   /** Ethereum revert chain, ordered from outermost to innermost. */
   revertChain?: v1RevertChainEntry[];
@@ -2337,7 +2545,9 @@ export type v1EthSendRawTransactionIntent = {
     | "eip155:8453"
     | "eip155:84532"
     | "eip155:137"
-    | "eip155:80002";
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
 };
 
 export type v1EthSendRawTransactionResult = {
@@ -2357,7 +2567,9 @@ export type v1EthSendTransactionIntent = {
     | "eip155:8453"
     | "eip155:84532"
     | "eip155:137"
-    | "eip155:80002";
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
   /** Recipient address as a hex string with 0x prefix. */
   to: string;
   /** Amount of native asset to send in wei. */
@@ -2378,17 +2590,53 @@ export type v1EthSendTransactionIntent = {
   gasStationNonce?: string;
 };
 
+export type v1EthSendTransactionIntentV2 = {
+  /** A wallet or private key address to sign with. This does not support private key IDs. */
+  from: string;
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
+  /** Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station. */
+  sponsor?: boolean;
+  /** Outer transaction nonce. Omit to auto-fetch. */
+  nonce?: string;
+  /** Maximum amount of gas for the outer transaction. Omit to auto-estimate. */
+  gasLimit?: string;
+  /** Maximum total fee per gas unit (base fee + priority fee) in wei. Omit to auto-estimate. */
+  maxFeePerGas?: string;
+  /** Maximum priority fee (tip) per gas unit in wei. Omit to auto-estimate. */
+  maxPriorityFeePerGas?: string;
+  /** Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true. */
+  deadline?: string;
+  /** The gas station delegate contract nonce. Only used when sponsor=true. Omit to auto-fetch. */
+  gasStationNonce?: string;
+  /** Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station. */
+  calls: v1EthCallParams[];
+};
+
 export type v1EthSendTransactionRequest = {
-  type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION";
+  type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1EthSendTransactionIntent;
+  parameters: v1EthSendTransactionIntentV2;
   generateAppProofs?: boolean;
 };
 
 export type v1EthSendTransactionResult = {
+  /** The send_transaction_status ID associated with the transaction submission */
+  sendTransactionStatusId: string;
+};
+
+export type v1EthSendTransactionResultV2 = {
   /** The send_transaction_status ID associated with the transaction submission */
   sendTransactionStatusId: string;
 };
@@ -2709,6 +2957,46 @@ export type v1GetLatestBootProofRequest = {
   appName: string;
 };
 
+export type v1GetMfaPoliciesRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** Unique identifier for a given user. */
+  userId: string;
+};
+
+export type v1GetMfaPoliciesResponse = {
+  /** A list of multi-factor authentication policies for a user. */
+  mfaPolicies: v1MfaPolicy[];
+};
+
+export type v1GetMfaPolicyRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** Unique identifier for a given user. */
+  userId: string;
+  /** Unique identifier for a given MFA policy. */
+  mfaPolicyId: string;
+};
+
+export type v1GetMfaPolicyResponse = {
+  /** Multi-factor authentication policy for a user. */
+  mfaPolicy: v1MfaPolicy;
+};
+
+export type v1GetMfaStatusRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** The unique identifier of the activity to get MFA status for. */
+  activityId: string;
+  /** Optional user ID to filter MFA status for a specific user. */
+  userId?: string;
+};
+
+export type v1GetMfaStatusResponse = {
+  /** A list of MFA statuses for the activity's votes. */
+  mfaStatuses: v1MfaStatus[];
+};
+
 export type v1GetNoncesRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
@@ -2721,7 +3009,9 @@ export type v1GetNoncesRequest = {
     | "eip155:8453"
     | "eip155:84532"
     | "eip155:137"
-    | "eip155:80002";
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -2857,6 +3147,28 @@ export type v1GetSendTransactionStatusResponse = {
   error?: v1TxError;
 };
 
+export type v1GetSessionProfileRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** Unique identifier for a session profile. */
+  sessionProfileId: string;
+};
+
+export type v1GetSessionProfileResponse = {
+  /** Session profile for a user, including details about the user's authenticators, Oauth providers, API keys, and MFA policies. */
+  sessionProfile: v1SessionProfile;
+};
+
+export type v1GetSessionProfilesRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+};
+
+export type v1GetSessionProfilesResponse = {
+  /** A list of session profiles for users in the organization. */
+  sessionProfiles: v1SessionProfile[];
+};
+
 export type v1GetSmartContractInterfaceRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
@@ -2927,6 +3239,22 @@ export type v1GetTvcAppsRequest = {
 export type v1GetTvcAppsResponse = {
   /** A list of TVC Apps. */
   tvcApps: v1TvcApp[];
+};
+
+export type v1GetTvcDeploymentDebugLogsRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Unique identifier for a given TVC Deployment. The deployment must be running in debug mode. */
+  deploymentId: string;
+  /** Limit returned history to the last N lines per replica. If unset or zero, no tail-line limit is applied. */
+  tailLines?: number;
+  /** Return logs newer than this many seconds ago. If unset or zero, no since-time limit is applied. Useful for clients that poll to follow logs. */
+  sinceSeconds?: string;
+};
+
+export type v1GetTvcDeploymentDebugLogsResponse = {
+  /** Application log entries sorted by platform timestamp. */
+  entries: v1TvcDeploymentDebugLogEntry[];
 };
 
 export type v1GetTvcDeploymentRequest = {
@@ -3024,6 +3352,12 @@ export type v1GetWalletAddressBalancesRequest = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614"
+    | "eip155:56"
+    | "eip155:97"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -3587,6 +3921,15 @@ export type v1Intent = {
   sparkClaimTransferIntent?: v1SparkClaimTransferIntent;
   sparkPrepareLightningReceiveIntent?: v1SparkPrepareLightningReceiveIntent;
   postTvcQuorumKeyShareIntent?: v1PostTvcQuorumKeyShareIntent;
+  ethSendTransactionIntentV2?: v1EthSendTransactionIntentV2;
+  createMfaPolicyIntent?: v1CreateMfaPolicyIntent;
+  updateMfaPolicyIntent?: v1UpdateMfaPolicyIntent;
+  deleteMfaPolicyIntent?: v1DeleteMfaPolicyIntent;
+  createSessionProfileIntent?: v1CreateSessionProfileIntent;
+  earnDeployWrapperIntent?: v1EarnDeployWrapperIntent;
+  earnDepositIntent?: v1EarnDepositIntent;
+  earnWithdrawIntent?: v1EarnWithdrawIntent;
+  upsertEarnClientFeeConfigIntent?: v1UpsertEarnClientFeeConfigIntent;
 };
 
 export type v1InvitationParams = {
@@ -3670,6 +4013,12 @@ export type v1ListSupportedAssetsRequest = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614"
+    | "eip155:56"
+    | "eip155:97"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -3698,9 +4047,46 @@ export type v1ListWebhookEndpointsResponse = {
   webhookEndpoints: v1WebhookEndpointData[];
 };
 
+export type v1LogLine = {
+  /** One log line, exactly as the application printed it (without the trailing newline) */
+  content: string;
+  /** When the line was logged. Stable across replays, so lines can be chronologically merged across pods */
+  ts?: externaldatav1Timestamp;
+};
+
 export type v1LoginUsage = {
   /** Public key for authentication */
   publicKey: string;
+};
+
+export type v1MfaPolicy = {
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+  /** Human-readable name for an MFA Policy. */
+  mfaPolicyName: string;
+  /** A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+  condition: string;
+  /** An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+  requiredAuthenticationMethods: v1RequiredAuthenticationMethod[];
+  /** The order in which this policy is evaluated relative to other MFA policies. */
+  order: number;
+  /** Optional human-readable notes added by a User to describe a particular MFA policy. */
+  notes?: string;
+  createdAt: externaldatav1Timestamp;
+  updatedAt: externaldatav1Timestamp;
+};
+
+export type v1MfaStatus = {
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+  /** Unique identifier for a given User. */
+  userId: string;
+  /** Whether the MFA policy requirements are currently satisfied. */
+  satisfied: boolean;
+  /** A list of authentication methods already satisfied for this MFA policy. */
+  satisfiedMethods: v1AuthenticationMethod[];
+  /** An ordered list of authentication requirements needed to satisfy this MFA policy. */
+  requiredMethods: v1RequiredAuthenticationMethod[];
 };
 
 export type v1MnemonicLanguage =
@@ -3795,6 +4181,8 @@ export type v1OauthLoginIntent = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
 };
 
 export type v1OauthLoginRequest = {
@@ -3904,6 +4292,8 @@ export type v1OtpLoginIntent = {
   invalidateExisting?: boolean;
   /** Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
   clientSignature?: v1ClientSignature;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
 };
 
 export type v1OtpLoginIntentV2 = {
@@ -3917,6 +4307,8 @@ export type v1OtpLoginIntentV2 = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login sessions */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
 };
 
 export type v1OtpLoginResult = {
@@ -3930,7 +4322,8 @@ export type v1Outcome =
   | "OUTCOME_DENY_IMPLICIT"
   | "OUTCOME_REQUIRES_CONSENSUS"
   | "OUTCOME_REJECTED"
-  | "OUTCOME_ERROR";
+  | "OUTCOME_ERROR"
+  | "OUTCOME_REQUIRES_AUTHENTICATORS";
 
 export type v1Pagination = {
   /** A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
@@ -4106,6 +4499,16 @@ export type v1RemoveOrganizationFeatureResult = {
   features: v1Feature[];
 };
 
+export type v1RequiredAuthenticationMethod = {
+  /** A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them. */
+  any: v1AuthenticationMethod[];
+};
+
+export type v1RequiredAuthenticationMethodParams = {
+  /** A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them. */
+  any: v1AuthenticationMethodParams[];
+};
+
 export type v1RestoreTvcDeploymentIntent = {
   /** The unique identifier of the TVC deployment to restore. */
   deploymentId: string;
@@ -4243,6 +4646,15 @@ export type v1Result = {
   sparkClaimTransferResult?: v1SparkClaimTransferResult;
   sparkPrepareLightningReceiveResult?: v1SparkPrepareLightningReceiveResult;
   postTvcQuorumKeyShareResult?: v1PostTvcQuorumKeyShareResult;
+  ethSendTransactionResultV2?: v1EthSendTransactionResultV2;
+  createMfaPolicyResult?: v1CreateMfaPolicyResult;
+  updateMfaPolicyResult?: v1UpdateMfaPolicyResult;
+  deleteMfaPolicyResult?: v1DeleteMfaPolicyResult;
+  createSessionProfileResult?: v1CreateSessionProfileResult;
+  earnDeployWrapperResult?: v1EarnDeployWrapperResult;
+  earnDepositResult?: v1EarnDepositResult;
+  earnWithdrawResult?: v1EarnWithdrawResult;
+  upsertEarnClientFeeConfigResult?: v1UpsertEarnClientFeeConfigResult;
 };
 
 export type v1RevertChainEntry = {
@@ -4337,6 +4749,21 @@ export type v1SelectorV2 = {
   subject?: string;
   operator?: v1Operator;
   targets?: string[];
+};
+
+export type v1SessionProfile = {
+  /** Unique identifier for a given Session Profile. */
+  sessionProfileId: string;
+  /** Human-readable name for a Session Profile. */
+  sessionProfileName: string;
+  /** The specific scope that a session created with this profile is limited to. */
+  scope: string;
+  /** Optional window (in seconds) indicating how long sessions created with this profile should last. */
+  expirationSeconds?: string;
+  /** Optional human-readable notes added by a User to describe a particular Session Profile. */
+  notes?: string;
+  createdAt: externaldatav1Timestamp;
+  updatedAt: externaldatav1Timestamp;
 };
 
 export type v1SetIpAllowlistIntent = {
@@ -4805,6 +5232,8 @@ export type v1StampLoginIntent = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
 };
 
 export type v1StampLoginRequest = {
@@ -4862,6 +5291,8 @@ export type v1TvcApp = {
   liveDeploymentId?: string;
   /** The public domain for ingress to this TVC App (in the format "app-<ID>.turnkey.cloud"). */
   publicDomain: string;
+  /** Whether this app permits debug-mode deployments. Set at app creation via CreateTvcAppIntent.enable_debug_mode_deployments and never updated thereafter. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. The app's quorum key is therefore considered permanently insecure once enabled — a new app with a fresh quorum key must be created to return to a secure posture. */
+  enableDebugModeDeployments: boolean;
 };
 
 export type v1TvcContainerSpec = {
@@ -4904,6 +5335,13 @@ export type v1TvcDeployment = {
   updatedAt: externaldatav1Timestamp;
   /** Whether or not the user wants this deployment deleted from the cluster. */
   delete: boolean;
+};
+
+export type v1TvcDeploymentDebugLogEntry = {
+  /** Application log line with its platform timestamp. */
+  line: v1LogLine;
+  /** Public replica label that produced this log line, for example 'replica 2/3'. */
+  replicaLabel: string;
 };
 
 export type v1TvcHealthCheckType =
@@ -5077,6 +5515,37 @@ export type v1UpdateFiatOnRampCredentialRequest = {
 export type v1UpdateFiatOnRampCredentialResult = {
   /** Unique identifier of the Fiat On-Ramp credential that was updated */
   fiatOnRampCredentialId: string;
+};
+
+export type v1UpdateMfaPolicyIntent = {
+  /** The ID of the User to update the MFA Policy for. */
+  userId: string;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+  /** Human-readable name for a Policy. */
+  mfaPolicyName?: string;
+  /** A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+  condition?: string;
+  /** An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+  requiredAuthenticationMethods?: v1RequiredAuthenticationMethodParams[];
+  /** The order in which this MFA policy is evaluated, starting from 0, relative to other MFA policies. Lower order values are evaluated first. */
+  order?: number;
+  /** Notes for an MFA Policy. */
+  notes?: string;
+};
+
+export type v1UpdateMfaPolicyRequest = {
+  type: "ACTIVITY_TYPE_UPDATE_MFA_POLICY";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1UpdateMfaPolicyIntent;
+};
+
+export type v1UpdateMfaPolicyResult = {
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
 };
 
 export type v1UpdateOauth2CredentialIntent = {
@@ -5411,6 +5880,18 @@ export type v1UpdateWebhookEndpointResult = {
   webhookEndpoint: v1WebhookEndpointData;
 };
 
+export type v1UpsertEarnClientFeeConfigIntent = {
+  /** Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield. */
+  clientFeeBps: string;
+  /** The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
+  clientFeeWallet: string;
+};
+
+export type v1UpsertEarnClientFeeConfigResult = {
+  /** Transaction hash of the fee configuration update. */
+  feeUpdateTxHash: string;
+};
+
 export type v1UpsertGasUsageConfigIntent = {
   /** Gas sponsorship USD limit for the billing organization window. */
   orgWindowLimitUsd: string;
@@ -5450,6 +5931,8 @@ export type v1User = {
   oauthProviders: v1OauthProvider[];
   createdAt: externaldatav1Timestamp;
   updatedAt: externaldatav1Timestamp;
+  /** A list of MFA Policies that define multi-factor authentication requirements for this user. */
+  mfaPolicies: v1MfaPolicy[];
 };
 
 export type v1UserParams = {
@@ -5609,6 +6092,8 @@ export type v1WalletAccount = {
   publicKey?: string;
   /** Wallet details for this account. This is only present when include_wallet_details=true. */
   walletDetails?: v1Wallet;
+  /** Human-readable name for this Wallet Account, unique within the organization. */
+  name?: string;
 };
 
 export type v1WalletKitSettingsParams = {
@@ -5785,6 +6270,49 @@ export type TGetLatestBootProofBody = {
 
 export type TGetLatestBootProofInput = { body: TGetLatestBootProofBody };
 
+export type TGetMfaPoliciesResponse = {
+  /** A list of multi-factor authentication policies for a user. */
+  mfaPolicies: v1MfaPolicy[];
+};
+
+export type TGetMfaPoliciesBody = {
+  organizationId?: string;
+  /** Unique identifier for a given user. */
+  userId: string;
+};
+
+export type TGetMfaPoliciesInput = { body: TGetMfaPoliciesBody };
+
+export type TGetMfaPolicyResponse = {
+  /** Multi-factor authentication policy for a user. */
+  mfaPolicy: v1MfaPolicy;
+};
+
+export type TGetMfaPolicyBody = {
+  organizationId?: string;
+  /** Unique identifier for a given user. */
+  userId: string;
+  /** Unique identifier for a given MFA policy. */
+  mfaPolicyId: string;
+};
+
+export type TGetMfaPolicyInput = { body: TGetMfaPolicyBody };
+
+export type TGetMfaStatusResponse = {
+  /** A list of MFA statuses for the activity's votes. */
+  mfaStatuses: v1MfaStatus[];
+};
+
+export type TGetMfaStatusBody = {
+  organizationId?: string;
+  /** The unique identifier of the activity to get MFA status for. */
+  activityId: string;
+  /** Optional user ID to filter MFA status for a specific user. */
+  userId?: string;
+};
+
+export type TGetMfaStatusInput = { body: TGetMfaStatusBody };
+
 export type TGetNoncesResponse = {
   /** The standard on-chain nonce for the address, if requested. */
   nonce?: string;
@@ -5803,7 +6331,9 @@ export type TGetNoncesBody = {
     | "eip155:8453"
     | "eip155:84532"
     | "eip155:137"
-    | "eip155:80002";
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -5928,6 +6458,30 @@ export type TGetSendTransactionStatusInput = {
   body: TGetSendTransactionStatusBody;
 };
 
+export type TGetSessionProfileResponse = {
+  /** Session profile for a user, including details about the user's authenticators, Oauth providers, API keys, and MFA policies. */
+  sessionProfile: v1SessionProfile;
+};
+
+export type TGetSessionProfileBody = {
+  organizationId?: string;
+  /** Unique identifier for a session profile. */
+  sessionProfileId: string;
+};
+
+export type TGetSessionProfileInput = { body: TGetSessionProfileBody };
+
+export type TGetSessionProfilesResponse = {
+  /** A list of session profiles for users in the organization. */
+  sessionProfiles: v1SessionProfile[];
+};
+
+export type TGetSessionProfilesBody = {
+  organizationId?: string;
+};
+
+export type TGetSessionProfilesInput = { body: TGetSessionProfilesBody };
+
 export type TGetSmartContractInterfaceResponse = {
   /** Object to be used in conjunction with policies to guard transaction signing. */
   smartContractInterface: externaldatav1SmartContractInterface;
@@ -5968,6 +6522,25 @@ export type TGetTvcDeploymentBody = {
 };
 
 export type TGetTvcDeploymentInput = { body: TGetTvcDeploymentBody };
+
+export type TGetTvcDeploymentDebugLogsResponse = {
+  /** Application log entries sorted by platform timestamp. */
+  entries: v1TvcDeploymentDebugLogEntry[];
+};
+
+export type TGetTvcDeploymentDebugLogsBody = {
+  organizationId?: string;
+  /** Unique identifier for a given TVC Deployment. The deployment must be running in debug mode. */
+  deploymentId: string;
+  /** Limit returned history to the last N lines per replica. If unset or zero, no tail-line limit is applied. */
+  tailLines?: number;
+  /** Return logs newer than this many seconds ago. If unset or zero, no since-time limit is applied. Useful for clients that poll to follow logs. */
+  sinceSeconds?: string;
+};
+
+export type TGetTvcDeploymentDebugLogsInput = {
+  body: TGetTvcDeploymentDebugLogsBody;
+};
 
 export type TGetUserResponse = {
   /** Web and/or API user within your organization. */
@@ -6029,6 +6602,12 @@ export type TGetWalletAddressBalancesBody = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614"
+    | "eip155:56"
+    | "eip155:97"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -6166,6 +6745,12 @@ export type TListSupportedAssetsBody = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614"
+    | "eip155:56"
+    | "eip155:97"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -6399,6 +6984,31 @@ export type TCreateInvitationsBody = {
 
 export type TCreateInvitationsInput = { body: TCreateInvitationsBody };
 
+export type TCreateMfaPolicyResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+};
+
+export type TCreateMfaPolicyBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The ID of the User to add the MFA Policy to. */
+  userId: string;
+  /** Human-readable name for a Policy. */
+  mfaPolicyName: string;
+  /** A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+  condition: string;
+  /** An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+  requiredAuthenticationMethods: v1RequiredAuthenticationMethodParams[];
+  /** The order in which this MFA policy is evaluated, starting from 0, relative to other MFA policies. Lower order values are evaluated first. */
+  order: number;
+  /** Notes for an MFA Policy. */
+  notes?: string;
+};
+
+export type TCreateMfaPolicyInput = { body: TCreateMfaPolicyBody };
+
 export type TCreateOauth2CredentialResponse = {
   activity: v1Activity;
   /** Unique identifier of the OAuth 2.0 credential that was created */
@@ -6575,6 +7185,27 @@ export type TCreateReadWriteSessionInput = {
   body: TCreateReadWriteSessionBody;
 };
 
+export type TCreateSessionProfileResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given Session Profile. */
+  sessionProfileId: string;
+};
+
+export type TCreateSessionProfileBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Human-readable name for a Session Profile. */
+  sessionProfileName: string;
+  /** The scope string that defines the permissions for this Session Profile. */
+  scope: string;
+  /** The duration in seconds for which sessions created with this Session Profile are valid. If not set, expiration will be determined by the value passed in to the intent of login activities. */
+  expirationSeconds?: string;
+  /** Notes for a Session Profile. */
+  notes?: string;
+};
+
+export type TCreateSessionProfileInput = { body: TCreateSessionProfileBody };
+
 export type TCreateSmartContractInterfaceResponse = {
   activity: v1Activity;
   /** The ID of the created Smart Contract Interface. */
@@ -6664,6 +7295,8 @@ export type TCreateTvcAppBody = {
   shareSetParams?: v1TvcOperatorSetParams;
   /** Enables network egress for this TVC app. Default if not provided: false. */
   enableEgress?: boolean;
+  /** When true, this app may create deployments in debug-mode. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. Cannot be changed after app creation. Setting this true means the app's quorum key is considered permanently insecure, and a new app with a fresh quorum key must be created. Default if not provided: false. */
+  enableDebugModeDeployments?: boolean;
 };
 
 export type TCreateTvcAppInput = { body: TCreateTvcAppBody };
@@ -6895,6 +7528,23 @@ export type TDeleteInvitationBody = {
 };
 
 export type TDeleteInvitationInput = { body: TDeleteInvitationBody };
+
+export type TDeleteMfaPolicyResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+};
+
+export type TDeleteMfaPolicyBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The ID of the User to delete the MFA Policy from. */
+  userId: string;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+};
+
+export type TDeleteMfaPolicyInput = { body: TDeleteMfaPolicyBody };
 
 export type TDeleteOauth2CredentialResponse = {
   activity: v1Activity;
@@ -7208,7 +7858,9 @@ export type TEthSendTransactionBody = {
     | "eip155:8453"
     | "eip155:84532"
     | "eip155:137"
-    | "eip155:80002";
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
   /** Recipient address as a hex string with 0x prefix. */
   to: string;
   /** Amount of native asset to send in wei. */
@@ -7593,6 +8245,8 @@ export type TOauthLoginBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
   generateAppProofs?: boolean;
 };
 
@@ -7647,6 +8301,8 @@ export type TOtpLoginBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login sessions */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
   generateAppProofs?: boolean;
 };
 
@@ -7976,6 +8632,8 @@ export type TStampLoginBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used. */
+  sessionProfileId?: string;
   generateAppProofs?: boolean;
 };
 
@@ -8008,6 +8666,33 @@ export type TUpdateFiatOnRampCredentialBody = {
 export type TUpdateFiatOnRampCredentialInput = {
   body: TUpdateFiatOnRampCredentialBody;
 };
+
+export type TUpdateMfaPolicyResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+};
+
+export type TUpdateMfaPolicyBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The ID of the User to update the MFA Policy for. */
+  userId: string;
+  /** Unique identifier for a given MFA Policy. */
+  mfaPolicyId: string;
+  /** Human-readable name for a Policy. */
+  mfaPolicyName?: string;
+  /** A condition expression that evaluates to true or false, determining when this MFA policy applies. */
+  condition?: string;
+  /** An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA. */
+  requiredAuthenticationMethods?: v1RequiredAuthenticationMethodParams[];
+  /** The order in which this MFA policy is evaluated, starting from 0, relative to other MFA policies. Lower order values are evaluated first. */
+  order?: number;
+  /** Notes for an MFA Policy. */
+  notes?: string;
+};
+
+export type TUpdateMfaPolicyInput = { body: TUpdateMfaPolicyBody };
 
 export type TUpdateOauth2CredentialResponse = {
   activity: v1Activity;
