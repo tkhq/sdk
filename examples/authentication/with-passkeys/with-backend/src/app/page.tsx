@@ -141,7 +141,9 @@ export default function AuthPage() {
                 className="mt-1 w-full rounded border px-3 py-2 text-sm"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !working && handleContinue()}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && !working && handleContinue()
+                }
                 disabled={!!working}
                 placeholder="you@example.com"
                 autoFocus

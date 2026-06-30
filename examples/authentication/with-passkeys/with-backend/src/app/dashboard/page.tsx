@@ -157,7 +157,11 @@ export default function Dashboard() {
 
       if (!evmAddress) throw new Error("No EVM account found.");
       if (!ethTo) throw new Error("Destination address required.");
-      if (!ethAmount || isNaN(parseFloat(ethAmount)) || parseFloat(ethAmount) <= 0)
+      if (
+        !ethAmount ||
+        isNaN(parseFloat(ethAmount)) ||
+        parseFloat(ethAmount) <= 0
+      )
         throw new Error("Amount must be greater than 0.");
 
       setEthSending(true);
@@ -204,7 +208,11 @@ export default function Dashboard() {
 
       if (!solAddress) throw new Error("No Solana account found.");
       if (!solTo) throw new Error("Destination address required.");
-      if (!solAmount || isNaN(parseFloat(solAmount)) || parseFloat(solAmount) <= 0)
+      if (
+        !solAmount ||
+        isNaN(parseFloat(solAmount)) ||
+        parseFloat(solAmount) <= 0
+      )
         throw new Error("Amount must be greater than 0.");
 
       setSolSending(true);
