@@ -38,12 +38,16 @@ export default function AuthPage() {
       const trimmed = email.trim();
       if (!trimmed) throw new Error("Please enter your email.");
 
+      // Guard before any side-effecting calls (createApiKeyPair / createPasskey).
+      if (!httpClient) throw new Error("Turnkey client not initialized.");
+
       setWorking("Looking up account…");
 
       const existing = await getSuborgsByEmailAction({ email: trimmed });
 
       if (existing?.organizationIds?.length) {
-        // Returning user — assert the passkey already on their device
+        // Returning user — also the recovery path if a prior sign-up created the
+        // sub-org but stampLogin failed.
         setWorking("Logging in…");
         await loginWithPasskey();
       } else {
@@ -56,7 +60,8 @@ export default function AuthPage() {
 
         setWorking("Creating passkey…");
 
-        // 2) One passkey tap — email used as the name so the OS picker shows a meaningful label
+        // 2) One passkey tap — email as the name gives the OS picker a meaningful
+        //    label; sanitized to Turnkey's allowed authenticator-name chars.
         const passKeyName = trimmed
           .replace(/[^a-zA-Z0-9 \-_:/]/g, "-")
           .slice(0, 64);
@@ -79,7 +84,6 @@ export default function AuthPage() {
 
         // 4) Override the stamper to use the temp key, then call stampLogin to register
         //    the long-lived session keypair — no second passkey tap required.
-        if (!httpClient) throw new Error("Turnkey client not initialized.");
         const sessionPublicKey = await createApiKeyPair();
         await overrideApiKeyStamper({ temporaryPublicKey: tempPublicKey });
         try {
@@ -89,6 +93,8 @@ export default function AuthPage() {
           });
           await storeSession({ sessionToken: session });
         } finally {
+          // A throw here would mask an in-flight stampLogin error; fine since the
+          // temp key expires server-side in 60s regardless.
           await overrideApiKeyStamper({ temporaryPublicKey: "" });
           await deleteApiKeyPair({ publicKey: tempPublicKey });
         }
@@ -135,7 +141,7 @@ export default function AuthPage() {
                 className="mt-1 w-full rounded border px-3 py-2 text-sm"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleContinue()}
+                onKeyDown={(e) => e.key === "Enter" && !working && handleContinue()}
                 disabled={!!working}
                 placeholder="you@example.com"
                 autoFocus

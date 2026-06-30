@@ -54,12 +54,13 @@ export async function createSuborgAction(params: {
     },
   });
 
-  // If the activity did not COMPLETE (e.g. the parent org's root quorum is >1,
-  // so CREATE_SUB_ORGANIZATION is left PENDING), no sub-org was created and
-  // `subOrganizationId` is undefined. Fail loudly here instead of letting the
-  // downstream stampLogin call fall back to the parent org and throw a
-  // confusing PUBLIC_KEY_NOT_FOUND 401.
-  if (!res.subOrganizationId) {
+  // subOrganizationId is only populated when the activity COMPLETES; if the parent
+  // org's root quorum is >1 it stays PENDING and no sub-org exists. Fail loudly here
+  // rather than letting stampLogin fall back to the parent org (PUBLIC_KEY_NOT_FOUND).
+  if (
+    res.activity?.status !== "ACTIVITY_STATUS_COMPLETED" ||
+    !res.subOrganizationId
+  ) {
     throw new Error(
       `Sub-org was not created (activity status: ${res.activity?.status}). ` +
         `Ensure the parent org API key can self-approve CREATE_SUB_ORGANIZATION (root quorum = 1).`,

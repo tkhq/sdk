@@ -18,7 +18,6 @@ const ETH_NETWORKS = [
 
 const SOL_NETWORKS = [
   {
-    // CAIP-2 reference is the genesis hash truncated to 32 chars (per spec).
     label: "Devnet",
     caip2: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
   },
@@ -158,8 +157,8 @@ export default function Dashboard() {
 
       if (!evmAddress) throw new Error("No EVM account found.");
       if (!ethTo) throw new Error("Destination address required.");
-      if (!ethAmount || isNaN(parseFloat(ethAmount)))
-        throw new Error("Invalid amount.");
+      if (!ethAmount || isNaN(parseFloat(ethAmount)) || parseFloat(ethAmount) <= 0)
+        throw new Error("Amount must be greater than 0.");
 
       setEthSending(true);
 
@@ -205,8 +204,8 @@ export default function Dashboard() {
 
       if (!solAddress) throw new Error("No Solana account found.");
       if (!solTo) throw new Error("Destination address required.");
-      if (!solAmount || isNaN(parseFloat(solAmount)))
-        throw new Error("Invalid amount.");
+      if (!solAmount || isNaN(parseFloat(solAmount)) || parseFloat(solAmount) <= 0)
+        throw new Error("Amount must be greater than 0.");
 
       setSolSending(true);
 
@@ -241,6 +240,8 @@ export default function Dashboard() {
       const result = await pollTransactionStatus({
         sendTransactionStatusId: statusId,
       });
+      // TODO(sdk): pollTransactionStatus result isn't type-narrowed by chain, so
+      // the Solana signature field isn't on the generated type — cast for now.
       const txDetails = result as {
         solana?: { signature?: string };
         txStatus: string;
@@ -450,6 +451,7 @@ export default function Dashboard() {
               Embedded Wallets
             </h2>
 
+            {/* Demo only — avoid dumping raw wallet objects verbatim in production. */}
             <div className="p-3 rounded border bg-gray-50 text-left overflow-x-auto">
               <pre className="font-mono text-[11px] leading-snug min-w-[60ch]">
                 {JSON.stringify(embeddedWallets, null, 2)}
