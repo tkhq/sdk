@@ -1,0 +1,19 @@
+{
+  "name": "@turnkey/example-with-cardano",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@meshsdk/core": "^1.9.1",
+    "@meshsdk/core-cst": "^1.9.1",
+    "@noble/hashes": "^1.8.0",
+    "@turnkey/sdk-server": "workspace:*",
+    "dotenv": "16.0.3",
+    "path": "0.12.7"
+  }
+}
