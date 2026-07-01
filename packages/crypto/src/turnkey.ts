@@ -11,7 +11,6 @@ import {
 import {
   PRODUCTION_NOTARIZER_SIGN_PUBLIC_KEY,
   PRODUCTION_ON_RAMP_CREDENTIALS_ENCRYPTION_PUBLIC_KEY,
-  PRODUCTION_OTP_VERIFICATION_PUBLIC_KEY,
   PRODUCTION_SIGNER_SIGN_PUBLIC_KEY,
   PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
   PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
@@ -483,30 +482,34 @@ export interface VerificationTokenClaims {
   id: string;
   verification_type: string;
   contact: string;
-  exp?: number;
+  organization_id: string;
+  public_key: string;
+  exp: string;
 }
 
 /**
  * Verify an OTP verification token JWT signature and return the decoded claims.
  *
  * OTP verification tokens are standard ES256 JWTs (unlike session JWTs which use
- * a custom double SHA-256 scheme). They are signed by Turnkey's OTP service using
- * a compressed P-256 public key.
+ * a custom double SHA-256 scheme). They are issued by the enclave OTP flow and
+ * signed with the TLS fetcher signing key.
+ *
+ * NOTE: this verifies the signature and required claims only — it does NOT check
+ * the `exp` claim. Callers that care about freshness must validate expiry themselves.
  *
  * @param jwt - The OTP verification token JWT string to verify.
- * @param dangerouslyOverrideOtpVerificationPublicKey - Optional override for the
- *              compressed P-256 public key to verify against (use only in tests).
- *              Defaults to the production OTP verification key.
+ * @param dangerouslyOverrideSignerPublicKey - Optional override for the P-256
+ *              signing public key to verify against (use only in tests/preprod).
+ *              Defaults to the production TLS fetcher signing key.
  * @returns The decoded JWT claims if signature is valid.
  * @throws If the JWT is malformed, signature is invalid, or required claims are missing.
  */
 export const verifyOtpVerificationToken = async (
   jwt: string,
-  dangerouslyOverrideOtpVerificationPublicKey?: string,
+  dangerouslyOverrideSignerPublicKey?: string,
 ): Promise<VerificationTokenClaims> => {
   const otpVerificationKeyHex =
-    dangerouslyOverrideOtpVerificationPublicKey ??
-    PRODUCTION_OTP_VERIFICATION_PUBLIC_KEY;
+    dangerouslyOverrideSignerPublicKey ?? PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY;
 
   /* 1. split JWT -------------------------------------------------------- */
   const parts = jwt.split(".");
@@ -531,7 +534,7 @@ export const verifyOtpVerificationToken = async (
       .map((c) => c.charCodeAt(0)),
   ); // 64 bytes for P-256
 
-  /* 4. load compressed public key --------------------------------------- */
+  /* 4. load signing public key (p256.verify accepts compressed or uncompressed) */
   const publicKey = uint8ArrayFromHexString(otpVerificationKeyHex);
 
   /* 5. verify ----------------------------------------------------------- */
