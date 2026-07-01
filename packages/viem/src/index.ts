@@ -7,6 +7,7 @@ import {
   hexToBytes,
   parseTransaction,
   serializeTypedData,
+  getTypesForEIP712Domain,
 } from "viem";
 import {
   SignAuthorizationReturnType,
@@ -14,6 +15,7 @@ import {
   SignAuthorizationParameters,
 } from "viem/accounts";
 import type {
+  Account,
   Hex,
   LocalAccount,
   SerializeTransactionFn,
@@ -188,8 +190,12 @@ export function createAccountWithAddress(input: {
         signWith,
       );
     },
-    signTypedData: function (
-      typedData: TypedData | { [key: string]: unknown },
+    signTypedData: function <
+      const typedData extends TypedData | Record<string, unknown>,
+      primaryType extends keyof typedData | 'EIP712Domain',
+      account extends Account | undefined,
+    >(
+      typedData: SignTypedDataParameters<typedData, primaryType, account>,
     ): Promise<Hex> {
       return signTypedData(client, typedData, organizationId, signWith);
     },
@@ -352,8 +358,12 @@ export async function createApiKeyAccount(
         privateKeyId,
       );
     },
-    signTypedData: function (
-      typedData: TypedData | { [key: string]: unknown },
+    signTypedData: function <
+      const typedData extends TypedData | Record<string, unknown>,
+      primaryType extends keyof typedData | 'EIP712Domain',
+      account extends Account | undefined,
+    >(
+      typedData: SignTypedDataParameters<typedData, primaryType, account>,
     ): Promise<Hex> {
       return signTypedData(client, typedData, organizationId, privateKeyId);
     },
@@ -484,16 +494,25 @@ export async function signTransaction<
   return signedTx;
 }
 
-export async function signTypedData(
+export async function signTypedData<
+  const typedData extends TypedData | Record<string, unknown>,
+  primaryType extends keyof typedData | 'EIP712Domain',
+  account extends Account | undefined,
+>(
   client:
     | TurnkeyClient
     | TurnkeyBrowserClient
     | TurnkeyServerClient
     | TurnkeySDKClientBase,
-  data: TypedData | { [key: string]: unknown },
+  data: SignTypedDataParameters<typedData, primaryType, account>,
   organizationId: string,
   signWith: string,
 ): Promise<Hex> {
+  data.types = {
+    ...data.types,
+    EIP712Domain: getTypesForEIP712Domain({ domain: data.domain }),
+  };
+
   return (await signMessageWithErrorWrapping(
     client,
     serializeTypedData(data as SignTypedDataParameters),
