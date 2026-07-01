@@ -478,14 +478,36 @@ export const verifySessionJwtSignature = async (
   return p256.verify(signature, msgDigest, publicKey);
 };
 
+/** Decode an unpadded base64url string to raw bytes. */
+const base64UrlToBytes = (b64url: string): Uint8Array => {
+  const b64 = b64url
+    .replace(/-/g, "+")
+    .replace(/_/g, "/")
+    .padEnd(b64url.length + ((4 - (b64url.length % 4)) % 4), "=");
+  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+};
+
 export interface VerificationTokenClaims {
   id: string;
   verification_type: string;
   contact: string;
   organization_id: string;
   public_key: string;
+  /**
+   * Expiration as a millisecond-epoch string (NOT RFC 7519 NumericDate seconds).
+   * To compare against the clock, coerce first: `Number(claims.exp) < Date.now()`.
+   */
   exp: string;
 }
+
+const REQUIRED_VERIFICATION_TOKEN_CLAIMS = [
+  "id",
+  "verification_type",
+  "contact",
+  "organization_id",
+  "public_key",
+  "exp",
+] as const satisfies readonly (keyof VerificationTokenClaims)[];
 
 /**
  * Verify an OTP verification token JWT signature and return the decoded claims.
@@ -494,22 +516,26 @@ export interface VerificationTokenClaims {
  * a custom double SHA-256 scheme). They are issued by the enclave OTP flow and
  * signed with the TLS fetcher signing key.
  *
- * NOTE: this verifies the signature and required claims only — it does NOT check
- * the `exp` claim. Callers that care about freshness must validate expiry themselves.
+ * NOTE: this verifies the signature and the presence of the required (non-time)
+ * claims. It does NOT enforce expiry — `exp` is returned as a millisecond-epoch
+ * string, so callers that care about freshness must check it themselves, e.g.
+ * `if (Number(claims.exp) < Date.now()) { ... }`.
  *
  * @param jwt - The OTP verification token JWT string to verify.
  * @param dangerouslyOverrideSignerPublicKey - Optional override for the P-256
  *              signing public key to verify against (use only in tests/preprod).
  *              Defaults to the production TLS fetcher signing key.
  * @returns The decoded JWT claims if signature is valid.
- * @throws If the JWT is malformed, signature is invalid, or required claims are missing.
+ * @throws If the JWT is malformed, the signature is invalid, or a required claim
+ *         is missing.
  */
 export const verifyOtpVerificationToken = async (
   jwt: string,
   dangerouslyOverrideSignerPublicKey?: string,
 ): Promise<VerificationTokenClaims> => {
   const otpVerificationKeyHex =
-    dangerouslyOverrideSignerPublicKey ?? PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY;
+    dangerouslyOverrideSignerPublicKey ??
+    PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY;
 
   /* 1. split JWT -------------------------------------------------------- */
   const parts = jwt.split(".");
@@ -523,16 +549,7 @@ export const verifyOtpVerificationToken = async (
   const msgDigest = sha256(new TextEncoder().encode(signingInput)); // 32-byte Uint8Array
 
   /* 3. base64-url decode signature -------------------------------------- */
-  const toB64 = (u: string) =>
-    (u = u.replace(/-/g, "+").replace(/_/g, "/")).padEnd(
-      u.length + ((4 - (u.length % 4)) % 4),
-      "=",
-    );
-  const signature = Uint8Array.from(
-    atob(toB64(signatureB64))
-      .split("")
-      .map((c) => c.charCodeAt(0)),
-  ); // 64 bytes for P-256
+  const signature = base64UrlToBytes(signatureB64);
 
   /* 4. load signing public key (p256.verify accepts compressed or uncompressed) */
   const publicKey = uint8ArrayFromHexString(otpVerificationKeyHex);
@@ -544,28 +561,15 @@ export const verifyOtpVerificationToken = async (
   }
 
   /* 6. decode and validate claims --------------------------------------- */
-  const payloadJson = new TextDecoder().decode(
-    Uint8Array.from(
-      atob(toB64(payloadB64))
-        .split("")
-        .map((c) => c.charCodeAt(0)),
-    ),
-  );
+  const payloadJson = new TextDecoder().decode(base64UrlToBytes(payloadB64));
   const claims = JSON.parse(payloadJson) as VerificationTokenClaims;
 
-  if (!claims.id || typeof claims.id !== "string") {
-    throw new Error("OTP verification token missing required 'id' claim");
-  }
-  if (
-    !claims.verification_type ||
-    typeof claims.verification_type !== "string"
-  ) {
-    throw new Error(
-      "OTP verification token missing required 'verification_type' claim",
-    );
-  }
-  if (!claims.contact || typeof claims.contact !== "string") {
-    throw new Error("OTP verification token missing required 'contact' claim");
+  for (const field of REQUIRED_VERIFICATION_TOKEN_CLAIMS) {
+    if (!claims[field] || typeof claims[field] !== "string") {
+      throw new Error(
+        `OTP verification token missing required '${field}' claim`,
+      );
+    }
   }
 
   return claims;
