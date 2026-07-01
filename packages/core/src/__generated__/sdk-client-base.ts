@@ -31,6 +31,7 @@ export class TurnkeySDKClientBase {
   private apiKeyStamper?: TStamper | undefined;
   private passkeyStamper?: TStamper | undefined;
   private walletStamper?: TStamper | undefined;
+  private attestedStamper?: TStamper | undefined;
 
   public defaultStamperType: StamperType | undefined;
 
@@ -49,6 +50,9 @@ export class TurnkeySDKClientBase {
     if (config.walletStamper) {
       this.walletStamper = config.walletStamper;
     }
+    if (config.attestedStamper) {
+      this.attestedStamper = config.attestedStamper;
+    }
     if (config.storageManager) {
       this.storageManager = config.storageManager;
     }
@@ -62,6 +66,8 @@ export class TurnkeySDKClientBase {
         this.defaultStamperType = StamperType.Passkey;
       } else if (this.walletStamper) {
         this.defaultStamperType = StamperType.Wallet;
+      } else if (this.attestedStamper) {
+        this.defaultStamperType = StamperType.Attested;
       } else {
         this.defaultStamperType = undefined;
       }
@@ -81,6 +87,8 @@ export class TurnkeySDKClientBase {
         return this.passkeyStamper;
       case StamperType.Wallet:
         return this.walletStamper;
+      case StamperType.Attested:
+        return this.attestedStamper;
       default:
         return this.apiKeyStamper;
     }

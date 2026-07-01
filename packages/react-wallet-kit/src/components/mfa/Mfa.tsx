@@ -6,11 +6,11 @@ import { SuccessPage } from "../design/Success";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShieldHalved } from "@fortawesome/free-solid-svg-icons";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  type v1MfaStatus,
-  type v1AuthenticationType,
-  type v1RequiredAuthenticationMethod,
-  type v1AuthenticationMethod,
+import type {
+  v1MfaStatus,
+  v1AuthenticationType,
+  v1RequiredAuthenticationMethod,
+  v1AuthenticationMethod,
 } from "@turnkey/sdk-types";
 import { MfaMethodButton } from "./MfaOption";
 import { OrSeparator } from "../auth/OrSeparator";

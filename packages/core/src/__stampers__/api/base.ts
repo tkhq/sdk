@@ -96,13 +96,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     this.temporaryPublicKey = undefined;
   }
 
-  async stamp(payload: string): Promise<TStamp> {
-    if (!this.stamper) {
-      throw new TurnkeyError(
-        "Stamper is not initialized. Please call .init() before calling this method.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
+  async getPublicKey(): Promise<string> {
     let publicKeyHex = this.temporaryPublicKey;
     if (!publicKeyHex) {
       const session = await this.storageManager.getActiveSession();
@@ -114,7 +108,17 @@ export class CrossPlatformApiKeyStamper implements TStamper {
       }
       publicKeyHex = session.publicKey!;
     }
+    return publicKeyHex;
+  }
 
+  async stamp(payload: string): Promise<TStamp> {
+    if (!this.stamper) {
+      throw new TurnkeyError(
+        "Stamper is not initialized. Please call .init() before calling this method.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    const publicKeyHex = await this.getPublicKey();
     return this.stamper.stamp(payload, publicKeyHex);
   }
 
@@ -128,18 +132,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
-    let publicKeyHex = this.temporaryPublicKey;
-    if (!publicKeyHex) {
-      const session = await this.storageManager.getActiveSession();
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session or token available.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-      publicKeyHex = session.publicKey!;
-    }
-
+    const publicKeyHex = await this.getPublicKey();
     return this.stamper.sign(payload, publicKeyHex, format);
   }
 }

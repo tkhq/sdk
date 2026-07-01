@@ -55,6 +55,7 @@ export interface TurnkeyHttpClientConfig {
   apiKeyStamper?: TStamper | undefined;
   passkeyStamper?: TStamper | undefined;
   walletStamper?: TStamper | undefined;
+  attestedStamper?: TStamper | undefined;
   storageManager?: StorageBase | undefined;
 
   defaultStamperType?: StamperType | undefined;
