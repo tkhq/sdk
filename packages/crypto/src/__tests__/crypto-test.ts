@@ -491,9 +491,7 @@ describe("OTP Verification Token", () => {
     expect(claims.id).toBe("eb39b199-3352-4289-b31f-57194c79609c");
     expect(claims.verification_type).toBe("OTP_TYPE_EMAIL");
     expect(claims.contact).toBe("user@example.com");
-    expect(claims.organization_id).toBe(
-      "7ff189fb-df7d-452e-8540-57632e380b77",
-    );
+    expect(claims.organization_id).toBe("7ff189fb-df7d-452e-8540-57632e380b77");
     expect(claims.public_key).toBe(
       "036335b78f92736e32e99dc6aed979aff0b5c24192e76b1628aa54edaf58c8c15d",
     );
@@ -515,19 +513,32 @@ describe("OTP Verification Token", () => {
     );
   });
 
+  const fullClaims: Record<string, string> = {
+    id: "test-id",
+    verification_type: "OTP_TYPE_EMAIL",
+    contact: "user@example.com",
+    organization_id: "test-org",
+    public_key: "deadbeef",
+    exp: "9999999999999",
+  };
+
   test("throws for a validly-signed token missing a required claim", async () => {
-    // Signed with the test key so the signature passes and we actually reach the
-    // claim-validation branch — this token is missing the required `contact` claim.
-    const jwt = signTestToken({
-      id: "test-id",
-      verification_type: "OTP_TYPE_EMAIL",
-      organization_id: "test-org",
-      public_key: "deadbeef",
-      exp: "9999999999999",
-    });
+    // Signed with the test key so the signature passes and we reach the
+    // claim-validation branch; this token is missing the required `contact`.
+    const claims: Record<string, unknown> = { ...fullClaims };
+    delete claims.contact;
+    const jwt = signTestToken(claims);
     await expect(
       verifyOtpVerificationToken(jwt, testPubKeyHex),
     ).rejects.toThrow("missing required 'contact' claim");
+  });
+
+  test("rejects a token signed by a different key than the override", async () => {
+    // Token signed with the test key, but verified against the *production* key.
+    const jwt = signTestToken(fullClaims);
+    await expect(verifyOtpVerificationToken(jwt)).rejects.toThrow(
+      "signature is invalid",
+    );
   });
 });
 
