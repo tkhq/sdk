@@ -8,8 +8,7 @@ import { OtpType, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faPhone } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
-import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
-import { consumeCaptchaToken } from "../../utils/captcha";
+import { useTurnstile } from "./TurnstileWidget";
 
 interface OtpVerificationProps {
   contact: string;
@@ -32,8 +31,7 @@ export function OtpVerification(props: OtpVerificationProps) {
     sessionKey,
     onContinue = null, // Default to null if not provided
   } = props;
-  const { initOtp, completeOtp, config, getTurnstileToken, setTurnstileToken } =
-    useTurnkey();
+  const { initOtp, completeOtp } = useTurnkey();
   const { closeModal, isMobile } = useModal();
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [resending, setResending] = useState<boolean>(false);
@@ -44,11 +42,7 @@ export function OtpVerification(props: OtpVerificationProps) {
   const [error, setError] = useState<string | null>(null);
   const [shaking, setShaking] = useState(false);
 
-  const turnstileRef = useRef<TurnstileInstance>(null);
-  const [showTurnstilePrompt, setShowTurnstilePrompt] = useState(false);
-
-  const consumeToken = () =>
-    consumeCaptchaToken(getTurnstileToken, setTurnstileToken, turnstileRef);
+  const { turnstile, consumeToken } = useTurnstile({ visible: !submitting });
 
   const shakeInput = () => {
     setShaking(true);
@@ -68,7 +62,6 @@ export function OtpVerification(props: OtpVerificationProps) {
           contact,
           otpType,
           ...(sessionKey && { sessionKey }),
-          ...(await consumeToken()),
         });
         closeModal();
       }
@@ -166,37 +159,7 @@ export function OtpVerification(props: OtpVerificationProps) {
           <Spinner strokeWidth={1} className="size-1/2" />
         </div>
       )}
-      {config?.turnstileSiteKey && !submitting && (
-        <div className="mt-3 flex flex-col text-left w-full">
-          {showTurnstilePrompt && (
-            <p className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-sm mb-0.5">
-              Let us know you're human
-            </p>
-          )}
-          <Turnstile
-            ref={turnstileRef}
-            siteKey={config.turnstileSiteKey}
-            className="!w-full !block [&>iframe]:!w-full"
-            onSuccess={(token) => {
-              setTurnstileToken(token);
-            }}
-            onError={() => {
-              setTurnstileToken(null);
-            }}
-            onExpire={() => {
-              setTurnstileToken(null);
-            }}
-            onBeforeInteractive={() => {
-              setShowTurnstilePrompt(true);
-            }}
-            options={{
-              theme: config.ui?.darkMode ? "dark" : "light",
-              appearance: "interaction-only",
-              size: "flexible",
-            }}
-          />
-        </div>
-      )}
+      {turnstile}
     </div>
   );
 }
