@@ -478,6 +478,103 @@ export const verifySessionJwtSignature = async (
   return p256.verify(signature, msgDigest, publicKey);
 };
 
+/** Decode an unpadded base64url string to raw bytes. */
+const base64UrlToBytes = (b64url: string): Uint8Array => {
+  const b64 = b64url
+    .replace(/-/g, "+")
+    .replace(/_/g, "/")
+    .padEnd(b64url.length + ((4 - (b64url.length % 4)) % 4), "=");
+  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+};
+
+export interface VerificationTokenClaims {
+  id: string;
+  verification_type: string;
+  contact: string;
+  organization_id: string;
+  public_key: string;
+  /**
+   * Expiration as a millisecond-epoch string (NOT RFC 7519 NumericDate seconds).
+   * To compare against the clock, coerce first: `Number(claims.exp) < Date.now()`.
+   */
+  exp: string;
+}
+
+const REQUIRED_VERIFICATION_TOKEN_CLAIMS = [
+  "id",
+  "verification_type",
+  "contact",
+  "organization_id",
+  "public_key",
+  "exp",
+] as const satisfies readonly (keyof VerificationTokenClaims)[];
+
+/**
+ * Verify an OTP verification token JWT signature and return the decoded claims.
+ *
+ * OTP verification tokens are standard ES256 JWTs (unlike session JWTs which use
+ * a custom double SHA-256 scheme). They are issued by the enclave OTP flow and
+ * signed with the TLS fetcher signing key.
+ *
+ * NOTE: this verifies the signature and the presence of the required (non-time)
+ * claims. It does NOT enforce expiry — `exp` is returned as a millisecond-epoch
+ * string, so callers that care about freshness must check it themselves, e.g.
+ * `if (Number(claims.exp) < Date.now()) { ... }`.
+ *
+ * @param jwt - The OTP verification token JWT string to verify.
+ * @param dangerouslyOverrideSignerPublicKey - Optional override for the P-256
+ *              signing public key to verify against (use only in tests/preprod).
+ *              Defaults to the production TLS fetcher signing key.
+ * @returns The decoded JWT claims if signature is valid.
+ * @throws If the JWT is malformed, the signature is invalid, or a required claim
+ *         is missing.
+ */
+export const verifyOtpVerificationToken = async (
+  jwt: string,
+  dangerouslyOverrideSignerPublicKey?: string,
+): Promise<VerificationTokenClaims> => {
+  const otpVerificationKeyHex =
+    dangerouslyOverrideSignerPublicKey ??
+    PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY;
+
+  /* 1. split JWT -------------------------------------------------------- */
+  const parts = jwt.split(".");
+  if (parts.length !== 3) throw new Error("invalid JWT: need 3 parts");
+  const headerB64 = parts[0]!;
+  const payloadB64 = parts[1]!;
+  const signatureB64 = parts[2]!;
+  const signingInput = `${headerB64}.${payloadB64}`;
+
+  /* 2. sha256(header.payload) - standard ES256, single hash ------------- */
+  const msgDigest = sha256(new TextEncoder().encode(signingInput)); // 32-byte Uint8Array
+
+  /* 3. base64-url decode signature -------------------------------------- */
+  const signature = base64UrlToBytes(signatureB64);
+
+  /* 4. load signing public key (p256.verify accepts compressed or uncompressed) */
+  const publicKey = uint8ArrayFromHexString(otpVerificationKeyHex);
+
+  /* 5. verify ----------------------------------------------------------- */
+  const isValid = p256.verify(signature, msgDigest, publicKey);
+  if (!isValid) {
+    throw new Error("OTP verification token signature is invalid");
+  }
+
+  /* 6. decode and validate claims --------------------------------------- */
+  const payloadJson = new TextDecoder().decode(base64UrlToBytes(payloadB64));
+  const claims = JSON.parse(payloadJson) as VerificationTokenClaims;
+
+  for (const field of REQUIRED_VERIFICATION_TOKEN_CLAIMS) {
+    if (!claims[field] || typeof claims[field] !== "string") {
+      throw new Error(
+        `OTP verification token missing required '${field}' claim`,
+      );
+    }
+  }
+
+  return claims;
+};
+
 /**
  * Encrypts a message to an uncompressed P256 public key
  * The function takes in standard strings and converts them
