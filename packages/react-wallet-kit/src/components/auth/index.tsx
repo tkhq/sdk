@@ -26,9 +26,7 @@ import {
   ExternalWalletSelector,
   WalletSelectorMode,
 } from "./wallet/ExternalWalletSelector";
-import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
-import { useRef, useState } from "react";
-import { consumeCaptchaToken } from "../../utils/captcha";
+import { useTurnstile } from "./TurnstileWidget";
 
 type AuthComponentProps = {
   sessionKey?: string | undefined;
@@ -54,21 +52,10 @@ export function AuthComponent({
     initOtp,
     loginWithPasskey,
     signUpWithPasskey,
-    getTurnstileToken,
-    setTurnstileToken,
   } = useTurnkey();
   const { pushPage, isMobile, openSheet } = useModal();
 
-  const turnstileRef = useRef<TurnstileInstance>(null);
-  const [showTurnstilePrompt, setShowTurnstilePrompt] = useState(false);
-  // If a token already existed when the component mounted, we don't need to show the widget at all
-  const [hadTokenOnMount] = useState(() => !!getTurnstileToken());
-  // Auth is enabled immediately if no turnstile is configured, or if the Provider already has a token
-
-  const [showTurnstileError, setShowTurnstileError] = useState(false);
-  const [authEnabled, setAuthEnabled] = useState(
-    !config?.turnstileSiteKey || hadTokenOnMount,
-  );
+  const { turnstile, consumeToken, authEnabled } = useTurnstile();
 
   if (!config || clientState === ClientState.Loading) {
     // Don't check ClientState.Error here. We already check in the modal root
@@ -84,9 +71,6 @@ export function AuthComponent({
     methodOrder = [],
     oauthOrder = [],
   } = config.ui?.authModal || {};
-
-  const consumeToken = () =>
-    consumeCaptchaToken(getTurnstileToken, setTurnstileToken, turnstileRef);
 
   const handleEmailSubmit = async (email: string) => {
     try {
@@ -484,42 +468,7 @@ export function AuthComponent({
         />
       )}
 
-      {config.turnstileSiteKey && (!hadTokenOnMount || showTurnstileError) && (
-        <div className="mt-3 flex flex-col text-left w-full">
-          {showTurnstilePrompt && (
-            <p className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-sm mb-0.5">
-              Let us know you're human
-            </p>
-          )}
-          <Turnstile
-            ref={turnstileRef}
-            id="auth-component-turnstile"
-            siteKey={config.turnstileSiteKey}
-            className="!w-full !block [&>iframe]:!w-full [&>iframe]:!bg-transparent"
-            onSuccess={(token) => {
-              setTurnstileToken(token);
-              setAuthEnabled(true);
-            }}
-            onError={() => {
-              console.error("Turnstile error occurred");
-              setTurnstileToken(null);
-              setShowTurnstileError(true);
-            }}
-            onExpire={() => {
-              setTurnstileToken(null);
-              setAuthEnabled(false);
-            }}
-            onBeforeInteractive={() => {
-              setShowTurnstilePrompt(true);
-            }}
-            options={{
-              theme: config.ui?.darkMode ? "dark" : "light",
-              appearance: "interaction-only",
-              size: "flexible",
-            }}
-          />
-        </div>
-      )}
+      {turnstile}
 
       <div className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-xs mt-4 text-center">
         <span>
