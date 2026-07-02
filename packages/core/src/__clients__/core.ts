@@ -1354,9 +1354,14 @@ export class TurnkeyClient {
   initOtp = async (params: InitOtpParams): Promise<InitOtpResult> => {
     return withTurnkeyErrorHandling(
       async () => {
+        const { otpType, contact, captchaToken } = params;
+
         const initOtpRes = await this.httpClient.proxyInitOtpV2(
-          params,
-          params.captchaToken,
+          {
+            otpType,
+            contact,
+          },
+          captchaToken,
         );
 
         if (
