@@ -16,53 +16,7 @@ There are two ways to integrate passkey auth with Turnkey:
 
 Turnkey's managed [Auth Proxy](https://docs.turnkey.com/features/authentication/auth-proxy) handles sub-organization creation and session management for you. Your frontend calls the Auth Proxy directly — no backend code required.
 
-**This flow is covered by the [`react-wallet-kit` demo](https://wallets.turnkey.com/) ([source](https://github.com/tkhq/sdk/tree/main/examples/demos/with-react-wallet-kit)).** To enable passkeys via Auth Proxy, configure `TurnkeyProvider` like this:
-
-```tsx
-<TurnkeyProvider
-  config={{
-    organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-    // Auth Proxy handles sub-org creation — no backend needed
-    authProxyUrl: "https://authproxy.turnkey.com",
-    authProxyConfigId: process.env.NEXT_PUBLIC_AUTH_PROXY_CONFIG_ID!,
-    auth: {
-      createSuborgParams: {
-        // Wallet accounts to create alongside the passkey sub-org
-        passkeyAuth: {
-          userName: "A passkey user",
-          customWallet: {
-            walletName: "Default Wallet",
-            walletAccounts: [
-              {
-                curve: "CURVE_SECP256K1",
-                pathFormat: "PATH_FORMAT_BIP32",
-                path: "m/44'/60'/0'/0/0",
-                addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-              },
-            ],
-          },
-        },
-      },
-    },
-    ui: {
-      authModal: {
-        methods: {
-          passkeyAuthEnabled: true,
-          emailOtpAuthEnabled: false,
-          smsOtpAuthEnabled: false,
-          walletAuthEnabled: false,
-          googleOauthEnabled: false,
-          appleOauthEnabled: false,
-        },
-      },
-    },
-  }}
->
-  <App />
-</TurnkeyProvider>
-```
-
-The Auth Proxy creates the sub-org and registers the passkey as the root authenticator. Your frontend calls `handleLogin()` from `useTurnkey()` — no backend code required. See the [react-wallet-kit auth docs](https://docs.turnkey.com/solutions/embedded-wallets/integration-guide/react/auth) for full configuration details.
+This flow is **not** what this example covers — it's already implemented in the [`react-wallet-kit` demo](https://wallets.turnkey.com/) ([source](https://github.com/tkhq/sdk/tree/main/examples/demos/with-react-wallet-kit)). In short: configure `TurnkeyProvider` with your Auth Proxy config, enable passkeys in the auth modal, and call `handleLogin()` from `useTurnkey()` — the Auth Proxy creates the sub-org and registers the passkey as the root authenticator, no backend code required. See the [react-wallet-kit auth docs](https://docs.turnkey.com/solutions/embedded-wallets/integration-guide/react/auth) for the full `TurnkeyProvider` configuration.
 
 ### With a backend — Custom server
 

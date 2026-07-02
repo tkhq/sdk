@@ -341,7 +341,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-semibold text-gray-800">
                   Send ETH{" "}
-                  <span className="text-xs font-normal text-gray-400">
+                  <span className="text-xs font-normal text-gray-600">
                     Gas Station sponsored
                   </span>
                 </h2>
@@ -351,7 +351,7 @@ export default function Dashboard() {
                   onChange={setEthNetwork}
                 />
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-600">
                 From:{" "}
                 <span className="font-mono">
                   {evmAddress ?? "(no EVM account)"}
@@ -384,7 +384,7 @@ export default function Dashboard() {
                 <ResultBox label="Status ID" value={ethStatusId} />
               )}
               {ethStatusId && ethSending && (
-                <p className="text-xs text-gray-500 animate-pulse">
+                <p className="text-xs text-gray-600 animate-pulse">
                   Polling for transaction result…
                 </p>
               )}
@@ -399,7 +399,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-semibold text-gray-800">
                   Send SOL{" "}
-                  <span className="text-xs font-normal text-gray-400">
+                  <span className="text-xs font-normal text-gray-600">
                     Gas Station sponsored
                   </span>
                 </h2>
@@ -409,7 +409,7 @@ export default function Dashboard() {
                   onChange={setSolNetwork}
                 />
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-600">
                 From:{" "}
                 <span className="font-mono">
                   {solAddress ?? "(no Solana account)"}
@@ -442,7 +442,7 @@ export default function Dashboard() {
                 <ResultBox label="Status ID" value={solStatusId} />
               )}
               {solStatusId && solSending && (
-                <p className="text-xs text-gray-500 animate-pulse">
+                <p className="text-xs text-gray-600 animate-pulse">
                   Polling for transaction result…
                 </p>
               )}
@@ -467,7 +467,7 @@ export default function Dashboard() {
             </div>
 
             <div className="p-3 rounded border bg-gray-50">
-              <div className="text-xs text-gray-500">Sub-org ID</div>
+              <div className="text-xs text-gray-600">Sub-org ID</div>
               <div className="text-xs font-mono break-all">
                 {session?.organizationId ?? "—"}
               </div>
@@ -490,7 +490,7 @@ function ErrorBox({ msg }: { msg: string }) {
 function ResultBox({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded border bg-gray-50 p-3 max-h-48 overflow-auto">
-      <div className="mb-1 text-xs text-gray-500">{label}</div>
+      <div className="mb-1 text-xs text-gray-600">{label}</div>
       <pre className="overflow-x-auto text-[11px] font-mono break-all whitespace-pre-wrap">
         {value}
       </pre>
@@ -516,7 +516,7 @@ function NetworkToggle<T extends { label: string; caip2: string }>({
           className={`px-2.5 py-1 transition-colors ${
             n.caip2 === selected.caip2
               ? "bg-gray-800 text-white"
-              : "bg-white text-gray-500 hover:bg-gray-100"
+              : "bg-white text-gray-600 hover:bg-gray-100"
           }`}
         >
           {n.label}
@@ -539,14 +539,14 @@ function AddressSelect({
 }) {
   if (addresses.length === 0) {
     return (
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-600">
         {label}: <span className="font-mono">(none)</span>
       </p>
     );
   }
   if (addresses.length === 1) {
     return (
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-600">
         {label}: <span className="font-mono">{addresses[0]}</span>
       </p>
     );

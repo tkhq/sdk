@@ -165,7 +165,7 @@ export default function AuthPage() {
           )}
         </section>
 
-        <p className="mt-4 text-center text-xs text-gray-500">
+        <p className="mt-4 text-center text-xs text-gray-600">
           By continuing you agree to the Terms and acknowledge the Privacy
           Policy.
         </p>
