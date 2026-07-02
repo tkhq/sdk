@@ -234,7 +234,7 @@ export async function completePKCEFlow({
   exchangeCodeForToken,
 }: CompletePKCEFlowParams): Promise<void> {
   // Consume the verifier (retrieves and removes from storage)
-  const verifier = consumePKCEVerifier(providerName);
+  const verifier = await consumePKCEVerifier(providerName);
 
   // Exchange the code for an OIDC token using the provider-specific function
   const oidcToken = await exchangeCodeForToken(verifier);

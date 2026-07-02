@@ -306,7 +306,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const withModalWrapper = async (params: {
         provider: string;
         isAddProvider: boolean;
-        metadata: ReturnType<typeof getOAuthAddProviderMetadata>;
+        metadata: Awaited<ReturnType<typeof getOAuthAddProviderMetadata>>;
         openModal?: string | null | undefined;
         action: () => Promise<void>;
       }) => {
@@ -382,7 +382,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         window.location.search.includes("state=")
       ) {
         // Parse the URL using our unified helper
-        const result = parseOAuthResponse(window.location.href);
+        const result = await parseOAuthResponse(window.location.href);
 
         if (!result || !result.authCode || !result.publicKey) {
           return;
@@ -404,7 +404,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         } = result;
 
         const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
-        const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
+        const metadata = isAddProvider ? await getOAuthAddProviderMetadata() : null;
 
         /**
          * Helper to complete PKCE redirect flow with optional modal wrapper.
@@ -503,7 +503,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           const secondaryClientIds =
             masterConfig?.auth?.oauthConfig?.facebook?.secondaryClientIds ?? [];
           const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
-          const hasVerifier = hasPKCEVerifier(OAuthProviders.FACEBOOK);
+          const hasVerifier = await hasPKCEVerifier(OAuthProviders.FACEBOOK);
 
           if (clientId && redirectURI && hasVerifier) {
             await completePKCERedirect(
@@ -537,7 +537,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           const secondaryClientIds =
             masterConfig?.auth?.oauthConfig?.discord?.secondaryClientIds ?? [];
           const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
-          const hasVerifier = hasPKCEVerifier(OAuthProviders.DISCORD);
+          const hasVerifier = await hasPKCEVerifier(OAuthProviders.DISCORD);
 
           if (clientId && redirectURI && hasVerifier && nonce) {
             await completePKCERedirect(
@@ -572,7 +572,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           const secondaryClientIds =
             masterConfig?.auth?.oauthConfig?.x?.secondaryClientIds ?? [];
           const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
-          const hasVerifier = hasPKCEVerifier(OAuthProviders.X);
+          const hasVerifier = await hasPKCEVerifier(OAuthProviders.X);
 
           if (clientId && redirectURI && hasVerifier && nonce) {
             await completePKCERedirect(
@@ -605,7 +605,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       // Handle Google/Apple redirects (uses hash with idToken - non-PKCE)
       if (window.location.hash) {
         // Parse the URL using our unified helper
-        const result = parseOAuthResponse(window.location.href);
+        const result = await parseOAuthResponse(window.location.href);
 
         if (
           !result ||
@@ -627,7 +627,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         } = result;
 
         const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
-        const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
+        const metadata = isAddProvider ? await getOAuthAddProviderMetadata() : null;
         const resolvedProvider = provider || OAuthProviders.GOOGLE;
 
         // Grab Google/Apple secondary client IDs from config for use in completion
@@ -3529,10 +3529,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       // Generate PKCE challenge pair and store verifier
       const { verifier, codeChallenge } = await generateChallengePair();
-      storePKCEVerifier(provider, verifier);
+      await storePKCEVerifier(provider, verifier);
 
       // Build OAuth URL
-      const authUrl = buildOAuthUrl({
+      const authUrl = await buildOAuthUrl({
         provider,
         clientId,
         redirectUri,
@@ -3558,7 +3558,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -3568,7 +3568,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             const url = authWindow.location.href || "";
             if (url.startsWith(window.location.origin)) {
-              const result = parseOAuthResponse(url, provider);
+              const result = await parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
@@ -3675,10 +3675,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       // Generate PKCE challenge pair and store verifier
       const { verifier, codeChallenge } = await generateChallengePair();
-      storePKCEVerifier(provider, verifier);
+      await storePKCEVerifier(provider, verifier);
 
       // Build OAuth URL
-      const authUrl = buildOAuthUrl({
+      const authUrl = await buildOAuthUrl({
         provider,
         clientId,
         redirectUri,
@@ -3704,7 +3704,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -3714,7 +3714,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             const url = authWindow.location.href || "";
             if (url.startsWith(window.location.origin)) {
-              const result = parseOAuthResponse(url, provider);
+              const result = await parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
@@ -3823,7 +3823,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const nonce = bytesToHex(sha256(publicKey));
 
       // Build OAuth URL
-      const authUrl = buildOAuthUrl({
+      const authUrl = await buildOAuthUrl({
         provider,
         clientId,
         redirectUri,
@@ -3848,7 +3848,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -3858,7 +3858,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             const url = authWindow.location.href || "";
             if (url.startsWith(window.location.origin)) {
-              const result = parseOAuthResponse(url, provider);
+              const result = await parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
@@ -3954,7 +3954,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const nonce = bytesToHex(sha256(publicKey));
 
       // Build OAuth URL
-      const authUrl = buildOAuthUrl({
+      const authUrl = await buildOAuthUrl({
         provider,
         clientId,
         redirectUri,
@@ -3979,7 +3979,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -3989,7 +3989,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             const url = authWindow.location.href || "";
             if (url.startsWith(window.location.origin)) {
-              const result = parseOAuthResponse(url, provider);
+              const result = await parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
@@ -4085,10 +4085,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       // Generate PKCE challenge pair and store verifier
       const { verifier, codeChallenge } = await generateChallengePair();
-      storePKCEVerifier(provider, verifier);
+      await storePKCEVerifier(provider, verifier);
 
       // Build OAuth URL
-      const authUrl = buildOAuthUrl({
+      const authUrl = await buildOAuthUrl({
         provider,
         clientId,
         redirectUri,
@@ -4114,7 +4114,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -4124,7 +4124,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             const url = authWindow.location.href || "";
             if (url.startsWith(window.location.origin)) {
-              const result = parseOAuthResponse(url, provider);
+              const result = await parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
@@ -5464,7 +5464,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           };
 
           if (openInPage) {
-            storeOAuthAddProviderMetadata({
+            await storeOAuthAddProviderMetadata({
               organizationId,
               userId,
               ...(stampWith && { stampWith: stampWith as string }),
