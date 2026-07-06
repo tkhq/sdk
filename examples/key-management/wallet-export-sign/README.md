@@ -56,7 +56,7 @@ Now open `.env.local` and add the missing environment variables:
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
 - `NEXT_PUBLIC_EXPORT_IFRAME_URL`
-- `NEXT_PUBLIC_EXPORT_SIGN_FRAME_URL`
+- `NEXT_PUBLIC_EXPORT_SIGN_IFRAME_URL`
 
 ### 3/ Running the app
 

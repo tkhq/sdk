@@ -5,6 +5,7 @@ import {
   TransactionType,
   MessageType,
 } from "@turnkey/iframe-stamper";
+import type { TurnkeyApiTypes } from "@turnkey/sdk-server";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import styles from "./Export.module.css";
 
@@ -15,6 +16,7 @@ interface ExportProps {
   setIframeStamper: Dispatch<SetStateAction<IframeStamper | null>>;
   showSigning?: boolean; // Only show signing UI for wallet accounts, not wallets
   walletAccountAddress?: string; // Address of the wallet account being exported
+  addressFormat?: TurnkeyApiTypes["v1AddressFormat"]; // e.g. ADDRESS_FORMAT_SOLANA / ADDRESS_FORMAT_ETHEREUM
 }
 
 const iframeCss = `
@@ -44,6 +46,9 @@ const TurnkeyIframeContainerId = "turnkey-export-and-sign-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-export-and-sign-iframe-element-id";
 
 export function Export(props: ExportProps) {
+  // Turnkey reuses ADDRESS_FORMAT_ETHEREUM (secp256k1) for all EVM chains.
+  const isEthereum = props.addressFormat === "ADDRESS_FORMAT_ETHEREUM";
+
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
     null,
   );
@@ -112,12 +117,12 @@ export function Export(props: ExportProps) {
       return;
     }
 
-    // At this point, we're relying on having the decrypted (Solana) private key in-memory within the iframe for signing
+    // At this point, we're relying on having the decrypted private key in-memory within the iframe for signing
     try {
       const signedMessage = await iframeStamper.signMessage(
         {
           message,
-          type: MessageType.Solana,
+          type: isEthereum ? MessageType.Ethereum : MessageType.Solana,
         },
         props.walletAccountAddress,
       );
@@ -135,16 +140,16 @@ export function Export(props: ExportProps) {
     }
 
     if (!txSerialized || txSerialized.trim() === "") {
-      alert("Please provide a Solana transaction.");
+      alert("Please provide a transaction.");
       return;
     }
 
-    // At this point, we're relying on having the decrypted (Solana) private key in-memory within the iframe for signing
+    // At this point, we're relying on having the decrypted private key in-memory within the iframe for signing
     try {
       const signedTransaction = await iframeStamper.signTransaction(
         {
           transaction: txSerialized,
-          type: TransactionType.Solana,
+          type: isEthereum ? TransactionType.Ethereum : TransactionType.Solana,
         },
         props.walletAccountAddress,
       );
@@ -184,7 +189,9 @@ export function Export(props: ExportProps) {
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h3 className={styles.cardTitle}>Sign arbitrary message</h3>
-              <span className={styles.cardSubtitle}>ed25519</span>
+              <span className={styles.cardSubtitle}>
+                {isEthereum ? "secp256k1 · EIP-191" : "ed25519"}
+              </span>
             </div>
 
             <div className={styles.cardBody}>
@@ -232,8 +239,12 @@ export function Export(props: ExportProps) {
           {/* Transaction signing */}
           <div className={styles.card}>
             <div className={styles.cardHeader}>
-              <h3 className={styles.cardTitle}>Sign Solana transaction</h3>
-              <span className={styles.cardSubtitle}>Hex-encoded</span>
+              <h3 className={styles.cardTitle}>
+                Sign {isEthereum ? "Ethereum" : "Solana"} transaction
+              </h3>
+              <span className={styles.cardSubtitle}>
+                {isEthereum ? "Serialized unsigned tx" : "Hex-encoded"}
+              </span>
             </div>
 
             <div className={styles.cardBody}>
@@ -241,7 +252,11 @@ export function Export(props: ExportProps) {
                 className={styles.textarea}
                 value={txSerialized}
                 onChange={(e) => setTxSerialized(e.target.value)}
-                placeholder="Paste hex-encoded transaction here"
+                placeholder={
+                  isEthereum
+                    ? "Paste 0x-prefixed serialized unsigned EVM transaction here"
+                    : "Paste hex-encoded transaction here"
+                }
                 style={{ minHeight: "120px" }}
               />
 
