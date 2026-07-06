@@ -64,4 +64,4 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm run dev
 ```
 
-This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to export a wallet, and export + sign using a (Solana) wallet account.
+This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to export a wallet, and export + sign using a wallet account. Both Solana and Ethereum/EVM accounts are supported for signing: the flow signs Solana transactions/messages with the exported ed25519 key and Ethereum/EVM ones with the exported secp256k1 key.

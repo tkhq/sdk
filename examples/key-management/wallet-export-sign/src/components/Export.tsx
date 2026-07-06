@@ -140,7 +140,7 @@ export function Export(props: ExportProps) {
     }
 
     if (!txSerialized || txSerialized.trim() === "") {
-      alert("Please provide a transaction.");
+      alert(`Please provide a ${isEthereum ? "EVM" : "Solana"} transaction.`);
       return;
     }
 
