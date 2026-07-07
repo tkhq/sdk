@@ -114,12 +114,30 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1VerifyOtpIntentV2",
     "v1VerifyOtpResultV2",
   ],
-  ACTIVITY_TYPE_ETH_SEND_TRANSACTION: [
-    "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
-    "v1EthSendTransactionIntent",
-    "v1EthSendTransactionResult",
-  ],
 };
+
+/**
+ * Manual overrides for API type generation.
+ *
+ * By default, codegen emits one set of Body/Response/Input types per swagger endpoint using the latest activity version.
+ * Any `name` listed here has its default endpoint-derived types skipped, and the entries below are emitted instead.
+ */
+const API_TYPE_OVERRIDES = [
+  {
+    name: "EthSendTransaction",
+    intentType: "v1EthSendTransactionIntent",
+    resultType: "v1EthSendTransactionResult",
+  },
+  {
+    name: "EthSendTransactionV2",
+    intentType: "v1EthSendTransactionIntentV2",
+    resultType: "v1EthSendTransactionResultV2",
+  },
+];
+
+const OVERRIDDEN_API_TYPE_NAMES = new Set(
+  API_TYPE_OVERRIDES.map((o) => o.name),
+);
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "getActivities",
@@ -377,6 +395,16 @@ function generateApiTypes(swagger, prefix = "") {
     const methodName =
       operationNameWithoutNamespace.charAt(0).toLowerCase() +
       operationNameWithoutNamespace.slice(1);
+
+    // Skip endpoints whose types are supplied manually via overrides.
+    if (
+      OVERRIDDEN_API_TYPE_NAMES.has(
+        operationNameWithoutNamespace.replace(/^T/, ""),
+      )
+    ) {
+      continue;
+    }
+
     const methodType = methodTypeFromMethodName(methodName);
 
     // Get response schema $ref
@@ -637,6 +665,53 @@ function generateApiTypes(swagger, prefix = "") {
   return output;
 }
 
+/**
+ * Emits Body/Response/Input types for each manual override entry.
+ *
+ * @param {object} definitions - the swagger spec definitions
+ * @returns {string}
+ */
+function generateOverrideApiTypes(definitions) {
+  let output = "";
+
+  for (const override of API_TYPE_OVERRIDES) {
+    const { name, intentType, resultType } = override;
+    const intentDef = definitions[intentType];
+
+    if (!intentDef) {
+      console.warn(
+        `[codegen] Skipping API type override "${name}": intent definition "${intentType}" not found in swagger. ` +
+          `Add it to the swagger spec to generate T${name}Body/Response/Input.`,
+      );
+      continue;
+    }
+
+    const resultDef = definitions[resultType];
+    const apiTypeName = `T${name}Response`;
+    const apiBodyTypeName = `T${name}Body`;
+    const apiInputTypeName = `T${name}Input`;
+
+    // --- Response type: activity envelope + inlined result fields ---
+    output += `export type ${apiTypeName} = {\n  activity: v1Activity;\n`;
+    if (resultDef) {
+      output += generateInlineProperties(resultDef);
+    }
+    output += "}\n\n";
+
+    // --- Body type: request envelope + intent fields ---
+    // Mirrors the default "command" body: the timestampMs/organizationId envelope,
+    // the intent parameters inlined, and the generateAppProofs activity-request flag.
+    output += `export type ${apiBodyTypeName} = {\n  timestampMs?: string;\n  organizationId?: string;\n`;
+    output += generateInlineProperties(intentDef);
+    output += `  generateAppProofs?: boolean;\n`;
+    output += "}\n\n";
+
+    output += `export type ${apiInputTypeName} = { body: ${apiBodyTypeName} };\n\n`;
+  }
+
+  return output;
+}
+
 function main() {
   const swaggerMain = JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
   const swaggerAuthProxy = JSON.parse(
@@ -680,6 +755,7 @@ function main() {
   output += "\n// --- API Types from Swagger Paths ---\n";
 
   output += generateApiTypes(swaggerMain);
+  output += generateOverrideApiTypes(swaggerMain.definitions);
   output += generateApiTypes(swaggerAuthProxy, "Proxy");
 
   fs.writeFileSync(outputPath, output);
