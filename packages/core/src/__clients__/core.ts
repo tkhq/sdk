@@ -2958,7 +2958,7 @@ export class TurnkeyClient {
     return withTurnkeyErrorHandling(
       async () => {
         // Conditionally call v2 activity if calls array exists.
-        // TODO (breaking change): eventually, we wont generate the v1 endpoint at all, remove this check and update the intent.
+        // TODO (breaking change): eventually, we wont generate the v1 activity at all, remove this check and update the intent.
         const resp =
           "calls" in transaction
             ? await this.httpClient.ethSendTransactionV2({

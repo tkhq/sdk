@@ -5741,7 +5741,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 };
 
                 // V2 multi-call intent vs. legacy single-call (V1) intent.
-                // TODO (breaking change): eventually, we wont generate the v1 endpoint at all, remove this check and update the intent.
+                // TODO (breaking change): eventually, we wont generate the v1 activity at all, remove this check and update the intent.
                 let tx: EthTransaction;
                 if ("calls" in ethTx) {
                   tx = {

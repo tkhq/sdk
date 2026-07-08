@@ -26,12 +26,10 @@ export async function evmSponsoredTx(args: {
   const { sendTransactionStatusId } = await args.apiClient.ethSendTransaction({
     organizationId: args.organizationId,
     from: args.from,
-    to: args.to,
     caip2: CAIP2_EVM,
     sponsor: true,
-    data: args.data,
-    value: args.value,
     gasStationNonce,
+    calls: [{ to: args.to, value: args.value, data: args.data }],
   });
 
   const result = await args.apiClient.pollTransactionStatus({

@@ -164,10 +164,9 @@ async function main() {
     res = await agentClient.apiClient().ethSendTransaction({
       organizationId,
       from: walletAddress,
-      to: toAddress,
-      value: "10000000000000000", // 0.01 ETH in wei
       caip2: CAIP2_SEPOLIA,
       sponsor: true,
+      calls: [{ to: toAddress, value: "10000000000000000" }], // 0.01 ETH in wei
     });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);

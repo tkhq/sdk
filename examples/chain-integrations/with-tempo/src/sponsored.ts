@@ -185,11 +185,9 @@ async function main() {
   // payload and omit gas/fee fields — they are unused for sponsored requests.
   const { sendTransactionStatusId } = await apiClient.ethSendTransaction({
     from: signWith,
-    to: ALPHA_USD,
-    value: "0",
-    data,
     caip2: TEMPO_MODERATO_CAIP2 as any,
     sponsor: true,
+    calls: [{ to: ALPHA_USD, value: "0", data }],
   });
 
   print("Send transaction status ID:", sendTransactionStatusId);

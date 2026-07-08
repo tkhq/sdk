@@ -253,6 +253,7 @@ export type PollTransactionStatusParams = {
   pollingIntervalMs?: number;
 };
 
+// TODO (breaking change): eventually, we wont generate the v1 activity at all. Remove this OR-ing.
 export type EthTransaction =
   | v1EthSendTransactionIntent
   | v1EthSendTransactionIntentV2;

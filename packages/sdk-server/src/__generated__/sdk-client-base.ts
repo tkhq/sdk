@@ -3743,8 +3743,8 @@ export class TurnkeySDKClientBase {
   };
 
   ethSendTransaction = async (
-    input: SdkApiTypes.TEthSendTransactionBody,
-  ): Promise<SdkApiTypes.TEthSendTransactionResponse> => {
+    input: SdkApiTypes.TEthSendTransactionV2Body,
+  ): Promise<SdkApiTypes.TEthSendTransactionV2Response> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/eth_send_transaction",
@@ -3752,14 +3752,14 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
+        type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
       },
       "ethSendTransactionResultV2",
     );
   };
 
   stampEthSendTransaction = async (
-    input: SdkApiTypes.TEthSendTransactionBody,
+    input: SdkApiTypes.TEthSendTransactionV2Body,
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -3772,7 +3772,7 @@ export class TurnkeySDKClientBase {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
+      type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

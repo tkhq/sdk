@@ -133,12 +133,10 @@ async function sendTransfer(
     .ethSendTransaction({
       organizationId,
       from: senderAddress,
-      to: USDC_BASE.address,
       caip2: CAIP2_BASE,
       sponsor: true,
-      data,
-      value: "0",
       gasStationNonce,
+      calls: [{ to: USDC_BASE.address, value: "0", data }],
     });
 
   const result = await pollTransactionStatus({

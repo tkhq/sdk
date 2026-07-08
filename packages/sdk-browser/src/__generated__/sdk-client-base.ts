@@ -4757,7 +4757,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
+        type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
       },
       "ethSendTransactionResultV2",
     );
@@ -4781,7 +4781,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
+      type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
