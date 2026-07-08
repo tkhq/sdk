@@ -7,10 +7,8 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "bumpVersionsWithWorkspaceProtocolOnly": true,
-  "ignore": [
-    "@turnkey/jest-config",
-    "@turnkey/example-*",
-    "@turnkey/kitchen-sink",
-    "@turnkey/with-*"
-  ]
+  "privatePackages": {
+    "version": false,
+    "tag": false
+  }
 }
