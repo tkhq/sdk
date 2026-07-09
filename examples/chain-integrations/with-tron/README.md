@@ -4,7 +4,7 @@ This example walks through the following:
 
 - Creation of a new Turnkey wallet with a new Tron account
 - Obtaining Nile testnet TRX and USDT from a faucet to use for the rest of the examples
-- Signing a TRX transaction
+- Signing and sending a TRX transaction
 - Create a Turnkey policy to parse and guard Tron TRX and TRC-20 transactions
 
 ## Getting started
@@ -52,7 +52,7 @@ Note that this is optional: the script gives you a fresh one if you don't specif
 
 ### 3/ Running the scripts
 
-There are 4 scripts that are meant to be run in order that will create a Tron wallet, sign a raw payload, create some policies and sign some transactions abiding by those policies.
+There are 5 scripts that are meant to be run in order. They create a Tron wallet, sign a raw payload, sign and send a transaction directly, create policies, and sign transactions that abide by those policies.
 
 #### createTronWallet
 
@@ -69,6 +69,10 @@ Next you should set the `TRON_ADDRESS` environment variable in your .env.local f
 #### signRawPayload
 
 The next example you can run is the `pnpm run signRawPayload`. This example demonstrates a typical SignRawPayload activity with your new Tron address!
+
+#### signTransaction
+
+Next run `pnpm run signTransaction`. This example creates a TRX transfer with TronWeb, signs it with Turnkey's SignTransaction API, and broadcasts the serialized signed transaction returned by Turnkey.
 
 #### transferTRXPolicy
 

@@ -24,32 +24,25 @@ async function main() {
   const recipientAddress = "TY1jfzP3s94oSzYECC89EFn17iA8S4imVZ";
   const amount = 100; // Amount in SUN (1 TRX = 1,000,000 SUN)
 
-  // 1. Create an unsigned transaction
+  // Create an unsigned transaction
   const unsignedTx = await tronWeb.transactionBuilder.sendTrx(
     recipientAddress,
     amount,
     turnkeyAddress,
   );
 
-  // Sign with Turnkey
-  const { r, s, v } = await turnkeyClient.apiClient().signRawPayload({
-    organizationId: process.env.ORGANIZATION_ID!,
+  // Sign with Turnkey's SignTransaction API. This returns a fully serialized
+  // signed Tron transaction.
+  const signedTx = await turnkeyClient.apiClient().signTransaction({
     signWith: turnkeyAddress,
-    payload: unsignedTx.raw_data_hex,
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
+    unsignedTransaction: unsignedTx.raw_data_hex,
+    type: "TRANSACTION_TYPE_TRON",
   });
 
-  type SignedTransaction = typeof unsignedTx & { signature: string[] };
-
-  // Add the signature to the transaction
-  const signedTx: SignedTransaction = {
-    ...unsignedTx,
-    signature: [r + s + v],
-  };
-
-  // 3. Broadcast the signed transaction
-  const result = await tronWeb.trx.sendRawTransaction(signedTx);
+  // Broadcast the signed transaction
+  const result = await tronWeb.trx.sendHexTransaction(
+    signedTx.signedTransaction,
+  );
 
   console.log("Transaction sent! ID:", result.txid);
   console.log("https://nile.tronscan.org/#/transaction/" + result.txid);

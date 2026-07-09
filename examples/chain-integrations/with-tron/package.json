@@ -5,6 +5,7 @@
   "scripts": {
     "createTronWallet": "tsx src/createTronWallet.ts",
     "signRawPayload": "tsx src/signRawPayload.ts",
+    "signTransaction": "tsx src/signTransaction.ts",
     "transferTRXPolicy": "tsx src/transferTRXPolicy.ts",
     "transferTRC20Policy": "tsx src/transferTRC20Policy.ts",
     "clean": "rimraf ./dist ./.cache"
