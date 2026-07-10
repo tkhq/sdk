@@ -5,6 +5,7 @@ This example walks through the following:
 - Creation of a new Turnkey wallet with a new Tron account
 - Obtaining Nile testnet TRX and USDT from a faucet to use for the rest of the examples
 - Signing and sending a TRX transaction
+- Signing and sending a TRX transaction with a different, permissioned Tron key
 - Create a Turnkey policy to parse and guard Tron TRX and TRC-20 transactions
 
 ## Getting started
@@ -52,7 +53,7 @@ Note that this is optional: the script gives you a fresh one if you don't specif
 
 ### 3/ Running the scripts
 
-There are 5 scripts that are meant to be run in order. They create a Tron wallet, sign a raw payload, sign and send a transaction directly, create policies, and sign transactions that abide by those policies.
+The scripts create a Tron wallet, sign a raw payload, sign and send transactions directly and with a delegated Tron signer, create policies, and sign transactions that abide by those policies.
 
 #### createTronWallet
 
@@ -73,6 +74,20 @@ The next example you can run is the `pnpm run signRawPayload`. This example demo
 #### signTransaction
 
 Next run `pnpm run signTransaction`. This example creates a TRX transfer with TronWeb, signs it with Turnkey's SignTransaction API, and broadcasts the serialized signed transaction returned by Turnkey.
+
+#### signTransactionWithDelegatedSigner
+
+This example exercises Tron active permissions, where the transaction owner and signing key are different addresses. It is distinct from authorizing a non-root Turnkey user to sign with the owner's key.
+
+Use a disposable Nile account for this test. Account permission updates replace the existing permission configuration and currently cost 100 TRX. Set `TRON_DELEGATED_SIGNER_ADDRESS` to a second Turnkey Tron address, fund `TRON_ADDRESS`, review `configureDelegatedSigner.ts`, and run:
+
+```bash
+CONFIRM_TRON_PERMISSION_UPDATE=true pnpm run configureDelegatedSigner
+```
+
+The setup keeps `TRON_ADDRESS` as the sole owner and installs one transfer-only active permission for `TRON_DELEGATED_SIGNER_ADDRESS`. Wait for the permission update to confirm, query the account to find the assigned active permission ID (normally `2`), and set `TRON_PERMISSION_ID` in `.env.local`.
+
+Then run `pnpm run signTransactionWithDelegatedSigner`.
 
 #### transferTRXPolicy
 
