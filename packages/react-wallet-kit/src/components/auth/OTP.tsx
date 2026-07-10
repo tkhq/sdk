@@ -38,6 +38,9 @@ export function OtpVerification(props: OtpVerificationProps) {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [resending, setResending] = useState<boolean>(false);
   const [resent, setResent] = useState<boolean>(false);
+  const [captchaReady, setCaptchaReady] = useState<boolean>(
+    !config?.turnstileSiteKey,
+  );
   const [otpId, setOtpId] = useState<string>(props.otpId);
   const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] =
     useState<string>(props.otpEncryptionTargetBundle);
@@ -87,6 +90,7 @@ export function OtpVerification(props: OtpVerificationProps) {
 
   const handleResend = async () => {
     setResending(true);
+    setCaptchaReady(false);
     try {
       const { otpId, otpEncryptionTargetBundle } = await initOtp({
         otpType,
@@ -146,7 +150,7 @@ export function OtpVerification(props: OtpVerificationProps) {
         )}
         <BaseButton
           onClick={handleResend}
-          disabled={resending || resent}
+          disabled={resending || resent || !captchaReady}
           className={`text-xs text-inherit font-semibold bg-transparent border-none ${resent && "opacity-30"}`}
         >
           {resending ? (
@@ -179,6 +183,7 @@ export function OtpVerification(props: OtpVerificationProps) {
             className="!w-full !block [&>iframe]:!w-full"
             onSuccess={(token) => {
               setTurnstileToken(token);
+              setCaptchaReady(true);
             }}
             onError={() => {
               setTurnstileToken(null);

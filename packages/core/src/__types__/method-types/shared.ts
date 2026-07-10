@@ -145,6 +145,7 @@ export type LoginWithOtpParams = {
   organizationId?: string;
   invalidateExisting?: boolean;
   sessionKey?: string;
+  captchaToken?: string;
 };
 
 export type SignUpWithOtpParams = {

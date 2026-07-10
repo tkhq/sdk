@@ -7785,8 +7785,9 @@ export class TurnkeySDKClientBase {
 
   proxyOtpLoginV2 = async (
     input: SdkTypes.ProxyTOtpLoginV2Body,
+    captchaToken?: string,
   ): Promise<SdkTypes.ProxyTOtpLoginV2Response> => {
-    return this.authProxyRequest("/v1/otp_login_v2", input);
+    return this.authProxyRequest("/v1/otp_login_v2", input, captchaToken);
   };
 
   proxyVerifyOtp = async (
