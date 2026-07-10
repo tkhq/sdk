@@ -6,12 +6,13 @@ interface OAuthButtonProps {
   icon: React.ReactNode;
   onClick: () => void;
   className?: string;
+  disabled?: boolean;
 }
 
 export function OAuthButton(props: OAuthButtonProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showText, setShowText] = useState(false);
-  const { name, icon, onClick, className } = props;
+  const { name, icon, onClick, className, disabled } = props;
 
   useEffect(() => {
     const observer = new ResizeObserver(([entry]) => {
@@ -32,6 +33,7 @@ export function OAuthButton(props: OAuthButtonProps) {
       <ActionButton
         onClick={onClick}
         name={`oauth-${name.toLowerCase()}`}
+        disabled={disabled}
         className={`flex items-center justify-center gap-2 w-full h-full rounded-md bg-button-light dark:bg-button-dark text-inherit ${className || ""}`}
       >
         {icon}

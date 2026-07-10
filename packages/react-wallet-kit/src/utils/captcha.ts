@@ -1,3 +1,4 @@
+import type { RefObject } from "react";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
 
 /**
@@ -23,6 +24,9 @@ export const waitForCaptchaToken = (
       }
       if (elapsed >= timeoutMs) {
         clearInterval(poll);
+        console.warn(
+          "[turnkey] CAPTCHA token not available within timeout — proceeding without token",
+        );
         return resolve(null);
       }
     }, interval);
@@ -36,7 +40,7 @@ export const waitForCaptchaToken = (
 export const consumeCaptchaToken = async (
   getTurnstileToken: () => string | null,
   setTurnstileToken: (token: string | null) => void,
-  turnstileRef?: React.RefObject<TurnstileInstance | null>,
+  turnstileRef?: RefObject<TurnstileInstance | null>,
 ): Promise<{ captchaToken: string } | Record<string, never>> => {
   const token = await waitForCaptchaToken(getTurnstileToken);
   if (token) {

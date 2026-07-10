@@ -1496,6 +1496,7 @@ export class TurnkeyClient {
       invalidateExisting = false,
       organizationId,
       sessionKey = SessionKey.DefaultSessionkey,
+      captchaToken,
     } = params;
 
     return withTurnkeyErrorHandling(
@@ -1525,13 +1526,16 @@ export class TurnkeyClient {
         };
 
         // the verification token's public key is also used as the session public key for login
-        const loginRes = await this.httpClient.proxyOtpLoginV2({
-          verificationToken,
-          publicKey: verificationPublicKey,
-          clientSignature,
-          invalidateExisting,
-          ...(organizationId && { organizationId }),
-        });
+        const loginRes = await this.httpClient.proxyOtpLoginV2(
+          {
+            verificationToken,
+            publicKey: verificationPublicKey,
+            clientSignature,
+            invalidateExisting,
+            ...(organizationId && { organizationId }),
+          },
+          captchaToken,
+        );
 
         if (!loginRes) {
           throw new TurnkeyError(
@@ -1779,6 +1783,7 @@ export class TurnkeyClient {
             verificationToken,
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(captchaToken && { captchaToken }),
           });
 
           return {
