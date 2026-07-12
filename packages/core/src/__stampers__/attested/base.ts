@@ -4,29 +4,44 @@ import type { CrossPlatformApiKeyStamper } from "../api/base";
 import { SignatureFormat } from "@turnkey/api-key-stamper";
 import { stringToBase64urlString } from "@turnkey/encoding";
 
+type AttestedScheme =
+  | "STAMP_ATTESTED_SCHEME_P256_OIDC"
+  | "STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN";
+
 export class AttestedStamper implements TStamper {
   private apiKeyStamper: CrossPlatformApiKeyStamper;
   public attestedIdentity?: string | undefined;
+  private scheme: AttestedScheme =
+    "STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN";
+
   constructor(apiKeyStamper: CrossPlatformApiKeyStamper) {
     this.apiKeyStamper = apiKeyStamper;
   }
 
-  setattestedIdentity(attestedIdentity: string): void {
+  setAttestedIdentity(attestedIdentity: string): void {
     this.attestedIdentity = attestedIdentity;
   }
 
-  getattestedIdentity(): string | undefined {
+  getAttestedIdentity(): string | undefined {
     return this.attestedIdentity;
   }
 
-  clearattestedIdentity(): void {
+  clearAttestedIdentity(): void {
     this.attestedIdentity = undefined;
+  }
+
+  setScheme(scheme: AttestedScheme): void {
+    this.scheme = scheme;
+  }
+
+  getScheme(): AttestedScheme {
+    return this.scheme;
   }
 
   async stamp(payload: string): Promise<TStamp> {
     if (!this.attestedIdentity) {
       throw new TurnkeyError(
-        "Attested identity not set. Please call setattestedIdentity() before stamping.",
+        "Attested identity not set. Please call setAttestedIdentity() before stamping.",
         TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }

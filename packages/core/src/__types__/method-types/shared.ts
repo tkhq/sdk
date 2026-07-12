@@ -44,6 +44,11 @@ export type OverridePasskeyStamperParams = {
   config: TPasskeyStamperConfig;
 };
 
+export type OverrideAttestedStamperParams = {
+  verificationToken?: string | undefined;
+  oidcToken?: string | undefined;
+};
+
 export type CreatePasskeyParams = {
   name?: string;
   challenge?: string;

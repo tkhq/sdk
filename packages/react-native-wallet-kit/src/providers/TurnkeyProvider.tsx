@@ -81,6 +81,7 @@ import {
   type SolSendTransactionParams,
   type OverrideApiKeyStamperParams,
   type OverridePasskeyStamperParams,
+  type OverrideAttestedStamperParams,
   type DeleteApiKeyPairParams,
   buildSecondaryOauthProviders,
   applyPasskeyScope,
@@ -828,6 +829,19 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
       }
       return client.overridePasskeyStamper(params);
+    },
+    [client],
+  );
+
+  const overrideAttestedStamper = useCallback(
+    (params: OverrideAttestedStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overrideAttestedStamper(params);
     },
     [client],
   );
@@ -2777,6 +2791,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
                 TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
               );
             }
+            // Set the attested stamper with the oidcToken
+            await client?.overrideAttestedStamper({ oidcToken });
             return oidcToken;
           },
         });
@@ -2931,6 +2947,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
                 TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
               );
             }
+            // Set the attested stamper with the oidcToken before any
+            // completion callback runs, so custom callbacks also use the
+            // OIDC attested scheme
+            await client?.overrideAttestedStamper({ oidcToken });
             return oidcToken;
           },
         });
@@ -3039,6 +3059,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
+
+        // Set the attested stamper with the oidcToken
+        await client?.overrideAttestedStamper({ oidcToken: parsed.idToken });
 
         // Complete OAuth flow
         await completeOAuthFlow({
@@ -3179,6 +3202,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
+        // Set the attested stamper with the oidcToken before any completion
+        // callback runs, so custom callbacks also use the OIDC attested scheme
+        await client?.overrideAttestedStamper({ oidcToken: parsed.idToken });
+
         // Complete OAuth flow
         await completeOAuthFlow({
           provider: OAuthProviders.APPLE,
@@ -3268,6 +3295,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             );
           }
 
+          // Set the attested stamper with the oidcToken
+          await client?.overrideAttestedStamper({ oidcToken });
+
           // On iOS, the native flow uses the bundle ID as the audience.
           // The serviceId (web/Android client ID) is added as a secondary provider.
           const allSecondaryClientIds = serviceId
@@ -3353,6 +3383,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
               TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
             );
           }
+
+          // Set the attested stamper with the oidcToken before any completion
+          // callback runs, so custom callbacks also use the OIDC attested scheme
+          await client?.overrideAttestedStamper({ oidcToken });
 
           // On Android, the serviceId is used directly in the OAuth flow.
           // The iosBundleId is added as a secondary provider.
@@ -3541,6 +3575,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
                 TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
               );
             }
+            // Set the attested stamper with the oidcToken
+            await client?.overrideAttestedStamper({ oidcToken: idToken });
             return idToken;
           },
         });
@@ -3641,6 +3677,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         createHttpClient,
         overrideApiKeyStamper,
         overridePasskeyStamper,
+        overrideAttestedStamper,
         createPasskey,
         logout,
         loginWithPasskey,

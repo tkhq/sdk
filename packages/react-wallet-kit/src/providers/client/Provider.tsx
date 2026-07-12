@@ -122,6 +122,7 @@ import {
   type SolanaTransaction,
   type OverridePasskeyStamperParams,
   type OverrideApiKeyStamperParams,
+  type OverrideAttestedStamperParams,
   type DeleteApiKeyPairParams,
   buildSecondaryOauthProviders,
   buildSecondaryOidcClaims,
@@ -1443,6 +1444,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
       return client.overridePasskeyStamper(params);
+    },
+    [client],
+  );
+
+  const overrideAttestedStamper = useCallback(
+    (params: OverrideAttestedStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overrideAttestedStamper(params);
     },
     [client],
   );
@@ -3573,7 +3587,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -3587,6 +3601,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
+
+                // Set the attested stamper with the oidcToken
+                if (result.idToken) {
+                  await client?.overrideAttestedStamper({
+                    oidcToken: result.idToken,
+                  });
+                }
 
                 completeOAuthPopup({
                   provider,
@@ -3626,7 +3647,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         clientId,
                         nonce,
                       });
-                    return resp?.oidcToken ?? "";
+                    const oidcToken = resp?.oidcToken ?? "";
+                    // Set the attested stamper with the oidcToken
+                    if (oidcToken) {
+                      await client?.overrideAttestedStamper({ oidcToken });
+                    }
+                    return oidcToken;
                   },
                 })
                   .then(() => resolve())
@@ -3719,7 +3745,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -3733,6 +3759,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
+
+                // Set the attested stamper with the oidcToken
+                if (result.idToken) {
+                  await client?.overrideAttestedStamper({
+                    oidcToken: result.idToken,
+                  });
+                }
 
                 completeOAuthPopup({
                   provider,
@@ -3772,7 +3805,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         clientId,
                         nonce,
                       });
-                    return resp?.oidcToken ?? "";
+                    const oidcToken = resp?.oidcToken ?? "";
+                    // Set the attested stamper with the oidcToken
+                    if (oidcToken) {
+                      await client?.overrideAttestedStamper({ oidcToken });
+                    }
+                    return oidcToken;
                   },
                 })
                   .then(() => resolve())
@@ -3863,7 +3901,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -3877,6 +3915,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
+
+                // Set the attested stamper with the oidcToken
+                if (result.idToken) {
+                  await client?.overrideAttestedStamper({
+                    oidcToken: result.idToken,
+                  });
+                }
 
                 completeOAuthPopup({
                   provider,
@@ -3994,7 +4039,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -4008,6 +4053,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
+
+                // Set the attested stamper with the oidcToken
+                if (result.idToken) {
+                  await client?.overrideAttestedStamper({
+                    oidcToken: result.idToken,
+                  });
+                }
 
                 completeOAuthPopup({
                   provider,
@@ -4129,7 +4181,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -4143,6 +4195,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
+
+                // Set the attested stamper with the oidcToken
+                if (result.idToken) {
+                  await client?.overrideAttestedStamper({
+                    oidcToken: result.idToken,
+                  });
+                }
 
                 completeOAuthPopup({
                   provider,
@@ -4179,7 +4238,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       result.authCode!,
                       codeVerifier,
                     );
-                    return tokenData.id_token;
+                    const oidcToken = tokenData.id_token;
+                    // Set the attested stamper with the oidcToken
+                    if (oidcToken) {
+                      await client?.overrideAttestedStamper({ oidcToken });
+                    }
+                    return oidcToken;
                   },
                 })
                   .then(() => resolve())
@@ -6365,6 +6429,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         createHttpClient,
         overrideApiKeyStamper,
         overridePasskeyStamper,
+        overrideAttestedStamper,
         createPasskey,
         logout,
         loginWithPasskey,
