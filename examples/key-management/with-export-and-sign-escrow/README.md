@@ -1,6 +1,24 @@
-# Turnkey Client Side Signing Escrow Key Injection Example
+# Turnkey Client-Side Signing Escrow Key Injection Example
 
-An example for the Turnkey `export-and-sign` injected embedded key flow.
+An example of the Turnkey `export-and-sign` injected embedded key flow for
+Solana and Ethereum wallet accounts.
+
+The application demonstrates how to:
+
+- Create Solana and Ethereum wallets with Turnkey
+- Export their wallet accounts to an escrow P-256 key
+- Inject the escrow key and encrypted account bundles into the
+  `export-and-sign` iframe
+- Sign and verify Solana and EIP-191 Ethereum messages
+- Sign and recover replay-protected EIP-1559 transactions
+
+The sample Ethereum transaction is a zero-value, nonce-zero self-transfer on
+chain ID `1`. It is generated only to demonstrate local signing and signature
+recovery; the application does not broadcast it.
+
+The `Hello Turnkey!` message is also for signature verification only. Production
+authorization messages should bind the signature to its domain and purpose and
+include a nonce and expiration.
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
@@ -46,3 +64,18 @@ pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+After logging in:
+
+1. Create a Solana wallet, an Ethereum wallet, or both.
+2. Create and select an export-and-sign escrow key.
+3. Export the wallet accounts to that escrow key.
+4. Inject the escrow key and encrypted bundles into the iframe.
+5. Sign messages with all exported accounts or sign the sample transaction
+   with the exported Ethereum accounts.
+
+The example logs signatures and verification results to the browser console.
+
+Ethereum export bundles are injected with `KeyFormat.Hexadecimal` and the exact
+wallet account address. Ethereum messages use `MessageType.Ethereum` (EIP-191),
+and transactions use `TransactionType.Ethereum` with an explicit chain ID.

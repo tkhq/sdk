@@ -16,7 +16,8 @@
     "@turnkey/iframe-stamper": "workspace:*",
     "@turnkey/react-wallet-kit": "workspace:*",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "viem": "2.44.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

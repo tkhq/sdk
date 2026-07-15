@@ -1,24 +1,74 @@
 "use client";
 
-import { IframeStamper, KeyFormat, MessageType } from "@turnkey/iframe-stamper";
+import {
+  IframeStamper,
+  KeyFormat,
+  MessageType,
+  TransactionType,
+} from "@turnkey/iframe-stamper";
 import nacl from "tweetnacl";
 import { PublicKey } from "@solana/web3.js";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { AuthState, useTurnkey, WalletSource } from "@turnkey/react-wallet-kit";
-import type { v1PrivateKey } from "@turnkey/sdk-types";
+import type { v1AddressFormat, v1PrivateKey } from "@turnkey/sdk-types";
+import {
+  recoverMessageAddress,
+  recoverTransactionAddress,
+  serializeTransaction,
+  type Address,
+  type Hex,
+  type TransactionSerialized,
+  type TransactionSerializedEIP1559,
+} from "viem";
 
 // Constants
 const IFRAME_CONTAINER_ID = "turnkey-export-and-sign-iframe-container-id";
 const IFRAME_ELEMENT_ID = "turnkey-default-iframe-element-id";
 const EXPORT_BUNDLE_STORAGE_KEY = "export-and-sign-escrow-exports";
 const ESCROW_KEY_STORAGE_KEY = "export-and-sign-escrow-key-id";
+const SOLANA_ADDRESS_FORMAT = "ADDRESS_FORMAT_SOLANA";
+const ETHEREUM_ADDRESS_FORMAT = "ADDRESS_FORMAT_ETHEREUM";
+const SAMPLE_EVM_CHAIN_ID = 1;
 
-type ExportBundle = {
+type SupportedAddressFormat =
+  | typeof SOLANA_ADDRESS_FORMAT
+  | typeof ETHEREUM_ADDRESS_FORMAT;
+
+type EscrowAccount = {
   address: string;
+  addressFormat: SupportedAddressFormat;
+};
+
+type ExportBundle = EscrowAccount & {
   encryptedBundle: string;
 };
 
+type StoredExportBundle = Omit<ExportBundle, "addressFormat"> & {
+  addressFormat?: SupportedAddressFormat;
+};
+
 // Utility functions
+function isSupportedAddressFormat(
+  addressFormat: v1AddressFormat,
+): addressFormat is SupportedAddressFormat {
+  return (
+    addressFormat === SOLANA_ADDRESS_FORMAT ||
+    addressFormat === ETHEREUM_ADDRESS_FORMAT
+  );
+}
+
+function getAddressFormatLabel(addressFormat: v1AddressFormat): string {
+  return addressFormat === ETHEREUM_ADDRESS_FORMAT ? "Ethereum" : "Solana";
+}
+
+function parseExportBundles(value: string): ExportBundle[] {
+  return (JSON.parse(value) as StoredExportBundle[]).map((bundle) => ({
+    ...bundle,
+    // Bundles stored by earlier versions of this example were always Solana.
+    addressFormat: bundle.addressFormat ?? SOLANA_ADDRESS_FORMAT,
+  }));
+}
+
 function verifySolanaSignature(
   message: string,
   signature: string,
@@ -39,6 +89,38 @@ function verifySolanaSignature(
   }
 }
 
+async function verifyEthereumSignature(
+  message: string,
+  signature: string,
+  address: string,
+): Promise<boolean> {
+  const recoveredAddress = await recoverMessageAddress({
+    message,
+    signature: signature as Hex,
+  });
+
+  return recoveredAddress.toLowerCase() === address.toLowerCase();
+}
+
+/**
+ * Build a zero-value, nonce-zero self-transfer for signing and recovery only.
+ * The example never broadcasts this transaction.
+ */
+function buildSampleEvmTransaction(
+  address: string,
+): TransactionSerializedEIP1559 {
+  return serializeTransaction({
+    chainId: SAMPLE_EVM_CHAIN_ID,
+    type: "eip1559",
+    nonce: 0,
+    gas: BigInt(21_000),
+    maxFeePerGas: BigInt(1),
+    maxPriorityFeePerGas: BigInt(1),
+    to: address as Address,
+    value: BigInt(0),
+  });
+}
+
 export default function Home() {
   const { session, httpClient, wallets, authState, handleLogin, createWallet } =
     useTurnkey();
@@ -54,7 +136,9 @@ export default function Home() {
 
   // ── State ──────────────────────────────────────────────────────────────
   const [iframeClient, setIframeClient] = useState<IframeStamper | null>(null);
-  const [encryptedAccounts, setEncryptedAccounts] = useState<string[]>([]);
+  const [encryptedAccounts, setEncryptedAccounts] = useState<EscrowAccount[]>(
+    [],
+  );
   const [escrowPrivateKeys, setEscrowPrivateKeys] = useState<v1PrivateKey[]>(
     [],
   );
@@ -68,8 +152,8 @@ export default function Home() {
     return wallets
       .filter((wallet) => wallet.source !== WalletSource.Connected)
       .flatMap((wallet) => wallet.accounts)
-      .filter((account) => account.addressFormat === "ADDRESS_FORMAT_SOLANA");
-  }, [wallets, encryptedAccounts]);
+      .filter((account) => isSupportedAddressFormat(account.addressFormat));
+  }, [wallets]);
 
   // ── Callbacks ──────────────────────────────────────────────────────────
   const fetchEscrowKeys = useCallback(async () => {
@@ -144,6 +228,8 @@ export default function Home() {
 
     const exportBundles: ExportBundle[] = [];
     for (const account of availableAccounts) {
+      if (!isSupportedAddressFormat(account.addressFormat)) continue;
+
       try {
         const bundle = await httpClient.exportWalletAccount({
           address: account.address,
@@ -152,6 +238,7 @@ export default function Home() {
 
         exportBundles.push({
           address: account.address,
+          addressFormat: account.addressFormat,
           encryptedBundle: bundle.exportBundle,
         });
       } catch (error) {
@@ -166,7 +253,12 @@ export default function Home() {
       EXPORT_BUNDLE_STORAGE_KEY,
       JSON.stringify(exportBundles),
     );
-    setEncryptedAccounts(exportBundles.map((bundle) => bundle.address));
+    setEncryptedAccounts(
+      exportBundles.map(({ address, addressFormat }) => ({
+        address,
+        addressFormat,
+      })),
+    );
   }, [httpClient, activeEscrowKeyId, availableAccounts]);
 
   const injectEscrowKeyAndBundles = useCallback(async () => {
@@ -201,47 +293,112 @@ export default function Home() {
       return;
     }
 
-    const exportBundles = JSON.parse(bundlesStr) as ExportBundle[];
+    const exportBundles = parseExportBundles(bundlesStr);
     for (const bundle of exportBundles) {
       await iframeClient.injectKeyExportBundle(
         bundle.encryptedBundle,
         session.organizationId,
-        KeyFormat.Solana,
+        bundle.addressFormat === ETHEREUM_ADDRESS_FORMAT
+          ? KeyFormat.Hexadecimal
+          : KeyFormat.Solana,
         bundle.address,
       );
     }
   }, [httpClient, iframeClient, session?.organizationId, activeEscrowKeyId]);
 
   const signMessage = useCallback(
-    async (address: string) => {
+    async (account: EscrowAccount) => {
       if (!iframeClient) return;
 
       const message = "Hello Turnkey!";
       const signature = await iframeClient.signMessage(
-        { message, type: MessageType.Solana },
-        address,
+        {
+          message,
+          type:
+            account.addressFormat === ETHEREUM_ADDRESS_FORMAT
+              ? MessageType.Ethereum
+              : MessageType.Solana,
+        },
+        account.address,
       );
 
-      console.log("Signature:", signature);
-      console.log("Valid:", verifySolanaSignature(message, signature, address));
+      const valid =
+        account.addressFormat === ETHEREUM_ADDRESS_FORMAT
+          ? await verifyEthereumSignature(message, signature, account.address)
+          : verifySolanaSignature(message, signature, account.address);
+
+      console.log(
+        `${getAddressFormatLabel(account.addressFormat)} signature for ${account.address}:`,
+        signature,
+      );
+      console.log("Valid:", valid);
     },
     [iframeClient],
   );
 
-  const signAll = useCallback(() => {
-    encryptedAccounts.forEach(signMessage);
+  const signAll = useCallback(async () => {
+    await Promise.all(encryptedAccounts.map(signMessage));
   }, [encryptedAccounts, signMessage]);
 
+  const signSampleEvmTransaction = useCallback(
+    async (account: EscrowAccount) => {
+      if (!iframeClient) return;
+
+      const serializedUnsignedTransaction = buildSampleEvmTransaction(
+        account.address,
+      );
+      const signedTransaction = await iframeClient.signTransaction(
+        {
+          transaction: serializedUnsignedTransaction,
+          type: TransactionType.Ethereum,
+        },
+        account.address,
+      );
+      const recoveredAddress = await recoverTransactionAddress({
+        serializedTransaction: signedTransaction as TransactionSerialized,
+      });
+
+      console.log(
+        `Signed sample EVM transaction for ${account.address}:`,
+        signedTransaction,
+      );
+      console.log(
+        "Valid:",
+        recoveredAddress.toLowerCase() === account.address.toLowerCase(),
+      );
+    },
+    [iframeClient],
+  );
+
+  const signAllSampleEvmTransactions = useCallback(async () => {
+    await Promise.all(
+      encryptedAccounts
+        .filter((account) => account.addressFormat === ETHEREUM_ADDRESS_FORMAT)
+        .map(signSampleEvmTransaction),
+    );
+  }, [encryptedAccounts, signSampleEvmTransaction]);
+
+  const createWalletForAddressFormat = useCallback(
+    async (addressFormat: SupportedAddressFormat) => {
+      await createWallet({
+        walletName: `${getAddressFormatLabel(addressFormat)} Wallet ${new Date().toISOString()}`,
+        accounts: [addressFormat, addressFormat, addressFormat],
+      });
+    },
+    [createWallet],
+  );
+
   const createSolWallet = useCallback(async () => {
-    await createWallet({
-      walletName: "Solana Wallet " + new Date().toISOString(),
-      accounts: [
-        "ADDRESS_FORMAT_SOLANA",
-        "ADDRESS_FORMAT_SOLANA",
-        "ADDRESS_FORMAT_SOLANA",
-      ],
-    });
-  }, [createWallet]);
+    await createWalletForAddressFormat(SOLANA_ADDRESS_FORMAT);
+  }, [createWalletForAddressFormat]);
+
+  const createEthereumWallet = useCallback(async () => {
+    await createWalletForAddressFormat(ETHEREUM_ADDRESS_FORMAT);
+  }, [createWalletForAddressFormat]);
+
+  const hasEthereumAccounts = encryptedAccounts.some(
+    (account) => account.addressFormat === ETHEREUM_ADDRESS_FORMAT,
+  );
 
   // ── Effects ────────────────────────────────────────────────────────────
 
@@ -251,8 +408,13 @@ export default function Home() {
 
     const stored = localStorage.getItem(EXPORT_BUNDLE_STORAGE_KEY);
     if (stored) {
-      const bundles = JSON.parse(stored) as ExportBundle[];
-      setEncryptedAccounts(bundles.map((b) => b.address));
+      const bundles = parseExportBundles(stored);
+      setEncryptedAccounts(
+        bundles.map(({ address, addressFormat }) => ({
+          address,
+          addressFormat,
+        })),
+      );
     }
   }, []);
 
@@ -304,7 +466,7 @@ export default function Home() {
             {availableAccounts.length === 0 ? (
               <p>
                 No available accounts to export. Please create a wallet with
-                Solana accounts.
+                Solana or Ethereum accounts.
               </p>
             ) : (
               <>
@@ -312,18 +474,29 @@ export default function Home() {
                   Available Accounts for Export
                 </h2>
                 {availableAccounts.map((account) => (
-                  <div key={account.address}>{account.address}</div>
+                  <div key={account.address}>
+                    {account.address} (
+                    {getAddressFormatLabel(account.addressFormat)})
+                  </div>
                 ))}
               </>
             )}
           </div>
 
-          <button
-            className="bg-neutral-300 text-black"
-            onClick={createSolWallet}
-          >
-            Create Wallet
-          </button>
+          <div className="flex gap-2">
+            <button
+              className="bg-neutral-300 text-black"
+              onClick={createSolWallet}
+            >
+              Create Solana Wallet
+            </button>
+            <button
+              className="bg-neutral-300 text-black"
+              onClick={createEthereumWallet}
+            >
+              Create Ethereum Wallet
+            </button>
+          </div>
 
           <div className="border rounded-md border-white p-4 flex flex-col gap-4">
             <h2 className="text-lg font-bold">Available Escrow Keys</h2>
@@ -377,8 +550,11 @@ export default function Home() {
             ) : (
               <>
                 <h2 className="text-lg font-bold">Encrypted Accounts</h2>
-                {encryptedAccounts.map((address) => (
-                  <div key={address}>{address}</div>
+                {encryptedAccounts.map((account) => (
+                  <div key={account.address}>
+                    {account.address} (
+                    {getAddressFormatLabel(account.addressFormat)})
+                  </div>
                 ))}
               </>
             )}
@@ -396,6 +572,13 @@ export default function Home() {
             disabled={encryptedAccounts.length === 0}
           >
             Sign Message with All Accounts
+          </button>
+          <button
+            className="bg-neutral-300 text-black"
+            onClick={signAllSampleEvmTransactions}
+            disabled={!hasEthereumAccounts}
+          >
+            Sign Sample Transaction with All Ethereum Accounts
           </button>
         </>
       )}
