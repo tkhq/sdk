@@ -1,8 +1,12 @@
 # Example: `with-vaultsfyi`
 
-[vaults.fyi](https://vaults.fyi) is a DeFi yield aggregator that lets you discover, deposit, and withdraw from yield-generating vaults across multiple protocols and networks through a single API. This example shows how to use a Turnkey wallet with the vaults.fyi SDK to interact with DeFi vaults. It provides the following scripts:
+[vaults.fyi](https://vaults.fyi) is a DeFi yield aggregator that lets you discover, deposit, and
+withdraw from yield-generating vaults across multiple protocols and networks through a single API.
+This example shows how to use a Turnkey wallet with the vaults.fyi SDK to interact with DeFi vaults.
+It provides the following scripts:
 
-- `setupPolicy.ts` discovers target contract addresses via dry-run and creates a Turnkey policy scoping a non-root user to only those addresses
+- `setupPolicy.ts` discovers target contract addresses via dry-run and creates a Turnkey policy
+  scoping a non-root user to only those addresses
 - `discover.ts` finds the best yield opportunities for your wallet on a given network
 - `deposit.ts` deposits into a vault (amount in base units)
 - `positions.ts` lists all DeFi positions for your wallet
@@ -10,9 +14,11 @@
 - `setupRewardsPolicy.ts` discovers reward claim addresses and creates a policy for them
 - `claimRewards.ts` claims any pending rewards on a given network
 
-On top of it, we showcase the power of the Turnkey policy engine by allowing a non-root Turnkey user to only sign the specific transactions with the addresses discovered from vaults.fyi:
+On top of it, we showcase the power of the Turnkey policy engine by allowing a non-root Turnkey user
+to only sign the specific transactions with the addresses discovered from vaults.fyi:
 
-- `setupPolicy.ts` uses an organization root user (RootQuorum) to create specific policies for a non-root user that will be used to sign the transactions.
+- `setupPolicy.ts` uses an organization root user (RootQuorum) to create specific policies for a
+  non-root user that will be used to sign the transactions.
 
 ## Getting started
 
@@ -26,21 +32,30 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-vaultsfyi/
+$ cd examples/defi/with-vaultsfyi/
 ```
 
 ### 2/ Setting up Turnkey
 
-The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
+The first step is to set up your Turnkey organization and account. By following the
+[Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
 
 - A root user with a public/private API key pair within the Turnkey parent organization
 - An organization ID
 
-The next step is to create another user within the organization with a different API key and remove it from the root quorum. You can do this from the Turnkey [dashboard](https://app.turnkey.com/dashboard/security/updateRootQuorum) or [API](https://docs.turnkey.com/api-reference/activities/update-root-quorum). Here's a simple [script](https://github.com/tkhq/sdk/blob/main/examples/kitchen-sink/src/sdk-server/updateRootQuorum.ts) that shows how to update the root quorum using `@turnkey/sdk-server`.
+The next step is to create another user within the organization with a different API key and remove
+it from the root quorum. You can do this from the Turnkey
+[dashboard](https://app.turnkey.com/dashboard/security/updateRootQuorum) or
+[API](https://docs.turnkey.com/api-reference/activities/update-root-quorum). Here's a simple
+[script](https://github.com/tkhq/sdk/blob/main/examples/kitchen-sink/src/sdk-server/updateRootQuorum.ts)
+that shows how to update the root quorum using `@turnkey/sdk-server`.
 
-Finally, make sure you have a [wallet](https://app.turnkey.com/dashboard/wallets) with an Ethereum wallet account created within this organization and have it funded with some ETH and the deposit token on your target network.
+Finally, make sure you have a [wallet](https://app.turnkey.com/dashboard/wallets) with an Ethereum
+wallet account created within this organization and have it funded with some ETH and the deposit
+token on your target network.
 
-Once you've gathered these values, add them to a new `.env.local` file. Notice that your private key should be securely managed and **_never_** be committed to git.
+Once you've gathered these values, add them to a new `.env.local` file. Notice that your private key
+should be securely managed and **_never_** be committed to git.
 
 ```bash
 cp .env.local.example .env.local
