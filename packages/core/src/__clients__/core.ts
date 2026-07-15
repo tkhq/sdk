@@ -5379,10 +5379,24 @@ export class TurnkeyClient {
   };
 
   /**
-   * Verifies a list of app proofs against their corresponding boot proofs.
+   * Verifies a list of app proofs against their corresponding boot proofs using
+   * the example/reference-grade check from `@turnkey/crypto`.
    *
    * - This function iterates through each provided app proof, fetches the corresponding boot proof, and verifies the app proof against the boot proof.
    * - If any app proof fails verification, an error is thrown.
+   *
+   * @remarks
+   * WARNING: This is not full verification of a Turnkey enclave. It verifies
+   * that the proof came from a genuine AWS Nitro enclave and that proof
+   * signatures chain correctly, but it does not verify enclave identity or image
+   * measurements. It does not inspect `attestationDoc.pcrs` (PCR0-3 image
+   * measurements), and it does not compare the QOS manifest content against a
+   * known-good or pinned Turnkey manifest. Any party with an AWS account can
+   * produce attestations from their own Nitro enclave that pass this check.
+   *
+   * For full verification, callers must additionally pin and verify expected
+   * PCR measurements and manifest content. See https://github.com/tkhq/qos.
+   *
    * @param params.appProofs - the app proofs to verify.
    * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
