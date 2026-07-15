@@ -65,11 +65,11 @@ export async function main() {
   let swapPayload: any = {
     organizationId,
     from: wallet,
-    to: UNIVERSAL_ROUTER,
     caip2: "eip155:8453",
-    data: calldata,
     gasLimit: sponsored ? undefined : "600000",
-    value: amountIn.toString(),
+    calls: [
+      { to: UNIVERSAL_ROUTER, data: calldata, value: amountIn.toString() },
+    ],
   };
 
   if (sponsored) {

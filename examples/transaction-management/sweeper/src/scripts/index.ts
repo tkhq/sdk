@@ -162,13 +162,12 @@ async function sweepTokens(
       .ethSendTransaction({
         organizationId,
         from: ownerAddress,
-        to: token.address,
         caip2: network.caip2,
         gasStationNonce: sponsor ? gasStationNonce : undefined,
         nonce: sponsor ? undefined : nonce,
         sponsor,
-        data: calldata,
         gasLimit: sponsor ? undefined : "200000",
+        calls: [{ to: token.address, data: calldata }],
       });
 
     // Poll for final inclusion
@@ -238,15 +237,14 @@ async function sweepEth(
     .ethSendTransaction({
       organizationId,
       from: ownerAddress,
-      to: destination,
       gasStationNonce: sponsor ? gasStationNonce : undefined,
       nonce: sponsor ? undefined : nonce,
       sponsor,
       caip2: network.caip2,
-      value: value.toString(),
       gasLimit: sponsor ? undefined : gas.toString(),
       maxFeePerGas: sponsor ? undefined : maxFee!.toString(),
       maxPriorityFeePerGas: sponsor ? undefined : maxPriorityFee!.toString(),
+      calls: [{ to: destination, value: value.toString() }],
     });
   // Poll for final inclusion
   const status = await pollTransactionStatus({

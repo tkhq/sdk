@@ -113,12 +113,98 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1VerifyOtpIntent",
     "v1VerifyOtpResult",
   ],
-  ACTIVITY_TYPE_ETH_SEND_TRANSACTION: [
-    "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
-    "v1EthSendTransactionIntent",
-    "v1EthSendTransactionResult",
-  ],
 };
+
+/**
+ * Manual overrides for activity method generation.
+ *
+ * By default, codegen emits a single activity method per swagger endpoint using the latest activity version.
+ * Use this list to explicitly emit additional methods pinned to a specific activity type version.
+ *
+ */
+const ACTIVITY_METHOD_OVERRIDES = [
+  {
+    methodName: "ethSendTransaction",
+    endpointPath: "/public/v1/submit/eth_send_transaction",
+    activityType: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
+    inputType: "TEthSendTransactionBody",
+    responseType: "TEthSendTransactionResponse",
+    resultKey: "ethSendTransactionResult",
+  },
+  {
+    methodName: "ethSendTransactionV2",
+    endpointPath: "/public/v1/submit/eth_send_transaction",
+    activityType: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
+    inputType: "TEthSendTransactionV2Body",
+    responseType: "TEthSendTransactionV2Response",
+    resultKey: "ethSendTransactionResultV2",
+  },
+];
+
+const OVERRIDDEN_METHOD_NAMES = new Set(
+  ACTIVITY_METHOD_OVERRIDES.map((o) => o.methodName),
+);
+
+/**
+ * Emits an activity call method and its matching stamp method for a manual override entry.
+ * @param {(typeof ACTIVITY_METHOD_OVERRIDES)[number]} override
+ * @returns {string}
+ */
+function generateOverrideMethods(override) {
+  const {
+    methodName,
+    endpointPath,
+    activityType,
+    inputType,
+    responseType,
+    resultKey,
+  } = override;
+  const stampMethodName = `stamp${methodName.charAt(0).toUpperCase() + methodName.slice(1)}`;
+
+  const activityMethod = `\n\t${methodName} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<SdkTypes.${responseType}> => {
+      const { organizationId, timestampMs, ...rest } = input;
+
+      //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+      const generateAppProofs = input?.generateAppProofs ?? false;
+      const session = await this.storageManager?.getActiveSession();
+
+      return this.activity("${endpointPath}", {
+        parameters: rest,
+        organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "${activityType}"
+      }, "${resultKey}", stampWith);
+    }`;
+
+  const stampMethod = `\n\t${stampMethodName} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "${activityType}"
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  }`;
+
+  return activityMethod + stampMethod;
+}
 
 /**
  * Extracts the activity type string from a request definition's `type.enum` field.
@@ -563,6 +649,11 @@ const generateSDKClientFromSwagger = async (
       operationNameWithoutNamespace.slice(1)
     }`;
 
+    // Skip endpoints whose method(s) are supplied manually via overrides.
+    if (OVERRIDDEN_METHOD_NAMES.has(methodName)) {
+      continue;
+    }
+
     const methodType = methodTypeFromMethodName(methodName);
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
@@ -705,6 +796,11 @@ const generateSDKClientFromSwagger = async (
   }`,
       );
     }
+  }
+
+  // Emit manually-overridden activity methods
+  for (const override of ACTIVITY_METHOD_OVERRIDES) {
+    codeBuffer.push(generateOverrideMethods(override));
   }
 
   for (const endpointPath in authProxySwaggerSpec.paths) {

@@ -286,15 +286,19 @@ export async function sendEthTransactionUnsponsored(params: {
   const sendResponse = await apiClient.ethSendTransaction({
     organizationId: serverEnv.organizationId,
     from: params.from,
-    to: txTo,
-    value: txValue,
-    ...(transferData ? { data: transferData } : {}),
     caip2: params.caip2,
     sponsor: false,
     nonce,
     gasLimit,
     maxFeePerGas: fees.maxFeePerGas,
     maxPriorityFeePerGas: fees.maxPriorityFeePerGas,
+    calls: [
+      {
+        to: txTo,
+        value: txValue,
+        ...(transferData ? { data: transferData } : {}),
+      },
+    ],
   });
 
   const sendTransactionStatusId = sendResponse.sendTransactionStatusId;

@@ -5715,39 +5715,55 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 stampWith,
               })
             : await (async () => {
+                const ethTx = transaction as EthTransaction;
+
+                // Drop empty/no-op calldata ("0x" or "") so it isn't sent.
+                const cleanData = (data?: string) =>
+                  data && data !== "0x" && data !== "" ? data : undefined;
+
+                // Shared fee/nonce fields, present on both the V1 and V2 intents.
                 const {
                   from,
-                  to,
-                  value,
-                  data,
+                  sponsor,
                   nonce,
                   gasLimit,
                   maxFeePerGas,
                   maxPriorityFeePerGas,
-                  sponsor,
-                } = transaction as EthTransaction;
-
-                const cleanedData =
-                  data && data !== "0x" && data !== "" ? data : undefined;
-
-                const tx: EthTransaction = {
+                } = ethTx;
+                const commonFields = {
                   from,
-                  to,
-                  caip2: caip2 as
-                    | "eip155:1"
-                    | "eip155:11155111"
-                    | "eip155:8453"
-                    | "eip155:84532"
-                    | "eip155:137"
-                    | "eip155:80002",
+                  caip2: ethTx.caip2,
                   sponsor: sponsor ?? false,
-                  ...(value ? { value } : {}),
-                  ...(cleanedData ? { data: cleanedData } : {}),
                   ...(nonce ? { nonce } : {}),
                   ...(gasLimit ? { gasLimit } : {}),
                   ...(maxFeePerGas ? { maxFeePerGas } : {}),
                   ...(maxPriorityFeePerGas ? { maxPriorityFeePerGas } : {}),
                 };
+
+                // V2 multi-call intent vs. legacy single-call (V1) intent.
+                // TODO (breaking change): eventually, we wont generate the v1 activity at all, remove this check and update the intent.
+                let tx: EthTransaction;
+                if ("calls" in ethTx) {
+                  tx = {
+                    ...commonFields,
+                    calls: ethTx.calls.map(({ to, value, data }) => {
+                      const cleanedData = cleanData(data);
+                      return {
+                        to,
+                        ...(value ? { value } : {}),
+                        ...(cleanedData ? { data: cleanedData } : {}),
+                      };
+                    }),
+                  };
+                } else {
+                  const cleanedData = cleanData(ethTx.data);
+                  tx = {
+                    ...commonFields,
+                    to: ethTx.to,
+                    ...(ethTx.value ? { value: ethTx.value } : {}),
+                    ...(cleanedData ? { data: cleanedData } : {}),
+                  };
+                }
 
                 return ethSendTransaction({
                   organizationId,

@@ -14,7 +14,6 @@ import {
   type PasskeyAuthResult,
   type v1CreatePolicyIntentV3,
   type v1BootProof,
-  type TEthSendTransactionBody,
   type TSolSendTransactionBody,
   type TGetSendTransactionStatusResponse,
   type ProxyTSignupResponse,
@@ -2904,9 +2903,6 @@ export class TurnkeyClient {
   };
 
   /**
-   * @beta
-   * * **API subject to change**
-   *
    * Signs and submits an Ethereum transaction using a Turnkey-managed (embedded) wallet.
    *
    * This method performs **authorization and signing**, and submits the transaction
@@ -2946,20 +2942,6 @@ export class TurnkeyClient {
       transaction,
     } = params;
 
-    const {
-      from,
-      to,
-      caip2,
-      value,
-      data,
-      nonce,
-      gasLimit,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      sponsor,
-      gasStationNonce,
-    } = transaction;
-
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -2975,36 +2957,18 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        //
-        // Build Turnkey intent
-        //
-        const intent: TEthSendTransactionBody = {
-          from,
-          to,
-          caip2,
-          ...(value ? { value } : {}),
-          ...(data ? { data } : {}),
-          ...(nonce !== undefined ? { nonce } : {}),
-        };
-
-        if (sponsor) {
-          intent.sponsor = true;
-          if (gasStationNonce !== undefined)
-            intent.gasStationNonce = gasStationNonce;
-        } else {
-          if (gasLimit) intent.gasLimit = gasLimit;
-          if (maxFeePerGas) intent.maxFeePerGas = maxFeePerGas;
-          if (maxPriorityFeePerGas)
-            intent.maxPriorityFeePerGas = maxPriorityFeePerGas;
-        }
-
-        //
-        // Submit to Turnkey
-        //
-        const resp = await this.httpClient.ethSendTransaction({
-          ...intent,
-          organizationId,
-        });
+        // Conditionally call v2 activity if calls array exists.
+        // TODO (breaking change): eventually, we wont generate the v1 activity at all, remove this check and update the intent.
+        const resp =
+          "calls" in transaction
+            ? await this.httpClient.ethSendTransactionV2({
+                ...transaction,
+                organizationId,
+              })
+            : await this.httpClient.ethSendTransaction({
+                ...transaction,
+                organizationId,
+              });
 
         const id = resp.sendTransactionStatusId;
         if (!id) {
@@ -3024,9 +2988,6 @@ export class TurnkeyClient {
   };
 
   /**
-   * @beta
-   * * **API subject to change**
-   *
    * Signs and submits a Solana transaction using a Turnkey-managed (embedded) wallet.
    *
    * This method performs **authorization and signing**, and submits the transaction

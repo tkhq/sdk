@@ -35,8 +35,27 @@ const VERSIONED_ACTIVITY_TYPES = {
   ACTIVITY_TYPE_OTP_LOGIN: "ACTIVITY_TYPE_OTP_LOGIN_V2",
   ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS:
     "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
-  ACTIVITY_TYPE_ETH_SEND_TRANSACTION: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
+  ACTIVITY_TYPE_ETH_SEND_TRANSACTION: {
+    activityType: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
+    // Some activities will have multiple generated type versions. Usually we only have one type that defaults to the latest version but in this case, we have an explicit V2.
+    typeVersion: "V2",
+  },
 };
+
+/**
+ * Normalizes a VERSIONED_ACTIVITY_TYPES entry (string or object form).
+ * @param {string | { activityType: string, typeVersion?: string } | undefined} entry
+ * @returns {{ activityType: string | undefined, typeVersion: string }}
+ */
+function resolveVersionedActivity(entry) {
+  if (!entry) return { activityType: undefined, typeVersion: "" };
+  if (typeof entry === "string")
+    return { activityType: entry, typeVersion: "" };
+  return {
+    activityType: entry.activityType,
+    typeVersion: entry.typeVersion ?? "",
+  };
+}
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "getActivities",
@@ -275,14 +294,19 @@ export class TurnkeySDKClientBase {
     }`;
 
     const methodType = methodTypeFromMethodName(methodName);
-    const inputType = `T${operationNameWithoutNamespace}Body`;
-    const responseType = `T${operationNameWithoutNamespace}Response`;
 
     const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
       .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
       .toUpperCase()}`;
-    const versionedActivityType =
-      VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
+    const { activityType: versionedActivityType, typeVersion } =
+      resolveVersionedActivity(
+        VERSIONED_ACTIVITY_TYPES[unversionedActivityType],
+      );
+
+    // typeVersion is "" for the common case (base name = latest), so this
+    // matches the existing behavior for every activity except the pinned ones.
+    const inputType = `T${operationNameWithoutNamespace}${typeVersion}Body`;
+    const responseType = `T${operationNameWithoutNamespace}${typeVersion}Response`;
 
     if (methodType === "query") {
       codeBuffer.push(

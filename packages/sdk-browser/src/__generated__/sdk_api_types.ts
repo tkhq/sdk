@@ -117,6 +117,39 @@ export type TGetLatestBootProofBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetMfaPoliciesResponse =
+  operations["PublicApiService_GetMfaPolicies"]["responses"]["200"]["schema"];
+
+export type TGetMfaPoliciesInput = { body: TGetMfaPoliciesBody };
+
+export type TGetMfaPoliciesBody = Omit<
+  operations["PublicApiService_GetMfaPolicies"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetMfaPolicyResponse =
+  operations["PublicApiService_GetMfaPolicy"]["responses"]["200"]["schema"];
+
+export type TGetMfaPolicyInput = { body: TGetMfaPolicyBody };
+
+export type TGetMfaPolicyBody = Omit<
+  operations["PublicApiService_GetMfaPolicy"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetMfaStatusResponse =
+  operations["PublicApiService_GetMfaStatus"]["responses"]["200"]["schema"];
+
+export type TGetMfaStatusInput = { body: TGetMfaStatusBody };
+
+export type TGetMfaStatusBody = Omit<
+  operations["PublicApiService_GetMfaStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetNoncesResponse =
   operations["PublicApiService_GetNonces"]["responses"]["200"]["schema"];
 
@@ -222,6 +255,28 @@ export type TGetSendTransactionStatusBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetSessionProfileResponse =
+  operations["PublicApiService_GetSessionProfile"]["responses"]["200"]["schema"];
+
+export type TGetSessionProfileInput = { body: TGetSessionProfileBody };
+
+export type TGetSessionProfileBody = Omit<
+  operations["PublicApiService_GetSessionProfile"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetSessionProfilesResponse =
+  operations["PublicApiService_GetSessionProfiles"]["responses"]["200"]["schema"];
+
+export type TGetSessionProfilesInput = { body: TGetSessionProfilesBody };
+
+export type TGetSessionProfilesBody = Omit<
+  operations["PublicApiService_GetSessionProfiles"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetSmartContractInterfaceResponse =
   operations["PublicApiService_GetSmartContractInterface"]["responses"]["200"]["schema"];
 
@@ -253,6 +308,19 @@ export type TGetTvcDeploymentInput = { body: TGetTvcDeploymentBody };
 
 export type TGetTvcDeploymentBody = Omit<
   operations["PublicApiService_GetTvcDeployment"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetTvcDeploymentDebugLogsResponse =
+  operations["PublicApiService_GetTvcDeploymentDebugLogs"]["responses"]["200"]["schema"];
+
+export type TGetTvcDeploymentDebugLogsInput = {
+  body: TGetTvcDeploymentDebugLogsBody;
+};
+
+export type TGetTvcDeploymentDebugLogsBody = Omit<
+  operations["PublicApiService_GetTvcDeploymentDebugLogs"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -321,6 +389,17 @@ export type TGetAppProofsInput = { body: TGetAppProofsBody };
 
 export type TGetAppProofsBody = Omit<
   operations["PublicApiService_GetAppProofs"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListEmailEventsResponse =
+  operations["PublicApiService_ListEmailEvents"]["responses"]["200"]["schema"];
+
+export type TListEmailEventsInput = { body: TListEmailEventsBody };
+
+export type TListEmailEventsBody = Omit<
+  operations["PublicApiService_ListEmailEvents"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -579,6 +658,16 @@ export type TCreateInvitationsBody =
   operations["PublicApiService_CreateInvitations"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateMfaPolicyResponse =
+  operations["PublicApiService_CreateMfaPolicy"]["responses"]["200"]["schema"]["activity"]["result"]["createMfaPolicyResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateMfaPolicyInput = { body: TCreateMfaPolicyBody };
+
+export type TCreateMfaPolicyBody =
+  operations["PublicApiService_CreateMfaPolicy"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateOauth2CredentialResponse =
   operations["PublicApiService_CreateOauth2Credential"]["responses"]["200"]["schema"]["activity"]["result"]["createOauth2CredentialResult"] &
     definitions["v1ActivityResponse"];
@@ -661,6 +750,16 @@ export type TCreateReadWriteSessionInput = {
 
 export type TCreateReadWriteSessionBody =
   operations["PublicApiService_CreateReadWriteSession"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateSessionProfileResponse =
+  operations["PublicApiService_CreateSessionProfile"]["responses"]["200"]["schema"]["activity"]["result"]["createSessionProfileResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateSessionProfileInput = { body: TCreateSessionProfileBody };
+
+export type TCreateSessionProfileBody =
+  operations["PublicApiService_CreateSessionProfile"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateSmartContractInterfaceResponse =
@@ -807,6 +906,16 @@ export type TDeleteInvitationInput = { body: TDeleteInvitationBody };
 
 export type TDeleteInvitationBody =
   operations["PublicApiService_DeleteInvitation"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TDeleteMfaPolicyResponse =
+  operations["PublicApiService_DeleteMfaPolicy"]["responses"]["200"]["schema"]["activity"]["result"]["deleteMfaPolicyResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteMfaPolicyInput = { body: TDeleteMfaPolicyBody };
+
+export type TDeleteMfaPolicyBody =
+  operations["PublicApiService_DeleteMfaPolicy"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TDeleteOauth2CredentialResponse =
@@ -976,7 +1085,7 @@ export type TEmailAuthBody =
     commandOverrideParams;
 
 export type TEthSendTransactionResponse =
-  operations["PublicApiService_EthSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["ethSendTransactionResult"] &
+  operations["PublicApiService_EthSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["ethSendTransactionResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TEthSendTransactionInput = { body: TEthSendTransactionBody };
@@ -1333,6 +1442,16 @@ export type TUpdateFiatOnRampCredentialInput = {
 
 export type TUpdateFiatOnRampCredentialBody =
   operations["PublicApiService_UpdateFiatOnRampCredential"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpdateMfaPolicyResponse =
+  operations["PublicApiService_UpdateMfaPolicy"]["responses"]["200"]["schema"]["activity"]["result"]["updateMfaPolicyResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateMfaPolicyInput = { body: TUpdateMfaPolicyBody };
+
+export type TUpdateMfaPolicyBody =
+  operations["PublicApiService_UpdateMfaPolicy"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TUpdateOauth2CredentialResponse =

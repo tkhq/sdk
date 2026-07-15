@@ -4,9 +4,9 @@ import { base, mainnet, sepolia } from "viem/chains";
 
 // Default contract addresses (deterministically deployed across all chains)
 export const DEFAULT_DELEGATE_CONTRACT: Hex =
-  "0x000066a00056CD44008768E2aF00696e19A30084";
+  "0x955D84139e7621bc571b117D8EB5D28A4A222C6f";
 export const DEFAULT_EXECUTION_CONTRACT: Hex =
-  "0x00000000008c57a1CE37836a5e9d36759D070d8c";
+  "0x5aF5194B4b0909eB978e3Cf1e25333852277f07D";
 export const DEFAULT_REIMBURSABLE_USDC_CONTRACT: Hex =
   "0x4c0a2998B4Dc7BAF418109b80E5dde7395703dcb";
 

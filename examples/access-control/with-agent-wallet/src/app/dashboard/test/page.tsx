@@ -131,6 +131,8 @@ export default function TestPage() {
           activityId,
         });
         statusId =
+          activity.result?.ethSendTransactionResultV2
+            ?.sendTransactionStatusId ??
           activity.result?.ethSendTransactionResult?.sendTransactionStatusId ??
           null;
       } catch {

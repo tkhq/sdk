@@ -48,11 +48,9 @@ export async function sendEth(
 
   const transactionRequest = {
     from: fromAddress,
-    to: destinationAddress,
-    value: value.toString(),
-    type: 2,
     caip2: `eip155:${chainId}` as Caip2ChainId,
     sponsor: sponsor,
+    calls: [{ to: destinationAddress, value: value.toString() }],
     ...(!sponsor && { maxFeePerGas, maxPriorityFeePerGas, gasLimit }),
   };
 

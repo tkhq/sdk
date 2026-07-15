@@ -179,7 +179,7 @@ export function buildIntentSigningPolicy(config: {
  * const policy = buildPaymasterExecutionPolicy({
  *   organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
  *   paymasterUserId: "8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
- *   executionContractAddress: "0x00000000008c57a1CE37836a5e9d36759D070d8c",
+ *   executionContractAddress: "0x5aF5194B4b0909eB978e3Cf1e25333852277f07D",
  *   restrictions: {
  *     allowedEOAs: ["0xAli...ce", "0xBob...by"],
  *     allowedContracts: ["0x833...USDC", "0x6B1...DAI"],
@@ -197,7 +197,7 @@ export function buildIntentSigningPolicy(config: {
  *   effect: "EFFECT_ALLOW",
  *   consensus: "approvers.any(user, user.id == '8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
- *              "eth.tx.to == '0x00000000008c57a1ce37836a5e9d36759d070d8c' && " +
+ *              "eth.tx.to == '0x5af5194b4b0909eb978e3cf1e25333852277f07d' && " +
  *              "(eth.tx.contract_call_args['_to'] == '0x833...usdc' || " +
  *              "eth.tx.contract_call_args['_to'] == '0x6b1...dai') && " +
  *              "(eth.tx.contract_call_args['_target'] == '0xali...ce' || " +
@@ -213,7 +213,7 @@ export function buildIntentSigningPolicy(config: {
  *   organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
  *   paymasterUserId: "8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
  *   additionalApprovers: ["2e4f6a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b"],
- *   executionContractAddress: "0x00000000008c57a1CE37836a5e9d36759D070d8c",
+ *   executionContractAddress: "0x5aF5194B4b0909eB978e3Cf1e25333852277f07D",
  *   restrictions: {
  *     allowedEOAs: ["0xAli...ce"],
  *     maxEthAmount: parseEther("1"), // Max 1 ETH
@@ -229,7 +229,7 @@ export function buildIntentSigningPolicy(config: {
  *   consensus: "approvers.any(user, user.id == '8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c' || " +
  *              "user.id == '2e4f6a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
- *              "eth.tx.to == '0x00000000008c57a1ce37836a5e9d36759d070d8c' && " +
+ *              "eth.tx.to == '0x5af5194b4b0909eb978e3cf1e25333852277f07d' && " +
  *              "(eth.tx.contract_call_args['_target'] == '0xali...ce') && " +
  *              "eth.tx.contract_call_args['_ethAmount'] <= 1000000000000000000 && " +
  *              "eth.tx.gasPrice <= 100000000000",
@@ -242,7 +242,7 @@ export function buildIntentSigningPolicy(config: {
  *   organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
  *   paymasterUserId: "8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
  *   customConsensus: "approvers.count() >= 2",
- *   executionContractAddress: "0x00000000008c57a1CE37836a5e9d36759D070d8c",
+ *   executionContractAddress: "0x5aF5194B4b0909eB978e3Cf1e25333852277f07D",
  *   restrictions: { ... },
  * });
  *
@@ -443,7 +443,7 @@ export async function uploadGasStationInterface({
  * const interfaceId = await ensureGasStationInterface({
  *   client: turnkeyClient.apiClient(),
  *   organizationId: "a5b89e4f-1234-5678-9abc-def012345678",
- *   contractAddress: "0x00000000008c57a1CE37836a5e9d36759D070d8c",
+ *   contractAddress: "0x5aF5194B4b0909eB978e3Cf1e25333852277f07D",
  *   chainName: "Base Sepolia"
  * });
  */

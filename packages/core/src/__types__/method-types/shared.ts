@@ -14,6 +14,9 @@ import type {
   v1AppProof,
   v1OidcClaims,
   TSignedRequest,
+  v1EthSendTransactionIntent,
+  v1EthSendTransactionIntentV2,
+  v1SolSendTransactionIntent,
 } from "@turnkey/sdk-types";
 import type {
   CreateSubOrgParams,
@@ -250,28 +253,10 @@ export type PollTransactionStatusParams = {
   pollingIntervalMs?: number;
 };
 
-export type EthTransaction = {
-  from: string;
-  to: string;
-  caip2:
-    | "eip155:1"
-    | "eip155:11155111"
-    | "eip155:8453"
-    | "eip155:84532"
-    | "eip155:137"
-    | "eip155:80002";
-
-  value?: string;
-  data?: string;
-  nonce?: string;
-  gasLimit?: string;
-  maxFeePerGas?: string;
-  maxPriorityFeePerGas?: string;
-
-  sponsor?: boolean;
-  deadline?: string;
-  gasStationNonce?: string;
-};
+// TODO (breaking change): eventually, we wont generate the v1 activity at all. Remove this OR-ing.
+export type EthTransaction =
+  | v1EthSendTransactionIntent
+  | v1EthSendTransactionIntentV2;
 
 export type Erc20Transfer = {
   from: string;
@@ -294,19 +279,7 @@ export type Erc20Transfer = {
   sponsor?: boolean;
 };
 
-export type SolanaTransaction = {
-  unsignedTransaction: string;
-  signWith: string;
-  caip2:
-    | "solana:mainnet"
-    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
-    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d"
-    | "solana:devnet"
-    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
-    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
-  sponsor?: boolean;
-  recentBlockhash?: string;
-};
+export type SolanaTransaction = v1SolSendTransactionIntent;
 
 export type EthSendTransactionParams = {
   organizationId?: string;
