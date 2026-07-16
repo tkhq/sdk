@@ -15,7 +15,8 @@ if (!networkArg || !vaultId) {
 
 async function main() {
   const { network, chain } = resolveNetwork(networkArg!);
-  const { walletClient, publicClient, userAddress } = await createClients(chain);
+  const { walletClient, publicClient, userAddress } =
+    await createClients(chain);
 
   const assetAddress = await getAssetAddress(network, vaultId!);
 

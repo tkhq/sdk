@@ -10,13 +10,7 @@ import {
   type Account,
   type Chain,
 } from "viem";
-import {
-  mainnet,
-  base,
-  arbitrum,
-  optimism,
-  polygon,
-} from "viem/chains";
+import { mainnet, base, arbitrum, optimism, polygon } from "viem/chains";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
