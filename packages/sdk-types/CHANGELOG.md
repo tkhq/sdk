@@ -1,5 +1,32 @@
 # @turnkey/sdk-types
 
+## 1.2.0
+
+### Minor Changes
+
+- [#1433](https://github.com/tkhq/sdk/pull/1433) [`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f) Author [@amircheikh](https://github.com/amircheikh) - - Synced with Mono v2026.7.3
+  - Added version-specific types for `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2`, which supports batching multiple eth calls together via the new `calls` array.
+
+    ```ts
+    // V1 (unchanged) — single call, top-level fields
+    type v1EthSendTransactionIntent = {
+      from: string;
+      caip2: string;
+      to: string;
+      value?: string;
+      data?: string;
+      // ...
+    };
+
+    // V2 (new) — one or more calls in a `calls` array
+    type v1EthSendTransactionIntentV2 = {
+      from: string;
+      caip2: string;
+      calls: v1EthCallParams[]; // [{ to, value?, data? }]
+      // ...
+    };
+    ```
+
 ## 1.1.0
 
 ### Minor Changes

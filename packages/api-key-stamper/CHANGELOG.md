@@ -1,5 +1,12 @@
 # @turnkey/api-key-stamper
 
+## 0.6.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/crypto@2.10.1
+
 ## 0.6.7
 
 ### Patch Changes

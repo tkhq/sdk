@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/otp-auth-with-backend",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "private": true,
   "scripts": {
     "dev": "next dev",

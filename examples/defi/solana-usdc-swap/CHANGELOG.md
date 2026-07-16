@@ -1,5 +1,12 @@
 # @turnkey/solana-usdc-swap
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [[`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f)]:
+  - @turnkey/sdk-server@7.0.0
+
 ## 0.1.6
 
 ### Patch Changes
