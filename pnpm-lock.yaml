@@ -4064,14 +4064,14 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/with-vaultsfyi:
+  examples/defi/with-vaultsfyi:
     dependencies:
       '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../packages/sdk-server
+        version: link:../../../packages/sdk-server
       '@turnkey/viem':
         specifier: workspace:*
-        version: link:../../packages/viem
+        version: link:../../../packages/viem
       '@vaultsfyi/sdk':
         specifier: ^2.3.1
         version: 2.3.10(@solana/sysvars@3.0.3(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3))(@tanstack/react-query@5.90.2(react@19.2.4))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.6.3)(utf-8-validate@5.0.10)(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
