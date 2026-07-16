@@ -1,5 +1,38 @@
 # @turnkey/core
 
+## 2.3.0
+
+### Minor Changes
+
+- [#1433](https://github.com/tkhq/sdk/pull/1433) [`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f) Author [@amircheikh](https://github.com/amircheikh) - - Synced with Mono v2026.7.3
+  - Added `EthSendTransactionV2()` `httpClient` function which uses `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2`. This activity allows for multiple eth calls to be batched together via the new `calls` array. The existing `EthSendTransaction()` `httpClient` remains on the previous activity version.
+  - `ethSendTransaction` helper function can now accept a `calls` array in the `transaction` parameter which will direct the call to use `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2`. Passing the legacy `to`/`value`/`data` fields still works and continues to use V1.
+
+    ```ts
+    // V1 (still works, unchanged)
+    await client.ethSendTransaction({
+      transaction: { from, caip2, to, value, data },
+    });
+
+    // V2 — batch one or more calls via `calls`
+    await client.ethSendTransaction({
+      transaction: {
+        from,
+        caip2,
+        calls: [{ to, value, data }],
+      },
+    });
+    ```
+
+### Patch Changes
+
+- Updated dependencies [[`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f), [`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f)]:
+  - @turnkey/http@5.0.0
+  - @turnkey/sdk-types@1.2.0
+  - @turnkey/react-native-passkey-stamper@1.2.17
+  - @turnkey/crypto@2.10.1
+  - @turnkey/api-key-stamper@0.6.8
+
 ## 2.2.0
 
 ### Minor Changes

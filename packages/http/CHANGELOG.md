@@ -1,5 +1,39 @@
 # @turnkey/http
 
+## 5.0.0
+
+### Major Changes
+
+- [#1433](https://github.com/tkhq/sdk/pull/1433) [`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f) Author [@amircheikh](https://github.com/amircheikh) - - Synced with Mono v2026.7.3
+  - `EthSendTransaction()` function call now uses `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2`. This activity allows for multiple eth calls to be batched together via the new `calls` array. This means the intent for the activity has now changed.
+
+  **Before:**
+
+  ```ts
+  await client.ethSendTransaction({
+    from,
+    caip2,
+    to,
+    value,
+    data,
+  });
+  ```
+
+  **After:**
+
+  ```ts
+  await client.ethSendTransaction({
+    from,
+    caip2,
+    calls: [{ to, value, data }],
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.8
+
 ## 4.1.1
 
 ### Patch Changes
