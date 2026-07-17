@@ -8,7 +8,10 @@ import {
   createPublicClient,
   http,
   type Account,
+  type Address,
   type Chain,
+  type PublicClient,
+  type WalletClient,
 } from "viem";
 import {
   mainnet,
@@ -65,7 +68,11 @@ export const vaultsFyi = new VaultsSdk({
 
 // ── Turnkey viem client (non-root) ──
 
-export async function createClients(chain: Chain) {
+export async function createClients(chain: Chain): Promise<{
+  walletClient: WalletClient;
+  publicClient: PublicClient;
+  userAddress: Address;
+}> {
   const turnkey = new Turnkey({
     apiBaseUrl: requireEnv("TURNKEY_BASE_URL"),
     apiPrivateKey: requireEnv("NONROOT_API_PRIVATE_KEY"),
@@ -129,6 +136,7 @@ export async function executeActions(
 
     const hash = await walletClient.sendTransaction({
       account: walletClient.account!,
+      chain: walletClient.chain,
       to: step.tx.to as `0x${string}`,
       data: step.tx.data as `0x${string}` | undefined,
       value: step.tx.value ? BigInt(step.tx.value) : undefined,

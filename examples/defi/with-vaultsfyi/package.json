@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "pnpm -w run build-all",
+    "build": "tsc --noEmit false",
     "setup-policy": "tsx src/setupPolicy.ts",
     "discover": "tsx src/discover.ts",
     "deposit": "tsx src/deposit.ts",
