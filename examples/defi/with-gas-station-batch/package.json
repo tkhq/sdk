@@ -1,0 +1,23 @@
+{
+  "name": "@turnkey/with-gas-station-batch",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "tsc --noEmit false",
+    "faucet": "tsx src/faucet.ts",
+    "enter": "tsx src/enter.ts",
+    "exit": "tsx src/exit.ts",
+    "createPolicy": "tsx src/createPolicy.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bgd-labs/aave-address-book": "^4.28.2",
+    "@turnkey/sdk-server": "workspace:*",
+    "dotenv": "^16.0.3",
+    "viem": "^2.24.2"
+  },
+  "devDependencies": {
+    "typescript": "5.4.3"
+  }
+}
