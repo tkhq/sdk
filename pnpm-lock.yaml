@@ -2469,6 +2469,25 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  examples/defi/atomic-batch-with-aave:
+    dependencies:
+      '@bgd-labs/aave-address-book':
+        specifier: ^4.28.2
+        version: 4.29.1(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+      viem:
+        specifier: ^2.24.2
+        version: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/defi/eth-usdc-swap:
     dependencies:
       '@turnkey/ethers':
@@ -2634,25 +2653,6 @@ importers:
       viem:
         specifier: ^2.24.2
         version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-    devDependencies:
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
-  examples/defi/with-aave-atomic-batch:
-    dependencies:
-      '@bgd-labs/aave-address-book':
-        specifier: ^4.28.2
-        version: 4.29.1(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.6.1
-      viem:
-        specifier: ^2.24.2
-        version: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
     devDependencies:
       typescript:
         specifier: 5.4.3

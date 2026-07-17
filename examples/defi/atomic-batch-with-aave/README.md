@@ -1,4 +1,4 @@
-# Example: `with-aave-atomic-batch`
+# Example: `atomic-batch-with-aave`
 
 This example opens a **leveraged Aave v3 position and unwinds it with one button press** — each side a single Turnkey activity, a single policy evaluation, and a single atomic on-chain transaction, using `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2` with Gas Station sponsorship (EIP-7702) on **Base Sepolia**:
 
@@ -59,7 +59,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/defi/with-aave-atomic-batch/
+$ cd examples/defi/atomic-batch-with-aave/
 ```
 
 ### 2/ Setting up Turnkey

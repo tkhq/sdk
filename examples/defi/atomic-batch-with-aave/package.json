@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/with-aave-atomic-batch",
+  "name": "@turnkey/atomic-batch-with-aave",
   "version": "0.0.1",
   "private": true,
   "scripts": {
