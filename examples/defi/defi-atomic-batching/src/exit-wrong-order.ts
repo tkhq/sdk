@@ -63,7 +63,9 @@ async function main() {
     });
     console.log("Unexpected: the wrong-order batch went through.");
   } catch (err) {
-    console.log(`Batch rejected/reverted as expected: ${(err as Error).message}`);
+    console.log(
+      `Batch rejected/reverted as expected: ${(err as Error).message}`,
+    );
   }
 
   await settle();

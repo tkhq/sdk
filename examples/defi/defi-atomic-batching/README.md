@@ -4,25 +4,25 @@ This example opens a **leveraged Aave v3 position and unwinds it with one button
 
 - `faucet.ts` mints 100 test USDC from Aave's faucet — itself a sponsored activity, so the wallet **never needs ETH**
 - `positions.ts` prints the position: collateral, debt, health factor, wallet balance
-- `enter.ts` — `approve` → `supply(90 USDC)` → `borrow(20 USDC)`: **3 calls, one atomic tx.** You now have collateral posted *and* debt outstanding
+- `enter.ts` — `approve` → `supply(90 USDC)` → `borrow(20 USDC)`: **3 calls, one atomic tx.** You now have collateral posted _and_ debt outstanding
 - `exit.ts` — `approve` → `repay(max)` → `withdraw(max)`: **the emergency exit.** 3 calls whose order is load-bearing, executed all-or-nothing
-- `exit-wrong-order.ts` — proof of atomicity: submits the exit with `withdraw` *before* `repay`; Turnkey's pre-flight simulation fails the batch as a unit and the position is untouched
+- `exit-wrong-order.ts` — proof of atomicity: submits the exit with `withdraw` _before_ `repay`; Turnkey's pre-flight simulation fails the batch as a unit and the position is untouched
 - `createPolicy.ts` (optional) authorizes a non-root user to submit V2 batches from this wallet and nothing else
 
 ## Why batching is the story
 
-A leveraged position cannot be safely unwound step-by-step. Aave will not release collateral while debt is outstanding, so the sequence must be *repay, then withdraw*. Done as separate transactions, a failure or delay after `repay` leaves the position mid-unwind — debt repaid, collateral still exposed, keys warm while someone watches a screen. As a V2 batch the unwind is **atomic**: fully exited, or exactly as you were.
+A leveraged position cannot be safely unwound step-by-step. Aave will not release collateral while debt is outstanding, so the sequence must be _repay, then withdraw_. Done as separate transactions, a failure or delay after `repay` leaves the position mid-unwind — debt repaid, collateral still exposed, keys warm while someone watches a screen. As a V2 batch the unwind is **atomic**: fully exited, or exactly as you were.
 
 Compared with sending the same calls sequentially (as in [`with-aave`](../with-aave/)):
 
-|                             | 3 sequential transactions | 1 V2 batch                    |
-| --------------------------- | ------------------------- | ----------------------------- |
-| Turnkey activities          | 3                         | **1**                         |
-| Policy evaluations          | 3                         | **1**                         |
-| Dashboard approvals (with consensus policies) | 3 — an approver can end up having approved a *partial* unwind | **1** — approve one thing that either fully happens or doesn't |
-| Partial-failure window      | after every tx            | **none** (all-or-nothing)     |
-| Gas                         | paid by the wallet, 3×    | **sponsored** (Gas Station)   |
-| Broadcast                   | client RPC                | **Turnkey signs *and* broadcasts** |
+|                                               | 3 sequential transactions                                     | 1 V2 batch                                                     |
+| --------------------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------- |
+| Turnkey activities                            | 3                                                             | **1**                                                          |
+| Policy evaluations                            | 3                                                             | **1**                                                          |
+| Dashboard approvals (with consensus policies) | 3 — an approver can end up having approved a _partial_ unwind | **1** — approve one thing that either fully happens or doesn't |
+| Partial-failure window                        | after every tx                                                | **none** (all-or-nothing)                                      |
+| Gas                                           | paid by the wallet, 3×                                        | **sponsored** (Gas Station)                                    |
+| Broadcast                                     | client RPC                                                    | **Turnkey signs _and_ broadcasts**                             |
 
 Batching also gives a plain EOA composability that used to require deploying a router/multicall contract or renting a flashloan — position migrations (withdraw from protocol A → supply to protocol B), collateral swaps, leverage loops — with no contract to write, audit, or hold upgrade keys for.
 
@@ -105,7 +105,7 @@ Note: `enter.ts` supplies 90 of the 100 minted USDC and keeps 10 liquid so `repa
 
 ## Policies
 
-If the submitting user is a root user (with root quorum threshold 1), activities are approved by root quorum. To run the batch path under an explicit policy — e.g. for a non-root automation user whose *only* permission is pressing this button — run:
+If the submitting user is a root user (with root quorum threshold 1), activities are approved by root quorum. To run the batch path under an explicit policy — e.g. for a non-root automation user whose _only_ permission is pressing this button — run:
 
 ```bash
 $ pnpm createPolicy

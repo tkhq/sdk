@@ -14,7 +14,8 @@ async function main() {
   // The id of the non-root user that will submit the batches
   const userId = process.env.NONROOT_USER_ID!;
 
-  const policyName = "Allow non-root user to submit sponsored V2 batches from the treasury";
+  const policyName =
+    "Allow non-root user to submit sponsored V2 batches from the treasury";
   const effect = "EFFECT_ALLOW";
   const consensus = `approvers.any(user, user.id == '${userId}')`;
   const condition = [

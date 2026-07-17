@@ -1,5 +1,8 @@
 import { encodeFunctionData, parseAbi, parseUnits } from "viem";
-import { AaveV3BaseSepolia, MiscBaseSepolia } from "@bgd-labs/aave-address-book";
+import {
+  AaveV3BaseSepolia,
+  MiscBaseSepolia,
+} from "@bgd-labs/aave-address-book";
 import { sendBatch, signWith } from "./util";
 
 /**

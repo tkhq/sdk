@@ -1,7 +1,13 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
-import { createPublicClient, erc20Abi, formatUnits, http, parseAbi } from "viem";
+import {
+  createPublicClient,
+  erc20Abi,
+  formatUnits,
+  http,
+  parseAbi,
+} from "viem";
 import { baseSepolia } from "viem/chains";
 import { AaveV3BaseSepolia } from "@bgd-labs/aave-address-book";
 
@@ -23,7 +29,9 @@ export function turnkeyClient() {
 export function signWith(): `0x${string}` {
   const addr = process.env.SIGN_WITH;
   if (!addr || !/^0x[0-9a-fA-F]{40}$/.test(addr)) {
-    throw new Error("SIGN_WITH must be a 0x wallet address (see .env.local.example)");
+    throw new Error(
+      "SIGN_WITH must be a 0x wallet address (see .env.local.example)",
+    );
   }
   return addr as `0x${string}`;
 }
@@ -43,7 +51,9 @@ export async function sendBatch(params: {
 }): Promise<{ txHash: string }> {
   const client = turnkeyClient();
 
-  console.log(`${params.label}: submitting ${params.calls.length} call(s) as ONE activity…`);
+  console.log(
+    `${params.label}: submitting ${params.calls.length} call(s) as ONE activity…`,
+  );
   const t0 = Date.now();
   const result = await client.ethSendTransaction({
     from: signWith(),
@@ -53,7 +63,9 @@ export async function sendBatch(params: {
   });
 
   const statusId = result.sendTransactionStatusId;
-  console.log(`${params.label}: activity ${result.activity.id} (${Date.now() - t0}ms)`);
+  console.log(
+    `${params.label}: activity ${result.activity.id} (${Date.now() - t0}ms)`,
+  );
 
   // Poll for the on-chain hash. Gas Station typically lands in a few seconds.
   const deadline = Date.now() + 90_000;
@@ -71,12 +83,16 @@ export async function sendBatch(params: {
       return { txHash };
     }
     if (st === "FAILED" || st === "DROPPED" || st === "ERROR") {
-      throw new Error(`${params.label}: txStatus=${st} txError=${status.txError ?? "?"}`);
+      throw new Error(
+        `${params.label}: txStatus=${st} txError=${status.txError ?? "?"}`,
+      );
     }
     await new Promise((r) => setTimeout(r, delay));
     delay = Math.min(delay * 1.5, 2_000);
   }
-  throw new Error(`${params.label}: timed out waiting for txHash (statusId ${statusId})`);
+  throw new Error(
+    `${params.label}: timed out waiting for txHash (statusId ${statusId})`,
+  );
 }
 
 /**
@@ -122,7 +138,9 @@ export async function printPosition(tag: string): Promise<{
   const collateralUsd = Number(formatUnits(totalCollateralBase, 8));
   const debtUsd = Number(formatUnits(totalDebtBase, 8));
   const hf =
-    totalDebtBase === 0n ? "∞" : Number(formatUnits(healthFactor, 18)).toFixed(2);
+    totalDebtBase === 0n
+      ? "∞"
+      : Number(formatUnits(healthFactor, 18)).toFixed(2);
 
   console.log(
     `[${tag}] collateral $${collateralUsd.toFixed(2)} | debt $${debtUsd.toFixed(2)} | health factor ${hf} | wallet USDC ${formatUnits(usdcBalance, 6)}`,
