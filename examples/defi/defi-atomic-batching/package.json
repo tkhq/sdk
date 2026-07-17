@@ -1,12 +1,14 @@
 {
-  "name": "@turnkey/with-gas-station-batch",
+  "name": "@turnkey/defi-atomic-batching",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "build": "tsc --noEmit false",
     "faucet": "tsx src/faucet.ts",
+    "positions": "tsx src/positions.ts",
     "enter": "tsx src/enter.ts",
     "exit": "tsx src/exit.ts",
+    "exit-wrong-order": "tsx src/exit-wrong-order.ts",
     "createPolicy": "tsx src/createPolicy.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"

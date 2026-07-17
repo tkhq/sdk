@@ -1,6 +1,9 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+import { createPublicClient, erc20Abi, formatUnits, http, parseAbi } from "viem";
+import { baseSepolia } from "viem/chains";
+import { AaveV3BaseSepolia } from "@bgd-labs/aave-address-book";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -74,4 +77,55 @@ export async function sendBatch(params: {
     delay = Math.min(delay * 1.5, 2_000);
   }
   throw new Error(`${params.label}: timed out waiting for txHash (statusId ${statusId})`);
+}
+
+/**
+ * Public RPCs can lag Turnkey's confirmation by a few seconds — wait before
+ * reading back state that a just-included transaction changed.
+ */
+export async function settle(ms = 5_000): Promise<void> {
+  await new Promise((r) => setTimeout(r, ms));
+}
+
+/**
+ * Read the wallet's Aave v3 position (collateral, debt, health factor) plus
+ * its liquid USDC balance, and print a one-line summary. Read-only — the
+ * write path never touches an RPC (Turnkey signs AND broadcasts).
+ */
+export async function printPosition(tag: string): Promise<{
+  collateralUsd: number;
+  debtUsd: number;
+}> {
+  const client = createPublicClient({ chain: baseSepolia, transport: http() });
+  const me = signWith();
+  const poolAbi = parseAbi([
+    "function getUserAccountData(address user) view returns (uint256 totalCollateralBase, uint256 totalDebtBase, uint256 availableBorrowsBase, uint256 currentLiquidationThreshold, uint256 ltv, uint256 healthFactor)",
+  ]);
+
+  const [account, usdcBalance] = await Promise.all([
+    client.readContract({
+      address: AaveV3BaseSepolia.POOL as `0x${string}`,
+      abi: poolAbi,
+      functionName: "getUserAccountData",
+      args: [me],
+    }),
+    client.readContract({
+      address: AaveV3BaseSepolia.ASSETS.USDC.UNDERLYING as `0x${string}`,
+      abi: erc20Abi,
+      functionName: "balanceOf",
+      args: [me],
+    }),
+  ]);
+
+  const [totalCollateralBase, totalDebtBase, , , , healthFactor] = account;
+  // Aave v3 "base" values are USD with 8 decimals.
+  const collateralUsd = Number(formatUnits(totalCollateralBase, 8));
+  const debtUsd = Number(formatUnits(totalDebtBase, 8));
+  const hf =
+    totalDebtBase === 0n ? "∞" : Number(formatUnits(healthFactor, 18)).toFixed(2);
+
+  console.log(
+    `[${tag}] collateral $${collateralUsd.toFixed(2)} | debt $${debtUsd.toFixed(2)} | health factor ${hf} | wallet USDC ${formatUnits(usdcBalance, 6)}`,
+  );
+  return { collateralUsd, debtUsd };
 }

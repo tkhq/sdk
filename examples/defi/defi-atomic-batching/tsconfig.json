@@ -2,6 +2,9 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "lib": ["ES2022"],
     "outDir": "dist",
     "rootDir": "src",
     "tsBuildInfoFile": "./.cache/.tsbuildinfo"
