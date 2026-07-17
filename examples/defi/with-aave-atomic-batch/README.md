@@ -1,4 +1,4 @@
-# Example: `defi-atomic-batching`
+# Example: `with-aave-atomic-batch`
 
 This example opens a **leveraged Aave v3 position and unwinds it with one button press** — each side a single Turnkey activity, a single policy evaluation, and a single atomic on-chain transaction, using `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2` with Gas Station sponsorship (EIP-7702) on **Base Sepolia**:
 
@@ -59,7 +59,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/defi/defi-atomic-batching/
+$ cd examples/defi/with-aave-atomic-batch/
 ```
 
 ### 2/ Setting up Turnkey
@@ -111,12 +111,23 @@ If the submitting user is a root user (with root quorum threshold 1), activities
 $ pnpm createPolicy
 ```
 
-which installs:
+which installs a policy scoped to **exactly the DeFi interactions this example uses** — the USDC, Aave Pool, and faucet contracts, restricted to the flow's function selectors:
 
 ```text
 condition: activity.type == 'ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2'
         && eth.tx.from == '<SIGN_WITH>'
+        && eth.tx.to in ['<USDC>', '<AAVE_POOL>', '<FAUCET>']
+        && eth.tx.data[0..10] in ['0xc6c3bbe6', '0x095ea7b3', '0x617ba037',
+                                  '0xa415bcad', '0x573ade81', '0x69328dec']
+           // mint, approve, supply, borrow, repay, withdraw
 consensus: approvers.any(user, user.id == '<NONROOT_USER_ID>')
 ```
 
-One activity means one policy evaluation for the whole batch — and with consensus policies, one dashboard approval for the whole unwind. Note that per-call predicates for the V2 `calls[]` array (e.g. constraining each call's `to`/selector, as `eth.tx.to`/`contract_call_args` do for single-transaction signing) are evolving — for defense-in-depth, validate the call list server-side before submitting, and see the [policy language docs](https://docs.turnkey.com/features/policies/language) for the current predicate surface.
+`eth.tx.*` predicates are evaluated against **every call in the batch, all-or-nothing**: if any single call targets a contract or selector outside the allowlist, the entire batch is denied. Concretely (verified live on this flow):
+
+- the faucet, enter, and exit batches are allowed and execute
+- `USDC.transfer(...)` is denied — allowed contract, banned selector
+- a call to any unlisted address is denied
+- a batch mixing one valid `approve` with one unlisted call is **denied as a unit**
+
+So the non-root user holds valid API keys yet can only faucet, enter, and exit — it cannot move funds anywhere else, and one policy evaluation (and, with consensus policies, one dashboard approval) covers the whole unwind. See the [policy language docs](https://docs.turnkey.com/features/policies/language) for the full predicate surface.

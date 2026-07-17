@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/defi-atomic-batching",
+  "name": "@turnkey/with-aave-atomic-batch",
   "version": "0.0.1",
   "private": true,
   "scripts": {
