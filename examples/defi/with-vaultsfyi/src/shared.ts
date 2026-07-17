@@ -7,16 +7,14 @@ import {
   createWalletClient,
   createPublicClient,
   http,
-  type Account,
+  type Address,
   type Chain,
+  type WalletClient,
+  type HttpTransport,
+  type LocalAccount,
+  type PublicClient,
 } from "viem";
-import {
-  mainnet,
-  base,
-  arbitrum,
-  optimism,
-  polygon,
-} from "viem/chains";
+import { mainnet, base, arbitrum, optimism, polygon } from "viem/chains";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -65,7 +63,13 @@ export const vaultsFyi = new VaultsSdk({
 
 // ── Turnkey viem client (non-root) ──
 
-export async function createClients(chain: Chain) {
+export interface Clients {
+  walletClient: WalletClient<HttpTransport, Chain, LocalAccount>;
+  publicClient: PublicClient<HttpTransport, Chain, LocalAccount>;
+  userAddress: Address;
+}
+
+export async function createClients(chain: Chain): Promise<Clients> {
   const turnkey = new Turnkey({
     apiBaseUrl: requireEnv("TURNKEY_BASE_URL"),
     apiPrivateKey: requireEnv("NONROOT_API_PRIVATE_KEY"),
@@ -73,24 +77,26 @@ export async function createClients(chain: Chain) {
     defaultOrganizationId: requireEnv("TURNKEY_ORGANIZATION_ID"),
   });
 
-  const turnkeyAccount = await createAccount({
+  const turnkeyAccount: LocalAccount = await createAccount({
     client: turnkey.apiClient() as any,
     organizationId: requireEnv("TURNKEY_ORGANIZATION_ID"),
     signWith: requireEnv("SIGN_WITH"),
   });
 
-  const transport = http(requireEnv("RPC_URL"));
+  const transport: HttpTransport = http(requireEnv("RPC_URL"));
 
-  const walletClient = createWalletClient({
-    account: turnkeyAccount as Account,
-    chain,
-    transport,
-  });
+  const walletClient: WalletClient<HttpTransport, Chain, LocalAccount> =
+    createWalletClient({
+      account: turnkeyAccount,
+      chain,
+      transport,
+    });
 
-  const publicClient = createPublicClient({
-    chain,
-    transport,
-  });
+  const publicClient: PublicClient<HttpTransport, Chain, LocalAccount> =
+    createPublicClient({
+      chain,
+      transport,
+    });
 
   return {
     walletClient,

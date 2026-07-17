@@ -21,8 +21,8 @@ async function main() {
     for (const p of positions) {
       console.log(
         `${p.protocol.name} ${p.name} on ${p.network.name}: \n` +
-        `${p.lpToken?.balanceUsd ?? "?"} USD, ${(p.apy.total * 100).toFixed(2)}% APY \n` +
-        `(vault address: ${p.vaultId})`,
+          `${p.lpToken?.balanceUsd ?? "?"} USD, ${(p.apy.total * 100).toFixed(2)}% APY \n` +
+          `(vault address: ${p.vaultId})`,
       );
     }
   }
