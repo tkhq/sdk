@@ -75,17 +75,23 @@ export async function sendBatch(params: {
       sendTransactionStatusId: statusId,
     });
     const txHash = status.eth?.txHash;
-    const st = (status.txStatus ?? "UNKNOWN").toUpperCase();
-    if (txHash && st !== "PENDING") {
+    const txStatus = status.txStatus ?? "TX_STATUS_UNKNOWN";
+
+    if (
+      txStatus === "TX_STATUS_FAILED" ||
+      txStatus === "TX_STATUS_DROPPED" ||
+      txStatus === "TX_STATUS_ERROR"
+    ) {
+      throw new Error(
+        `${params.label}: txStatus=${txStatus} txError=${status.txError ?? "?"}`,
+      );
+    }
+
+    if (txHash) {
       console.log(
-        `${params.label}: ${st} in ${Date.now() - t0}ms — ${BASESCAN}/tx/${txHash}`,
+        `${params.label}: ${txStatus} in ${Date.now() - t0}ms — ${BASESCAN}/tx/${txHash}`,
       );
       return { txHash };
-    }
-    if (st === "FAILED" || st === "DROPPED" || st === "ERROR") {
-      throw new Error(
-        `${params.label}: txStatus=${st} txError=${status.txError ?? "?"}`,
-      );
     }
     await new Promise((r) => setTimeout(r, delay));
     delay = Math.min(delay * 1.5, 2_000);
