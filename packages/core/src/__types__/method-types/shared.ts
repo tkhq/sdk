@@ -158,7 +158,8 @@ export type LoginWithOtpParams = {
   organizationId?: string;
   invalidateExisting?: boolean;
   sessionKey?: string;
-  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
+  expirationSeconds?: string;
+  sessionProfileId?: string;
 };
 
 export type SignUpWithOtpParams = {
@@ -168,7 +169,7 @@ export type SignUpWithOtpParams = {
   createSubOrgParams?: CreateSubOrgParams;
   invalidateExisting?: boolean;
   sessionKey?: string;
-  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
+  sessionProfileId?: string;
 };
 
 export type CompleteOtpParams = {
@@ -181,7 +182,7 @@ export type CompleteOtpParams = {
   invalidateExisting?: boolean;
   sessionKey?: string;
   createSubOrgParams?: CreateSubOrgParams;
-  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
+  sessionProfileId?: string;
 };
 
 export type CompleteOauthParams = {
@@ -191,7 +192,7 @@ export type CompleteOauthParams = {
   sessionKey?: string;
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
-  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
+  sessionProfileId?: string;
 };
 
 export type LoginWithOauthParams = {
@@ -200,7 +201,8 @@ export type LoginWithOauthParams = {
   organizationId?: string;
   invalidateExisting?: boolean;
   sessionKey?: string;
-  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
+  expirationSeconds?: string;
+  sessionProfileId?: string;
 };
 
 export type SignUpWithOauthParams = {
@@ -210,7 +212,7 @@ export type SignUpWithOauthParams = {
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
-  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
+  sessionProfileId?: string;
 };
 
 export type FetchWalletsParams = {
@@ -444,7 +446,6 @@ export type RefreshSessionParams = {
   publicKey?: string;
   sessionKey?: string;
   invalidateExisitng?: boolean;
-  sessionProfileId?: string;
   stampWith?: StamperType | undefined;
 };
 

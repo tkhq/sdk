@@ -11,6 +11,7 @@ import { VERSION } from "../__generated__/version";
 import type * as SdkTypes from "@turnkey/sdk-types";
 
 import {
+  ActivityStatus,
   TurnkeyError,
   TurnkeyErrorCodes,
   TStamper,
@@ -139,7 +140,7 @@ export class TurnkeySDKClientBase {
   ): TResponseType {
     const { result, status } = activityData.activity;
 
-    if (status === "ACTIVITY_STATUS_COMPLETED" && result) {
+    if (status === ActivityStatus.COMPLETED && result) {
       // If a specific resultKey was provided, use it
       if (resultKey && result[resultKey as keyof SdkTypes.v1Result]) {
         return {
@@ -174,11 +175,10 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<TActivityResponse> {
     const AUTHENTICATORS_NEEDED: TActivityStatus =
-      "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED";
+      ActivityStatus.AUTHENTICATORS_NEEDED;
 
     // We need to check for CONSENSUS_NEEDED as well, since that can also involve MFA (user is NOT the proposer but has MFA).
-    const CONSENSUS_NEEDED: TActivityStatus =
-      "ACTIVITY_STATUS_CONSENSUS_NEEDED";
+    const CONSENSUS_NEEDED: TActivityStatus = ActivityStatus.CONSENSUS_NEEDED;
 
     const activityStatus = activityData.activity.status as TActivityStatus;
 

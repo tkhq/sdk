@@ -17,6 +17,8 @@ export type Session = {
   expirationSeconds?: string | undefined;
   token: string;
   publicKey?: string | undefined;
+  sessionProfileId?: string | undefined;
+  scope?: string | undefined;
 };
 
 export type SessionResponse = {
@@ -120,7 +122,6 @@ export enum TurnkeyErrorCodes {
   SWITCH_WALLET_CHAIN_ERROR = "SWITCH_WALLET_CHAIN_ERROR",
   ONRAMP_ERROR = "ONRAMP_ERROR",
   MAX_OTP_INITIATED_ERROR = "MAX_OTP_INITIATED_ERROR",
-  MFA_COMPLETION_ERROR = "MFA_COMPLETION_ERROR",
 
   CLIENT_NOT_INITIALIZED = "CLIENT_NOT_INITIALIZED",
   WALLET_MANAGER_COMPONENT_NOT_INITIALIZED = "WALLET_MANAGER_COMPONENT_NOT_INITIALIZED",
@@ -285,6 +286,23 @@ export type VerificationToken = {
   organization_id: string;
 };
 
+export enum ActivityStatus {
+  CREATED = "ACTIVITY_STATUS_CREATED",
+  PENDING = "ACTIVITY_STATUS_PENDING",
+  COMPLETED = "ACTIVITY_STATUS_COMPLETED",
+  FAILED = "ACTIVITY_STATUS_FAILED",
+  CONSENSUS_NEEDED = "ACTIVITY_STATUS_CONSENSUS_NEEDED",
+  REJECTED = "ACTIVITY_STATUS_REJECTED",
+  AUTHENTICATORS_NEEDED = "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED",
+}
+
+// If we ever add a new activity status, this guarantees an error if the enum is not updated.
+type _AssertExtends<A extends B, B> = A;
+/** @internal */
+export type _AssertActivityStatusInSync =
+  | _AssertExtends<`${ActivityStatus}`, v1ActivityStatus>
+  | _AssertExtends<v1ActivityStatus, `${ActivityStatus}`>;
+
 /** @internal */
 export type TActivityStatus = v1ActivityStatus;
 
@@ -300,10 +318,10 @@ export type TSignedRequest = {
 
 /** @internal */
 export const TERMINAL_ACTIVITY_STATUSES: TActivityStatus[] = [
-  "ACTIVITY_STATUS_COMPLETED",
-  "ACTIVITY_STATUS_FAILED",
-  "ACTIVITY_STATUS_REJECTED",
-  "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED",
+  ActivityStatus.COMPLETED,
+  ActivityStatus.FAILED,
+  ActivityStatus.REJECTED,
+  ActivityStatus.AUTHENTICATORS_NEEDED,
 ];
 
 export type TStamp = {

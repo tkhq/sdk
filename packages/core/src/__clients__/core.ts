@@ -142,7 +142,7 @@ import {
   mapAccountsToWallet,
   getActiveSessionOrThrowIfRequired,
   fetchAllWalletAccountsWithCursor,
-  getClientSignatureMessageForLogin,
+  decodeVerificationToken,
   getClientSignatureMessageForSignup,
   ERC20_TRANSFER_ABI,
 } from "../utils";
@@ -160,7 +160,7 @@ import { toUtf8Bytes } from "ethers";
 import { verify } from "@turnkey/crypto";
 import { SignatureFormat } from "@turnkey/api-key-stamper";
 import { encodeFunctionData } from "viem";
-import { AttestedStamper } from "../__stampers__/attested/base";
+import { AttestedScheme, AttestedStamper } from "../__stampers__/attested/base";
 
 /**
  * @internal
@@ -360,32 +360,36 @@ export class TurnkeyClient {
 
         const { verificationToken, oidcToken, publicKey } = params;
 
-        // Error if both verificationToken and oidcToken are provided
-        if (verificationToken !== undefined && oidcToken !== undefined) {
+        // we enforce that you cannot set both a verificationToken and an oidcToken
+        if (verificationToken && oidcToken) {
           throw new TurnkeyError(
             "Cannot set both verificationToken and oidcToken. Please provide only one.",
             TurnkeyErrorCodes.INVALID_REQUEST,
           );
         }
 
-        // Set the attestation identity and scheme based on which token is provided
-        if (verificationToken !== undefined) {
-          this.attestedStamper.setAttestedIdentity(verificationToken);
-          this.attestedStamper.setScheme(
-            "STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN",
+        // we require a publicKey if either a verificationToken or an oidcToken is provided
+        if ((verificationToken || oidcToken) && !publicKey) {
+          throw new TurnkeyError(
+            "A publicKey must be provided when setting a verificationToken or oidcToken.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
           );
-        } else if (oidcToken !== undefined) {
-          this.attestedStamper.setAttestedIdentity(oidcToken);
-          this.attestedStamper.setScheme("STAMP_ATTESTED_SCHEME_P256_OIDC");
-        } else {
-          // If neither token is provided, clear the attestation identity and public key
-          this.attestedStamper.clearAttestedIdentity();
-          this.attestedStamper.clearPublicKey();
         }
 
-        // Set the public key that signs the attested stamp.
-        if (publicKey !== undefined) {
-          this.attestedStamper.setPublicKey(publicKey);
+        if (verificationToken) {
+          this.attestedStamper.configure({
+            attestedIdentity: verificationToken,
+            publicKey: publicKey!,
+            scheme: AttestedScheme.P256_VERIFICATION_TOKEN,
+          });
+        } else if (oidcToken) {
+          this.attestedStamper.configure({
+            attestedIdentity: oidcToken,
+            publicKey: publicKey!,
+            scheme: AttestedScheme.P256_OIDC,
+          });
+        } else {
+          this.attestedStamper.clear();
         }
       },
       {
@@ -1507,12 +1511,6 @@ export class TurnkeyClient {
           );
         }
 
-        // Automatically override the attested stamper with the verification token
-        await this.overrideAttestedStamper({
-          verificationToken: verifyOtpRes.verificationToken,
-          publicKey,
-        });
-
         return {
           verificationToken: verifyOtpRes.verificationToken,
           publicKey,
@@ -1570,46 +1568,43 @@ export class TurnkeyClient {
       invalidateExisting = false,
       organizationId,
       sessionKey = SessionKey.DefaultSessionkey,
+      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+      sessionProfileId,
     } = params;
 
     return withTurnkeyErrorHandling(
       async () => {
-        const { message, publicKey: verificationPublicKey } =
-          getClientSignatureMessageForLogin({ verificationToken });
+        const { public_key: verificationPublicKey } =
+          decodeVerificationToken(verificationToken);
 
-        // we sign with the verification token key. This is the key bound during
-        // verifyOtp() and is what Turnkey expects to sign the client signature for login
-        const signature = await this.signWithApiKey({
-          message,
-          publicKey: verificationPublicKey,
-        });
-
-        if (!signature) {
+        if (!verificationPublicKey) {
           throw new TurnkeyError(
-            `Failed to sign client signature for OTP login`,
-            TurnkeyErrorCodes.INTERNAL_ERROR,
+            "Invalid verification token: missing publicKey",
+            TurnkeyErrorCodes.INVALID_REQUEST,
           );
         }
 
-        const clientSignature: v1ClientSignature = {
-          message: message,
-          publicKey: verificationPublicKey,
-          scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
-          signature: signature,
-        };
-
-        // the verification token's public key is also used as the session public key for login
-        const loginRes = await this.httpClient.proxyOtpLoginV2({
+        // We override the attested stamper with the verification token so the stampLogin request can be stamped with it.
+        await this.overrideAttestedStamper({
           verificationToken,
           publicKey: verificationPublicKey,
-          clientSignature,
-          invalidateExisting,
-          ...(organizationId && { organizationId }),
         });
+
+        // the verification token's public key is also used as the session public key for login
+        const loginRes = await this.httpClient.stampLogin(
+          {
+            publicKey: verificationPublicKey,
+            expirationSeconds,
+            invalidateExisting,
+            ...(organizationId && { organizationId }),
+            ...(sessionProfileId && { sessionProfileId }),
+          },
+          StamperType.Attested,
+        );
 
         if (!loginRes) {
           throw new TurnkeyError(
-            `Auth proxy OTP login failed`,
+            `OTP login failed`,
             TurnkeyErrorCodes.OTP_LOGIN_ERROR,
           );
         }
@@ -1666,6 +1661,7 @@ export class TurnkeyClient {
       createSubOrgParams,
       invalidateExisting,
       sessionKey,
+      sessionProfileId,
     } = params;
 
     // build sign up body without client signature first
@@ -1730,6 +1726,7 @@ export class TurnkeyClient {
           verificationToken,
           ...(invalidateExisting && { invalidateExisting }),
           ...(sessionKey && { sessionKey }),
+          ...(sessionProfileId && { sessionProfileId }),
         });
 
         return {
@@ -1783,6 +1780,7 @@ export class TurnkeyClient {
       invalidateExisting = false,
       sessionKey,
       createSubOrgParams,
+      sessionProfileId,
     } = params;
 
     const publicKey = params.publicKey ?? (await this.createApiKeyPair());
@@ -1833,6 +1831,7 @@ export class TurnkeyClient {
             ...(createSubOrgParams && { createSubOrgParams }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(sessionProfileId && { sessionProfileId }),
           });
 
           return {
@@ -1845,6 +1844,7 @@ export class TurnkeyClient {
             verificationToken,
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(sessionProfileId && { sessionProfileId }),
           });
 
           return {
@@ -1905,6 +1905,7 @@ export class TurnkeyClient {
       createSubOrgParams,
       invalidateExisting,
       sessionKey,
+      sessionProfileId,
     } = params;
 
     return withTurnkeyErrorHandling(
@@ -1927,6 +1928,7 @@ export class TurnkeyClient {
             publicKey,
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(sessionProfileId && { sessionProfileId }),
           });
 
           return {
@@ -1945,6 +1947,7 @@ export class TurnkeyClient {
             }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(sessionProfileId && { sessionProfileId }),
           });
 
           return {
@@ -1988,6 +1991,8 @@ export class TurnkeyClient {
       organizationId,
       invalidateExisting = false,
       sessionKey = SessionKey.DefaultSessionkey,
+      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+      sessionProfileId,
     } = params;
 
     return withTurnkeyErrorHandling(
@@ -1999,16 +2004,26 @@ export class TurnkeyClient {
           );
         }
 
-        const loginRes = await this.httpClient.proxyOAuthLogin({
+        // We override the attested stamper with the oidcToken so the stampLogin request can be stamped with it.
+        await this.overrideAttestedStamper({
           oidcToken,
           publicKey,
-          invalidateExisting,
-          ...(organizationId && { organizationId }),
         });
+
+        const loginRes = await this.httpClient.stampLogin(
+          {
+            publicKey,
+            expirationSeconds,
+            invalidateExisting,
+            ...(organizationId && { organizationId }),
+            ...(sessionProfileId && { sessionProfileId }),
+          },
+          StamperType.Attested,
+        );
 
         if (!loginRes) {
           throw new TurnkeyError(
-            `Auth proxy OAuth login failed`,
+            `OAuth login failed`,
             TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
           );
         }
@@ -2081,6 +2096,7 @@ export class TurnkeyClient {
       providerName = "OpenID Connect Provider" + " " + Date.now(),
       createSubOrgParams,
       sessionKey,
+      sessionProfileId,
     } = params;
 
     return withTurnkeyErrorHandling(
@@ -2111,6 +2127,7 @@ export class TurnkeyClient {
           oidcToken,
           publicKey: publicKey!,
           ...(sessionKey && { sessionKey }),
+          ...(sessionProfileId && { sessionProfileId }),
         });
 
         return {
@@ -5016,7 +5033,6 @@ export class TurnkeyClient {
       publicKey,
       stampWith = this.config.defaultStamperType,
       invalidateExisitng = false,
-      sessionProfileId,
     } = params || {};
     if (!sessionKey) {
       throw new TurnkeyError(
@@ -5056,7 +5072,9 @@ export class TurnkeyClient {
             publicKey: keyPair,
             expirationSeconds,
             invalidateExisting: invalidateExisitng,
-            ...(sessionProfileId && { sessionProfileId }),
+            ...(session.sessionProfileId && {
+              sessionProfileId: session.sessionProfileId,
+            }),
           },
           stampWith,
         );

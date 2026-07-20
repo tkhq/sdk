@@ -4,51 +4,37 @@ import type { CrossPlatformApiKeyStamper } from "../api/base";
 import { SignatureFormat } from "@turnkey/api-key-stamper";
 import { stringToBase64urlString } from "@turnkey/encoding";
 
-type AttestedScheme =
-  | "STAMP_ATTESTED_SCHEME_P256_OIDC"
-  | "STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN";
+export enum AttestedScheme {
+  P256_OIDC = "STAMP_ATTESTED_SCHEME_P256_OIDC",
+  P256_VERIFICATION_TOKEN = "STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN",
+}
+
+export interface AttestedConfig {
+  attestedIdentity: string;
+  publicKey: string;
+  scheme: AttestedScheme;
+}
 
 export class AttestedStamper implements TStamper {
   private apiKeyStamper: CrossPlatformApiKeyStamper;
   public attestedIdentity?: string | undefined;
   public publicKey?: string | undefined;
-  private scheme: AttestedScheme =
-    "STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN";
+  private scheme: AttestedScheme = AttestedScheme.P256_VERIFICATION_TOKEN;
 
   constructor(apiKeyStamper: CrossPlatformApiKeyStamper) {
     this.apiKeyStamper = apiKeyStamper;
   }
 
-  setAttestedIdentity(attestedIdentity: string): void {
-    this.attestedIdentity = attestedIdentity;
+  configure(config: AttestedConfig): void {
+    this.attestedIdentity = config.attestedIdentity;
+    this.publicKey = config.publicKey;
+    this.scheme = config.scheme;
   }
 
-  getAttestedIdentity(): string | undefined {
-    return this.attestedIdentity;
-  }
-
-  clearAttestedIdentity(): void {
+  clear(): void {
     this.attestedIdentity = undefined;
-  }
-
-  setPublicKey(publicKey: string): void {
-    this.publicKey = publicKey;
-  }
-
-  getPublicKey(): string | undefined {
-    return this.publicKey;
-  }
-
-  clearPublicKey(): void {
     this.publicKey = undefined;
-  }
-
-  setScheme(scheme: AttestedScheme): void {
-    this.scheme = scheme;
-  }
-
-  getScheme(): AttestedScheme {
-    return this.scheme;
+    this.scheme = AttestedScheme.P256_VERIFICATION_TOKEN;
   }
 
   async stamp(payload: string): Promise<TStamp> {

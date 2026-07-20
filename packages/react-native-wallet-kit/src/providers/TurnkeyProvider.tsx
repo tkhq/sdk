@@ -1000,12 +1000,18 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       }
-      return withTurnkeyErrorHandling(
+      const res = await withTurnkeyErrorHandling(
         () => client.verifyOtp(params),
         () => logout(),
         callbacks,
         "Failed to verify OTP",
       );
+      // Automatically override the attested stamper with the verification token
+      await client.overrideAttestedStamper({
+        verificationToken: res.verificationToken,
+        publicKey: res.publicKey,
+      });
+      return res;
     },
     [client, callbacks],
   );
@@ -1019,8 +1025,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
       }
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
-        () => client.loginWithOtp(params),
+        () => client.loginWithOtp({ ...params, expirationSeconds }),
         () => logout(),
         callbacks,
         "Failed to login with OTP",
@@ -1034,7 +1044,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig],
   );
 
   const signUpWithOtp = useCallback(
@@ -1145,8 +1155,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
       }
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
-        () => client.loginWithOauth(params),
+        () => client.loginWithOauth({ ...params, expirationSeconds }),
         () => logout(),
         callbacks,
         "Failed to login with OAuth",
@@ -1160,7 +1174,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig],
   );
 
   const signUpWithOauth = useCallback(

@@ -1805,7 +1805,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           callbacks?.beforeSessionExpiry?.({ sessionKey });
 
           if (masterConfig?.auth?.autoRefreshSession) {
-            // TODO (Amir/Moe): Once the sessionProfileId is stored in the session, we need to pass it in here so that we get a new session with the same sessionProfileId
             await refreshSession({
               expirationSeconds: session.expirationSeconds!,
               sessionKey,
@@ -2324,12 +2323,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       }
-      return withTurnkeyErrorHandling(
+      const res = await withTurnkeyErrorHandling(
         () => client.verifyOtp(params),
         undefined,
         callbacks,
         "Failed to verify OTP",
       );
+      // Automatically override the attested stamper with the verification token
+      await client.overrideAttestedStamper({
+        verificationToken: res.verificationToken,
+        publicKey: res.publicKey,
+      });
+      return res;
     },
     [client, callbacks],
   );
@@ -2343,8 +2348,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
-        () => client.loginWithOtp(params),
+        () => client.loginWithOtp({ ...params, expirationSeconds }),
         undefined,
         callbacks,
         "Failed to login with OTP",
@@ -2359,7 +2368,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks, handlePostAuth],
+    [client, callbacks, masterConfig, handlePostAuth],
   );
 
   const signUpWithOtp = useCallback(
@@ -2472,8 +2481,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
-        () => client.loginWithOauth(params),
+        () => client.loginWithOauth({ ...params, expirationSeconds }),
         undefined,
         callbacks,
         "Failed to login with OAuth",
@@ -2488,7 +2501,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks, handlePostAuth],
+    [client, callbacks, masterConfig, handlePostAuth],
   );
 
   const signUpWithOauth = useCallback(
@@ -3606,14 +3619,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 authWindow.close();
                 clearInterval(interval);
 
-                // Set the attested stamper with the oidcToken
-                if (result.idToken) {
-                  await client?.overrideAttestedStamper({
-                    oidcToken: result.idToken,
-                    publicKey,
-                  });
-                }
-
                 completeOAuthPopup({
                   provider,
                   publicKey,
@@ -3767,14 +3772,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
-
-                // Set the attested stamper with the oidcToken
-                if (result.idToken) {
-                  await client?.overrideAttestedStamper({
-                    oidcToken: result.idToken,
-                    publicKey,
-                  });
-                }
 
                 completeOAuthPopup({
                   provider,
@@ -4209,14 +4206,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
-
-                // Set the attested stamper with the oidcToken
-                if (result.idToken) {
-                  await client?.overrideAttestedStamper({
-                    oidcToken: result.idToken,
-                    publicKey,
-                  });
-                }
 
                 completeOAuthPopup({
                   provider,
