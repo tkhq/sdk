@@ -14,7 +14,8 @@ if (!networkArg) {
 
 async function main() {
   const { network, chain } = resolveNetwork(networkArg!);
-  const { walletClient, publicClient, userAddress } = await createClients(chain);
+  const { walletClient, publicClient, userAddress } =
+    await createClients(chain);
 
   const rewardsContext = await vaultsFyi.getRewardsTransactionsContext({
     path: { userAddress },
