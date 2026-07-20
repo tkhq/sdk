@@ -17,6 +17,8 @@ export type Session = {
   expirationSeconds?: string | undefined;
   token: string;
   publicKey?: string | undefined;
+  sessionProfileId?: string | undefined;
+  scope?: string | undefined;
 };
 
 export type SessionResponse = {
@@ -284,6 +286,23 @@ export type VerificationToken = {
   organization_id: string;
 };
 
+export enum ActivityStatus {
+  CREATED = "ACTIVITY_STATUS_CREATED",
+  PENDING = "ACTIVITY_STATUS_PENDING",
+  COMPLETED = "ACTIVITY_STATUS_COMPLETED",
+  FAILED = "ACTIVITY_STATUS_FAILED",
+  CONSENSUS_NEEDED = "ACTIVITY_STATUS_CONSENSUS_NEEDED",
+  REJECTED = "ACTIVITY_STATUS_REJECTED",
+  AUTHENTICATORS_NEEDED = "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED",
+}
+
+// If we ever add a new activity status, this guarantees an error if the enum is not updated.
+type _AssertExtends<A extends B, B> = A;
+/** @internal */
+export type _AssertActivityStatusInSync =
+  | _AssertExtends<`${ActivityStatus}`, v1ActivityStatus>
+  | _AssertExtends<v1ActivityStatus, `${ActivityStatus}`>;
+
 /** @internal */
 export type TActivityStatus = v1ActivityStatus;
 
@@ -299,9 +318,10 @@ export type TSignedRequest = {
 
 /** @internal */
 export const TERMINAL_ACTIVITY_STATUSES: TActivityStatus[] = [
-  "ACTIVITY_STATUS_COMPLETED",
-  "ACTIVITY_STATUS_FAILED",
-  "ACTIVITY_STATUS_REJECTED",
+  ActivityStatus.COMPLETED,
+  ActivityStatus.FAILED,
+  ActivityStatus.REJECTED,
+  ActivityStatus.AUTHENTICATORS_NEEDED,
 ];
 
 export type TStamp = {

@@ -324,14 +324,14 @@ const generateSDKClientFromSwagger = async (
   const imports = [];
 
   imports.push(
-    'import type { StorageBase, TurnkeyHttpClientConfig } from "../__types__";',
+    'import type { MfaContext, StorageBase, TurnkeyHttpClientConfig } from "../__types__";',
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');
 
   imports.push('import type * as SdkTypes from "@turnkey/sdk-types";');
   imports.push(
-    'import { TurnkeyError, TurnkeyErrorCodes, TStamper, TActivityResponse, TActivityStatus, TERMINAL_ACTIVITY_STATUSES, TSignedRequest, GrpcStatus, TurnkeyRequestError } from "@turnkey/sdk-types";',
+    'import { ActivityStatus, TurnkeyError, TurnkeyErrorCodes, TStamper, TActivityResponse, TActivityStatus, TERMINAL_ACTIVITY_STATUSES, TSignedRequest, GrpcStatus, TurnkeyRequestError } from "@turnkey/sdk-types";',
   );
 
   imports.push('import { StamperType } from "../__types__";');
@@ -344,6 +344,7 @@ const generateSDKClientFromSwagger = async (
     private apiKeyStamper?: TStamper | undefined;
     private passkeyStamper?: TStamper | undefined;
     private walletStamper?: TStamper | undefined;
+    private attestedStamper?: TStamper | undefined;
 
     public defaultStamperType: StamperType | undefined;
     
@@ -362,6 +363,9 @@ const generateSDKClientFromSwagger = async (
         if (config.walletStamper) {
         this.walletStamper = config.walletStamper;
         }
+        if (config.attestedStamper) {
+        this.attestedStamper = config.attestedStamper;
+        }
         if (config.storageManager) {
         this.storageManager = config.storageManager;
         }
@@ -375,6 +379,8 @@ const generateSDKClientFromSwagger = async (
             this.defaultStamperType = StamperType.Passkey;
           } else if (this.walletStamper) {
             this.defaultStamperType = StamperType.Wallet;
+          } else if (this.attestedStamper) {
+            this.defaultStamperType = StamperType.Attested;
           } else {
             this.defaultStamperType = undefined;
           }
@@ -395,6 +401,8 @@ const generateSDKClientFromSwagger = async (
             return this.passkeyStamper;
         case StamperType.Wallet:
             return this.walletStamper;
+        case StamperType.Attested:
+            return this.attestedStamper;
         default:
             return this.apiKeyStamper;
         }
@@ -440,7 +448,7 @@ const generateSDKClientFromSwagger = async (
     ): TResponseType {
         const { result, status } = activityData.activity;
 
-        if (status === "ACTIVITY_STATUS_COMPLETED" && result) {
+        if (status === ActivityStatus.COMPLETED && result) {
         // If a specific resultKey was provided, use it
         if (resultKey && result[resultKey as keyof SdkTypes.v1Result]) {
             return {
@@ -461,6 +469,73 @@ const generateSDKClientFromSwagger = async (
         }
 
         return activityData as TResponseType;
+    }
+
+    /**
+     * If the activity requires MFA (AUTHENTICATORS_NEEDED) or consensus
+     * (CONSENSUS_NEEDED) and an onMfaRequired callback is configured, fetch the
+     * MFA statuses for the activity, invoke the callback, and then poll for
+     * completion. Returns the (possibly updated) activity data.
+     * @internal
+     */
+    private async handleMfaIfNeeded(
+        activityData: TActivityResponse,
+        stampWith?: StamperType
+    ): Promise<TActivityResponse> {
+        const AUTHENTICATORS_NEEDED: TActivityStatus = ActivityStatus.AUTHENTICATORS_NEEDED;
+
+        // We need to check for CONSENSUS_NEEDED as well, since that can also involve MFA (user is NOT the proposer but has MFA).
+        const CONSENSUS_NEEDED: TActivityStatus = ActivityStatus.CONSENSUS_NEEDED;
+
+        const activityStatus = activityData.activity.status as TActivityStatus;
+
+        // Only AUTHENTICATORS_NEEDED and CONSENSUS_NEEDED can involve MFA. 
+        // Anything else is returned as-is.
+        if (
+        activityStatus !== AUTHENTICATORS_NEEDED &&
+        activityStatus !== CONSENSUS_NEEDED
+        ) {
+        return activityData;
+        }
+
+        if (!this.config.onMfaRequired) {
+        return activityData;
+        }
+
+        // Fetch the MFA statuses for this activity.
+        const { mfaStatuses } = await this.getMfaStatus(
+        {
+            activityId: activityData.activity.id,
+            organizationId: activityData.activity.organizationId,
+        },
+        stampWith
+        );
+
+        // For CONSENSUS_NEEDED there may be no MFA statuses. 
+        // In that case, return the activity as-is.
+        if (
+        activityStatus === CONSENSUS_NEEDED &&
+        (!mfaStatuses || mfaStatuses.length === 0)
+        ) {
+        return activityData;
+        }
+
+        const mfaContext: MfaContext = {
+            activityId: activityData.activity.id,
+            fingerprint: activityData.activity.fingerprint!,
+            organizationId: activityData.activity.organizationId,
+            activityType: activityData.activity.type,
+            activityStatus,
+            mfaStatuses,
+        };
+
+        // Await the callback — it should resolve when MFA approval is complete
+        await this.config.onMfaRequired(mfaContext);
+
+        // After callback resolves, poll for the updated activity status
+        activityData = await this.pollForCompletion(activityData.activity.id, stampWith);
+
+        return activityData;
     }
 
     async request<TBodyType, TResponseType>(
@@ -513,11 +588,14 @@ const generateSDKClientFromSwagger = async (
     ): Promise<TResponseType> {
         // Make the initial request
         let activityData = await this.request<TBodyType, TActivityResponse>(url, body, stampWith);
-        
+
         // Poll if not in terminal status
         if (!TERMINAL_ACTIVITY_STATUSES.includes(activityData.activity.status as TActivityStatus)) {
         activityData = await this.pollForCompletion(activityData.activity.id, stampWith);
         }
+
+        // Handle MFA if needed (callback gate + re-poll)
+        activityData = await this.handleMfaIfNeeded(activityData, stampWith);
 
         return this.handleActivityResponse<TResponseType>(activityData, resultKey);
     }
@@ -622,6 +700,9 @@ const generateSDKClientFromSwagger = async (
         if (!TERMINAL_ACTIVITY_STATUSES.includes(activityData.activity.status as TActivityStatus)) {
             activityData = await this.pollForCompletion(activityData.activity.id);
         }
+
+        // Handle MFA if needed (callback gate + re-poll)
+        activityData = await this.handleMfaIfNeeded(activityData);
 
         return this.handleActivityResponse<TResponseType>(activityData, options?.resultKey);
         }

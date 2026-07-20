@@ -21,6 +21,7 @@ import {
 import {
   getAuthProxyConfig,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+  type MfaContext,
   OtpType,
   TurnkeyClient,
   type AddOauthProviderParams,
@@ -80,6 +81,7 @@ import {
   type SolSendTransactionParams,
   type OverrideApiKeyStamperParams,
   type OverridePasskeyStamperParams,
+  type OverrideAttestedStamperParams,
   type DeleteApiKeyPairParams,
   buildSecondaryOauthProviders,
   applyPasskeyScope,
@@ -203,6 +205,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const proxyAuthConfigRef = useRef<ProxyTGetWalletKitConfigResponse | null>(
     null,
   );
+  // Stores the developer's custom MFA handler set via setMfaHandler.
+  // When unset, the default httpClient MFA behavior is used (no onMfaRequired callback).
+  const mfaHandlerRef = useRef<
+    ((context: MfaContext) => Promise<void>) | undefined
+  >(undefined);
 
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
@@ -823,6 +830,19 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client],
   );
 
+  const overrideAttestedStamper = useCallback(
+    (params: OverrideAttestedStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overrideAttestedStamper(params);
+    },
+    [client],
+  );
+
   const logout: (params?: LogoutParams) => Promise<void> = useCallback(
     async (params?: { sessionKey?: string }): Promise<void> => {
       if (!client) {
@@ -980,12 +1000,18 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       }
-      return withTurnkeyErrorHandling(
+      const res = await withTurnkeyErrorHandling(
         () => client.verifyOtp(params),
         () => logout(),
         callbacks,
         "Failed to verify OTP",
       );
+      // Automatically override the attested stamper with the verification token
+      await client.overrideAttestedStamper({
+        verificationToken: res.verificationToken,
+        publicKey: res.publicKey,
+      });
+      return res;
     },
     [client, callbacks],
   );
@@ -999,8 +1025,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
       }
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
-        () => client.loginWithOtp(params),
+        () => client.loginWithOtp({ ...params, expirationSeconds }),
         () => logout(),
         callbacks,
         "Failed to login with OTP",
@@ -1014,7 +1044,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig],
   );
 
   const signUpWithOtp = useCallback(
@@ -1125,8 +1155,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
       }
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
-        () => client.loginWithOauth(params),
+        () => client.loginWithOauth({ ...params, expirationSeconds }),
         () => logout(),
         callbacks,
         "Failed to login with OAuth",
@@ -1140,7 +1174,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig],
   );
 
   const signUpWithOauth = useCallback(
@@ -2617,6 +2651,24 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [masterConfig, refreshWallets],
   );
 
+  const setMfaHandler = useCallback(
+    (handler: ((context: MfaContext) => Promise<void>) | undefined) => {
+      mfaHandlerRef.current = handler;
+
+      // Apply immediately if the client is ready.
+      // When a custom handler is set, route the httpClient's MFA callback to it.
+      // When cleared, restore the default httpClient behavior (no onMfaRequired callback).
+      if (client) {
+        client.httpClient.config.onMfaRequired = handler
+          ? async (ctx) => {
+              await handler(ctx);
+            }
+          : undefined;
+      }
+    },
+    [client],
+  );
+
   const handleDiscordOauth = useCallback(
     async (params?: HandleDiscordOauthParams): Promise<void> => {
       const {
@@ -2761,6 +2813,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
                 TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
               );
             }
+            // Set the attested stamper with the oidcToken
+            await client?.overrideAttestedStamper({ oidcToken, publicKey });
             return oidcToken;
           },
         });
@@ -2915,6 +2969,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
                 TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
               );
             }
+            // Set the attested stamper with the oidcToken before any
+            // completion callback runs, so custom callbacks also use the
+            // OIDC attested scheme
+            await client?.overrideAttestedStamper({ oidcToken, publicKey });
             return oidcToken;
           },
         });
@@ -3023,6 +3081,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
+
+        // Set the attested stamper with the oidcToken
+        await client?.overrideAttestedStamper({
+          oidcToken: parsed.idToken,
+          publicKey,
+        });
 
         // Complete OAuth flow
         await completeOAuthFlow({
@@ -3163,6 +3227,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
+        // Set the attested stamper with the oidcToken before any completion
+        // callback runs, so custom callbacks also use the OIDC attested scheme
+        await client?.overrideAttestedStamper({
+          oidcToken: parsed.idToken,
+          publicKey,
+        });
+
         // Complete OAuth flow
         await completeOAuthFlow({
           provider: OAuthProviders.APPLE,
@@ -3252,6 +3323,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             );
           }
 
+          // Set the attested stamper with the oidcToken
+          await client?.overrideAttestedStamper({ oidcToken, publicKey });
+
           // On iOS, the native flow uses the bundle ID as the audience.
           // The serviceId (web/Android client ID) is added as a secondary provider.
           const allSecondaryClientIds = serviceId
@@ -3337,6 +3411,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
               TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
             );
           }
+
+          // Set the attested stamper with the oidcToken before any completion
+          // callback runs, so custom callbacks also use the OIDC attested scheme
+          await client?.overrideAttestedStamper({ oidcToken, publicKey });
 
           // On Android, the serviceId is used directly in the OAuth flow.
           // The iosBundleId is added as a secondary provider.
@@ -3525,6 +3603,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
                 TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
               );
             }
+            // Set the attested stamper with the oidcToken
+            await client?.overrideAttestedStamper({
+              oidcToken: idToken,
+              publicKey,
+            });
             return idToken;
           },
         });
@@ -3601,6 +3684,14 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setClientState(ClientState.Ready);
     });
 
+    // Only set the onMfaRequired handler if we have a mfaHandler set.
+    const mfaHandler = mfaHandlerRef.current;
+    if (mfaHandler) {
+      client.httpClient.config.onMfaRequired = async (ctx) => {
+        await mfaHandler(ctx);
+      };
+    }
+
     return () => {
       clearSessionTimeouts();
     };
@@ -3620,6 +3711,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         createHttpClient,
         overrideApiKeyStamper,
         overridePasskeyStamper,
+        overrideAttestedStamper,
         createPasskey,
         logout,
         loginWithPasskey,
@@ -3685,6 +3777,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         handleAppleWebOauth,
         handleFacebookOauth,
         fetchBootProofForAppProof,
+        setMfaHandler,
       }}
     >
       {children}

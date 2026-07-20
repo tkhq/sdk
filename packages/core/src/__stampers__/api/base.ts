@@ -96,6 +96,21 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     this.temporaryPublicKey = undefined;
   }
 
+  async getPublicKey(): Promise<string> {
+    let publicKeyHex = this.temporaryPublicKey;
+    if (!publicKeyHex) {
+      const session = await this.storageManager.getActiveSession();
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session or token available.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+      publicKeyHex = session.publicKey!;
+    }
+    return publicKeyHex;
+  }
+
   async stamp(payload: string): Promise<TStamp> {
     if (!this.stamper) {
       throw new TurnkeyError(
@@ -103,24 +118,14 @@ export class CrossPlatformApiKeyStamper implements TStamper {
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
-    let publicKeyHex = this.temporaryPublicKey;
-    if (!publicKeyHex) {
-      const session = await this.storageManager.getActiveSession();
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session or token available.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-      publicKeyHex = session.publicKey!;
-    }
-
+    const publicKeyHex = await this.getPublicKey();
     return this.stamper.stamp(payload, publicKeyHex);
   }
 
   async sign(
     payload: string,
     format: SignatureFormat = SignatureFormat.Der,
+    publicKeyHex?: string,
   ): Promise<string> {
     if (!this.stamper) {
       throw new TurnkeyError(
@@ -128,18 +133,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
-    let publicKeyHex = this.temporaryPublicKey;
-    if (!publicKeyHex) {
-      const session = await this.storageManager.getActiveSession();
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session or token available.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-      publicKeyHex = session.publicKey!;
-    }
-
-    return this.stamper.sign(payload, publicKeyHex, format);
+    const keyToUse = publicKeyHex ?? (await this.getPublicKey());
+    return this.stamper.sign(payload, keyToUse, format);
   }
 }
