@@ -53,7 +53,9 @@ async function main() {
   // to upload each contract's ABI to Turnkey and write conditions against the
   // decoded call, e.g. eth.tx.function_name == 'supply' and
   // eth.tx.contract_call_args['amount'] <= 100000000. That gives readable,
-  // parameter-level rules instead of raw byte matching. See:
+  // parameter-level rules instead of raw byte matching. For a working
+  // implementation of that path against this same flow, see createPolicyAbi.ts
+  // (run with `pnpm createPolicyAbi`). Docs:
   // https://docs.turnkey.com/features/policies/smart-contract-interfaces
   const condition = [
     `activity.type == 'ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2'`,

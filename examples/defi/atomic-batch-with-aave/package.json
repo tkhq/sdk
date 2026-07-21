@@ -10,6 +10,7 @@
     "exit": "tsx src/exit.ts",
     "exit-wrong-order": "tsx src/exit-wrong-order.ts",
     "createPolicy": "tsx src/createPolicy.ts",
+    "createPolicyAbi": "tsx src/createPolicyAbi.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
