@@ -116,15 +116,14 @@ async function uploadInterface(params: {
   notes: string;
 }): Promise<string> {
   const client = turnkeyClient();
-  const { smartContractInterfaceId } = await client.createSmartContractInterface(
-    {
+  const { smartContractInterfaceId } =
+    await client.createSmartContractInterface({
       label: params.label,
       notes: params.notes,
       type: "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM",
       smartContractAddress: params.address,
       smartContractInterface: JSON.stringify(params.abi),
-    },
-  );
+    });
   console.log(
     `Uploaded interface: ${params.label} (${params.address}) -> ${smartContractInterfaceId}`,
   );
