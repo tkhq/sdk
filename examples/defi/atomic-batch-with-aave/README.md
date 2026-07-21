@@ -123,6 +123,8 @@ condition: activity.type == 'ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2'
 consensus: approvers.any(user, user.id == '<NONROOT_USER_ID>')
 ```
 
+Note on the selector slicing above: `eth.tx.data[0..10]` matches the raw 4-byte function selector and works fine for a compact example like this. For production, the generally preferred path is to upload the contract ABI to Turnkey and write conditions against the decoded call, e.g. `eth.tx.function_name == 'supply'` and `eth.tx.contract_call_args['amount'] <= 100000000`. That gives readable, parameter-level rules instead of raw byte matching. See [Smart Contract Interfaces](https://docs.turnkey.com/features/policies/smart-contract-interfaces) for the ABI upload flow and the full `eth.tx.contract_call_args` surface.
+
 `eth.tx.*` predicates are evaluated against **every call in the batch, all-or-nothing**: if any single call targets a contract or selector outside the allowlist, the entire batch is denied. Concretely (verified live on this flow):
 
 - the faucet, enter, and exit batches are allowed and execute

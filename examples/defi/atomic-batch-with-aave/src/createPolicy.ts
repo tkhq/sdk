@@ -48,6 +48,13 @@ async function main() {
     "Allow non-root user only the example's DeFi batch interactions";
   const effect = "EFFECT_ALLOW";
   const consensus = `approvers.any(user, user.id == '${userId}')`;
+  // Note: selector-based calldata matching (eth.tx.data[0..10]) is used here
+  // for a self-contained example. The generally preferred production path is
+  // to upload each contract's ABI to Turnkey and write conditions against the
+  // decoded call, e.g. eth.tx.function_name == 'supply' and
+  // eth.tx.contract_call_args['amount'] <= 100000000. That gives readable,
+  // parameter-level rules instead of raw byte matching. See:
+  // https://docs.turnkey.com/features/policies/smart-contract-interfaces
   const condition = [
     `activity.type == 'ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2'`,
     `eth.tx.from == '${signWith().toLowerCase()}'`,
