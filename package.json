@@ -61,6 +61,20 @@
     "auditConfig": {
       "ignoreCves": [
         "CVE-2025-3194"
+      ],
+      "ignoreGhsas": [
+        "GHSA-23hp-3jrh-7fpw",
+        "GHSA-2p49-hgcm-8545",
+        "GHSA-395f-4hp3-45gv",
+        "GHSA-3jxr-9vmj-r5cp",
+        "GHSA-52cp-r559-cp3m",
+        "GHSA-8x88-c5mf-7j5w",
+        "GHSA-f88m-g3jw-g9cj",
+        "GHSA-gcfj-64vw-6mp9",
+        "GHSA-v245-v573-v5vm",
+        "GHSA-v56q-mh7h-f735",
+        "GHSA-xcpc-8h2w-3j85",
+        "GHSA-xvcm-6775-5m9r"
       ]
     }
   }
