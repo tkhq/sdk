@@ -1590,3 +1590,45 @@ export type TVerifyOtpBody =
 
 export type TNOOPCodegenAnchorResponse =
   operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
+
+export type TGetSwapQuoteResponse =
+  operations["PublicApiService_GetSwapQuote"]["responses"]["200"]["schema"];
+
+export type TGetSwapQuoteInput = { body: TGetSwapQuoteBody };
+
+export type TGetSwapQuoteBody = Omit<
+  operations["PublicApiService_GetSwapQuote"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetSwapStatusResponse =
+  operations["PublicApiService_GetSwapStatus"]["responses"]["200"]["schema"];
+
+export type TGetSwapStatusInput = { body: TGetSwapStatusBody };
+
+export type TGetSwapStatusBody = Omit<
+  operations["PublicApiService_GetSwapStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TExecuteSwapResponse =
+  operations["PublicApiService_ExecuteSwap"]["responses"]["200"]["schema"]["activity"]["result"]["executeSwapResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TExecuteSwapInput = { body: TExecuteSwapBody };
+
+export type TExecuteSwapBody =
+  operations["PublicApiService_ExecuteSwap"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpsertSwapConfigResponse =
+  operations["PublicApiService_UpsertSwapConfig"]["responses"]["200"]["schema"]["activity"]["result"]["upsertSwapConfigResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpsertSwapConfigInput = { body: TUpsertSwapConfigBody };
+
+export type TUpsertSwapConfigBody =
+  operations["PublicApiService_UpsertSwapConfig"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;

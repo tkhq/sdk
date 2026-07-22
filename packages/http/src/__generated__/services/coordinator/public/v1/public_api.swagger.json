@@ -7775,7 +7775,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Read Write Session - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Read Write Session - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -7797,7 +7797,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Read Write Session - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Read Write Session - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -10810,7 +10810,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -10852,7 +10852,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -10894,7 +10894,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -12631,12 +12631,22 @@
           "type": "string",
           "description": "Base-unit amount of the input asset."
         },
+        "walletAccount": {
+          "type": "string",
+          "description": "Wallet account address used to price the executable provider quote."
+        },
         "slippage": {
           "type": "string",
           "description": "Maximum allowed slippage in basis points."
         }
       },
-      "required": ["organizationId", "inputToken", "outputToken", "inputAmount"]
+      "required": [
+        "organizationId",
+        "inputToken",
+        "outputToken",
+        "inputAmount",
+        "walletAccount"
+      ]
     },
     "v1GetSwapQuoteResponse": {
       "type": "object",
@@ -15125,7 +15135,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Oauth - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Oauth - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -15433,7 +15443,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to OTP Auth - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to OTP Auth - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -18153,7 +18163,7 @@
         },
         "publicDomain": {
           "type": "string",
-          "description": "The public domain for ingress to this TVC App (in the format \"app-\u003cID\u003e.turnkey.cloud\")."
+          "description": "The public domain for ingress to this TVC App (in the format \"app-<ID>.turnkey.cloud\")."
         },
         "enableDebugModeDeployments": {
           "type": "boolean",
@@ -19619,10 +19629,15 @@
           "type": "string"
         },
         "feeBps": {
-          "type": "string"
+          "type": "string",
+          "description": "Client fee in basis points applied to swaps; used for all pairs unless stable_fee_bps is set."
         },
         "provider": {
           "type": "string"
+        },
+        "stableFeeBps": {
+          "type": "string",
+          "description": "Optional override applied when both swap assets are stablecoins; falls back to fee_bps when unset."
         }
       }
     },
@@ -19657,6 +19672,9 @@
           "type": "string"
         },
         "feeBps": {
+          "type": "string"
+        },
+        "stableFeeBps": {
           "type": "string"
         }
       }
