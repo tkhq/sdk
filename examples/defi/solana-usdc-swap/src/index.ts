@@ -585,10 +585,10 @@ async function sendWithTurnkey({
   const turnkey = getTurnkeyClient();
   const { sendTransactionStatusId } = await turnkey
     .apiClient()
-    .solSendTransaction({
+    .solSendTransactionV2({
       organizationId,
       unsignedTransaction,
-      signWith,
+      signWiths: [signWith],
       caip2,
       sponsor: sponsored,
     });

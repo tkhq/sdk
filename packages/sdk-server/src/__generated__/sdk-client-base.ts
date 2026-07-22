@@ -4947,6 +4947,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  solSendTransactionV2 = async (
+    input: SdkApiTypes.TSolSendTransactionV2Body,
+  ): Promise<SdkApiTypes.TSolSendTransactionV2Response> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/sol_send_transaction_v2",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+      },
+      "solSendTransactionResultV2",
+    );
+  };
+
+  stampSolSendTransactionV2 = async (
+    input: SdkApiTypes.TSolSendTransactionV2Body,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/sol_send_transaction_v2";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   sparkClaimTransfer = async (
     input: SdkApiTypes.TSparkClaimTransferBody,
   ): Promise<SdkApiTypes.TSparkClaimTransferResponse> => {

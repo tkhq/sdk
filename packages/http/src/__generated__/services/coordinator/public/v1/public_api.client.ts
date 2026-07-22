@@ -559,6 +559,10 @@ import type {
   TSolSendTransactionResponse,
 } from "./public_api.fetcher";
 import type {
+  TSolSendTransactionV2Body,
+  TSolSendTransactionV2Response,
+} from "./public_api.fetcher";
+import type {
   TSparkClaimTransferBody,
   TSparkClaimTransferResponse,
 } from "./public_api.fetcher";
@@ -5286,6 +5290,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/sol_send_transaction";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Submit a transaction intent describing an SVM transaction with multiple signers you would like to broadcast.
+   *
+   * Sign the provided `TSolSendTransactionV2Body` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sol_send_transaction_v2).
+   *
+   * See also {@link stampSolSendTransactionV2}.
+   */
+  solSendTransactionV2 = async (
+    input: TSolSendTransactionV2Body,
+  ): Promise<TSolSendTransactionV2Response> => {
+    return this.request("/public/v1/submit/sol_send_transaction_v2", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TSolSendTransactionV2Body` by using the client's `stamp` function.
+   *
+   * See also {@link SolSendTransactionV2}.
+   */
+  stampSolSendTransactionV2 = async (
+    input: TSolSendTransactionV2Body,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/sol_send_transaction_v2";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

@@ -1380,6 +1380,16 @@ export type TSolSendTransactionBody =
   operations["PublicApiService_SolSendTransaction"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TSolSendTransactionV2Response =
+  operations["PublicApiService_SolSendTransactionV2"]["responses"]["200"]["schema"]["activity"]["result"]["solSendTransactionResultV2"] &
+    definitions["v1ActivityResponse"];
+
+export type TSolSendTransactionV2Input = { body: TSolSendTransactionV2Body };
+
+export type TSolSendTransactionV2Body =
+  operations["PublicApiService_SolSendTransactionV2"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TSparkClaimTransferResponse =
   operations["PublicApiService_SparkClaimTransfer"]["responses"]["200"]["schema"]["activity"]["result"]["sparkClaimTransferResult"] &
     definitions["v1ActivityResponse"];

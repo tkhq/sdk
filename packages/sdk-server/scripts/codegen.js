@@ -143,6 +143,54 @@ function extractLatestVersions(definitions) {
   return latestVersions;
 }
 
+/**
+ * @param {string} operationName
+ * @param {Record<string, { fullName: string, formattedKeyName: string, versionSuffix?: string }>} latestVersions
+ * @param {Record<string, unknown>} definitions
+ * @param {Set<string>} operationNames
+ */
+function activityResultForOperation(
+  operationName,
+  latestVersions,
+  definitions,
+  operationNames,
+) {
+  const operationVersion = operationName.match(/V\d+$/)?.[0];
+  const resultKey = operationName.replace(/V\d+$/, "") + "Result";
+  const hasVersionedSibling = [...operationNames].some((name) =>
+    name.match(new RegExp(`^${operationName}V\\d+$`)),
+  );
+  const exactDefinition =
+    operationVersion || hasVersionedSibling
+      ? Object.keys(definitions).find((definitionName) =>
+          definitionName.match(
+            new RegExp(`^v\\d+${resultKey}${operationVersion ?? ""}$`),
+          ),
+        )
+      : undefined;
+  const result = exactDefinition
+    ? {
+        fullName: exactDefinition,
+        formattedKeyName:
+          resultKey.charAt(0).toLowerCase() +
+          resultKey.slice(1) +
+          (operationVersion ?? ""),
+        versionSuffix: operationVersion,
+      }
+    : latestVersions[resultKey];
+
+  if (
+    !result ||
+    (operationVersion && result.versionSuffix !== operationVersion)
+  ) {
+    throw new Error(
+      `No matching activity result found for operation: ${operationName}`,
+    );
+  }
+
+  return result;
+}
+
 const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   const namespace = swaggerSpec.tags?.find((item) => item.name != null)?.name;
 
@@ -273,6 +321,11 @@ export class TurnkeySDKClientBase {
   }`);
 
   const latestVersions = extractLatestVersions(swaggerSpec.definitions);
+  const operationNames = new Set(
+    Object.values(swaggerSpec.paths).map((methodMap) =>
+      methodMap.post.operationId.replace(new RegExp(`${namespace}_`), ""),
+    ),
+  );
 
   for (const endpointPath in swaggerSpec.paths) {
     const methodMap = swaggerSpec.paths[endpointPath];
@@ -322,8 +375,12 @@ export class TurnkeySDKClientBase {
   }`,
       );
     } else if (methodType === "command") {
-      const resultKey = operationNameWithoutNamespace + "Result";
-      const versionedMethodName = latestVersions[resultKey].formattedKeyName;
+      const versionedMethodName = activityResultForOperation(
+        operationNameWithoutNamespace,
+        latestVersions,
+        swaggerSpec.definitions,
+        operationNames,
+      ).formattedKeyName;
 
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {

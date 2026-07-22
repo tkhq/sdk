@@ -733,6 +733,7 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
   | "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
   | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION"
+  | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
   | "ACTIVITY_TYPE_INIT_OTP_V3"
   | "ACTIVITY_TYPE_VERIFY_OTP_V2"
   | "ACTIVITY_TYPE_OTP_LOGIN_V2"
@@ -4009,6 +4010,7 @@ export type v1Intent = {
   createTvcDeploymentIntent?: v1CreateTvcDeploymentIntent;
   createTvcManifestApprovalsIntent?: v1CreateTvcManifestApprovalsIntent;
   solSendTransactionIntent?: v1SolSendTransactionIntent;
+  solSendTransactionIntentV2?: v1SolSendTransactionIntentV2;
   initOtpIntentV3?: v1InitOtpIntentV3;
   verifyOtpIntentV2?: v1VerifyOtpIntentV2;
   otpLoginIntentV2?: v1OtpLoginIntentV2;
@@ -4778,6 +4780,7 @@ export type v1Result = {
   createTvcDeploymentResult?: v1CreateTvcDeploymentResult;
   createTvcManifestApprovalsResult?: v1CreateTvcManifestApprovalsResult;
   solSendTransactionResult?: v1SolSendTransactionResult;
+  solSendTransactionResultV2?: v1SolSendTransactionResultV2;
   initOtpResultV2?: v1InitOtpResultV2;
   updateOrganizationNameResult?: v1UpdateOrganizationNameResult;
   createSubOrganizationResultV8?: v1CreateSubOrganizationResultV8;
@@ -5111,6 +5114,25 @@ export type v1SolSendTransactionIntent = {
   recentBlockhash?: string;
 };
 
+export type v1SolSendTransactionIntentV2 = {
+  /** Hex-encoded serialized unsigned Solana transaction (full wire format with zeroed signature placeholders) */
+  unsignedTransaction: string;
+  /** Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers. For sponsored transactions this must list every required signer of the transaction in transaction order. */
+  signWiths: string[];
+  /** Whether to sponsor this transaction via Gas Station. */
+  sponsor?: boolean;
+  /** CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
+  caip2:
+    | "solana:mainnet"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d"
+    | "solana:devnet"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
+  /** User-provided blockhash for replay protection / deadline control. If provided, it is used as-is, including for sponsored transactions (the transaction is only broadcastable while the blockhash is current). If omitted and sponsor=true, a fresh blockhash is fetched during execution. */
+  recentBlockhash?: string;
+};
+
 export type v1SolSendTransactionRequest = {
   type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
@@ -5124,6 +5146,21 @@ export type v1SolSendTransactionRequest = {
 export type v1SolSendTransactionResult = {
   /** The send_transaction_status ID associated with the transaction submission */
   sendTransactionStatusId: string;
+};
+
+export type v1SolSendTransactionResultV2 = {
+  /** The send_transaction_status ID associated with the transaction submission */
+  sendTransactionStatusId: string;
+};
+
+export type v1SolSendTransactionV2Request = {
+  type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1SolSendTransactionIntentV2;
+  generateAppProofs?: boolean;
 };
 
 export type v1SolanaConfig = {
@@ -8677,6 +8714,36 @@ export type TSolSendTransactionBody = {
 };
 
 export type TSolSendTransactionInput = { body: TSolSendTransactionBody };
+
+export type TSolSendTransactionV2Response = {
+  activity: v1Activity;
+  /** The send_transaction_status ID associated with the transaction submission */
+  sendTransactionStatusId: string;
+};
+
+export type TSolSendTransactionV2Body = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Hex-encoded serialized unsigned Solana transaction (full wire format with zeroed signature placeholders) */
+  unsignedTransaction: string;
+  /** Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers. For sponsored transactions this must list every required signer of the transaction in transaction order. */
+  signWiths: string[];
+  /** Whether to sponsor this transaction via Gas Station. */
+  sponsor?: boolean;
+  /** CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
+  caip2:
+    | "solana:mainnet"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d"
+    | "solana:devnet"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
+  /** User-provided blockhash for replay protection / deadline control. If provided, it is used as-is, including for sponsored transactions (the transaction is only broadcastable while the blockhash is current). If omitted and sponsor=true, a fresh blockhash is fetched during execution. */
+  recentBlockhash?: string;
+  generateAppProofs?: boolean;
+};
+
+export type TSolSendTransactionV2Input = { body: TSolSendTransactionV2Body };
 
 export type TSparkClaimTransferResponse = {
   activity: v1Activity;

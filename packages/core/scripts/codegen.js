@@ -307,6 +307,57 @@ function extractLatestVersions(definitions) {
   return latestVersions;
 }
 
+/**
+ * Resolves an activity result for an operation whose version suffix appears in
+ * the operation name (for example, SolSendTransactionV2).
+ *
+ * @param {string} operationName
+ * @param {Record<string, { fullName: string, formattedKeyName: string, versionSuffix?: string }>} latestVersions
+ * @param {Record<string, unknown>} definitions
+ * @param {Set<string>} operationNames
+ */
+function activityResultForOperation(
+  operationName,
+  latestVersions,
+  definitions,
+  operationNames,
+) {
+  const operationVersion = operationName.match(/V\d+$/)?.[0];
+  const resultKey = operationName.replace(/V\d+$/, "") + "Result";
+  const hasVersionedSibling = [...operationNames].some((name) =>
+    name.match(new RegExp(`^${operationName}V\\d+$`)),
+  );
+  const exactDefinition =
+    operationVersion || hasVersionedSibling
+      ? Object.keys(definitions).find((definitionName) =>
+          definitionName.match(
+            new RegExp(`^v\\d+${resultKey}${operationVersion ?? ""}$`),
+          ),
+        )
+      : undefined;
+  const result = exactDefinition
+    ? {
+        fullName: exactDefinition,
+        formattedKeyName:
+          resultKey.charAt(0).toLowerCase() +
+          resultKey.slice(1) +
+          (operationVersion ?? ""),
+        versionSuffix: operationVersion,
+      }
+    : latestVersions[resultKey];
+
+  if (
+    !result ||
+    (operationVersion && result.versionSuffix !== operationVersion)
+  ) {
+    throw new Error(
+      `No matching activity result found for operation: ${operationName}`,
+    );
+  }
+
+  return result;
+}
+
 const generateSDKClientFromSwagger = async (
   swaggerSpec,
   authProxySwaggerSpec,
@@ -627,8 +678,13 @@ const generateSDKClientFromSwagger = async (
         }
 
         return data as TResponseType;
-    }`);
+  }`);
   const latestVersions = extractLatestVersions(swaggerSpec.definitions);
+  const operationNames = new Set(
+    Object.values(swaggerSpec.paths).map((methodMap) =>
+      methodMap.post.operationId.replace(new RegExp(`${namespace}_`), ""),
+    ),
+  );
 
   for (const endpointPath in swaggerSpec.paths) {
     const methodMap = swaggerSpec.paths[endpointPath];
@@ -689,15 +745,12 @@ const generateSDKClientFromSwagger = async (
       );
     } else if (methodType === "activity") {
       // For activity methods
-      const resultKey = operationNameWithoutNamespace + "Result";
-
-      if (!resultKey || !latestVersions[resultKey]) {
-        throw new Error(
-          `No latest version found for activity result key: ${resultKey}`,
-        );
-      }
-
-      const versionedMethodName = latestVersions[resultKey].formattedKeyName;
+      const versionedMethodName = activityResultForOperation(
+        operationNameWithoutNamespace,
+        latestVersions,
+        swaggerSpec.definitions,
+        operationNames,
+      ).formattedKeyName;
 
       // TODO: remove the ts-ignore once we ensure all request types have the generateAppProofs field
       codeBuffer.push(
