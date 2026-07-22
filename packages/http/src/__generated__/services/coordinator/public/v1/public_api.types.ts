@@ -3772,6 +3772,8 @@ export type definitions = {
     outputToken: string;
     /** @description Base-unit amount of the input asset. */
     inputAmount: string;
+    /** @description Wallet account address used to price the executable provider quote. */
+    walletAccount: string;
     /** @description Maximum allowed slippage in basis points. */
     slippage?: string;
   };
@@ -6608,8 +6610,11 @@ export type definitions = {
   };
   v1UpsertSwapConfigIntent: {
     feeReceiverWalletAddress?: string;
+    /** @description Client fee in basis points applied to swaps; used for all pairs unless stable_fee_bps is set. */
     feeBps?: string;
     provider?: string;
+    /** @description Optional override applied when both swap assets are stablecoins; falls back to fee_bps when unset. */
+    stableFeeBps?: string;
   };
   v1UpsertSwapConfigRequest: {
     /** @enum {string} */
@@ -6624,6 +6629,7 @@ export type definitions = {
   v1UpsertSwapConfigResult: {
     feeReceiverWalletAddress?: string;
     feeBps?: string;
+    stableFeeBps?: string;
   };
   /** @enum {string} */
   v1UsageType: "USAGE_TYPE_SIGNUP" | "USAGE_TYPE_LOGIN";

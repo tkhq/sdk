@@ -6069,13 +6069,17 @@ export type v1UpsertGasUsageConfigResult = {
 
 export type v1UpsertSwapConfigIntent = {
   feeReceiverWalletAddress?: string;
+  /** Client fee in basis points applied to swaps; used for all pairs unless stable_fee_bps is set. */
   feeBps?: string;
   provider?: string;
+  /** Optional override applied when both swap assets are stablecoins; falls back to fee_bps when unset. */
+  stableFeeBps?: string;
 };
 
 export type v1UpsertSwapConfigResult = {
   feeReceiverWalletAddress?: string;
   feeBps?: string;
+  stableFeeBps?: string;
 };
 
 export type v1UsageType = "USAGE_TYPE_SIGNUP" | "USAGE_TYPE_LOGIN";
@@ -6306,6 +6310,101 @@ export type v1WebhookSubscriptionParams = {
   filtersJson?: string;
   /** Whether this subscription is active. */
   isActive?: boolean;
+};
+
+export type v1ExecuteSwapRequest = {
+  type: "ACTIVITY_TYPE_EXECUTE_SWAP";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1ExecuteSwapIntent;
+  generateAppProofs?: boolean;
+};
+
+export type v1GetSwapQuoteRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** CAIP-19 asset ID for the input asset. The chain is derived from this value. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Wallet account address used to price the executable provider quote. */
+  walletAccount: string;
+  /** Maximum allowed slippage in basis points. */
+  slippage?: string;
+};
+
+export type v1GetSwapQuoteResponse = {
+  /** CAIP-19 asset ID for the input asset. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** One quote per available swap provider. */
+  quotes: v1SwapQuoteOption[];
+};
+
+export type v1GetSwapStatusRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Identifier returned in the execute_swap activity result. */
+  sendTransactionStatusId: string;
+};
+
+export type v1GetSwapStatusResponse = {
+  /** Normalized swap status. One of PENDING, COMPLETED, FAILED. */
+  status: string;
+  /** SAME_CHAIN or CROSS_CHAIN. */
+  swapKind: string;
+  /** Swap provider that executed the swap. */
+  provider?: string;
+  /** CAIP-19 asset ID for the input asset. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Final included origin-chain transaction hash, when known. */
+  originTxHash?: string;
+  /** Destination-chain fill transaction hash; cross-chain COMPLETED only. */
+  destinationTxHash?: string;
+  /** Actual base-unit output amount on COMPLETED, when known. */
+  outputAmount?: string;
+  /** CAIP-19 of the asset the user holds after a FAILED swap, when recoverable. */
+  settledAsset?: string;
+  /** Base-unit amount of settled_asset. */
+  settledAmount?: string;
+  /** Transaction that delivered the settled funds, when applicable. */
+  settlementTxHash?: string;
+  /** Non-normative raw provider status passthrough; cross-chain only. */
+  providerStatus?: string;
+  /** Timestamp of the last swap status change, as millisecond epoch string. */
+  updatedAt: string;
+};
+
+export type v1SwapQuoteOption = {
+  /** Identifier for this provider quote. */
+  quoteId: string;
+  /** Swap provider that produced this quote. Pass this value to execute_swap to force a specific provider. */
+  provider: string;
+  /** Estimated base-unit amount of the output asset. */
+  outputAmount: string;
+  /** Minimum acceptable base-unit amount of the output asset after slippage. */
+  minOutputAmount?: string;
+};
+
+export type v1UpsertSwapConfigRequest = {
+  type: "ACTIVITY_TYPE_UPSERT_SWAP_CONFIG";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1UpsertSwapConfigIntent;
+  generateAppProofs?: boolean;
 };
 
 // --- API Types from Swagger Paths ---
@@ -9110,6 +9209,125 @@ export type TVerifyOtpInput = { body: TVerifyOtpBody };
 export type TNOOPCodegenAnchorResponse = {
   activity: v1Activity;
 };
+
+export type TGetSwapQuoteResponse = {
+  /** CAIP-19 asset ID for the input asset. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** One quote per available swap provider. */
+  quotes: v1SwapQuoteOption[];
+};
+
+export type TGetSwapQuoteBody = {
+  organizationId?: string;
+  /** CAIP-19 asset ID for the input asset. The chain is derived from this value. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Wallet account address used to price the executable provider quote. */
+  walletAccount: string;
+  /** Maximum allowed slippage in basis points. */
+  slippage?: string;
+};
+
+export type TGetSwapQuoteInput = { body: TGetSwapQuoteBody };
+
+export type TGetSwapStatusResponse = {
+  /** Normalized swap status. One of PENDING, COMPLETED, FAILED. */
+  status: string;
+  /** SAME_CHAIN or CROSS_CHAIN. */
+  swapKind: string;
+  /** Swap provider that executed the swap. */
+  provider?: string;
+  /** CAIP-19 asset ID for the input asset. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Final included origin-chain transaction hash, when known. */
+  originTxHash?: string;
+  /** Destination-chain fill transaction hash; cross-chain COMPLETED only. */
+  destinationTxHash?: string;
+  /** Actual base-unit output amount on COMPLETED, when known. */
+  outputAmount?: string;
+  /** CAIP-19 of the asset the user holds after a FAILED swap, when recoverable. */
+  settledAsset?: string;
+  /** Base-unit amount of settled_asset. */
+  settledAmount?: string;
+  /** Transaction that delivered the settled funds, when applicable. */
+  settlementTxHash?: string;
+  /** Non-normative raw provider status passthrough; cross-chain only. */
+  providerStatus?: string;
+  /** Timestamp of the last swap status change, as millisecond epoch string. */
+  updatedAt: string;
+};
+
+export type TGetSwapStatusBody = {
+  organizationId?: string;
+  /** Identifier returned in the execute_swap activity result. */
+  sendTransactionStatusId: string;
+};
+
+export type TGetSwapStatusInput = { body: TGetSwapStatusBody };
+
+export type TExecuteSwapResponse = {
+  activity: v1Activity;
+  /** The send_transaction_status ID associated with the swap transaction submission */
+  sendTransactionStatusId: string;
+  /** Swap provider used to build the transaction. */
+  provider?: string;
+  /** Quote identifier used for execution, if any. */
+  quoteId?: string;
+};
+
+export type TExecuteSwapBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** CAIP-19 asset ID for the input asset. The chain is derived from this value. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. May be on a different chain than `input_token` for cross-chain swaps. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Wallet account address to sign and submit the swap transaction from. Cross-wallet swaps are not supported. */
+  walletAccount: string;
+  /** Whether to sponsor the resulting swap transaction via Gas Station when supported by the chain. */
+  sponsor?: boolean;
+  /** Maximum allowed slippage in basis points. */
+  slippage?: string;
+  /** Swap provider to execute with, as returned by get_swap_quote. When omitted, execution uses the default provider. */
+  provider?: string;
+  generateAppProofs?: boolean;
+};
+
+export type TExecuteSwapInput = { body: TExecuteSwapBody };
+
+export type TUpsertSwapConfigResponse = {
+  activity: v1Activity;
+  feeReceiverWalletAddress?: string;
+  feeBps?: string;
+  stableFeeBps?: string;
+};
+
+export type TUpsertSwapConfigBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  feeReceiverWalletAddress?: string;
+  /** Client fee in basis points applied to swaps; used for all pairs unless stable_fee_bps is set. */
+  feeBps?: string;
+  provider?: string;
+  /** Optional override applied when both swap assets are stablecoins; falls back to fee_bps when unset. */
+  stableFeeBps?: string;
+  generateAppProofs?: boolean;
+};
+
+export type TUpsertSwapConfigInput = { body: TUpsertSwapConfigBody };
 
 export type TEthSendTransactionResponse = {
   activity: v1Activity;
