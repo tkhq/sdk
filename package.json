@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.1",
-    "@changesets/cli": "^2.27.5",
+    "@changesets/cli": "^2.31.1",
     "@jest/globals": "29.4.3",
     "@jest/types": "29.4.3",
     "@microsoft/tsdoc": "^0.15.1",
@@ -52,8 +52,8 @@
     "rollup-preserve-directives": "^1.1.2",
     "tsx": "^3.12.7",
     "turbo": "^2.9.14",
-    "typedoc": "^0.28.1",
-    "typedoc-plugin-markdown": "^4.6.0",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.12.0",
     "typescript": "5.4.3"
   },
   "packageManager": "pnpm@10.6.3+sha512.bb45e34d50a9a76e858a95837301bfb6bd6d35aea2c5d52094fa497a467c43f5c440103ce2511e9e0a2f89c3d6071baac3358fc68ac6fb75e2ceb3d2736065e6",
