@@ -16,6 +16,7 @@ import {
   formatHpkeBuf,
   verifyStampSignature,
   verifySessionJwtSignature,
+  verifyOtpVerificationToken,
   fromDerSignature,
 } from "../";
 
@@ -457,6 +458,87 @@ describe("Session JWT signature", () => {
 
     const ok = await verifySessionJwtSignature(jwt);
     expect(ok).toBe(true);
+  });
+});
+
+describe("OTP Verification Token", () => {
+  // Real enclave-issued token, signed with the production TLS fetcher key.
+  const validJwt =
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9." +
+    "eyJleHAiOiIxNzgyOTE5NjUxMjYxIiwiaWQiOiJlYjM5YjE5OS0zMzUyLTQyODktYjMxZi01NzE5NGM3OTYwOWMiLCJvcmdhbml6YXRpb25faWQiOiI3ZmYxODlmYi1kZjdkLTQ1MmUtODU0MC01NzYzMmUzODBiNzciLCJ2ZXJpZmljYXRpb25fdHlwZSI6Ik9UUF9UWVBFX0VNQUlMIiwiY29udGFjdCI6InVzZXJAZXhhbXBsZS5jb20iLCJwdWJsaWNfa2V5IjoiMDM2MzM1Yjc4ZjkyNzM2ZTMyZTk5ZGM2YWVkOTc5YWZmMGI1YzI0MTkyZTc2YjE2MjhhYTU0ZWRhZjU4YzhjMTVkIn0." +
+    "YMtLA5vVUTiYhW5CIitrGXb-fk4MWx-MNVC4etopkKVro6tn0CP-Uz7biSZOunASsEc3jkjJWnFIn2AMpuZomg";
+
+  // Deterministic test signer, used to exercise the claim-validation branch with a
+  // *valid* signature — a real prod-signed token can never be missing a claim.
+  const testPrivKey = uint8ArrayFromHexString(
+    "7b2e9c5f4a1d8036e9b0c2a4f6d8e0f123456789abcdef0123456789abcdef01",
+  );
+  const testPubKeyHex = Buffer.from(p256.getPublicKey(testPrivKey)).toString(
+    "hex",
+  );
+  const signTestToken = (claims: Record<string, unknown>): string => {
+    const b64url = (obj: unknown) =>
+      Buffer.from(JSON.stringify(obj)).toString("base64url");
+    const signingInput = `${b64url({ typ: "JWT", alg: "ES256" })}.${b64url(claims)}`;
+    const sig = p256
+      .sign(sha256(new TextEncoder().encode(signingInput)), testPrivKey)
+      .toCompactRawBytes();
+    return `${signingInput}.${Buffer.from(sig).toString("base64url")}`;
+  };
+
+  test("verifies and decodes the OTP verification token JWT", async () => {
+    const claims = await verifyOtpVerificationToken(validJwt);
+    expect(claims.id).toBe("eb39b199-3352-4289-b31f-57194c79609c");
+    expect(claims.verification_type).toBe("OTP_TYPE_EMAIL");
+    expect(claims.contact).toBe("user@example.com");
+    expect(claims.organization_id).toBe("7ff189fb-df7d-452e-8540-57632e380b77");
+    expect(claims.public_key).toBe(
+      "036335b78f92736e32e99dc6aed979aff0b5c24192e76b1628aa54edaf58c8c15d",
+    );
+    expect(claims.exp).toBe("1782919651261");
+  });
+
+  test("throws error for invalid JWT format", async () => {
+    await expect(verifyOtpVerificationToken("invalid.jwt")).rejects.toThrow(
+      "invalid JWT: need 3 parts",
+    );
+  });
+
+  test("throws for an invalid signature", async () => {
+    // Tamper the first signature char of the real token; JWT structure stays valid.
+    const [h, p, s] = validJwt.split(".");
+    const tampered = `${h}.${p}.${(s![0] === "A" ? "B" : "A") + s!.slice(1)}`;
+    await expect(verifyOtpVerificationToken(tampered)).rejects.toThrow(
+      "signature is invalid",
+    );
+  });
+
+  const fullClaims: Record<string, string> = {
+    id: "test-id",
+    verification_type: "OTP_TYPE_EMAIL",
+    contact: "user@example.com",
+    organization_id: "test-org",
+    public_key: "deadbeef",
+    exp: "9999999999999",
+  };
+
+  test("throws for a validly-signed token missing a required claim", async () => {
+    // Signed with the test key so the signature passes and we reach the
+    // claim-validation branch; this token is missing the required `contact`.
+    const claims: Record<string, unknown> = { ...fullClaims };
+    delete claims.contact;
+    const jwt = signTestToken(claims);
+    await expect(
+      verifyOtpVerificationToken(jwt, testPubKeyHex),
+    ).rejects.toThrow("missing required 'contact' claim");
+  });
+
+  test("rejects a token signed by a different key than the override", async () => {
+    // Token signed with the test key, but verified against the *production* key.
+    const jwt = signTestToken(fullClaims);
+    await expect(verifyOtpVerificationToken(jwt)).rejects.toThrow(
+      "signature is invalid",
+    );
   });
 });
 
