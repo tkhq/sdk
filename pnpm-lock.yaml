@@ -2481,6 +2481,21 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  examples/chain-integrations/with-zcash:
+    dependencies:
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: 16.0.3
+        version: 16.0.3
+      path:
+        specifier: 0.12.7
+        version: 0.12.7
+
   examples/defi/eth-usdc-swap:
     dependencies:
       '@turnkey/ethers':

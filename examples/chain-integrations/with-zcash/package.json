@@ -1,0 +1,16 @@
+{
+  "name": "@turnkey/example-with-zcash",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/createZcashTx.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@noble/hashes": "1.4.0",
+    "@turnkey/sdk-server": "workspace:*",
+    "dotenv": "16.0.3",
+    "path": "0.12.7"
+  }
+}
