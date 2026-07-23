@@ -241,6 +241,7 @@ export class TurnkeySDKClientBase {
   async authProxyRequest<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
+    captchaToken?: string,
   ): Promise<TResponseType> {
     if (!this.config.authProxyUrl || !this.config.authProxyConfigId) {
       throw new TurnkeyError(
@@ -254,6 +255,10 @@ export class TurnkeySDKClientBase {
       "Content-Type": "application/json",
       "X-Auth-Proxy-Config-ID": this.config.authProxyConfigId,
     };
+
+    if (captchaToken) {
+      headers["X-Captcha-Token"] = captchaToken;
+    }
 
     const response = await fetch(fullUrl, {
       method: "POST",
@@ -1971,6 +1976,53 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  listEthTransactionHistory = async (
+    input: SdkTypes.TListEthTransactionHistoryBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TListEthTransactionHistoryResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_eth_transaction_history",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampListEthTransactionHistory = async (
+    input: SdkTypes.TListEthTransactionHistoryBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_eth_transaction_history";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   listFiatOnRampCredentials = async (
     input: SdkTypes.TListFiatOnRampCredentialsBody,
     stampWith?: StamperType,
@@ -2236,6 +2288,53 @@ export class TurnkeySDKClientBase {
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/query/list_smart_contract_interfaces";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listSolTransactionHistory = async (
+    input: SdkTypes.TListSolTransactionHistoryBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TListSolTransactionHistoryResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_sol_transaction_history",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampListSolTransactionHistory = async (
+    input: SdkTypes.TListSolTransactionHistoryBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_sol_transaction_history";
     const body = {
       ...input,
       organizationId:
@@ -7046,9 +7145,9 @@ export class TurnkeySDKClientBase {
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
         generateAppProofs: generateAppProofs ?? false,
-        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
       },
-      "solSendTransactionResult",
+      "solSendTransactionResultV2",
       stampWith,
     );
   };
@@ -7072,7 +7171,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -8375,14 +8474,16 @@ export class TurnkeySDKClientBase {
 
   proxyInitOtp = async (
     input: SdkTypes.ProxyTInitOtpBody,
+    captchaToken?: string,
   ): Promise<SdkTypes.ProxyTInitOtpResponse> => {
-    return this.authProxyRequest("/v1/otp_init", input);
+    return this.authProxyRequest("/v1/otp_init", input, captchaToken);
   };
 
   proxyInitOtpV2 = async (
     input: SdkTypes.ProxyTInitOtpV2Body,
+    captchaToken?: string,
   ): Promise<SdkTypes.ProxyTInitOtpV2Response> => {
-    return this.authProxyRequest("/v1/otp_init_v2", input);
+    return this.authProxyRequest("/v1/otp_init_v2", input, captchaToken);
   };
 
   proxyOtpLogin = async (
@@ -8411,14 +8512,22 @@ export class TurnkeySDKClientBase {
 
   proxySignup = async (
     input: SdkTypes.ProxyTSignupBody,
+    captchaToken?: string,
   ): Promise<SdkTypes.ProxyTSignupResponse> => {
-    return this.authProxyRequest("/v1/signup", input);
+    return this.authProxyRequest("/v1/signup", input, captchaToken);
   };
 
   proxySignupV2 = async (
     input: SdkTypes.ProxyTSignupV2Body,
+    captchaToken?: string,
   ): Promise<SdkTypes.ProxyTSignupV2Response> => {
-    return this.authProxyRequest("/v1/signup_v2", input);
+    return this.authProxyRequest("/v1/signup_v2", input, captchaToken);
+  };
+
+  proxyGetWalletKitClientParams = async (
+    input: SdkTypes.ProxyTGetWalletKitClientParamsBody,
+  ): Promise<SdkTypes.ProxyTGetWalletKitClientParamsResponse> => {
+    return this.authProxyRequest("/v1/wallet_kit_client_params", input);
   };
 
   proxyGetWalletKitConfig = async (

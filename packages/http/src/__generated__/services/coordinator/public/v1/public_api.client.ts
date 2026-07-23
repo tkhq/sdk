@@ -10,6 +10,10 @@ import {
 } from "../../../../../base";
 import { VERSION } from "../../../../../version";
 import type {
+  TEarnDeployStatusBody,
+  TEarnDeployStatusResponse,
+} from "./public_api.fetcher";
+import type {
   TEarnDepositStatusBody,
   TEarnDepositStatusResponse,
 } from "./public_api.fetcher";
@@ -168,6 +172,10 @@ import type {
   TListEmailEventsResponse,
 } from "./public_api.fetcher";
 import type {
+  TListEthTransactionHistoryBody,
+  TListEthTransactionHistoryResponse,
+} from "./public_api.fetcher";
+import type {
   TListFiatOnRampCredentialsBody,
   TListFiatOnRampCredentialsResponse,
 } from "./public_api.fetcher";
@@ -190,6 +198,10 @@ import type {
 import type {
   TGetSmartContractInterfacesBody,
   TGetSmartContractInterfacesResponse,
+} from "./public_api.fetcher";
+import type {
+  TListSolTransactionHistoryBody,
+  TListSolTransactionHistoryResponse,
 } from "./public_api.fetcher";
 import type {
   TGetSubOrgIdsBody,
@@ -236,6 +248,10 @@ import type { TGetWhoamiBody, TGetWhoamiResponse } from "./public_api.fetcher";
 import type {
   TApproveActivityBody,
   TApproveActivityResponse,
+} from "./public_api.fetcher";
+import type {
+  TClaimSwapFeesBody,
+  TClaimSwapFeesResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateApiKeysBody,
@@ -434,6 +450,10 @@ import type {
   TEarnDepositResponse,
 } from "./public_api.fetcher";
 import type {
+  TEarnSetWrapperStateBody,
+  TEarnSetWrapperStateResponse,
+} from "./public_api.fetcher";
+import type {
   TEarnWithdrawBody,
   TEarnWithdrawResponse,
 } from "./public_api.fetcher";
@@ -477,6 +497,10 @@ import type {
 import type {
   TInitImportPrivateKeyBody,
   TInitImportPrivateKeyResponse,
+} from "./public_api.fetcher";
+import type {
+  TInitImportSecretsBody,
+  TInitImportSecretsResponse,
 } from "./public_api.fetcher";
 import type {
   TInitImportWalletBody,
@@ -559,6 +583,10 @@ import type {
   TSolSendTransactionResponse,
 } from "./public_api.fetcher";
 import type {
+  TSolSendTransactionV2Body,
+  TSolSendTransactionV2Response,
+} from "./public_api.fetcher";
+import type {
   TSparkClaimTransferBody,
   TSparkClaimTransferResponse,
 } from "./public_api.fetcher";
@@ -635,10 +663,6 @@ import type {
   TUpdateWebhookEndpointResponse,
 } from "./public_api.fetcher";
 import type {
-  TUpsertEarnClientFeeConfigBody,
-  TUpsertEarnClientFeeConfigResponse,
-} from "./public_api.fetcher";
-import type {
   TUpsertSwapConfigBody,
   TUpsertSwapConfigResponse,
 } from "./public_api.fetcher";
@@ -698,6 +722,37 @@ export class TurnkeyClient {
     const data = await response.json();
     return data as TResponseType;
   }
+
+  /**
+   * Poll the status of a wrapper deployment by its deploy_request_id.
+   *
+   * Sign the provided `TEarnDeployStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/earn_deploy_status).
+   *
+   * See also {@link stampEarnDeployStatus}.
+   */
+  earnDeployStatus = async (
+    input: TEarnDeployStatusBody,
+  ): Promise<TEarnDeployStatusResponse> => {
+    return this.request("/public/v1/query/earn_deploy_status", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TEarnDeployStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link EarnDeployStatus}.
+   */
+  stampEarnDeployStatus = async (
+    input: TEarnDeployStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/earn_deploy_status";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
 
   /**
    * Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path).
@@ -2058,6 +2113,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * List Ethereum transaction history for a wallet address on the specified network.
+   *
+   * Sign the provided `TListEthTransactionHistoryBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_eth_transaction_history).
+   *
+   * See also {@link stampListEthTransactionHistory}.
+   */
+  listEthTransactionHistory = async (
+    input: TListEthTransactionHistoryBody,
+  ): Promise<TListEthTransactionHistoryResponse> => {
+    return this.request("/public/v1/query/list_eth_transaction_history", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListEthTransactionHistoryBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListEthTransactionHistory}.
+   */
+  stampListEthTransactionHistory = async (
+    input: TListEthTransactionHistoryBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_eth_transaction_history";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * List all fiat on ramp provider credentials within an organization.
    *
    * Sign the provided `TListFiatOnRampCredentialsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_fiat_on_ramp_credentials).
@@ -2244,6 +2331,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/list_smart_contract_interfaces";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List Solana transaction history for a wallet address on the specified network.
+   *
+   * Sign the provided `TListSolTransactionHistoryBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_sol_transaction_history).
+   *
+   * See also {@link stampListSolTransactionHistory}.
+   */
+  listSolTransactionHistory = async (
+    input: TListSolTransactionHistoryBody,
+  ): Promise<TListSolTransactionHistoryResponse> => {
+    return this.request("/public/v1/query/list_sol_transaction_history", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListSolTransactionHistoryBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListSolTransactionHistory}.
+   */
+  stampListSolTransactionHistory = async (
+    input: TListSolTransactionHistoryBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_sol_transaction_history";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2636,6 +2755,37 @@ export class TurnkeyClient {
     input: TApproveActivityBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/approve_activity";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Claim swap fees through the activity pipeline.
+   *
+   * Sign the provided `TClaimSwapFeesBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/claim_swap_fees).
+   *
+   * See also {@link stampClaimSwapFees}.
+   */
+  claimSwapFees = async (
+    input: TClaimSwapFeesBody,
+  ): Promise<TClaimSwapFeesResponse> => {
+    return this.request("/public/v1/submit/claim_swap_fees", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TClaimSwapFeesBody` by using the client's `stamp` function.
+   *
+   * See also {@link ClaimSwapFees}.
+   */
+  stampClaimSwapFees = async (
+    input: TClaimSwapFeesBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/claim_swap_fees";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -3160,7 +3310,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create a new sub-organization.
+   * Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS).
    *
    * Sign the provided `TCreateSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_sub_organization).
    *
@@ -3385,7 +3535,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create users in an existing organization.
+   * Create users in an existing organization. Each user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the organization (email, email OTP, or SMS).
    *
    * Sign the provided `TCreateUsersBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_users).
    *
@@ -4215,6 +4365,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Enable or disable deposits to a deployed Earn wrapper. Withdrawals are always allowed.
+   *
+   * Sign the provided `TEarnSetWrapperStateBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/earn_set_wrapper_state).
+   *
+   * See also {@link stampEarnSetWrapperState}.
+   */
+  earnSetWrapperState = async (
+    input: TEarnSetWrapperStateBody,
+  ): Promise<TEarnSetWrapperStateResponse> => {
+    return this.request("/public/v1/submit/earn_set_wrapper_state", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TEarnSetWrapperStateBody` by using the client's `stamp` function.
+   *
+   * See also {@link EarnSetWrapperState}.
+   */
+  stampEarnSetWrapperState = async (
+    input: TEarnSetWrapperStateBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/earn_set_wrapper_state";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Withdraw assets or redeem shares from an enabled yield vault.
    *
    * Sign the provided `TEarnWithdrawBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/earn_withdraw).
@@ -4579,6 +4761,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/init_import_private_key";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Initialize secret imports by generating Ingress Encryption Target Keys.
+   *
+   * Sign the provided `TInitImportSecretsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_import_secrets).
+   *
+   * See also {@link stampInitImportSecrets}.
+   */
+  initImportSecrets = async (
+    input: TInitImportSecretsBody,
+  ): Promise<TInitImportSecretsResponse> => {
+    return this.request("/public/v1/submit/init_import_secrets", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TInitImportSecretsBody` by using the client's `stamp` function.
+   *
+   * See also {@link InitImportSecrets}.
+   */
+  stampInitImportSecrets = async (
+    input: TInitImportSecretsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/init_import_secrets";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -5296,6 +5510,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Submit a transaction intent describing an SVM transaction with multiple signers you would like to broadcast.
+   *
+   * Sign the provided `TSolSendTransactionV2Body` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sol_send_transaction_v2).
+   *
+   * See also {@link stampSolSendTransactionV2}.
+   */
+  solSendTransactionV2 = async (
+    input: TSolSendTransactionV2Body,
+  ): Promise<TSolSendTransactionV2Response> => {
+    return this.request("/public/v1/submit/sol_send_transaction_v2", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TSolSendTransactionV2Body` by using the client's `stamp` function.
+   *
+   * See also {@link SolSendTransactionV2}.
+   */
+  stampSolSendTransactionV2 = async (
+    input: TSolSendTransactionV2Body,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/sol_send_transaction_v2";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Construct receiver-side encrypted operator packages to claim a Spark transfer. Does not perform FROST signing.
    *
    * Sign the provided `TSparkClaimTransferBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/spark_claim_transfer).
@@ -5883,41 +6129,6 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/update_webhook_endpoint";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Set the client's Earn fee rate and payout wallet for the organization.
-   *
-   * Sign the provided `TUpsertEarnClientFeeConfigBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/upsert_earn_client_fee_config).
-   *
-   * See also {@link stampUpsertEarnClientFeeConfig}.
-   */
-  upsertEarnClientFeeConfig = async (
-    input: TUpsertEarnClientFeeConfigBody,
-  ): Promise<TUpsertEarnClientFeeConfigResponse> => {
-    return this.request(
-      "/public/v1/submit/upsert_earn_client_fee_config",
-      input,
-    );
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TUpsertEarnClientFeeConfigBody` by using the client's `stamp` function.
-   *
-   * See also {@link UpsertEarnClientFeeConfig}.
-   */
-  stampUpsertEarnClientFeeConfig = async (
-    input: TUpsertEarnClientFeeConfigBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/upsert_earn_client_fee_config";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
