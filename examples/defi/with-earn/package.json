@@ -1,0 +1,30 @@
+{
+  "name": "@turnkey/with-earn",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "create-sub-org": "NODE_NO_WARNINGS=1 tsx src/createSubOrg.ts",
+    "vaults": "NODE_NO_WARNINGS=1 tsx src/vaults.ts",
+    "deploy-vault": "NODE_NO_WARNINGS=1 tsx src/deployVault.ts",
+    "org-position": "NODE_NO_WARNINGS=1 tsx src/orgPosition.ts",
+    "deposit": "NODE_NO_WARNINGS=1 tsx src/deposit.ts",
+    "positions": "NODE_NO_WARNINGS=1 tsx src/positions.ts",
+    "withdraw": "NODE_NO_WARNINGS=1 tsx src/withdraw.ts",
+    "fees": "NODE_NO_WARNINGS=1 tsx src/fees.ts",
+    "demo": "pnpm vaults && pnpm deploy-vault && pnpm org-position && pnpm deposit && pnpm positions && pnpm withdraw && pnpm positions && pnpm org-position",
+    "transfer": "NODE_NO_WARNINGS=1 tsx src/transfer.ts",
+    "commands": "NODE_NO_WARNINGS=1 tsx src/help.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/viem": "workspace:*",
+    "dotenv": "^16.0.3",
+    "viem": "^2.24.2"
+  },
+  "devDependencies": {
+    "typescript": "5.4.3"
+  }
+}
