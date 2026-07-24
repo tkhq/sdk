@@ -38,6 +38,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     authProxyConfigId: process.env.NEXT_PUBLIC_AUTH_PROXY_CONFIG_ID!,
     authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_BASE_URL,
     apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+    exportIframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL,
     auth: {
       createSuborgParams: {
         emailOtpAuth: suborgParams,
