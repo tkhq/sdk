@@ -454,17 +454,37 @@ function generateApiTypes(swagger, prefix = "") {
             const baseActivity = reqTypeName
               .replace(/^v\d+/, "")
               .replace(/Request(V\d+)?$/, "");
+            const operationVersion = baseActivity.match(/V\d+$/)?.[0];
+            const unversionedBaseActivity = baseActivity.replace(/V\d+$/, "");
             activityTypeKey = stripVersionSuffix(
               reqDef.properties.type.enum[0],
             );
             const mapped = VERSIONED_ACTIVITY_TYPES[activityTypeKey];
 
             // Now, find the latest version of the Result type using latestVersions
-            const resultBase = baseActivity + "Result";
+            const resultBase = unversionedBaseActivity + "Result";
             let resultKey = null;
             if (latestVersions[resultBase]) {
+              if (operationVersion) {
+                const exactResult = `v1${resultBase}${operationVersion}`;
+                if (definitions[exactResult]) {
+                  resultKey = exactResult;
+                }
+              } else if (
+                !mapped?.[2] &&
+                Object.keys(definitions).some((definitionName) =>
+                  definitionName.match(
+                    new RegExp(`^v\\d+${baseActivity}V\\d+Request$`),
+                  ),
+                )
+              ) {
+                const exactResult = `v1${resultBase}`;
+                if (definitions[exactResult]) {
+                  resultKey = exactResult;
+                }
+              }
               // If a mapped Result is present, use it to pick the correct version
-              if (mapped?.[2]) {
+              if (!resultKey && mapped?.[2]) {
                 const candidate = Object.keys(definitions).find(
                   (k) => k === mapped[2],
                 );

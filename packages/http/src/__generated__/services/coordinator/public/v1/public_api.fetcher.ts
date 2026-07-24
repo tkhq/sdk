@@ -7328,6 +7328,58 @@ export const signSolSendTransaction = (
   });
 
 /**
+ * `POST /public/v1/submit/sol_send_transaction_v2`
+ */
+export type TSolSendTransactionV2Response =
+  operations["PublicApiService_SolSendTransactionV2"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/sol_send_transaction_v2`
+ */
+export type TSolSendTransactionV2Input = { body: TSolSendTransactionV2Body };
+
+/**
+ * `POST /public/v1/submit/sol_send_transaction_v2`
+ */
+export type TSolSendTransactionV2Body =
+  operations["PublicApiService_SolSendTransactionV2"]["parameters"]["body"]["body"];
+
+/**
+ * Broadcast multi-signer SVM transaction
+ *
+ * Submit a transaction intent describing an SVM transaction with multiple signers you would like to broadcast.
+ *
+ * `POST /public/v1/submit/sol_send_transaction_v2`
+ */
+export const solSendTransactionV2 = (input: TSolSendTransactionV2Input) =>
+  request<
+    TSolSendTransactionV2Response,
+    TSolSendTransactionV2Body,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/sol_send_transaction_v2",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `SolSendTransactionV2` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link SolSendTransactionV2}
+ */
+export const signSolSendTransactionV2 = (
+  input: TSolSendTransactionV2Input,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TSolSendTransactionV2Body, never, never>({
+    uri: "/public/v1/submit/sol_send_transaction_v2",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/spark_claim_transfer`
  */
 export type TSparkClaimTransferResponse =

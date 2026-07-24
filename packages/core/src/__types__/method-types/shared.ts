@@ -17,6 +17,7 @@ import type {
   v1EthSendTransactionIntent,
   v1EthSendTransactionIntentV2,
   v1SolSendTransactionIntent,
+  v1SolSendTransactionIntentV2,
 } from "@turnkey/sdk-types";
 import type {
   CreateSubOrgParams,
@@ -279,7 +280,9 @@ export type Erc20Transfer = {
   sponsor?: boolean;
 };
 
-export type SolanaTransaction = v1SolSendTransactionIntent;
+export type SolanaTransaction =
+  | v1SolSendTransactionIntent
+  | v1SolSendTransactionIntentV2;
 
 export type EthSendTransactionParams = {
   organizationId?: string;

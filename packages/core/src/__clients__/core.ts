@@ -14,7 +14,6 @@ import {
   type PasskeyAuthResult,
   type v1CreatePolicyIntentV3,
   type v1BootProof,
-  type TSolSendTransactionBody,
   type TGetSendTransactionStatusResponse,
   type ProxyTSignupResponse,
   type TGetWalletsResponse,
@@ -3001,7 +3000,8 @@ export class TurnkeyClient {
    *   - They must instead use `signAndSendTransaction`.
    *
    * - **Embedded wallets**
-   *   - Constructs the payload for Turnkey's `sol_send_transaction` endpoint.
+   *   - Uses `sol_send_transaction_v2` when `signWiths` is provided.
+   *   - Keeps `signWith` requests on the original `sol_send_transaction` endpoint.
    *   - Signs and submits the transaction through Turnkey.
    *   - Returns a `sendTransactionStatusId`, which the caller must pass to
    *     `pollTransactionStatus` to obtain the final result (signature + status).
@@ -3038,25 +3038,22 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const intent: TSolSendTransactionBody = {
-          unsignedTransaction: transaction.unsignedTransaction,
-          signWith: transaction.signWith,
-          caip2: transaction.caip2,
-          ...(transaction.sponsor !== undefined
-            ? { sponsor: transaction.sponsor }
-            : {}),
-          ...(transaction.recentBlockhash
-            ? { recentBlockhash: transaction.recentBlockhash }
-            : {}),
-        };
-
-        const resp = await this.httpClient.solSendTransaction(
-          {
-            ...intent,
-            organizationId,
-          },
-          stampWith,
-        );
+        const resp =
+          "signWiths" in transaction
+            ? await this.httpClient.solSendTransactionV2(
+                {
+                  ...transaction,
+                  organizationId,
+                },
+                stampWith,
+              )
+            : await this.httpClient.solSendTransaction(
+                {
+                  ...transaction,
+                  organizationId,
+                },
+                stampWith,
+              );
 
         const id = resp.sendTransactionStatusId;
         if (!id) {

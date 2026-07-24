@@ -188,10 +188,10 @@ async function sweepTokens(
 
     const { sendTransactionStatusId } = await turnkey
       .apiClient()
-      .solSendTransaction({
+      .solSendTransactionV2({
         organizationId,
         unsignedTransaction,
-        signWith,
+        signWiths: [signWith],
         caip2: network.caip2,
         sponsor,
       });
@@ -270,10 +270,10 @@ async function sweepSol(
 
   const { sendTransactionStatusId } = await turnkey
     .apiClient()
-    .solSendTransaction({
+    .solSendTransactionV2({
       organizationId,
       unsignedTransaction,
-      signWith,
+      signWiths: [signWith],
       caip2: network.caip2,
       sponsor,
     });

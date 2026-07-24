@@ -261,7 +261,7 @@ export default function Dashboard() {
       const statusId = await solSendTransaction({
         transaction: {
           unsignedTransaction,
-          signWith: solAddress,
+          signWiths: [solAddress],
           caip2: solNetwork.caip2,
           sponsor: true,
         },
