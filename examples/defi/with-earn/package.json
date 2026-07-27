@@ -10,6 +10,7 @@
     "positions": "NODE_NO_WARNINGS=1 tsx src/positions.ts",
     "withdraw": "NODE_NO_WARNINGS=1 tsx src/withdraw.ts",
     "fees": "NODE_NO_WARNINGS=1 tsx src/fees.ts",
+    "claim": "NODE_NO_WARNINGS=1 tsx src/claim.ts",
     "demo": "pnpm vaults && pnpm deploy-vault && pnpm org-position && pnpm deposit && pnpm positions && pnpm withdraw && pnpm positions && pnpm org-position",
     "transfer": "NODE_NO_WARNINGS=1 tsx src/transfer.ts",
     "clean": "rimraf ./dist ./.cache",

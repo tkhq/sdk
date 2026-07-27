@@ -40,6 +40,7 @@ pnpm withdraw      # 6. partial withdrawal (arg: [usdc])
 pnpm positions     # 7. end-user position again
 pnpm org-position  # 8. platform view again
 pnpm fees          # client revenue: your accrued client fee, claimable now
+pnpm claim         # release the accrued client fee to CLIENT_FEE_WALLET
 
 pnpm demo          # runs the full step sequence above
 
@@ -56,3 +57,6 @@ Notes:
 - Position `currentValue` is a live ERC-4626 conversion rounded in the vault's
   favor, so it can read a unit or two under the ledger fields right after a
   deposit; the dust returns as yield accrues.
+- `pnpm claim` releases the accrued client fee (held as wrapper shares) to
+  `CLIENT_FEE_WALLET`. `release` is a permissionless PaymentSplitter call, so
+  the fee wallet only needs a little ETH on Base for gas.
