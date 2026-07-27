@@ -253,7 +253,7 @@ function buildDepositForBurnInstruction({
     programId: TOKEN_MESSENGER_MINTER_PROGRAM,
     keys: [
       // Circle TokenMessengerMinterV2 deposit_for_burn_with_hook account order:
-      // owner, then event_rent_payer (must differ for the 3-signer Cash Lite shape).
+      // owner, then event_rent_payer (must be distinct for this 3-signer shape).
       { pubkey: owner, isSigner: true, isWritable: true },
       { pubkey: eventRentPayer, isSigner: true, isWritable: true },
       { pubkey: senderAuthority, isSigner: false, isWritable: false },

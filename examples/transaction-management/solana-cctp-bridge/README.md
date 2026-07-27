@@ -1,8 +1,8 @@
 # Example: Solana CCTP bridge with three Turnkey signers
 
 This example bridges native USDC from Solana to Base using Circle CCTP V2 and
-Circle's Forwarding Service. It exercises the Cash Lite multi-signer shape:
-three distinct Turnkey addresses submitted through `solSendTransactionV2`:
+Circle's Forwarding Service. It exercises a multi-signer shape with three
+distinct Turnkey addresses submitted through `solSendTransactionV2`:
 
 ```ts
 signWiths: [rentPayer, signWith, eventSigner];
