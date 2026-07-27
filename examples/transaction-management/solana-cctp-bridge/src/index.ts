@@ -450,9 +450,7 @@ async function main() {
   const rentPayerSolBalance = await connection.getBalance(
     new PublicKey(rentPayer),
   );
-  console.log(
-    `Rent payer SOL balance: ${lamportsToSol(rentPayerSolBalance)}`,
-  );
+  console.log(`Rent payer SOL balance: ${lamportsToSol(rentPayerSolBalance)}`);
   if (!sponsor && rentPayerSolBalance === 0) {
     throw new Error(
       `Rent payer ${rentPayer} has no SOL. Prefund it for fees + MessageSent rent, or rerun with Turnkey sponsorship enabled.`,
