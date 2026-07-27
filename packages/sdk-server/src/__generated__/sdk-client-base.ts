@@ -4905,48 +4905,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  solSendTransaction = async (
-    input: SdkApiTypes.TSolSendTransactionBody,
-  ): Promise<SdkApiTypes.TSolSendTransactionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/sol_send_transaction",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
-      },
-      "solSendTransactionResult",
-    );
-  };
-
-  stampSolSendTransaction = async (
-    input: SdkApiTypes.TSolSendTransactionBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/sol_send_transaction";
-    const bodyWithType = {
-      parameters,
-      organizationId: organizationId ?? this.config.organizationId,
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   sparkClaimTransfer = async (
     input: SdkApiTypes.TSparkClaimTransferBody,
   ): Promise<SdkApiTypes.TSparkClaimTransferResponse> => {
@@ -5782,5 +5740,77 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
+  };
+
+  solSendTransaction = async (
+    input: SdkApiTypes.TSolSendTransactionBody,
+  ): Promise<SdkApiTypes.TSolSendTransactionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/sol_send_transaction",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+      },
+      "solSendTransactionResult",
+    );
+  };
+
+  stampSolSendTransaction = async (
+    input: SdkApiTypes.TSolSendTransactionBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/sol_send_transaction";
+    const body = JSON.stringify({
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+    });
+    const stamp = await this.stamper.stamp(body);
+    return { body, stamp, url: fullUrl };
+  };
+
+  solSendTransactionV2 = async (
+    input: SdkApiTypes.TSolSendTransactionV2Body,
+  ): Promise<SdkApiTypes.TSolSendTransactionV2Response> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/sol_send_transaction",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+      },
+      "solSendTransactionResultV2",
+    );
+  };
+
+  stampSolSendTransactionV2 = async (
+    input: SdkApiTypes.TSolSendTransactionV2Body,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/sol_send_transaction";
+    const body = JSON.stringify({
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+    });
+    const stamp = await this.stamper.stamp(body);
+    return { body, stamp, url: fullUrl };
   };
 }

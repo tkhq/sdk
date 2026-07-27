@@ -133,6 +133,16 @@ const API_TYPE_OVERRIDES = [
     intentType: "v1EthSendTransactionIntentV2",
     resultType: "v1EthSendTransactionResultV2",
   },
+  {
+    name: "SolSendTransaction",
+    intentType: "v1SolSendTransactionIntent",
+    resultType: "v1SolSendTransactionResult",
+  },
+  {
+    name: "SolSendTransactionV2",
+    intentType: "v1SolSendTransactionIntentV2",
+    resultType: "v1SolSendTransactionResultV2",
+  },
 ];
 
 const OVERRIDDEN_API_TYPE_NAMES = new Set(

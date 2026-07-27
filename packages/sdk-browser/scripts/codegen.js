@@ -42,6 +42,29 @@ const VERSIONED_ACTIVITY_TYPES = {
   ACTIVITY_TYPE_ETH_SEND_TRANSACTION: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
 };
 
+const ACTIVITY_METHOD_OVERRIDES = [
+  {
+    methodName: "solSendTransaction",
+    endpointPath: "/public/v1/submit/sol_send_transaction",
+    activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+    intentType: "v1SolSendTransactionIntent",
+    resultType: "v1SolSendTransactionResult",
+    resultKey: "solSendTransactionResult",
+  },
+  {
+    methodName: "solSendTransactionV2",
+    endpointPath: "/public/v1/submit/sol_send_transaction",
+    activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+    intentType: "v1SolSendTransactionIntentV2",
+    resultType: "v1SolSendTransactionResultV2",
+    resultKey: "solSendTransactionResultV2",
+  },
+];
+
+const OVERRIDDEN_METHOD_NAMES = new Set(
+  ACTIVITY_METHOD_OVERRIDES.map(({ methodName }) => methodName),
+);
+
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "getActivities",
   "getApiKeys",
@@ -127,6 +150,82 @@ function extractLatestVersions(definitions) {
   return latestVersions;
 }
 
+function generateOverrideApiTypes() {
+  return ACTIVITY_METHOD_OVERRIDES.flatMap(
+    ({ methodName, intentType, resultType }) => {
+      const operationName =
+        methodName.charAt(0).toUpperCase() + methodName.slice(1);
+      const bodyType = `T${operationName}Body`;
+      const responseType = `T${operationName}Response`;
+
+      return [
+        `export type ${responseType} = definitions["${resultType}"] & definitions["v1ActivityResponse"];`,
+        `export type ${bodyType} = definitions["${intentType}"] & commandOverrideParams;`,
+        `export type T${operationName}Input = { body: ${bodyType} };`,
+      ];
+    },
+  );
+}
+
+function generateOverrideMethods({
+  methodName,
+  endpointPath,
+  activityType,
+  resultKey,
+}) {
+  const operationName =
+    methodName.charAt(0).toUpperCase() + methodName.slice(1);
+  const bodyType = `T${operationName}Body`;
+  const responseType = `T${operationName}Response`;
+
+  return `
+  ${methodName} = async (
+    input: SdkApiTypes.${bodyType},
+  ): Promise<SdkApiTypes.${responseType}> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const { organizationId, timestampMs, ...rest } = input;
+
+    return this.command(
+      "${endpointPath}",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "${activityType}",
+      },
+      "${resultKey}",
+    );
+  };
+
+  stamp${operationName} = async (
+    input: SdkApiTypes.${bodyType},
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
+    const body = JSON.stringify({
+      parameters,
+      organizationId:
+        organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "${activityType}",
+    });
+    const stamp = await this.stamper.stamp(body);
+    return { body, stamp, url: fullUrl };
+  };`;
+}
+
 // Generators
 const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
   const namespace = swaggerSpec.tags?.find((item) => item.name != null)?.name;
@@ -161,6 +260,10 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
       operationNameWithoutNamespace.charAt(0).toLowerCase() +
       operationNameWithoutNamespace.slice(1)
     }`;
+
+    if (OVERRIDDEN_METHOD_NAMES.has(methodName)) {
+      continue;
+    }
 
     const methodType = methodTypeFromMethodName(methodName);
 
@@ -244,6 +347,8 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
         .map((binding) => `export type ${binding.name} = ${binding.value};`),
     );
   }
+
+  codeBuffer.push(...generateOverrideApiTypes());
 
   await fs.promises.writeFile(
     targetPath,
@@ -418,6 +523,10 @@ export class TurnkeySDKClientBase {
       operationNameWithoutNamespace.slice(1)
     }`;
 
+    if (OVERRIDDEN_METHOD_NAMES.has(methodName)) {
+      continue;
+    }
+
     const methodType = methodTypeFromMethodName(methodName);
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
@@ -540,6 +649,10 @@ export class TurnkeySDKClientBase {
   }`,
       );
     }
+  }
+
+  for (const override of ACTIVITY_METHOD_OVERRIDES) {
+    codeBuffer.push(generateOverrideMethods(override));
   }
 
   // End of the TurnkeySDKClient Class Definition

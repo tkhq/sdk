@@ -57,6 +57,77 @@ function resolveVersionedActivity(entry) {
   };
 }
 
+const ACTIVITY_METHOD_OVERRIDES = [
+  {
+    methodName: "solSendTransaction",
+    endpointPath: "/public/v1/submit/sol_send_transaction",
+    activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+    inputType: "TSolSendTransactionBody",
+    responseType: "TSolSendTransactionResponse",
+    resultKey: "solSendTransactionResult",
+  },
+  {
+    methodName: "solSendTransactionV2",
+    endpointPath: "/public/v1/submit/sol_send_transaction",
+    activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+    inputType: "TSolSendTransactionV2Body",
+    responseType: "TSolSendTransactionV2Response",
+    resultKey: "solSendTransactionResultV2",
+  },
+];
+
+const OVERRIDDEN_METHOD_NAMES = new Set(
+  ACTIVITY_METHOD_OVERRIDES.map(({ methodName }) => methodName),
+);
+
+function generateOverrideMethods({
+  methodName,
+  endpointPath,
+  activityType,
+  inputType,
+  responseType,
+  resultKey,
+}) {
+  const operationName =
+    methodName.charAt(0).toUpperCase() + methodName.slice(1);
+
+  return `
+  ${methodName} = async (
+    input: SdkApiTypes.${inputType},
+  ): Promise<SdkApiTypes.${responseType}> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "${endpointPath}",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "${activityType}",
+      },
+      "${resultKey}",
+    );
+  };
+
+  stamp${operationName} = async (
+    input: SdkApiTypes.${inputType},
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
+    const body = JSON.stringify({
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "${activityType}",
+    });
+    const stamp = await this.stamper.stamp(body);
+    return { body, stamp, url: fullUrl };
+  };`;
+}
+
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "getActivities",
   "getApiKeys",
@@ -293,6 +364,10 @@ export class TurnkeySDKClientBase {
       operationNameWithoutNamespace.slice(1)
     }`;
 
+    if (OVERRIDDEN_METHOD_NAMES.has(methodName)) {
+      continue;
+    }
+
     const methodType = methodTypeFromMethodName(methodName);
 
     const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
@@ -407,6 +482,10 @@ export class TurnkeySDKClientBase {
   }`,
       );
     }
+  }
+
+  for (const override of ACTIVITY_METHOD_OVERRIDES) {
+    codeBuffer.push(generateOverrideMethods(override));
   }
 
   // End of the TurnkeySDKClient Class Definition

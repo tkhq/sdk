@@ -5264,7 +5264,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Submit a transaction intent describing an SVM transaction you would like to broadcast.
+   * Submit a transaction intent describing an SVM transaction you would like to broadcast. Supports single- and multi-signer intents via activity type versioning.
    *
    * Sign the provided `TSolSendTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sol_send_transaction).
    *
