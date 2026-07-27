@@ -589,7 +589,7 @@ export type paths = {
     post: operations["PublicApiService_SignTransaction"];
   };
   "/public/v1/submit/sol_send_transaction": {
-    /** Submit a transaction intent describing an SVM transaction you would like to broadcast. */
+    /** Submit a transaction intent describing an SVM transaction you would like to broadcast. Supports single- and multi-signer intents via activity type versioning. */
     post: operations["PublicApiService_SolSendTransaction"];
   };
   "/public/v1/submit/spark_claim_transfer": {
@@ -1014,6 +1014,7 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
     | "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
     | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION"
+    | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
     | "ACTIVITY_TYPE_INIT_OTP_V3"
     | "ACTIVITY_TYPE_VERIFY_OTP_V2"
     | "ACTIVITY_TYPE_OTP_LOGIN_V2"
@@ -4515,6 +4516,7 @@ export type definitions = {
     createTvcDeploymentIntent?: definitions["v1CreateTvcDeploymentIntent"];
     createTvcManifestApprovalsIntent?: definitions["v1CreateTvcManifestApprovalsIntent"];
     solSendTransactionIntent?: definitions["v1SolSendTransactionIntent"];
+    solSendTransactionIntentV2?: definitions["v1SolSendTransactionIntentV2"];
     initOtpIntentV3?: definitions["v1InitOtpIntentV3"];
     verifyOtpIntentV2?: definitions["v1VerifyOtpIntentV2"];
     otpLoginIntentV2?: definitions["v1OtpLoginIntentV2"];
@@ -5329,6 +5331,7 @@ export type definitions = {
     createTvcDeploymentResult?: definitions["v1CreateTvcDeploymentResult"];
     createTvcManifestApprovalsResult?: definitions["v1CreateTvcManifestApprovalsResult"];
     solSendTransactionResult?: definitions["v1SolSendTransactionResult"];
+    solSendTransactionResultV2?: definitions["v1SolSendTransactionResultV2"];
     initOtpResultV2?: definitions["v1InitOtpResultV2"];
     updateOrganizationNameResult?: definitions["v1UpdateOrganizationNameResult"];
     createSubOrganizationResultV8?: definitions["v1CreateSubOrganizationResultV8"];
@@ -5644,17 +5647,42 @@ export type definitions = {
     /** @description user-provided blockhash for replay protection / deadline control. If omitted and sponsor=true, we fetch a fresh blockhash during execution */
     recentBlockhash?: string;
   };
+  v1SolSendTransactionIntentV2: {
+    /** @description Hex-encoded serialized unsigned Solana transaction (full wire format with zeroed signature placeholders) */
+    unsignedTransaction: string;
+    /** @description Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers. For sponsored transactions this must list every required signer of the transaction in transaction order. */
+    signWiths: string[];
+    /** @description Whether to sponsor this transaction via Gas Station. */
+    sponsor?: boolean;
+    /**
+     * @description CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values.
+     * @enum {string}
+     */
+    caip2:
+      | "solana:mainnet"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d"
+      | "solana:devnet"
+      | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+      | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
+    /** @description User-provided blockhash for replay protection / deadline control. If provided, it is used as-is, including for sponsored transactions (the transaction is only broadcastable while the blockhash is current). If omitted and sponsor=true, a fresh blockhash is fetched during execution. */
+    recentBlockhash?: string;
+  };
   v1SolSendTransactionRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION";
+    type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1SolSendTransactionIntent"];
+    parameters: definitions["v1SolSendTransactionIntentV2"];
     generateAppProofs?: boolean;
   };
   v1SolSendTransactionResult: {
+    /** @description The send_transaction_status ID associated with the transaction submission */
+    sendTransactionStatusId: string;
+  };
+  v1SolSendTransactionResultV2: {
     /** @description The send_transaction_status ID associated with the transaction submission */
     sendTransactionStatusId: string;
   };
@@ -9517,7 +9545,7 @@ export type operations = {
       };
     };
   };
-  /** Submit a transaction intent describing an SVM transaction you would like to broadcast. */
+  /** Submit a transaction intent describing an SVM transaction you would like to broadcast. Supports single- and multi-signer intents via activity type versioning. */
   PublicApiService_SolSendTransaction: {
     parameters: {
       body: {

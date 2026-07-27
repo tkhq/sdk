@@ -71,7 +71,7 @@ body: JSON.stringify({
 await turnkey.apiClient().solSendTransaction({
   organizationId,
   unsignedTransaction,
-  signWith,
+  signWiths: [signWith],
   caip2: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
   sponsor: true,
 });

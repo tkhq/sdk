@@ -4906,8 +4906,8 @@ export class TurnkeySDKClientBase {
   };
 
   solSendTransaction = async (
-    input: SdkApiTypes.TSolSendTransactionBody,
-  ): Promise<SdkApiTypes.TSolSendTransactionResponse> => {
+    input: SdkApiTypes.TSolSendTransactionV2Body,
+  ): Promise<SdkApiTypes.TSolSendTransactionV2Response> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/sol_send_transaction",
@@ -4915,14 +4915,14 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
       },
-      "solSendTransactionResult",
+      "solSendTransactionResultV2",
     );
   };
 
   stampSolSendTransaction = async (
-    input: SdkApiTypes.TSolSendTransactionBody,
+    input: SdkApiTypes.TSolSendTransactionV2Body,
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -4935,7 +4935,7 @@ export class TurnkeySDKClientBase {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

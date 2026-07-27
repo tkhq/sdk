@@ -14,7 +14,6 @@ import {
   type PasskeyAuthResult,
   type v1CreatePolicyIntentV3,
   type v1BootProof,
-  type TSolSendTransactionBody,
   type TGetSendTransactionStatusResponse,
   type ProxyTSignupResponse,
   type TGetWalletsResponse,
@@ -3038,25 +3037,24 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const intent: TSolSendTransactionBody = {
-          unsignedTransaction: transaction.unsignedTransaction,
-          signWith: transaction.signWith,
-          caip2: transaction.caip2,
-          ...(transaction.sponsor !== undefined
-            ? { sponsor: transaction.sponsor }
-            : {}),
-          ...(transaction.recentBlockhash
-            ? { recentBlockhash: transaction.recentBlockhash }
-            : {}),
-        };
-
-        const resp = await this.httpClient.solSendTransaction(
-          {
-            ...intent,
-            organizationId,
-          },
-          stampWith,
-        );
+        // Conditionally call the v2 activity if the signWiths array exists.
+        // TODO (breaking change): eventually, we wont generate the v1 activity at all, remove this check and update the intent.
+        const resp =
+          "signWiths" in transaction
+            ? await this.httpClient.solSendTransactionV2(
+                {
+                  ...transaction,
+                  organizationId,
+                },
+                stampWith,
+              )
+            : await this.httpClient.solSendTransaction(
+                {
+                  ...transaction,
+                  organizationId,
+                },
+                stampWith,
+              );
 
         const id = resp.sendTransactionStatusId;
         if (!id) {

@@ -40,6 +40,10 @@ const VERSIONED_ACTIVITY_TYPES = {
     // Some activities will have multiple generated type versions. Usually we only have one type that defaults to the latest version but in this case, we have an explicit V2.
     typeVersion: "V2",
   },
+  ACTIVITY_TYPE_SOL_SEND_TRANSACTION: {
+    activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+    typeVersion: "V2",
+  },
 };
 
 /**

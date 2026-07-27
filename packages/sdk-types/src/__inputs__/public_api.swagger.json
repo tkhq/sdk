@@ -4139,7 +4139,7 @@
     "/public/v1/submit/sol_send_transaction": {
       "post": {
         "summary": "Broadcast SVM transaction",
-        "description": "Submit a transaction intent describing an SVM transaction you would like to broadcast.",
+        "description": "Submit a transaction intent describing an SVM transaction you would like to broadcast. Supports single- and multi-signer intents via activity type versioning.",
         "operationId": "PublicApiService_SolSendTransaction",
         "responses": {
           "200": {
@@ -5464,6 +5464,7 @@
         "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT",
         "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS",
         "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+        "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
         "ACTIVITY_TYPE_INIT_OTP_V3",
         "ACTIVITY_TYPE_VERIFY_OTP_V2",
         "ACTIVITY_TYPE_OTP_LOGIN_V2",
@@ -13013,6 +13014,9 @@
         "solSendTransactionIntent": {
           "$ref": "#/definitions/v1SolSendTransactionIntent"
         },
+        "solSendTransactionIntentV2": {
+          "$ref": "#/definitions/v1SolSendTransactionIntentV2"
+        },
         "initOtpIntentV3": {
           "$ref": "#/definitions/v1InitOtpIntentV3"
         },
@@ -14943,6 +14947,9 @@
         "solSendTransactionResult": {
           "$ref": "#/definitions/v1SolSendTransactionResult"
         },
+        "solSendTransactionResultV2": {
+          "$ref": "#/definitions/v1SolSendTransactionResultV2"
+        },
         "initOtpResultV2": {
           "$ref": "#/definitions/v1InitOtpResultV2"
         },
@@ -15775,12 +15782,49 @@
       },
       "required": ["unsignedTransaction", "signWith", "caip2"]
     },
+    "v1SolSendTransactionIntentV2": {
+      "type": "object",
+      "properties": {
+        "unsignedTransaction": {
+          "type": "string",
+          "description": "Hex-encoded serialized unsigned Solana transaction (full wire format with zeroed signature placeholders)"
+        },
+        "signWiths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers. For sponsored transactions this must list every required signer of the transaction in transaction order."
+        },
+        "sponsor": {
+          "type": "boolean",
+          "description": "Whether to sponsor this transaction via Gas Station."
+        },
+        "caip2": {
+          "type": "string",
+          "enum": [
+            "solana:mainnet",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+            "solana:devnet",
+            "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+            "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
+          ],
+          "description": "CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values."
+        },
+        "recentBlockhash": {
+          "type": "string",
+          "description": "User-provided blockhash for replay protection / deadline control. If provided, it is used as-is, including for sponsored transactions (the transaction is only broadcastable while the blockhash is current). If omitted and sponsor=true, a fresh blockhash is fetched during execution."
+        }
+      },
+      "required": ["unsignedTransaction", "signWiths", "caip2"]
+    },
     "v1SolSendTransactionRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_SOL_SEND_TRANSACTION"]
+          "enum": ["ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -15791,7 +15835,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1SolSendTransactionIntent"
+          "$ref": "#/definitions/v1SolSendTransactionIntentV2"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -15800,6 +15844,16 @@
       "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1SolSendTransactionResult": {
+      "type": "object",
+      "properties": {
+        "sendTransactionStatusId": {
+          "type": "string",
+          "description": "The send_transaction_status ID associated with the transaction submission"
+        }
+      },
+      "required": ["sendTransactionStatusId"]
+    },
+    "v1SolSendTransactionResultV2": {
       "type": "object",
       "properties": {
         "sendTransactionStatusId": {

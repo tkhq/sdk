@@ -1371,7 +1371,7 @@ export type TSignTransactionBody =
     commandOverrideParams;
 
 export type TSolSendTransactionResponse =
-  operations["PublicApiService_SolSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["solSendTransactionResult"] &
+  operations["PublicApiService_SolSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["solSendTransactionResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TSolSendTransactionInput = { body: TSolSendTransactionBody };

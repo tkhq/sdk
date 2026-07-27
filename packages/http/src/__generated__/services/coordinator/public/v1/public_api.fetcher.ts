@@ -7295,7 +7295,7 @@ export type TSolSendTransactionBody =
 /**
  * Broadcast SVM transaction
  *
- * Submit a transaction intent describing an SVM transaction you would like to broadcast.
+ * Submit a transaction intent describing an SVM transaction you would like to broadcast. Supports single- and multi-signer intents via activity type versioning.
  *
  * `POST /public/v1/submit/sol_send_transaction`
  */

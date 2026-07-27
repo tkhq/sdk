@@ -191,7 +191,7 @@ async function sweepTokens(
       .solSendTransaction({
         organizationId,
         unsignedTransaction,
-        signWith,
+        signWiths: [signWith],
         caip2: network.caip2,
         sponsor,
       });
@@ -273,7 +273,7 @@ async function sweepSol(
     .solSendTransaction({
       organizationId,
       unsignedTransaction,
-      signWith,
+      signWiths: [signWith],
       caip2: network.caip2,
       sponsor,
     });

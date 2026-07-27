@@ -6198,9 +6198,9 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
       },
-      "solSendTransactionResult",
+      "solSendTransactionResultV2",
     );
   };
 
@@ -6222,7 +6222,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

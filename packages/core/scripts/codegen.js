@@ -139,6 +139,22 @@ const ACTIVITY_METHOD_OVERRIDES = [
     responseType: "TEthSendTransactionV2Response",
     resultKey: "ethSendTransactionResultV2",
   },
+  {
+    methodName: "solSendTransaction",
+    endpointPath: "/public/v1/submit/sol_send_transaction",
+    activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+    inputType: "TSolSendTransactionBody",
+    responseType: "TSolSendTransactionResponse",
+    resultKey: "solSendTransactionResult",
+  },
+  {
+    methodName: "solSendTransactionV2",
+    endpointPath: "/public/v1/submit/sol_send_transaction",
+    activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+    inputType: "TSolSendTransactionV2Body",
+    responseType: "TSolSendTransactionV2Response",
+    resultKey: "solSendTransactionResultV2",
+  },
 ];
 
 const OVERRIDDEN_METHOD_NAMES = new Set(
