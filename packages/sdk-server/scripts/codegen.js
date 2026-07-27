@@ -293,7 +293,14 @@ export class TurnkeySDKClientBase {
       operationNameWithoutNamespace.slice(1)
     }`;
 
-    const methodType = methodTypeFromMethodName(methodName);
+    let methodType = methodTypeFromMethodName(methodName);
+    // Earn read endpoints live under /query/ but aren't named
+    // get/list/test/validate (e.g. earnVaults, earnPositions), so the
+    // name-based heuristic misclassifies them as submit activities. Pin them
+    // to "query" by path.
+    if (endpointPath.includes("/query/earn_")) {
+      methodType = "query";
+    }
 
     const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
       .replace(/([a-z0-9])([A-Z])/g, "$1_$2")

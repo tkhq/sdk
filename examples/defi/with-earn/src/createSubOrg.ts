@@ -1,4 +1,3 @@
-import { createActivityPoller } from "@turnkey/http";
 import { newClient } from "./common";
 
 // One-time setup, run from the PARENT org: create a sub-org holding the demo
@@ -38,43 +37,28 @@ async function main() {
     } as (typeof rootUsers)[number]);
   }
 
-  const activityPoller = createActivityPoller({
-    client,
-    requestFn: client.createSubOrganization,
-  });
-  const activity = await activityPoller({
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
-    timestampMs: String(Date.now()),
+  const { subOrganizationId, wallet } = await client.createSubOrganization({
     organizationId,
-    parameters: {
-      subOrganizationName: process.env.SUB_ORG_NAME ?? "Earn Demo Sub-Org",
-      rootQuorumThreshold: 1,
-      rootUsers,
-      wallet: {
-        walletName: "Earn Demo Wallet",
-        accounts: [
-          {
-            curve: "CURVE_SECP256K1",
-            pathFormat: "PATH_FORMAT_BIP32",
-            path: "m/44'/60'/0'/0/0",
-            addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-          },
-        ],
-      },
+    subOrganizationName: process.env.SUB_ORG_NAME ?? "Earn Demo Sub-Org",
+    rootQuorumThreshold: 1,
+    rootUsers,
+    wallet: {
+      walletName: "Earn Demo Wallet",
+      accounts: [
+        {
+          curve: "CURVE_SECP256K1",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/60'/0'/0/0",
+          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+        },
+      ],
     },
   });
 
-  const result =
-    activity.result.createSubOrganizationResultV8 ??
-    activity.result.createSubOrganizationResultV7;
-  if (!result) {
-    throw new Error(`create sub-org activity ${activity.id} completed without a result`);
-  }
-
   console.log(`✅ Sub-org created`);
   console.log(`\nPaste into .env.local:`);
-  console.log(`  TURNKEY_ORGANIZATION_ID="${result.subOrganizationId}"`);
-  console.log(`  SIGN_WITH="${result.wallet?.addresses[0]}"`);
+  console.log(`  TURNKEY_ORGANIZATION_ID="${subOrganizationId}"`);
+  console.log(`  SIGN_WITH="${wallet?.addresses[0]}"`);
   console.log(
     `\n(TURNKEY_API_PUBLIC_KEY/PRIVATE_KEY: the key pair for ${publicKey})`,
   );

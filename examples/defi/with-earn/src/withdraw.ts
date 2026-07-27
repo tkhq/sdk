@@ -1,4 +1,3 @@
-import { createActivityPoller } from "@turnkey/http";
 import {
   ask,
   CHAIN_CAIP2,
@@ -27,32 +26,19 @@ async function main() {
 
   console.log(`\n🏧 Withdrawing ${usd(amountValue)} back to ${signWith}…`);
 
-  const activityPoller = createActivityPoller({
-    client,
-    requestFn: client.earnWithdraw,
-  });
-  const activity = await activityPoller({
-    type: "ACTIVITY_TYPE_EARN_WITHDRAW",
-    timestampMs: String(Date.now()),
+  const { withdrawRequestId } = await client.earnWithdraw({
     organizationId,
-    parameters: {
-      wrapperAddress: vault.wrapperAddress!,
-      signWith,
-      amountValue,
-      chainCaip2: CHAIN_CAIP2,
-      sponsor,
-    },
+    wrapperAddress: vault.wrapperAddress!,
+    signWith,
+    amountValue,
+    chainCaip2: CHAIN_CAIP2,
+    sponsor,
   });
-
-  const result = activity.result.earnWithdrawResult;
-  if (!result) {
-    throw new Error(`withdraw activity ${activity.id} completed without a result`);
-  }
 
   await pollEarnStatus("withdraw", async () => {
     const { status, withdrawTxHash, error } = await client.earnWithdrawStatus({
       organizationId,
-      withdrawRequestId: result.withdrawRequestId,
+      withdrawRequestId,
     });
     return { status, txHash: withdrawTxHash, error };
   });

@@ -4827,6 +4827,294 @@
         },
         "tags": ["PublicApiService"]
       }
+    },
+    "/public/v1/query/earn_vaults": {
+      "post": {
+        "summary": "Get Earn vault catalog",
+        "description": "Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled.",
+        "operationId": "PublicApiService_EarnVaults",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EarnVaultsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EarnVaultsRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/query/earn_enabled_vaults": {
+      "post": {
+        "summary": "Get Earn enabled vaults",
+        "description": "Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions.",
+        "operationId": "PublicApiService_EarnEnabledVaults",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EarnEnabledVaultsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EarnEnabledVaultsRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/query/earn_positions": {
+      "post": {
+        "summary": "Get Earn positions",
+        "description": "Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees.",
+        "operationId": "PublicApiService_EarnPositions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EarnPositionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EarnPositionsRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/query/earn_deposit_status": {
+      "post": {
+        "summary": "Get Earn deposit status",
+        "description": "Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path).",
+        "operationId": "PublicApiService_EarnDepositStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EarnDepositStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EarnDepositStatusRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/query/earn_withdraw_status": {
+      "post": {
+        "summary": "Get Earn withdraw status",
+        "description": "Poll the status of a withdrawal by its withdraw_request_id.",
+        "operationId": "PublicApiService_EarnWithdrawStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EarnWithdrawStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EarnWithdrawStatusRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/query/earn_deploy_status": {
+      "post": {
+        "summary": "Get Earn deploy status",
+        "description": "Poll the status of a wrapper deployment by its deploy_request_id.",
+        "operationId": "PublicApiService_EarnDeployStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EarnDeployStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EarnDeployStatusRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/submit/earn_deposit": {
+      "post": {
+        "summary": "Deposit into Earn vault",
+        "description": "Deposit assets from a wallet into an enabled yield vault.",
+        "operationId": "PublicApiService_EarnDeposit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EarnDepositRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/submit/earn_withdraw": {
+      "post": {
+        "summary": "Withdraw from Earn vault",
+        "description": "Withdraw assets or redeem shares from an enabled yield vault.",
+        "operationId": "PublicApiService_EarnWithdraw",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EarnWithdrawRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/submit/earn_deploy_wrapper": {
+      "post": {
+        "summary": "Deploy Earn wrapper",
+        "description": "Enable a yield vault for an organization by deploying its fee wrapper. Must be called before any deposits into the vault.",
+        "operationId": "PublicApiService_EarnDeployWrapper",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EarnDeployWrapperRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
     }
   },
   "definitions": {
@@ -7015,7 +7303,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Read Write Session - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Read Write Session - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -7037,7 +7325,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Read Write Session - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Read Write Session - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -9478,9 +9766,22 @@
             "eip155:4217"
           ],
           "description": "CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base)."
+        },
+        "clientFeeBps": {
+          "type": "string",
+          "description": "Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield."
+        },
+        "clientFeeWallet": {
+          "type": "string",
+          "description": "The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address."
         }
       },
-      "required": ["vaultAddress", "chainCaip2"]
+      "required": [
+        "vaultAddress",
+        "chainCaip2",
+        "clientFeeBps",
+        "clientFeeWallet"
+      ]
     },
     "v1EarnDeployWrapperResult": {
       "type": "object",
@@ -9493,19 +9794,19 @@
           "type": "string",
           "description": "Address of the deployed fee splitter (PaymentSplitter for Morpho, RevenueSplitterOwner for Aave)."
         },
-        "deployTxHash": {
+        "deployRequestId": {
           "type": "string",
-          "description": "Transaction hash of the wrapper deployment."
+          "description": "Identifier to poll deploy status."
         }
       },
-      "required": ["wrapperAddress", "splitterAddress", "deployTxHash"]
+      "required": ["wrapperAddress", "splitterAddress", "deployRequestId"]
     },
     "v1EarnDepositIntent": {
       "type": "object",
       "properties": {
-        "vaultAddress": {
+        "wrapperAddress": {
           "type": "string",
-          "description": "Address of the underlying yield vault to deposit into. The org must have an enabled wrapper for this vault."
+          "description": "Address of the deployed Earn wrapper to deposit into, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers."
         },
         "signWith": {
           "type": "string",
@@ -9532,41 +9833,24 @@
           "description": "Whether to sponsor this transaction via Gas Station."
         }
       },
-      "required": ["vaultAddress", "signWith", "assets", "chainCaip2"]
+      "required": ["wrapperAddress", "signWith", "assets", "chainCaip2"]
     },
     "v1EarnDepositResult": {
       "type": "object",
       "properties": {
-        "depositTxHash": {
-          "type": "string",
-          "description": "Transaction hash of the deposit."
-        },
-        "sharesMinted": {
-          "type": "string",
-          "description": "Number of wrapper shares minted to the depositor, in raw on-chain units."
-        },
-        "wrapperAddress": {
-          "type": "string",
-          "description": "Address of the fee wrapper the deposit was routed to."
-        },
         "depositRequestId": {
           "type": "string",
-          "description": "Identifier to poll deposit status via EarnDepositStatus (for the async/sponsored path)."
+          "description": "Identifier to poll deposit status and tx hash via EarnDepositStatus."
         }
       },
-      "required": [
-        "depositTxHash",
-        "sharesMinted",
-        "wrapperAddress",
-        "depositRequestId"
-      ]
+      "required": ["depositRequestId"]
     },
     "v1EarnWithdrawIntent": {
       "type": "object",
       "properties": {
-        "vaultAddress": {
+        "wrapperAddress": {
           "type": "string",
-          "description": "Address of the underlying yield vault to withdraw from. The org must have an enabled wrapper for this vault."
+          "description": "Address of the deployed Earn wrapper holding the position to withdraw from, from EarnPositions. Must be one of the org's deployed wrappers."
         },
         "signWith": {
           "type": "string",
@@ -9588,50 +9872,22 @@
           "type": "boolean",
           "description": "Whether to sponsor this transaction via Gas Station."
         },
-        "amountType": {
-          "type": "string",
-          "enum": ["SHARES", "ASSETS"],
-          "description": "Whether amount_value is denominated in shares or assets. 'SHARES' redeems wrapper shares (calls redeem()); 'ASSETS' withdraws underlying assets (calls withdraw(), enabling yield-only claims)."
-        },
         "amountValue": {
           "type": "string",
-          "description": "The amount to withdraw, in raw on-chain units, interpreted according to amount_type."
+          "description": "The amount of the underlying asset to withdraw, in raw on-chain units. Pass 'MAX' to withdraw the entire position."
         }
       },
-      "required": [
-        "vaultAddress",
-        "signWith",
-        "chainCaip2",
-        "amountType",
-        "amountValue"
-      ]
+      "required": ["wrapperAddress", "signWith", "chainCaip2", "amountValue"]
     },
     "v1EarnWithdrawResult": {
       "type": "object",
       "properties": {
-        "withdrawTxHash": {
-          "type": "string",
-          "description": "Transaction hash of the withdrawal."
-        },
         "withdrawRequestId": {
           "type": "string",
-          "description": "Identifier to poll withdrawal status via EarnWithdrawStatus."
-        },
-        "assetsReceived": {
-          "type": "string",
-          "description": "Amount of the underlying asset received, in raw on-chain units."
-        },
-        "sharesBurned": {
-          "type": "string",
-          "description": "Number of wrapper shares burned, in raw on-chain units."
+          "description": "Identifier to poll withdrawal status and tx hash via EarnWithdrawStatus."
         }
       },
-      "required": [
-        "withdrawTxHash",
-        "withdrawRequestId",
-        "assetsReceived",
-        "sharesBurned"
-      ]
+      "required": ["withdrawRequestId"]
     },
     "v1Effect": {
       "type": "string",
@@ -9676,7 +9932,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -9718,7 +9974,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -9760,7 +10016,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Email Auth - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -13697,7 +13953,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to Oauth - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to Oauth - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -13935,7 +14191,7 @@
         },
         "apiKeyName": {
           "type": "string",
-          "description": "Optional human-readable name for an API Key. If none provided, default to OTP Auth - \u003cTimestamp\u003e"
+          "description": "Optional human-readable name for an API Key. If none provided, default to OTP Auth - <Timestamp>"
         },
         "expirationSeconds": {
           "type": "string",
@@ -16546,7 +16802,7 @@
         },
         "publicDomain": {
           "type": "string",
-          "description": "The public domain for ingress to this TVC App (in the format \"app-\u003cID\u003e.turnkey.cloud\")."
+          "description": "The public domain for ingress to this TVC App (in the format \"app-<ID>.turnkey.cloud\")."
         },
         "enableDebugModeDeployments": {
           "type": "boolean",
@@ -18711,6 +18967,451 @@
         }
       },
       "required": ["eventType"]
+    },
+    "v1EarnVaultsResponse": {
+      "type": "object",
+      "properties": {
+        "vaults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EarnVault"
+          },
+          "description": "The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor."
+        }
+      }
+    },
+    "v1EarnVaultsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization. Annotates which vaults the organization has already enabled."
+        },
+        "provider": {
+          "$ref": "#/definitions/v1EarnProvider",
+          "description": "Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers."
+        },
+        "caip19": {
+          "type": "string",
+          "description": "CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier."
+        },
+        "paginationOptions": {
+          "$ref": "#/definitions/v1Pagination",
+          "description": "Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page."
+        }
+      },
+      "required": ["organizationId", "caip19"]
+    },
+    "v1EarnEnabledVaultsResponse": {
+      "type": "object",
+      "properties": {
+        "enabledVaults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EarnEnabledVault"
+          },
+          "description": "The organization's deployed wrappers."
+        }
+      }
+    },
+    "v1EarnEnabledVaultsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "provider": {
+          "$ref": "#/definitions/v1EarnProvider",
+          "description": "Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers."
+        },
+        "caip19": {
+          "type": "string",
+          "description": "Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1EarnPositionsResponse": {
+      "type": "object",
+      "properties": {
+        "positions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EarnPosition"
+          },
+          "description": "The wallet's active Earn positions."
+        }
+      }
+    },
+    "v1EarnPositionsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "walletAddress": {
+          "type": "string",
+          "description": "The wallet address to return positions for."
+        }
+      },
+      "required": ["organizationId", "walletAddress"]
+    },
+    "v1EarnDepositStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "COMPLETED", "FAILED"],
+          "description": "Status of the deposit."
+        },
+        "depositTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the deposit, once available."
+        },
+        "error": {
+          "type": "string",
+          "description": "Reason the deposit transaction failed, when status is FAILED."
+        }
+      },
+      "required": ["status"]
+    },
+    "v1EarnDepositStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "depositRequestId": {
+          "type": "string",
+          "description": "The deposit_request_id returned by EarnDeposit."
+        }
+      },
+      "required": ["organizationId", "depositRequestId"]
+    },
+    "v1EarnWithdrawStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "COMPLETED", "FAILED"],
+          "description": "Status of the withdrawal."
+        },
+        "withdrawTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the withdrawal, once available."
+        },
+        "error": {
+          "type": "string",
+          "description": "Reason the withdrawal transaction failed, when status is FAILED."
+        }
+      },
+      "required": ["status"]
+    },
+    "v1EarnWithdrawStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "withdrawRequestId": {
+          "type": "string",
+          "description": "The withdraw_request_id returned by EarnWithdraw."
+        }
+      },
+      "required": ["organizationId", "withdrawRequestId"]
+    },
+    "v1EarnDeployStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "COMPLETED", "FAILED"],
+          "description": "Status of the wrapper deployment."
+        },
+        "deployTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the deployment, once available."
+        },
+        "error": {
+          "type": "string",
+          "description": "Reason the deployment transaction failed, when status is FAILED."
+        }
+      },
+      "required": ["status"]
+    },
+    "v1EarnDeployStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "deployRequestId": {
+          "type": "string",
+          "description": "The deploy_request_id returned by EarnDeployWrapper."
+        }
+      },
+      "required": ["organizationId", "deployRequestId"]
+    },
+    "v1EarnDepositRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_EARN_DEPOSIT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1EarnDepositIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1EarnWithdrawRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_EARN_WITHDRAW"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1EarnWithdrawIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1EarnDeployWrapperRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1EarnDeployWrapperIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1EarnVault": {
+      "type": "object",
+      "properties": {
+        "vaultAddress": {
+          "type": "string",
+          "description": "Address of the underlying yield vault."
+        },
+        "provider": {
+          "$ref": "#/definitions/v1EarnProvider",
+          "description": "Yield provider for the vault."
+        },
+        "caip19": {
+          "type": "string",
+          "description": "CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier."
+        },
+        "tvl": {
+          "type": "string",
+          "description": "Total value locked in the vault, in raw on-chain units of the underlying asset. The catalog is sorted by the USD value of this."
+        },
+        "apyPct": {
+          "type": "string",
+          "description": "Current annual percentage yield, expressed as a decimal fraction (e.g., '0.0812' for 8.12%)."
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the organization has enabled this vault."
+        },
+        "display": {
+          "$ref": "#/definitions/v1EarnValueDisplay",
+          "description": "Normalized TVL values for display purposes only (usd + crypto). Do not do arithmetic with these; use tvl instead."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable vault name from the provider (e.g. 'Steakhouse Prime USDC' for Morpho; the reserve symbol for Aave)."
+        },
+        "curator": {
+          "type": "string",
+          "description": "Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave)."
+        }
+      }
+    },
+    "v1EarnProvider": {
+      "type": "string",
+      "enum": ["EARN_PROVIDER_MORPHO", "EARN_PROVIDER_AAVE"]
+    },
+    "v1EarnEnabledVault": {
+      "type": "object",
+      "properties": {
+        "vaultAddress": {
+          "type": "string",
+          "description": "Address of the underlying yield vault."
+        },
+        "wrapperAddress": {
+          "type": "string",
+          "description": "Address of the deployed fee wrapper (the deposit target)."
+        },
+        "provider": {
+          "$ref": "#/definitions/v1EarnProvider",
+          "description": "Yield provider for the vault."
+        },
+        "caip19": {
+          "type": "string",
+          "description": "CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier."
+        },
+        "apyPct": {
+          "type": "string",
+          "description": "Gross annual percentage yield, expressed as a decimal fraction (before Turnkey and client fees)."
+        },
+        "totalDeposited": {
+          "type": "string",
+          "description": "Total deposited through this wrapper (wrapper TVL), in raw on-chain units of the underlying asset."
+        },
+        "display": {
+          "$ref": "#/definitions/v1EarnValueDisplay",
+          "description": "Normalized total-deposited values for display only (usd + crypto). Do not do arithmetic with these; use total_deposited instead."
+        },
+        "netApyPct": {
+          "type": "string",
+          "description": "Annual percentage yield net of the Turnkey and client performance fees, expressed as a decimal fraction."
+        },
+        "clientFeeBps": {
+          "type": "string",
+          "description": "Client performance fee taken on yield, in basis points. Currently org-wide; moving to a per-vault setting."
+        },
+        "depositsDisabled": {
+          "type": "boolean",
+          "description": "When true, deposits to this wrapper are rejected; withdrawals are unaffected. Toggled via EarnSetWrapperState."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable vault name from the provider (e.g. 'Steakhouse Prime USDC' for Morpho; the reserve symbol for Aave)."
+        },
+        "curator": {
+          "type": "string",
+          "description": "Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave)."
+        }
+      }
+    },
+    "v1EarnPosition": {
+      "type": "object",
+      "properties": {
+        "vaultAddress": {
+          "type": "string",
+          "description": "Address of the underlying yield vault."
+        },
+        "wrapperAddress": {
+          "type": "string",
+          "description": "Address of the fee wrapper holding the position."
+        },
+        "provider": {
+          "$ref": "#/definitions/v1EarnProvider",
+          "description": "Yield provider for the vault."
+        },
+        "caip19": {
+          "type": "string",
+          "description": "CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier."
+        },
+        "currentValue": {
+          "type": "string",
+          "description": "Current value of the position in the underlying asset, in raw on-chain units (already net of the wrapper fee)."
+        },
+        "totalDeposited": {
+          "type": "string",
+          "description": "Lifetime total deposited into this position, in raw on-chain units."
+        },
+        "totalWithdrawn": {
+          "type": "string",
+          "description": "Lifetime total withdrawn from this position, in raw on-chain units."
+        },
+        "display": {
+          "$ref": "#/definitions/v1EarnPositionDisplay",
+          "description": "USD + crypto renderings for display only. Do not do arithmetic with these."
+        },
+        "depositsDisabled": {
+          "type": "boolean",
+          "description": "When true, deposits to this wrapper are rejected; withdrawals are unaffected. Toggled via EarnSetWrapperState."
+        }
+      }
+    },
+    "v1EarnValueDisplay": {
+      "type": "object",
+      "properties": {
+        "usd": {
+          "type": "string",
+          "description": "USD value, for display only."
+        },
+        "crypto": {
+          "type": "string",
+          "description": "Normalized amount in the asset's own units, for display only."
+        }
+      }
+    },
+    "v1EarnPositionDisplay": {
+      "type": "object",
+      "properties": {
+        "currentValueUsd": {
+          "type": "string",
+          "description": "Current value in USD, for display only."
+        },
+        "totalDepositedUsd": {
+          "type": "string",
+          "description": "Total deposited in USD, for display only."
+        },
+        "totalWithdrawnUsd": {
+          "type": "string",
+          "description": "Total withdrawn in USD, for display only."
+        },
+        "currentValueCrypto": {
+          "type": "string",
+          "description": "Current value in the asset's own units, for display only."
+        },
+        "totalDepositedCrypto": {
+          "type": "string",
+          "description": "Total deposited in the asset's own units, for display only."
+        },
+        "totalWithdrawnCrypto": {
+          "type": "string",
+          "description": "Total withdrawn in the asset's own units, for display only."
+        }
+      }
     }
   },
   "securityDefinitions": {

@@ -39,7 +39,9 @@ async function main() {
       : usd(v.tvl);
     const enabled = v.enabled ? `  ${C.green}✓ enabled${C.reset}` : "";
     const name = v.name ?? fallbackNames[i] ?? "?";
-    const curator = v.curator ? `  ${C.dim}curated by ${v.curator}${C.reset}` : "";
+    const curator = v.curator
+      ? `  ${C.dim}curated by ${v.curator}${C.reset}`
+      : "";
 
     console.log(`   ${C.bold}${name}${C.reset}${curator}${enabled}`);
     console.log(

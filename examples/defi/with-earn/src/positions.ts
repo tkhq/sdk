@@ -1,4 +1,10 @@
-import { header, newClient, printPositions, requireEnv, USER_TAG } from "./common";
+import {
+  header,
+  newClient,
+  printPositions,
+  requireEnv,
+  USER_TAG,
+} from "./common";
 
 // Steps 5 and 7: the end user's position — current value, deposits,
 // withdrawals, and accrued yield, in USD.

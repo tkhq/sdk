@@ -405,7 +405,14 @@ function generateApiTypes(swagger, prefix = "") {
       continue;
     }
 
-    const methodType = methodTypeFromMethodName(methodName);
+    let methodType = methodTypeFromMethodName(methodName);
+    // Earn read endpoints live under /query/ but aren't named
+    // get/list/test/validate (e.g. earnVaults, earnPositions), so the
+    // name-based heuristic misclassifies them as submit activities. Pin them
+    // to "query" by path.
+    if (path.includes("/query/earn_")) {
+      methodType = "query";
+    }
 
     // Get response schema $ref
     const responseSchema =

@@ -1,12 +1,15 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
-import { TurnkeyClient, type TurnkeyApiTypes } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import {
+  Turnkey,
+  type TurnkeyApiClient,
+  type v1EarnDepositIntent,
+} from "@turnkey/sdk-server";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-export type ChainCaip2 = TurnkeyApiTypes["v1EarnDepositIntent"]["chainCaip2"];
+export type ChainCaip2 = v1EarnDepositIntent["chainCaip2"];
 
 export const CHAIN_CAIP2 = (process.env.CHAIN_CAIP2 ??
   "eip155:8453") as ChainCaip2;
@@ -19,30 +22,31 @@ export const ASSET_CAIP19 =
 export function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
-    throw new Error(`missing required env var ${name} (see .env.local.example)`);
+    throw new Error(
+      `missing required env var ${name} (see .env.local.example)`,
+    );
   }
   return value;
 }
 
-// newClient builds a stamping TurnkeyClient from `${prefix}_*` env vars.
-// "PARENT" is the org that deploys the wrapper; "TURNKEY" is the demo org.
+// newClient builds a stamping sdk-server api client from `${prefix}_*` env
+// vars. "PARENT" is the org that deploys the wrapper; "TURNKEY" is the demo org.
 export function newClient(prefix: "PARENT" | "TURNKEY"): {
-  client: TurnkeyClient;
+  client: TurnkeyApiClient;
   organizationId: string;
 } {
-  const orgVar =
-    prefix === "PARENT" ? "PARENT_ORGANIZATION_ID" : "TURNKEY_ORGANIZATION_ID";
+  const organizationId = requireEnv(
+    prefix === "PARENT" ? "PARENT_ORGANIZATION_ID" : "TURNKEY_ORGANIZATION_ID",
+  );
 
-  return {
-    client: new TurnkeyClient(
-      { baseUrl: requireEnv("TURNKEY_BASE_URL") },
-      new ApiKeyStamper({
-        apiPublicKey: requireEnv(`${prefix}_API_PUBLIC_KEY`),
-        apiPrivateKey: requireEnv(`${prefix}_API_PRIVATE_KEY`),
-      }),
-    ),
-    organizationId: requireEnv(orgVar),
-  };
+  const client = new Turnkey({
+    apiBaseUrl: requireEnv("TURNKEY_BASE_URL"),
+    apiPublicKey: requireEnv(`${prefix}_API_PUBLIC_KEY`),
+    apiPrivateKey: requireEnv(`${prefix}_API_PRIVATE_KEY`),
+    defaultOrganizationId: organizationId,
+  }).apiClient();
+
+  return { client, organizationId };
 }
 
 type EarnRequestStatus = {
@@ -70,10 +74,14 @@ export async function pollEarnStatus(
       return txHash;
     }
     if (status === "FAILED") {
-      throw new Error(`${label} FAILED: ${error ?? "no error reported"} (tx: ${txHash ?? "n/a"})`);
+      throw new Error(
+        `${label} FAILED: ${error ?? "no error reported"} (tx: ${txHash ?? "n/a"})`,
+      );
     }
     if (Date.now() > deadline) {
-      throw new Error(`${label} did not resolve in time (last status: ${status})`);
+      throw new Error(
+        `${label} did not resolve in time (last status: ${status})`,
+      );
     }
 
     console.log(`… ${label} status: ${status}`);
@@ -183,16 +191,20 @@ export async function vaultNamesOnChain(
     })),
   });
 
-  return results.map((r) => (r.status === "success" ? (r.result as string) : "?"));
+  return results.map((r) =>
+    r.status === "success" ? (r.result as string) : "?",
+  );
 }
 
 // printOrgVaults renders the parent org's enabled vaults (the platform
 // management view) and returns them.
 export async function printOrgVaults(
-  client: TurnkeyClient,
+  client: TurnkeyApiClient,
   organizationId: string,
 ) {
-  const { enabledVaults = [] } = await client.earnEnabledVaults({ organizationId });
+  const { enabledVaults = [] } = await client.earnEnabledVaults({
+    organizationId,
+  });
 
   const fallbackNames = enabledVaults.some((ev) => !ev.name)
     ? await vaultNamesOnChain(enabledVaults.map((ev) => ev.vaultAddress))
@@ -205,11 +217,13 @@ export async function printOrgVaults(
   for (const [i, ev] of enabledVaults.entries()) {
     const label = ev.name ?? fallbackNames[i] ?? `${ev.provider} vault`;
     const curator = ev.curator ? ` (curated by ${ev.curator})` : "";
-    console.log(`   ${C.bold}${label}${C.reset}${curator} — ${ev.vaultAddress}`);
+    console.log(
+      `   ${C.bold}${label}${C.reset}${curator} — ${ev.vaultAddress}`,
+    );
     console.log(`     wrapper:          ${ev.wrapperAddress}`);
     console.log(`     net APY:          ${pct(ev.netApyPct)}`);
     console.log(
-      `     fees:             client ${Number(ev.clientFeeBps) / 100}% · turnkey ${Number(ev.turnkeyFeeBps) / 100}% of yield`,
+      `     client fee:       ${Number(ev.clientFeeBps) / 100}% of yield`,
     );
     console.log(`     total deposited:  ${usd(ev.totalDeposited)} (all users)`);
   }
@@ -219,10 +233,16 @@ export async function printOrgVaults(
 
 // resolveWrapper returns the enabled-vault entry to transact against:
 // VAULT_ADDRESS from env when set, else the org's first enabled vault.
-export async function resolveWrapper(client: TurnkeyClient, organizationId: string) {
-  const { enabledVaults = [] } = await client.earnEnabledVaults({ organizationId });
+export async function resolveWrapper(
+  client: TurnkeyApiClient,
+  organizationId: string,
+) {
+  const { enabledVaults = [] } = await client.earnEnabledVaults({
+    organizationId,
+  });
 
-  const vaultAddress = process.env.VAULT_ADDRESS || enabledVaults[0]?.vaultAddress;
+  const vaultAddress =
+    process.env.VAULT_ADDRESS || enabledVaults[0]?.vaultAddress;
   const vault = enabledVaults.find(
     (ev) => ev.vaultAddress?.toLowerCase() === vaultAddress?.toLowerCase(),
   );
@@ -239,7 +259,7 @@ export async function resolveWrapper(client: TurnkeyClient, organizationId: stri
 // printPositions fetches and prints the wallet's earn positions (in USD),
 // returning them for assertions.
 export async function printPositions(
-  client: TurnkeyClient,
+  client: TurnkeyApiClient,
   organizationId: string,
   walletAddress: string,
   label: string,
@@ -260,11 +280,12 @@ export async function printPositions(
     console.log("   (none)");
   }
   for (const [i, p] of positions.entries()) {
-    const net =
-      BigInt(p.totalDeposited ?? 0) - BigInt(p.totalWithdrawn ?? 0);
+    const net = BigInt(p.totalDeposited ?? 0) - BigInt(p.totalWithdrawn ?? 0);
     const yieldUnits = BigInt(p.currentValue ?? 0) - net;
 
-    console.log(`   ${C.bold}${names[i] ?? `${p.provider} vault`}${C.reset} — ${p.vaultAddress}`);
+    console.log(
+      `   ${C.bold}${names[i] ?? `${p.provider} vault`}${C.reset} — ${p.vaultAddress}`,
+    );
     console.log(`     current value:    ${usd(p.currentValue)}`);
     console.log(`     total deposited:  ${usd(p.totalDeposited)}`);
     console.log(`     total withdrawn:  ${usd(p.totalWithdrawn)}`);

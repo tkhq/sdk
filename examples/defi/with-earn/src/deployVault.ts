@@ -1,4 +1,3 @@
-import { createActivityPoller } from "@turnkey/http";
 import {
   ask,
   ASSET_CAIP19,
@@ -39,44 +38,45 @@ async function main() {
   );
 
   if (chosen?.enabled) {
-    console.log(`${C.green}✓${C.reset} Vault is already enabled for this org — nothing to deploy.`);
+    console.log(
+      `${C.green}✓${C.reset} Vault is already enabled for this org — nothing to deploy.`,
+    );
     return;
   }
 
   const clientFeeBps =
     argFeeBps ??
-    (await ask("Client fee (bps of yield)", process.env.CLIENT_FEE_BPS ?? "2000"));
+    (await ask(
+      "Client fee (bps of yield)",
+      process.env.CLIENT_FEE_BPS ?? "2000",
+    ));
   const clientFeeWallet =
     argFeeWallet ??
-    (await ask("Client fee wallet (parent org address)", requireEnv("CLIENT_FEE_WALLET")));
+    (await ask(
+      "Client fee wallet (parent org address)",
+      requireEnv("CLIENT_FEE_WALLET"),
+    ));
 
   console.log(`\n🚀 Deploying wrapper for ${vaultAddress} on ${CHAIN_CAIP2}…`);
 
-  const activityPoller = createActivityPoller({
-    client,
-    requestFn: client.earnDeployWrapper,
-  });
-  const activity = await activityPoller({
-    type: "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER",
-    timestampMs: String(Date.now()),
-    organizationId,
-    parameters: { vaultAddress, chainCaip2: CHAIN_CAIP2, clientFeeBps, clientFeeWallet },
-  });
+  const { wrapperAddress, splitterAddress, deployRequestId } =
+    await client.earnDeployWrapper({
+      organizationId,
+      vaultAddress,
+      chainCaip2: CHAIN_CAIP2,
+      clientFeeBps,
+      clientFeeWallet,
+    });
 
-  const result = activity.result.earnDeployWrapperResult;
-  if (!result) {
-    throw new Error(`deploy activity ${activity.id} completed without a result`);
-  }
+  console.log(`   wrapper:  ${wrapperAddress}`);
+  console.log(`   splitter: ${splitterAddress}`);
 
-  console.log(`   wrapper:  ${result.wrapperAddress}`);
-  console.log(`   splitter: ${result.splitterAddress}`);
-
-  // The activity completes at broadcast-enqueue time; wait for the deploy tx
-  // to actually land on-chain.
+  // earnDeployWrapper resolves at broadcast-enqueue time; wait for the deploy
+  // tx to actually land on-chain.
   await pollEarnStatus("wrapper deploy", async () => {
     const { status, deployTxHash, error } = await client.earnDeployStatus({
       organizationId,
-      deployRequestId: result.deployRequestId,
+      deployRequestId,
     });
     return { status, txHash: deployTxHash, error };
   });
