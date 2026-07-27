@@ -588,7 +588,7 @@ async function sendWithTurnkey({
     .solSendTransaction({
       organizationId,
       unsignedTransaction,
-      signWith,
+      signWiths: [signWith],
       caip2,
       sponsor: sponsored,
     });

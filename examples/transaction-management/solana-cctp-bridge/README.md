@@ -2,7 +2,7 @@
 
 This example bridges native USDC from Solana to Base using Circle CCTP V2 and
 Circle's Forwarding Service. It exercises a multi-signer shape with three
-distinct Turnkey addresses submitted through `solSendTransactionV2`:
+distinct Turnkey addresses submitted through `solSendTransaction`:
 
 ```ts
 signWiths: [rentPayer, signWith, eventSigner];
@@ -77,7 +77,7 @@ pnpm start
 The script quotes the current forwarding fee, shows the complete burn amount,
 and asks for confirmation. It then resolves the rent-payer account, derives a
 fresh event signer, verifies that the event account does not exist on-chain,
-and submits all three required signatures through `solSendTransactionV2`.
+and submits all three required signatures through `solSendTransaction`.
 
 ## CCTP implementation notes
 

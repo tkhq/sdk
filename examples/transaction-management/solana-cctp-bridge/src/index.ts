@@ -506,7 +506,7 @@ async function main() {
   const signWiths = [rentPayer, signWith, eventSigner];
 
   console.log(`signWiths: [${signWiths.join(", ")}]`);
-  const { sendTransactionStatusId } = await apiClient.solSendTransactionV2({
+  const { sendTransactionStatusId } = await apiClient.solSendTransaction({
     organizationId,
     unsignedTransaction,
     signWiths,

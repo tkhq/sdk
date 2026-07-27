@@ -1370,6 +1370,16 @@ export type TSignTransactionBody =
   operations["PublicApiService_SignTransaction"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TSolSendTransactionResponse =
+  operations["PublicApiService_SolSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["solSendTransactionResultV2"] &
+    definitions["v1ActivityResponse"];
+
+export type TSolSendTransactionInput = { body: TSolSendTransactionBody };
+
+export type TSolSendTransactionBody =
+  operations["PublicApiService_SolSendTransaction"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TSparkClaimTransferResponse =
   operations["PublicApiService_SparkClaimTransfer"]["responses"]["200"]["schema"]["activity"]["result"]["sparkClaimTransferResult"] &
     definitions["v1ActivityResponse"];
@@ -1580,20 +1590,3 @@ export type TVerifyOtpBody =
 
 export type TNOOPCodegenAnchorResponse =
   operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
-
-export type TSolSendTransactionResponse =
-  definitions["v1SolSendTransactionResult"] & definitions["v1ActivityResponse"];
-
-export type TSolSendTransactionBody =
-  definitions["v1SolSendTransactionIntent"] & commandOverrideParams;
-
-export type TSolSendTransactionInput = { body: TSolSendTransactionBody };
-
-export type TSolSendTransactionV2Response =
-  definitions["v1SolSendTransactionResultV2"] &
-    definitions["v1ActivityResponse"];
-
-export type TSolSendTransactionV2Body =
-  definitions["v1SolSendTransactionIntentV2"] & commandOverrideParams;
-
-export type TSolSendTransactionV2Input = { body: TSolSendTransactionV2Body };
