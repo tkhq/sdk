@@ -1,28 +1,26 @@
 # Example: `with-earn`
 
 > [!NOTE]
-> Turnkey Earn is in **closed beta**. The APIs are gated and may change; reach
+> Turnkey Earn is in **early access**. The APIs are gated and may change; reach
 > out to Turnkey to have it enabled for your organization.
 
 Turnkey Earn end to end with `@turnkey/sdk-server`: deploy a fee wrapper for a
 Morpho vault (one-time, from the parent org), then deposit, poll status, read
-positions, and partially withdraw from a sub-org wallet.
+positions, and partially withdraw from the end-user wallet.
 
 ## Prerequisites
 
-- Earn enabled for the parent org (closed beta — reach out to Turnkey; sub-orgs
+- Earn enabled for the parent org (early access — reach out to Turnkey; sub-orgs
   inherit via the parent).
 - The parent org on a Pay-As-You-Go plan or higher (Pro+ for `SPONSOR="true"`).
 
 ## Setup
 
-1. Copy `.env.local.example` to `.env.local` and fill it in. The parent org
-   credentials are used by the one-time setup scripts; the demo org runs the
-   deposit/withdraw flow.
-2. `pnpm create-sub-org` (parent org) creates the demo sub-org with a root user
-   keyed by `SUB_ORG_API_PUBLIC_KEY` and an embedded ETH wallet; paste the
-   printed `TURNKEY_ORGANIZATION_ID` and `SIGN_WITH` into `.env.local`.
-3. Fund `SIGN_WITH` on Base: USDC for deposits, plus ETH for gas if
+1. Copy `.env.local.example` to `.env.local` and fill it in. The parent-org
+   credentials run the one-time `deploy-vault` step (the platform); the demo-org
+   credentials and `SIGN_WITH` run the deposit/withdraw flow (the end user). The
+   two can be the same org.
+2. Fund `SIGN_WITH` on Base: USDC for deposits, plus ETH for gas if
    `SPONSOR="false"`.
 
 ## Run
@@ -32,8 +30,6 @@ defaults otherwise). Steps 1-3 act as the parent org (platform), steps 4-6 as
 the sub-org (end user). All quantities print in USD.
 
 ```bash
-pnpm commands      # list all commands
-
 pnpm vaults        # 1. discover the vault catalog (names, chain, APY, TVL)
 pnpm deploy-vault  # 2. choose a vault + fee terms, deploy the wrapper
                    #    args: [vault-address] [client-fee-bps] [fee-wallet]

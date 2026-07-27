@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "create-sub-org": "NODE_NO_WARNINGS=1 tsx src/createSubOrg.ts",
     "vaults": "NODE_NO_WARNINGS=1 tsx src/vaults.ts",
     "deploy-vault": "NODE_NO_WARNINGS=1 tsx src/deployVault.ts",
     "org-position": "NODE_NO_WARNINGS=1 tsx src/orgPosition.ts",
@@ -13,7 +12,6 @@
     "fees": "NODE_NO_WARNINGS=1 tsx src/fees.ts",
     "demo": "pnpm vaults && pnpm deploy-vault && pnpm org-position && pnpm deposit && pnpm positions && pnpm withdraw && pnpm positions && pnpm org-position",
     "transfer": "NODE_NO_WARNINGS=1 tsx src/transfer.ts",
-    "commands": "NODE_NO_WARNINGS=1 tsx src/help.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
