@@ -8,6 +8,10 @@ export type paths = {
     /** Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path). */
     post: operations["PublicApiService_EarnDepositStatus"];
   };
+  "/public/v1/query/earn_deploy_status": {
+    /** Poll the status of a wrapper deployment by its deploy_request_id. */
+    post: operations["PublicApiService_EarnDeployStatus"];
+  };
   "/public/v1/query/earn_enabled_vaults": {
     /** Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions. */
     post: operations["PublicApiService_EarnEnabledVaults"];
@@ -2775,6 +2779,23 @@ export type definitions = {
     status: "PENDING" | "COMPLETE" | "FAILED";
     /** @description Transaction hash of the deposit, once available. */
     depositTxHash?: string;
+  };
+  v1EarnDeployStatusRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The deploy_request_id returned by EarnDeployWrapper. */
+    deployRequestId: string;
+  };
+  v1EarnDeployStatusResponse: {
+    /**
+     * @description Status of the wrapper deployment.
+     * @enum {string}
+     */
+    status: "PENDING" | "COMPLETED" | "FAILED";
+    /** @description Transaction hash of the deployment, once available. */
+    deployTxHash?: string;
+    /** @description Reason the deployment transaction failed, when status is FAILED. */
+    error?: string;
   };
   v1EarnEnabledVault: {
     /** @description Address of the underlying yield vault. */
@@ -6928,6 +6949,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1EarnDepositStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Poll the status of a wrapper deployment by its deploy_request_id. */
+  PublicApiService_EarnDeployStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1EarnDeployStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1EarnDeployStatusResponse"];
       };
       /** An unexpected error response. */
       default: {

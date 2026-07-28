@@ -14,6 +14,10 @@ import type {
   TEarnDepositStatusResponse,
 } from "./public_api.fetcher";
 import type {
+  TEarnDeployStatusBody,
+  TEarnDeployStatusResponse,
+} from "./public_api.fetcher";
+import type {
   TEarnEnabledVaultsBody,
   TEarnEnabledVaultsResponse,
 } from "./public_api.fetcher";
@@ -722,6 +726,37 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/earn_deposit_status";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Poll the status of a wrapper deployment by its deploy_request_id.
+   *
+   * Sign the provided `TEarnDeployStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/earn_deploy_status).
+   *
+   * See also {@link stampEarnDeployStatus}.
+   */
+  earnDeployStatus = async (
+    input: TEarnDeployStatusBody,
+  ): Promise<TEarnDeployStatusResponse> => {
+    return this.request("/public/v1/query/earn_deploy_status", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TEarnDeployStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link EarnDeployStatus}.
+   */
+  stampEarnDeployStatus = async (
+    input: TEarnDeployStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/earn_deploy_status";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

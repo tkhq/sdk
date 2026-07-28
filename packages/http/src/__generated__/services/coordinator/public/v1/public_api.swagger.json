@@ -104,6 +104,38 @@
         "tags": ["Earn"]
       }
     },
+    "/public/v1/query/earn_deploy_status": {
+      "post": {
+        "summary": "Get Earn deploy status",
+        "description": "Poll the status of a wrapper deployment by its deploy_request_id.",
+        "operationId": "PublicApiService_EarnDeployStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EarnDeployStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EarnDeployStatusRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
     "/public/v1/query/earn_enabled_vaults": {
       "post": {
         "summary": "Get Earn enabled vaults",
@@ -10443,6 +10475,39 @@
         "depositTxHash": {
           "type": "string",
           "description": "Transaction hash of the deposit, once available."
+        }
+      },
+      "required": ["status"]
+    },
+    "v1EarnDeployStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "deployRequestId": {
+          "type": "string",
+          "description": "The deploy_request_id returned by EarnDeployWrapper."
+        }
+      },
+      "required": ["organizationId", "deployRequestId"]
+    },
+    "v1EarnDeployStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "COMPLETED", "FAILED"],
+          "description": "Status of the wrapper deployment."
+        },
+        "deployTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the deployment, once available."
+        },
+        "error": {
+          "type": "string",
+          "description": "Reason the deployment transaction failed, when status is FAILED."
         }
       },
       "required": ["status"]

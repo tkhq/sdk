@@ -38,7 +38,8 @@ export default async function getActivity(
     });
 
     res.status(200).json({
-      activity: activityResponse.activity as TActivityResponse["activity"],
+      activity:
+        activityResponse.activity as unknown as TActivityResponse["activity"],
     });
   } catch (e) {
     console.error(e);

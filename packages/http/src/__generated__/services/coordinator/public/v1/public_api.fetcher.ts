@@ -60,6 +60,58 @@ export const signEarnDepositStatus = (
   });
 
 /**
+ * `POST /public/v1/query/earn_deploy_status`
+ */
+export type TEarnDeployStatusResponse =
+  operations["PublicApiService_EarnDeployStatus"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/earn_deploy_status`
+ */
+export type TEarnDeployStatusInput = { body: TEarnDeployStatusBody };
+
+/**
+ * `POST /public/v1/query/earn_deploy_status`
+ */
+export type TEarnDeployStatusBody =
+  operations["PublicApiService_EarnDeployStatus"]["parameters"]["body"]["body"];
+
+/**
+ * Get Earn deploy status
+ *
+ * Poll the status of a wrapper deployment by its deploy_request_id.
+ *
+ * `POST /public/v1/query/earn_deploy_status`
+ */
+export const earnDeployStatus = (input: TEarnDeployStatusInput) =>
+  request<
+    TEarnDeployStatusResponse,
+    TEarnDeployStatusBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/earn_deploy_status",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `EarnDeployStatus` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link EarnDeployStatus}
+ */
+export const signEarnDeployStatus = (
+  input: TEarnDeployStatusInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TEarnDeployStatusBody, never, never>({
+    uri: "/public/v1/query/earn_deploy_status",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/earn_enabled_vaults`
  */
 export type TEarnEnabledVaultsResponse =

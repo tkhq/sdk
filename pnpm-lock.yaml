@@ -2778,6 +2778,25 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  examples/defi/with-earn:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../../packages/viem
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+      viem:
+        specifier: ^2.24.2
+        version: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+    devDependencies:
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/defi/with-jupiter:
     dependencies:
       '@breezebaby/breeze-sdk':
