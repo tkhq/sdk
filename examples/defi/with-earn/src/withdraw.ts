@@ -11,7 +11,8 @@ import {
   USER_TAG,
 } from "./common";
 
-// Step 6: withdraw USDC back to the end-user wallet (partial or full).
+// Step 6: withdraw USDC back to the end-user wallet. Pass a USDC amount for a
+// partial withdraw, or "MAX" to redeem the full balance and close the position.
 async function main() {
   const { client, organizationId } = newClient("TURNKEY");
   const signWith = requireEnv("SIGN_WITH");
@@ -21,10 +22,16 @@ async function main() {
 
   const vault = await resolveWrapper(client, organizationId);
   const amount =
-    process.argv[2] ?? (await ask("Withdraw amount (USDC)", "0.50"));
-  const amountValue = usdcToRaw(amount);
+    process.argv[2] ?? (await ask('Withdraw amount (USDC, or "MAX")', "0.50"));
 
-  console.log(`\n🏧 Withdrawing ${usd(amountValue)} back to ${signWith}…`);
+  // "MAX" is a backend sentinel for a full exit: it redeems the wallet's entire
+  // share balance and closes the position, so it must be passed through verbatim.
+  const isMax = amount.trim().toUpperCase() === "MAX";
+  const amountValue = isMax ? "MAX" : usdcToRaw(amount);
+
+  console.log(
+    `\n🏧 Withdrawing ${isMax ? "the full balance" : usd(amountValue)} back to ${signWith}…`,
+  );
 
   const { withdrawRequestId } = await client.earnWithdraw({
     organizationId,

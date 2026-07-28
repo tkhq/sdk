@@ -6,7 +6,7 @@
 
 Turnkey Earn end to end with `@turnkey/sdk-server`: deploy a fee wrapper for a
 Morpho vault (one-time, from the parent org), then deposit, poll status, read
-positions, and partially withdraw from the end-user wallet.
+positions, and withdraw (partial or full) from the end-user wallet.
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ pnpm deploy-vault  # 2. choose a vault + fee terms, deploy the wrapper
 pnpm org-position  # 3. platform view: wrapper, client fee, net APY, total deposited
 pnpm deposit       # 4. deposit USDC from the end-user wallet (arg: [usdc])
 pnpm positions     # 5. end-user position + accrued yield
-pnpm withdraw      # 6. partial withdrawal (arg: [usdc])
+pnpm withdraw      # 6. withdrawal (arg: [usdc], or "MAX" for a full exit)
 pnpm positions     # 7. end-user position again
 pnpm org-position  # 8. platform view again
 pnpm fees          # client revenue: your accrued client fee, claimable now
