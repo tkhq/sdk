@@ -7,6 +7,72 @@ import type {
   commandOverrideParams,
 } from "../__types__/base";
 
+export type TEarnDeployStatusResponse =
+  operations["PublicApiService_EarnDeployStatus"]["responses"]["200"]["schema"];
+
+export type TEarnDeployStatusInput = { body: TEarnDeployStatusBody };
+
+export type TEarnDeployStatusBody = Omit<
+  operations["PublicApiService_EarnDeployStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TEarnDepositStatusResponse =
+  operations["PublicApiService_EarnDepositStatus"]["responses"]["200"]["schema"];
+
+export type TEarnDepositStatusInput = { body: TEarnDepositStatusBody };
+
+export type TEarnDepositStatusBody = Omit<
+  operations["PublicApiService_EarnDepositStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TEarnEnabledVaultsResponse =
+  operations["PublicApiService_EarnEnabledVaults"]["responses"]["200"]["schema"];
+
+export type TEarnEnabledVaultsInput = { body: TEarnEnabledVaultsBody };
+
+export type TEarnEnabledVaultsBody = Omit<
+  operations["PublicApiService_EarnEnabledVaults"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TEarnPositionsResponse =
+  operations["PublicApiService_EarnPositions"]["responses"]["200"]["schema"];
+
+export type TEarnPositionsInput = { body: TEarnPositionsBody };
+
+export type TEarnPositionsBody = Omit<
+  operations["PublicApiService_EarnPositions"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TEarnVaultsResponse =
+  operations["PublicApiService_EarnVaults"]["responses"]["200"]["schema"];
+
+export type TEarnVaultsInput = { body: TEarnVaultsBody };
+
+export type TEarnVaultsBody = Omit<
+  operations["PublicApiService_EarnVaults"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TEarnWithdrawStatusResponse =
+  operations["PublicApiService_EarnWithdrawStatus"]["responses"]["200"]["schema"];
+
+export type TEarnWithdrawStatusInput = { body: TEarnWithdrawStatusBody };
+
+export type TEarnWithdrawStatusBody = Omit<
+  operations["PublicApiService_EarnWithdrawStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetActivityResponse =
   operations["PublicApiService_GetActivity"]["responses"]["200"]["schema"];
 
@@ -404,6 +470,19 @@ export type TListEmailEventsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TListEthTransactionHistoryResponse =
+  operations["PublicApiService_ListEthTransactionHistory"]["responses"]["200"]["schema"];
+
+export type TListEthTransactionHistoryInput = {
+  body: TListEthTransactionHistoryBody;
+};
+
+export type TListEthTransactionHistoryBody = Omit<
+  operations["PublicApiService_ListEthTransactionHistory"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TListFiatOnRampCredentialsResponse =
   operations["PublicApiService_ListFiatOnRampCredentials"]["responses"]["200"]["schema"];
 
@@ -470,6 +549,19 @@ export type TGetSmartContractInterfacesInput = {
 
 export type TGetSmartContractInterfacesBody = Omit<
   operations["PublicApiService_GetSmartContractInterfaces"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListSolTransactionHistoryResponse =
+  operations["PublicApiService_ListSolTransactionHistory"]["responses"]["200"]["schema"];
+
+export type TListSolTransactionHistoryInput = {
+  body: TListSolTransactionHistoryBody;
+};
+
+export type TListSolTransactionHistoryBody = Omit<
+  operations["PublicApiService_ListSolTransactionHistory"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -614,6 +706,16 @@ export type TApproveActivityInput = { body: TApproveActivityBody };
 
 export type TApproveActivityBody =
   operations["PublicApiService_ApproveActivity"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TClaimEarnFeesResponse =
+  operations["PublicApiService_ClaimEarnFees"]["responses"]["200"]["schema"]["activity"]["result"]["claimEarnFeesResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TClaimEarnFeesInput = { body: TClaimEarnFeesBody };
+
+export type TClaimEarnFeesBody =
+  operations["PublicApiService_ClaimEarnFees"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateApiKeysResponse =
@@ -1072,6 +1174,46 @@ export type TDeleteWebhookEndpointInput = { body: TDeleteWebhookEndpointBody };
 
 export type TDeleteWebhookEndpointBody =
   operations["PublicApiService_DeleteWebhookEndpoint"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEarnDeployWrapperResponse =
+  operations["PublicApiService_EarnDeployWrapper"]["responses"]["200"]["schema"]["activity"]["result"]["earnDeployWrapperResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEarnDeployWrapperInput = { body: TEarnDeployWrapperBody };
+
+export type TEarnDeployWrapperBody =
+  operations["PublicApiService_EarnDeployWrapper"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEarnDepositResponse =
+  operations["PublicApiService_EarnDeposit"]["responses"]["200"]["schema"]["activity"]["result"]["earnDepositResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEarnDepositInput = { body: TEarnDepositBody };
+
+export type TEarnDepositBody =
+  operations["PublicApiService_EarnDeposit"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEarnSetWrapperStateResponse =
+  operations["PublicApiService_EarnSetWrapperState"]["responses"]["200"]["schema"]["activity"]["result"]["earnSetWrapperStateResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEarnSetWrapperStateInput = { body: TEarnSetWrapperStateBody };
+
+export type TEarnSetWrapperStateBody =
+  operations["PublicApiService_EarnSetWrapperState"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEarnWithdrawResponse =
+  operations["PublicApiService_EarnWithdraw"]["responses"]["200"]["schema"]["activity"]["result"]["earnWithdrawResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEarnWithdrawInput = { body: TEarnWithdrawBody };
+
+export type TEarnWithdrawBody =
+  operations["PublicApiService_EarnWithdraw"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TEmailAuthResponse =
@@ -1590,99 +1732,3 @@ export type TVerifyOtpBody =
 
 export type TNOOPCodegenAnchorResponse =
   operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
-
-export type TEarnVaultsResponse =
-  operations["PublicApiService_EarnVaults"]["responses"]["200"]["schema"];
-
-export type TEarnVaultsInput = { body: TEarnVaultsBody };
-
-export type TEarnVaultsBody = Omit<
-  operations["PublicApiService_EarnVaults"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TEarnEnabledVaultsResponse =
-  operations["PublicApiService_EarnEnabledVaults"]["responses"]["200"]["schema"];
-
-export type TEarnEnabledVaultsInput = { body: TEarnEnabledVaultsBody };
-
-export type TEarnEnabledVaultsBody = Omit<
-  operations["PublicApiService_EarnEnabledVaults"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TEarnPositionsResponse =
-  operations["PublicApiService_EarnPositions"]["responses"]["200"]["schema"];
-
-export type TEarnPositionsInput = { body: TEarnPositionsBody };
-
-export type TEarnPositionsBody = Omit<
-  operations["PublicApiService_EarnPositions"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TEarnDepositStatusResponse =
-  operations["PublicApiService_EarnDepositStatus"]["responses"]["200"]["schema"];
-
-export type TEarnDepositStatusInput = { body: TEarnDepositStatusBody };
-
-export type TEarnDepositStatusBody = Omit<
-  operations["PublicApiService_EarnDepositStatus"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TEarnWithdrawStatusResponse =
-  operations["PublicApiService_EarnWithdrawStatus"]["responses"]["200"]["schema"];
-
-export type TEarnWithdrawStatusInput = { body: TEarnWithdrawStatusBody };
-
-export type TEarnWithdrawStatusBody = Omit<
-  operations["PublicApiService_EarnWithdrawStatus"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TEarnDeployStatusResponse =
-  operations["PublicApiService_EarnDeployStatus"]["responses"]["200"]["schema"];
-
-export type TEarnDeployStatusInput = { body: TEarnDeployStatusBody };
-
-export type TEarnDeployStatusBody = Omit<
-  operations["PublicApiService_EarnDeployStatus"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TEarnDepositResponse =
-  operations["PublicApiService_EarnDeposit"]["responses"]["200"]["schema"]["activity"]["result"]["earnDepositResult"] &
-    definitions["v1ActivityResponse"];
-
-export type TEarnDepositInput = { body: TEarnDepositBody };
-
-export type TEarnDepositBody =
-  operations["PublicApiService_EarnDeposit"]["parameters"]["body"]["body"]["parameters"] &
-    commandOverrideParams;
-
-export type TEarnWithdrawResponse =
-  operations["PublicApiService_EarnWithdraw"]["responses"]["200"]["schema"]["activity"]["result"]["earnWithdrawResult"] &
-    definitions["v1ActivityResponse"];
-
-export type TEarnWithdrawInput = { body: TEarnWithdrawBody };
-
-export type TEarnWithdrawBody =
-  operations["PublicApiService_EarnWithdraw"]["parameters"]["body"]["body"]["parameters"] &
-    commandOverrideParams;
-
-export type TEarnDeployWrapperResponse =
-  operations["PublicApiService_EarnDeployWrapper"]["responses"]["200"]["schema"]["activity"]["result"]["earnDeployWrapperResult"] &
-    definitions["v1ActivityResponse"];
-
-export type TEarnDeployWrapperInput = { body: TEarnDeployWrapperBody };
-
-export type TEarnDeployWrapperBody =
-  operations["PublicApiService_EarnDeployWrapper"]["parameters"]["body"]["body"]["parameters"] &
-    commandOverrideParams;

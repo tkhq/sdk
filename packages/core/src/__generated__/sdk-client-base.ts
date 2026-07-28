@@ -342,6 +342,286 @@ export class TurnkeySDKClientBase {
     return data as TResponseType;
   }
 
+  earnDeployStatus = async (
+    input: SdkTypes.TEarnDeployStatusBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEarnDeployStatusResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/earn_deploy_status",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampEarnDeployStatus = async (
+    input: SdkTypes.TEarnDeployStatusBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/earn_deploy_status";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  earnDepositStatus = async (
+    input: SdkTypes.TEarnDepositStatusBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEarnDepositStatusResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/earn_deposit_status",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampEarnDepositStatus = async (
+    input: SdkTypes.TEarnDepositStatusBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/earn_deposit_status";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  earnEnabledVaults = async (
+    input: SdkTypes.TEarnEnabledVaultsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEarnEnabledVaultsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/earn_enabled_vaults",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampEarnEnabledVaults = async (
+    input: SdkTypes.TEarnEnabledVaultsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/earn_enabled_vaults";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  earnPositions = async (
+    input: SdkTypes.TEarnPositionsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEarnPositionsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/earn_positions",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampEarnPositions = async (
+    input: SdkTypes.TEarnPositionsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/earn_positions";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  earnVaults = async (
+    input: SdkTypes.TEarnVaultsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEarnVaultsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/earn_vaults",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampEarnVaults = async (
+    input: SdkTypes.TEarnVaultsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/earn_vaults";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  earnWithdrawStatus = async (
+    input: SdkTypes.TEarnWithdrawStatusBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEarnWithdrawStatusResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/earn_withdraw_status",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampEarnWithdrawStatus = async (
+    input: SdkTypes.TEarnWithdrawStatusBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/earn_withdraw_status";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getActivity = async (
     input: SdkTypes.TGetActivityBody,
     stampWith?: StamperType,
@@ -1971,6 +2251,53 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  listEthTransactionHistory = async (
+    input: SdkTypes.TListEthTransactionHistoryBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TListEthTransactionHistoryResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_eth_transaction_history",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampListEthTransactionHistory = async (
+    input: SdkTypes.TListEthTransactionHistoryBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_eth_transaction_history";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   listFiatOnRampCredentials = async (
     input: SdkTypes.TListFiatOnRampCredentialsBody,
     stampWith?: StamperType,
@@ -2236,6 +2563,53 @@ export class TurnkeySDKClientBase {
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/query/list_smart_contract_interfaces";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listSolTransactionHistory = async (
+    input: SdkTypes.TListSolTransactionHistoryBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TListSolTransactionHistoryResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_sol_transaction_history",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampListSolTransactionHistory = async (
+    input: SdkTypes.TListSolTransactionHistoryBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_sol_transaction_history";
     const body = {
       ...input,
       organizationId:
@@ -2854,6 +3228,64 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_APPROVE_ACTIVITY",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  claimEarnFees = async (
+    input: SdkTypes.TClaimEarnFeesBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TClaimEarnFeesResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/claim_earn_fees",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_CLAIM_EARN_FEES",
+      },
+      "claimEarnFeesResult",
+      stampWith,
+    );
+  };
+
+  stampClaimEarnFees = async (
+    input: SdkTypes.TClaimEarnFeesBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/claim_earn_fees";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CLAIM_EARN_FEES",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5405,6 +5837,236 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  earnDeployWrapper = async (
+    input: SdkTypes.TEarnDeployWrapperBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEarnDeployWrapperResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/earn_deploy_wrapper",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER",
+      },
+      "earnDeployWrapperResult",
+      stampWith,
+    );
+  };
+
+  stampEarnDeployWrapper = async (
+    input: SdkTypes.TEarnDeployWrapperBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/earn_deploy_wrapper";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  earnDeposit = async (
+    input: SdkTypes.TEarnDepositBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEarnDepositResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/earn_deposit",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_EARN_DEPOSIT",
+      },
+      "earnDepositResult",
+      stampWith,
+    );
+  };
+
+  stampEarnDeposit = async (
+    input: SdkTypes.TEarnDepositBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/earn_deposit";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_EARN_DEPOSIT",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  earnSetWrapperState = async (
+    input: SdkTypes.TEarnSetWrapperStateBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEarnSetWrapperStateResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/earn_set_wrapper_state",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE",
+      },
+      "earnSetWrapperStateResult",
+      stampWith,
+    );
+  };
+
+  stampEarnSetWrapperState = async (
+    input: SdkTypes.TEarnSetWrapperStateBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/earn_set_wrapper_state";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  earnWithdraw = async (
+    input: SdkTypes.TEarnWithdrawBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEarnWithdrawResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/earn_withdraw",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_EARN_WITHDRAW",
+      },
+      "earnWithdrawResult",
+      stampWith,
+    );
+  };
+
+  stampEarnWithdraw = async (
+    input: SdkTypes.TEarnWithdrawBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/earn_withdraw";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_EARN_WITHDRAW",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -8183,458 +8845,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  earnVaults = async (
-    input: SdkTypes.TEarnVaultsBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TEarnVaultsResponse> => {
-    const session = await this.storageManager?.getActiveSession();
-    return this.request(
-      "/public/v1/query/earn_vaults",
-      {
-        ...input,
-        organizationId:
-          input.organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-      },
-      stampWith,
-    );
-  };
-
-  stampEarnVaults = async (
-    input: SdkTypes.TEarnVaultsBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const session = await this.storageManager?.getActiveSession();
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/earn_vaults";
-    const body = {
-      ...input,
-      organizationId:
-        input.organizationId ??
-        session?.organizationId ??
-        this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnEnabledVaults = async (
-    input: SdkTypes.TEarnEnabledVaultsBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TEarnEnabledVaultsResponse> => {
-    const session = await this.storageManager?.getActiveSession();
-    return this.request(
-      "/public/v1/query/earn_enabled_vaults",
-      {
-        ...input,
-        organizationId:
-          input.organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-      },
-      stampWith,
-    );
-  };
-
-  stampEarnEnabledVaults = async (
-    input: SdkTypes.TEarnEnabledVaultsBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const session = await this.storageManager?.getActiveSession();
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/earn_enabled_vaults";
-    const body = {
-      ...input,
-      organizationId:
-        input.organizationId ??
-        session?.organizationId ??
-        this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnPositions = async (
-    input: SdkTypes.TEarnPositionsBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TEarnPositionsResponse> => {
-    const session = await this.storageManager?.getActiveSession();
-    return this.request(
-      "/public/v1/query/earn_positions",
-      {
-        ...input,
-        organizationId:
-          input.organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-      },
-      stampWith,
-    );
-  };
-
-  stampEarnPositions = async (
-    input: SdkTypes.TEarnPositionsBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const session = await this.storageManager?.getActiveSession();
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/earn_positions";
-    const body = {
-      ...input,
-      organizationId:
-        input.organizationId ??
-        session?.organizationId ??
-        this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnDepositStatus = async (
-    input: SdkTypes.TEarnDepositStatusBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TEarnDepositStatusResponse> => {
-    const session = await this.storageManager?.getActiveSession();
-    return this.request(
-      "/public/v1/query/earn_deposit_status",
-      {
-        ...input,
-        organizationId:
-          input.organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-      },
-      stampWith,
-    );
-  };
-
-  stampEarnDepositStatus = async (
-    input: SdkTypes.TEarnDepositStatusBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const session = await this.storageManager?.getActiveSession();
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/earn_deposit_status";
-    const body = {
-      ...input,
-      organizationId:
-        input.organizationId ??
-        session?.organizationId ??
-        this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnWithdrawStatus = async (
-    input: SdkTypes.TEarnWithdrawStatusBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TEarnWithdrawStatusResponse> => {
-    const session = await this.storageManager?.getActiveSession();
-    return this.request(
-      "/public/v1/query/earn_withdraw_status",
-      {
-        ...input,
-        organizationId:
-          input.organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-      },
-      stampWith,
-    );
-  };
-
-  stampEarnWithdrawStatus = async (
-    input: SdkTypes.TEarnWithdrawStatusBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const session = await this.storageManager?.getActiveSession();
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/earn_withdraw_status";
-    const body = {
-      ...input,
-      organizationId:
-        input.organizationId ??
-        session?.organizationId ??
-        this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnDeployStatus = async (
-    input: SdkTypes.TEarnDeployStatusBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TEarnDeployStatusResponse> => {
-    const session = await this.storageManager?.getActiveSession();
-    return this.request(
-      "/public/v1/query/earn_deploy_status",
-      {
-        ...input,
-        organizationId:
-          input.organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-      },
-      stampWith,
-    );
-  };
-
-  stampEarnDeployStatus = async (
-    input: SdkTypes.TEarnDeployStatusBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const session = await this.storageManager?.getActiveSession();
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/earn_deploy_status";
-    const body = {
-      ...input,
-      organizationId:
-        input.organizationId ??
-        session?.organizationId ??
-        this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnDeposit = async (
-    input: SdkTypes.TEarnDepositBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TEarnDepositResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-
-    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
-    const generateAppProofs = input?.generateAppProofs ?? false;
-    const session = await this.storageManager?.getActiveSession();
-
-    return this.activity(
-      "/public/v1/submit/earn_deposit",
-      {
-        parameters: rest,
-        organizationId:
-          organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        generateAppProofs: generateAppProofs ?? false,
-        type: "ACTIVITY_TYPE_EARN_DEPOSIT",
-      },
-      "earnDepositResult",
-      stampWith,
-    );
-  };
-
-  stampEarnDeposit = async (
-    input: SdkTypes.TEarnDepositBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const session = await this.storageManager?.getActiveSession();
-
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/earn_deposit";
-    const bodyWithType = {
-      parameters,
-      organizationId:
-        organizationId ?? session?.organizationId ?? this.config.organizationId,
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EARN_DEPOSIT",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnWithdraw = async (
-    input: SdkTypes.TEarnWithdrawBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TEarnWithdrawResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-
-    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
-    const generateAppProofs = input?.generateAppProofs ?? false;
-    const session = await this.storageManager?.getActiveSession();
-
-    return this.activity(
-      "/public/v1/submit/earn_withdraw",
-      {
-        parameters: rest,
-        organizationId:
-          organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        generateAppProofs: generateAppProofs ?? false,
-        type: "ACTIVITY_TYPE_EARN_WITHDRAW",
-      },
-      "earnWithdrawResult",
-      stampWith,
-    );
-  };
-
-  stampEarnWithdraw = async (
-    input: SdkTypes.TEarnWithdrawBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const session = await this.storageManager?.getActiveSession();
-
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/earn_withdraw";
-    const bodyWithType = {
-      parameters,
-      organizationId:
-        organizationId ?? session?.organizationId ?? this.config.organizationId,
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EARN_WITHDRAW",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnDeployWrapper = async (
-    input: SdkTypes.TEarnDeployWrapperBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TEarnDeployWrapperResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-
-    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
-    const generateAppProofs = input?.generateAppProofs ?? false;
-    const session = await this.storageManager?.getActiveSession();
-
-    return this.activity(
-      "/public/v1/submit/earn_deploy_wrapper",
-      {
-        parameters: rest,
-        organizationId:
-          organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        generateAppProofs: generateAppProofs ?? false,
-        type: "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER",
-      },
-      "earnDeployWrapperResult",
-      stampWith,
-    );
-  };
-
-  stampEarnDeployWrapper = async (
-    input: SdkTypes.TEarnDeployWrapperBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const session = await this.storageManager?.getActiveSession();
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/earn_deploy_wrapper";
-    const bodyWithType = {
-      parameters,
-      organizationId:
-        organizationId ?? session?.organizationId ?? this.config.organizationId,
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   ethSendTransaction = async (
     input: SdkTypes.TEthSendTransactionBody,
     stampWith?: StamperType,
@@ -8927,6 +9137,12 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.ProxyTSignupV2Body,
   ): Promise<SdkTypes.ProxyTSignupV2Response> => {
     return this.authProxyRequest("/v1/signup_v2", input);
+  };
+
+  proxyGetWalletKitClientParams = async (
+    input: SdkTypes.ProxyTGetWalletKitClientParamsBody,
+  ): Promise<SdkTypes.ProxyTGetWalletKitClientParamsResponse> => {
+    return this.authProxyRequest("/v1/wallet_kit_client_params", input);
   };
 
   proxyGetWalletKitConfig = async (

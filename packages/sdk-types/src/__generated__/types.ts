@@ -139,6 +139,12 @@ export type v1GetAccountResponse = {
   organizationId?: string;
 };
 
+export type v1GetWalletKitClientParamsRequest = {};
+export type v1GetWalletKitClientParamsResponse = {
+  /** Site key for Turnstile, used to protect WalletKit flows with bot detection. */
+  turnstileSiteKey?: string;
+};
+
 export type v1GetWalletKitConfigRequest = {};
 export type v1GetWalletKitConfigResponse = {
   /** List of enabled authentication providers (e.g., 'facebook', 'google', 'apple', 'email', 'sms', 'passkey', 'wallet') */
@@ -733,7 +739,6 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
   | "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
   | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION"
-  | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
   | "ACTIVITY_TYPE_INIT_OTP_V3"
   | "ACTIVITY_TYPE_VERIFY_OTP_V2"
   | "ACTIVITY_TYPE_OTP_LOGIN_V2"
@@ -763,12 +768,16 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER"
   | "ACTIVITY_TYPE_EARN_DEPOSIT"
   | "ACTIVITY_TYPE_EARN_WITHDRAW"
-  | "ACTIVITY_TYPE_UPSERT_EARN_CLIENT_FEE_CONFIG"
   | "ACTIVITY_TYPE_EXECUTE_SWAP"
   | "ACTIVITY_TYPE_UPSERT_SWAP_CONFIG"
   | "ACTIVITY_TYPE_CREATE_TVC_OPERATOR"
   | "ACTIVITY_TYPE_CREATE_TVC_QUORUM_KEY"
-  | "ACTIVITY_TYPE_RE_ENCRYPT_TVC_QUORUM_KEY_SHARE";
+  | "ACTIVITY_TYPE_RE_ENCRYPT_TVC_QUORUM_KEY_SHARE"
+  | "ACTIVITY_TYPE_INIT_IMPORT_SECRETS"
+  | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
+  | "ACTIVITY_TYPE_CLAIM_SWAP_FEES"
+  | "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE"
+  | "ACTIVITY_TYPE_CLAIM_EARN_FEES";
 
 export type v1ApiKey = {
   /** A User credential that can be used to authenticate to Turnkey. */
@@ -934,6 +943,32 @@ export type v1BootProof = {
 
 export type v1BootProofResponse = {
   bootProof: v1BootProof;
+};
+
+export type v1ClaimEarnFeesIntent = {
+  /** Address of the deployed Earn wrapper to claim fees for. Must be one of the org's deployed wrappers. */
+  wrapperAddress: string;
+};
+
+export type v1ClaimEarnFeesRequest = {
+  type: "ACTIVITY_TYPE_CLAIM_EARN_FEES";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1ClaimEarnFeesIntent;
+  generateAppProofs?: boolean;
+};
+
+export type v1ClaimEarnFeesResult = {
+  /** Identifier to poll claim status and tx hash via ClaimEarnFeesStatus. */
+  claimRequestId: string;
+};
+
+export type v1ClaimSwapFeesIntent = {};
+export type v1ClaimSwapFeesResult = {
+  /** Relay claim request ID submitted through the permit endpoint. */
+  requestId: string;
 };
 
 export type v1Config = {
@@ -1671,6 +1706,8 @@ export type v1CreateTvcDeploymentIntent = {
   healthCheckPort: number;
   /** Port to use for public ingress. */
   publicIngressPort: number;
+  /** Optional desired replica count for this deployment. */
+  replicas?: number;
 };
 
 export type v1CreateTvcDeploymentRequest = {
@@ -2356,6 +2393,22 @@ export type v1DisablePrivateKeyResult = {
   privateKeyId: string;
 };
 
+export type v1EarnDeployStatusRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** The deploy_request_id returned by EarnDeployWrapper. */
+  deployRequestId: string;
+};
+
+export type v1EarnDeployStatusResponse = {
+  /** Status of the wrapper deployment. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the deployment, once available. */
+  deployTxHash?: string;
+  /** Reason the deployment transaction failed, when status is FAILED. */
+  error?: string;
+};
+
 export type v1EarnDeployWrapperIntent = {
   /** Address of the underlying yield vault to wrap (from the EarnVaults catalog). */
   vaultAddress: string;
@@ -2371,6 +2424,16 @@ export type v1EarnDeployWrapperIntent = {
   clientFeeBps: string;
   /** The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
   clientFeeWallet: string;
+};
+
+export type v1EarnDeployWrapperRequest = {
+  type: "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1EarnDeployWrapperIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1EarnDeployWrapperResult = {
@@ -2401,9 +2464,198 @@ export type v1EarnDepositIntent = {
   sponsor?: boolean;
 };
 
+export type v1EarnDepositRequest = {
+  type: "ACTIVITY_TYPE_EARN_DEPOSIT";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1EarnDepositIntent;
+  generateAppProofs?: boolean;
+};
+
 export type v1EarnDepositResult = {
   /** Identifier to poll deposit status and tx hash via EarnDepositStatus. */
   depositRequestId: string;
+};
+
+export type v1EarnDepositStatusRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** The deposit_request_id returned by EarnDeposit. */
+  depositRequestId: string;
+};
+
+export type v1EarnDepositStatusResponse = {
+  /** Status of the deposit. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the deposit, once available. */
+  depositTxHash?: string;
+  /** Reason the deposit transaction failed, when status is FAILED. */
+  error?: string;
+};
+
+export type v1EarnEnabledVault = {
+  /** Address of the underlying yield vault. */
+  vaultAddress?: string;
+  /** Address of the deployed fee wrapper (the deposit target). */
+  wrapperAddress?: string;
+  /** Yield provider for the vault. */
+  provider?: v1EarnProvider;
+  /** CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
+  caip19?: string;
+  /** Gross annual percentage yield, expressed as a decimal fraction (before Turnkey and client fees). */
+  apyPct?: string;
+  /** Total deposited through this wrapper (wrapper TVL), in raw on-chain units of the underlying asset. */
+  totalDeposited?: string;
+  /** Normalized total-deposited values for display only (usd + crypto). Do not do arithmetic with these; use total_deposited instead. */
+  display?: v1EarnValueDisplay;
+  /** Annual percentage yield net of the Turnkey and client performance fees, expressed as a decimal fraction. */
+  netApyPct?: string;
+  /** Client performance fee taken on yield, in basis points. Currently org-wide; moving to a per-vault setting. */
+  clientFeeBps?: string;
+  /** When true, deposits to this wrapper are rejected; withdrawals are unaffected. Toggled via EarnSetWrapperState. */
+  depositsDisabled?: boolean;
+  /** Human-readable vault name from the provider (e.g. 'Steakhouse Prime USDC' for Morpho; the reserve symbol for Aave). */
+  name?: string;
+  /** Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave). */
+  curator?: string;
+  /** The client's claimable performance fee (releasable now), in raw on-chain units of the underlying asset (the caip19 asset). Turnkey's fee is excluded. Only returned to the parent org; unset when a sub-org queries. */
+  claimableClientFee?: string;
+  /** Normalized claimable_client_fee for display only (usd + crypto). Do not do arithmetic with these; use claimable_client_fee. Unset when a sub-org queries. */
+  claimableClientFeeDisplay?: v1EarnValueDisplay;
+};
+
+export type v1EarnEnabledVaultsRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
+  provider?: v1EarnProvider;
+  /** Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
+  caip19?: string;
+};
+
+export type v1EarnEnabledVaultsResponse = {
+  /** The organization's deployed wrappers. */
+  enabledVaults?: v1EarnEnabledVault[];
+};
+
+export type v1EarnPosition = {
+  /** Address of the underlying yield vault. */
+  vaultAddress?: string;
+  /** Address of the fee wrapper holding the position. */
+  wrapperAddress?: string;
+  /** Yield provider for the vault. */
+  provider?: v1EarnProvider;
+  /** CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
+  caip19?: string;
+  /** Current value of the position in the underlying asset, in raw on-chain units (already net of the wrapper fee). */
+  currentValue?: string;
+  /** Lifetime total deposited into this position, in raw on-chain units. */
+  totalDeposited?: string;
+  /** Lifetime total withdrawn from this position, in raw on-chain units. */
+  totalWithdrawn?: string;
+  /** USD + crypto renderings for display only. Do not do arithmetic with these. */
+  display?: v1EarnPositionDisplay;
+  /** When true, deposits to this wrapper are rejected; withdrawals are unaffected. Toggled via EarnSetWrapperState. */
+  depositsDisabled?: boolean;
+};
+
+export type v1EarnPositionDisplay = {
+  /** Current value in USD, for display only. */
+  currentValueUsd?: string;
+  /** Total deposited in USD, for display only. */
+  totalDepositedUsd?: string;
+  /** Total withdrawn in USD, for display only. */
+  totalWithdrawnUsd?: string;
+  /** Current value in the asset's own units, for display only. */
+  currentValueCrypto?: string;
+  /** Total deposited in the asset's own units, for display only. */
+  totalDepositedCrypto?: string;
+  /** Total withdrawn in the asset's own units, for display only. */
+  totalWithdrawnCrypto?: string;
+};
+
+export type v1EarnPositionsRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** The wallet address to return positions for. */
+  walletAddress: string;
+};
+
+export type v1EarnPositionsResponse = {
+  /** The wallet's active Earn positions. */
+  positions?: v1EarnPosition[];
+};
+
+export type v1EarnProvider = "EARN_PROVIDER_MORPHO" | "EARN_PROVIDER_AAVE";
+
+export type v1EarnSetWrapperStateIntent = {
+  /** Address of the deployed Earn wrapper to update, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers. */
+  wrapperAddress: string;
+  /** When true, deposits to this wrapper are rejected; withdrawals are unaffected. Set to false to re-enable deposits. */
+  depositsDisabled: boolean;
+};
+
+export type v1EarnSetWrapperStateRequest = {
+  type: "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1EarnSetWrapperStateIntent;
+  generateAppProofs?: boolean;
+};
+
+export type v1EarnSetWrapperStateResult = {
+  /** Address of the updated Earn wrapper. */
+  wrapperAddress: string;
+  /** The wrapper's deposit state after this activity. */
+  depositsDisabled: boolean;
+};
+
+export type v1EarnValueDisplay = {
+  /** USD value, for display only. */
+  usd?: string;
+  /** Normalized amount in the asset's own units, for display only. */
+  crypto?: string;
+};
+
+export type v1EarnVault = {
+  /** Address of the underlying yield vault. */
+  vaultAddress?: string;
+  /** Yield provider for the vault. */
+  provider?: v1EarnProvider;
+  /** CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
+  caip19?: string;
+  /** Total value locked in the vault, in raw on-chain units of the underlying asset. The catalog is sorted by the USD value of this. */
+  tvl?: string;
+  /** Current annual percentage yield, expressed as a decimal fraction (e.g., '0.0812' for 8.12%). */
+  apyPct?: string;
+  /** Whether the organization has enabled this vault. */
+  enabled?: boolean;
+  /** Normalized TVL values for display purposes only (usd + crypto). Do not do arithmetic with these; use tvl instead. */
+  display?: v1EarnValueDisplay;
+  /** Human-readable vault name from the provider (e.g. 'Steakhouse Prime USDC' for Morpho; the reserve symbol for Aave). */
+  name?: string;
+  /** Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave). */
+  curator?: string;
+};
+
+export type v1EarnVaultsRequest = {
+  /** Unique identifier for a given Organization. Annotates which vaults the organization has already enabled. */
+  organizationId: string;
+  /** Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
+  provider?: v1EarnProvider;
+  /** CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier. */
+  caip19: string;
+  /** Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page. */
+  paginationOptions?: v1Pagination;
+};
+
+export type v1EarnVaultsResponse = {
+  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
+  vaults?: v1EarnVault[];
 };
 
 export type v1EarnWithdrawIntent = {
@@ -2425,9 +2677,35 @@ export type v1EarnWithdrawIntent = {
   amountValue: string;
 };
 
+export type v1EarnWithdrawRequest = {
+  type: "ACTIVITY_TYPE_EARN_WITHDRAW";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1EarnWithdrawIntent;
+  generateAppProofs?: boolean;
+};
+
 export type v1EarnWithdrawResult = {
   /** Identifier to poll withdrawal status and tx hash via EarnWithdrawStatus. */
   withdrawRequestId: string;
+};
+
+export type v1EarnWithdrawStatusRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** The withdraw_request_id returned by EarnWithdraw. */
+  withdrawRequestId: string;
+};
+
+export type v1EarnWithdrawStatusResponse = {
+  /** Status of the withdrawal. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the withdrawal, once available. */
+  withdrawTxHash?: string;
+  /** Reason the withdrawal transaction failed, when status is FAILED. */
+  error?: string;
 };
 
 export type v1Effect = "EFFECT_ALLOW" | "EFFECT_DENY";
@@ -2619,7 +2897,15 @@ export type v1EthSendRawTransactionIntent = {
     | "eip155:137"
     | "eip155:80002"
     | "eip155:56"
-    | "eip155:97";
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614";
 };
 
 export type v1EthSendRawTransactionResult = {
@@ -2641,7 +2927,15 @@ export type v1EthSendTransactionIntent = {
     | "eip155:137"
     | "eip155:80002"
     | "eip155:56"
-    | "eip155:97";
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614";
   /** Recipient address as a hex string with 0x prefix. */
   to: string;
   /** Amount of native asset to send in wei. */
@@ -2674,7 +2968,15 @@ export type v1EthSendTransactionIntentV2 = {
     | "eip155:137"
     | "eip155:80002"
     | "eip155:56"
-    | "eip155:97";
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614";
   /** Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station. */
   sponsor?: boolean;
   /** Outer transaction nonce. Omit to auto-fetch. */
@@ -2718,6 +3020,27 @@ export type v1EthSendTransactionStatus = {
   txHash?: string;
 };
 
+export type v1EthTransactionHistoryItem = {
+  /** EVM transaction hash. */
+  transactionHash: string;
+  /** Block metadata for the transaction. */
+  block: v1TransactionHistoryBlock;
+  /** Transaction confirmation status. */
+  status: "CONFIRMED" | "FINALIZED";
+  /** Origin of the transaction. Examples include TURNKEY. */
+  origin: string;
+  /** EVM sender address for the transaction. */
+  from: string;
+  /** EVM transaction destination address, such as the called contract or EVM tx.to. Omitted for contract-creation transactions with no destination. Recipients and payers of value transfers are reflected in transfers[].counterparty. */
+  to?: string;
+  /** Transaction fee information. */
+  fee: v1TransactionHistoryFee;
+  /** Asset transfers associated with the transaction. */
+  transfers: v1TransactionHistoryTransfer[];
+  /** Turnkey-specific metadata for transactions originated by Turnkey. */
+  turnkey?: v1TransactionHistoryTurnkey;
+};
+
 export type v1ExecuteSwapIntent = {
   /** CAIP-19 asset ID for the input asset. The chain is derived from this value. */
   inputToken: string;
@@ -2733,6 +3056,8 @@ export type v1ExecuteSwapIntent = {
   slippage?: string;
   /** Swap provider to execute with, as returned by get_swap_quote. When omitted, execution uses the default provider. */
   provider?: string;
+  /** Minimum acceptable base-unit amount of the output asset. Execution fails if the swap provider's quoted minimum output falls below this floor at execution time. */
+  minOutputAmount: string;
 };
 
 export type v1ExecuteSwapResult = {
@@ -3111,7 +3436,15 @@ export type v1GetNoncesRequest = {
     | "eip155:137"
     | "eip155:80002"
     | "eip155:56"
-    | "eip155:97";
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -3452,12 +3785,16 @@ export type v1GetWalletAddressBalancesRequest = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
     | "eip155:421614"
-    | "eip155:56"
-    | "eip155:97"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -3631,6 +3968,18 @@ export type v1InitImportPrivateKeyRequest = {
 export type v1InitImportPrivateKeyResult = {
   /** Import bundle containing a public key and signature to use for importing client data. */
   importBundle: string;
+};
+
+export type v1InitImportSecretsIntent = {
+  /** Transport encryption suite used for ingress secrets. */
+  encryptionSuite: v1TransportEncryptionSuite;
+  /** The number of secrets the user intends to import. */
+  numSecrets: number;
+};
+
+export type v1InitImportSecretsResult = {
+  /** Enclave ingress target keys along with metadata specific to the encryption suite. For enclave encrypt v1 this will be ServerTargetMsgV1. */
+  enclaveTargetMessages: string[];
 };
 
 export type v1InitImportWalletIntent = {
@@ -4000,7 +4349,6 @@ export type v1Intent = {
   createTvcDeploymentIntent?: v1CreateTvcDeploymentIntent;
   createTvcManifestApprovalsIntent?: v1CreateTvcManifestApprovalsIntent;
   solSendTransactionIntent?: v1SolSendTransactionIntent;
-  solSendTransactionIntentV2?: v1SolSendTransactionIntentV2;
   initOtpIntentV3?: v1InitOtpIntentV3;
   verifyOtpIntentV2?: v1VerifyOtpIntentV2;
   otpLoginIntentV2?: v1OtpLoginIntentV2;
@@ -4030,12 +4378,16 @@ export type v1Intent = {
   earnDeployWrapperIntent?: v1EarnDeployWrapperIntent;
   earnDepositIntent?: v1EarnDepositIntent;
   earnWithdrawIntent?: v1EarnWithdrawIntent;
-  upsertEarnClientFeeConfigIntent?: v1UpsertEarnClientFeeConfigIntent;
   executeSwapIntent?: v1ExecuteSwapIntent;
   upsertSwapConfigIntent?: v1UpsertSwapConfigIntent;
   createTvcOperatorIntent?: v1CreateTvcOperatorIntent;
   createTvcQuorumKeyIntent?: v1CreateTvcQuorumKeyIntent;
   reEncryptTvcQuorumKeyShareIntent?: v1ReEncryptTvcQuorumKeyShareIntent;
+  initImportSecretsIntent?: v1InitImportSecretsIntent;
+  solSendTransactionIntentV2?: v1SolSendTransactionIntentV2;
+  claimSwapFeesIntent?: v1ClaimSwapFeesIntent;
+  earnSetWrapperStateIntent?: v1EarnSetWrapperStateIntent;
+  claimEarnFeesIntent?: v1ClaimEarnFeesIntent;
 };
 
 export type v1InvitationParams = {
@@ -4096,6 +4448,36 @@ export type v1ListEmailEventsResponse = {
   emailEvents: v1EmailEvent[];
 };
 
+export type v1ListEthTransactionHistoryRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** Address corresponding to a wallet account. Private key addresses are not supported. */
+  address: string;
+  /** EVM CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614"
+    | "eip155:56"
+    | "eip155:97";
+  /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
+  paginationOptions?: v1TransactionHistoryPaginationOptions;
+};
+
+export type v1ListEthTransactionHistoryResponse = {
+  /** EVM transactions for the requested address, ordered by most recent first. */
+  transactions: v1EthTransactionHistoryItem[];
+  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
+  paginationCursors: v1TransactionHistoryPaginationCursors;
+};
+
 export type v1ListFiatOnRampCredentialsRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
@@ -4124,6 +4506,28 @@ export type v1ListPrivateKeyTagsResponse = {
   privateKeyTags: datav1Tag[];
 };
 
+export type v1ListSolTransactionHistoryRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** Address corresponding to a wallet account. Private key addresses are not supported. */
+  address: string;
+  /** Solana CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
+  caip2:
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    | "solana:mainnet"
+    | "solana:devnet";
+  /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
+  paginationOptions?: v1TransactionHistoryPaginationOptions;
+};
+
+export type v1ListSolTransactionHistoryResponse = {
+  /** Solana transactions for the requested address, ordered by most recent first. */
+  transactions: v1SolTransactionHistoryItem[];
+  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
+  paginationCursors: v1TransactionHistoryPaginationCursors;
+};
+
 export type v1ListSupportedAssetsRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
@@ -4135,13 +4539,16 @@ export type v1ListSupportedAssetsRequest = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614"
-    | "eip155:56"
-    | "eip155:97"
-    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "eip155:421614solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
@@ -4770,7 +5177,6 @@ export type v1Result = {
   createTvcDeploymentResult?: v1CreateTvcDeploymentResult;
   createTvcManifestApprovalsResult?: v1CreateTvcManifestApprovalsResult;
   solSendTransactionResult?: v1SolSendTransactionResult;
-  solSendTransactionResultV2?: v1SolSendTransactionResultV2;
   initOtpResultV2?: v1InitOtpResultV2;
   updateOrganizationNameResult?: v1UpdateOrganizationNameResult;
   createSubOrganizationResultV8?: v1CreateSubOrganizationResultV8;
@@ -4797,12 +5203,16 @@ export type v1Result = {
   earnDeployWrapperResult?: v1EarnDeployWrapperResult;
   earnDepositResult?: v1EarnDepositResult;
   earnWithdrawResult?: v1EarnWithdrawResult;
-  upsertEarnClientFeeConfigResult?: v1UpsertEarnClientFeeConfigResult;
   executeSwapResult?: v1ExecuteSwapResult;
   upsertSwapConfigResult?: v1UpsertSwapConfigResult;
   createTvcOperatorResult?: v1CreateTvcOperatorResult;
   createTvcQuorumKeyResult?: v1CreateTvcQuorumKeyResult;
   reEncryptTvcQuorumKeyShareResult?: v1ReEncryptTvcQuorumKeyShareResult;
+  initImportSecretsResult?: v1InitImportSecretsResult;
+  solSendTransactionResultV2?: v1SolSendTransactionResultV2;
+  claimSwapFeesResult?: v1ClaimSwapFeesResult;
+  earnSetWrapperStateResult?: v1EarnSetWrapperStateResult;
+  claimEarnFeesResult?: v1ClaimEarnFeesResult;
 };
 
 export type v1RevertChainEntry = {
@@ -5143,6 +5553,34 @@ export type v1SolSendTransactionResultV2 = {
   sendTransactionStatusId: string;
 };
 
+export type v1SolTransactionHistoryItem = {
+  /** Solana transaction signature. */
+  signature: string;
+  /** Block metadata for the transaction. */
+  block: v1TransactionHistoryBlock;
+  /** Transaction confirmation status. */
+  status: "CONFIRMED" | "FINALIZED";
+  /** Origin of the transaction. Examples include TURNKEY. */
+  origin: string;
+  /** Address that paid the Solana transaction fee. This is the first signer in the transaction message. */
+  feePayer: string;
+  /** Addresses that signed the Solana transaction, in message order. */
+  signers: v1SolTransactionHistorySigner[];
+  /** Transaction fee information. */
+  fee: v1TransactionHistoryFee;
+  /** Asset transfers associated with the transaction. */
+  transfers: v1TransactionHistoryTransfer[];
+  /** Turnkey-specific metadata for transactions originated by Turnkey. */
+  turnkey?: v1TransactionHistoryTurnkey;
+};
+
+export type v1SolTransactionHistorySigner = {
+  /** Address of the Solana transaction signer. */
+  address: string;
+  /** Whether the signer account was writable in the Solana transaction message. */
+  writable: boolean;
+};
+
 export type v1SolanaConfig = {
   /** Whether Solana rent prefunding is enabled for the organization. When omitted, the existing rent-prefund state is left unchanged. */
   rentPrefundEnabled?: boolean;
@@ -5435,12 +5873,87 @@ export type v1TokenUsage = {
   signupV2?: v1SignupUsageV2;
 };
 
+export type v1TransactionHistoryAsset = {
+  /** The CAIP-19 asset identifier. */
+  caip19: string;
+  /** The asset symbol. */
+  symbol: string;
+  /** The asset name. */
+  name: string;
+  /** The number of decimals this asset uses. */
+  decimals: number;
+};
+
+export type v1TransactionHistoryBlock = {
+  /** Block number containing the transaction. */
+  number: string;
+  /** Block hash containing the transaction. */
+  hash: string;
+  /** Block timestamp in RFC 3339 format. */
+  timestamp: string;
+};
+
+export type v1TransactionHistoryDisplay = {
+  /** Normalized crypto value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+  crypto?: string;
+  /** USD value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+  usd?: string;
+};
+
+export type v1TransactionHistoryFee = {
+  /** Fee amount in atomic units. */
+  amount: string;
+  /** The CAIP-19 asset identifier. */
+  caip19: string;
+};
+
+export type v1TransactionHistoryPaginationCursors = {
+  /** Opaque base64-encoded cursor for fetching transactions immediately before the current page in the newest-first result order. Omitted when no such page exists. */
+  before?: string;
+  /** Opaque base64-encoded cursor for fetching transactions immediately after the current page in the newest-first result order. Omitted when no such page exists. */
+  after?: string;
+};
+
+export type v1TransactionHistoryPaginationOptions = {
+  /** Maximum number of transactions to return, between 1 and 100. Defaults to 25. */
+  limit?: string;
+  /** Opaque base64-encoded cursor returned by this API. Fetches transactions immediately before the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with after. */
+  before?: string;
+  /** Opaque base64-encoded cursor returned by this API. Fetches transactions immediately after the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with before. */
+  after?: string;
+};
+
+export type v1TransactionHistoryTransfer = {
+  /** Transfer direction relative to the queried address. */
+  direction: "IN" | "OUT";
+  /** Asset metadata for the transfer. Omitted when the asset cannot be determined. */
+  asset?: v1TransactionHistoryAsset;
+  /** Transfer amount in atomic units. */
+  amount: string;
+  /** Counterparty address for the transfer. */
+  counterparty: string;
+  /** Normalized transfer values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the amount field instead. */
+  display?: v1TransactionHistoryDisplay;
+};
+
+export type v1TransactionHistoryTurnkey = {
+  /** Whether the transaction fee was sponsored by Turnkey. */
+  sponsored: boolean;
+  /** Fingerprint of the Turnkey activity that submitted the transaction. */
+  activityFingerprint?: string;
+  /** Timestamp when Turnkey submitted the transaction, in RFC 3339 format. */
+  submittedAt?: string;
+};
+
 export type v1TransactionType =
   | "TRANSACTION_TYPE_ETHEREUM"
   | "TRANSACTION_TYPE_SOLANA"
   | "TRANSACTION_TYPE_TRON"
   | "TRANSACTION_TYPE_BITCOIN"
   | "TRANSACTION_TYPE_TEMPO";
+
+export type v1TransportEncryptionSuite =
+  "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1";
 
 export type v1TvcApp = {
   /** Unique Identifier for this TVC App. */
@@ -5654,6 +6167,8 @@ export type v1UpdateAuthProxyConfigIntent = {
   verificationTokenRequiredForGetAccountPii?: boolean;
   /** Whitelisted OAuth client IDs for social account linking. When a user authenticates via a social provider with an email matching an existing account, the accounts will be linked if the client ID is in this list and the issuer is considered a trusted provider. */
   socialLinkingClientIds?: string[];
+  /** Whether captcha verification is required on sign up & otp init. */
+  captchaEnabled?: boolean;
 };
 
 export type v1UpdateAuthProxyConfigResult = {
@@ -6054,18 +6569,6 @@ export type v1UpdateWebhookEndpointResult = {
   webhookEndpoint: v1WebhookEndpointData;
 };
 
-export type v1UpsertEarnClientFeeConfigIntent = {
-  /** Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield. */
-  clientFeeBps: string;
-  /** The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
-  clientFeeWallet: string;
-};
-
-export type v1UpsertEarnClientFeeConfigResult = {
-  /** Transaction hash of the fee configuration update. */
-  feeUpdateTxHash: string;
-};
-
 export type v1UpsertGasUsageConfigIntent = {
   /** Gas sponsorship USD limit for the billing organization window. */
   orgWindowLimitUsd: string;
@@ -6086,13 +6589,17 @@ export type v1UpsertGasUsageConfigResult = {
 
 export type v1UpsertSwapConfigIntent = {
   feeReceiverWalletAddress?: string;
+  /** Client fee in basis points applied to swaps; used for all pairs unless stable_fee_bps is set. */
   feeBps?: string;
   provider?: string;
+  /** Optional override applied when both swap assets are stablecoins; falls back to fee_bps when unset. */
+  stableFeeBps?: string;
 };
 
 export type v1UpsertSwapConfigResult = {
   feeReceiverWalletAddress?: string;
   feeBps?: string;
+  stableFeeBps?: string;
 };
 
 export type v1UsageType = "USAGE_TYPE_SIGNUP" | "USAGE_TYPE_LOGIN";
@@ -6325,81 +6832,8 @@ export type v1WebhookSubscriptionParams = {
   isActive?: boolean;
 };
 
-export type v1EarnVaultsResponse = {
-  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
-  vaults?: v1EarnVault[];
-};
-
-export type v1EarnVaultsRequest = {
-  /** Unique identifier for a given Organization. Annotates which vaults the organization has already enabled. */
-  organizationId: string;
-  /** Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
-  provider?: v1EarnProvider;
-  /** CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier. */
-  caip19: string;
-  /** Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page. */
-  paginationOptions?: v1Pagination;
-};
-
-export type v1EarnEnabledVaultsResponse = {
-  /** The organization's deployed wrappers. */
-  enabledVaults?: v1EarnEnabledVault[];
-};
-
-export type v1EarnEnabledVaultsRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
-  provider?: v1EarnProvider;
-  /** Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
-  caip19?: string;
-};
-
-export type v1EarnPositionsResponse = {
-  /** The wallet's active Earn positions. */
-  positions?: v1EarnPosition[];
-};
-
-export type v1EarnPositionsRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** The wallet address to return positions for. */
-  walletAddress: string;
-};
-
-export type v1EarnDepositStatusResponse = {
-  /** Status of the deposit. */
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  /** Transaction hash of the deposit, once available. */
-  depositTxHash?: string;
-  /** Reason the deposit transaction failed, when status is FAILED. */
-  error?: string;
-};
-
-export type v1EarnDepositStatusRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** The deposit_request_id returned by EarnDeposit. */
-  depositRequestId: string;
-};
-
-export type v1EarnWithdrawStatusResponse = {
-  /** Status of the withdrawal. */
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  /** Transaction hash of the withdrawal, once available. */
-  withdrawTxHash?: string;
-  /** Reason the withdrawal transaction failed, when status is FAILED. */
-  error?: string;
-};
-
-export type v1EarnWithdrawStatusRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** The withdraw_request_id returned by EarnWithdraw. */
-  withdrawRequestId: string;
-};
-
-export type v1EarnDeployStatusResponse = {
+// --- API Types from Swagger Paths ---
+export type TEarnDeployStatusResponse = {
   /** Status of the wrapper deployment. */
   status: "PENDING" | "COMPLETED" | "FAILED";
   /** Transaction hash of the deployment, once available. */
@@ -6408,137 +6842,93 @@ export type v1EarnDeployStatusResponse = {
   error?: string;
 };
 
-export type v1EarnDeployStatusRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
+export type TEarnDeployStatusBody = {
+  organizationId?: string;
   /** The deploy_request_id returned by EarnDeployWrapper. */
   deployRequestId: string;
 };
 
-export type v1EarnDepositRequest = {
-  type: "ACTIVITY_TYPE_EARN_DEPOSIT";
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1EarnDepositIntent;
-  generateAppProofs?: boolean;
+export type TEarnDeployStatusInput = { body: TEarnDeployStatusBody };
+
+export type TEarnDepositStatusResponse = {
+  /** Status of the deposit. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the deposit, once available. */
+  depositTxHash?: string;
+  /** Reason the deposit transaction failed, when status is FAILED. */
+  error?: string;
 };
 
-export type v1EarnWithdrawRequest = {
-  type: "ACTIVITY_TYPE_EARN_WITHDRAW";
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1EarnWithdrawIntent;
-  generateAppProofs?: boolean;
+export type TEarnDepositStatusBody = {
+  organizationId?: string;
+  /** The deposit_request_id returned by EarnDeposit. */
+  depositRequestId: string;
 };
 
-export type v1EarnDeployWrapperRequest = {
-  type: "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER";
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1EarnDeployWrapperIntent;
-  generateAppProofs?: boolean;
+export type TEarnDepositStatusInput = { body: TEarnDepositStatusBody };
+
+export type TEarnEnabledVaultsResponse = {
+  /** The organization's deployed wrappers. */
+  enabledVaults?: v1EarnEnabledVault[];
 };
 
-export type v1EarnVault = {
-  /** Address of the underlying yield vault. */
-  vaultAddress?: string;
-  /** Yield provider for the vault. */
+export type TEarnEnabledVaultsBody = {
+  organizationId?: string;
+  /** Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
   provider?: v1EarnProvider;
-  /** CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
+  /** Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
   caip19?: string;
-  /** Total value locked in the vault, in raw on-chain units of the underlying asset. The catalog is sorted by the USD value of this. */
-  tvl?: string;
-  /** Current annual percentage yield, expressed as a decimal fraction (e.g., '0.0812' for 8.12%). */
-  apyPct?: string;
-  /** Whether the organization has enabled this vault. */
-  enabled?: boolean;
-  /** Normalized TVL values for display purposes only (usd + crypto). Do not do arithmetic with these; use tvl instead. */
-  display?: v1EarnValueDisplay;
-  /** Human-readable vault name from the provider (e.g. 'Steakhouse Prime USDC' for Morpho; the reserve symbol for Aave). */
-  name?: string;
-  /** Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave). */
-  curator?: string;
 };
 
-export type v1EarnProvider = "EARN_PROVIDER_MORPHO" | "EARN_PROVIDER_AAVE";
+export type TEarnEnabledVaultsInput = { body: TEarnEnabledVaultsBody };
 
-export type v1EarnEnabledVault = {
-  /** Address of the underlying yield vault. */
-  vaultAddress?: string;
-  /** Address of the deployed fee wrapper (the deposit target). */
-  wrapperAddress?: string;
-  /** Yield provider for the vault. */
+export type TEarnPositionsResponse = {
+  /** The wallet's active Earn positions. */
+  positions?: v1EarnPosition[];
+};
+
+export type TEarnPositionsBody = {
+  organizationId?: string;
+  /** The wallet address to return positions for. */
+  walletAddress: string;
+};
+
+export type TEarnPositionsInput = { body: TEarnPositionsBody };
+
+export type TEarnVaultsResponse = {
+  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
+  vaults?: v1EarnVault[];
+};
+
+export type TEarnVaultsBody = {
+  organizationId?: string;
+  /** Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
   provider?: v1EarnProvider;
-  /** CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
-  caip19?: string;
-  /** Gross annual percentage yield, expressed as a decimal fraction (before Turnkey and client fees). */
-  apyPct?: string;
-  /** Total deposited through this wrapper (wrapper TVL), in raw on-chain units of the underlying asset. */
-  totalDeposited?: string;
-  /** Normalized total-deposited values for display only (usd + crypto). Do not do arithmetic with these; use total_deposited instead. */
-  display?: v1EarnValueDisplay;
-  /** Annual percentage yield net of the Turnkey and client performance fees, expressed as a decimal fraction. */
-  netApyPct?: string;
-  /** Client performance fee taken on yield, in basis points. Currently org-wide; moving to a per-vault setting. */
-  clientFeeBps?: string;
-  /** When true, deposits to this wrapper are rejected; withdrawals are unaffected. Toggled via EarnSetWrapperState. */
-  depositsDisabled?: boolean;
-  /** Human-readable vault name from the provider (e.g. 'Steakhouse Prime USDC' for Morpho; the reserve symbol for Aave). */
-  name?: string;
-  /** Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave). */
-  curator?: string;
+  /** CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier. */
+  caip19: string;
+  /** Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page. */
+  paginationOptions?: v1Pagination;
 };
 
-export type v1EarnPosition = {
-  /** Address of the underlying yield vault. */
-  vaultAddress?: string;
-  /** Address of the fee wrapper holding the position. */
-  wrapperAddress?: string;
-  /** Yield provider for the vault. */
-  provider?: v1EarnProvider;
-  /** CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
-  caip19?: string;
-  /** Current value of the position in the underlying asset, in raw on-chain units (already net of the wrapper fee). */
-  currentValue?: string;
-  /** Lifetime total deposited into this position, in raw on-chain units. */
-  totalDeposited?: string;
-  /** Lifetime total withdrawn from this position, in raw on-chain units. */
-  totalWithdrawn?: string;
-  /** USD + crypto renderings for display only. Do not do arithmetic with these. */
-  display?: v1EarnPositionDisplay;
-  /** When true, deposits to this wrapper are rejected; withdrawals are unaffected. Toggled via EarnSetWrapperState. */
-  depositsDisabled?: boolean;
+export type TEarnVaultsInput = { body: TEarnVaultsBody };
+
+export type TEarnWithdrawStatusResponse = {
+  /** Status of the withdrawal. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the withdrawal, once available. */
+  withdrawTxHash?: string;
+  /** Reason the withdrawal transaction failed, when status is FAILED. */
+  error?: string;
 };
 
-export type v1EarnValueDisplay = {
-  /** USD value, for display only. */
-  usd?: string;
-  /** Normalized amount in the asset's own units, for display only. */
-  crypto?: string;
+export type TEarnWithdrawStatusBody = {
+  organizationId?: string;
+  /** The withdraw_request_id returned by EarnWithdraw. */
+  withdrawRequestId: string;
 };
 
-export type v1EarnPositionDisplay = {
-  /** Current value in USD, for display only. */
-  currentValueUsd?: string;
-  /** Total deposited in USD, for display only. */
-  totalDepositedUsd?: string;
-  /** Total withdrawn in USD, for display only. */
-  totalWithdrawnUsd?: string;
-  /** Current value in the asset's own units, for display only. */
-  currentValueCrypto?: string;
-  /** Total deposited in the asset's own units, for display only. */
-  totalDepositedCrypto?: string;
-  /** Total withdrawn in the asset's own units, for display only. */
-  totalWithdrawnCrypto?: string;
-};
+export type TEarnWithdrawStatusInput = { body: TEarnWithdrawStatusBody };
 
-// --- API Types from Swagger Paths ---
 export type TGetActivityResponse = {
   /** An action that can be taken within the Turnkey infrastructure. */
   activity: v1Activity;
@@ -6731,7 +7121,15 @@ export type TGetNoncesBody = {
     | "eip155:137"
     | "eip155:80002"
     | "eip155:56"
-    | "eip155:97";
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -7000,12 +7398,16 @@ export type TGetWalletAddressBalancesBody = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
     | "eip155:421614"
-    | "eip155:56"
-    | "eip155:97"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -7059,6 +7461,39 @@ export type TListEmailEventsBody = {
 };
 
 export type TListEmailEventsInput = { body: TListEmailEventsBody };
+
+export type TListEthTransactionHistoryResponse = {
+  /** EVM transactions for the requested address, ordered by most recent first. */
+  transactions: v1EthTransactionHistoryItem[];
+  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
+  paginationCursors: v1TransactionHistoryPaginationCursors;
+};
+
+export type TListEthTransactionHistoryBody = {
+  organizationId?: string;
+  /** Address corresponding to a wallet account. Private key addresses are not supported. */
+  address: string;
+  /** EVM CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614"
+    | "eip155:56"
+    | "eip155:97";
+  /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
+  paginationOptions?: v1TransactionHistoryPaginationOptions;
+};
+
+export type TListEthTransactionHistoryInput = {
+  body: TListEthTransactionHistoryBody;
+};
 
 export type TListFiatOnRampCredentialsResponse = {
   fiatOnRampCredentials: v1FiatOnRampCredential[];
@@ -7128,6 +7563,31 @@ export type TGetSmartContractInterfacesInput = {
   body: TGetSmartContractInterfacesBody;
 };
 
+export type TListSolTransactionHistoryResponse = {
+  /** Solana transactions for the requested address, ordered by most recent first. */
+  transactions: v1SolTransactionHistoryItem[];
+  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
+  paginationCursors: v1TransactionHistoryPaginationCursors;
+};
+
+export type TListSolTransactionHistoryBody = {
+  organizationId?: string;
+  /** Address corresponding to a wallet account. Private key addresses are not supported. */
+  address: string;
+  /** Solana CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
+  caip2:
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+    | "solana:mainnet"
+    | "solana:devnet";
+  /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
+  paginationOptions?: v1TransactionHistoryPaginationOptions;
+};
+
+export type TListSolTransactionHistoryInput = {
+  body: TListSolTransactionHistoryBody;
+};
+
 export type TGetSubOrgIdsResponse = {
   /** List of unique identifiers for the matching sub-organizations. */
   organizationIds: string[];
@@ -7160,13 +7620,16 @@ export type TListSupportedAssetsBody = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614"
-    | "eip155:56"
-    | "eip155:97"
-    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "eip155:421614solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
@@ -7318,6 +7781,22 @@ export type TApproveActivityBody = {
 };
 
 export type TApproveActivityInput = { body: TApproveActivityBody };
+
+export type TClaimEarnFeesResponse = {
+  activity: v1Activity;
+  /** Identifier to poll claim status and tx hash via ClaimEarnFeesStatus. */
+  claimRequestId: string;
+};
+
+export type TClaimEarnFeesBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Address of the deployed Earn wrapper to claim fees for. Must be one of the org's deployed wrappers. */
+  wrapperAddress: string;
+  generateAppProofs?: boolean;
+};
+
+export type TClaimEarnFeesInput = { body: TClaimEarnFeesBody };
 
 export type TCreateApiKeysResponse = {
   activity: v1Activity;
@@ -7751,6 +8230,8 @@ export type TCreateTvcDeploymentBody = {
   healthCheckPort: number;
   /** Port to use for public ingress. */
   publicIngressPort: number;
+  /** Optional desired replica count for this deployment. */
+  replicas?: number;
 };
 
 export type TCreateTvcDeploymentInput = { body: TCreateTvcDeploymentBody };
@@ -8218,6 +8699,118 @@ export type TDeleteWebhookEndpointBody = {
 };
 
 export type TDeleteWebhookEndpointInput = { body: TDeleteWebhookEndpointBody };
+
+export type TEarnDeployWrapperResponse = {
+  activity: v1Activity;
+  /** Address of the deployed fee wrapper (the deposit target). */
+  wrapperAddress: string;
+  /** Address of the deployed fee splitter (PaymentSplitter for Morpho, RevenueSplitterOwner for Aave). */
+  splitterAddress: string;
+  /** Identifier to poll deploy status. */
+  deployRequestId: string;
+};
+
+export type TEarnDeployWrapperBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Address of the underlying yield vault to wrap (from the EarnVaults catalog). */
+  vaultAddress: string;
+  /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
+  chainCaip2:
+    | "eip155:1"
+    | "eip155:8453"
+    | "eip155:42161"
+    | "eip155:137"
+    | "eip155:56"
+    | "eip155:4217";
+  /** Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield. */
+  clientFeeBps: string;
+  /** The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
+  clientFeeWallet: string;
+  generateAppProofs?: boolean;
+};
+
+export type TEarnDeployWrapperInput = { body: TEarnDeployWrapperBody };
+
+export type TEarnDepositResponse = {
+  activity: v1Activity;
+  /** Identifier to poll deposit status and tx hash via EarnDepositStatus. */
+  depositRequestId: string;
+};
+
+export type TEarnDepositBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Address of the deployed Earn wrapper to deposit into, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers. */
+  wrapperAddress: string;
+  /** A Wallet account address or Private Key address to deposit from and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
+  signWith: string;
+  /** Amount of the underlying asset to deposit, in raw on-chain units (e.g., '1000000' for 1 USDC at 6 decimals). */
+  assets: string;
+  /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
+  chainCaip2:
+    | "eip155:1"
+    | "eip155:8453"
+    | "eip155:42161"
+    | "eip155:137"
+    | "eip155:56"
+    | "eip155:4217";
+  /** Whether to sponsor this transaction via Gas Station. */
+  sponsor?: boolean;
+  generateAppProofs?: boolean;
+};
+
+export type TEarnDepositInput = { body: TEarnDepositBody };
+
+export type TEarnSetWrapperStateResponse = {
+  activity: v1Activity;
+  /** Address of the updated Earn wrapper. */
+  wrapperAddress: string;
+  /** The wrapper's deposit state after this activity. */
+  depositsDisabled: boolean;
+};
+
+export type TEarnSetWrapperStateBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Address of the deployed Earn wrapper to update, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers. */
+  wrapperAddress: string;
+  /** When true, deposits to this wrapper are rejected; withdrawals are unaffected. Set to false to re-enable deposits. */
+  depositsDisabled: boolean;
+  generateAppProofs?: boolean;
+};
+
+export type TEarnSetWrapperStateInput = { body: TEarnSetWrapperStateBody };
+
+export type TEarnWithdrawResponse = {
+  activity: v1Activity;
+  /** Identifier to poll withdrawal status and tx hash via EarnWithdrawStatus. */
+  withdrawRequestId: string;
+};
+
+export type TEarnWithdrawBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Address of the deployed Earn wrapper holding the position to withdraw from, from EarnPositions. Must be one of the org's deployed wrappers. */
+  wrapperAddress: string;
+  /** A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
+  signWith: string;
+  /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
+  chainCaip2:
+    | "eip155:1"
+    | "eip155:8453"
+    | "eip155:42161"
+    | "eip155:137"
+    | "eip155:56"
+    | "eip155:4217";
+  /** Whether to sponsor this transaction via Gas Station. */
+  sponsor?: boolean;
+  /** The amount of the underlying asset to withdraw, in raw on-chain units. Pass 'MAX' to withdraw the entire position. */
+  amountValue: string;
+  generateAppProofs?: boolean;
+};
+
+export type TEarnWithdrawInput = { body: TEarnWithdrawBody };
 
 export type TEmailAuthResponse = {
   activity: v1Activity;
@@ -9311,194 +9904,6 @@ export type TNOOPCodegenAnchorResponse = {
   activity: v1Activity;
 };
 
-export type TEarnVaultsResponse = {
-  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
-  vaults?: v1EarnVault[];
-};
-
-export type TEarnVaultsBody = {
-  organizationId?: string;
-  /** Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
-  provider?: v1EarnProvider;
-  /** CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier. */
-  caip19: string;
-  /** Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page. */
-  paginationOptions?: v1Pagination;
-};
-
-export type TEarnVaultsInput = { body: TEarnVaultsBody };
-
-export type TEarnEnabledVaultsResponse = {
-  /** The organization's deployed wrappers. */
-  enabledVaults?: v1EarnEnabledVault[];
-};
-
-export type TEarnEnabledVaultsBody = {
-  organizationId?: string;
-  /** Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
-  provider?: v1EarnProvider;
-  /** Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
-  caip19?: string;
-};
-
-export type TEarnEnabledVaultsInput = { body: TEarnEnabledVaultsBody };
-
-export type TEarnPositionsResponse = {
-  /** The wallet's active Earn positions. */
-  positions?: v1EarnPosition[];
-};
-
-export type TEarnPositionsBody = {
-  organizationId?: string;
-  /** The wallet address to return positions for. */
-  walletAddress: string;
-};
-
-export type TEarnPositionsInput = { body: TEarnPositionsBody };
-
-export type TEarnDepositStatusResponse = {
-  /** Status of the deposit. */
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  /** Transaction hash of the deposit, once available. */
-  depositTxHash?: string;
-  /** Reason the deposit transaction failed, when status is FAILED. */
-  error?: string;
-};
-
-export type TEarnDepositStatusBody = {
-  organizationId?: string;
-  /** The deposit_request_id returned by EarnDeposit. */
-  depositRequestId: string;
-};
-
-export type TEarnDepositStatusInput = { body: TEarnDepositStatusBody };
-
-export type TEarnWithdrawStatusResponse = {
-  /** Status of the withdrawal. */
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  /** Transaction hash of the withdrawal, once available. */
-  withdrawTxHash?: string;
-  /** Reason the withdrawal transaction failed, when status is FAILED. */
-  error?: string;
-};
-
-export type TEarnWithdrawStatusBody = {
-  organizationId?: string;
-  /** The withdraw_request_id returned by EarnWithdraw. */
-  withdrawRequestId: string;
-};
-
-export type TEarnWithdrawStatusInput = { body: TEarnWithdrawStatusBody };
-
-export type TEarnDeployStatusResponse = {
-  /** Status of the wrapper deployment. */
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  /** Transaction hash of the deployment, once available. */
-  deployTxHash?: string;
-  /** Reason the deployment transaction failed, when status is FAILED. */
-  error?: string;
-};
-
-export type TEarnDeployStatusBody = {
-  organizationId?: string;
-  /** The deploy_request_id returned by EarnDeployWrapper. */
-  deployRequestId: string;
-};
-
-export type TEarnDeployStatusInput = { body: TEarnDeployStatusBody };
-
-export type TEarnDepositResponse = {
-  activity: v1Activity;
-  /** Identifier to poll deposit status and tx hash via EarnDepositStatus. */
-  depositRequestId: string;
-};
-
-export type TEarnDepositBody = {
-  timestampMs?: string;
-  organizationId?: string;
-  /** Address of the deployed Earn wrapper to deposit into, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers. */
-  wrapperAddress: string;
-  /** A Wallet account address or Private Key address to deposit from and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
-  signWith: string;
-  /** Amount of the underlying asset to deposit, in raw on-chain units (e.g., '1000000' for 1 USDC at 6 decimals). */
-  assets: string;
-  /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
-  chainCaip2:
-    | "eip155:1"
-    | "eip155:8453"
-    | "eip155:42161"
-    | "eip155:137"
-    | "eip155:56"
-    | "eip155:4217";
-  /** Whether to sponsor this transaction via Gas Station. */
-  sponsor?: boolean;
-  generateAppProofs?: boolean;
-};
-
-export type TEarnDepositInput = { body: TEarnDepositBody };
-
-export type TEarnWithdrawResponse = {
-  activity: v1Activity;
-  /** Identifier to poll withdrawal status and tx hash via EarnWithdrawStatus. */
-  withdrawRequestId: string;
-};
-
-export type TEarnWithdrawBody = {
-  timestampMs?: string;
-  organizationId?: string;
-  /** Address of the deployed Earn wrapper holding the position to withdraw from, from EarnPositions. Must be one of the org's deployed wrappers. */
-  wrapperAddress: string;
-  /** A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
-  signWith: string;
-  /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
-  chainCaip2:
-    | "eip155:1"
-    | "eip155:8453"
-    | "eip155:42161"
-    | "eip155:137"
-    | "eip155:56"
-    | "eip155:4217";
-  /** Whether to sponsor this transaction via Gas Station. */
-  sponsor?: boolean;
-  /** The amount of the underlying asset to withdraw, in raw on-chain units. Pass 'MAX' to withdraw the entire position. */
-  amountValue: string;
-  generateAppProofs?: boolean;
-};
-
-export type TEarnWithdrawInput = { body: TEarnWithdrawBody };
-
-export type TEarnDeployWrapperResponse = {
-  activity: v1Activity;
-  /** Address of the deployed fee wrapper (the deposit target). */
-  wrapperAddress: string;
-  /** Address of the deployed fee splitter (PaymentSplitter for Morpho, RevenueSplitterOwner for Aave). */
-  splitterAddress: string;
-  /** Identifier to poll deploy status. */
-  deployRequestId: string;
-};
-
-export type TEarnDeployWrapperBody = {
-  timestampMs?: string;
-  organizationId?: string;
-  /** Address of the underlying yield vault to wrap (from the EarnVaults catalog). */
-  vaultAddress: string;
-  /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
-  chainCaip2:
-    | "eip155:1"
-    | "eip155:8453"
-    | "eip155:42161"
-    | "eip155:137"
-    | "eip155:56"
-    | "eip155:4217";
-  /** Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield. */
-  clientFeeBps: string;
-  /** The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
-  clientFeeWallet: string;
-  generateAppProofs?: boolean;
-};
-
-export type TEarnDeployWrapperInput = { body: TEarnDeployWrapperBody };
-
 export type TEthSendTransactionResponse = {
   activity: v1Activity;
   /** The send_transaction_status ID associated with the transaction submission */
@@ -9521,7 +9926,15 @@ export type TEthSendTransactionBody = {
     | "eip155:137"
     | "eip155:80002"
     | "eip155:56"
-    | "eip155:97";
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614";
   /** Recipient address as a hex string with 0x prefix. */
   to: string;
   /** Amount of native asset to send in wei. */
@@ -9565,7 +9978,15 @@ export type TEthSendTransactionV2Body = {
     | "eip155:137"
     | "eip155:80002"
     | "eip155:56"
-    | "eip155:97";
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614";
   /** Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station. */
   sponsor?: boolean;
   /** Outer transaction nonce. Omit to auto-fetch. */
@@ -9871,6 +10292,17 @@ export type ProxyTSignupV2Body = {
 };
 
 export type ProxyTSignupV2Input = { body: ProxyTSignupV2Body };
+
+export type ProxyTGetWalletKitClientParamsResponse = {
+  /** Site key for Turnstile, used to protect WalletKit flows with bot detection. */
+  turnstileSiteKey?: string;
+};
+
+export type ProxyTGetWalletKitClientParamsBody = {};
+
+export type ProxyTGetWalletKitClientParamsInput = {
+  body: ProxyTGetWalletKitClientParamsBody;
+};
 
 export type ProxyTGetWalletKitConfigResponse = {
   /** List of enabled authentication providers (e.g., 'facebook', 'google', 'apple', 'email', 'sms', 'passkey', 'wallet') */
