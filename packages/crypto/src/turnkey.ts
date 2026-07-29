@@ -536,13 +536,30 @@ export const verifyOtpVerificationToken = async (
     dangerouslyOverrideSignerPublicKey ??
     PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY;
 
-  /* 1. split JWT -------------------------------------------------------- */
+  /* 1. split JWT + verify header (standard ES256 JWT) ------------------- */
   const parts = jwt.split(".");
   if (parts.length !== 3) throw new Error("invalid JWT: need 3 parts");
   const headerB64 = parts[0]!;
   const payloadB64 = parts[1]!;
   const signatureB64 = parts[2]!;
   const signingInput = `${headerB64}.${payloadB64}`;
+
+  // Pin the algorithm/type so a token issued with a different `alg` (e.g. "none"
+  // or "HS256") is rejected with a clear error rather than relying on the ES256
+  // signature check to fail closed.
+  const header = JSON.parse(
+    new TextDecoder().decode(base64UrlToBytes(headerB64)),
+  ) as { alg?: string; typ?: string };
+  if (header.alg !== "ES256") {
+    throw new Error(
+      `OTP verification token has unsupported alg (expected 'ES256'): ${header.alg}`,
+    );
+  }
+  if (header.typ !== "JWT") {
+    throw new Error(
+      `OTP verification token has unsupported typ (expected 'JWT'): ${header.typ}`,
+    );
+  }
 
   /* 2. sha256(header.payload) - standard ES256, single hash ------------- */
   const msgDigest = sha256(new TextEncoder().encode(signingInput)); // 32-byte Uint8Array

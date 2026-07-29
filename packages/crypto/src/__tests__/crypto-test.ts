@@ -559,6 +559,23 @@ describe("OTP Verification Token", () => {
       verifyOtpVerificationToken(jwt, testPubKeyHex),
     ).rejects.toThrow("has expired");
   });
+
+  test("throws for a non-numeric exp claim", async () => {
+    const jwt = signTestToken({ ...fullClaims, exp: "notanumber" });
+    await expect(
+      verifyOtpVerificationToken(jwt, testPubKeyHex),
+    ).rejects.toThrow("invalid 'exp' claim");
+  });
+
+  test("throws for a non-ES256 alg header", async () => {
+    const b64url = (o: unknown) =>
+      Buffer.from(JSON.stringify(o)).toString("base64url");
+    // alg is checked before signature verification, so the signature is irrelevant.
+    const jwt = `${b64url({ typ: "JWT", alg: "HS256" })}.${b64url(fullClaims)}.AAAA`;
+    await expect(verifyOtpVerificationToken(jwt)).rejects.toThrow(
+      "unsupported alg",
+    );
+  });
 });
 
 // Helper function to create hex strings from byte arrays
