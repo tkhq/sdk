@@ -1,3 +1,5 @@
+import { type v1EarnVault } from "@turnkey/sdk-server";
+
 import {
   ask,
   ASSET_CAIP19,
@@ -28,13 +30,14 @@ async function main() {
 
   const defaultVault =
     process.env.VAULT_ADDRESS ||
-    vaults.find((v) => v.enabled)?.vaultAddress ||
+    vaults.find((v: v1EarnVault) => v.enabled)?.vaultAddress ||
     vaults[0]?.vaultAddress;
   if (!defaultVault) throw new Error("vault catalog is empty");
 
   const vaultAddress = argVault ?? (await ask("Vault to enable", defaultVault));
   const chosen = vaults.find(
-    (v) => v.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase(),
+    (v: v1EarnVault) =>
+      v.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase(),
   );
 
   if (chosen?.enabled) {

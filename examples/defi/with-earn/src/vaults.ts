@@ -1,3 +1,5 @@
+import { type v1EarnVault } from "@turnkey/sdk-server";
+
 import {
   ASSET_CAIP19,
   C,
@@ -26,8 +28,8 @@ async function main() {
 
   const top = vaults.slice(0, 5);
 
-  const fallbackNames = top.some((v) => !v.name)
-    ? await vaultNamesOnChain(top.map((v) => v.vaultAddress))
+  const fallbackNames = top.some((v: v1EarnVault) => !v.name)
+    ? await vaultNamesOnChain(top.map((v: v1EarnVault) => v.vaultAddress))
     : [];
 
   console.log(
