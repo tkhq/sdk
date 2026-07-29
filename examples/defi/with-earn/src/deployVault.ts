@@ -1,4 +1,4 @@
-import { type v1EarnVault } from "@turnkey/sdk-server";
+import type { v1EarnVault } from "@turnkey/sdk-server";
 
 import {
   ask,
