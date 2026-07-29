@@ -4,6 +4,8 @@ import {
   Turnkey,
   type TurnkeyApiClient,
   type v1EarnDepositIntent,
+  type v1EarnEnabledVault,
+  type v1EarnPosition,
 } from "@turnkey/sdk-server";
 
 // Load environment variables from `.env.local`
@@ -206,8 +208,10 @@ export async function printOrgVaults(
     organizationId,
   });
 
-  const fallbackNames = enabledVaults.some((ev) => !ev.name)
-    ? await vaultNamesOnChain(enabledVaults.map((ev) => ev.vaultAddress))
+  const fallbackNames = enabledVaults.some((ev: v1EarnEnabledVault) => !ev.name)
+    ? await vaultNamesOnChain(
+        enabledVaults.map((ev: v1EarnEnabledVault) => ev.vaultAddress),
+      )
     : [];
 
   console.log(`🏛  Org enabled vaults (org ${organizationId}):`);
@@ -244,7 +248,8 @@ export async function resolveWrapper(
   const vaultAddress =
     process.env.VAULT_ADDRESS || enabledVaults[0]?.vaultAddress;
   const vault = enabledVaults.find(
-    (ev) => ev.vaultAddress?.toLowerCase() === vaultAddress?.toLowerCase(),
+    (ev: v1EarnEnabledVault) =>
+      ev.vaultAddress?.toLowerCase() === vaultAddress?.toLowerCase(),
   );
 
   if (!vault?.wrapperAddress) {
@@ -272,7 +277,9 @@ export async function printPositions(
   // EarnPosition doesn't carry the vault name; read it on-chain.
   const names =
     positions.length > 0
-      ? await vaultNamesOnChain(positions.map((p) => p.vaultAddress))
+      ? await vaultNamesOnChain(
+          positions.map((p: v1EarnPosition) => p.vaultAddress),
+        )
       : [];
 
   console.log(`📊 Positions ${label} (wallet ${walletAddress}):`);
