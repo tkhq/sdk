@@ -23,13 +23,12 @@ jobs:
       - name: Clean
         run: pnpm clean
 
-      # Even though typecheck turbo task depends on ^build, we still want to run it explicitly.
-      # --force busts stale turbo cache after the earn query codegen sync; remove once CI is green.
+      # Even though typecheck turbo task depends on ^build, we still want to run it explicitly
       - name: Build
-        run: pnpm build -- --force
+        run: pnpm build
 
       - name: Typecheck
-        run: pnpm typecheck -- --force
+        run: pnpm typecheck
 
       - name: Prettier
         run: pnpm prettier-all:check
