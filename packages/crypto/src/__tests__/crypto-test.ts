@@ -486,16 +486,27 @@ describe("OTP Verification Token", () => {
     return `${signingInput}.${Buffer.from(sig).toString("base64url")}`;
   };
 
-  test("verifies and decodes the OTP verification token JWT", async () => {
-    const claims = await verifyOtpVerificationToken(validJwt);
-    expect(claims.id).toBe("eb39b199-3352-4289-b31f-57194c79609c");
+  const fullClaims: Record<string, string> = {
+    id: "test-id",
+    verification_type: "OTP_TYPE_EMAIL",
+    contact: "user@example.com",
+    organization_id: "test-org",
+    public_key: "deadbeef",
+    exp: "9999999999999",
+  };
+
+  test("verifies and decodes a valid OTP verification token JWT", async () => {
+    // Signed with the test key: the real prod-signed token (`validJwt`) is
+    // permanently expired, so it can't be verified successfully here. Its prod
+    // signature is still exercised by the invalid-signature and expired tests below.
+    const jwt = signTestToken(fullClaims);
+    const claims = await verifyOtpVerificationToken(jwt, testPubKeyHex);
+    expect(claims.id).toBe("test-id");
     expect(claims.verification_type).toBe("OTP_TYPE_EMAIL");
     expect(claims.contact).toBe("user@example.com");
-    expect(claims.organization_id).toBe("7ff189fb-df7d-452e-8540-57632e380b77");
-    expect(claims.public_key).toBe(
-      "036335b78f92736e32e99dc6aed979aff0b5c24192e76b1628aa54edaf58c8c15d",
-    );
-    expect(claims.exp).toBe("1782919651261");
+    expect(claims.organization_id).toBe("test-org");
+    expect(claims.public_key).toBe("deadbeef");
+    expect(claims.exp).toBe("9999999999999");
   });
 
   test("throws error for invalid JWT format", async () => {
@@ -512,15 +523,6 @@ describe("OTP Verification Token", () => {
       "signature is invalid",
     );
   });
-
-  const fullClaims: Record<string, string> = {
-    id: "test-id",
-    verification_type: "OTP_TYPE_EMAIL",
-    contact: "user@example.com",
-    organization_id: "test-org",
-    public_key: "deadbeef",
-    exp: "9999999999999",
-  };
 
   test("throws for a validly-signed token missing a required claim", async () => {
     // Signed with the test key so the signature passes and we reach the
@@ -539,6 +541,23 @@ describe("OTP Verification Token", () => {
     await expect(verifyOtpVerificationToken(jwt)).rejects.toThrow(
       "signature is invalid",
     );
+  });
+
+  test("throws for an expired token", async () => {
+    // The real prod-signed token is genuinely expired at the real clock. Reaching
+    // the expiry error (not "signature is invalid") also proves the production key
+    // verified its signature before expiry was checked.
+    await expect(verifyOtpVerificationToken(validJwt)).rejects.toThrow(
+      "has expired",
+    );
+  });
+
+  test("throws for a validly-signed but expired token", async () => {
+    // Signed with the test key so the signature passes; exp is in the past.
+    const jwt = signTestToken({ ...fullClaims, exp: "1000000000000" });
+    await expect(
+      verifyOtpVerificationToken(jwt, testPubKeyHex),
+    ).rejects.toThrow("has expired");
   });
 });
 

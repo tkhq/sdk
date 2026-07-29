@@ -2,4 +2,4 @@
 "@turnkey/crypto": minor
 ---
 
-Add OTP Verification Token Signature Verification
+Add `verifyOtpVerificationToken`: verifies an OTP verification token JWT's ES256 signature, required claims, and expiry.

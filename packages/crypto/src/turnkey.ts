@@ -495,7 +495,7 @@ export interface VerificationTokenClaims {
   public_key: string;
   /**
    * Expiration as a millisecond-epoch string (NOT RFC 7519 NumericDate seconds).
-   * To compare against the clock, coerce first: `Number(claims.exp) < Date.now()`.
+   * Enforced by `verifyOtpVerificationToken` against the current clock.
    */
   exp: string;
 }
@@ -516,18 +516,17 @@ const REQUIRED_VERIFICATION_TOKEN_CLAIMS = [
  * a custom double SHA-256 scheme). They are issued by the enclave OTP flow and
  * signed with the TLS fetcher signing key.
  *
- * NOTE: this verifies the signature and the presence of the required (non-time)
- * claims. It does NOT enforce expiry — `exp` is returned as a millisecond-epoch
- * string, so callers that care about freshness must check it themselves, e.g.
- * `if (Number(claims.exp) < Date.now()) { ... }`.
+ * This verifies the signature, the presence of the required claims, and that the
+ * token has not expired (`exp` is a millisecond-epoch string, checked against
+ * `Date.now()`).
  *
  * @param jwt - The OTP verification token JWT string to verify.
  * @param dangerouslyOverrideSignerPublicKey - Optional override for the P-256
  *              signing public key to verify against (use only in tests/preprod).
  *              Defaults to the production TLS fetcher signing key.
- * @returns The decoded JWT claims if signature is valid.
- * @throws If the JWT is malformed, the signature is invalid, or a required claim
- *         is missing.
+ * @returns The decoded JWT claims if the token is valid and unexpired.
+ * @throws If the JWT is malformed, the signature is invalid, a required claim is
+ *         missing, or the token has expired.
  */
 export const verifyOtpVerificationToken = async (
   jwt: string,
@@ -570,6 +569,15 @@ export const verifyOtpVerificationToken = async (
         `OTP verification token missing required '${field}' claim`,
       );
     }
+  }
+
+  /* 7. enforce expiry (exp is a millisecond-epoch string) --------------- */
+  const expMs = Number(claims.exp);
+  if (!Number.isFinite(expMs)) {
+    throw new Error("OTP verification token has an invalid 'exp' claim");
+  }
+  if (expMs < Date.now()) {
+    throw new Error("OTP verification token has expired");
   }
 
   return claims;
