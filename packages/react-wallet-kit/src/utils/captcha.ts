@@ -1,4 +1,5 @@
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
+import type { RefObject } from "react";
 
 /**
  * Polls for a captcha token to become available, resolving immediately if one already exists.
@@ -32,11 +33,12 @@ export const waitForCaptchaToken = (
 /**
  * Waits for a captcha token, then consumes it (clears state and resets the widget for a fresh token).
  * Returns `{ captchaToken }` if a token was available, or `{}` if timed out.
+ * Callers that require CAPTCHA should treat `{}` as failure and surface a user-facing message.
  */
 export const consumeCaptchaToken = async (
   getTurnstileToken: () => string | null,
   setTurnstileToken: (token: string | null) => void,
-  turnstileRef?: React.RefObject<TurnstileInstance | null>,
+  turnstileRef?: RefObject<TurnstileInstance | null>,
 ): Promise<{ captchaToken: string } | Record<string, never>> => {
   const token = await waitForCaptchaToken(getTurnstileToken);
   if (token) {
@@ -44,5 +46,8 @@ export const consumeCaptchaToken = async (
     turnstileRef?.current?.reset();
     return { captchaToken: token };
   }
+  console.warn(
+    "CAPTCHA token timed out waiting for verification. No captchaToken will be included.",
+  );
   return {};
 };

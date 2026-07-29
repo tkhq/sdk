@@ -4164,7 +4164,7 @@ export type definitions = {
       | "eip155:42161"
       | "eip155:4217"
       | "eip155:42431"
-      | "eip155:421614solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
   v1GetWalletAddressBalancesResponse: {

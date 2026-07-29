@@ -42,7 +42,8 @@ export function OtpVerification(props: OtpVerificationProps) {
   const [error, setError] = useState<string | null>(null);
   const [shaking, setShaking] = useState(false);
 
-  const { turnstile, consumeToken } = useTurnstile({ visible: !submitting });
+  const { turnstile, consumeToken, authEnabled, turnstileConfigured } =
+    useTurnstile({ visible: !submitting });
 
   const shakeInput = () => {
     setShaking(true);
@@ -80,11 +81,17 @@ export function OtpVerification(props: OtpVerificationProps) {
 
   const handleResend = async () => {
     setResending(true);
+    setError(null);
     try {
+      const captchaParams = await consumeToken();
+      if (turnstileConfigured && !("captchaToken" in captchaParams)) {
+        setError("Please complete the CAPTCHA verification before continuing.");
+        return;
+      }
       const { otpId, otpEncryptionTargetBundle } = await initOtp({
         otpType,
         contact,
-        ...(await consumeToken()),
+        ...captchaParams,
       });
       setOtpId(otpId);
       setOtpEncryptionTargetBundle(otpEncryptionTargetBundle);
@@ -139,8 +146,8 @@ export function OtpVerification(props: OtpVerificationProps) {
         )}
         <BaseButton
           onClick={handleResend}
-          disabled={resending || resent}
-          className={`text-xs text-inherit font-semibold bg-transparent border-none ${resent && "opacity-30"}`}
+          disabled={resending || resent || !authEnabled}
+          className={`text-xs text-inherit font-semibold bg-transparent border-none ${(resent || !authEnabled) && "opacity-30"}`}
         >
           {resending ? (
             <span className="flex items-center gap-2.5">
@@ -149,6 +156,8 @@ export function OtpVerification(props: OtpVerificationProps) {
             </span>
           ) : resent ? (
             "Code sent!"
+          ) : !authEnabled ? (
+            "Waiting for verification..."
           ) : (
             "Resend Code"
           )}

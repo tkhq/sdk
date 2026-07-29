@@ -12687,7 +12687,7 @@
             "eip155:42161",
             "eip155:4217",
             "eip155:42431",
-            "eip155:421614solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
             "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values."

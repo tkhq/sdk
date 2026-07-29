@@ -3885,28 +3885,6 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/scratch:
-    dependencies:
-      '@solana/web3.js':
-        specifier: ^1.95.8
-        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.6.1
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.9
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
   examples/transaction-management/rebalancer:
     dependencies:
       '@turnkey/ethers':
