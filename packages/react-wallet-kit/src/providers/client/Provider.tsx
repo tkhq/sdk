@@ -22,6 +22,7 @@ import {
   type PKCEProvider,
   redirectToOAuthProvider,
   storeOAuthAddProviderMetadata,
+  storeOAuthCaptchaToken,
   storePKCEVerifier,
 } from "../../utils/oauth";
 import {
@@ -3553,6 +3554,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const { verifier, codeChallenge } = await generateChallengePair();
       storePKCEVerifier(provider, verifier);
 
+      // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
+      if (openInPage && captchaToken) {
+        storeOAuthCaptchaToken(captchaToken);
+      }
+
       // Build OAuth URL
       const authUrl = buildOAuthUrl({
         provider,
@@ -3564,7 +3570,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         codeChallenge,
         additionalState: {
           ...additionalParameters,
-          ...(captchaToken && { captchaToken }),
         },
       });
 
@@ -3704,6 +3709,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const { verifier, codeChallenge } = await generateChallengePair();
       storePKCEVerifier(provider, verifier);
 
+      // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
+      if (openInPage && captchaToken) {
+        storeOAuthCaptchaToken(captchaToken);
+      }
+
       // Build OAuth URL
       const authUrl = buildOAuthUrl({
         provider,
@@ -3715,7 +3725,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         codeChallenge,
         additionalState: {
           ...additionalParameters,
-          ...(captchaToken && { captchaToken }),
         },
       });
 
@@ -3854,6 +3863,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       const nonce = bytesToHex(sha256(publicKey));
 
+      // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
+      if (openInPage && captchaToken) {
+        storeOAuthCaptchaToken(captchaToken);
+      }
+
       // Build OAuth URL
       const authUrl = buildOAuthUrl({
         provider,
@@ -3864,7 +3878,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         flow,
         additionalState: {
           ...additionalParameters,
-          ...(captchaToken && { captchaToken }),
         },
       });
 
@@ -3990,6 +4003,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       const nonce = bytesToHex(sha256(publicKey));
 
+      // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
+      if (openInPage && captchaToken) {
+        storeOAuthCaptchaToken(captchaToken);
+      }
+
       // Build OAuth URL
       const authUrl = buildOAuthUrl({
         provider,
@@ -4000,7 +4018,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         flow,
         additionalState: {
           ...additionalParameters,
-          ...(captchaToken && { captchaToken }),
         },
       });
 
@@ -4129,6 +4146,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const { verifier, codeChallenge } = await generateChallengePair();
       storePKCEVerifier(provider, verifier);
 
+      // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
+      if (openInPage && captchaToken) {
+        storeOAuthCaptchaToken(captchaToken);
+      }
+
       // Build OAuth URL
       const authUrl = buildOAuthUrl({
         provider,
@@ -4140,7 +4162,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         codeChallenge,
         additionalState: {
           ...additionalParameters,
-          ...(captchaToken && { captchaToken }),
         },
       });
 

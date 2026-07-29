@@ -306,6 +306,7 @@ export function AuthComponent({
         name="Google"
         icon={<FontAwesomeIcon icon={faGoogle} />}
         onClick={handleGoogle}
+        disabled={!authEnabled}
       />
     ) : null,
     apple: methods.appleOauthEnabled ? (
@@ -314,6 +315,7 @@ export function AuthComponent({
         name="Apple"
         icon={<FontAwesomeIcon icon={faApple} />}
         onClick={handleApple}
+        disabled={!authEnabled}
       />
     ) : null,
     facebook: methods.facebookOauthEnabled ? (
@@ -322,6 +324,7 @@ export function AuthComponent({
         name="Facebook"
         icon={<FontAwesomeIcon icon={faFacebook} />}
         onClick={handleFacebook}
+        disabled={!authEnabled}
       />
     ) : null,
     x: methods.xOauthEnabled ? (
@@ -330,6 +333,7 @@ export function AuthComponent({
         name="X"
         icon={<FontAwesomeIcon icon={faXTwitter} />}
         onClick={handleX}
+        disabled={!authEnabled}
       />
     ) : null,
     discord: methods.discordOauthEnabled ? (
@@ -338,6 +342,7 @@ export function AuthComponent({
         name="Discord"
         icon={<FontAwesomeIcon icon={faDiscord} />}
         onClick={handleDiscord}
+        disabled={!authEnabled}
       />
     ) : null,
   };
@@ -364,6 +369,7 @@ export function AuthComponent({
           key="more"
           name="More"
           icon={<FontAwesomeIcon icon={faEllipsisH} />}
+          disabled={!authEnabled}
           onClick={() =>
             openSheet({
               key: "Select a social method",

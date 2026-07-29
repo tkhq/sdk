@@ -15,14 +15,18 @@ interface UseTurnstileOptions {
  *
  * Returns a ready-to-render `turnstile` element (or `null` when it shouldn't be
  * shown) plus the pieces callers need to gate their UI:
- * - `authEnabled`: `false` until a token is available (or immediately `true`
- *   when no turnstile is configured / a token already existed on mount).
+ * - `authEnabled` / captcha-ready: `false` until a token is available (or
+ *   immediately `true` when no turnstile is configured / a token already
+ *   existed on mount). Cleared when a token is consumed or wait times out,
+ *   then set back to `true` on widget `onSuccess`.
  * - `consumeToken`: waits for and consumes the current token before a request.
+ * - `turnstileConfigured`: whether a Turnstile site key is present.
  */
 export function useTurnstile(options?: UseTurnstileOptions) {
   const { visible = true } = options ?? {};
   const { config, getTurnstileToken, setTurnstileToken } = useTurnkey();
 
+  const turnstileConfigured = !!config?.turnstileSiteKey;
   const turnstileRef = useRef<TurnstileInstance>(null);
   const [showTurnstilePrompt, setShowTurnstilePrompt] = useState(false);
   // If a token already existed when the component mounted, we don't need to show the widget at all
@@ -31,19 +35,33 @@ export function useTurnstile(options?: UseTurnstileOptions) {
   const [showTurnstileExpired, setShowTurnstileExpired] = useState(false);
   // Auth is enabled immediately if no turnstile is configured, or if the Provider already has a token
   const [authEnabled, setAuthEnabled] = useState(
-    !config?.turnstileSiteKey || hadTokenOnMount,
+    !turnstileConfigured || hadTokenOnMount,
   );
   const [turnstileErrorMessage, setTurnstileErrorMessage] = useState<
     string | null
   >(null);
 
-  const consumeToken = () =>
-    consumeCaptchaToken(getTurnstileToken, setTurnstileToken, turnstileRef);
+  const consumeToken = async () => {
+    const result = await consumeCaptchaToken(
+      getTurnstileToken,
+      (token) => {
+        setTurnstileToken(token);
+        // Cleared on consume/reset — keep actions disabled until onSuccess.
+        if (token === null && turnstileConfigured) {
+          setAuthEnabled(false);
+        }
+      },
+      turnstileRef,
+    );
+    // Timed out with no token — ensure gated actions stay disabled.
+    if (turnstileConfigured && !("captchaToken" in result)) {
+      setAuthEnabled(false);
+    }
+    return result;
+  };
 
   const shouldRender =
-    !!config?.turnstileSiteKey &&
-    visible &&
-    (!hadTokenOnMount || showTurnstileError);
+    turnstileConfigured && visible && (!hadTokenOnMount || showTurnstileError);
 
   const onSuccess = (token: string) => {
     setTurnstileToken(token);
@@ -53,6 +71,7 @@ export function useTurnstile(options?: UseTurnstileOptions) {
 
   const onError = () => {
     setTurnstileToken(null);
+    setAuthEnabled(false);
     setShowTurnstileError(true);
     setTurnstileErrorMessage("Verification failed. Please try again.");
   };
@@ -103,5 +122,5 @@ export function useTurnstile(options?: UseTurnstileOptions) {
       </>
     ) : null;
 
-  return { turnstile, consumeToken, authEnabled };
+  return { turnstile, consumeToken, authEnabled, turnstileConfigured };
 }

@@ -4,7 +4,7 @@ import {
   TurnkeyErrorCodes,
 } from "@turnkey/sdk-types";
 import { OAUTH_PROVIDER_CONFIGS, popupWidth, popupHeight } from "./config";
-import { storeOAuthState, consumeOAuthState } from "./storage";
+import { storeOAuthState, consumeOAuthState, consumeOAuthCaptchaToken } from "./storage";
 
 /**
  * Builds the OAuth state parameter string
@@ -132,7 +132,7 @@ export interface OAuthResponseResult {
   oauthIntent?: string | null;
   /** Nonce from state */
   nonce?: string | null;
-  /** Captcha token from state (encoded before redirect) */
+  /** Captcha token retrieved from local storage on return */
   captchaToken?: string | null;
 }
 
@@ -205,7 +205,6 @@ export function parseOAuthResponse(
     sessionKey,
     oauthIntent,
     nonce,
-    captchaToken,
   } = parseStateParam(stateString);
 
   // If we have an expected provider (popup flow), validate it matches
@@ -235,7 +234,7 @@ export function parseOAuthResponse(
     sessionKey: sessionKey ?? undefined,
     oauthIntent: oauthIntent ?? null,
     nonce: nonce ?? null,
-    captchaToken: captchaToken ?? null,
+    captchaToken: consumeOAuthCaptchaToken(),
   };
 }
 
