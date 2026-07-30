@@ -4637,14 +4637,13 @@ export type v1ListEthTransactionHistoryRequest = {
     | "eip155:56"
     | "eip155:97";
   /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
-  paginationOptions?: v1TransactionHistoryPaginationOptions;
+  paginationOptions?: v1Pagination;
 };
 
 export type v1ListEthTransactionHistoryResponse = {
   /** EVM transactions for the requested address, ordered by most recent first. */
   transactions: v1EthTransactionHistoryItem[];
-  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
-  paginationCursors: v1TransactionHistoryPaginationCursors;
+  pageInfo?: v1PageInfo;
 };
 
 export type v1ListFiatOnRampCredentialsRequest = {
@@ -4687,14 +4686,13 @@ export type v1ListSolTransactionHistoryRequest = {
     | "solana:mainnet"
     | "solana:devnet";
   /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
-  paginationOptions?: v1TransactionHistoryPaginationOptions;
+  paginationOptions?: v1Pagination;
 };
 
 export type v1ListSolTransactionHistoryResponse = {
   /** Solana transactions for the requested address, ordered by most recent first. */
   transactions: v1SolTransactionHistoryItem[];
-  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
-  paginationCursors: v1TransactionHistoryPaginationCursors;
+  pageInfo?: v1PageInfo;
 };
 
 export type v1ListSupportedAssetsRequest = {
@@ -6125,22 +6123,6 @@ export type v1TransactionHistoryFee = {
   amount: string;
   /** The CAIP-19 asset identifier. */
   caip19: string;
-};
-
-export type v1TransactionHistoryPaginationCursors = {
-  /** Opaque base64-encoded cursor for fetching transactions immediately before the current page in the newest-first result order. Omitted when no such page exists. */
-  before?: string;
-  /** Opaque base64-encoded cursor for fetching transactions immediately after the current page in the newest-first result order. Omitted when no such page exists. */
-  after?: string;
-};
-
-export type v1TransactionHistoryPaginationOptions = {
-  /** Maximum number of transactions to return, between 1 and 100. Defaults to 25. */
-  limit?: string;
-  /** Opaque base64-encoded cursor returned by this API. Fetches transactions immediately before the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with after. */
-  before?: string;
-  /** Opaque base64-encoded cursor returned by this API. Fetches transactions immediately after the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with before. */
-  after?: string;
 };
 
 export type v1TransactionHistoryTransfer = {
@@ -7764,8 +7746,7 @@ export type TListEmailEventsInput = { body: TListEmailEventsBody };
 export type TListEthTransactionHistoryResponse = {
   /** EVM transactions for the requested address, ordered by most recent first. */
   transactions: v1EthTransactionHistoryItem[];
-  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
-  paginationCursors: v1TransactionHistoryPaginationCursors;
+  pageInfo?: v1PageInfo;
 };
 
 export type TListEthTransactionHistoryBody = {
@@ -7787,7 +7768,7 @@ export type TListEthTransactionHistoryBody = {
     | "eip155:56"
     | "eip155:97";
   /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
-  paginationOptions?: v1TransactionHistoryPaginationOptions;
+  paginationOptions?: v1Pagination;
 };
 
 export type TListEthTransactionHistoryInput = {
@@ -7865,8 +7846,7 @@ export type TGetSmartContractInterfacesInput = {
 export type TListSolTransactionHistoryResponse = {
   /** Solana transactions for the requested address, ordered by most recent first. */
   transactions: v1SolTransactionHistoryItem[];
-  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
-  paginationCursors: v1TransactionHistoryPaginationCursors;
+  pageInfo?: v1PageInfo;
 };
 
 export type TListSolTransactionHistoryBody = {
@@ -7880,7 +7860,7 @@ export type TListSolTransactionHistoryBody = {
     | "solana:mainnet"
     | "solana:devnet";
   /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
-  paginationOptions?: v1TransactionHistoryPaginationOptions;
+  paginationOptions?: v1Pagination;
 };
 
 export type TListSolTransactionHistoryInput = {
