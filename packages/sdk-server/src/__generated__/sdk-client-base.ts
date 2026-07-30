@@ -142,196 +142,6 @@ export class TurnkeySDKClientBase {
     } as TResponseType;
   }
 
-  earnDeployStatus = async (
-    input: SdkApiTypes.TEarnDeployStatusBody,
-  ): Promise<SdkApiTypes.TEarnDeployStatusResponse> => {
-    return this.request("/public/v1/query/earn_deploy_status", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampEarnDeployStatus = async (
-    input: SdkApiTypes.TEarnDeployStatusBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/earn_deploy_status";
-    const body = {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnDepositStatus = async (
-    input: SdkApiTypes.TEarnDepositStatusBody,
-  ): Promise<SdkApiTypes.TEarnDepositStatusResponse> => {
-    return this.request("/public/v1/query/earn_deposit_status", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampEarnDepositStatus = async (
-    input: SdkApiTypes.TEarnDepositStatusBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/earn_deposit_status";
-    const body = {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnEnabledVaults = async (
-    input: SdkApiTypes.TEarnEnabledVaultsBody,
-  ): Promise<SdkApiTypes.TEarnEnabledVaultsResponse> => {
-    return this.request("/public/v1/query/earn_enabled_vaults", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampEarnEnabledVaults = async (
-    input: SdkApiTypes.TEarnEnabledVaultsBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/earn_enabled_vaults";
-    const body = {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnPositions = async (
-    input: SdkApiTypes.TEarnPositionsBody,
-  ): Promise<SdkApiTypes.TEarnPositionsResponse> => {
-    return this.request("/public/v1/query/earn_positions", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampEarnPositions = async (
-    input: SdkApiTypes.TEarnPositionsBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/earn_positions";
-    const body = {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnVaults = async (
-    input: SdkApiTypes.TEarnVaultsBody,
-  ): Promise<SdkApiTypes.TEarnVaultsResponse> => {
-    return this.request("/public/v1/query/earn_vaults", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampEarnVaults = async (
-    input: SdkApiTypes.TEarnVaultsBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/earn_vaults";
-    const body = {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  earnWithdrawStatus = async (
-    input: SdkApiTypes.TEarnWithdrawStatusBody,
-  ): Promise<SdkApiTypes.TEarnWithdrawStatusResponse> => {
-    return this.request("/public/v1/query/earn_withdraw_status", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampEarnWithdrawStatus = async (
-    input: SdkApiTypes.TEarnWithdrawStatusBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/earn_withdraw_status";
-    const body = {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   getActivity = async (
     input: SdkApiTypes.TGetActivityBody,
   ): Promise<SdkApiTypes.TGetActivityResponse> => {
@@ -537,6 +347,102 @@ export class TurnkeySDKClientBase {
     }
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_boot_proof";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getEarnDeployStatus = async (
+    input: SdkApiTypes.TGetEarnDeployStatusBody,
+  ): Promise<SdkApiTypes.TGetEarnDeployStatusResponse> => {
+    return this.request("/public/v1/query/get_earn_deploy_status", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetEarnDeployStatus = async (
+    input: SdkApiTypes.TGetEarnDeployStatusBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_earn_deploy_status";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getEarnDepositStatus = async (
+    input: SdkApiTypes.TGetEarnDepositStatusBody,
+  ): Promise<SdkApiTypes.TGetEarnDepositStatusResponse> => {
+    return this.request("/public/v1/query/get_earn_deposit_status", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetEarnDepositStatus = async (
+    input: SdkApiTypes.TGetEarnDepositStatusBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_earn_deposit_status";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getEarnWithdrawStatus = async (
+    input: SdkApiTypes.TGetEarnWithdrawStatusBody,
+  ): Promise<SdkApiTypes.TGetEarnWithdrawStatusResponse> => {
+    return this.request("/public/v1/query/get_earn_withdraw_status", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetEarnWithdrawStatus = async (
+    input: SdkApiTypes.TGetEarnWithdrawStatusBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_earn_withdraw_status";
     const body = {
       ...input,
       organizationId: input.organizationId ?? this.config.organizationId,
@@ -1390,6 +1296,102 @@ export class TurnkeySDKClientBase {
     }
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_app_proofs";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listEarnEnabledVaults = async (
+    input: SdkApiTypes.TListEarnEnabledVaultsBody,
+  ): Promise<SdkApiTypes.TListEarnEnabledVaultsResponse> => {
+    return this.request("/public/v1/query/list_earn_enabled_vaults", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampListEarnEnabledVaults = async (
+    input: SdkApiTypes.TListEarnEnabledVaultsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_earn_enabled_vaults";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listEarnPositions = async (
+    input: SdkApiTypes.TListEarnPositionsBody,
+  ): Promise<SdkApiTypes.TListEarnPositionsResponse> => {
+    return this.request("/public/v1/query/list_earn_positions", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampListEarnPositions = async (
+    input: SdkApiTypes.TListEarnPositionsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_earn_positions";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listEarnVaults = async (
+    input: SdkApiTypes.TListEarnVaultsBody,
+  ): Promise<SdkApiTypes.TListEarnVaultsResponse> => {
+    return this.request("/public/v1/query/list_earn_vaults", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampListEarnVaults = async (
+    input: SdkApiTypes.TListEarnVaultsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_earn_vaults";
     const body = {
       ...input,
       organizationId: input.organizationId ?? this.config.organizationId,

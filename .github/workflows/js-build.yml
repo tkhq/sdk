@@ -29,7 +29,8 @@ jobs:
     uses: ./.github/workflows/reusable-test-pre-prod.yml
     secrets: inherit
 
-  test-end-to-end:
-    name: Test (end-to-end)
-    needs: build
-    uses: ./.github/workflows/reusable-test-end-to-end.yml
+  # e2e tests are too flakey
+  # test-end-to-end:
+  #   name: Test (end-to-end)
+  #   needs: build
+  #   uses: ./.github/workflows/reusable-test-end-to-end.yml

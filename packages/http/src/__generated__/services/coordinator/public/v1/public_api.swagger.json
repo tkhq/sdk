@@ -72,230 +72,6 @@
   "consumes": ["application/json"],
   "produces": ["application/json"],
   "paths": {
-    "/public/v1/query/claim_earn_fees_status": {
-      "post": {
-        "summary": "Get Earn claim fees status",
-        "description": "Poll the status of a fee claim by its claim_request_id.",
-        "operationId": "PublicApiService_ClaimEarnFeesStatus",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ClaimEarnFeesStatusResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1ClaimEarnFeesStatusRequest"
-            }
-          }
-        ],
-        "tags": ["Earn"]
-      }
-    },
-    "/public/v1/query/earn_deploy_status": {
-      "post": {
-        "summary": "Get Earn deploy status",
-        "description": "Poll the status of a wrapper deployment by its deploy_request_id.",
-        "operationId": "PublicApiService_EarnDeployStatus",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1EarnDeployStatusResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1EarnDeployStatusRequest"
-            }
-          }
-        ],
-        "tags": ["Earn"]
-      }
-    },
-    "/public/v1/query/earn_deposit_status": {
-      "post": {
-        "summary": "Get Earn deposit status",
-        "description": "Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path).",
-        "operationId": "PublicApiService_EarnDepositStatus",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1EarnDepositStatusResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1EarnDepositStatusRequest"
-            }
-          }
-        ],
-        "tags": ["Earn"]
-      }
-    },
-    "/public/v1/query/earn_enabled_vaults": {
-      "post": {
-        "summary": "Get Earn enabled vaults",
-        "description": "Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions.",
-        "operationId": "PublicApiService_EarnEnabledVaults",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1EarnEnabledVaultsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1EarnEnabledVaultsRequest"
-            }
-          }
-        ],
-        "tags": ["Earn"]
-      }
-    },
-    "/public/v1/query/earn_positions": {
-      "post": {
-        "summary": "Get Earn positions",
-        "description": "Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees.",
-        "operationId": "PublicApiService_EarnPositions",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1EarnPositionsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1EarnPositionsRequest"
-            }
-          }
-        ],
-        "tags": ["Earn"]
-      }
-    },
-    "/public/v1/query/earn_vaults": {
-      "post": {
-        "summary": "Get Earn vault catalog",
-        "description": "Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled.",
-        "operationId": "PublicApiService_EarnVaults",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1EarnVaultsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1EarnVaultsRequest"
-            }
-          }
-        ],
-        "tags": ["Earn"]
-      }
-    },
-    "/public/v1/query/earn_withdraw_status": {
-      "post": {
-        "summary": "Get Earn withdraw status",
-        "description": "Poll the status of a withdrawal by its withdraw_request_id.",
-        "operationId": "PublicApiService_EarnWithdrawStatus",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1EarnWithdrawStatusResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1EarnWithdrawStatusRequest"
-            }
-          }
-        ],
-        "tags": ["Earn"]
-      }
-    },
     "/public/v1/query/get_activity": {
       "post": {
         "summary": "Get activity",
@@ -518,6 +294,134 @@
           }
         ],
         "tags": ["Boot Proof"]
+      }
+    },
+    "/public/v1/query/get_claim_earn_fees_status": {
+      "post": {
+        "summary": "Get Earn claim fees status",
+        "description": "Poll the status of a fee claim by its claim_request_id.",
+        "operationId": "PublicApiService_GetClaimEarnFeesStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetClaimEarnFeesStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetClaimEarnFeesStatusRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/query/get_earn_deploy_status": {
+      "post": {
+        "summary": "Get Earn deploy status",
+        "description": "Poll the status of a wrapper deployment by its deploy_request_id.",
+        "operationId": "PublicApiService_GetEarnDeployStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetEarnDeployStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetEarnDeployStatusRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/query/get_earn_deposit_status": {
+      "post": {
+        "summary": "Get Earn deposit status",
+        "description": "Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path).",
+        "operationId": "PublicApiService_GetEarnDepositStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetEarnDepositStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetEarnDepositStatusRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/query/get_earn_withdraw_status": {
+      "post": {
+        "summary": "Get Earn withdraw status",
+        "description": "Poll the status of a withdrawal by its withdraw_request_id.",
+        "operationId": "PublicApiService_GetEarnWithdrawStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetEarnWithdrawStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetEarnWithdrawStatusRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
       }
     },
     "/public/v1/query/get_gas_usage": {
@@ -1510,6 +1414,102 @@
           }
         ],
         "tags": ["App Proof"]
+      }
+    },
+    "/public/v1/query/list_earn_enabled_vaults": {
+      "post": {
+        "summary": "Get Earn enabled vaults",
+        "description": "Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions.",
+        "operationId": "PublicApiService_ListEarnEnabledVaults",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListEarnEnabledVaultsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListEarnEnabledVaultsRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/query/list_earn_positions": {
+      "post": {
+        "summary": "Get Earn positions",
+        "description": "Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees.",
+        "operationId": "PublicApiService_ListEarnPositions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListEarnPositionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListEarnPositionsRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
+    "/public/v1/query/list_earn_vaults": {
+      "post": {
+        "summary": "Get Earn vault catalog",
+        "description": "Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled.",
+        "operationId": "PublicApiService_ListEarnVaults",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListEarnVaultsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListEarnVaultsRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
       }
     },
     "/public/v1/query/list_email_events": {
@@ -7045,43 +7045,10 @@
       "properties": {
         "claimRequestId": {
           "type": "string",
-          "description": "Identifier to poll claim status and tx hash via ClaimEarnFeesStatus."
+          "description": "Identifier to poll claim status and tx hash via GetClaimEarnFeesStatus."
         }
       },
       "required": ["claimRequestId"]
-    },
-    "v1ClaimEarnFeesStatusRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "claimRequestId": {
-          "type": "string",
-          "description": "The claim_request_id returned by ClaimEarnFees."
-        }
-      },
-      "required": ["organizationId", "claimRequestId"]
-    },
-    "v1ClaimEarnFeesStatusResponse": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": ["PENDING", "COMPLETED", "FAILED"],
-          "description": "Status of the fee claim."
-        },
-        "claimTxHash": {
-          "type": "string",
-          "description": "Transaction hash of the fee claim, once available."
-        },
-        "error": {
-          "type": "string",
-          "description": "Reason the fee claim transaction failed, when status is FAILED."
-        }
-      },
-      "required": ["status"]
     },
     "v1ClaimSwapFeesIntent": {
       "type": "object"
@@ -10615,45 +10582,12 @@
       },
       "required": ["privateKeyId"]
     },
-    "v1EarnDeployStatusRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "deployRequestId": {
-          "type": "string",
-          "description": "The deploy_request_id returned by EarnDeployWrapper."
-        }
-      },
-      "required": ["organizationId", "deployRequestId"]
-    },
-    "v1EarnDeployStatusResponse": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": ["PENDING", "COMPLETED", "FAILED"],
-          "description": "Status of the wrapper deployment."
-        },
-        "deployTxHash": {
-          "type": "string",
-          "description": "Transaction hash of the deployment, once available."
-        },
-        "error": {
-          "type": "string",
-          "description": "Reason the deployment transaction failed, when status is FAILED."
-        }
-      },
-      "required": ["status"]
-    },
     "v1EarnDeployWrapperIntent": {
       "type": "object",
       "properties": {
         "vaultAddress": {
           "type": "string",
-          "description": "Address of the underlying yield vault to wrap (from the EarnVaults catalog)."
+          "description": "Address of the underlying yield vault to wrap (from the ListEarnVaults catalog)."
         },
         "chainCaip2": {
           "type": "string",
@@ -10730,7 +10664,7 @@
       "properties": {
         "wrapperAddress": {
           "type": "string",
-          "description": "Address of the deployed Earn wrapper to deposit into, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers."
+          "description": "Address of the deployed Earn wrapper to deposit into, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers."
         },
         "signWith": {
           "type": "string",
@@ -10788,43 +10722,10 @@
       "properties": {
         "depositRequestId": {
           "type": "string",
-          "description": "Identifier to poll deposit status and tx hash via EarnDepositStatus."
+          "description": "Identifier to poll deposit status and tx hash via GetEarnDepositStatus."
         }
       },
       "required": ["depositRequestId"]
-    },
-    "v1EarnDepositStatusRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "depositRequestId": {
-          "type": "string",
-          "description": "The deposit_request_id returned by EarnDeposit."
-        }
-      },
-      "required": ["organizationId", "depositRequestId"]
-    },
-    "v1EarnDepositStatusResponse": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": ["PENDING", "COMPLETED", "FAILED"],
-          "description": "Status of the deposit."
-        },
-        "depositTxHash": {
-          "type": "string",
-          "description": "Transaction hash of the deposit, once available."
-        },
-        "error": {
-          "type": "string",
-          "description": "Reason the deposit transaction failed, when status is FAILED."
-        }
-      },
-      "required": ["status"]
     },
     "v1EarnEnabledVault": {
       "type": "object",
@@ -10884,37 +10785,6 @@
         "claimableClientFeeDisplay": {
           "$ref": "#/definitions/v1EarnValueDisplay",
           "description": "Normalized claimable_client_fee for display only (usd + crypto). Do not do arithmetic with these; use claimable_client_fee. Unset when a sub-org queries."
-        }
-      }
-    },
-    "v1EarnEnabledVaultsRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "provider": {
-          "$ref": "#/definitions/v1EarnProvider",
-          "description": "Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers."
-        },
-        "caip19": {
-          "type": "string",
-          "description": "Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier."
-        }
-      },
-      "required": ["organizationId"]
-    },
-    "v1EarnEnabledVaultsResponse": {
-      "type": "object",
-      "properties": {
-        "enabledVaults": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1EarnEnabledVault"
-          },
-          "description": "The organization's deployed wrappers."
         }
       }
     },
@@ -10988,33 +10858,6 @@
         }
       }
     },
-    "v1EarnPositionsRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "walletAddress": {
-          "type": "string",
-          "description": "The wallet address to return positions for."
-        }
-      },
-      "required": ["organizationId", "walletAddress"]
-    },
-    "v1EarnPositionsResponse": {
-      "type": "object",
-      "properties": {
-        "positions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1EarnPosition"
-          },
-          "description": "The wallet's active Earn positions."
-        }
-      }
-    },
     "v1EarnProvider": {
       "type": "string",
       "enum": ["EARN_PROVIDER_MORPHO", "EARN_PROVIDER_AAVE"]
@@ -11024,7 +10867,7 @@
       "properties": {
         "wrapperAddress": {
           "type": "string",
-          "description": "Address of the deployed Earn wrapper to update, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers."
+          "description": "Address of the deployed Earn wrapper to update, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers."
         },
         "depositsDisabled": {
           "type": "boolean",
@@ -11125,47 +10968,12 @@
         }
       }
     },
-    "v1EarnVaultsRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization. Annotates which vaults the organization has already enabled."
-        },
-        "provider": {
-          "$ref": "#/definitions/v1EarnProvider",
-          "description": "Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers."
-        },
-        "caip19": {
-          "type": "string",
-          "description": "CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier."
-        },
-        "paginationOptions": {
-          "$ref": "#/definitions/v1Pagination",
-          "description": "Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page."
-        }
-      },
-      "required": ["organizationId", "caip19"]
-    },
-    "v1EarnVaultsResponse": {
-      "type": "object",
-      "properties": {
-        "vaults": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1EarnVault"
-          },
-          "description": "The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor."
-        }
-      }
-    },
     "v1EarnWithdrawIntent": {
       "type": "object",
       "properties": {
         "wrapperAddress": {
           "type": "string",
-          "description": "Address of the deployed Earn wrapper holding the position to withdraw from, from EarnPositions. Must be one of the org's deployed wrappers."
+          "description": "Address of the deployed Earn wrapper holding the position to withdraw from, from ListEarnPositions. Must be one of the org's deployed wrappers."
         },
         "signWith": {
           "type": "string",
@@ -11223,43 +11031,10 @@
       "properties": {
         "withdrawRequestId": {
           "type": "string",
-          "description": "Identifier to poll withdrawal status and tx hash via EarnWithdrawStatus."
+          "description": "Identifier to poll withdrawal status and tx hash via GetEarnWithdrawStatus."
         }
       },
       "required": ["withdrawRequestId"]
-    },
-    "v1EarnWithdrawStatusRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "withdrawRequestId": {
-          "type": "string",
-          "description": "The withdraw_request_id returned by EarnWithdraw."
-        }
-      },
-      "required": ["organizationId", "withdrawRequestId"]
-    },
-    "v1EarnWithdrawStatusResponse": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": ["PENDING", "COMPLETED", "FAILED"],
-          "description": "Status of the withdrawal."
-        },
-        "withdrawTxHash": {
-          "type": "string",
-          "description": "Transaction hash of the withdrawal, once available."
-        },
-        "error": {
-          "type": "string",
-          "description": "Reason the withdrawal transaction failed, when status is FAILED."
-        }
-      },
-      "required": ["status"]
     },
     "v1Effect": {
       "type": "string",
@@ -12577,6 +12352,138 @@
       },
       "required": ["organizationId", "ephemeralKey"]
     },
+    "v1GetClaimEarnFeesStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "claimRequestId": {
+          "type": "string",
+          "description": "The claim_request_id returned by ClaimEarnFees."
+        }
+      },
+      "required": ["organizationId", "claimRequestId"]
+    },
+    "v1GetClaimEarnFeesStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "COMPLETED", "FAILED"],
+          "description": "Status of the fee claim."
+        },
+        "claimTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the fee claim, once available."
+        },
+        "error": {
+          "type": "string",
+          "description": "Reason the fee claim transaction failed, when status is FAILED."
+        }
+      },
+      "required": ["status"]
+    },
+    "v1GetEarnDeployStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "deployRequestId": {
+          "type": "string",
+          "description": "The deploy_request_id returned by EarnDeployWrapper."
+        }
+      },
+      "required": ["organizationId", "deployRequestId"]
+    },
+    "v1GetEarnDeployStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "COMPLETED", "FAILED"],
+          "description": "Status of the wrapper deployment."
+        },
+        "deployTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the deployment, once available."
+        },
+        "error": {
+          "type": "string",
+          "description": "Reason the deployment transaction failed, when status is FAILED."
+        }
+      },
+      "required": ["status"]
+    },
+    "v1GetEarnDepositStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "depositRequestId": {
+          "type": "string",
+          "description": "The deposit_request_id returned by EarnDeposit."
+        }
+      },
+      "required": ["organizationId", "depositRequestId"]
+    },
+    "v1GetEarnDepositStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "COMPLETED", "FAILED"],
+          "description": "Status of the deposit."
+        },
+        "depositTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the deposit, once available."
+        },
+        "error": {
+          "type": "string",
+          "description": "Reason the deposit transaction failed, when status is FAILED."
+        }
+      },
+      "required": ["status"]
+    },
+    "v1GetEarnWithdrawStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "withdrawRequestId": {
+          "type": "string",
+          "description": "The withdraw_request_id returned by EarnWithdraw."
+        }
+      },
+      "required": ["organizationId", "withdrawRequestId"]
+    },
+    "v1GetEarnWithdrawStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "COMPLETED", "FAILED"],
+          "description": "Status of the withdrawal."
+        },
+        "withdrawTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the withdrawal, once available."
+        },
+        "error": {
+          "type": "string",
+          "description": "Reason the withdrawal transaction failed, when status is FAILED."
+        }
+      },
+      "required": ["status"]
+    },
     "v1GetGasUsageRequest": {
       "type": "object",
       "properties": {
@@ -13696,7 +13603,6 @@
             "eip155:42161",
             "eip155:4217",
             "eip155:42431",
-            "eip155:421614",
             "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
             "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
           ],
@@ -15310,6 +15216,99 @@
         }
       },
       "required": ["cidr"]
+    },
+    "v1ListEarnEnabledVaultsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "provider": {
+          "$ref": "#/definitions/v1EarnProvider",
+          "description": "Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers."
+        },
+        "caip19": {
+          "type": "string",
+          "description": "Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1ListEarnEnabledVaultsResponse": {
+      "type": "object",
+      "properties": {
+        "enabledVaults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EarnEnabledVault"
+          },
+          "description": "The organization's deployed wrappers."
+        }
+      }
+    },
+    "v1ListEarnPositionsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "walletAddress": {
+          "type": "string",
+          "description": "The wallet address to return positions for."
+        }
+      },
+      "required": ["organizationId", "walletAddress"]
+    },
+    "v1ListEarnPositionsResponse": {
+      "type": "object",
+      "properties": {
+        "positions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EarnPosition"
+          },
+          "description": "The wallet's active Earn positions."
+        }
+      }
+    },
+    "v1ListEarnVaultsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization. Annotates which vaults the organization has already enabled."
+        },
+        "provider": {
+          "$ref": "#/definitions/v1EarnProvider",
+          "description": "Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers."
+        },
+        "caip19": {
+          "type": "string",
+          "description": "CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier."
+        },
+        "paginationOptions": {
+          "$ref": "#/definitions/v1Pagination",
+          "description": "Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page."
+        }
+      },
+      "required": ["organizationId", "caip19"]
+    },
+    "v1ListEarnVaultsResponse": {
+      "type": "object",
+      "properties": {
+        "vaults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EarnVault"
+          },
+          "description": "The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor."
+        }
+      }
     },
     "v1ListEmailEventsRequest": {
       "type": "object",

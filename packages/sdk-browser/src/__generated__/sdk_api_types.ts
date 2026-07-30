@@ -7,72 +7,6 @@ import type {
   commandOverrideParams,
 } from "../__types__/base";
 
-export type TEarnDeployStatusResponse =
-  operations["PublicApiService_EarnDeployStatus"]["responses"]["200"]["schema"];
-
-export type TEarnDeployStatusInput = { body: TEarnDeployStatusBody };
-
-export type TEarnDeployStatusBody = Omit<
-  operations["PublicApiService_EarnDeployStatus"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TEarnDepositStatusResponse =
-  operations["PublicApiService_EarnDepositStatus"]["responses"]["200"]["schema"];
-
-export type TEarnDepositStatusInput = { body: TEarnDepositStatusBody };
-
-export type TEarnDepositStatusBody = Omit<
-  operations["PublicApiService_EarnDepositStatus"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TEarnEnabledVaultsResponse =
-  operations["PublicApiService_EarnEnabledVaults"]["responses"]["200"]["schema"];
-
-export type TEarnEnabledVaultsInput = { body: TEarnEnabledVaultsBody };
-
-export type TEarnEnabledVaultsBody = Omit<
-  operations["PublicApiService_EarnEnabledVaults"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TEarnPositionsResponse =
-  operations["PublicApiService_EarnPositions"]["responses"]["200"]["schema"];
-
-export type TEarnPositionsInput = { body: TEarnPositionsBody };
-
-export type TEarnPositionsBody = Omit<
-  operations["PublicApiService_EarnPositions"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TEarnVaultsResponse =
-  operations["PublicApiService_EarnVaults"]["responses"]["200"]["schema"];
-
-export type TEarnVaultsInput = { body: TEarnVaultsBody };
-
-export type TEarnVaultsBody = Omit<
-  operations["PublicApiService_EarnVaults"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TEarnWithdrawStatusResponse =
-  operations["PublicApiService_EarnWithdrawStatus"]["responses"]["200"]["schema"];
-
-export type TEarnWithdrawStatusInput = { body: TEarnWithdrawStatusBody };
-
-export type TEarnWithdrawStatusBody = Omit<
-  operations["PublicApiService_EarnWithdrawStatus"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
 export type TGetActivityResponse =
   operations["PublicApiService_GetActivity"]["responses"]["200"]["schema"];
 
@@ -146,6 +80,39 @@ export type TGetBootProofInput = { body: TGetBootProofBody };
 
 export type TGetBootProofBody = Omit<
   operations["PublicApiService_GetBootProof"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetEarnDeployStatusResponse =
+  operations["PublicApiService_GetEarnDeployStatus"]["responses"]["200"]["schema"];
+
+export type TGetEarnDeployStatusInput = { body: TGetEarnDeployStatusBody };
+
+export type TGetEarnDeployStatusBody = Omit<
+  operations["PublicApiService_GetEarnDeployStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetEarnDepositStatusResponse =
+  operations["PublicApiService_GetEarnDepositStatus"]["responses"]["200"]["schema"];
+
+export type TGetEarnDepositStatusInput = { body: TGetEarnDepositStatusBody };
+
+export type TGetEarnDepositStatusBody = Omit<
+  operations["PublicApiService_GetEarnDepositStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetEarnWithdrawStatusResponse =
+  operations["PublicApiService_GetEarnWithdrawStatus"]["responses"]["200"]["schema"];
+
+export type TGetEarnWithdrawStatusInput = { body: TGetEarnWithdrawStatusBody };
+
+export type TGetEarnWithdrawStatusBody = Omit<
+  operations["PublicApiService_GetEarnWithdrawStatus"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -455,6 +422,39 @@ export type TGetAppProofsInput = { body: TGetAppProofsBody };
 
 export type TGetAppProofsBody = Omit<
   operations["PublicApiService_GetAppProofs"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListEarnEnabledVaultsResponse =
+  operations["PublicApiService_ListEarnEnabledVaults"]["responses"]["200"]["schema"];
+
+export type TListEarnEnabledVaultsInput = { body: TListEarnEnabledVaultsBody };
+
+export type TListEarnEnabledVaultsBody = Omit<
+  operations["PublicApiService_ListEarnEnabledVaults"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListEarnPositionsResponse =
+  operations["PublicApiService_ListEarnPositions"]["responses"]["200"]["schema"];
+
+export type TListEarnPositionsInput = { body: TListEarnPositionsBody };
+
+export type TListEarnPositionsBody = Omit<
+  operations["PublicApiService_ListEarnPositions"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListEarnVaultsResponse =
+  operations["PublicApiService_ListEarnVaults"]["responses"]["200"]["schema"];
+
+export type TListEarnVaultsInput = { body: TListEarnVaultsBody };
+
+export type TListEarnVaultsBody = Omit<
+  operations["PublicApiService_ListEarnVaults"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;

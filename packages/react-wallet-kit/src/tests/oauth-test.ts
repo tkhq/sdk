@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it } from "@jest/globals";
 import { OAuthProviders, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import {
+  OAUTH_CAPTCHA_TOKEN_KEY,
   OAUTH_STATE_KEY,
   buildOAuthState,
   buildOAuthUrl,
+  clearAllOAuthData,
+  consumeOAuthCaptchaToken,
   consumeOAuthState,
   parseStateParam,
   parseOAuthResponse,
+  storeOAuthCaptchaToken,
 } from "../utils/oauth";
 
 function setStoredOAuthState(state: string) {
@@ -53,6 +57,7 @@ describe("parseOAuthRedirect", () => {
         sessionKey: "sess_1",
         oauthIntent: null,
         nonce: null,
+        captchaToken: null,
       });
     });
 
@@ -103,6 +108,7 @@ describe("parseOAuthRedirect", () => {
         sessionKey: "sess_g1",
         oauthIntent: null,
         nonce: null,
+        captchaToken: null,
       });
     });
 
@@ -177,6 +183,34 @@ describe("OAuth utils", () => {
         }),
       );
       expect(localStorage.getItem(OAUTH_STATE_KEY)).toBeNull();
+    });
+  });
+
+  describe("OAuth captcha token storage", () => {
+    it("stores and consumes a captcha token exactly once", () => {
+      storeOAuthCaptchaToken("tok_1");
+      expect(localStorage.getItem(OAUTH_CAPTCHA_TOKEN_KEY)).toBe("tok_1");
+
+      expect(consumeOAuthCaptchaToken()).toBe("tok_1");
+      expect(consumeOAuthCaptchaToken()).toBeNull();
+      expect(localStorage.getItem(OAUTH_CAPTCHA_TOKEN_KEY)).toBeNull();
+    });
+
+    it("returns null when no captcha token was stored", () => {
+      expect(consumeOAuthCaptchaToken()).toBeNull();
+    });
+
+    it("overwrites a previously stored captcha token", () => {
+      storeOAuthCaptchaToken("old");
+      storeOAuthCaptchaToken("new");
+      expect(consumeOAuthCaptchaToken()).toBe("new");
+    });
+
+    it("clears captcha token via clearAllOAuthData", () => {
+      storeOAuthCaptchaToken("tok_clear");
+      clearAllOAuthData();
+      expect(localStorage.getItem(OAUTH_CAPTCHA_TOKEN_KEY)).toBeNull();
+      expect(consumeOAuthCaptchaToken()).toBeNull();
     });
   });
 
@@ -294,6 +328,7 @@ describe("OAuth utils", () => {
         openModal: null,
         oauthIntent: null,
         nonce: null,
+        captchaToken: null,
       });
     });
 
@@ -315,7 +350,21 @@ describe("OAuth utils", () => {
         openModal: null,
         oauthIntent: null,
         nonce: null,
+        captchaToken: null,
       });
+    });
+
+    it("reads captchaToken from localStorage, not URL state", () => {
+      const rawState =
+        "provider=google&flow=redirect&publicKey=pk1&sessionKey=sess1&captchaToken=captcha_from_url";
+      setStoredOAuthState(rawState);
+      storeOAuthCaptchaToken("captcha_from_storage");
+      const state = encodeURIComponent(rawState);
+      const url = `https://example.com/callback#id_token=tok123&state=${state}`;
+
+      const result = parseOAuthResponse(url, OAuthProviders.GOOGLE);
+      expect(result?.captchaToken).toBe("captcha_from_storage");
+      expect(localStorage.getItem(OAUTH_CAPTCHA_TOKEN_KEY)).toBeNull();
     });
   });
 });

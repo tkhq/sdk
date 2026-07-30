@@ -3,6 +3,7 @@ import { ActionButton } from "../design/Buttons";
 interface PasskeyButtonsProps {
   onLogin: () => void;
   onSignUp: () => void;
+  disabled?: boolean;
 }
 
 export function PasskeyButtons(props: PasskeyButtonsProps) {
@@ -13,6 +14,7 @@ export function PasskeyButtons(props: PasskeyButtonsProps) {
         name="passkey-login-button"
         onClick={onLogin}
         className="w-full text-inherit bg-button-light dark:bg-button-dark"
+        disabled={props.disabled ?? false}
       >
         Log in with passkey
       </ActionButton>
@@ -20,6 +22,7 @@ export function PasskeyButtons(props: PasskeyButtonsProps) {
         name="passkey-signup-button"
         onClick={onSignUp}
         className="w-full bg-transparent text-primary-light dark:text-primary-dark border-none"
+        disabled={props.disabled ?? false}
       >
         Sign up with passkey
       </ActionButton>

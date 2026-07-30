@@ -961,7 +961,7 @@ export type v1ClaimEarnFeesRequest = {
 };
 
 export type v1ClaimEarnFeesResult = {
-  /** Identifier to poll claim status and tx hash via ClaimEarnFeesStatus. */
+  /** Identifier to poll claim status and tx hash via GetClaimEarnFeesStatus. */
   claimRequestId: string;
 };
 
@@ -2393,24 +2393,8 @@ export type v1DisablePrivateKeyResult = {
   privateKeyId: string;
 };
 
-export type v1EarnDeployStatusRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** The deploy_request_id returned by EarnDeployWrapper. */
-  deployRequestId: string;
-};
-
-export type v1EarnDeployStatusResponse = {
-  /** Status of the wrapper deployment. */
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  /** Transaction hash of the deployment, once available. */
-  deployTxHash?: string;
-  /** Reason the deployment transaction failed, when status is FAILED. */
-  error?: string;
-};
-
 export type v1EarnDeployWrapperIntent = {
-  /** Address of the underlying yield vault to wrap (from the EarnVaults catalog). */
+  /** Address of the underlying yield vault to wrap (from the ListEarnVaults catalog). */
   vaultAddress: string;
   /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
   chainCaip2:
@@ -2446,7 +2430,7 @@ export type v1EarnDeployWrapperResult = {
 };
 
 export type v1EarnDepositIntent = {
-  /** Address of the deployed Earn wrapper to deposit into, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers. */
+  /** Address of the deployed Earn wrapper to deposit into, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers. */
   wrapperAddress: string;
   /** A Wallet account address or Private Key address to deposit from and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
   signWith: string;
@@ -2475,24 +2459,8 @@ export type v1EarnDepositRequest = {
 };
 
 export type v1EarnDepositResult = {
-  /** Identifier to poll deposit status and tx hash via EarnDepositStatus. */
+  /** Identifier to poll deposit status and tx hash via GetEarnDepositStatus. */
   depositRequestId: string;
-};
-
-export type v1EarnDepositStatusRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** The deposit_request_id returned by EarnDeposit. */
-  depositRequestId: string;
-};
-
-export type v1EarnDepositStatusResponse = {
-  /** Status of the deposit. */
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  /** Transaction hash of the deposit, once available. */
-  depositTxHash?: string;
-  /** Reason the deposit transaction failed, when status is FAILED. */
-  error?: string;
 };
 
 export type v1EarnEnabledVault = {
@@ -2524,20 +2492,6 @@ export type v1EarnEnabledVault = {
   claimableClientFee?: string;
   /** Normalized claimable_client_fee for display only (usd + crypto). Do not do arithmetic with these; use claimable_client_fee. Unset when a sub-org queries. */
   claimableClientFeeDisplay?: v1EarnValueDisplay;
-};
-
-export type v1EarnEnabledVaultsRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
-  provider?: v1EarnProvider;
-  /** Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
-  caip19?: string;
-};
-
-export type v1EarnEnabledVaultsResponse = {
-  /** The organization's deployed wrappers. */
-  enabledVaults?: v1EarnEnabledVault[];
 };
 
 export type v1EarnPosition = {
@@ -2576,22 +2530,10 @@ export type v1EarnPositionDisplay = {
   totalWithdrawnCrypto?: string;
 };
 
-export type v1EarnPositionsRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** The wallet address to return positions for. */
-  walletAddress: string;
-};
-
-export type v1EarnPositionsResponse = {
-  /** The wallet's active Earn positions. */
-  positions?: v1EarnPosition[];
-};
-
 export type v1EarnProvider = "EARN_PROVIDER_MORPHO" | "EARN_PROVIDER_AAVE";
 
 export type v1EarnSetWrapperStateIntent = {
-  /** Address of the deployed Earn wrapper to update, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers. */
+  /** Address of the deployed Earn wrapper to update, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers. */
   wrapperAddress: string;
   /** When true, deposits to this wrapper are rejected; withdrawals are unaffected. Set to false to re-enable deposits. */
   depositsDisabled: boolean;
@@ -2642,24 +2584,8 @@ export type v1EarnVault = {
   curator?: string;
 };
 
-export type v1EarnVaultsRequest = {
-  /** Unique identifier for a given Organization. Annotates which vaults the organization has already enabled. */
-  organizationId: string;
-  /** Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
-  provider?: v1EarnProvider;
-  /** CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier. */
-  caip19: string;
-  /** Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page. */
-  paginationOptions?: v1Pagination;
-};
-
-export type v1EarnVaultsResponse = {
-  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
-  vaults?: v1EarnVault[];
-};
-
 export type v1EarnWithdrawIntent = {
-  /** Address of the deployed Earn wrapper holding the position to withdraw from, from EarnPositions. Must be one of the org's deployed wrappers. */
+  /** Address of the deployed Earn wrapper holding the position to withdraw from, from ListEarnPositions. Must be one of the org's deployed wrappers. */
   wrapperAddress: string;
   /** A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
   signWith: string;
@@ -2688,24 +2614,8 @@ export type v1EarnWithdrawRequest = {
 };
 
 export type v1EarnWithdrawResult = {
-  /** Identifier to poll withdrawal status and tx hash via EarnWithdrawStatus. */
+  /** Identifier to poll withdrawal status and tx hash via GetEarnWithdrawStatus. */
   withdrawRequestId: string;
-};
-
-export type v1EarnWithdrawStatusRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** The withdraw_request_id returned by EarnWithdraw. */
-  withdrawRequestId: string;
-};
-
-export type v1EarnWithdrawStatusResponse = {
-  /** Status of the withdrawal. */
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  /** Transaction hash of the withdrawal, once available. */
-  withdrawTxHash?: string;
-  /** Reason the withdrawal transaction failed, when status is FAILED. */
-  error?: string;
 };
 
 export type v1Effect = "EFFECT_ALLOW" | "EFFECT_DENY";
@@ -3350,6 +3260,54 @@ export type v1GetBootProofRequest = {
   ephemeralKey: string;
 };
 
+export type v1GetEarnDeployStatusRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** The deploy_request_id returned by EarnDeployWrapper. */
+  deployRequestId: string;
+};
+
+export type v1GetEarnDeployStatusResponse = {
+  /** Status of the wrapper deployment. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the deployment, once available. */
+  deployTxHash?: string;
+  /** Reason the deployment transaction failed, when status is FAILED. */
+  error?: string;
+};
+
+export type v1GetEarnDepositStatusRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** The deposit_request_id returned by EarnDeposit. */
+  depositRequestId: string;
+};
+
+export type v1GetEarnDepositStatusResponse = {
+  /** Status of the deposit. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the deposit, once available. */
+  depositTxHash?: string;
+  /** Reason the deposit transaction failed, when status is FAILED. */
+  error?: string;
+};
+
+export type v1GetEarnWithdrawStatusRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** The withdraw_request_id returned by EarnWithdraw. */
+  withdrawRequestId: string;
+};
+
+export type v1GetEarnWithdrawStatusResponse = {
+  /** Status of the withdrawal. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the withdrawal, once available. */
+  withdrawTxHash?: string;
+  /** Reason the withdrawal transaction failed, when status is FAILED. */
+  error?: string;
+};
+
 export type v1GetGasUsageRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
@@ -3794,7 +3752,6 @@ export type v1GetWalletAddressBalancesRequest = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -4430,6 +4387,48 @@ export type v1IpAllowlistRule = {
   label?: string;
   /** Creation timestamp as millisecond epoch string. */
   createdAt?: string;
+};
+
+export type v1ListEarnEnabledVaultsRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
+  provider?: v1EarnProvider;
+  /** Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
+  caip19?: string;
+};
+
+export type v1ListEarnEnabledVaultsResponse = {
+  /** The organization's deployed wrappers. */
+  enabledVaults?: v1EarnEnabledVault[];
+};
+
+export type v1ListEarnPositionsRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** The wallet address to return positions for. */
+  walletAddress: string;
+};
+
+export type v1ListEarnPositionsResponse = {
+  /** The wallet's active Earn positions. */
+  positions?: v1EarnPosition[];
+};
+
+export type v1ListEarnVaultsRequest = {
+  /** Unique identifier for a given Organization. Annotates which vaults the organization has already enabled. */
+  organizationId: string;
+  /** Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
+  provider?: v1EarnProvider;
+  /** CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier. */
+  caip19: string;
+  /** Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page. */
+  paginationOptions?: v1Pagination;
+};
+
+export type v1ListEarnVaultsResponse = {
+  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
+  vaults?: v1EarnVault[];
 };
 
 export type v1ListEmailEventsRequest = {
@@ -6833,102 +6832,6 @@ export type v1WebhookSubscriptionParams = {
 };
 
 // --- API Types from Swagger Paths ---
-export type TEarnDeployStatusResponse = {
-  /** Status of the wrapper deployment. */
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  /** Transaction hash of the deployment, once available. */
-  deployTxHash?: string;
-  /** Reason the deployment transaction failed, when status is FAILED. */
-  error?: string;
-};
-
-export type TEarnDeployStatusBody = {
-  organizationId?: string;
-  /** The deploy_request_id returned by EarnDeployWrapper. */
-  deployRequestId: string;
-};
-
-export type TEarnDeployStatusInput = { body: TEarnDeployStatusBody };
-
-export type TEarnDepositStatusResponse = {
-  /** Status of the deposit. */
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  /** Transaction hash of the deposit, once available. */
-  depositTxHash?: string;
-  /** Reason the deposit transaction failed, when status is FAILED. */
-  error?: string;
-};
-
-export type TEarnDepositStatusBody = {
-  organizationId?: string;
-  /** The deposit_request_id returned by EarnDeposit. */
-  depositRequestId: string;
-};
-
-export type TEarnDepositStatusInput = { body: TEarnDepositStatusBody };
-
-export type TEarnEnabledVaultsResponse = {
-  /** The organization's deployed wrappers. */
-  enabledVaults?: v1EarnEnabledVault[];
-};
-
-export type TEarnEnabledVaultsBody = {
-  organizationId?: string;
-  /** Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
-  provider?: v1EarnProvider;
-  /** Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
-  caip19?: string;
-};
-
-export type TEarnEnabledVaultsInput = { body: TEarnEnabledVaultsBody };
-
-export type TEarnPositionsResponse = {
-  /** The wallet's active Earn positions. */
-  positions?: v1EarnPosition[];
-};
-
-export type TEarnPositionsBody = {
-  organizationId?: string;
-  /** The wallet address to return positions for. */
-  walletAddress: string;
-};
-
-export type TEarnPositionsInput = { body: TEarnPositionsBody };
-
-export type TEarnVaultsResponse = {
-  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
-  vaults?: v1EarnVault[];
-};
-
-export type TEarnVaultsBody = {
-  organizationId?: string;
-  /** Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
-  provider?: v1EarnProvider;
-  /** CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier. */
-  caip19: string;
-  /** Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page. */
-  paginationOptions?: v1Pagination;
-};
-
-export type TEarnVaultsInput = { body: TEarnVaultsBody };
-
-export type TEarnWithdrawStatusResponse = {
-  /** Status of the withdrawal. */
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  /** Transaction hash of the withdrawal, once available. */
-  withdrawTxHash?: string;
-  /** Reason the withdrawal transaction failed, when status is FAILED. */
-  error?: string;
-};
-
-export type TEarnWithdrawStatusBody = {
-  organizationId?: string;
-  /** The withdraw_request_id returned by EarnWithdraw. */
-  withdrawRequestId: string;
-};
-
-export type TEarnWithdrawStatusInput = { body: TEarnWithdrawStatusBody };
-
 export type TGetActivityResponse = {
   /** An action that can be taken within the Turnkey infrastructure. */
   activity: v1Activity;
@@ -7018,6 +6921,57 @@ export type TGetBootProofBody = {
 };
 
 export type TGetBootProofInput = { body: TGetBootProofBody };
+
+export type TGetEarnDeployStatusResponse = {
+  /** Status of the wrapper deployment. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the deployment, once available. */
+  deployTxHash?: string;
+  /** Reason the deployment transaction failed, when status is FAILED. */
+  error?: string;
+};
+
+export type TGetEarnDeployStatusBody = {
+  organizationId?: string;
+  /** The deploy_request_id returned by EarnDeployWrapper. */
+  deployRequestId: string;
+};
+
+export type TGetEarnDeployStatusInput = { body: TGetEarnDeployStatusBody };
+
+export type TGetEarnDepositStatusResponse = {
+  /** Status of the deposit. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the deposit, once available. */
+  depositTxHash?: string;
+  /** Reason the deposit transaction failed, when status is FAILED. */
+  error?: string;
+};
+
+export type TGetEarnDepositStatusBody = {
+  organizationId?: string;
+  /** The deposit_request_id returned by EarnDeposit. */
+  depositRequestId: string;
+};
+
+export type TGetEarnDepositStatusInput = { body: TGetEarnDepositStatusBody };
+
+export type TGetEarnWithdrawStatusResponse = {
+  /** Status of the withdrawal. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the withdrawal, once available. */
+  withdrawTxHash?: string;
+  /** Reason the withdrawal transaction failed, when status is FAILED. */
+  error?: string;
+};
+
+export type TGetEarnWithdrawStatusBody = {
+  organizationId?: string;
+  /** The withdraw_request_id returned by EarnWithdraw. */
+  withdrawRequestId: string;
+};
+
+export type TGetEarnWithdrawStatusInput = { body: TGetEarnWithdrawStatusBody };
 
 export type TGetGasUsageResponse = {
   /** The window duration (in minutes) for the organization or sub-organization. */
@@ -7407,7 +7361,6 @@ export type TGetWalletAddressBalancesBody = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -7444,6 +7397,51 @@ export type TGetAppProofsBody = {
 };
 
 export type TGetAppProofsInput = { body: TGetAppProofsBody };
+
+export type TListEarnEnabledVaultsResponse = {
+  /** The organization's deployed wrappers. */
+  enabledVaults?: v1EarnEnabledVault[];
+};
+
+export type TListEarnEnabledVaultsBody = {
+  organizationId?: string;
+  /** Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
+  provider?: v1EarnProvider;
+  /** Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
+  caip19?: string;
+};
+
+export type TListEarnEnabledVaultsInput = { body: TListEarnEnabledVaultsBody };
+
+export type TListEarnPositionsResponse = {
+  /** The wallet's active Earn positions. */
+  positions?: v1EarnPosition[];
+};
+
+export type TListEarnPositionsBody = {
+  organizationId?: string;
+  /** The wallet address to return positions for. */
+  walletAddress: string;
+};
+
+export type TListEarnPositionsInput = { body: TListEarnPositionsBody };
+
+export type TListEarnVaultsResponse = {
+  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
+  vaults?: v1EarnVault[];
+};
+
+export type TListEarnVaultsBody = {
+  organizationId?: string;
+  /** Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
+  provider?: v1EarnProvider;
+  /** CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier. */
+  caip19: string;
+  /** Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page. */
+  paginationOptions?: v1Pagination;
+};
+
+export type TListEarnVaultsInput = { body: TListEarnVaultsBody };
 
 export type TListEmailEventsResponse = {
   /** Email events matching the requested filters, ordered by most recent event first. */
@@ -7784,7 +7782,7 @@ export type TApproveActivityInput = { body: TApproveActivityBody };
 
 export type TClaimEarnFeesResponse = {
   activity: v1Activity;
-  /** Identifier to poll claim status and tx hash via ClaimEarnFeesStatus. */
+  /** Identifier to poll claim status and tx hash via GetClaimEarnFeesStatus. */
   claimRequestId: string;
 };
 
@@ -8713,7 +8711,7 @@ export type TEarnDeployWrapperResponse = {
 export type TEarnDeployWrapperBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** Address of the underlying yield vault to wrap (from the EarnVaults catalog). */
+  /** Address of the underlying yield vault to wrap (from the ListEarnVaults catalog). */
   vaultAddress: string;
   /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
   chainCaip2:
@@ -8734,14 +8732,14 @@ export type TEarnDeployWrapperInput = { body: TEarnDeployWrapperBody };
 
 export type TEarnDepositResponse = {
   activity: v1Activity;
-  /** Identifier to poll deposit status and tx hash via EarnDepositStatus. */
+  /** Identifier to poll deposit status and tx hash via GetEarnDepositStatus. */
   depositRequestId: string;
 };
 
 export type TEarnDepositBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** Address of the deployed Earn wrapper to deposit into, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers. */
+  /** Address of the deployed Earn wrapper to deposit into, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers. */
   wrapperAddress: string;
   /** A Wallet account address or Private Key address to deposit from and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
   signWith: string;
@@ -8773,7 +8771,7 @@ export type TEarnSetWrapperStateResponse = {
 export type TEarnSetWrapperStateBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** Address of the deployed Earn wrapper to update, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers. */
+  /** Address of the deployed Earn wrapper to update, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers. */
   wrapperAddress: string;
   /** When true, deposits to this wrapper are rejected; withdrawals are unaffected. Set to false to re-enable deposits. */
   depositsDisabled: boolean;
@@ -8784,14 +8782,14 @@ export type TEarnSetWrapperStateInput = { body: TEarnSetWrapperStateBody };
 
 export type TEarnWithdrawResponse = {
   activity: v1Activity;
-  /** Identifier to poll withdrawal status and tx hash via EarnWithdrawStatus. */
+  /** Identifier to poll withdrawal status and tx hash via GetEarnWithdrawStatus. */
   withdrawRequestId: string;
 };
 
 export type TEarnWithdrawBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** Address of the deployed Earn wrapper holding the position to withdraw from, from EarnPositions. Must be one of the org's deployed wrappers. */
+  /** Address of the deployed Earn wrapper holding the position to withdraw from, from ListEarnPositions. Must be one of the org's deployed wrappers. */
   wrapperAddress: string;
   /** A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
   signWith: string;
