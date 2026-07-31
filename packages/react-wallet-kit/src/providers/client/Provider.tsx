@@ -16,6 +16,8 @@ import {
   getProviderIcon,
   completePKCEFlow,
   hasPKCEVerifier,
+  isExpectedOAuthRedirectUrl,
+  OAUTH_PROVIDER_CONFIGS,
   OAUTH_INTENT_ADD_PROVIDER,
   openOAuthPopup,
   parseOAuthResponse,
@@ -3597,7 +3599,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             const url = authWindow.location.href || "";
-            if (url.startsWith(window.location.origin)) {
+            if (
+              isExpectedOAuthRedirectUrl(
+                url,
+                redirectUri,
+                OAUTH_PROVIDER_CONFIGS[provider].expectedResponseMode,
+              )
+            ) {
               const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
@@ -3752,7 +3760,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             const url = authWindow.location.href || "";
-            if (url.startsWith(window.location.origin)) {
+            if (
+              isExpectedOAuthRedirectUrl(
+                url,
+                redirectUri,
+                OAUTH_PROVIDER_CONFIGS[provider].expectedResponseMode,
+              )
+            ) {
               const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
@@ -3905,7 +3919,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             const url = authWindow.location.href || "";
-            if (url.startsWith(window.location.origin)) {
+            if (
+              isExpectedOAuthRedirectUrl(
+                url,
+                redirectUri,
+                OAUTH_PROVIDER_CONFIGS[provider].expectedResponseMode,
+              )
+            ) {
               const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
@@ -4045,7 +4065,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             const url = authWindow.location.href || "";
-            if (url.startsWith(window.location.origin)) {
+            if (
+              isExpectedOAuthRedirectUrl(
+                url,
+                redirectUri,
+                OAUTH_PROVIDER_CONFIGS[provider].expectedResponseMode,
+              )
+            ) {
               const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
@@ -4189,7 +4215,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             const url = authWindow.location.href || "";
-            if (url.startsWith(window.location.origin)) {
+            if (
+              isExpectedOAuthRedirectUrl(
+                url,
+                redirectUri,
+                OAUTH_PROVIDER_CONFIGS[provider].expectedResponseMode,
+              )
+            ) {
               const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();

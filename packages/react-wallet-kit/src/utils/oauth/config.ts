@@ -13,6 +13,11 @@ export const FACEBOOK_GRAPH_URL =
 export const popupWidth = 500;
 export const popupHeight = 600;
 
+export enum OAuthResponseMode {
+  Query = "query",
+  Fragment = "fragment",
+}
+
 /**
  * OAuth provider configuration for unified OAuth flow handling
  */
@@ -27,8 +32,10 @@ export interface OAuthProviderConfig {
   usesPKCE: boolean;
   /** Response type for the OAuth request */
   responseType: string;
+  /** Response mode expected from this provider, including protocol defaults */
+  expectedResponseMode: OAuthResponseMode;
   /** Optional response mode (e.g., 'fragment' for Apple) */
-  responseMode?: string;
+  responseMode?: OAuthResponseMode;
   /** Whether to include nonce in the URL params (vs state) */
   nonceInParams?: boolean;
 }
@@ -46,6 +53,7 @@ export const OAUTH_PROVIDER_CONFIGS: Record<
     scopes: "openid email profile",
     usesPKCE: false,
     responseType: "id_token",
+    expectedResponseMode: OAuthResponseMode.Fragment,
     nonceInParams: true,
   },
   [OAuthProviders.APPLE]: {
@@ -54,7 +62,8 @@ export const OAUTH_PROVIDER_CONFIGS: Record<
     scopes: "",
     usesPKCE: false,
     responseType: "code id_token",
-    responseMode: "fragment",
+    expectedResponseMode: OAuthResponseMode.Fragment,
+    responseMode: OAuthResponseMode.Fragment,
     nonceInParams: true,
   },
   [OAuthProviders.FACEBOOK]: {
@@ -63,6 +72,7 @@ export const OAUTH_PROVIDER_CONFIGS: Record<
     scopes: "openid",
     usesPKCE: true,
     responseType: "code",
+    expectedResponseMode: OAuthResponseMode.Query,
     nonceInParams: true,
   },
   [OAuthProviders.DISCORD]: {
@@ -71,6 +81,7 @@ export const OAUTH_PROVIDER_CONFIGS: Record<
     scopes: "identify email",
     usesPKCE: true,
     responseType: "code",
+    expectedResponseMode: OAuthResponseMode.Query,
     nonceInParams: false,
   },
   [OAuthProviders.X]: {
@@ -79,6 +90,7 @@ export const OAUTH_PROVIDER_CONFIGS: Record<
     scopes: "tweet.read users.read",
     usesPKCE: true,
     responseType: "code",
+    expectedResponseMode: OAuthResponseMode.Query,
     nonceInParams: false,
   },
 };
