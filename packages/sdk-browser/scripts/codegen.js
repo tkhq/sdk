@@ -467,11 +467,12 @@ export class TurnkeySDKClientBase {
     const sessionData = await getStorageValue(StorageKeys.Session);
     const session = sessionData ? parseSession(sessionData) : null;
 
-    const { organizationId, timestampMs, ...rest } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.${inputType} & { generateAppProofs?: boolean };
     return this.command("${endpointPath}", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
       type: "${versionedActivityType ?? unversionedActivityType}"
     }, "${versionedMethodName}");
   }`,
@@ -482,12 +483,13 @@ export class TurnkeySDKClientBase {
     const sessionData = await getStorageValue(StorageKeys.Session);
     const session = sessionData ? parseSession(sessionData) : null;
 
-    const { organizationId, timestampMs, ...rest } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.${inputType} & { generateAppProofs?: boolean };
     return this.activityDecision("${endpointPath}",
       {
         parameters: rest,
         organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
         timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_${operationNameWithoutNamespace
           .replace(/([a-z])([A-Z])/g, "$1_$2")
           .toUpperCase()}"
@@ -536,12 +538,13 @@ export class TurnkeySDKClientBase {
     const sessionData = await getStorageValue(StorageKeys.Session);
     const session = sessionData ? parseSession(sessionData) : null;
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.${inputType} & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
       type: "${versionedActivityType ?? unversionedActivityType}"
     };
 

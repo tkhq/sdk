@@ -4,17 +4,10 @@ import type { TurnkeySDKClientConfig } from "../__types__/base";
 
 import { VERSION } from "../__generated__/version";
 
-import {
-  TStamper,
-  TERMINAL_ACTIVITY_STATUSES,
-  TActivityResponse,
-  TActivityStatus,
-  TSignedRequest,
-  GrpcStatus,
-  TurnkeyRequestError,
-} from "@turnkey/sdk-types";
+import { TStamper, TERMINAL_ACTIVITY_STATUSES, TActivityResponse, TActivityStatus, TSignedRequest, GrpcStatus, TurnkeyRequestError } from "@turnkey/sdk-types";
 
 import type * as SdkApiTypes from "@turnkey/sdk-types";
+
 
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
@@ -28,7 +21,7 @@ export class TurnkeySDKClientBase {
 
   async request<TBodyType, TResponseType>(
     url: string,
-    body: TBodyType,
+    body: TBodyType
   ): Promise<TResponseType> {
     const fullUrl = this.config.apiBaseUrl + url;
     const stringifiedBody = JSON.stringify(body);
@@ -39,10 +32,10 @@ export class TurnkeySDKClientBase {
       headers: {
         [stamp.stampHeaderName]: stamp.stampHeaderValue,
         "Content-Type": "application/json",
-        "X-Client-Version": VERSION,
+        "X-Client-Version": VERSION
       },
       body: stringifiedBody,
-      redirect: "follow",
+      redirect: "follow"
     });
 
     if (!response.ok) {
@@ -63,13 +56,12 @@ export class TurnkeySDKClientBase {
   async command<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
-    resultKey: string,
+    resultKey: string
   ): Promise<TResponseType> {
     const pollingDuration = this.config.activityPoller?.intervalMs ?? 1000;
     const maxRetries = this.config.activityPoller?.numRetries ?? 3;
 
-    const sleep = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms));
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
     const handleResponse = (activityData: TActivityResponse): TResponseType => {
       const { result, status } = activityData.activity;
@@ -77,7 +69,7 @@ export class TurnkeySDKClientBase {
       if (status === "ACTIVITY_STATUS_COMPLETED") {
         return {
           ...result[`${resultKey}` as keyof SdkApiTypes.v1Result],
-          ...activityData,
+          ...activityData
         } as TResponseType;
       }
 
@@ -86,24 +78,17 @@ export class TurnkeySDKClientBase {
 
     let attempts = 0;
 
-    const pollStatus = async (
-      activityId: string,
-      organizationId: string,
-    ): Promise<TResponseType> => {
+    const pollStatus = async (activityId: string, organizationId: string): Promise<TResponseType> => {
       const pollBody = { activityId, organizationId };
-      const pollData = (await this.getActivity(pollBody)) as TActivityResponse;
+      const pollData = await this.getActivity(pollBody) as TActivityResponse;
 
       if (attempts > maxRetries) {
         return handleResponse(pollData);
       }
 
       attempts += 1;
-
-      if (
-        !TERMINAL_ACTIVITY_STATUSES.includes(
-          pollData.activity.status as TActivityStatus,
-        )
-      ) {
+      
+      if (!TERMINAL_ACTIVITY_STATUSES.includes(pollData.activity.status as TActivityStatus)) {
         await sleep(pollingDuration);
         return pollStatus(activityId, organizationId);
       }
@@ -111,20 +96,10 @@ export class TurnkeySDKClientBase {
       return handleResponse(pollData);
     };
 
-    const responseData = (await this.request<TBodyType, TResponseType>(
-      url,
-      body,
-    )) as TActivityResponse;
-
-    if (
-      !TERMINAL_ACTIVITY_STATUSES.includes(
-        responseData.activity.status as TActivityStatus,
-      )
-    ) {
-      return pollStatus(
-        responseData.activity.id,
-        responseData.activity.organizationId,
-      );
+    const responseData = await this.request<TBodyType, TResponseType>(url, body) as TActivityResponse;
+    
+    if (!TERMINAL_ACTIVITY_STATUSES.includes(responseData.activity.status as TActivityStatus)) {
+      return pollStatus(responseData.activity.id, responseData.activity.organizationId);
     }
 
     return handleResponse(responseData);
@@ -132,28 +107,26 @@ export class TurnkeySDKClientBase {
 
   async activityDecision<TBodyType, TResponseType>(
     url: string,
-    body: TBodyType,
+    body: TBodyType
   ): Promise<TResponseType> {
-    const activityData = (await this.request(url, body)) as TActivityResponse;
+    const activityData = await this.request(url, body) as TActivityResponse;
 
     return {
       ...activityData["activity"]["result"],
-      ...activityData,
+      ...activityData
     } as TResponseType;
   }
 
-  getActivity = async (
-    input: SdkApiTypes.TGetActivityBody,
-  ): Promise<SdkApiTypes.TGetActivityResponse> => {
+
+	getActivity = async (input: SdkApiTypes.TGetActivityBody): Promise<SdkApiTypes.TGetActivityResponse> => {
     return this.request("/public/v1/query/get_activity", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetActivity = async (
-    input: SdkApiTypes.TGetActivityBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetActivity = async (input: SdkApiTypes.TGetActivityBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -161,7 +134,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_activity";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -171,20 +144,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getApiKey = async (
-    input: SdkApiTypes.TGetApiKeyBody,
-  ): Promise<SdkApiTypes.TGetApiKeyResponse> => {
+
+	getApiKey = async (input: SdkApiTypes.TGetApiKeyBody): Promise<SdkApiTypes.TGetApiKeyResponse> => {
     return this.request("/public/v1/query/get_api_key", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetApiKey = async (
-    input: SdkApiTypes.TGetApiKeyBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetApiKey = async (input: SdkApiTypes.TGetApiKeyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -192,7 +163,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_api_key";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -202,20 +173,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getApiKeys = async (
-    input: SdkApiTypes.TGetApiKeysBody = {},
-  ): Promise<SdkApiTypes.TGetApiKeysResponse> => {
+
+	getApiKeys = async (input: SdkApiTypes.TGetApiKeysBody = {}): Promise<SdkApiTypes.TGetApiKeysResponse> => {
     return this.request("/public/v1/query/get_api_keys", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetApiKeys = async (
-    input: SdkApiTypes.TGetApiKeysBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetApiKeys = async (input: SdkApiTypes.TGetApiKeysBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -223,7 +192,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_api_keys";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -233,20 +202,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getAppStatus = async (
-    input: SdkApiTypes.TGetAppStatusBody,
-  ): Promise<SdkApiTypes.TGetAppStatusResponse> => {
+
+	getAppStatus = async (input: SdkApiTypes.TGetAppStatusBody): Promise<SdkApiTypes.TGetAppStatusResponse> => {
     return this.request("/public/v1/query/get_app_status", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetAppStatus = async (
-    input: SdkApiTypes.TGetAppStatusBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetAppStatus = async (input: SdkApiTypes.TGetAppStatusBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -254,7 +221,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_app_status";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -264,29 +231,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getAuthenticator = async (
-    input: SdkApiTypes.TGetAuthenticatorBody,
-  ): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
+
+	getAuthenticator = async (input: SdkApiTypes.TGetAuthenticatorBody): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
     return this.request("/public/v1/query/get_authenticator", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetAuthenticator = async (
-    input: SdkApiTypes.TGetAuthenticatorBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetAuthenticator = async (input: SdkApiTypes.TGetAuthenticatorBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_authenticator";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_authenticator";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -296,29 +260,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getAuthenticators = async (
-    input: SdkApiTypes.TGetAuthenticatorsBody,
-  ): Promise<SdkApiTypes.TGetAuthenticatorsResponse> => {
+
+	getAuthenticators = async (input: SdkApiTypes.TGetAuthenticatorsBody): Promise<SdkApiTypes.TGetAuthenticatorsResponse> => {
     return this.request("/public/v1/query/get_authenticators", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetAuthenticators = async (
-    input: SdkApiTypes.TGetAuthenticatorsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetAuthenticators = async (input: SdkApiTypes.TGetAuthenticatorsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_authenticators";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_authenticators";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -328,20 +289,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getBootProof = async (
-    input: SdkApiTypes.TGetBootProofBody,
-  ): Promise<SdkApiTypes.TGetBootProofResponse> => {
+
+	getBootProof = async (input: SdkApiTypes.TGetBootProofBody): Promise<SdkApiTypes.TGetBootProofResponse> => {
     return this.request("/public/v1/query/get_boot_proof", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetBootProof = async (
-    input: SdkApiTypes.TGetBootProofBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetBootProof = async (input: SdkApiTypes.TGetBootProofBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -349,7 +308,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_boot_proof";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -359,29 +318,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getEarnDeployStatus = async (
-    input: SdkApiTypes.TGetEarnDeployStatusBody,
-  ): Promise<SdkApiTypes.TGetEarnDeployStatusResponse> => {
+
+	getEarnDeployStatus = async (input: SdkApiTypes.TGetEarnDeployStatusBody): Promise<SdkApiTypes.TGetEarnDeployStatusResponse> => {
     return this.request("/public/v1/query/get_earn_deploy_status", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetEarnDeployStatus = async (
-    input: SdkApiTypes.TGetEarnDeployStatusBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetEarnDeployStatus = async (input: SdkApiTypes.TGetEarnDeployStatusBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_earn_deploy_status";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_earn_deploy_status";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -391,29 +347,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getEarnDepositStatus = async (
-    input: SdkApiTypes.TGetEarnDepositStatusBody,
-  ): Promise<SdkApiTypes.TGetEarnDepositStatusResponse> => {
+
+	getEarnDepositStatus = async (input: SdkApiTypes.TGetEarnDepositStatusBody): Promise<SdkApiTypes.TGetEarnDepositStatusResponse> => {
     return this.request("/public/v1/query/get_earn_deposit_status", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetEarnDepositStatus = async (
-    input: SdkApiTypes.TGetEarnDepositStatusBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetEarnDepositStatus = async (input: SdkApiTypes.TGetEarnDepositStatusBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_earn_deposit_status";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_earn_deposit_status";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -423,29 +376,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getEarnWithdrawStatus = async (
-    input: SdkApiTypes.TGetEarnWithdrawStatusBody,
-  ): Promise<SdkApiTypes.TGetEarnWithdrawStatusResponse> => {
+
+	getEarnWithdrawStatus = async (input: SdkApiTypes.TGetEarnWithdrawStatusBody): Promise<SdkApiTypes.TGetEarnWithdrawStatusResponse> => {
     return this.request("/public/v1/query/get_earn_withdraw_status", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetEarnWithdrawStatus = async (
-    input: SdkApiTypes.TGetEarnWithdrawStatusBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetEarnWithdrawStatus = async (input: SdkApiTypes.TGetEarnWithdrawStatusBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_earn_withdraw_status";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_earn_withdraw_status";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -455,20 +405,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getGasUsage = async (
-    input: SdkApiTypes.TGetGasUsageBody,
-  ): Promise<SdkApiTypes.TGetGasUsageResponse> => {
+
+	getGasUsage = async (input: SdkApiTypes.TGetGasUsageBody): Promise<SdkApiTypes.TGetGasUsageResponse> => {
     return this.request("/public/v1/query/get_gas_usage", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetGasUsage = async (
-    input: SdkApiTypes.TGetGasUsageBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetGasUsage = async (input: SdkApiTypes.TGetGasUsageBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -476,7 +424,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_gas_usage";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -486,29 +434,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getIpAllowlist = async (
-    input: SdkApiTypes.TGetIpAllowlistBody,
-  ): Promise<SdkApiTypes.TGetIpAllowlistResponse> => {
+
+	getIpAllowlist = async (input: SdkApiTypes.TGetIpAllowlistBody): Promise<SdkApiTypes.TGetIpAllowlistResponse> => {
     return this.request("/public/v1/query/get_ip_allowlist", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetIpAllowlist = async (
-    input: SdkApiTypes.TGetIpAllowlistBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetIpAllowlist = async (input: SdkApiTypes.TGetIpAllowlistBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_ip_allowlist";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_ip_allowlist";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -518,29 +463,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getLatestBootProof = async (
-    input: SdkApiTypes.TGetLatestBootProofBody,
-  ): Promise<SdkApiTypes.TGetLatestBootProofResponse> => {
+
+	getLatestBootProof = async (input: SdkApiTypes.TGetLatestBootProofBody): Promise<SdkApiTypes.TGetLatestBootProofResponse> => {
     return this.request("/public/v1/query/get_latest_boot_proof", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetLatestBootProof = async (
-    input: SdkApiTypes.TGetLatestBootProofBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetLatestBootProof = async (input: SdkApiTypes.TGetLatestBootProofBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -550,29 +492,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getMfaPolicies = async (
-    input: SdkApiTypes.TGetMfaPoliciesBody,
-  ): Promise<SdkApiTypes.TGetMfaPoliciesResponse> => {
+
+	getMfaPolicies = async (input: SdkApiTypes.TGetMfaPoliciesBody): Promise<SdkApiTypes.TGetMfaPoliciesResponse> => {
     return this.request("/public/v1/query/get_mfa_policies", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetMfaPolicies = async (
-    input: SdkApiTypes.TGetMfaPoliciesBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetMfaPolicies = async (input: SdkApiTypes.TGetMfaPoliciesBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_mfa_policies";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_mfa_policies";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -582,20 +521,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getMfaPolicy = async (
-    input: SdkApiTypes.TGetMfaPolicyBody,
-  ): Promise<SdkApiTypes.TGetMfaPolicyResponse> => {
+
+	getMfaPolicy = async (input: SdkApiTypes.TGetMfaPolicyBody): Promise<SdkApiTypes.TGetMfaPolicyResponse> => {
     return this.request("/public/v1/query/get_mfa_policy", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetMfaPolicy = async (
-    input: SdkApiTypes.TGetMfaPolicyBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetMfaPolicy = async (input: SdkApiTypes.TGetMfaPolicyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -603,7 +540,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_mfa_policy";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -613,20 +550,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getMfaStatus = async (
-    input: SdkApiTypes.TGetMfaStatusBody,
-  ): Promise<SdkApiTypes.TGetMfaStatusResponse> => {
+
+	getMfaStatus = async (input: SdkApiTypes.TGetMfaStatusBody): Promise<SdkApiTypes.TGetMfaStatusResponse> => {
     return this.request("/public/v1/query/get_mfa_status", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetMfaStatus = async (
-    input: SdkApiTypes.TGetMfaStatusBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetMfaStatus = async (input: SdkApiTypes.TGetMfaStatusBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -634,7 +569,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_mfa_status";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -644,20 +579,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getNonces = async (
-    input: SdkApiTypes.TGetNoncesBody,
-  ): Promise<SdkApiTypes.TGetNoncesResponse> => {
+
+	getNonces = async (input: SdkApiTypes.TGetNoncesBody): Promise<SdkApiTypes.TGetNoncesResponse> => {
     return this.request("/public/v1/query/get_nonces", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetNonces = async (
-    input: SdkApiTypes.TGetNoncesBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetNonces = async (input: SdkApiTypes.TGetNoncesBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -665,7 +598,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_nonces";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -675,29 +608,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getOauth2Credential = async (
-    input: SdkApiTypes.TGetOauth2CredentialBody,
-  ): Promise<SdkApiTypes.TGetOauth2CredentialResponse> => {
+
+	getOauth2Credential = async (input: SdkApiTypes.TGetOauth2CredentialBody): Promise<SdkApiTypes.TGetOauth2CredentialResponse> => {
     return this.request("/public/v1/query/get_oauth2_credential", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetOauth2Credential = async (
-    input: SdkApiTypes.TGetOauth2CredentialBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetOauth2Credential = async (input: SdkApiTypes.TGetOauth2CredentialBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_oauth2_credential";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_oauth2_credential";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -707,29 +637,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getOauthProviders = async (
-    input: SdkApiTypes.TGetOauthProvidersBody,
-  ): Promise<SdkApiTypes.TGetOauthProvidersResponse> => {
+
+	getOauthProviders = async (input: SdkApiTypes.TGetOauthProvidersBody): Promise<SdkApiTypes.TGetOauthProvidersResponse> => {
     return this.request("/public/v1/query/get_oauth_providers", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetOauthProviders = async (
-    input: SdkApiTypes.TGetOauthProvidersBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetOauthProviders = async (input: SdkApiTypes.TGetOauthProvidersBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_oauth_providers";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_oauth_providers";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -739,29 +666,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getOnRampTransactionStatus = async (
-    input: SdkApiTypes.TGetOnRampTransactionStatusBody,
-  ): Promise<SdkApiTypes.TGetOnRampTransactionStatusResponse> => {
+
+	getOnRampTransactionStatus = async (input: SdkApiTypes.TGetOnRampTransactionStatusBody): Promise<SdkApiTypes.TGetOnRampTransactionStatusResponse> => {
     return this.request("/public/v1/query/get_onramp_transaction_status", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetOnRampTransactionStatus = async (
-    input: SdkApiTypes.TGetOnRampTransactionStatusBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetOnRampTransactionStatus = async (input: SdkApiTypes.TGetOnRampTransactionStatusBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_onramp_transaction_status";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_onramp_transaction_status";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -771,29 +695,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getOrganizationConfigs = async (
-    input: SdkApiTypes.TGetOrganizationConfigsBody,
-  ): Promise<SdkApiTypes.TGetOrganizationConfigsResponse> => {
+
+	getOrganizationConfigs = async (input: SdkApiTypes.TGetOrganizationConfigsBody): Promise<SdkApiTypes.TGetOrganizationConfigsResponse> => {
     return this.request("/public/v1/query/get_organization_configs", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetOrganizationConfigs = async (
-    input: SdkApiTypes.TGetOrganizationConfigsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetOrganizationConfigs = async (input: SdkApiTypes.TGetOrganizationConfigsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_organization_configs";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_organization_configs";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -803,20 +724,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getPolicy = async (
-    input: SdkApiTypes.TGetPolicyBody,
-  ): Promise<SdkApiTypes.TGetPolicyResponse> => {
+
+	getPolicy = async (input: SdkApiTypes.TGetPolicyBody): Promise<SdkApiTypes.TGetPolicyResponse> => {
     return this.request("/public/v1/query/get_policy", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetPolicy = async (
-    input: SdkApiTypes.TGetPolicyBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetPolicy = async (input: SdkApiTypes.TGetPolicyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -824,7 +743,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_policy";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -834,29 +753,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getPolicyEvaluations = async (
-    input: SdkApiTypes.TGetPolicyEvaluationsBody,
-  ): Promise<SdkApiTypes.TGetPolicyEvaluationsResponse> => {
+
+	getPolicyEvaluations = async (input: SdkApiTypes.TGetPolicyEvaluationsBody): Promise<SdkApiTypes.TGetPolicyEvaluationsResponse> => {
     return this.request("/public/v1/query/get_policy_evaluations", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetPolicyEvaluations = async (
-    input: SdkApiTypes.TGetPolicyEvaluationsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetPolicyEvaluations = async (input: SdkApiTypes.TGetPolicyEvaluationsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_policy_evaluations";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_policy_evaluations";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -866,20 +782,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getPrivateKey = async (
-    input: SdkApiTypes.TGetPrivateKeyBody,
-  ): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {
+
+	getPrivateKey = async (input: SdkApiTypes.TGetPrivateKeyBody): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {
     return this.request("/public/v1/query/get_private_key", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetPrivateKey = async (
-    input: SdkApiTypes.TGetPrivateKeyBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetPrivateKey = async (input: SdkApiTypes.TGetPrivateKeyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -887,7 +801,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_private_key";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -897,29 +811,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getSendTransactionStatus = async (
-    input: SdkApiTypes.TGetSendTransactionStatusBody,
-  ): Promise<SdkApiTypes.TGetSendTransactionStatusResponse> => {
+
+	getSendTransactionStatus = async (input: SdkApiTypes.TGetSendTransactionStatusBody): Promise<SdkApiTypes.TGetSendTransactionStatusResponse> => {
     return this.request("/public/v1/query/get_send_transaction_status", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetSendTransactionStatus = async (
-    input: SdkApiTypes.TGetSendTransactionStatusBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetSendTransactionStatus = async (input: SdkApiTypes.TGetSendTransactionStatusBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_send_transaction_status";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_send_transaction_status";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -929,29 +840,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getSessionProfile = async (
-    input: SdkApiTypes.TGetSessionProfileBody,
-  ): Promise<SdkApiTypes.TGetSessionProfileResponse> => {
+
+	getSessionProfile = async (input: SdkApiTypes.TGetSessionProfileBody): Promise<SdkApiTypes.TGetSessionProfileResponse> => {
     return this.request("/public/v1/query/get_session_profile", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetSessionProfile = async (
-    input: SdkApiTypes.TGetSessionProfileBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetSessionProfile = async (input: SdkApiTypes.TGetSessionProfileBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_session_profile";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_session_profile";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -961,29 +869,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getSessionProfiles = async (
-    input: SdkApiTypes.TGetSessionProfilesBody,
-  ): Promise<SdkApiTypes.TGetSessionProfilesResponse> => {
+
+	getSessionProfiles = async (input: SdkApiTypes.TGetSessionProfilesBody): Promise<SdkApiTypes.TGetSessionProfilesResponse> => {
     return this.request("/public/v1/query/get_session_profiles", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetSessionProfiles = async (
-    input: SdkApiTypes.TGetSessionProfilesBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetSessionProfiles = async (input: SdkApiTypes.TGetSessionProfilesBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_session_profiles";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_session_profiles";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -993,29 +898,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getSmartContractInterface = async (
-    input: SdkApiTypes.TGetSmartContractInterfaceBody,
-  ): Promise<SdkApiTypes.TGetSmartContractInterfaceResponse> => {
+
+	getSmartContractInterface = async (input: SdkApiTypes.TGetSmartContractInterfaceBody): Promise<SdkApiTypes.TGetSmartContractInterfaceResponse> => {
     return this.request("/public/v1/query/get_smart_contract_interface", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetSmartContractInterface = async (
-    input: SdkApiTypes.TGetSmartContractInterfaceBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetSmartContractInterface = async (input: SdkApiTypes.TGetSmartContractInterfaceBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1025,20 +927,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getTvcApp = async (
-    input: SdkApiTypes.TGetTvcAppBody,
-  ): Promise<SdkApiTypes.TGetTvcAppResponse> => {
+
+	getTvcApp = async (input: SdkApiTypes.TGetTvcAppBody): Promise<SdkApiTypes.TGetTvcAppResponse> => {
     return this.request("/public/v1/query/get_tvc_app", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetTvcApp = async (
-    input: SdkApiTypes.TGetTvcAppBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetTvcApp = async (input: SdkApiTypes.TGetTvcAppBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -1046,7 +946,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_tvc_app";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1056,29 +956,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getTvcDeployment = async (
-    input: SdkApiTypes.TGetTvcDeploymentBody,
-  ): Promise<SdkApiTypes.TGetTvcDeploymentResponse> => {
+
+	getTvcDeployment = async (input: SdkApiTypes.TGetTvcDeploymentBody): Promise<SdkApiTypes.TGetTvcDeploymentResponse> => {
     return this.request("/public/v1/query/get_tvc_deployment", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetTvcDeployment = async (
-    input: SdkApiTypes.TGetTvcDeploymentBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetTvcDeployment = async (input: SdkApiTypes.TGetTvcDeploymentBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_tvc_deployment";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_tvc_deployment";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1088,29 +985,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getTvcDeploymentDebugLogs = async (
-    input: SdkApiTypes.TGetTvcDeploymentDebugLogsBody,
-  ): Promise<SdkApiTypes.TGetTvcDeploymentDebugLogsResponse> => {
+
+	getTvcDeploymentDebugLogs = async (input: SdkApiTypes.TGetTvcDeploymentDebugLogsBody): Promise<SdkApiTypes.TGetTvcDeploymentDebugLogsResponse> => {
     return this.request("/public/v1/query/get_tvc_deployment_debug_logs", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetTvcDeploymentDebugLogs = async (
-    input: SdkApiTypes.TGetTvcDeploymentDebugLogsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetTvcDeploymentDebugLogs = async (input: SdkApiTypes.TGetTvcDeploymentDebugLogsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_tvc_deployment_debug_logs";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_tvc_deployment_debug_logs";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1120,20 +1014,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getUser = async (
-    input: SdkApiTypes.TGetUserBody,
-  ): Promise<SdkApiTypes.TGetUserResponse> => {
+
+	getUser = async (input: SdkApiTypes.TGetUserBody): Promise<SdkApiTypes.TGetUserResponse> => {
     return this.request("/public/v1/query/get_user", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetUser = async (
-    input: SdkApiTypes.TGetUserBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetUser = async (input: SdkApiTypes.TGetUserBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -1141,7 +1033,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_user";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1151,20 +1043,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getWallet = async (
-    input: SdkApiTypes.TGetWalletBody,
-  ): Promise<SdkApiTypes.TGetWalletResponse> => {
+
+	getWallet = async (input: SdkApiTypes.TGetWalletBody): Promise<SdkApiTypes.TGetWalletResponse> => {
     return this.request("/public/v1/query/get_wallet", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetWallet = async (
-    input: SdkApiTypes.TGetWalletBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetWallet = async (input: SdkApiTypes.TGetWalletBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -1172,7 +1062,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_wallet";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1182,29 +1072,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getWalletAccount = async (
-    input: SdkApiTypes.TGetWalletAccountBody,
-  ): Promise<SdkApiTypes.TGetWalletAccountResponse> => {
+
+	getWalletAccount = async (input: SdkApiTypes.TGetWalletAccountBody): Promise<SdkApiTypes.TGetWalletAccountResponse> => {
     return this.request("/public/v1/query/get_wallet_account", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetWalletAccount = async (
-    input: SdkApiTypes.TGetWalletAccountBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetWalletAccount = async (input: SdkApiTypes.TGetWalletAccountBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_wallet_account";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_wallet_account";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1214,29 +1101,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getWalletAddressBalances = async (
-    input: SdkApiTypes.TGetWalletAddressBalancesBody,
-  ): Promise<SdkApiTypes.TGetWalletAddressBalancesResponse> => {
+
+	getWalletAddressBalances = async (input: SdkApiTypes.TGetWalletAddressBalancesBody): Promise<SdkApiTypes.TGetWalletAddressBalancesResponse> => {
     return this.request("/public/v1/query/get_wallet_address_balances", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetWalletAddressBalances = async (
-    input: SdkApiTypes.TGetWalletAddressBalancesBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetWalletAddressBalances = async (input: SdkApiTypes.TGetWalletAddressBalancesBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_wallet_address_balances";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_wallet_address_balances";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1246,20 +1130,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getActivities = async (
-    input: SdkApiTypes.TGetActivitiesBody = {},
-  ): Promise<SdkApiTypes.TGetActivitiesResponse> => {
+
+	getActivities = async (input: SdkApiTypes.TGetActivitiesBody = {}): Promise<SdkApiTypes.TGetActivitiesResponse> => {
     return this.request("/public/v1/query/list_activities", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetActivities = async (
-    input: SdkApiTypes.TGetActivitiesBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetActivities = async (input: SdkApiTypes.TGetActivitiesBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -1267,7 +1149,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_activities";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1277,20 +1159,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getAppProofs = async (
-    input: SdkApiTypes.TGetAppProofsBody,
-  ): Promise<SdkApiTypes.TGetAppProofsResponse> => {
+
+	getAppProofs = async (input: SdkApiTypes.TGetAppProofsBody): Promise<SdkApiTypes.TGetAppProofsResponse> => {
     return this.request("/public/v1/query/list_app_proofs", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetAppProofs = async (
-    input: SdkApiTypes.TGetAppProofsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetAppProofs = async (input: SdkApiTypes.TGetAppProofsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -1298,7 +1178,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_app_proofs";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1308,29 +1188,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listEarnEnabledVaults = async (
-    input: SdkApiTypes.TListEarnEnabledVaultsBody,
-  ): Promise<SdkApiTypes.TListEarnEnabledVaultsResponse> => {
+
+	listEarnEnabledVaults = async (input: SdkApiTypes.TListEarnEnabledVaultsBody): Promise<SdkApiTypes.TListEarnEnabledVaultsResponse> => {
     return this.request("/public/v1/query/list_earn_enabled_vaults", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListEarnEnabledVaults = async (
-    input: SdkApiTypes.TListEarnEnabledVaultsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListEarnEnabledVaults = async (input: SdkApiTypes.TListEarnEnabledVaultsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_earn_enabled_vaults";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_earn_enabled_vaults";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1340,29 +1217,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listEarnPositions = async (
-    input: SdkApiTypes.TListEarnPositionsBody,
-  ): Promise<SdkApiTypes.TListEarnPositionsResponse> => {
+
+	listEarnPositions = async (input: SdkApiTypes.TListEarnPositionsBody): Promise<SdkApiTypes.TListEarnPositionsResponse> => {
     return this.request("/public/v1/query/list_earn_positions", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListEarnPositions = async (
-    input: SdkApiTypes.TListEarnPositionsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListEarnPositions = async (input: SdkApiTypes.TListEarnPositionsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_earn_positions";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_earn_positions";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1372,29 +1246,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listEarnVaults = async (
-    input: SdkApiTypes.TListEarnVaultsBody,
-  ): Promise<SdkApiTypes.TListEarnVaultsResponse> => {
+
+	listEarnVaults = async (input: SdkApiTypes.TListEarnVaultsBody): Promise<SdkApiTypes.TListEarnVaultsResponse> => {
     return this.request("/public/v1/query/list_earn_vaults", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListEarnVaults = async (
-    input: SdkApiTypes.TListEarnVaultsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListEarnVaults = async (input: SdkApiTypes.TListEarnVaultsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_earn_vaults";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_earn_vaults";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1404,29 +1275,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listEmailEvents = async (
-    input: SdkApiTypes.TListEmailEventsBody,
-  ): Promise<SdkApiTypes.TListEmailEventsResponse> => {
+
+	listEmailEvents = async (input: SdkApiTypes.TListEmailEventsBody): Promise<SdkApiTypes.TListEmailEventsResponse> => {
     return this.request("/public/v1/query/list_email_events", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListEmailEvents = async (
-    input: SdkApiTypes.TListEmailEventsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListEmailEvents = async (input: SdkApiTypes.TListEmailEventsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_email_events";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_email_events";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1436,29 +1304,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listEthTransactionHistory = async (
-    input: SdkApiTypes.TListEthTransactionHistoryBody,
-  ): Promise<SdkApiTypes.TListEthTransactionHistoryResponse> => {
+
+	listEthTransactionHistory = async (input: SdkApiTypes.TListEthTransactionHistoryBody): Promise<SdkApiTypes.TListEthTransactionHistoryResponse> => {
     return this.request("/public/v1/query/list_eth_transaction_history", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListEthTransactionHistory = async (
-    input: SdkApiTypes.TListEthTransactionHistoryBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListEthTransactionHistory = async (input: SdkApiTypes.TListEthTransactionHistoryBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_eth_transaction_history";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_eth_transaction_history";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1468,29 +1333,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listFiatOnRampCredentials = async (
-    input: SdkApiTypes.TListFiatOnRampCredentialsBody,
-  ): Promise<SdkApiTypes.TListFiatOnRampCredentialsResponse> => {
+
+	listFiatOnRampCredentials = async (input: SdkApiTypes.TListFiatOnRampCredentialsBody): Promise<SdkApiTypes.TListFiatOnRampCredentialsResponse> => {
     return this.request("/public/v1/query/list_fiat_on_ramp_credentials", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListFiatOnRampCredentials = async (
-    input: SdkApiTypes.TListFiatOnRampCredentialsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListFiatOnRampCredentials = async (input: SdkApiTypes.TListFiatOnRampCredentialsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1500,29 +1362,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listOauth2Credentials = async (
-    input: SdkApiTypes.TListOauth2CredentialsBody,
-  ): Promise<SdkApiTypes.TListOauth2CredentialsResponse> => {
+
+	listOauth2Credentials = async (input: SdkApiTypes.TListOauth2CredentialsBody): Promise<SdkApiTypes.TListOauth2CredentialsResponse> => {
     return this.request("/public/v1/query/list_oauth2_credentials", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListOauth2Credentials = async (
-    input: SdkApiTypes.TListOauth2CredentialsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListOauth2Credentials = async (input: SdkApiTypes.TListOauth2CredentialsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_oauth2_credentials";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_oauth2_credentials";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1532,20 +1391,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getPolicies = async (
-    input: SdkApiTypes.TGetPoliciesBody = {},
-  ): Promise<SdkApiTypes.TGetPoliciesResponse> => {
+
+	getPolicies = async (input: SdkApiTypes.TGetPoliciesBody = {}): Promise<SdkApiTypes.TGetPoliciesResponse> => {
     return this.request("/public/v1/query/list_policies", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetPolicies = async (
-    input: SdkApiTypes.TGetPoliciesBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetPolicies = async (input: SdkApiTypes.TGetPoliciesBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -1553,7 +1410,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_policies";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1563,29 +1420,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listPrivateKeyTags = async (
-    input: SdkApiTypes.TListPrivateKeyTagsBody,
-  ): Promise<SdkApiTypes.TListPrivateKeyTagsResponse> => {
+
+	listPrivateKeyTags = async (input: SdkApiTypes.TListPrivateKeyTagsBody): Promise<SdkApiTypes.TListPrivateKeyTagsResponse> => {
     return this.request("/public/v1/query/list_private_key_tags", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListPrivateKeyTags = async (
-    input: SdkApiTypes.TListPrivateKeyTagsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListPrivateKeyTags = async (input: SdkApiTypes.TListPrivateKeyTagsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_private_key_tags";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_private_key_tags";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1595,29 +1449,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getPrivateKeys = async (
-    input: SdkApiTypes.TGetPrivateKeysBody = {},
-  ): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
+
+	getPrivateKeys = async (input: SdkApiTypes.TGetPrivateKeysBody = {}): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
     return this.request("/public/v1/query/list_private_keys", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetPrivateKeys = async (
-    input: SdkApiTypes.TGetPrivateKeysBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetPrivateKeys = async (input: SdkApiTypes.TGetPrivateKeysBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_private_keys";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_private_keys";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1627,30 +1478,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getSmartContractInterfaces = async (
-    input: SdkApiTypes.TGetSmartContractInterfacesBody,
-  ): Promise<SdkApiTypes.TGetSmartContractInterfacesResponse> => {
+
+	getSmartContractInterfaces = async (input: SdkApiTypes.TGetSmartContractInterfacesBody): Promise<SdkApiTypes.TGetSmartContractInterfacesResponse> => {
     return this.request("/public/v1/query/list_smart_contract_interfaces", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetSmartContractInterfaces = async (
-    input: SdkApiTypes.TGetSmartContractInterfacesBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetSmartContractInterfaces = async (input: SdkApiTypes.TGetSmartContractInterfacesBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl +
-      "/public/v1/query/list_smart_contract_interfaces";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_smart_contract_interfaces";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1660,29 +1507,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listSolTransactionHistory = async (
-    input: SdkApiTypes.TListSolTransactionHistoryBody,
-  ): Promise<SdkApiTypes.TListSolTransactionHistoryResponse> => {
+
+	listSolTransactionHistory = async (input: SdkApiTypes.TListSolTransactionHistoryBody): Promise<SdkApiTypes.TListSolTransactionHistoryResponse> => {
     return this.request("/public/v1/query/list_sol_transaction_history", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListSolTransactionHistory = async (
-    input: SdkApiTypes.TListSolTransactionHistoryBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListSolTransactionHistory = async (input: SdkApiTypes.TListSolTransactionHistoryBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_sol_transaction_history";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_sol_transaction_history";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1692,20 +1536,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getSubOrgIds = async (
-    input: SdkApiTypes.TGetSubOrgIdsBody = {},
-  ): Promise<SdkApiTypes.TGetSubOrgIdsResponse> => {
+
+	getSubOrgIds = async (input: SdkApiTypes.TGetSubOrgIdsBody = {}): Promise<SdkApiTypes.TGetSubOrgIdsResponse> => {
     return this.request("/public/v1/query/list_suborgs", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetSubOrgIds = async (
-    input: SdkApiTypes.TGetSubOrgIdsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetSubOrgIds = async (input: SdkApiTypes.TGetSubOrgIdsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -1713,7 +1555,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_suborgs";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1723,29 +1565,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listSupportedAssets = async (
-    input: SdkApiTypes.TListSupportedAssetsBody,
-  ): Promise<SdkApiTypes.TListSupportedAssetsResponse> => {
+
+	listSupportedAssets = async (input: SdkApiTypes.TListSupportedAssetsBody): Promise<SdkApiTypes.TListSupportedAssetsResponse> => {
     return this.request("/public/v1/query/list_supported_assets", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListSupportedAssets = async (
-    input: SdkApiTypes.TListSupportedAssetsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListSupportedAssets = async (input: SdkApiTypes.TListSupportedAssetsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_supported_assets";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_supported_assets";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1755,29 +1594,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getTvcAppDeployments = async (
-    input: SdkApiTypes.TGetTvcAppDeploymentsBody,
-  ): Promise<SdkApiTypes.TGetTvcAppDeploymentsResponse> => {
+
+	getTvcAppDeployments = async (input: SdkApiTypes.TGetTvcAppDeploymentsBody): Promise<SdkApiTypes.TGetTvcAppDeploymentsResponse> => {
     return this.request("/public/v1/query/list_tvc_app_deployments", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetTvcAppDeployments = async (
-    input: SdkApiTypes.TGetTvcAppDeploymentsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetTvcAppDeployments = async (input: SdkApiTypes.TGetTvcAppDeploymentsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_tvc_app_deployments";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_tvc_app_deployments";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1787,20 +1623,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getTvcApps = async (
-    input: SdkApiTypes.TGetTvcAppsBody,
-  ): Promise<SdkApiTypes.TGetTvcAppsResponse> => {
+
+	getTvcApps = async (input: SdkApiTypes.TGetTvcAppsBody): Promise<SdkApiTypes.TGetTvcAppsResponse> => {
     return this.request("/public/v1/query/list_tvc_apps", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetTvcApps = async (
-    input: SdkApiTypes.TGetTvcAppsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetTvcApps = async (input: SdkApiTypes.TGetTvcAppsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -1808,7 +1642,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_tvc_apps";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1818,20 +1652,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listUserTags = async (
-    input: SdkApiTypes.TListUserTagsBody = {},
-  ): Promise<SdkApiTypes.TListUserTagsResponse> => {
+
+	listUserTags = async (input: SdkApiTypes.TListUserTagsBody = {}): Promise<SdkApiTypes.TListUserTagsResponse> => {
     return this.request("/public/v1/query/list_user_tags", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListUserTags = async (
-    input: SdkApiTypes.TListUserTagsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListUserTags = async (input: SdkApiTypes.TListUserTagsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -1839,7 +1671,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_user_tags";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1849,20 +1681,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getUsers = async (
-    input: SdkApiTypes.TGetUsersBody = {},
-  ): Promise<SdkApiTypes.TGetUsersResponse> => {
+
+	getUsers = async (input: SdkApiTypes.TGetUsersBody = {}): Promise<SdkApiTypes.TGetUsersResponse> => {
     return this.request("/public/v1/query/list_users", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetUsers = async (
-    input: SdkApiTypes.TGetUsersBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetUsers = async (input: SdkApiTypes.TGetUsersBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -1870,7 +1700,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_users";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1880,29 +1710,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getVerifiedSubOrgIds = async (
-    input: SdkApiTypes.TGetVerifiedSubOrgIdsBody,
-  ): Promise<SdkApiTypes.TGetVerifiedSubOrgIdsResponse> => {
+
+	getVerifiedSubOrgIds = async (input: SdkApiTypes.TGetVerifiedSubOrgIdsBody): Promise<SdkApiTypes.TGetVerifiedSubOrgIdsResponse> => {
     return this.request("/public/v1/query/list_verified_suborgs", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetVerifiedSubOrgIds = async (
-    input: SdkApiTypes.TGetVerifiedSubOrgIdsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetVerifiedSubOrgIds = async (input: SdkApiTypes.TGetVerifiedSubOrgIdsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_verified_suborgs";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_verified_suborgs";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1912,29 +1739,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getWalletAccounts = async (
-    input: SdkApiTypes.TGetWalletAccountsBody,
-  ): Promise<SdkApiTypes.TGetWalletAccountsResponse> => {
+
+	getWalletAccounts = async (input: SdkApiTypes.TGetWalletAccountsBody): Promise<SdkApiTypes.TGetWalletAccountsResponse> => {
     return this.request("/public/v1/query/list_wallet_accounts", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetWalletAccounts = async (
-    input: SdkApiTypes.TGetWalletAccountsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetWalletAccounts = async (input: SdkApiTypes.TGetWalletAccountsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_wallet_accounts";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_wallet_accounts";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1944,20 +1768,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getWallets = async (
-    input: SdkApiTypes.TGetWalletsBody = {},
-  ): Promise<SdkApiTypes.TGetWalletsResponse> => {
+
+	getWallets = async (input: SdkApiTypes.TGetWalletsBody = {}): Promise<SdkApiTypes.TGetWalletsResponse> => {
     return this.request("/public/v1/query/list_wallets", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetWallets = async (
-    input: SdkApiTypes.TGetWalletsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetWallets = async (input: SdkApiTypes.TGetWalletsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -1965,7 +1787,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_wallets";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1975,29 +1797,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  listWebhookEndpoints = async (
-    input: SdkApiTypes.TListWebhookEndpointsBody,
-  ): Promise<SdkApiTypes.TListWebhookEndpointsResponse> => {
+
+	listWebhookEndpoints = async (input: SdkApiTypes.TListWebhookEndpointsBody): Promise<SdkApiTypes.TListWebhookEndpointsResponse> => {
     return this.request("/public/v1/query/list_webhook_endpoints", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampListWebhookEndpoints = async (
-    input: SdkApiTypes.TListWebhookEndpointsBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampListWebhookEndpoints = async (input: SdkApiTypes.TListWebhookEndpointsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_webhook_endpoints";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_webhook_endpoints";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -2007,29 +1826,26 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  validateTvcImage = async (
-    input: SdkApiTypes.TValidateTvcImageBody,
-  ): Promise<SdkApiTypes.TValidateTvcImageResponse> => {
+
+	validateTvcImage = async (input: SdkApiTypes.TValidateTvcImageBody): Promise<SdkApiTypes.TValidateTvcImageResponse> => {
     return this.request("/public/v1/query/validate_tvc_image", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampValidateTvcImage = async (
-    input: SdkApiTypes.TValidateTvcImageBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampValidateTvcImage = async (input: SdkApiTypes.TValidateTvcImageBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/validate_tvc_image";
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/validate_tvc_image";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -2039,20 +1855,18 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  getWhoami = async (
-    input: SdkApiTypes.TGetWhoamiBody = {},
-  ): Promise<SdkApiTypes.TGetWhoamiResponse> => {
+
+	getWhoami = async (input: SdkApiTypes.TGetWhoamiBody = {}): Promise<SdkApiTypes.TGetWhoamiResponse> => {
     return this.request("/public/v1/query/whoami", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     });
-  };
+  }
 
-  stampGetWhoami = async (
-    input: SdkApiTypes.TGetWhoamiBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampGetWhoami = async (input: SdkApiTypes.TGetWhoamiBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
@@ -2060,7 +1874,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/whoami";
     const body = {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId: input.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -2070,35 +1884,72 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  approveActivity = async (
-    input: SdkApiTypes.TApproveActivityBody,
-  ): Promise<SdkApiTypes.TApproveActivityResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.activityDecision("/public/v1/submit/approve_activity", {
+
+	approveActivity = async (input: SdkApiTypes.TApproveActivityBody): Promise<SdkApiTypes.TApproveActivityResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TApproveActivityBody & { generateAppProofs?: boolean };
+    return this.activityDecision("/public/v1/submit/approve_activity",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_APPROVE_ACTIVITY"
+      });
+  }
+
+
+	stampApproveActivity = async (input: SdkApiTypes.TApproveActivityBody): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TApproveActivityBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/approve_activity";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_APPROVE_ACTIVITY"
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  }
+
+
+	claimEarnFees = async (input: SdkApiTypes.TClaimEarnFeesBody): Promise<SdkApiTypes.TClaimEarnFeesResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TClaimEarnFeesBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/claim_earn_fees", {
       parameters: rest,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_APPROVE_ACTIVITY",
-    });
-  };
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CLAIM_EARN_FEES"
+    }, "claimEarnFeesResult");
+  }
 
-  stampApproveActivity = async (
-    input: SdkApiTypes.TApproveActivityBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampClaimEarnFees = async (input: SdkApiTypes.TClaimEarnFeesBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/approve_activity";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TClaimEarnFeesBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/claim_earn_fees";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_APPROVE_ACTIVITY",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CLAIM_EARN_FEES"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2108,39 +1959,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  claimEarnFees = async (
-    input: SdkApiTypes.TClaimEarnFeesBody,
-  ): Promise<SdkApiTypes.TClaimEarnFeesResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/claim_earn_fees",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CLAIM_EARN_FEES",
-      },
-      "claimEarnFeesResult",
-    );
-  };
 
-  stampClaimEarnFees = async (
-    input: SdkApiTypes.TClaimEarnFeesBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createApiKeys = async (input: SdkApiTypes.TCreateApiKeysBody): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateApiKeysBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_api_keys", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2"
+    }, "createApiKeysResult");
+  }
+
+
+	stampCreateApiKeys = async (input: SdkApiTypes.TCreateApiKeysBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/claim_earn_fees";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateApiKeysBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_api_keys";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CLAIM_EARN_FEES",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2150,39 +1996,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createApiKeys = async (
-    input: SdkApiTypes.TCreateApiKeysBody,
-  ): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_api_keys",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
-      },
-      "createApiKeysResult",
-    );
-  };
 
-  stampCreateApiKeys = async (
-    input: SdkApiTypes.TCreateApiKeysBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createAuthenticators = async (input: SdkApiTypes.TCreateAuthenticatorsBody): Promise<SdkApiTypes.TCreateAuthenticatorsResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateAuthenticatorsBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_authenticators", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"
+    }, "createAuthenticatorsResult");
+  }
+
+
+	stampCreateAuthenticators = async (input: SdkApiTypes.TCreateAuthenticatorsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_api_keys";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateAuthenticatorsBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_authenticators";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2192,39 +2033,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createAuthenticators = async (
-    input: SdkApiTypes.TCreateAuthenticatorsBody,
-  ): Promise<SdkApiTypes.TCreateAuthenticatorsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_authenticators",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
-      },
-      "createAuthenticatorsResult",
-    );
-  };
 
-  stampCreateAuthenticators = async (
-    input: SdkApiTypes.TCreateAuthenticatorsBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createFiatOnRampCredential = async (input: SdkApiTypes.TCreateFiatOnRampCredentialBody): Promise<SdkApiTypes.TCreateFiatOnRampCredentialResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateFiatOnRampCredentialBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_fiat_on_ramp_credential", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL"
+    }, "createFiatOnRampCredentialResult");
+  }
+
+
+	stampCreateFiatOnRampCredential = async (input: SdkApiTypes.TCreateFiatOnRampCredentialBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_authenticators";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateFiatOnRampCredentialBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_fiat_on_ramp_credential";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2234,40 +2070,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createFiatOnRampCredential = async (
-    input: SdkApiTypes.TCreateFiatOnRampCredentialBody,
-  ): Promise<SdkApiTypes.TCreateFiatOnRampCredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_fiat_on_ramp_credential",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
-      },
-      "createFiatOnRampCredentialResult",
-    );
-  };
 
-  stampCreateFiatOnRampCredential = async (
-    input: SdkApiTypes.TCreateFiatOnRampCredentialBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createInvitations = async (input: SdkApiTypes.TCreateInvitationsBody): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateInvitationsBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_invitations", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_INVITATIONS"
+    }, "createInvitationsResult");
+  }
+
+
+	stampCreateInvitations = async (input: SdkApiTypes.TCreateInvitationsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl +
-      "/public/v1/submit/create_fiat_on_ramp_credential";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateInvitationsBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_invitations";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_INVITATIONS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2277,39 +2107,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createInvitations = async (
-    input: SdkApiTypes.TCreateInvitationsBody,
-  ): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_invitations",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_INVITATIONS",
-      },
-      "createInvitationsResult",
-    );
-  };
 
-  stampCreateInvitations = async (
-    input: SdkApiTypes.TCreateInvitationsBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createMfaPolicy = async (input: SdkApiTypes.TCreateMfaPolicyBody): Promise<SdkApiTypes.TCreateMfaPolicyResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateMfaPolicyBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_mfa_policy", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_MFA_POLICY"
+    }, "createMfaPolicyResult");
+  }
+
+
+	stampCreateMfaPolicy = async (input: SdkApiTypes.TCreateMfaPolicyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_invitations";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateMfaPolicyBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_mfa_policy";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_INVITATIONS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_MFA_POLICY"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2319,39 +2144,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createMfaPolicy = async (
-    input: SdkApiTypes.TCreateMfaPolicyBody,
-  ): Promise<SdkApiTypes.TCreateMfaPolicyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_mfa_policy",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_MFA_POLICY",
-      },
-      "createMfaPolicyResult",
-    );
-  };
 
-  stampCreateMfaPolicy = async (
-    input: SdkApiTypes.TCreateMfaPolicyBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createOauth2Credential = async (input: SdkApiTypes.TCreateOauth2CredentialBody): Promise<SdkApiTypes.TCreateOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateOauth2CredentialBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_oauth2_credential", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL"
+    }, "createOauth2CredentialResult");
+  }
+
+
+	stampCreateOauth2Credential = async (input: SdkApiTypes.TCreateOauth2CredentialBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_mfa_policy";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateOauth2CredentialBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_oauth2_credential";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_MFA_POLICY",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2361,39 +2181,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createOauth2Credential = async (
-    input: SdkApiTypes.TCreateOauth2CredentialBody,
-  ): Promise<SdkApiTypes.TCreateOauth2CredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_oauth2_credential",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL",
-      },
-      "createOauth2CredentialResult",
-    );
-  };
 
-  stampCreateOauth2Credential = async (
-    input: SdkApiTypes.TCreateOauth2CredentialBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createOauthProviders = async (input: SdkApiTypes.TCreateOauthProvidersBody): Promise<SdkApiTypes.TCreateOauthProvidersResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateOauthProvidersBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_oauth_providers", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2"
+    }, "createOauthProvidersResultV2");
+  }
+
+
+	stampCreateOauthProviders = async (input: SdkApiTypes.TCreateOauthProvidersBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_oauth2_credential";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateOauthProvidersBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_oauth_providers";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2403,39 +2218,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createOauthProviders = async (
-    input: SdkApiTypes.TCreateOauthProvidersBody,
-  ): Promise<SdkApiTypes.TCreateOauthProvidersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_oauth_providers",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
-      },
-      "createOauthProvidersResultV2",
-    );
-  };
 
-  stampCreateOauthProviders = async (
-    input: SdkApiTypes.TCreateOauthProvidersBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createPolicies = async (input: SdkApiTypes.TCreatePoliciesBody): Promise<SdkApiTypes.TCreatePoliciesResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreatePoliciesBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_policies", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_POLICIES"
+    }, "createPoliciesResult");
+  }
+
+
+	stampCreatePolicies = async (input: SdkApiTypes.TCreatePoliciesBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_oauth_providers";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreatePoliciesBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_policies";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_POLICIES"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2445,80 +2255,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createPolicies = async (
-    input: SdkApiTypes.TCreatePoliciesBody,
-  ): Promise<SdkApiTypes.TCreatePoliciesResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_policies",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_POLICIES",
-      },
-      "createPoliciesResult",
-    );
-  };
 
-  stampCreatePolicies = async (
-    input: SdkApiTypes.TCreatePoliciesBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_policies";
-    const bodyWithType = {
-      parameters,
+	createPolicy = async (input: SdkApiTypes.TCreatePolicyBody): Promise<SdkApiTypes.TCreatePolicyResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreatePolicyBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_policy", {
+      parameters: rest,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_POLICIES",
-    };
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_POLICY_V3"
+    }, "createPolicyResult");
+  }
 
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
 
-  createPolicy = async (
-    input: SdkApiTypes.TCreatePolicyBody,
-  ): Promise<SdkApiTypes.TCreatePolicyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_policy",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
-      },
-      "createPolicyResult",
-    );
-  };
-
-  stampCreatePolicy = async (
-    input: SdkApiTypes.TCreatePolicyBody,
-  ): Promise<TSignedRequest | undefined> => {
+	stampCreatePolicy = async (input: SdkApiTypes.TCreatePolicyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreatePolicyBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_policy";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_POLICY_V3"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2528,39 +2292,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createPrivateKeyTag = async (
-    input: SdkApiTypes.TCreatePrivateKeyTagBody,
-  ): Promise<SdkApiTypes.TCreatePrivateKeyTagResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_private_key_tag",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
-      },
-      "createPrivateKeyTagResult",
-    );
-  };
 
-  stampCreatePrivateKeyTag = async (
-    input: SdkApiTypes.TCreatePrivateKeyTagBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createPrivateKeyTag = async (input: SdkApiTypes.TCreatePrivateKeyTagBody): Promise<SdkApiTypes.TCreatePrivateKeyTagResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreatePrivateKeyTagBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_private_key_tag", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"
+    }, "createPrivateKeyTagResult");
+  }
+
+
+	stampCreatePrivateKeyTag = async (input: SdkApiTypes.TCreatePrivateKeyTagBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_private_key_tag";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreatePrivateKeyTagBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_private_key_tag";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2570,39 +2329,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createPrivateKeys = async (
-    input: SdkApiTypes.TCreatePrivateKeysBody,
-  ): Promise<SdkApiTypes.TCreatePrivateKeysResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_private_keys",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-      },
-      "createPrivateKeysResultV2",
-    );
-  };
 
-  stampCreatePrivateKeys = async (
-    input: SdkApiTypes.TCreatePrivateKeysBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createPrivateKeys = async (input: SdkApiTypes.TCreatePrivateKeysBody): Promise<SdkApiTypes.TCreatePrivateKeysResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreatePrivateKeysBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_private_keys", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
+    }, "createPrivateKeysResultV2");
+  }
+
+
+	stampCreatePrivateKeys = async (input: SdkApiTypes.TCreatePrivateKeysBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_private_keys";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreatePrivateKeysBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_private_keys";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2612,39 +2366,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createReadOnlySession = async (
-    input: SdkApiTypes.TCreateReadOnlySessionBody,
-  ): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_read_only_session",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
-      },
-      "createReadOnlySessionResult",
-    );
-  };
 
-  stampCreateReadOnlySession = async (
-    input: SdkApiTypes.TCreateReadOnlySessionBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createReadOnlySession = async (input: SdkApiTypes.TCreateReadOnlySessionBody): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateReadOnlySessionBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_read_only_session", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"
+    }, "createReadOnlySessionResult");
+  }
+
+
+	stampCreateReadOnlySession = async (input: SdkApiTypes.TCreateReadOnlySessionBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_read_only_session";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateReadOnlySessionBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_read_only_session";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2654,39 +2403,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createReadWriteSession = async (
-    input: SdkApiTypes.TCreateReadWriteSessionBody,
-  ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_read_write_session",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
-      },
-      "createReadWriteSessionResultV2",
-    );
-  };
 
-  stampCreateReadWriteSession = async (
-    input: SdkApiTypes.TCreateReadWriteSessionBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createReadWriteSession = async (input: SdkApiTypes.TCreateReadWriteSessionBody): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateReadWriteSessionBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_read_write_session", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2"
+    }, "createReadWriteSessionResultV2");
+  }
+
+
+	stampCreateReadWriteSession = async (input: SdkApiTypes.TCreateReadWriteSessionBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_read_write_session";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateReadWriteSessionBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_read_write_session";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2696,39 +2440,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createSessionProfile = async (
-    input: SdkApiTypes.TCreateSessionProfileBody,
-  ): Promise<SdkApiTypes.TCreateSessionProfileResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_session_profile",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_SESSION_PROFILE",
-      },
-      "createSessionProfileResult",
-    );
-  };
 
-  stampCreateSessionProfile = async (
-    input: SdkApiTypes.TCreateSessionProfileBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createSessionProfile = async (input: SdkApiTypes.TCreateSessionProfileBody): Promise<SdkApiTypes.TCreateSessionProfileResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateSessionProfileBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_session_profile", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_SESSION_PROFILE"
+    }, "createSessionProfileResult");
+  }
+
+
+	stampCreateSessionProfile = async (input: SdkApiTypes.TCreateSessionProfileBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_session_profile";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateSessionProfileBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_session_profile";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_SESSION_PROFILE",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_SESSION_PROFILE"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2738,40 +2477,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createSmartContractInterface = async (
-    input: SdkApiTypes.TCreateSmartContractInterfaceBody,
-  ): Promise<SdkApiTypes.TCreateSmartContractInterfaceResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_smart_contract_interface",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
-      },
-      "createSmartContractInterfaceResult",
-    );
-  };
 
-  stampCreateSmartContractInterface = async (
-    input: SdkApiTypes.TCreateSmartContractInterfaceBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createSmartContractInterface = async (input: SdkApiTypes.TCreateSmartContractInterfaceBody): Promise<SdkApiTypes.TCreateSmartContractInterfaceResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateSmartContractInterfaceBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_smart_contract_interface", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
+    }, "createSmartContractInterfaceResult");
+  }
+
+
+	stampCreateSmartContractInterface = async (input: SdkApiTypes.TCreateSmartContractInterfaceBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl +
-      "/public/v1/submit/create_smart_contract_interface";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateSmartContractInterfaceBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_smart_contract_interface";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2781,39 +2514,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createSubOrganization = async (
-    input: SdkApiTypes.TCreateSubOrganizationBody,
-  ): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_sub_organization",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
-      },
-      "createSubOrganizationResultV8",
-    );
-  };
 
-  stampCreateSubOrganization = async (
-    input: SdkApiTypes.TCreateSubOrganizationBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createSubOrganization = async (input: SdkApiTypes.TCreateSubOrganizationBody): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateSubOrganizationBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_sub_organization", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8"
+    }, "createSubOrganizationResultV8");
+  }
+
+
+	stampCreateSubOrganization = async (input: SdkApiTypes.TCreateSubOrganizationBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_sub_organization";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateSubOrganizationBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_sub_organization";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2823,38 +2551,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createTvcApp = async (
-    input: SdkApiTypes.TCreateTvcAppBody,
-  ): Promise<SdkApiTypes.TCreateTvcAppResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_tvc_app",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_TVC_APP",
-      },
-      "createTvcAppResult",
-    );
-  };
 
-  stampCreateTvcApp = async (
-    input: SdkApiTypes.TCreateTvcAppBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createTvcApp = async (input: SdkApiTypes.TCreateTvcAppBody): Promise<SdkApiTypes.TCreateTvcAppResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateTvcAppBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_tvc_app", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_TVC_APP"
+    }, "createTvcAppResult");
+  }
+
+
+	stampCreateTvcApp = async (input: SdkApiTypes.TCreateTvcAppBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateTvcAppBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_tvc_app";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_TVC_APP",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_TVC_APP"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2864,39 +2588,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createTvcDeployment = async (
-    input: SdkApiTypes.TCreateTvcDeploymentBody,
-  ): Promise<SdkApiTypes.TCreateTvcDeploymentResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_tvc_deployment",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT",
-      },
-      "createTvcDeploymentResult",
-    );
-  };
 
-  stampCreateTvcDeployment = async (
-    input: SdkApiTypes.TCreateTvcDeploymentBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createTvcDeployment = async (input: SdkApiTypes.TCreateTvcDeploymentBody): Promise<SdkApiTypes.TCreateTvcDeploymentResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateTvcDeploymentBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_tvc_deployment", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
+    }, "createTvcDeploymentResult");
+  }
+
+
+	stampCreateTvcDeployment = async (input: SdkApiTypes.TCreateTvcDeploymentBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_tvc_deployment";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateTvcDeploymentBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_tvc_deployment";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2906,40 +2625,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createTvcManifestApprovals = async (
-    input: SdkApiTypes.TCreateTvcManifestApprovalsBody,
-  ): Promise<SdkApiTypes.TCreateTvcManifestApprovalsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_tvc_manifest_approvals",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS",
-      },
-      "createTvcManifestApprovalsResult",
-    );
-  };
 
-  stampCreateTvcManifestApprovals = async (
-    input: SdkApiTypes.TCreateTvcManifestApprovalsBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createTvcManifestApprovals = async (input: SdkApiTypes.TCreateTvcManifestApprovalsBody): Promise<SdkApiTypes.TCreateTvcManifestApprovalsResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateTvcManifestApprovalsBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_tvc_manifest_approvals", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
+    }, "createTvcManifestApprovalsResult");
+  }
+
+
+	stampCreateTvcManifestApprovals = async (input: SdkApiTypes.TCreateTvcManifestApprovalsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl +
-      "/public/v1/submit/create_tvc_manifest_approvals";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateTvcManifestApprovalsBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_tvc_manifest_approvals";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2949,39 +2662,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createUserTag = async (
-    input: SdkApiTypes.TCreateUserTagBody,
-  ): Promise<SdkApiTypes.TCreateUserTagResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_user_tag",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_USER_TAG",
-      },
-      "createUserTagResult",
-    );
-  };
 
-  stampCreateUserTag = async (
-    input: SdkApiTypes.TCreateUserTagBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createUserTag = async (input: SdkApiTypes.TCreateUserTagBody): Promise<SdkApiTypes.TCreateUserTagResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateUserTagBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_user_tag", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_USER_TAG"
+    }, "createUserTagResult");
+  }
+
+
+	stampCreateUserTag = async (input: SdkApiTypes.TCreateUserTagBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_user_tag";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateUserTagBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_user_tag";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_USER_TAG",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_USER_TAG"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2991,38 +2699,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createUsers = async (
-    input: SdkApiTypes.TCreateUsersBody,
-  ): Promise<SdkApiTypes.TCreateUsersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_users",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_USERS_V4",
-      },
-      "createUsersResult",
-    );
-  };
 
-  stampCreateUsers = async (
-    input: SdkApiTypes.TCreateUsersBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createUsers = async (input: SdkApiTypes.TCreateUsersBody): Promise<SdkApiTypes.TCreateUsersResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateUsersBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_users", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_USERS_V4"
+    }, "createUsersResult");
+  }
+
+
+	stampCreateUsers = async (input: SdkApiTypes.TCreateUsersBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateUsersBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_users";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_USERS_V4",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_USERS_V4"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3032,38 +2736,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createWallet = async (
-    input: SdkApiTypes.TCreateWalletBody,
-  ): Promise<SdkApiTypes.TCreateWalletResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_wallet",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_WALLET",
-      },
-      "createWalletResult",
-    );
-  };
 
-  stampCreateWallet = async (
-    input: SdkApiTypes.TCreateWalletBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createWallet = async (input: SdkApiTypes.TCreateWalletBody): Promise<SdkApiTypes.TCreateWalletResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateWalletBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_wallet", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_WALLET"
+    }, "createWalletResult");
+  }
+
+
+	stampCreateWallet = async (input: SdkApiTypes.TCreateWalletBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateWalletBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_wallet";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_WALLET",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_WALLET"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3073,39 +2773,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createWalletAccounts = async (
-    input: SdkApiTypes.TCreateWalletAccountsBody,
-  ): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_wallet_accounts",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
-      },
-      "createWalletAccountsResult",
-    );
-  };
 
-  stampCreateWalletAccounts = async (
-    input: SdkApiTypes.TCreateWalletAccountsBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createWalletAccounts = async (input: SdkApiTypes.TCreateWalletAccountsBody): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateWalletAccountsBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_wallet_accounts", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"
+    }, "createWalletAccountsResult");
+  }
+
+
+	stampCreateWalletAccounts = async (input: SdkApiTypes.TCreateWalletAccountsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_wallet_accounts";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateWalletAccountsBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_wallet_accounts";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3115,39 +2810,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  createWebhookEndpoint = async (
-    input: SdkApiTypes.TCreateWebhookEndpointBody,
-  ): Promise<SdkApiTypes.TCreateWebhookEndpointResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_webhook_endpoint",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT",
-      },
-      "createWebhookEndpointResult",
-    );
-  };
 
-  stampCreateWebhookEndpoint = async (
-    input: SdkApiTypes.TCreateWebhookEndpointBody,
-  ): Promise<TSignedRequest | undefined> => {
+	createWebhookEndpoint = async (input: SdkApiTypes.TCreateWebhookEndpointBody): Promise<SdkApiTypes.TCreateWebhookEndpointResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TCreateWebhookEndpointBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/create_webhook_endpoint", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"
+    }, "createWebhookEndpointResult");
+  }
+
+
+	stampCreateWebhookEndpoint = async (input: SdkApiTypes.TCreateWebhookEndpointBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_webhook_endpoint";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TCreateWebhookEndpointBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_webhook_endpoint";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3157,39 +2847,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteApiKeys = async (
-    input: SdkApiTypes.TDeleteApiKeysBody,
-  ): Promise<SdkApiTypes.TDeleteApiKeysResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_api_keys",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_API_KEYS",
-      },
-      "deleteApiKeysResult",
-    );
-  };
 
-  stampDeleteApiKeys = async (
-    input: SdkApiTypes.TDeleteApiKeysBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteApiKeys = async (input: SdkApiTypes.TDeleteApiKeysBody): Promise<SdkApiTypes.TDeleteApiKeysResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteApiKeysBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_api_keys", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_API_KEYS"
+    }, "deleteApiKeysResult");
+  }
+
+
+	stampDeleteApiKeys = async (input: SdkApiTypes.TDeleteApiKeysBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_api_keys";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteApiKeysBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_api_keys";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_API_KEYS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_API_KEYS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3199,39 +2884,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteAuthenticators = async (
-    input: SdkApiTypes.TDeleteAuthenticatorsBody,
-  ): Promise<SdkApiTypes.TDeleteAuthenticatorsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_authenticators",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
-      },
-      "deleteAuthenticatorsResult",
-    );
-  };
 
-  stampDeleteAuthenticators = async (
-    input: SdkApiTypes.TDeleteAuthenticatorsBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteAuthenticators = async (input: SdkApiTypes.TDeleteAuthenticatorsBody): Promise<SdkApiTypes.TDeleteAuthenticatorsResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteAuthenticatorsBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_authenticators", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS"
+    }, "deleteAuthenticatorsResult");
+  }
+
+
+	stampDeleteAuthenticators = async (input: SdkApiTypes.TDeleteAuthenticatorsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_authenticators";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteAuthenticatorsBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_authenticators";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3241,40 +2921,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteFiatOnRampCredential = async (
-    input: SdkApiTypes.TDeleteFiatOnRampCredentialBody,
-  ): Promise<SdkApiTypes.TDeleteFiatOnRampCredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_fiat_on_ramp_credential",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL",
-      },
-      "deleteFiatOnRampCredentialResult",
-    );
-  };
 
-  stampDeleteFiatOnRampCredential = async (
-    input: SdkApiTypes.TDeleteFiatOnRampCredentialBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteFiatOnRampCredential = async (input: SdkApiTypes.TDeleteFiatOnRampCredentialBody): Promise<SdkApiTypes.TDeleteFiatOnRampCredentialResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteFiatOnRampCredentialBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_fiat_on_ramp_credential", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL"
+    }, "deleteFiatOnRampCredentialResult");
+  }
+
+
+	stampDeleteFiatOnRampCredential = async (input: SdkApiTypes.TDeleteFiatOnRampCredentialBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl +
-      "/public/v1/submit/delete_fiat_on_ramp_credential";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteFiatOnRampCredentialBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_fiat_on_ramp_credential";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3284,39 +2958,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteInvitation = async (
-    input: SdkApiTypes.TDeleteInvitationBody,
-  ): Promise<SdkApiTypes.TDeleteInvitationResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_invitation",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_INVITATION",
-      },
-      "deleteInvitationResult",
-    );
-  };
 
-  stampDeleteInvitation = async (
-    input: SdkApiTypes.TDeleteInvitationBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteInvitation = async (input: SdkApiTypes.TDeleteInvitationBody): Promise<SdkApiTypes.TDeleteInvitationResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteInvitationBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_invitation", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_INVITATION"
+    }, "deleteInvitationResult");
+  }
+
+
+	stampDeleteInvitation = async (input: SdkApiTypes.TDeleteInvitationBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_invitation";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteInvitationBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_invitation";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_INVITATION",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_INVITATION"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3326,39 +2995,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteMfaPolicy = async (
-    input: SdkApiTypes.TDeleteMfaPolicyBody,
-  ): Promise<SdkApiTypes.TDeleteMfaPolicyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_mfa_policy",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_MFA_POLICY",
-      },
-      "deleteMfaPolicyResult",
-    );
-  };
 
-  stampDeleteMfaPolicy = async (
-    input: SdkApiTypes.TDeleteMfaPolicyBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteMfaPolicy = async (input: SdkApiTypes.TDeleteMfaPolicyBody): Promise<SdkApiTypes.TDeleteMfaPolicyResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteMfaPolicyBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_mfa_policy", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_MFA_POLICY"
+    }, "deleteMfaPolicyResult");
+  }
+
+
+	stampDeleteMfaPolicy = async (input: SdkApiTypes.TDeleteMfaPolicyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_mfa_policy";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteMfaPolicyBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_mfa_policy";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_MFA_POLICY",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_MFA_POLICY"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3368,39 +3032,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteOauth2Credential = async (
-    input: SdkApiTypes.TDeleteOauth2CredentialBody,
-  ): Promise<SdkApiTypes.TDeleteOauth2CredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_oauth2_credential",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL",
-      },
-      "deleteOauth2CredentialResult",
-    );
-  };
 
-  stampDeleteOauth2Credential = async (
-    input: SdkApiTypes.TDeleteOauth2CredentialBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteOauth2Credential = async (input: SdkApiTypes.TDeleteOauth2CredentialBody): Promise<SdkApiTypes.TDeleteOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteOauth2CredentialBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_oauth2_credential", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL"
+    }, "deleteOauth2CredentialResult");
+  }
+
+
+	stampDeleteOauth2Credential = async (input: SdkApiTypes.TDeleteOauth2CredentialBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_oauth2_credential";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteOauth2CredentialBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_oauth2_credential";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3410,39 +3069,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteOauthProviders = async (
-    input: SdkApiTypes.TDeleteOauthProvidersBody,
-  ): Promise<SdkApiTypes.TDeleteOauthProvidersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_oauth_providers",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
-      },
-      "deleteOauthProvidersResult",
-    );
-  };
 
-  stampDeleteOauthProviders = async (
-    input: SdkApiTypes.TDeleteOauthProvidersBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteOauthProviders = async (input: SdkApiTypes.TDeleteOauthProvidersBody): Promise<SdkApiTypes.TDeleteOauthProvidersResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteOauthProvidersBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_oauth_providers", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS"
+    }, "deleteOauthProvidersResult");
+  }
+
+
+	stampDeleteOauthProviders = async (input: SdkApiTypes.TDeleteOauthProvidersBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_oauth_providers";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteOauthProvidersBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_oauth_providers";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3452,39 +3106,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deletePolicies = async (
-    input: SdkApiTypes.TDeletePoliciesBody,
-  ): Promise<SdkApiTypes.TDeletePoliciesResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_policies",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_POLICIES",
-      },
-      "deletePoliciesResult",
-    );
-  };
 
-  stampDeletePolicies = async (
-    input: SdkApiTypes.TDeletePoliciesBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deletePolicies = async (input: SdkApiTypes.TDeletePoliciesBody): Promise<SdkApiTypes.TDeletePoliciesResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeletePoliciesBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_policies", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_POLICIES"
+    }, "deletePoliciesResult");
+  }
+
+
+	stampDeletePolicies = async (input: SdkApiTypes.TDeletePoliciesBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_policies";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeletePoliciesBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_policies";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_POLICIES",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_POLICIES"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3494,38 +3143,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deletePolicy = async (
-    input: SdkApiTypes.TDeletePolicyBody,
-  ): Promise<SdkApiTypes.TDeletePolicyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_policy",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_POLICY",
-      },
-      "deletePolicyResult",
-    );
-  };
 
-  stampDeletePolicy = async (
-    input: SdkApiTypes.TDeletePolicyBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deletePolicy = async (input: SdkApiTypes.TDeletePolicyBody): Promise<SdkApiTypes.TDeletePolicyResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeletePolicyBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_policy", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_POLICY"
+    }, "deletePolicyResult");
+  }
+
+
+	stampDeletePolicy = async (input: SdkApiTypes.TDeletePolicyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeletePolicyBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_policy";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_POLICY",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_POLICY"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3535,39 +3180,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deletePrivateKeyTags = async (
-    input: SdkApiTypes.TDeletePrivateKeyTagsBody,
-  ): Promise<SdkApiTypes.TDeletePrivateKeyTagsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_private_key_tags",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
-      },
-      "deletePrivateKeyTagsResult",
-    );
-  };
 
-  stampDeletePrivateKeyTags = async (
-    input: SdkApiTypes.TDeletePrivateKeyTagsBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deletePrivateKeyTags = async (input: SdkApiTypes.TDeletePrivateKeyTagsBody): Promise<SdkApiTypes.TDeletePrivateKeyTagsResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeletePrivateKeyTagsBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_private_key_tags", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
+    }, "deletePrivateKeyTagsResult");
+  }
+
+
+	stampDeletePrivateKeyTags = async (input: SdkApiTypes.TDeletePrivateKeyTagsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_private_key_tags";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeletePrivateKeyTagsBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_private_key_tags";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3577,39 +3217,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deletePrivateKeys = async (
-    input: SdkApiTypes.TDeletePrivateKeysBody,
-  ): Promise<SdkApiTypes.TDeletePrivateKeysResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_private_keys",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
-      },
-      "deletePrivateKeysResult",
-    );
-  };
 
-  stampDeletePrivateKeys = async (
-    input: SdkApiTypes.TDeletePrivateKeysBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deletePrivateKeys = async (input: SdkApiTypes.TDeletePrivateKeysBody): Promise<SdkApiTypes.TDeletePrivateKeysResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeletePrivateKeysBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_private_keys", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"
+    }, "deletePrivateKeysResult");
+  }
+
+
+	stampDeletePrivateKeys = async (input: SdkApiTypes.TDeletePrivateKeysBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_private_keys";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeletePrivateKeysBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_private_keys";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3619,40 +3254,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteSmartContractInterface = async (
-    input: SdkApiTypes.TDeleteSmartContractInterfaceBody,
-  ): Promise<SdkApiTypes.TDeleteSmartContractInterfaceResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_smart_contract_interface",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
-      },
-      "deleteSmartContractInterfaceResult",
-    );
-  };
 
-  stampDeleteSmartContractInterface = async (
-    input: SdkApiTypes.TDeleteSmartContractInterfaceBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteSmartContractInterface = async (input: SdkApiTypes.TDeleteSmartContractInterfaceBody): Promise<SdkApiTypes.TDeleteSmartContractInterfaceResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteSmartContractInterfaceBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_smart_contract_interface", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
+    }, "deleteSmartContractInterfaceResult");
+  }
+
+
+	stampDeleteSmartContractInterface = async (input: SdkApiTypes.TDeleteSmartContractInterfaceBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl +
-      "/public/v1/submit/delete_smart_contract_interface";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteSmartContractInterfaceBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_smart_contract_interface";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3662,39 +3291,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteSubOrganization = async (
-    input: SdkApiTypes.TDeleteSubOrganizationBody,
-  ): Promise<SdkApiTypes.TDeleteSubOrganizationResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_sub_organization",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
-      },
-      "deleteSubOrganizationResult",
-    );
-  };
 
-  stampDeleteSubOrganization = async (
-    input: SdkApiTypes.TDeleteSubOrganizationBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteSubOrganization = async (input: SdkApiTypes.TDeleteSubOrganizationBody): Promise<SdkApiTypes.TDeleteSubOrganizationResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteSubOrganizationBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_sub_organization", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"
+    }, "deleteSubOrganizationResult");
+  }
+
+
+	stampDeleteSubOrganization = async (input: SdkApiTypes.TDeleteSubOrganizationBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_sub_organization";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteSubOrganizationBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_sub_organization";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3704,40 +3328,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteTvcAppAndDeployments = async (
-    input: SdkApiTypes.TDeleteTvcAppAndDeploymentsBody,
-  ): Promise<SdkApiTypes.TDeleteTvcAppAndDeploymentsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_tvc_app_and_deployments",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS",
-      },
-      "deleteTvcAppAndDeploymentsResult",
-    );
-  };
 
-  stampDeleteTvcAppAndDeployments = async (
-    input: SdkApiTypes.TDeleteTvcAppAndDeploymentsBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteTvcAppAndDeployments = async (input: SdkApiTypes.TDeleteTvcAppAndDeploymentsBody): Promise<SdkApiTypes.TDeleteTvcAppAndDeploymentsResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteTvcAppAndDeploymentsBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_tvc_app_and_deployments", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS"
+    }, "deleteTvcAppAndDeploymentsResult");
+  }
+
+
+	stampDeleteTvcAppAndDeployments = async (input: SdkApiTypes.TDeleteTvcAppAndDeploymentsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl +
-      "/public/v1/submit/delete_tvc_app_and_deployments";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteTvcAppAndDeploymentsBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_tvc_app_and_deployments";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3747,39 +3365,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteTvcDeployment = async (
-    input: SdkApiTypes.TDeleteTvcDeploymentBody,
-  ): Promise<SdkApiTypes.TDeleteTvcDeploymentResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_tvc_deployment",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT",
-      },
-      "deleteTvcDeploymentResult",
-    );
-  };
 
-  stampDeleteTvcDeployment = async (
-    input: SdkApiTypes.TDeleteTvcDeploymentBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteTvcDeployment = async (input: SdkApiTypes.TDeleteTvcDeploymentBody): Promise<SdkApiTypes.TDeleteTvcDeploymentResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteTvcDeploymentBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_tvc_deployment", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT"
+    }, "deleteTvcDeploymentResult");
+  }
+
+
+	stampDeleteTvcDeployment = async (input: SdkApiTypes.TDeleteTvcDeploymentBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_tvc_deployment";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteTvcDeploymentBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_tvc_deployment";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3789,39 +3402,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteUserTags = async (
-    input: SdkApiTypes.TDeleteUserTagsBody,
-  ): Promise<SdkApiTypes.TDeleteUserTagsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_user_tags",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_USER_TAGS",
-      },
-      "deleteUserTagsResult",
-    );
-  };
 
-  stampDeleteUserTags = async (
-    input: SdkApiTypes.TDeleteUserTagsBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteUserTags = async (input: SdkApiTypes.TDeleteUserTagsBody): Promise<SdkApiTypes.TDeleteUserTagsResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteUserTagsBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_user_tags", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_USER_TAGS"
+    }, "deleteUserTagsResult");
+  }
+
+
+	stampDeleteUserTags = async (input: SdkApiTypes.TDeleteUserTagsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_user_tags";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteUserTagsBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_user_tags";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_USER_TAGS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_USER_TAGS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3831,38 +3439,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteUsers = async (
-    input: SdkApiTypes.TDeleteUsersBody,
-  ): Promise<SdkApiTypes.TDeleteUsersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_users",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_USERS",
-      },
-      "deleteUsersResult",
-    );
-  };
 
-  stampDeleteUsers = async (
-    input: SdkApiTypes.TDeleteUsersBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteUsers = async (input: SdkApiTypes.TDeleteUsersBody): Promise<SdkApiTypes.TDeleteUsersResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteUsersBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_users", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_USERS"
+    }, "deleteUsersResult");
+  }
+
+
+	stampDeleteUsers = async (input: SdkApiTypes.TDeleteUsersBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteUsersBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_users";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_USERS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_USERS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3872,39 +3476,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteWalletAccounts = async (
-    input: SdkApiTypes.TDeleteWalletAccountsBody,
-  ): Promise<SdkApiTypes.TDeleteWalletAccountsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_wallet_accounts",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
-      },
-      "deleteWalletAccountsResult",
-    );
-  };
 
-  stampDeleteWalletAccounts = async (
-    input: SdkApiTypes.TDeleteWalletAccountsBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteWalletAccounts = async (input: SdkApiTypes.TDeleteWalletAccountsBody): Promise<SdkApiTypes.TDeleteWalletAccountsResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteWalletAccountsBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_wallet_accounts", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS"
+    }, "deleteWalletAccountsResult");
+  }
+
+
+	stampDeleteWalletAccounts = async (input: SdkApiTypes.TDeleteWalletAccountsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_wallet_accounts";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteWalletAccountsBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_wallet_accounts";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3914,38 +3513,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteWallets = async (
-    input: SdkApiTypes.TDeleteWalletsBody,
-  ): Promise<SdkApiTypes.TDeleteWalletsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_wallets",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_WALLETS",
-      },
-      "deleteWalletsResult",
-    );
-  };
 
-  stampDeleteWallets = async (
-    input: SdkApiTypes.TDeleteWalletsBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteWallets = async (input: SdkApiTypes.TDeleteWalletsBody): Promise<SdkApiTypes.TDeleteWalletsResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteWalletsBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_wallets", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_WALLETS"
+    }, "deleteWalletsResult");
+  }
+
+
+	stampDeleteWallets = async (input: SdkApiTypes.TDeleteWalletsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteWalletsBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_wallets";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_WALLETS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_WALLETS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3955,39 +3550,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  deleteWebhookEndpoint = async (
-    input: SdkApiTypes.TDeleteWebhookEndpointBody,
-  ): Promise<SdkApiTypes.TDeleteWebhookEndpointResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_webhook_endpoint",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT",
-      },
-      "deleteWebhookEndpointResult",
-    );
-  };
 
-  stampDeleteWebhookEndpoint = async (
-    input: SdkApiTypes.TDeleteWebhookEndpointBody,
-  ): Promise<TSignedRequest | undefined> => {
+	deleteWebhookEndpoint = async (input: SdkApiTypes.TDeleteWebhookEndpointBody): Promise<SdkApiTypes.TDeleteWebhookEndpointResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TDeleteWebhookEndpointBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/delete_webhook_endpoint", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
+    }, "deleteWebhookEndpointResult");
+  }
+
+
+	stampDeleteWebhookEndpoint = async (input: SdkApiTypes.TDeleteWebhookEndpointBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_webhook_endpoint";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TDeleteWebhookEndpointBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_webhook_endpoint";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3997,39 +3587,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  earnDeployWrapper = async (
-    input: SdkApiTypes.TEarnDeployWrapperBody,
-  ): Promise<SdkApiTypes.TEarnDeployWrapperResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/earn_deploy_wrapper",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER",
-      },
-      "earnDeployWrapperResult",
-    );
-  };
 
-  stampEarnDeployWrapper = async (
-    input: SdkApiTypes.TEarnDeployWrapperBody,
-  ): Promise<TSignedRequest | undefined> => {
+	earnDeployWrapper = async (input: SdkApiTypes.TEarnDeployWrapperBody): Promise<SdkApiTypes.TEarnDeployWrapperResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TEarnDeployWrapperBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/earn_deploy_wrapper", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER"
+    }, "earnDeployWrapperResult");
+  }
+
+
+	stampEarnDeployWrapper = async (input: SdkApiTypes.TEarnDeployWrapperBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/earn_deploy_wrapper";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TEarnDeployWrapperBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/earn_deploy_wrapper";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4039,38 +3624,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  earnDeposit = async (
-    input: SdkApiTypes.TEarnDepositBody,
-  ): Promise<SdkApiTypes.TEarnDepositResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/earn_deposit",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EARN_DEPOSIT",
-      },
-      "earnDepositResult",
-    );
-  };
 
-  stampEarnDeposit = async (
-    input: SdkApiTypes.TEarnDepositBody,
-  ): Promise<TSignedRequest | undefined> => {
+	earnDeposit = async (input: SdkApiTypes.TEarnDepositBody): Promise<SdkApiTypes.TEarnDepositResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TEarnDepositBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/earn_deposit", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EARN_DEPOSIT"
+    }, "earnDepositResult");
+  }
+
+
+	stampEarnDeposit = async (input: SdkApiTypes.TEarnDepositBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TEarnDepositBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/earn_deposit";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EARN_DEPOSIT",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EARN_DEPOSIT"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4080,39 +3661,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  earnSetWrapperState = async (
-    input: SdkApiTypes.TEarnSetWrapperStateBody,
-  ): Promise<SdkApiTypes.TEarnSetWrapperStateResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/earn_set_wrapper_state",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE",
-      },
-      "earnSetWrapperStateResult",
-    );
-  };
 
-  stampEarnSetWrapperState = async (
-    input: SdkApiTypes.TEarnSetWrapperStateBody,
-  ): Promise<TSignedRequest | undefined> => {
+	earnSetWrapperState = async (input: SdkApiTypes.TEarnSetWrapperStateBody): Promise<SdkApiTypes.TEarnSetWrapperStateResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TEarnSetWrapperStateBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/earn_set_wrapper_state", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE"
+    }, "earnSetWrapperStateResult");
+  }
+
+
+	stampEarnSetWrapperState = async (input: SdkApiTypes.TEarnSetWrapperStateBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/earn_set_wrapper_state";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TEarnSetWrapperStateBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/earn_set_wrapper_state";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4122,38 +3698,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  earnWithdraw = async (
-    input: SdkApiTypes.TEarnWithdrawBody,
-  ): Promise<SdkApiTypes.TEarnWithdrawResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/earn_withdraw",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EARN_WITHDRAW",
-      },
-      "earnWithdrawResult",
-    );
-  };
 
-  stampEarnWithdraw = async (
-    input: SdkApiTypes.TEarnWithdrawBody,
-  ): Promise<TSignedRequest | undefined> => {
+	earnWithdraw = async (input: SdkApiTypes.TEarnWithdrawBody): Promise<SdkApiTypes.TEarnWithdrawResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TEarnWithdrawBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/earn_withdraw", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EARN_WITHDRAW"
+    }, "earnWithdrawResult");
+  }
+
+
+	stampEarnWithdraw = async (input: SdkApiTypes.TEarnWithdrawBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TEarnWithdrawBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/earn_withdraw";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EARN_WITHDRAW",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EARN_WITHDRAW"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4163,38 +3735,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  emailAuth = async (
-    input: SdkApiTypes.TEmailAuthBody,
-  ): Promise<SdkApiTypes.TEmailAuthResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/email_auth",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EMAIL_AUTH_V3",
-      },
-      "emailAuthResult",
-    );
-  };
 
-  stampEmailAuth = async (
-    input: SdkApiTypes.TEmailAuthBody,
-  ): Promise<TSignedRequest | undefined> => {
+	emailAuth = async (input: SdkApiTypes.TEmailAuthBody): Promise<SdkApiTypes.TEmailAuthResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TEmailAuthBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/email_auth", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EMAIL_AUTH_V3"
+    }, "emailAuthResult");
+  }
+
+
+	stampEmailAuth = async (input: SdkApiTypes.TEmailAuthBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TEmailAuthBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/email_auth";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EMAIL_AUTH_V3",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EMAIL_AUTH_V3"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4204,39 +3772,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  ethSendTransaction = async (
-    input: SdkApiTypes.TEthSendTransactionV2Body,
-  ): Promise<SdkApiTypes.TEthSendTransactionV2Response> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/eth_send_transaction",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
-      },
-      "ethSendTransactionResultV2",
-    );
-  };
 
-  stampEthSendTransaction = async (
-    input: SdkApiTypes.TEthSendTransactionV2Body,
-  ): Promise<TSignedRequest | undefined> => {
+	ethSendTransaction = async (input: SdkApiTypes.TEthSendTransactionV2Body): Promise<SdkApiTypes.TEthSendTransactionV2Response> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TEthSendTransactionV2Body & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/eth_send_transaction", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2"
+    }, "ethSendTransactionResultV2");
+  }
+
+
+	stampEthSendTransaction = async (input: SdkApiTypes.TEthSendTransactionV2Body): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/eth_send_transaction";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TEthSendTransactionV2Body & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/eth_send_transaction";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4246,39 +3809,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  exportPrivateKey = async (
-    input: SdkApiTypes.TExportPrivateKeyBody,
-  ): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/export_private_key",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY",
-      },
-      "exportPrivateKeyResult",
-    );
-  };
 
-  stampExportPrivateKey = async (
-    input: SdkApiTypes.TExportPrivateKeyBody,
-  ): Promise<TSignedRequest | undefined> => {
+	exportPrivateKey = async (input: SdkApiTypes.TExportPrivateKeyBody): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TExportPrivateKeyBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/export_private_key", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"
+    }, "exportPrivateKeyResult");
+  }
+
+
+	stampExportPrivateKey = async (input: SdkApiTypes.TExportPrivateKeyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/export_private_key";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TExportPrivateKeyBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/export_private_key";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4288,38 +3846,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  exportWallet = async (
-    input: SdkApiTypes.TExportWalletBody,
-  ): Promise<SdkApiTypes.TExportWalletResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/export_wallet",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EXPORT_WALLET",
-      },
-      "exportWalletResult",
-    );
-  };
 
-  stampExportWallet = async (
-    input: SdkApiTypes.TExportWalletBody,
-  ): Promise<TSignedRequest | undefined> => {
+	exportWallet = async (input: SdkApiTypes.TExportWalletBody): Promise<SdkApiTypes.TExportWalletResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TExportWalletBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/export_wallet", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EXPORT_WALLET"
+    }, "exportWalletResult");
+  }
+
+
+	stampExportWallet = async (input: SdkApiTypes.TExportWalletBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TExportWalletBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/export_wallet";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EXPORT_WALLET",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EXPORT_WALLET"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4329,39 +3883,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  exportWalletAccount = async (
-    input: SdkApiTypes.TExportWalletAccountBody,
-  ): Promise<SdkApiTypes.TExportWalletAccountResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/export_wallet_account",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT",
-      },
-      "exportWalletAccountResult",
-    );
-  };
 
-  stampExportWalletAccount = async (
-    input: SdkApiTypes.TExportWalletAccountBody,
-  ): Promise<TSignedRequest | undefined> => {
+	exportWalletAccount = async (input: SdkApiTypes.TExportWalletAccountBody): Promise<SdkApiTypes.TExportWalletAccountResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TExportWalletAccountBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/export_wallet_account", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
+    }, "exportWalletAccountResult");
+  }
+
+
+	stampExportWalletAccount = async (input: SdkApiTypes.TExportWalletAccountBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/export_wallet_account";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TExportWalletAccountBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/export_wallet_account";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4371,39 +3920,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  importPrivateKey = async (
-    input: SdkApiTypes.TImportPrivateKeyBody,
-  ): Promise<SdkApiTypes.TImportPrivateKeyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/import_private_key",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
-      },
-      "importPrivateKeyResult",
-    );
-  };
 
-  stampImportPrivateKey = async (
-    input: SdkApiTypes.TImportPrivateKeyBody,
-  ): Promise<TSignedRequest | undefined> => {
+	importPrivateKey = async (input: SdkApiTypes.TImportPrivateKeyBody): Promise<SdkApiTypes.TImportPrivateKeyResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TImportPrivateKeyBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/import_private_key", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"
+    }, "importPrivateKeyResult");
+  }
+
+
+	stampImportPrivateKey = async (input: SdkApiTypes.TImportPrivateKeyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/import_private_key";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TImportPrivateKeyBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/import_private_key";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4413,38 +3957,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  importWallet = async (
-    input: SdkApiTypes.TImportWalletBody,
-  ): Promise<SdkApiTypes.TImportWalletResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/import_wallet",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_IMPORT_WALLET",
-      },
-      "importWalletResult",
-    );
-  };
 
-  stampImportWallet = async (
-    input: SdkApiTypes.TImportWalletBody,
-  ): Promise<TSignedRequest | undefined> => {
+	importWallet = async (input: SdkApiTypes.TImportWalletBody): Promise<SdkApiTypes.TImportWalletResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TImportWalletBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/import_wallet", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_IMPORT_WALLET"
+    }, "importWalletResult");
+  }
+
+
+	stampImportWallet = async (input: SdkApiTypes.TImportWalletBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TImportWalletBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/import_wallet";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_IMPORT_WALLET",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_IMPORT_WALLET"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4454,39 +3994,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  initFiatOnRamp = async (
-    input: SdkApiTypes.TInitFiatOnRampBody,
-  ): Promise<SdkApiTypes.TInitFiatOnRampResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/init_fiat_on_ramp",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
-      },
-      "initFiatOnRampResult",
-    );
-  };
 
-  stampInitFiatOnRamp = async (
-    input: SdkApiTypes.TInitFiatOnRampBody,
-  ): Promise<TSignedRequest | undefined> => {
+	initFiatOnRamp = async (input: SdkApiTypes.TInitFiatOnRampBody): Promise<SdkApiTypes.TInitFiatOnRampResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TInitFiatOnRampBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/init_fiat_on_ramp", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
+    }, "initFiatOnRampResult");
+  }
+
+
+	stampInitFiatOnRamp = async (input: SdkApiTypes.TInitFiatOnRampBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/init_fiat_on_ramp";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TInitFiatOnRampBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_fiat_on_ramp";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4496,39 +4031,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  initImportPrivateKey = async (
-    input: SdkApiTypes.TInitImportPrivateKeyBody,
-  ): Promise<SdkApiTypes.TInitImportPrivateKeyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/init_import_private_key",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
-      },
-      "initImportPrivateKeyResult",
-    );
-  };
 
-  stampInitImportPrivateKey = async (
-    input: SdkApiTypes.TInitImportPrivateKeyBody,
-  ): Promise<TSignedRequest | undefined> => {
+	initImportPrivateKey = async (input: SdkApiTypes.TInitImportPrivateKeyBody): Promise<SdkApiTypes.TInitImportPrivateKeyResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TInitImportPrivateKeyBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/init_import_private_key", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"
+    }, "initImportPrivateKeyResult");
+  }
+
+
+	stampInitImportPrivateKey = async (input: SdkApiTypes.TInitImportPrivateKeyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/init_import_private_key";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TInitImportPrivateKeyBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_import_private_key";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4538,39 +4068,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  initImportWallet = async (
-    input: SdkApiTypes.TInitImportWalletBody,
-  ): Promise<SdkApiTypes.TInitImportWalletResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/init_import_wallet",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
-      },
-      "initImportWalletResult",
-    );
-  };
 
-  stampInitImportWallet = async (
-    input: SdkApiTypes.TInitImportWalletBody,
-  ): Promise<TSignedRequest | undefined> => {
+	initImportWallet = async (input: SdkApiTypes.TInitImportWalletBody): Promise<SdkApiTypes.TInitImportWalletResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TInitImportWalletBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/init_import_wallet", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET"
+    }, "initImportWalletResult");
+  }
+
+
+	stampInitImportWallet = async (input: SdkApiTypes.TInitImportWalletBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/init_import_wallet";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TInitImportWalletBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_import_wallet";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4580,38 +4105,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  initOtp = async (
-    input: SdkApiTypes.TInitOtpBody,
-  ): Promise<SdkApiTypes.TInitOtpResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/init_otp",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_OTP_V3",
-      },
-      "initOtpResultV2",
-    );
-  };
 
-  stampInitOtp = async (
-    input: SdkApiTypes.TInitOtpBody,
-  ): Promise<TSignedRequest | undefined> => {
+	initOtp = async (input: SdkApiTypes.TInitOtpBody): Promise<SdkApiTypes.TInitOtpResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TInitOtpBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/init_otp", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_OTP_V3"
+    }, "initOtpResultV2");
+  }
+
+
+	stampInitOtp = async (input: SdkApiTypes.TInitOtpBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TInitOtpBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_OTP_V3",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_OTP_V3"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4621,38 +4142,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  initOtpAuth = async (
-    input: SdkApiTypes.TInitOtpAuthBody,
-  ): Promise<SdkApiTypes.TInitOtpAuthResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/init_otp_auth",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V3",
-      },
-      "initOtpAuthResultV2",
-    );
-  };
 
-  stampInitOtpAuth = async (
-    input: SdkApiTypes.TInitOtpAuthBody,
-  ): Promise<TSignedRequest | undefined> => {
+	initOtpAuth = async (input: SdkApiTypes.TInitOtpAuthBody): Promise<SdkApiTypes.TInitOtpAuthResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TInitOtpAuthBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/init_otp_auth", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V3"
+    }, "initOtpAuthResultV2");
+  }
+
+
+	stampInitOtpAuth = async (input: SdkApiTypes.TInitOtpAuthBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TInitOtpAuthBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp_auth";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V3",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V3"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4662,39 +4179,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  initUserEmailRecovery = async (
-    input: SdkApiTypes.TInitUserEmailRecoveryBody,
-  ): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/init_user_email_recovery",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
-      },
-      "initUserEmailRecoveryResult",
-    );
-  };
 
-  stampInitUserEmailRecovery = async (
-    input: SdkApiTypes.TInitUserEmailRecoveryBody,
-  ): Promise<TSignedRequest | undefined> => {
+	initUserEmailRecovery = async (input: SdkApiTypes.TInitUserEmailRecoveryBody): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TInitUserEmailRecoveryBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/init_user_email_recovery", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2"
+    }, "initUserEmailRecoveryResult");
+  }
+
+
+	stampInitUserEmailRecovery = async (input: SdkApiTypes.TInitUserEmailRecoveryBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/init_user_email_recovery";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TInitUserEmailRecoveryBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_user_email_recovery";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4704,38 +4216,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  oauth = async (
-    input: SdkApiTypes.TOauthBody,
-  ): Promise<SdkApiTypes.TOauthResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/oauth",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_OAUTH",
-      },
-      "oauthResult",
-    );
-  };
 
-  stampOauth = async (
-    input: SdkApiTypes.TOauthBody,
-  ): Promise<TSignedRequest | undefined> => {
+	oauth = async (input: SdkApiTypes.TOauthBody): Promise<SdkApiTypes.TOauthResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TOauthBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/oauth", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_OAUTH"
+    }, "oauthResult");
+  }
+
+
+	stampOauth = async (input: SdkApiTypes.TOauthBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TOauthBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OAUTH",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_OAUTH"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4745,39 +4253,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  oauth2Authenticate = async (
-    input: SdkApiTypes.TOauth2AuthenticateBody,
-  ): Promise<SdkApiTypes.TOauth2AuthenticateResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/oauth2_authenticate",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
-      },
-      "oauth2AuthenticateResult",
-    );
-  };
 
-  stampOauth2Authenticate = async (
-    input: SdkApiTypes.TOauth2AuthenticateBody,
-  ): Promise<TSignedRequest | undefined> => {
+	oauth2Authenticate = async (input: SdkApiTypes.TOauth2AuthenticateBody): Promise<SdkApiTypes.TOauth2AuthenticateResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TOauth2AuthenticateBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/oauth2_authenticate", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"
+    }, "oauth2AuthenticateResult");
+  }
+
+
+	stampOauth2Authenticate = async (input: SdkApiTypes.TOauth2AuthenticateBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/oauth2_authenticate";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TOauth2AuthenticateBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth2_authenticate";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4787,38 +4290,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  oauthLogin = async (
-    input: SdkApiTypes.TOauthLoginBody,
-  ): Promise<SdkApiTypes.TOauthLoginResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/oauth_login",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_OAUTH_LOGIN",
-      },
-      "oauthLoginResult",
-    );
-  };
 
-  stampOauthLogin = async (
-    input: SdkApiTypes.TOauthLoginBody,
-  ): Promise<TSignedRequest | undefined> => {
+	oauthLogin = async (input: SdkApiTypes.TOauthLoginBody): Promise<SdkApiTypes.TOauthLoginResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TOauthLoginBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/oauth_login", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_OAUTH_LOGIN"
+    }, "oauthLoginResult");
+  }
+
+
+	stampOauthLogin = async (input: SdkApiTypes.TOauthLoginBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TOauthLoginBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth_login";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OAUTH_LOGIN",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_OAUTH_LOGIN"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4828,38 +4327,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  otpAuth = async (
-    input: SdkApiTypes.TOtpAuthBody,
-  ): Promise<SdkApiTypes.TOtpAuthResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/otp_auth",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_OTP_AUTH",
-      },
-      "otpAuthResult",
-    );
-  };
 
-  stampOtpAuth = async (
-    input: SdkApiTypes.TOtpAuthBody,
-  ): Promise<TSignedRequest | undefined> => {
+	otpAuth = async (input: SdkApiTypes.TOtpAuthBody): Promise<SdkApiTypes.TOtpAuthResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TOtpAuthBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/otp_auth", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_OTP_AUTH"
+    }, "otpAuthResult");
+  }
+
+
+	stampOtpAuth = async (input: SdkApiTypes.TOtpAuthBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TOtpAuthBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_auth";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OTP_AUTH",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_OTP_AUTH"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4869,38 +4364,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  otpLogin = async (
-    input: SdkApiTypes.TOtpLoginBody,
-  ): Promise<SdkApiTypes.TOtpLoginResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/otp_login",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_OTP_LOGIN_V2",
-      },
-      "otpLoginResult",
-    );
-  };
 
-  stampOtpLogin = async (
-    input: SdkApiTypes.TOtpLoginBody,
-  ): Promise<TSignedRequest | undefined> => {
+	otpLogin = async (input: SdkApiTypes.TOtpLoginBody): Promise<SdkApiTypes.TOtpLoginResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TOtpLoginBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/otp_login", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_OTP_LOGIN_V2"
+    }, "otpLoginResult");
+  }
+
+
+	stampOtpLogin = async (input: SdkApiTypes.TOtpLoginBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TOtpLoginBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_login";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OTP_LOGIN_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_OTP_LOGIN_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4910,38 +4401,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  recoverUser = async (
-    input: SdkApiTypes.TRecoverUserBody,
-  ): Promise<SdkApiTypes.TRecoverUserResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/recover_user",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_RECOVER_USER",
-      },
-      "recoverUserResult",
-    );
-  };
 
-  stampRecoverUser = async (
-    input: SdkApiTypes.TRecoverUserBody,
-  ): Promise<TSignedRequest | undefined> => {
+	recoverUser = async (input: SdkApiTypes.TRecoverUserBody): Promise<SdkApiTypes.TRecoverUserResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TRecoverUserBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/recover_user", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_RECOVER_USER"
+    }, "recoverUserResult");
+  }
+
+
+	stampRecoverUser = async (input: SdkApiTypes.TRecoverUserBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TRecoverUserBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/recover_user";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_RECOVER_USER",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_RECOVER_USER"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4951,35 +4438,72 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  rejectActivity = async (
-    input: SdkApiTypes.TRejectActivityBody,
-  ): Promise<SdkApiTypes.TRejectActivityResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.activityDecision("/public/v1/submit/reject_activity", {
+
+	rejectActivity = async (input: SdkApiTypes.TRejectActivityBody): Promise<SdkApiTypes.TRejectActivityResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TRejectActivityBody & { generateAppProofs?: boolean };
+    return this.activityDecision("/public/v1/submit/reject_activity",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_REJECT_ACTIVITY"
+      });
+  }
+
+
+	stampRejectActivity = async (input: SdkApiTypes.TRejectActivityBody): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TRejectActivityBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/reject_activity";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_REJECT_ACTIVITY"
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  }
+
+
+	removeIpAllowlist = async (input: SdkApiTypes.TRemoveIpAllowlistBody): Promise<SdkApiTypes.TRemoveIpAllowlistResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TRemoveIpAllowlistBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/remove_ip_allowlist", {
       parameters: rest,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_REJECT_ACTIVITY",
-    });
-  };
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST"
+    }, "removeIpAllowlistResult");
+  }
 
-  stampRejectActivity = async (
-    input: SdkApiTypes.TRejectActivityBody,
-  ): Promise<TSignedRequest | undefined> => {
+
+	stampRemoveIpAllowlist = async (input: SdkApiTypes.TRemoveIpAllowlistBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/reject_activity";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TRemoveIpAllowlistBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/remove_ip_allowlist";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_REJECT_ACTIVITY",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4989,39 +4513,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  removeIpAllowlist = async (
-    input: SdkApiTypes.TRemoveIpAllowlistBody,
-  ): Promise<SdkApiTypes.TRemoveIpAllowlistResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/remove_ip_allowlist",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST",
-      },
-      "removeIpAllowlistResult",
-    );
-  };
 
-  stampRemoveIpAllowlist = async (
-    input: SdkApiTypes.TRemoveIpAllowlistBody,
-  ): Promise<TSignedRequest | undefined> => {
+	removeOrganizationFeature = async (input: SdkApiTypes.TRemoveOrganizationFeatureBody): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TRemoveOrganizationFeatureBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/remove_organization_feature", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"
+    }, "removeOrganizationFeatureResult");
+  }
+
+
+	stampRemoveOrganizationFeature = async (input: SdkApiTypes.TRemoveOrganizationFeatureBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/remove_ip_allowlist";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TRemoveOrganizationFeatureBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/remove_organization_feature";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5031,39 +4550,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  removeOrganizationFeature = async (
-    input: SdkApiTypes.TRemoveOrganizationFeatureBody,
-  ): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/remove_organization_feature",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE",
-      },
-      "removeOrganizationFeatureResult",
-    );
-  };
 
-  stampRemoveOrganizationFeature = async (
-    input: SdkApiTypes.TRemoveOrganizationFeatureBody,
-  ): Promise<TSignedRequest | undefined> => {
+	restoreTvcDeployment = async (input: SdkApiTypes.TRestoreTvcDeploymentBody): Promise<SdkApiTypes.TRestoreTvcDeploymentResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TRestoreTvcDeploymentBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/restore_tvc_deployment", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT"
+    }, "restoreTvcDeploymentResult");
+  }
+
+
+	stampRestoreTvcDeployment = async (input: SdkApiTypes.TRestoreTvcDeploymentBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/remove_organization_feature";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TRestoreTvcDeploymentBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/restore_tvc_deployment";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5073,39 +4587,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  restoreTvcDeployment = async (
-    input: SdkApiTypes.TRestoreTvcDeploymentBody,
-  ): Promise<SdkApiTypes.TRestoreTvcDeploymentResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/restore_tvc_deployment",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT",
-      },
-      "restoreTvcDeploymentResult",
-    );
-  };
 
-  stampRestoreTvcDeployment = async (
-    input: SdkApiTypes.TRestoreTvcDeploymentBody,
-  ): Promise<TSignedRequest | undefined> => {
+	setIpAllowlist = async (input: SdkApiTypes.TSetIpAllowlistBody): Promise<SdkApiTypes.TSetIpAllowlistResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TSetIpAllowlistBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/set_ip_allowlist", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST"
+    }, "setIpAllowlistResult");
+  }
+
+
+	stampSetIpAllowlist = async (input: SdkApiTypes.TSetIpAllowlistBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/restore_tvc_deployment";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TSetIpAllowlistBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/set_ip_allowlist";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5115,39 +4624,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  setIpAllowlist = async (
-    input: SdkApiTypes.TSetIpAllowlistBody,
-  ): Promise<SdkApiTypes.TSetIpAllowlistResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/set_ip_allowlist",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST",
-      },
-      "setIpAllowlistResult",
-    );
-  };
 
-  stampSetIpAllowlist = async (
-    input: SdkApiTypes.TSetIpAllowlistBody,
-  ): Promise<TSignedRequest | undefined> => {
+	setOrganizationFeature = async (input: SdkApiTypes.TSetOrganizationFeatureBody): Promise<SdkApiTypes.TSetOrganizationFeatureResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TSetOrganizationFeatureBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/set_organization_feature", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"
+    }, "setOrganizationFeatureResult");
+  }
+
+
+	stampSetOrganizationFeature = async (input: SdkApiTypes.TSetOrganizationFeatureBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/set_ip_allowlist";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TSetOrganizationFeatureBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/set_organization_feature";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SET_IP_ALLOWLIST",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5157,39 +4661,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  setOrganizationFeature = async (
-    input: SdkApiTypes.TSetOrganizationFeatureBody,
-  ): Promise<SdkApiTypes.TSetOrganizationFeatureResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/set_organization_feature",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
-      },
-      "setOrganizationFeatureResult",
-    );
-  };
 
-  stampSetOrganizationFeature = async (
-    input: SdkApiTypes.TSetOrganizationFeatureBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateTvcAppLiveDeployment = async (input: SdkApiTypes.TUpdateTvcAppLiveDeploymentBody): Promise<SdkApiTypes.TUpdateTvcAppLiveDeploymentResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateTvcAppLiveDeploymentBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/set_tvc_app_live_deployment", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT"
+    }, "updateTvcAppLiveDeploymentResult");
+  }
+
+
+	stampUpdateTvcAppLiveDeployment = async (input: SdkApiTypes.TUpdateTvcAppLiveDeploymentBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/set_organization_feature";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateTvcAppLiveDeploymentBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/set_tvc_app_live_deployment";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5199,39 +4698,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateTvcAppLiveDeployment = async (
-    input: SdkApiTypes.TUpdateTvcAppLiveDeploymentBody,
-  ): Promise<SdkApiTypes.TUpdateTvcAppLiveDeploymentResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/set_tvc_app_live_deployment",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT",
-      },
-      "updateTvcAppLiveDeploymentResult",
-    );
-  };
 
-  stampUpdateTvcAppLiveDeployment = async (
-    input: SdkApiTypes.TUpdateTvcAppLiveDeploymentBody,
-  ): Promise<TSignedRequest | undefined> => {
+	signRawPayload = async (input: SdkApiTypes.TSignRawPayloadBody): Promise<SdkApiTypes.TSignRawPayloadResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TSignRawPayloadBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/sign_raw_payload", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"
+    }, "signRawPayloadResult");
+  }
+
+
+	stampSignRawPayload = async (input: SdkApiTypes.TSignRawPayloadBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/set_tvc_app_live_deployment";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TSignRawPayloadBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payload";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5241,39 +4735,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  signRawPayload = async (
-    input: SdkApiTypes.TSignRawPayloadBody,
-  ): Promise<SdkApiTypes.TSignRawPayloadResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/sign_raw_payload",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
-      },
-      "signRawPayloadResult",
-    );
-  };
 
-  stampSignRawPayload = async (
-    input: SdkApiTypes.TSignRawPayloadBody,
-  ): Promise<TSignedRequest | undefined> => {
+	signRawPayloads = async (input: SdkApiTypes.TSignRawPayloadsBody): Promise<SdkApiTypes.TSignRawPayloadsResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TSignRawPayloadsBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/sign_raw_payloads", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"
+    }, "signRawPayloadsResult");
+  }
+
+
+	stampSignRawPayloads = async (input: SdkApiTypes.TSignRawPayloadsBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payload";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TSignRawPayloadsBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payloads";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5283,39 +4772,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  signRawPayloads = async (
-    input: SdkApiTypes.TSignRawPayloadsBody,
-  ): Promise<SdkApiTypes.TSignRawPayloadsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/sign_raw_payloads",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
-      },
-      "signRawPayloadsResult",
-    );
-  };
 
-  stampSignRawPayloads = async (
-    input: SdkApiTypes.TSignRawPayloadsBody,
-  ): Promise<TSignedRequest | undefined> => {
+	signTransaction = async (input: SdkApiTypes.TSignTransactionBody): Promise<SdkApiTypes.TSignTransactionResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TSignTransactionBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/sign_transaction", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2"
+    }, "signTransactionResult");
+  }
+
+
+	stampSignTransaction = async (input: SdkApiTypes.TSignTransactionBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payloads";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TSignTransactionBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/sign_transaction";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5325,39 +4809,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  signTransaction = async (
-    input: SdkApiTypes.TSignTransactionBody,
-  ): Promise<SdkApiTypes.TSignTransactionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/sign_transaction",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-      },
-      "signTransactionResult",
-    );
-  };
 
-  stampSignTransaction = async (
-    input: SdkApiTypes.TSignTransactionBody,
-  ): Promise<TSignedRequest | undefined> => {
+	solSendTransaction = async (input: SdkApiTypes.TSolSendTransactionV2Body): Promise<SdkApiTypes.TSolSendTransactionV2Response> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TSolSendTransactionV2Body & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/sol_send_transaction", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
+    }, "solSendTransactionResultV2");
+  }
+
+
+	stampSolSendTransaction = async (input: SdkApiTypes.TSolSendTransactionV2Body): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/sign_transaction";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TSolSendTransactionV2Body & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/sol_send_transaction";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5367,39 +4846,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  solSendTransaction = async (
-    input: SdkApiTypes.TSolSendTransactionV2Body,
-  ): Promise<SdkApiTypes.TSolSendTransactionV2Response> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/sol_send_transaction",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
-      },
-      "solSendTransactionResultV2",
-    );
-  };
 
-  stampSolSendTransaction = async (
-    input: SdkApiTypes.TSolSendTransactionV2Body,
-  ): Promise<TSignedRequest | undefined> => {
+	sparkClaimTransfer = async (input: SdkApiTypes.TSparkClaimTransferBody): Promise<SdkApiTypes.TSparkClaimTransferResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TSparkClaimTransferBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/spark_claim_transfer", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER"
+    }, "sparkClaimTransferResult");
+  }
+
+
+	stampSparkClaimTransfer = async (input: SdkApiTypes.TSparkClaimTransferBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/sol_send_transaction";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TSparkClaimTransferBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/spark_claim_transfer";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5409,39 +4883,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  sparkClaimTransfer = async (
-    input: SdkApiTypes.TSparkClaimTransferBody,
-  ): Promise<SdkApiTypes.TSparkClaimTransferResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/spark_claim_transfer",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER",
-      },
-      "sparkClaimTransferResult",
-    );
-  };
 
-  stampSparkClaimTransfer = async (
-    input: SdkApiTypes.TSparkClaimTransferBody,
-  ): Promise<TSignedRequest | undefined> => {
+	sparkPrepareLightningReceive = async (input: SdkApiTypes.TSparkPrepareLightningReceiveBody): Promise<SdkApiTypes.TSparkPrepareLightningReceiveResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TSparkPrepareLightningReceiveBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/spark_prepare_lightning_receive", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE"
+    }, "sparkPrepareLightningReceiveResult");
+  }
+
+
+	stampSparkPrepareLightningReceive = async (input: SdkApiTypes.TSparkPrepareLightningReceiveBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/spark_claim_transfer";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TSparkPrepareLightningReceiveBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/spark_prepare_lightning_receive";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5451,40 +4920,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  sparkPrepareLightningReceive = async (
-    input: SdkApiTypes.TSparkPrepareLightningReceiveBody,
-  ): Promise<SdkApiTypes.TSparkPrepareLightningReceiveResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/spark_prepare_lightning_receive",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
-      },
-      "sparkPrepareLightningReceiveResult",
-    );
-  };
 
-  stampSparkPrepareLightningReceive = async (
-    input: SdkApiTypes.TSparkPrepareLightningReceiveBody,
-  ): Promise<TSignedRequest | undefined> => {
+	sparkPrepareTransfer = async (input: SdkApiTypes.TSparkPrepareTransferBody): Promise<SdkApiTypes.TSparkPrepareTransferResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TSparkPrepareTransferBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/spark_prepare_transfer", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER"
+    }, "sparkPrepareTransferResult");
+  }
+
+
+	stampSparkPrepareTransfer = async (input: SdkApiTypes.TSparkPrepareTransferBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl +
-      "/public/v1/submit/spark_prepare_lightning_receive";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TSparkPrepareTransferBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/spark_prepare_transfer";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5494,39 +4957,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  sparkPrepareTransfer = async (
-    input: SdkApiTypes.TSparkPrepareTransferBody,
-  ): Promise<SdkApiTypes.TSparkPrepareTransferResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/spark_prepare_transfer",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER",
-      },
-      "sparkPrepareTransferResult",
-    );
-  };
 
-  stampSparkPrepareTransfer = async (
-    input: SdkApiTypes.TSparkPrepareTransferBody,
-  ): Promise<TSignedRequest | undefined> => {
+	sparkSignFrost = async (input: SdkApiTypes.TSparkSignFrostBody): Promise<SdkApiTypes.TSparkSignFrostResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TSparkSignFrostBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/spark_sign_frost", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SPARK_SIGN_FROST"
+    }, "sparkSignFrostResult");
+  }
+
+
+	stampSparkSignFrost = async (input: SdkApiTypes.TSparkSignFrostBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/spark_prepare_transfer";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TSparkSignFrostBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/spark_sign_frost";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_SPARK_SIGN_FROST"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5536,80 +4994,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  sparkSignFrost = async (
-    input: SdkApiTypes.TSparkSignFrostBody,
-  ): Promise<SdkApiTypes.TSparkSignFrostResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/spark_sign_frost",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_SPARK_SIGN_FROST",
-      },
-      "sparkSignFrostResult",
-    );
-  };
 
-  stampSparkSignFrost = async (
-    input: SdkApiTypes.TSparkSignFrostBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/spark_sign_frost";
-    const bodyWithType = {
-      parameters,
+	stampLogin = async (input: SdkApiTypes.TStampLoginBody): Promise<SdkApiTypes.TStampLoginResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TStampLoginBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/stamp_login", {
+      parameters: rest,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_SPARK_SIGN_FROST",
-    };
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_STAMP_LOGIN"
+    }, "stampLoginResult");
+  }
 
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
 
-  stampLogin = async (
-    input: SdkApiTypes.TStampLoginBody,
-  ): Promise<SdkApiTypes.TStampLoginResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/stamp_login",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_STAMP_LOGIN",
-      },
-      "stampLoginResult",
-    );
-  };
-
-  stampStampLogin = async (
-    input: SdkApiTypes.TStampLoginBody,
-  ): Promise<TSignedRequest | undefined> => {
+	stampStampLogin = async (input: SdkApiTypes.TStampLoginBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TStampLoginBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/stamp_login";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_STAMP_LOGIN",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_STAMP_LOGIN"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5619,40 +5031,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateFiatOnRampCredential = async (
-    input: SdkApiTypes.TUpdateFiatOnRampCredentialBody,
-  ): Promise<SdkApiTypes.TUpdateFiatOnRampCredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_fiat_on_ramp_credential",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL",
-      },
-      "updateFiatOnRampCredentialResult",
-    );
-  };
 
-  stampUpdateFiatOnRampCredential = async (
-    input: SdkApiTypes.TUpdateFiatOnRampCredentialBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateFiatOnRampCredential = async (input: SdkApiTypes.TUpdateFiatOnRampCredentialBody): Promise<SdkApiTypes.TUpdateFiatOnRampCredentialResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateFiatOnRampCredentialBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_fiat_on_ramp_credential", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL"
+    }, "updateFiatOnRampCredentialResult");
+  }
+
+
+	stampUpdateFiatOnRampCredential = async (input: SdkApiTypes.TUpdateFiatOnRampCredentialBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl +
-      "/public/v1/submit/update_fiat_on_ramp_credential";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateFiatOnRampCredentialBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_fiat_on_ramp_credential";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5662,39 +5068,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateMfaPolicy = async (
-    input: SdkApiTypes.TUpdateMfaPolicyBody,
-  ): Promise<SdkApiTypes.TUpdateMfaPolicyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_mfa_policy",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_MFA_POLICY",
-      },
-      "updateMfaPolicyResult",
-    );
-  };
 
-  stampUpdateMfaPolicy = async (
-    input: SdkApiTypes.TUpdateMfaPolicyBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateMfaPolicy = async (input: SdkApiTypes.TUpdateMfaPolicyBody): Promise<SdkApiTypes.TUpdateMfaPolicyResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateMfaPolicyBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_mfa_policy", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_MFA_POLICY"
+    }, "updateMfaPolicyResult");
+  }
+
+
+	stampUpdateMfaPolicy = async (input: SdkApiTypes.TUpdateMfaPolicyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/update_mfa_policy";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateMfaPolicyBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_mfa_policy";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_MFA_POLICY",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_MFA_POLICY"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5704,39 +5105,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateOauth2Credential = async (
-    input: SdkApiTypes.TUpdateOauth2CredentialBody,
-  ): Promise<SdkApiTypes.TUpdateOauth2CredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_oauth2_credential",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL",
-      },
-      "updateOauth2CredentialResult",
-    );
-  };
 
-  stampUpdateOauth2Credential = async (
-    input: SdkApiTypes.TUpdateOauth2CredentialBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateOauth2Credential = async (input: SdkApiTypes.TUpdateOauth2CredentialBody): Promise<SdkApiTypes.TUpdateOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateOauth2CredentialBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_oauth2_credential", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL"
+    }, "updateOauth2CredentialResult");
+  }
+
+
+	stampUpdateOauth2Credential = async (input: SdkApiTypes.TUpdateOauth2CredentialBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/update_oauth2_credential";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateOauth2CredentialBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_oauth2_credential";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5746,39 +5142,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateOrganizationName = async (
-    input: SdkApiTypes.TUpdateOrganizationNameBody,
-  ): Promise<SdkApiTypes.TUpdateOrganizationNameResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_organization_name",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME",
-      },
-      "updateOrganizationNameResult",
-    );
-  };
 
-  stampUpdateOrganizationName = async (
-    input: SdkApiTypes.TUpdateOrganizationNameBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateOrganizationName = async (input: SdkApiTypes.TUpdateOrganizationNameBody): Promise<SdkApiTypes.TUpdateOrganizationNameResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateOrganizationNameBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_organization_name", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME"
+    }, "updateOrganizationNameResult");
+  }
+
+
+	stampUpdateOrganizationName = async (input: SdkApiTypes.TUpdateOrganizationNameBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/update_organization_name";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateOrganizationNameBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_organization_name";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5788,38 +5179,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updatePolicy = async (
-    input: SdkApiTypes.TUpdatePolicyBody,
-  ): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_policy",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
-      },
-      "updatePolicyResultV2",
-    );
-  };
 
-  stampUpdatePolicy = async (
-    input: SdkApiTypes.TUpdatePolicyBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updatePolicy = async (input: SdkApiTypes.TUpdatePolicyBody): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdatePolicyBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_policy", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_POLICY_V2"
+    }, "updatePolicyResultV2");
+  }
+
+
+	stampUpdatePolicy = async (input: SdkApiTypes.TUpdatePolicyBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdatePolicyBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_policy";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_POLICY_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5829,39 +5216,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updatePrivateKeyTag = async (
-    input: SdkApiTypes.TUpdatePrivateKeyTagBody,
-  ): Promise<SdkApiTypes.TUpdatePrivateKeyTagResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_private_key_tag",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG",
-      },
-      "updatePrivateKeyTagResult",
-    );
-  };
 
-  stampUpdatePrivateKeyTag = async (
-    input: SdkApiTypes.TUpdatePrivateKeyTagBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updatePrivateKeyTag = async (input: SdkApiTypes.TUpdatePrivateKeyTagBody): Promise<SdkApiTypes.TUpdatePrivateKeyTagResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdatePrivateKeyTagBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_private_key_tag", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
+    }, "updatePrivateKeyTagResult");
+  }
+
+
+	stampUpdatePrivateKeyTag = async (input: SdkApiTypes.TUpdatePrivateKeyTagBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/update_private_key_tag";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdatePrivateKeyTagBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_private_key_tag";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5871,39 +5253,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateRootQuorum = async (
-    input: SdkApiTypes.TUpdateRootQuorumBody,
-  ): Promise<SdkApiTypes.TUpdateRootQuorumResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_root_quorum",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
-      },
-      "updateRootQuorumResult",
-    );
-  };
 
-  stampUpdateRootQuorum = async (
-    input: SdkApiTypes.TUpdateRootQuorumBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateRootQuorum = async (input: SdkApiTypes.TUpdateRootQuorumBody): Promise<SdkApiTypes.TUpdateRootQuorumResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateRootQuorumBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_root_quorum", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
+    }, "updateRootQuorumResult");
+  }
+
+
+	stampUpdateRootQuorum = async (input: SdkApiTypes.TUpdateRootQuorumBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/update_root_quorum";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateRootQuorumBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_root_quorum";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5913,38 +5290,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateUser = async (
-    input: SdkApiTypes.TUpdateUserBody,
-  ): Promise<SdkApiTypes.TUpdateUserResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_user",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_USER",
-      },
-      "updateUserResult",
-    );
-  };
 
-  stampUpdateUser = async (
-    input: SdkApiTypes.TUpdateUserBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateUser = async (input: SdkApiTypes.TUpdateUserBody): Promise<SdkApiTypes.TUpdateUserResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateUserBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_user", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_USER"
+    }, "updateUserResult");
+  }
+
+
+	stampUpdateUser = async (input: SdkApiTypes.TUpdateUserBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateUserBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_user";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_USER",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_USER"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5954,39 +5327,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateUserEmail = async (
-    input: SdkApiTypes.TUpdateUserEmailBody,
-  ): Promise<SdkApiTypes.TUpdateUserEmailResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_user_email",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL",
-      },
-      "updateUserEmailResult",
-    );
-  };
 
-  stampUpdateUserEmail = async (
-    input: SdkApiTypes.TUpdateUserEmailBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateUserEmail = async (input: SdkApiTypes.TUpdateUserEmailBody): Promise<SdkApiTypes.TUpdateUserEmailResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateUserEmailBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_user_email", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL"
+    }, "updateUserEmailResult");
+  }
+
+
+	stampUpdateUserEmail = async (input: SdkApiTypes.TUpdateUserEmailBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/update_user_email";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateUserEmailBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_user_email";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5996,39 +5364,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateUserName = async (
-    input: SdkApiTypes.TUpdateUserNameBody,
-  ): Promise<SdkApiTypes.TUpdateUserNameResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_user_name",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_USER_NAME",
-      },
-      "updateUserNameResult",
-    );
-  };
 
-  stampUpdateUserName = async (
-    input: SdkApiTypes.TUpdateUserNameBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateUserName = async (input: SdkApiTypes.TUpdateUserNameBody): Promise<SdkApiTypes.TUpdateUserNameResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateUserNameBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_user_name", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_USER_NAME"
+    }, "updateUserNameResult");
+  }
+
+
+	stampUpdateUserName = async (input: SdkApiTypes.TUpdateUserNameBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/update_user_name";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateUserNameBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_user_name";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_USER_NAME",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_USER_NAME"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -6038,39 +5401,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateUserPhoneNumber = async (
-    input: SdkApiTypes.TUpdateUserPhoneNumberBody,
-  ): Promise<SdkApiTypes.TUpdateUserPhoneNumberResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_user_phone_number",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
-      },
-      "updateUserPhoneNumberResult",
-    );
-  };
 
-  stampUpdateUserPhoneNumber = async (
-    input: SdkApiTypes.TUpdateUserPhoneNumberBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateUserPhoneNumber = async (input: SdkApiTypes.TUpdateUserPhoneNumberBody): Promise<SdkApiTypes.TUpdateUserPhoneNumberResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateUserPhoneNumberBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_user_phone_number", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
+    }, "updateUserPhoneNumberResult");
+  }
+
+
+	stampUpdateUserPhoneNumber = async (input: SdkApiTypes.TUpdateUserPhoneNumberBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/update_user_phone_number";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateUserPhoneNumberBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_user_phone_number";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -6080,39 +5438,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateUserTag = async (
-    input: SdkApiTypes.TUpdateUserTagBody,
-  ): Promise<SdkApiTypes.TUpdateUserTagResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_user_tag",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_USER_TAG",
-      },
-      "updateUserTagResult",
-    );
-  };
 
-  stampUpdateUserTag = async (
-    input: SdkApiTypes.TUpdateUserTagBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateUserTag = async (input: SdkApiTypes.TUpdateUserTagBody): Promise<SdkApiTypes.TUpdateUserTagResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateUserTagBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_user_tag", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_USER_TAG"
+    }, "updateUserTagResult");
+  }
+
+
+	stampUpdateUserTag = async (input: SdkApiTypes.TUpdateUserTagBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/update_user_tag";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateUserTagBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_user_tag";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_USER_TAG",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_USER_TAG"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -6122,38 +5475,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateWallet = async (
-    input: SdkApiTypes.TUpdateWalletBody,
-  ): Promise<SdkApiTypes.TUpdateWalletResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_wallet",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_WALLET",
-      },
-      "updateWalletResult",
-    );
-  };
 
-  stampUpdateWallet = async (
-    input: SdkApiTypes.TUpdateWalletBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateWallet = async (input: SdkApiTypes.TUpdateWalletBody): Promise<SdkApiTypes.TUpdateWalletResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateWalletBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_wallet", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_WALLET"
+    }, "updateWalletResult");
+  }
+
+
+	stampUpdateWallet = async (input: SdkApiTypes.TUpdateWalletBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateWalletBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_wallet";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_WALLET",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_WALLET"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -6163,39 +5512,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  updateWebhookEndpoint = async (
-    input: SdkApiTypes.TUpdateWebhookEndpointBody,
-  ): Promise<SdkApiTypes.TUpdateWebhookEndpointResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_webhook_endpoint",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT",
-      },
-      "updateWebhookEndpointResult",
-    );
-  };
 
-  stampUpdateWebhookEndpoint = async (
-    input: SdkApiTypes.TUpdateWebhookEndpointBody,
-  ): Promise<TSignedRequest | undefined> => {
+	updateWebhookEndpoint = async (input: SdkApiTypes.TUpdateWebhookEndpointBody): Promise<SdkApiTypes.TUpdateWebhookEndpointResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TUpdateWebhookEndpointBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/update_webhook_endpoint", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"
+    }, "updateWebhookEndpointResult");
+  }
+
+
+	stampUpdateWebhookEndpoint = async (input: SdkApiTypes.TUpdateWebhookEndpointBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/update_webhook_endpoint";
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TUpdateWebhookEndpointBody & { generateAppProofs?: boolean };
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_webhook_endpoint";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -6205,38 +5549,34 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
 
-  verifyOtp = async (
-    input: SdkApiTypes.TVerifyOtpBody,
-  ): Promise<SdkApiTypes.TVerifyOtpResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/verify_otp",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_VERIFY_OTP_V2",
-      },
-      "verifyOtpResult",
-    );
-  };
 
-  stampVerifyOtp = async (
-    input: SdkApiTypes.TVerifyOtpBody,
-  ): Promise<TSignedRequest | undefined> => {
+	verifyOtp = async (input: SdkApiTypes.TVerifyOtpBody): Promise<SdkApiTypes.TVerifyOtpResponse> => {
+    const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkApiTypes.TVerifyOtpBody & { generateAppProofs?: boolean };
+    return this.command("/public/v1/submit/verify_otp", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_VERIFY_OTP_V2"
+    }, "verifyOtpResult");
+  }
+
+
+	stampVerifyOtp = async (input: SdkApiTypes.TVerifyOtpBody): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkApiTypes.TVerifyOtpBody & { generateAppProofs?: boolean };
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/verify_otp";
     const bodyWithType = {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_VERIFY_OTP_V2",
+      generateAppProofs: generateAppProofs ?? false,
+      type: "ACTIVITY_TYPE_VERIFY_OTP_V2"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -6246,5 +5586,6 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
-  };
+  }
+
 }

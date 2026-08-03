@@ -178,10 +178,7 @@ function generateOverrideMethods(override) {
   const stampMethodName = `stamp${methodName.charAt(0).toUpperCase() + methodName.slice(1)}`;
 
   const activityMethod = `\n\t${methodName} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<SdkTypes.${responseType}> => {
-      const { organizationId, timestampMs, ...rest } = input;
-
-      //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
-      const generateAppProofs = input?.generateAppProofs ?? false;
+      const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkTypes.${inputType} & { generateAppProofs?: boolean };
       const session = await this.storageManager?.getActiveSession();
 
       return this.activity("${endpointPath}", {
@@ -199,7 +196,7 @@ function generateOverrideMethods(override) {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkTypes.${inputType} & { generateAppProofs?: boolean };
     const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
@@ -207,6 +204,7 @@ function generateOverrideMethods(override) {
       parameters,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
       type: "${activityType}"
     };
 
@@ -734,13 +732,9 @@ const generateSDKClientFromSwagger = async (
 
       const versionedMethodName = latestVersions[resultKey].formattedKeyName;
 
-      // TODO: remove the ts-ignore once we ensure all request types have the generateAppProofs field
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<SdkTypes.${responseType}> => {
-      const { organizationId, timestampMs, ...rest } = input;
-
-      //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
-      const generateAppProofs = input?.generateAppProofs ?? false;
+      const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkTypes.${inputType} & { generateAppProofs?: boolean };
       const session = await this.storageManager?.getActiveSession();
   
       return this.activity("${endpointPath}", {
@@ -756,8 +750,7 @@ const generateSDKClientFromSwagger = async (
       // For activityDecision methods
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<SdkTypes.${responseType}> => {
-      const { organizationId, timestampMs, ...rest } = input;
-      const generateAppProofs = input?.generateAppProofs ?? false;
+      const { organizationId, timestampMs, generateAppProofs, ...rest } = input as SdkTypes.${inputType} & { generateAppProofs?: boolean };
       const session = await this.storageManager?.getActiveSession();
       return this.activityDecision("${endpointPath}",
         {
@@ -810,7 +803,7 @@ const generateSDKClientFromSwagger = async (
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
+    const { organizationId, timestampMs, generateAppProofs, ...parameters } = input as SdkTypes.${inputType} & { generateAppProofs?: boolean };
     const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
@@ -818,6 +811,7 @@ const generateSDKClientFromSwagger = async (
       parameters,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
+      generateAppProofs: generateAppProofs ?? false,
       type: "${activityType}"
     };
 
