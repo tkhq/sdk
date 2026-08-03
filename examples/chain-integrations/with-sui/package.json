@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "pnpm tsx src/index.ts",
+    "start": "pnpm tsx src/send.ts",
+    "start:send": "pnpm tsx src/send.ts",
+    "start:balance": "pnpm tsx src/balance.ts",
+    "start:history": "pnpm tsx src/history.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
