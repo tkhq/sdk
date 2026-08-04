@@ -2302,6 +2302,46 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  examples/chain-integrations/with-sui/sui-with-quicknode:
+    dependencies:
+      '@mysten/sui':
+        specifier: 1.37.6
+        version: 1.37.6(typescript@5.4.3)
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../../packages/sdk-server
+      async-retry:
+        specifier: 1.3.3
+        version: 1.3.3
+      cross-fetch:
+        specifier: 4.0.0
+        version: 4.0.0(encoding@0.1.13)
+      dotenv:
+        specifier: 16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: 2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/async-retry':
+        specifier: 1.4.8
+        version: 1.4.8
+      '@types/prompts':
+        specifier: 2.4.2
+        version: 2.4.2
+      tsx:
+        specifier: 3.12.7
+        version: 3.12.7
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/chain-integrations/with-tempo:
     dependencies:
       '@turnkey/api-key-stamper':
