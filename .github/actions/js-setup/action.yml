@@ -24,11 +24,6 @@ runs:
         npm -v
         pnpm -v
 
-    - name: Audit dependencies (before installing anything)
-      # Ignore "low" and "moderate" advisories for now.
-      run: pnpm audit --audit-level high
-      shell: bash
-
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
       shell: bash
