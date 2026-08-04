@@ -110,7 +110,9 @@ export function buildAuthorizationContext(args: {
       );
     }
     // Privy accepts the key with or without a "wallet-auth:" prefix; strip it.
-    const raw = args.authorizationPrivateKeyRaw.trim().replace(/^wallet-auth:/, "");
+    const raw = args.authorizationPrivateKeyRaw
+      .trim()
+      .replace(/^wallet-auth:/, "");
     ctx.authorization_private_keys = [raw];
   }
   if (args.ownership === "user" || args.ownership === "quorum") {
@@ -152,7 +154,9 @@ export async function exportFromPrivyLive(args: {
 
   const { private_key } = await privy
     .wallets()
-    .exportPrivateKey(args.walletId, { authorization_context: authorizationContext });
+    .exportPrivateKey(args.walletId, {
+      authorization_context: authorizationContext,
+    });
 
   const normalised = normalisePrivyPlaintext(args.chain, private_key);
   return { ...normalised, source: "privy-live", ownership: args.ownership };

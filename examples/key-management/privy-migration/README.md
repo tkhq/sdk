@@ -18,11 +18,11 @@ Supports:
 Privy's export API and Turnkey's private-key import API both encrypt with
 the **same HPKE cipher suite**, in HPKE BASE mode:
 
-| Component | Value                        |
-| --------- | ---------------------------- |
-| KEM       | DHKEM(P-256, HKDF-SHA256)    |
-| KDF       | HKDF-SHA256                  |
-| AEAD      | ChaCha20-Poly1305            |
+| Component | Value                     |
+| --------- | ------------------------- |
+| KEM       | DHKEM(P-256, HKDF-SHA256) |
+| KDF       | HKDF-SHA256               |
+| AEAD      | ChaCha20-Poly1305         |
 
 Because the suites match, we can:
 
@@ -59,11 +59,11 @@ migration depends on who owns the wallet, and that is a Privy
 authorization property, not a Turnkey limitation. This example exposes
 all three cases via `--ownership`.
 
-| Case | `--ownership` | Wallet owner                                      | Who authorizes export                                     | Migration cadence                     | End-user impact |
-| ---- | ------------- | ------------------------------------------------- | --------------------------------------------------------- | ------------------------------------- | --------------- |
-| A    | `app`         | App / app-controlled authorization key (server-created wallets, or client-side wallets placed under an app owner) | App authorization key alone (`privy-authorization-signature` header) | **Unattended, bulk, silent**          | **None**        |
-| B    | `user`        | User (classic user-owned client-side embedded wallet) | User's Privy JWT in `authorization_context.user_jwts`     | **Login-triggered, per user**         | User has to log in at least once; no popup or approval prompt beyond normal auth |
-| C    | `quorum`      | 2-of-2 user + app                                 | **Both** the user JWT **and** the app authorization key   | Login-triggered, app co-signs         | Same as B       |
+| Case | `--ownership` | Wallet owner                                                                                                      | Who authorizes export                                                | Migration cadence             | End-user impact                                                                  |
+| ---- | ------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------- |
+| A    | `app`         | App / app-controlled authorization key (server-created wallets, or client-side wallets placed under an app owner) | App authorization key alone (`privy-authorization-signature` header) | **Unattended, bulk, silent**  | **None**                                                                         |
+| B    | `user`        | User (classic user-owned client-side embedded wallet)                                                             | User's Privy JWT in `authorization_context.user_jwts`                | **Login-triggered, per user** | User has to log in at least once; no popup or approval prompt beyond normal auth |
+| C    | `quorum`      | 2-of-2 user + app                                                                                                 | **Both** the user JWT **and** the app authorization key              | Login-triggered, app co-signs | Same as B                                                                        |
 
 Key points:
 
@@ -104,7 +104,7 @@ script. This example takes the following pragmatic steps:
 - The decrypted byte buffer is zeroed as soon as the plaintext has been
   re-encoded for `encryptPrivateKeyToBundle`.
 - Nothing is written to disk. Nothing is logged. The example logs only
-  the key's *shape* (`keyFormat` and string length).
+  the key's _shape_ (`keyFormat` and string length).
 - The Turnkey import bundle is HPKE-encrypted client-side to a target
   key that is signed by the Turnkey enclave quorum; the signature is
   verified by `@turnkey/crypto` before encryption.

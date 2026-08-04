@@ -45,10 +45,7 @@ import {
   type Chain,
   type Ownership,
 } from "./exportFromPrivy";
-import {
-  importPrivateKeyIntoTurnkey,
-  turnkeyClient,
-} from "./importToTurnkey";
+import { importPrivateKeyIntoTurnkey, turnkeyClient } from "./importToTurnkey";
 
 type Args = {
   chain: Chain;
