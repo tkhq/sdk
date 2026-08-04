@@ -7,6 +7,8 @@ packages:
   - "!examples/advanced/foundry/lib/**"
   - "!examples/authentication/oauth-cross-platform/mobile/**"
 
+minimumReleaseAge: 10080
+
 overrides:
   "@openzeppelin/contracts@<4.9.0": "4.9.6"
   "@openzeppelin/contracts@3.4.1-solc-0.7-2": "4.9.6"
