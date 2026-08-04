@@ -1713,6 +1713,132 @@ importers:
         specifier: 11.1.1
         version: 11.1.1
 
+  examples/chain-integrations/with-canton/src/__generated__/daml/canton-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+      '@turnkey/ghc-stdlib-DA-Internal-Template-1.0.0':
+        specifier: file:../ghc-stdlib-DA-Internal-Template-1.0.0
+        version: link:../ghc-stdlib-DA-Internal-Template-1.0.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-prim-DA-Exception-ArithmeticError-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-prim-DA-Exception-AssertionFailed-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-prim-DA-Exception-GeneralError-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-prim-DA-Exception-PreconditionFailed-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-prim-DA-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-prim-GHC-Tuple-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-prim-GHC-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-stdlib-DA-Date-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-stdlib-DA-Internal-Down-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-stdlib-DA-Logic-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-stdlib-DA-Monoid-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-stdlib-DA-NonEmpty-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-stdlib-DA-Random-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-stdlib-DA-Semigroup-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-stdlib-DA-Set-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-stdlib-DA-Stack-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-stdlib-DA-Time-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/daml-stdlib-DA-Validation-Types-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+      '@turnkey/daml-stdlib-DA-NonEmpty-Types-1.0.0':
+        specifier: file:../daml-stdlib-DA-NonEmpty-Types-1.0.0
+        version: link:../daml-stdlib-DA-NonEmpty-Types-1.0.0
+
+  examples/chain-integrations/with-canton/src/__generated__/daml/ghc-stdlib-DA-Internal-Template-1.0.0:
+    dependencies:
+      '@mojotech/json-type-validation':
+        specifier: ^3.1.0
+        version: 3.1.0
+
   examples/chain-integrations/with-cardano:
     dependencies:
       '@meshsdk/core':
