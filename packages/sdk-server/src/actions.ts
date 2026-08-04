@@ -1,5 +1,3 @@
-"use server";
-
 import {
   CreateOauthProvidersRequest,
   CreateOauthProvidersResponse,
