@@ -28,11 +28,13 @@ Because the suites match, we can:
 
 1. Ask Turnkey's enclave to issue a target encryption key (**TEK**) and
    sign it under the enclave quorum (`initImportPrivateKey`).
-2. Ask Privy to export the wallet's private key HPKE-encrypted to an
-   ephemeral recipient key we generate in this script.
-3. Decrypt Privy's payload in this process, then re-encrypt the plaintext
-   to the Turnkey TEK via `@turnkey/crypto`'s `encryptPrivateKeyToBundle`
-   (which also verifies the enclave's signature on the TEK).
+2. Call `privy.wallets().exportPrivateKey(walletId, { authorization_context })`
+   from `@privy-io/node`. The SDK generates an ephemeral HPKE recipient
+   key, asks Privy to encrypt the wallet key to it, decrypts inside the
+   process, and returns the plaintext.
+3. Re-encrypt the plaintext to the Turnkey TEK via `@turnkey/crypto`'s
+   `encryptPrivateKeyToBundle` (which also verifies the enclave's
+   signature on the TEK).
 4. Submit the re-encrypted bundle to `importPrivateKey`. The enclave
    decrypts inside the TEE and stores the key as a first-class Turnkey
    resource.
@@ -198,17 +200,20 @@ Uses `PRIVY_APP_ID`, `PRIVY_APP_SECRET`, and `PRIVY_WALLET_ID` from
 
 ## Notes
 
-- The example uses `@hpke/core` + `@hpke/chacha20poly1305` for the Privy
-  side (the Turnkey side already has its own HPKE implementation in
-  `@turnkey/crypto`; both are configured against the same suite so
-  interop is guaranteed).
-- Privy's export API returns EVM keys as ASCII hex (`0x…`) and Solana
-  keys as base58-encoded 64-byte keypairs. This example accepts both
-  shapes and also falls back to raw-bytes handling if the response ever
-  changes.
-- The `privy-authorization-signature` header is built as P-256 ECDSA
-  over a canonical JSON `{ version, method, url, body, headers }`
-  payload per Privy's authorization-signatures spec.
+- The Privy side uses the **official `@privy-io/node` SDK**
+  (`privy.wallets().exportPrivateKey`). The SDK generates the ephemeral
+  HPKE recipient key, calls the export endpoint with the correct
+  `privy-authorization-signature` header built from the
+  `AuthorizationContext`, and decrypts the response. Nothing about the
+  signature canonicalisation, PKCS#8 key parsing, or HPKE handshake is
+  hand-rolled in this example.
+- The Turnkey side uses `@turnkey/crypto`'s `encryptPrivateKeyToBundle`,
+  which encrypts to the enclave TEK with the matching HPKE suite and
+  verifies the enclave quorum signature before encryption.
+- Privy returns EVM keys as ASCII hex (`0x…`) and Solana keys as
+  base58-encoded 64-byte keypairs; the example passes them straight
+  through to `encryptPrivateKeyToBundle` with `keyFormat: "HEXADECIMAL"`
+  or `"SOLANA"` respectively.
 - This is a proof-of-concept for customer migration guidance. Before
   running against production wallets, review the trust-boundary section
   above and adapt the runtime environment accordingly.
