@@ -27,12 +27,52 @@ import {
 } from "./turnkey-helpers";
 import { WalletType } from "@turnkey/wallet-stamper";
 
-const turnkeyClient = new TurnkeyServerSDK({
-  apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-  defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-  apiPrivateKey: process.env.TURNKEY_API_PRIVATE_KEY!,
-  apiPublicKey: process.env.TURNKEY_API_PUBLIC_KEY!,
-});
+/**
+ * Reads a required server-side environment variable, supporting a deprecated
+ * fallback name for backward compatibility.
+ *
+ * These values are consumed exclusively on the server (they include the API
+ * private key), so they must NOT use the `NEXT_PUBLIC_` prefix, which marks a
+ * value for inlining into the client bundle. The `NEXT_PUBLIC_*` names are
+ * accepted only as a deprecated fallback and will be removed in a future
+ * release.
+ */
+function requireServerEnv(name: string, deprecatedName?: string): string {
+  const value =
+    process.env[name] ??
+    (deprecatedName ? process.env[deprecatedName] : undefined);
+  if (!value) {
+    throw new Error(
+      `Missing required Turnkey environment variable: ${name}. ` +
+        `Set it in your server environment.`,
+    );
+  }
+  return value;
+}
+
+let _turnkeyClient: TurnkeyServerSDK | undefined;
+
+/**
+ * Lazily constructs (and memoizes) the server SDK client from environment
+ * variables. Initializing lazily means importing an individual server action
+ * does not require every variable to be present at module-load time, and a
+ * missing variable surfaces as a clear error at call time rather than a cryptic
+ * crash on import.
+ */
+function getTurnkeyClient(): TurnkeyServerSDK {
+  if (!_turnkeyClient) {
+    _turnkeyClient = new TurnkeyServerSDK({
+      apiBaseUrl: requireServerEnv("TURNKEY_BASE_URL", "NEXT_PUBLIC_BASE_URL"),
+      defaultOrganizationId: requireServerEnv(
+        "TURNKEY_ORGANIZATION_ID",
+        "NEXT_PUBLIC_ORGANIZATION_ID",
+      ),
+      apiPrivateKey: requireServerEnv("TURNKEY_API_PRIVATE_KEY"),
+      apiPublicKey: requireServerEnv("TURNKEY_API_PUBLIC_KEY"),
+    });
+  }
+  return _turnkeyClient;
+}
 
 export async function sendCredential(
   request: InitEmailAuthRequest,
@@ -47,7 +87,7 @@ export async function sendCredential(
       appName: request.emailCustomization.appName,
     };
 
-    const response = await turnkeyClient.apiClient().emailAuth({
+    const response = await getTurnkeyClient().apiClient().emailAuth({
       email: request.email,
       targetPublicKey: request.targetPublicKey,
       organizationId: request.suborgID,
@@ -76,7 +116,7 @@ export async function sendOtp(
   request: SendOtpRequest,
 ): Promise<SendOtpResponse | undefined> {
   try {
-    const response = await turnkeyClient.apiClient().initOtp({
+    const response = await getTurnkeyClient().apiClient().initOtp({
       contact: request.contact,
       otpType: request.otpType,
       appName: request.appName,
@@ -112,7 +152,7 @@ export async function verifyOtp(
   request: VerifyOtpRequest,
 ): Promise<VerifyOtpResponse | undefined> {
   try {
-    const response = await turnkeyClient.apiClient().verifyOtp({
+    const response = await getTurnkeyClient().apiClient().verifyOtp({
       otpId: request.otpId,
       encryptedOtpBundle: request.encryptedOtpBundle,
       ...(request.sessionLengthSeconds !== undefined && {
@@ -143,7 +183,7 @@ export async function otpLogin(
       sessionLengthSeconds,
     } = request;
 
-    const response = await turnkeyClient.apiClient().otpLogin({
+    const response = await getTurnkeyClient().apiClient().otpLogin({
       organizationId: suborgID,
       verificationToken,
       clientSignature: clientSignature,
@@ -167,7 +207,7 @@ export async function oauthLogin(
   request: OauthLoginRequest,
 ): Promise<OauthLoginResponse | undefined> {
   try {
-    const response = await turnkeyClient.apiClient().oauthLogin({
+    const response = await getTurnkeyClient().apiClient().oauthLogin({
       organizationId: request.suborgID,
       oidcToken: request.oidcToken,
       publicKey: request.publicKey,
@@ -195,7 +235,7 @@ export async function createOauthProviders(
   // 2. the oAuth issuer has verified the email in the token
   // 3. the email in the token matches the email that the user has already has logged in with
   try {
-    const response = await turnkeyClient.apiClient().createOauthProviders({
+    const response = await getTurnkeyClient().apiClient().createOauthProviders({
       organizationId: request.organizationId,
       userId: request.userId,
       oauthProviders: request.oauthProviders,
@@ -215,7 +255,7 @@ export async function getUsers(
   request: GetUsersRequest,
 ): Promise<GetUsersResponse | undefined> {
   try {
-    const response = await turnkeyClient.apiClient().getUsers({
+    const response = await getTurnkeyClient().apiClient().getUsers({
       organizationId: request.organizationId,
     });
 
@@ -232,8 +272,8 @@ export async function getUsers(
 export async function getSuborgs(
   request: GetSuborgsRequest,
 ): Promise<GetSuborgsResponse> {
-  const response = await turnkeyClient.apiClient().getSubOrgIds({
-    organizationId: turnkeyClient.config.defaultOrganizationId,
+  const response = await getTurnkeyClient().apiClient().getSubOrgIds({
+    organizationId: getTurnkeyClient().config.defaultOrganizationId,
     filterType: request.filterType,
     filterValue: request.filterValue,
   });
@@ -248,8 +288,8 @@ export async function getSuborgs(
 export async function getVerifiedSuborgs(
   request: GetSuborgsRequest,
 ): Promise<GetSuborgsResponse> {
-  const response = await turnkeyClient.apiClient().getVerifiedSubOrgIds({
-    organizationId: turnkeyClient.config.defaultOrganizationId,
+  const response = await getTurnkeyClient().apiClient().getVerifiedSubOrgIds({
+    organizationId: getTurnkeyClient().config.defaultOrganizationId,
     filterType: request.filterType,
     filterValue: request.filterValue,
   });
@@ -265,7 +305,7 @@ export async function createSuborg(
   request: CreateSuborgRequest,
 ): Promise<CreateSuborgResponse | undefined> {
   try {
-    const response = await turnkeyClient.apiClient().createSubOrganization({
+    const response = await getTurnkeyClient().apiClient().createSubOrganization({
       subOrganizationName: `suborg-${String(Date.now())}`,
       rootQuorumThreshold: 1,
       rootUsers: [
