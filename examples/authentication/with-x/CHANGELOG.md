@@ -1,5 +1,14 @@
 # with-x
 
+## 0.1.36
+
+### Patch Changes
+
+- Updated dependencies [[`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0), [`de5e169`](https://github.com/tkhq/sdk/commit/de5e1692ab79c18d898326e76777fa7ea54df812), [`b447497`](https://github.com/tkhq/sdk/commit/b447497e965b0b1df02d2294e87f89cedb761719), [`c9a13f6`](https://github.com/tkhq/sdk/commit/c9a13f65092e9a7cddc0716206331db9a8b614d2)]:
+  - @turnkey/react-wallet-kit@2.3.0
+  - @turnkey/sdk-server@8.0.0
+  - @turnkey/crypto@2.11.0
+
 ## 0.1.35
 
 ### Patch Changes
