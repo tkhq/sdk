@@ -1,0 +1,27 @@
+{
+  "name": "@turnkey/example-privy-migration",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "pnpm tsx src/index.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hpke/chacha20poly1305": "^1.7.4",
+    "@hpke/core": "^1.7.4",
+    "@noble/curves": "1.9.0",
+    "@noble/hashes": "1.8.0",
+    "@peculiar/webcrypto": "^1.5.0",
+    "@turnkey/crypto": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "bs58": "^6.0.0",
+    "cross-fetch": "^4.0.0",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.16.2"
+  }
+}
