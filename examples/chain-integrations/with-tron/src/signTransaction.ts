@@ -44,6 +44,10 @@ async function main() {
     signedTx.signedTransaction,
   );
 
+  if (!result.result) {
+    throw new Error(`Tron broadcast failed: ${JSON.stringify(result)}`);
+  }
+
   console.log("Transaction sent! ID:", result.txid);
   console.log("https://nile.tronscan.org/#/transaction/" + result.txid);
 }

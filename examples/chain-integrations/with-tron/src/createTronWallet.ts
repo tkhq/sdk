@@ -15,7 +15,7 @@ async function main() {
   });
 
   const createTronWalletResult = await turnkeyClient.apiClient().createWallet({
-    walletName: "Tron wallet",
+    walletName: process.env.TRON_WALLET_NAME ?? "Tron wallet",
     accounts: [
       {
         curve: "CURVE_SECP256K1",

@@ -57,11 +57,11 @@ The scripts create a Tron wallet, sign a raw payload, sign and send transactions
 
 #### createTronWallet
 
-Start with the creating a Tron wallet script: `pnpm run createTronWallet`. This will give you a fresh Tron wallet secured by Turnkey. It will output a wallet address. Note: if this script is run multiple times it will fail because of a duplicate wallet name, you can change the wallet name in the code, or delete it from your dashboard at [app.turnkey.com/dashboard/wallets](https://app.turnkey.com/dashboard/wallets).
+Start with the creating a Tron wallet script: `pnpm run createTronWallet`. This will give you a fresh Tron wallet secured by Turnkey and output its address. Set `TRON_WALLET_NAME` to a unique value before each additional run, such as when creating a second wallet for the delegated signer example.
 
 #### Obtaining testnet tokens
 
-To follow along with the rest of the examples you should fund this wallet with TRX and USDT from this faucet: https://nileex.io/join/getJoinPage. Look for the sections labeled "Get 2000 test coins" and "Get 1000 USDT test tokens".
+To follow along with the rest of the examples you should fund this wallet with TRX and USDT from this faucet: https://nileex.io/join/getJoinPage. Look for the sections labeled "Get 1000 test coins" and "Get 1000 USDT test tokens".
 
 You can check your balance and view transactions well make later here: https://nile.tronscan.org/
 
@@ -79,7 +79,7 @@ Next run `pnpm run signTransaction`. This example creates a TRX transfer with Tr
 
 This example exercises Tron active permissions, where the transaction owner and signing key are different addresses. It is distinct from authorizing a non-root Turnkey user to sign with the owner's key.
 
-Use a disposable Nile account for this test. Account permission updates replace the existing permission configuration and currently cost 100 TRX. Set `TRON_DELEGATED_SIGNER_ADDRESS` to a second Turnkey Tron address, fund `TRON_ADDRESS`, review `configureDelegatedSigner.ts`, and run:
+Use a disposable Nile account for this test. Account permission updates replace the existing permission configuration and currently cost 100 TRX. Create a second Turnkey Tron wallet with a unique `TRON_WALLET_NAME`, set its address as `TRON_DELEGATED_SIGNER_ADDRESS`, fund `TRON_ADDRESS`, review `configureDelegatedSigner.ts`, and run:
 
 ```bash
 CONFIRM_TRON_PERMISSION_UPDATE=true pnpm run configureDelegatedSigner
