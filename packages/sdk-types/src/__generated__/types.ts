@@ -777,7 +777,11 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
   | "ACTIVITY_TYPE_CLAIM_SWAP_FEES"
   | "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE"
-  | "ACTIVITY_TYPE_CLAIM_EARN_FEES";
+  | "ACTIVITY_TYPE_CLAIM_EARN_FEES"
+  | "ACTIVITY_TYPE_UPDATE_WALLET_ACCOUNT_NAME"
+  | "ACTIVITY_TYPE_ETH_UNDELEGATE_7702"
+  | "ACTIVITY_TYPE_EXECUTE_SWAP_V2"
+  | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE";
 
 export type v1ApiKey = {
   /** A User credential that can be used to authenticate to Turnkey. */
@@ -860,6 +864,8 @@ export type v1AssetMetadata = {
   logoUrl?: string;
   /** The asset name */
   name?: string;
+  /** Whether this asset is on Turnkey's stablecoin list (used for stablepair swap fee pricing). */
+  stable?: boolean;
 };
 
 export type v1AuthenticationMethod = {
@@ -966,6 +972,16 @@ export type v1ClaimEarnFeesResult = {
 };
 
 export type v1ClaimSwapFeesIntent = {};
+export type v1ClaimSwapFeesRequest = {
+  type: "ACTIVITY_TYPE_CLAIM_SWAP_FEES";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1ClaimSwapFeesIntent;
+  generateAppProofs?: boolean;
+};
+
 export type v1ClaimSwapFeesResult = {
   /** Relay claim request ID submitted through the permit endpoint. */
   requestId: string;
@@ -1259,6 +1275,8 @@ export type v1CreatePolicyIntentV3 = {
   consensus?: string;
   /** Notes for a Policy. */
   notes: string;
+  /** The time expression that triggers the Effect */
+  time?: string;
 };
 
 export type v1CreatePolicyRequest = {
@@ -1642,6 +1660,24 @@ export type v1CreateSubOrganizationResultV8 = {
   rootUserIds?: string[];
 };
 
+export type v1CreateSwapQuoteIntent = {
+  /** Wallet account or Private Key address used to price the executable provider quote. Private Key identifiers are not supported. */
+  signWith: string;
+  /** CAIP-19 asset ID for the input asset. The chain is derived from this value. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Provider-neutral maximum allowed slippage in basis points. Turnkey converts this value to each provider's request format. When omitted, each provider applies its default slippage behavior. */
+  slippageBps?: string;
+};
+
+export type v1CreateSwapQuoteResult = {
+  /** One or more provider quotes for this request. Today this contains a single Relay quote; pass quotes[i].quoteId to execute_swap_v2 to bind execution. */
+  quotes: v1SwapQuote[];
+};
+
 export type v1CreateTvcAppIntent = {
   /** The name of the new TVC application */
   name: string;
@@ -1679,6 +1715,12 @@ export type v1CreateTvcAppResult = {
   manifestSetOperatorIds: string[];
   /** The required number of approvals for the manifest set */
   manifestSetThreshold: number;
+  /** The unique identifier for the TVC share set */
+  shareSetId: string;
+  /** The unique identifiers of the share set operators */
+  shareSetOperatorIds: string[];
+  /** The required number of approvals for the share set */
+  shareSetThreshold: number;
 };
 
 export type v1CreateTvcDeploymentIntent = {
@@ -2404,7 +2446,7 @@ export type v1EarnDeployWrapperIntent = {
     | "eip155:137"
     | "eip155:56"
     | "eip155:4217";
-  /** Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield. */
+  /** Your fee on gross yield, in basis points (e.g., '2000' for 20%). Maximum is 4000 (40%). */
   clientFeeBps: string;
   /** The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
   clientFeeWallet: string;
@@ -2472,15 +2514,15 @@ export type v1EarnEnabledVault = {
   provider?: v1EarnProvider;
   /** CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
   caip19?: string;
-  /** Gross annual percentage yield, expressed as a decimal fraction (before Turnkey and client fees). */
+  /** Gross annual percentage yield, expressed as a decimal fraction (before fees). */
   apyPct?: string;
   /** Total deposited through this wrapper (wrapper TVL), in raw on-chain units of the underlying asset. */
   totalDeposited?: string;
   /** Normalized total-deposited values for display only (usd + crypto). Do not do arithmetic with these; use total_deposited instead. */
   display?: v1EarnValueDisplay;
-  /** Annual percentage yield net of the Turnkey and client performance fees, expressed as a decimal fraction. */
+  /** Annual percentage yield net of fees, expressed as a decimal fraction. */
   netApyPct?: string;
-  /** Client performance fee taken on yield, in basis points. Currently org-wide; moving to a per-vault setting. */
+  /** Client fee taken on yield, in basis points. */
   clientFeeBps?: string;
   /** When true, deposits to this wrapper are rejected; withdrawals are unaffected. Toggled via EarnSetWrapperState. */
   depositsDisabled?: boolean;
@@ -2488,10 +2530,12 @@ export type v1EarnEnabledVault = {
   name?: string;
   /** Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave). */
   curator?: string;
-  /** The client's claimable performance fee (releasable now), in raw on-chain units of the underlying asset (the caip19 asset). Turnkey's fee is excluded. Only returned to the parent org; unset when a sub-org queries. */
+  /** The client's claimable fee (releasable now), in raw on-chain units of the underlying asset (the caip19 asset). Turnkey's fee is excluded. Only returned to the parent org; unset when a sub-org queries. */
   claimableClientFee?: string;
   /** Normalized claimable_client_fee for display only (usd + crypto). Do not do arithmetic with these; use claimable_client_fee. Unset when a sub-org queries. */
   claimableClientFeeDisplay?: v1EarnValueDisplay;
+  /** The wallet address that receives the client's fee payouts on-chain. Unset when a sub-org queries. */
+  clientFeeWallet?: string;
 };
 
 export type v1EarnPosition = {
@@ -2773,6 +2817,8 @@ export type v1EmailEventDetails = {
   deliveryProcessingTimeMillis?: string;
   /** Delay type for DeliveryDelay events */
   deliveryDelayType?: string;
+  /** Feedback type for Complaint events */
+  complaintFeedbackType?: string;
 };
 
 export type v1EnableAuthProxyIntent = {};
@@ -2899,7 +2945,7 @@ export type v1EthSendTransactionIntentV2 = {
   maxPriorityFeePerGas?: string;
   /** Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true. */
   deadline?: string;
-  /** The gas station delegate contract nonce. Only used when sponsor=true. Omit to auto-fetch. */
+  /** The gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored transactions and non-sponsored multi-call batches. Omit to auto-fetch. Use the nonces endpoint for replay protection. */
   gasStationNonce?: string;
   /** Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station. */
   calls: v1EthCallParams[];
@@ -2951,6 +2997,50 @@ export type v1EthTransactionHistoryItem = {
   turnkey?: v1TransactionHistoryTurnkey;
 };
 
+export type v1EthUndelegate7702Intent = {
+  /** A wallet or private key address to undelegate. This does not support private key IDs. */
+  from: string;
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
+    | "eip155:42161"
+    | "eip155:421614";
+  /** Outer transaction nonce. Omit to auto-fetch. */
+  nonce?: string;
+  /** Maximum amount of gas for the undelegation transaction. Omit to use the fixed undelegation gas limit. */
+  gasLimit?: string;
+  /** Maximum total fee per gas unit (base fee + priority fee) in wei. Omit to auto-estimate. */
+  maxFeePerGas?: string;
+  /** Maximum priority fee (tip) per gas unit in wei. Omit to auto-estimate. */
+  maxPriorityFeePerGas?: string;
+};
+
+export type v1EthUndelegate7702Request = {
+  type: "ACTIVITY_TYPE_ETH_UNDELEGATE_7702";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1EthUndelegate7702Intent;
+  generateAppProofs?: boolean;
+};
+
+export type v1EthUndelegate7702Result = {
+  /** The send_transaction_status ID associated with the undelegation transaction submission */
+  sendTransactionStatusId: string;
+};
+
 export type v1ExecuteSwapIntent = {
   /** CAIP-19 asset ID for the input asset. The chain is derived from this value. */
   inputToken: string;
@@ -2964,15 +3054,38 @@ export type v1ExecuteSwapIntent = {
   sponsor?: boolean;
   /** Maximum allowed slippage in basis points. */
   slippage?: string;
-  /** Swap provider to execute with, as returned by get_swap_quote. When omitted, execution uses the default provider. */
+  /** Swap provider to execute with, as returned by create_swap_quote. When omitted, execution uses the default provider. */
   provider?: string;
   /** Minimum acceptable base-unit amount of the output asset. Execution fails if the swap provider's quoted minimum output falls below this floor at execution time. */
   minOutputAmount: string;
 };
 
+export type v1ExecuteSwapIntentV2 = {
+  /** Quote identifier returned by create_swap_quote. Execution is bound to this quote; the signer is derived from the quote and must not be resupplied. */
+  quoteId: string;
+  /** CAIP-19 asset ID for the input asset. */
+  inputToken: string;
+  /** Exact base-unit amount of the input asset committed by the quote. */
+  inputAmount: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Exact quoted base-unit output amount committed by the quote. */
+  quotedOutputAmount: string;
+  /** Exact minimum base-unit output committed by the quote. */
+  minOutputAmount: string;
+  /** Whether the quoted transaction is sponsored. */
+  sponsor: boolean;
+  /** Exact EVM sender (EOA account) nonce. Valid only for a non-sponsored EVM swap. Honored for already-delegated (Type-2) batch swaps and single-call swaps; ignored for not-yet-delegated EIP-7702 (Type-4) batches where the outer nonce is derived from the authorization. Prefer gas_station_nonce for batch replay protection and use the nonces endpoint to fetch it. Omit to auto-fetch. */
+  evmNonce?: string;
+  /** Exact Solana recent blockhash. Valid only for a Solana swap, including sponsored swaps. Omit to auto-fetch. */
+  recentBlockhash?: string;
+  /** Exact gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored EVM swaps and non-sponsored EVM swaps that execute as a multi-call batch (for example ERC-20 approve + swap). This is the replay-protection nonce for gas-station batches; use the nonces endpoint to fetch it. Omit to auto-fetch. */
+  gasStationNonce?: string;
+};
+
 export type v1ExecuteSwapResult = {
-  /** The send_transaction_status ID associated with the swap transaction submission */
-  sendTransactionStatusId: string;
+  /** Identifier to poll swap status via GetSwapStatus. */
+  swapRequestId: string;
   /** Swap provider used to build the transaction. */
   provider?: string;
   /** Quote identifier used for execution, if any. */
@@ -3260,6 +3373,22 @@ export type v1GetBootProofRequest = {
   ephemeralKey: string;
 };
 
+export type v1GetClaimEarnFeesStatusRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** The claim_request_id returned by ClaimEarnFees. */
+  claimRequestId: string;
+};
+
+export type v1GetClaimEarnFeesStatusResponse = {
+  /** Status of the fee claim. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the fee claim, once available. */
+  claimTxHash?: string;
+  /** Reason the fee claim transaction failed, when status is FAILED. */
+  error?: string;
+};
+
 export type v1GetEarnDeployStatusRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
@@ -3336,7 +3465,7 @@ export type v1GetIpAllowlistResponse = {
 export type v1GetLatestBootProofRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  /** Name of enclave app. */
+  /** Unique identifier (UUID) of the enclave app. */
   appName: string;
 };
 
@@ -3598,6 +3727,40 @@ export type v1GetSubOrgIdsResponse = {
   organizationIds: string[];
 };
 
+export type v1GetSwapStatusRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** The swap_request_id returned by ExecuteSwap. */
+  swapRequestId: string;
+};
+
+export type v1GetSwapStatusResponse = {
+  /** Normalized swap status. One of PENDING, COMPLETED, FAILED. */
+  status: string;
+  /** SAME_CHAIN or CROSS_CHAIN. */
+  swapKind: string;
+  /** Swap provider that executed the swap. */
+  provider: string;
+  /** CAIP-19 asset ID for the input asset. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Final included origin-chain transaction hash, when known. */
+  originTxHash?: string;
+  /** Provider-reported destination-chain transaction hashes; cross-chain COMPLETED only. */
+  destinationTxHashes?: string[];
+  /** Actual base-unit output amount on COMPLETED, when known. Unset on FAILED. */
+  outputAmount?: string;
+  /** Asset and amount returned to the user after a failed swap, when recoverable. Present only on FAILED. */
+  refund?: v1SwapRefund;
+  /** Timestamp of the last swap status change, as millisecond epoch string. */
+  updatedAt: string;
+  /** Normalized failure details, present whenever status is FAILED. */
+  error?: v1SwapError;
+};
+
 export type v1GetTvcAppDeploymentsRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
@@ -3752,6 +3915,7 @@ export type v1GetWalletAddressBalancesRequest = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
+    | "eip155:421614"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -4345,6 +4509,10 @@ export type v1Intent = {
   claimSwapFeesIntent?: v1ClaimSwapFeesIntent;
   earnSetWrapperStateIntent?: v1EarnSetWrapperStateIntent;
   claimEarnFeesIntent?: v1ClaimEarnFeesIntent;
+  updateWalletAccountNameIntent?: v1UpdateWalletAccountNameIntent;
+  ethUndelegate7702Intent?: v1EthUndelegate7702Intent;
+  executeSwapIntentV2?: v1ExecuteSwapIntentV2;
+  createSwapQuoteIntent?: v1CreateSwapQuoteIntent;
 };
 
 export type v1InvitationParams = {
@@ -4427,8 +4595,10 @@ export type v1ListEarnVaultsRequest = {
 };
 
 export type v1ListEarnVaultsResponse = {
-  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
+  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass page_info.end_cursor as the pagination after cursor. */
   vaults?: v1EarnVault[];
+  /** Pagination metadata for the returned page. Pass end_cursor as the next request's after cursor (or start_cursor as the before cursor) to page through the catalog. Cursors are opaque; do not parse them. */
+  pageInfo?: v1PageInfo;
 };
 
 export type v1ListEmailEventsRequest = {
@@ -4547,7 +4717,8 @@ export type v1ListSupportedAssetsRequest = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "eip155:421614"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
@@ -4851,7 +5022,15 @@ export type v1Outcome =
   | "OUTCOME_REQUIRES_CONSENSUS"
   | "OUTCOME_REJECTED"
   | "OUTCOME_ERROR"
-  | "OUTCOME_REQUIRES_AUTHENTICATORS";
+  | "OUTCOME_REQUIRES_AUTHENTICATORS"
+  | "OUTCOME_TIME_INACTIVE";
+
+export type v1PageInfo = {
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
+  startCursor?: string;
+  endCursor?: string;
+};
 
 export type v1Pagination = {
   /** A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
@@ -4883,6 +5062,8 @@ export type v1Policy = {
   consensus: string;
   /** A condition expression that evalutes to true or false. */
   condition: string;
+  /** A time expression that evalutes to true or false. */
+  time?: string;
 };
 
 export type v1PostTvcQuorumKeyShareIntent = {
@@ -5212,6 +5393,9 @@ export type v1Result = {
   claimSwapFeesResult?: v1ClaimSwapFeesResult;
   earnSetWrapperStateResult?: v1EarnSetWrapperStateResult;
   claimEarnFeesResult?: v1ClaimEarnFeesResult;
+  updateWalletAccountNameResult?: v1UpdateWalletAccountNameResult;
+  ethUndelegate7702Result?: v1EthUndelegate7702Result;
+  createSwapQuoteResult?: v1CreateSwapQuoteResult;
 };
 
 export type v1RevertChainEntry = {
@@ -5860,6 +6044,43 @@ export type v1StampLoginResult = {
   session: string;
 };
 
+export type v1SwapError = {
+  /** Stable machine-readable failure reason. One of ORIGIN_TRANSACTION_FAILED or PROVIDER_FILL_FAILED. */
+  reason: string;
+  /** Human-readable description of the swap failure. */
+  message: string;
+  /** Origin-chain transaction failure details, present when reason is ORIGIN_TRANSACTION_FAILED and details are available. */
+  originTxError?: v1TxError;
+};
+
+export type v1SwapQuote = {
+  /** Identifier for this provider quote. Pass this value to execute_swap_v2 to bind execution to this exact quote. The signer is derived from the quote; clients do not resupply sign_with on execute. */
+  quoteId: string;
+  /** Swap provider that produced this quote. */
+  provider: string;
+  /** Estimated base-unit amount of the output asset. */
+  outputAmount: string;
+  /** Minimum acceptable base-unit amount of the output asset after slippage. */
+  minOutputAmount: string;
+  /** Quote expiration as a millisecond epoch string. */
+  expiresAt: string;
+  /** Provider-neutral maximum allowed slippage in basis points, echoed from the quote request when set. */
+  slippageBps?: string;
+  /** Client fee in basis points applied for this pair. Informational only; already reflected in output_amount and min_output_amount. */
+  clientFeeBps: string;
+  /** Provider-estimated completion time in seconds, when available. */
+  estimatedTimeSeconds?: string;
+};
+
+export type v1SwapRefund = {
+  /** CAIP-19 asset returned to the user after a failed swap. */
+  asset: string;
+  /** Base-unit amount of the refunded asset. */
+  amount: string;
+  /** Transaction that delivered the refunded funds, when applicable. */
+  txHash?: string;
+};
+
 export type v1TagType = "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
 
 export type v1TokenUsage = {
@@ -6312,6 +6533,8 @@ export type v1UpdatePolicyIntentV2 = {
   policyConsensus?: string;
   /** Accompanying notes for a Policy (optional). */
   policyNotes?: string;
+  /** The time expression that triggers the Effect (optional). */
+  time?: string;
 };
 
 export type v1UpdatePolicyRequest = {
@@ -6518,6 +6741,18 @@ export type v1UpdateUserTagResult = {
   userTagId: string;
 };
 
+export type v1UpdateWalletAccountNameIntent = {
+  /** Unique identifier for a given Wallet Account. */
+  walletAccountId: string;
+  /** Human-readable name for this Wallet Account. */
+  name: string;
+};
+
+export type v1UpdateWalletAccountNameResult = {
+  /** Unique identifier for a given Wallet Account. */
+  walletAccountId: string;
+};
+
 export type v1UpdateWalletIntent = {
   /** Unique identifier for a given Wallet. */
   walletId: string;
@@ -6590,9 +6825,18 @@ export type v1UpsertSwapConfigIntent = {
   feeReceiverWalletAddress?: string;
   /** Client fee in basis points applied to swaps; used for all pairs unless stable_fee_bps is set. */
   feeBps?: string;
-  provider?: string;
-  /** Optional override applied when both swap assets are stablecoins; falls back to fee_bps when unset. */
+  /** Optional Enterprise-only override applied when both swap assets are stablecoins; falls back to fee_bps when unset. Non-Enterprise orgs may only set fee_bps. */
   stableFeeBps?: string;
+};
+
+export type v1UpsertSwapConfigRequest = {
+  type: "ACTIVITY_TYPE_UPSERT_SWAP_CONFIG";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1UpsertSwapConfigIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpsertSwapConfigResult = {
@@ -6922,6 +7166,25 @@ export type TGetBootProofBody = {
 
 export type TGetBootProofInput = { body: TGetBootProofBody };
 
+export type TGetClaimEarnFeesStatusResponse = {
+  /** Status of the fee claim. */
+  status: "PENDING" | "COMPLETED" | "FAILED";
+  /** Transaction hash of the fee claim, once available. */
+  claimTxHash?: string;
+  /** Reason the fee claim transaction failed, when status is FAILED. */
+  error?: string;
+};
+
+export type TGetClaimEarnFeesStatusBody = {
+  organizationId?: string;
+  /** The claim_request_id returned by ClaimEarnFees. */
+  claimRequestId: string;
+};
+
+export type TGetClaimEarnFeesStatusInput = {
+  body: TGetClaimEarnFeesStatusBody;
+};
+
 export type TGetEarnDeployStatusResponse = {
   /** Status of the wrapper deployment. */
   status: "PENDING" | "COMPLETED" | "FAILED";
@@ -7006,7 +7269,7 @@ export type TGetLatestBootProofResponse = {
 
 export type TGetLatestBootProofBody = {
   organizationId?: string;
-  /** Name of enclave app. */
+  /** Unique identifier (UUID) of the enclave app. */
   appName: string;
 };
 
@@ -7247,6 +7510,41 @@ export type TGetSmartContractInterfaceInput = {
   body: TGetSmartContractInterfaceBody;
 };
 
+export type TGetSwapStatusResponse = {
+  /** Normalized swap status. One of PENDING, COMPLETED, FAILED. */
+  status: string;
+  /** SAME_CHAIN or CROSS_CHAIN. */
+  swapKind: string;
+  /** Swap provider that executed the swap. */
+  provider: string;
+  /** CAIP-19 asset ID for the input asset. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Final included origin-chain transaction hash, when known. */
+  originTxHash?: string;
+  /** Provider-reported destination-chain transaction hashes; cross-chain COMPLETED only. */
+  destinationTxHashes?: string[];
+  /** Actual base-unit output amount on COMPLETED, when known. Unset on FAILED. */
+  outputAmount?: string;
+  /** Asset and amount returned to the user after a failed swap, when recoverable. Present only on FAILED. */
+  refund?: v1SwapRefund;
+  /** Timestamp of the last swap status change, as millisecond epoch string. */
+  updatedAt: string;
+  /** Normalized failure details, present whenever status is FAILED. */
+  error?: v1SwapError;
+};
+
+export type TGetSwapStatusBody = {
+  organizationId?: string;
+  /** The swap_request_id returned by ExecuteSwap. */
+  swapRequestId: string;
+};
+
+export type TGetSwapStatusInput = { body: TGetSwapStatusBody };
+
 export type TGetTvcAppResponse = {
   /** Details about a single TVC App */
   tvcApp: v1TvcApp;
@@ -7361,6 +7659,7 @@ export type TGetWalletAddressBalancesBody = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
+    | "eip155:421614"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -7427,8 +7726,10 @@ export type TListEarnPositionsBody = {
 export type TListEarnPositionsInput = { body: TListEarnPositionsBody };
 
 export type TListEarnVaultsResponse = {
-  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
+  /** The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass page_info.end_cursor as the pagination after cursor. */
   vaults?: v1EarnVault[];
+  /** Pagination metadata for the returned page. Pass end_cursor as the next request's after cursor (or start_cursor as the before cursor) to page through the catalog. Cursors are opaque; do not parse them. */
+  pageInfo?: v1PageInfo;
 };
 
 export type TListEarnVaultsBody = {
@@ -7627,7 +7928,8 @@ export type TListSupportedAssetsBody = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "eip155:421614"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
@@ -7795,6 +8097,20 @@ export type TClaimEarnFeesBody = {
 };
 
 export type TClaimEarnFeesInput = { body: TClaimEarnFeesBody };
+
+export type TClaimSwapFeesResponse = {
+  activity: v1Activity;
+  /** Relay claim request ID submitted through the permit endpoint. */
+  requestId: string;
+};
+
+export type TClaimSwapFeesBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  generateAppProofs?: boolean;
+};
+
+export type TClaimSwapFeesInput = { body: TClaimSwapFeesBody };
 
 export type TCreateApiKeysResponse = {
   activity: v1Activity;
@@ -7976,6 +8292,8 @@ export type TCreatePolicyBody = {
   consensus?: string;
   /** Notes for a Policy. */
   notes: string;
+  /** The time expression that triggers the Effect */
+  time?: string;
   generateAppProofs?: boolean;
 };
 
@@ -8168,6 +8486,12 @@ export type TCreateTvcAppResponse = {
   manifestSetOperatorIds: string[];
   /** The required number of approvals for the manifest set */
   manifestSetThreshold: number;
+  /** The unique identifier for the TVC share set */
+  shareSetId: string;
+  /** The unique identifiers of the share set operators */
+  shareSetOperatorIds: string[];
+  /** The required number of approvals for the share set */
+  shareSetThreshold: number;
 };
 
 export type TCreateTvcAppBody = {
@@ -8721,7 +9045,7 @@ export type TEarnDeployWrapperBody = {
     | "eip155:137"
     | "eip155:56"
     | "eip155:4217";
-  /** Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield. */
+  /** Your fee on gross yield, in basis points (e.g., '2000' for 20%). Maximum is 4000 (40%). */
   clientFeeBps: string;
   /** The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
   clientFeeWallet: string;
@@ -8843,6 +9167,46 @@ export type TEmailAuthBody = {
 };
 
 export type TEmailAuthInput = { body: TEmailAuthBody };
+
+export type TEthUndelegate7702Response = {
+  activity: v1Activity;
+  /** The send_transaction_status ID associated with the undelegation transaction submission */
+  sendTransactionStatusId: string;
+};
+
+export type TEthUndelegate7702Body = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** A wallet or private key address to undelegate. This does not support private key IDs. */
+  from: string;
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97"
+    | "eip155:10"
+    | "eip155:11155420"
+    | "eip155:143"
+    | "eip155:10143"
+    | "eip155:42161"
+    | "eip155:421614";
+  /** Outer transaction nonce. Omit to auto-fetch. */
+  nonce?: string;
+  /** Maximum amount of gas for the undelegation transaction. Omit to use the fixed undelegation gas limit. */
+  gasLimit?: string;
+  /** Maximum total fee per gas unit (base fee + priority fee) in wei. Omit to auto-estimate. */
+  maxFeePerGas?: string;
+  /** Maximum priority fee (tip) per gas unit in wei. Omit to auto-estimate. */
+  maxPriorityFeePerGas?: string;
+  generateAppProofs?: boolean;
+};
+
+export type TEthUndelegate7702Input = { body: TEthUndelegate7702Body };
 
 export type TExportPrivateKeyResponse = {
   activity: v1Activity;
@@ -9689,6 +10053,8 @@ export type TUpdatePolicyBody = {
   policyConsensus?: string;
   /** Accompanying notes for a Policy (optional). */
   policyNotes?: string;
+  /** The time expression that triggers the Effect (optional). */
+  time?: string;
   generateAppProofs?: boolean;
 };
 
@@ -9878,6 +10244,26 @@ export type TUpdateWebhookEndpointBody = {
 
 export type TUpdateWebhookEndpointInput = { body: TUpdateWebhookEndpointBody };
 
+export type TUpsertSwapConfigResponse = {
+  activity: v1Activity;
+  feeReceiverWalletAddress?: string;
+  feeBps?: string;
+  stableFeeBps?: string;
+};
+
+export type TUpsertSwapConfigBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  feeReceiverWalletAddress?: string;
+  /** Client fee in basis points applied to swaps; used for all pairs unless stable_fee_bps is set. */
+  feeBps?: string;
+  /** Optional Enterprise-only override applied when both swap assets are stablecoins; falls back to fee_bps when unset. Non-Enterprise orgs may only set fee_bps. */
+  stableFeeBps?: string;
+  generateAppProofs?: boolean;
+};
+
+export type TUpsertSwapConfigInput = { body: TUpsertSwapConfigBody };
+
 export type TVerifyOtpResponse = {
   activity: v1Activity;
   /** Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
@@ -9997,7 +10383,7 @@ export type TEthSendTransactionV2Body = {
   maxPriorityFeePerGas?: string;
   /** Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true. */
   deadline?: string;
-  /** The gas station delegate contract nonce. Only used when sponsor=true. Omit to auto-fetch. */
+  /** The gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored transactions and non-sponsored multi-call batches. Omit to auto-fetch. Use the nonces endpoint for replay protection. */
   gasStationNonce?: string;
   /** Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station. */
   calls: v1EthCallParams[];

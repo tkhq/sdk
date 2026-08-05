@@ -124,12 +124,8 @@ export type paths = {
     /** Get details about a smart contract interface. */
     post: operations["PublicApiService_GetSmartContractInterface"];
   };
-  "/public/v1/query/get_swap_quote": {
-    /** Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
-    post: operations["PublicApiService_GetSwapQuote"];
-  };
   "/public/v1/query/get_swap_status": {
-    /** Get the status of a swap by the send_transaction_status_id returned from execute_swap. Covers same-chain and cross-chain swaps. */
+    /** Poll the status of a swap by its swap_request_id. Covers same-chain and cross-chain swaps. */
     post: operations["PublicApiService_GetSwapStatus"];
   };
   "/public/v1/query/get_tvc_app": {
@@ -348,6 +344,10 @@ export type paths = {
     /** Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS). */
     post: operations["PublicApiService_CreateSubOrganization"];
   };
+  "/public/v1/submit/create_swap_quote": {
+    /** Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
+    post: operations["PublicApiService_CreateSwapQuote"];
+  };
   "/public/v1/submit/create_tvc_app": {
     /** Create a new TVC application */
     post: operations["PublicApiService_CreateTvcApp"];
@@ -496,8 +496,12 @@ export type paths = {
     /** Submit a transaction intent describing an EVM transaction you would like to broadcast. */
     post: operations["PublicApiService_EthSendTransaction"];
   };
+  "/public/v1/submit/eth_undelegate_7702": {
+    /** Submit an EIP-7702 undelegation transaction. */
+    post: operations["PublicApiService_EthUndelegate7702"];
+  };
   "/public/v1/submit/execute_swap": {
-    /** Execute a quoted swap through the activity pipeline and Turnkey broadcasting. */
+    /** Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2. */
     post: operations["PublicApiService_ExecuteSwap"];
   };
   "/public/v1/submit/export_private_key": {
@@ -1080,7 +1084,11 @@ export type definitions = {
     | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
     | "ACTIVITY_TYPE_CLAIM_SWAP_FEES"
     | "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE"
-    | "ACTIVITY_TYPE_CLAIM_EARN_FEES";
+    | "ACTIVITY_TYPE_CLAIM_EARN_FEES"
+    | "ACTIVITY_TYPE_UPDATE_WALLET_ACCOUNT_NAME"
+    | "ACTIVITY_TYPE_ETH_UNDELEGATE_7702"
+    | "ACTIVITY_TYPE_EXECUTE_SWAP_V2"
+    | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1230,6 +1238,8 @@ export type definitions = {
     logoUrl?: string;
     /** @description The asset name */
     name?: string;
+    /** @description Whether this asset is on Turnkey's stablecoin list (used for stablepair swap fee pricing). */
+    stable?: boolean;
   };
   v1Attestation: {
     /** @description The cbor encoded then base64 url encoded id of the credential. */
@@ -1651,6 +1661,8 @@ export type definitions = {
     consensus?: string;
     /** @description Notes for a Policy. */
     notes: string;
+    /** @description The time expression that triggers the Effect */
+    time?: string;
   };
   v1CreatePolicyRequest: {
     /** @enum {string} */
@@ -2026,6 +2038,32 @@ export type definitions = {
     wallet?: definitions["v1WalletResult"];
     rootUserIds?: string[];
   };
+  v1CreateSwapQuoteIntent: {
+    /** @description Wallet account or Private Key address used to price the executable provider quote. Private Key identifiers are not supported. */
+    signWith: string;
+    /** @description CAIP-19 asset ID for the input asset. The chain is derived from this value. */
+    inputToken: string;
+    /** @description CAIP-19 asset ID for the output asset. */
+    outputToken: string;
+    /** @description Base-unit amount of the input asset. */
+    inputAmount: string;
+    /** @description Provider-neutral maximum allowed slippage in basis points. Turnkey converts this value to each provider's request format. When omitted, each provider applies its default slippage behavior. */
+    slippageBps?: string;
+  };
+  v1CreateSwapQuoteRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateSwapQuoteIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1CreateSwapQuoteResult: {
+    /** @description One or more provider quotes for this request. Today this contains a single Relay quote; pass quotes[i].quoteId to execute_swap_v2 to bind execution. */
+    quotes: definitions["v1SwapQuote"][];
+  };
   v1CreateTvcAppIntent: {
     /** @description The name of the new TVC application */
     name: string;
@@ -2065,6 +2103,15 @@ export type definitions = {
      * @description The required number of approvals for the manifest set
      */
     manifestSetThreshold: number;
+    /** @description The unique identifier for the TVC share set */
+    shareSetId: string;
+    /** @description The unique identifiers of the share set operators */
+    shareSetOperatorIds: string[];
+    /**
+     * Format: int64
+     * @description The required number of approvals for the share set
+     */
+    shareSetThreshold: number;
   };
   v1CreateTvcDeploymentIntent: {
     /** @description The unique identifier of the to-be-deployed TVC application */
@@ -2770,7 +2817,7 @@ export type definitions = {
       | "eip155:137"
       | "eip155:56"
       | "eip155:4217";
-    /** @description Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield. */
+    /** @description Your fee on gross yield, in basis points (e.g., '2000' for 20%). Maximum is 4000 (40%). */
     clientFeeBps: string;
     /** @description The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
     clientFeeWallet: string;
@@ -2837,15 +2884,15 @@ export type definitions = {
     provider?: definitions["v1EarnProvider"];
     /** @description CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
     caip19?: string;
-    /** @description Gross annual percentage yield, expressed as a decimal fraction (before Turnkey and client fees). */
+    /** @description Gross annual percentage yield, expressed as a decimal fraction (before fees). */
     apyPct?: string;
     /** @description Total deposited through this wrapper (wrapper TVL), in raw on-chain units of the underlying asset. */
     totalDeposited?: string;
     /** @description Normalized total-deposited values for display only (usd + crypto). Do not do arithmetic with these; use total_deposited instead. */
     display?: definitions["v1EarnValueDisplay"];
-    /** @description Annual percentage yield net of the Turnkey and client performance fees, expressed as a decimal fraction. */
+    /** @description Annual percentage yield net of fees, expressed as a decimal fraction. */
     netApyPct?: string;
-    /** @description Client performance fee taken on yield, in basis points. Currently org-wide; moving to a per-vault setting. */
+    /** @description Client fee taken on yield, in basis points. */
     clientFeeBps?: string;
     /** @description When true, deposits to this wrapper are rejected; withdrawals are unaffected. Toggled via EarnSetWrapperState. */
     depositsDisabled?: boolean;
@@ -2853,10 +2900,12 @@ export type definitions = {
     name?: string;
     /** @description Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave). */
     curator?: string;
-    /** @description The client's claimable performance fee (releasable now), in raw on-chain units of the underlying asset (the caip19 asset). Turnkey's fee is excluded. Only returned to the parent org; unset when a sub-org queries. */
+    /** @description The client's claimable fee (releasable now), in raw on-chain units of the underlying asset (the caip19 asset). Turnkey's fee is excluded. Only returned to the parent org; unset when a sub-org queries. */
     claimableClientFee?: string;
     /** @description Normalized claimable_client_fee for display only (usd + crypto). Do not do arithmetic with these; use claimable_client_fee. Unset when a sub-org queries. */
     claimableClientFeeDisplay?: definitions["v1EarnValueDisplay"];
+    /** @description The wallet address that receives the client's fee payouts on-chain. Unset when a sub-org queries. */
+    clientFeeWallet?: string;
   };
   v1EarnPosition: {
     /** @description Address of the underlying yield vault. */
@@ -3127,6 +3176,8 @@ export type definitions = {
     deliveryProcessingTimeMillis?: string;
     /** @description Delay type for DeliveryDelay events */
     deliveryDelayType?: string;
+    /** @description Feedback type for Complaint events */
+    complaintFeedbackType?: string;
   };
   v1EnableAuthProxyIntent: { [key: string]: unknown };
   v1EnableAuthProxyResult: {
@@ -3265,7 +3316,7 @@ export type definitions = {
     maxPriorityFeePerGas?: string;
     /** @description Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true. */
     deadline?: string;
-    /** @description The gas station delegate contract nonce. Only used when sponsor=true. Omit to auto-fetch. */
+    /** @description The gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored transactions and non-sponsored multi-call batches. Omit to auto-fetch. Use the nonces endpoint for replay protection. */
     gasStationNonce?: string;
     /** @description Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station. */
     calls: definitions["v1EthCallParams"][];
@@ -3315,6 +3366,51 @@ export type definitions = {
     /** @description Turnkey-specific metadata for transactions originated by Turnkey. */
     turnkey?: definitions["v1TransactionHistoryTurnkey"];
   };
+  v1EthUndelegate7702Intent: {
+    /** @description A wallet or private key address to undelegate. This does not support private key IDs. */
+    from: string;
+    /**
+     * @description CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
+     * @enum {string}
+     */
+    caip2:
+      | "eip155:1"
+      | "eip155:11155111"
+      | "eip155:8453"
+      | "eip155:84532"
+      | "eip155:137"
+      | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97"
+      | "eip155:10"
+      | "eip155:11155420"
+      | "eip155:143"
+      | "eip155:10143"
+      | "eip155:42161"
+      | "eip155:421614";
+    /** @description Outer transaction nonce. Omit to auto-fetch. */
+    nonce?: string;
+    /** @description Maximum amount of gas for the undelegation transaction. Omit to use the fixed undelegation gas limit. */
+    gasLimit?: string;
+    /** @description Maximum total fee per gas unit (base fee + priority fee) in wei. Omit to auto-estimate. */
+    maxFeePerGas?: string;
+    /** @description Maximum priority fee (tip) per gas unit in wei. Omit to auto-estimate. */
+    maxPriorityFeePerGas?: string;
+  };
+  v1EthUndelegate7702Request: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_ETH_UNDELEGATE_7702";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1EthUndelegate7702Intent"];
+    generateAppProofs?: boolean;
+  };
+  v1EthUndelegate7702Result: {
+    /** @description The send_transaction_status ID associated with the undelegation transaction submission */
+    sendTransactionStatusId: string;
+  };
   v1ExecuteSwapIntent: {
     /** @description CAIP-19 asset ID for the input asset. The chain is derived from this value. */
     inputToken: string;
@@ -3328,24 +3424,46 @@ export type definitions = {
     sponsor?: boolean;
     /** @description Maximum allowed slippage in basis points. */
     slippage?: string;
-    /** @description Swap provider to execute with, as returned by get_swap_quote. When omitted, execution uses the default provider. */
+    /** @description Swap provider to execute with, as returned by create_swap_quote. When omitted, execution uses the default provider. */
     provider?: string;
     /** @description Minimum acceptable base-unit amount of the output asset. Execution fails if the swap provider's quoted minimum output falls below this floor at execution time. */
     minOutputAmount: string;
   };
+  v1ExecuteSwapIntentV2: {
+    /** @description Quote identifier returned by create_swap_quote. Execution is bound to this quote; the signer is derived from the quote and must not be resupplied. */
+    quoteId: string;
+    /** @description CAIP-19 asset ID for the input asset. */
+    inputToken: string;
+    /** @description Exact base-unit amount of the input asset committed by the quote. */
+    inputAmount: string;
+    /** @description CAIP-19 asset ID for the output asset. */
+    outputToken: string;
+    /** @description Exact quoted base-unit output amount committed by the quote. */
+    quotedOutputAmount: string;
+    /** @description Exact minimum base-unit output committed by the quote. */
+    minOutputAmount: string;
+    /** @description Whether the quoted transaction is sponsored. */
+    sponsor: boolean;
+    /** @description Exact EVM sender (EOA account) nonce. Valid only for a non-sponsored EVM swap. Honored for already-delegated (Type-2) batch swaps and single-call swaps; ignored for not-yet-delegated EIP-7702 (Type-4) batches where the outer nonce is derived from the authorization. Prefer gas_station_nonce for batch replay protection and use the nonces endpoint to fetch it. Omit to auto-fetch. */
+    evmNonce?: string;
+    /** @description Exact Solana recent blockhash. Valid only for a Solana swap, including sponsored swaps. Omit to auto-fetch. */
+    recentBlockhash?: string;
+    /** @description Exact gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored EVM swaps and non-sponsored EVM swaps that execute as a multi-call batch (for example ERC-20 approve + swap). This is the replay-protection nonce for gas-station batches; use the nonces endpoint to fetch it. Omit to auto-fetch. */
+    gasStationNonce?: string;
+  };
   v1ExecuteSwapRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_EXECUTE_SWAP";
+    type: "ACTIVITY_TYPE_EXECUTE_SWAP_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1ExecuteSwapIntent"];
+    parameters: definitions["v1ExecuteSwapIntentV2"];
     generateAppProofs?: boolean;
   };
   v1ExecuteSwapResult: {
-    /** @description The send_transaction_status ID associated with the swap transaction submission */
-    sendTransactionStatusId: string;
+    /** @description Identifier to poll swap status via GetSwapStatus. */
+    swapRequestId: string;
     /** @description Swap provider used to build the transaction. */
     provider?: string;
     /** @description Quote identifier used for execution, if any. */
@@ -3703,7 +3821,7 @@ export type definitions = {
   v1GetLatestBootProofRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    /** @description Name of enclave app. */
+    /** @description Unique identifier (UUID) of the enclave app. */
     appName: string;
   };
   v1GetMfaPoliciesRequest: {
@@ -3943,35 +4061,11 @@ export type definitions = {
     /** @description List of unique identifiers for the matching sub-organizations. */
     organizationIds: string[];
   };
-  v1GetSwapQuoteRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description CAIP-19 asset ID for the input asset. The chain is derived from this value. */
-    inputToken: string;
-    /** @description CAIP-19 asset ID for the output asset. */
-    outputToken: string;
-    /** @description Base-unit amount of the input asset. */
-    inputAmount: string;
-    /** @description Wallet account address used to price the executable provider quote. */
-    walletAccount: string;
-    /** @description Maximum allowed slippage in basis points. */
-    slippage?: string;
-  };
-  v1GetSwapQuoteResponse: {
-    /** @description CAIP-19 asset ID for the input asset. */
-    inputToken: string;
-    /** @description CAIP-19 asset ID for the output asset. */
-    outputToken: string;
-    /** @description Base-unit amount of the input asset. */
-    inputAmount: string;
-    /** @description One quote per available swap provider. */
-    quotes: definitions["v1SwapQuoteOption"][];
-  };
   v1GetSwapStatusRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    /** @description Identifier returned in the execute_swap activity result. */
-    sendTransactionStatusId: string;
+    /** @description The swap_request_id returned by ExecuteSwap. */
+    swapRequestId: string;
   };
   v1GetSwapStatusResponse: {
     /** @description Normalized swap status. One of PENDING, COMPLETED, FAILED. */
@@ -3979,7 +4073,7 @@ export type definitions = {
     /** @description SAME_CHAIN or CROSS_CHAIN. */
     swapKind: string;
     /** @description Swap provider that executed the swap. */
-    provider?: string;
+    provider: string;
     /** @description CAIP-19 asset ID for the input asset. */
     inputToken: string;
     /** @description CAIP-19 asset ID for the output asset. */
@@ -3988,20 +4082,16 @@ export type definitions = {
     inputAmount: string;
     /** @description Final included origin-chain transaction hash, when known. */
     originTxHash?: string;
-    /** @description Destination-chain fill transaction hash; cross-chain COMPLETED only. */
-    destinationTxHash?: string;
-    /** @description Actual base-unit output amount on COMPLETED, when known. */
+    /** @description Provider-reported destination-chain transaction hashes; cross-chain COMPLETED only. */
+    destinationTxHashes?: string[];
+    /** @description Actual base-unit output amount on COMPLETED, when known. Unset on FAILED. */
     outputAmount?: string;
-    /** @description CAIP-19 of the asset the user holds after a FAILED swap, when recoverable. */
-    settledAsset?: string;
-    /** @description Base-unit amount of settled_asset. */
-    settledAmount?: string;
-    /** @description Transaction that delivered the settled funds, when applicable. */
-    settlementTxHash?: string;
-    /** @description Non-normative raw provider status passthrough; cross-chain only. */
-    providerStatus?: string;
+    /** @description Asset and amount returned to the user after a failed swap, when recoverable. Present only on FAILED. */
+    refund?: definitions["v1SwapRefund"];
     /** @description Timestamp of the last swap status change, as millisecond epoch string. */
     updatedAt: string;
+    /** @description Normalized failure details, present whenever status is FAILED. */
+    error?: definitions["v1SwapError"];
   };
   v1GetTvcAppDeploymentsRequest: {
     /** @description Unique identifier for a given organization. */
@@ -4164,6 +4254,7 @@ export type definitions = {
       | "eip155:42161"
       | "eip155:4217"
       | "eip155:42431"
+      | "eip155:421614"
       | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
@@ -4761,6 +4852,10 @@ export type definitions = {
     claimSwapFeesIntent?: definitions["v1ClaimSwapFeesIntent"];
     earnSetWrapperStateIntent?: definitions["v1EarnSetWrapperStateIntent"];
     claimEarnFeesIntent?: definitions["v1ClaimEarnFeesIntent"];
+    updateWalletAccountNameIntent?: definitions["v1UpdateWalletAccountNameIntent"];
+    ethUndelegate7702Intent?: definitions["v1EthUndelegate7702Intent"];
+    executeSwapIntentV2?: definitions["v1ExecuteSwapIntentV2"];
+    createSwapQuoteIntent?: definitions["v1CreateSwapQuoteIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -4856,8 +4951,10 @@ export type definitions = {
     paginationOptions?: definitions["v1Pagination"];
   };
   v1ListEarnVaultsResponse: {
-    /** @description The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
+    /** @description The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass page_info.end_cursor as the pagination after cursor. */
     vaults?: definitions["v1EarnVault"][];
+    /** @description Pagination metadata for the returned page. Pass end_cursor as the next request's after cursor (or start_cursor as the before cursor) to page through the catalog. Cursors are opaque; do not parse them. */
+    pageInfo?: definitions["v1PageInfo"];
   };
   v1ListEmailEventsRequest: {
     /** @description Unique identifier for a given organization */
@@ -4972,7 +5069,8 @@ export type definitions = {
       | "eip155:42161"
       | "eip155:4217"
       | "eip155:42431"
-      | "eip155:421614solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      | "eip155:421614"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
   v1ListSupportedAssetsResponse: {
@@ -5305,7 +5403,14 @@ export type definitions = {
     | "OUTCOME_REQUIRES_CONSENSUS"
     | "OUTCOME_REJECTED"
     | "OUTCOME_ERROR"
-    | "OUTCOME_REQUIRES_AUTHENTICATORS";
+    | "OUTCOME_REQUIRES_AUTHENTICATORS"
+    | "OUTCOME_TIME_INACTIVE";
+  v1PageInfo: {
+    hasNextPage?: boolean;
+    hasPreviousPage?: boolean;
+    startCursor?: string;
+    endCursor?: string;
+  };
   v1Pagination: {
     /** @description A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
     limit?: string;
@@ -5337,6 +5442,8 @@ export type definitions = {
     consensus: string;
     /** @description A condition expression that evalutes to true or false. */
     condition: string;
+    /** @description A time expression that evalutes to true or false. */
+    time?: string;
   };
   v1PostTvcQuorumKeyShareIntent: {
     /** @description Unique identifier of the TVC deployment receiving quorum key share */
@@ -5669,6 +5776,9 @@ export type definitions = {
     claimSwapFeesResult?: definitions["v1ClaimSwapFeesResult"];
     earnSetWrapperStateResult?: definitions["v1EarnSetWrapperStateResult"];
     claimEarnFeesResult?: definitions["v1ClaimEarnFeesResult"];
+    updateWalletAccountNameResult?: definitions["v1UpdateWalletAccountNameResult"];
+    ethUndelegate7702Result?: definitions["v1EthUndelegate7702Result"];
+    createSwapQuoteResult?: definitions["v1CreateSwapQuoteResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -6291,15 +6401,39 @@ export type definitions = {
     /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
     session: string;
   };
-  v1SwapQuoteOption: {
-    /** @description Identifier for this provider quote. */
+  v1SwapError: {
+    /** @description Stable machine-readable failure reason. One of ORIGIN_TRANSACTION_FAILED or PROVIDER_FILL_FAILED. */
+    reason: string;
+    /** @description Human-readable description of the swap failure. */
+    message: string;
+    /** @description Origin-chain transaction failure details, present when reason is ORIGIN_TRANSACTION_FAILED and details are available. */
+    originTxError?: definitions["v1TxError"];
+  };
+  v1SwapQuote: {
+    /** @description Identifier for this provider quote. Pass this value to execute_swap_v2 to bind execution to this exact quote. The signer is derived from the quote; clients do not resupply sign_with on execute. */
     quoteId: string;
-    /** @description Swap provider that produced this quote. Pass this value to execute_swap to force a specific provider. */
+    /** @description Swap provider that produced this quote. */
     provider: string;
     /** @description Estimated base-unit amount of the output asset. */
     outputAmount: string;
     /** @description Minimum acceptable base-unit amount of the output asset after slippage. */
-    minOutputAmount?: string;
+    minOutputAmount: string;
+    /** @description Quote expiration as a millisecond epoch string. */
+    expiresAt: string;
+    /** @description Provider-neutral maximum allowed slippage in basis points, echoed from the quote request when set. */
+    slippageBps?: string;
+    /** @description Client fee in basis points applied for this pair. Informational only; already reflected in output_amount and min_output_amount. */
+    clientFeeBps: string;
+    /** @description Provider-estimated completion time in seconds, when available. */
+    estimatedTimeSeconds?: string;
+  };
+  v1SwapRefund: {
+    /** @description CAIP-19 asset returned to the user after a failed swap. */
+    asset: string;
+    /** @description Base-unit amount of the refunded asset. */
+    amount: string;
+    /** @description Transaction that delivered the refunded funds, when applicable. */
+    txHash?: string;
   };
   /** @enum {string} */
   v1TagType: "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
@@ -6772,6 +6906,8 @@ export type definitions = {
     policyConsensus?: string;
     /** @description Accompanying notes for a Policy (optional). */
     policyNotes?: string;
+    /** @description The time expression that triggers the Effect (optional). */
+    time?: string;
   };
   v1UpdatePolicyRequest: {
     /** @enum {string} */
@@ -6964,6 +7100,16 @@ export type definitions = {
     /** @description Unique identifier for a given User Tag. */
     userTagId: string;
   };
+  v1UpdateWalletAccountNameIntent: {
+    /** @description Unique identifier for a given Wallet Account. */
+    walletAccountId: string;
+    /** @description Human-readable name for this Wallet Account. */
+    name: string;
+  };
+  v1UpdateWalletAccountNameResult: {
+    /** @description Unique identifier for a given Wallet Account. */
+    walletAccountId: string;
+  };
   v1UpdateWalletIntent: {
     /** @description Unique identifier for a given Wallet. */
     walletId: string;
@@ -7030,8 +7176,7 @@ export type definitions = {
     feeReceiverWalletAddress?: string;
     /** @description Client fee in basis points applied to swaps; used for all pairs unless stable_fee_bps is set. */
     feeBps?: string;
-    provider?: string;
-    /** @description Optional override applied when both swap assets are stablecoins; falls back to fee_bps when unset. */
+    /** @description Optional Enterprise-only override applied when both swap assets are stablecoins; falls back to fee_bps when unset. Non-Enterprise orgs may only set fee_bps. */
     stableFeeBps?: string;
   };
   v1UpsertSwapConfigRequest: {
@@ -7853,25 +7998,7 @@ export type operations = {
       };
     };
   };
-  /** Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
-  PublicApiService_GetSwapQuote: {
-    parameters: {
-      body: {
-        body: definitions["v1GetSwapQuoteRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetSwapQuoteResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get the status of a swap by the send_transaction_status_id returned from execute_swap. Covers same-chain and cross-chain swaps. */
+  /** Poll the status of a swap by its swap_request_id. Covers same-chain and cross-chain swaps. */
   PublicApiService_GetSwapStatus: {
     parameters: {
       body: {
@@ -8861,6 +8988,24 @@ export type operations = {
       };
     };
   };
+  /** Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
+  PublicApiService_CreateSwapQuote: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateSwapQuoteRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create a new TVC application */
   PublicApiService_CreateTvcApp: {
     parameters: {
@@ -9527,7 +9672,25 @@ export type operations = {
       };
     };
   };
-  /** Execute a quoted swap through the activity pipeline and Turnkey broadcasting. */
+  /** Submit an EIP-7702 undelegation transaction. */
+  PublicApiService_EthUndelegate7702: {
+    parameters: {
+      body: {
+        body: definitions["v1EthUndelegate7702Request"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2. */
   PublicApiService_ExecuteSwap: {
     parameters: {
       body: {

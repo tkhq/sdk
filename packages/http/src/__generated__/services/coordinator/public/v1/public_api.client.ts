@@ -121,10 +121,6 @@ import type {
   TGetSmartContractInterfaceResponse,
 } from "./public_api.fetcher";
 import type {
-  TGetSwapQuoteBody,
-  TGetSwapQuoteResponse,
-} from "./public_api.fetcher";
-import type {
   TGetSwapStatusBody,
   TGetSwapStatusResponse,
 } from "./public_api.fetcher";
@@ -330,6 +326,10 @@ import type {
   TCreateSubOrganizationResponse,
 } from "./public_api.fetcher";
 import type {
+  TCreateSwapQuoteBody,
+  TCreateSwapQuoteResponse,
+} from "./public_api.fetcher";
+import type {
   TCreateTvcAppBody,
   TCreateTvcAppResponse,
 } from "./public_api.fetcher";
@@ -473,6 +473,10 @@ import type {
 import type {
   TEthSendTransactionBody,
   TEthSendTransactionResponse,
+} from "./public_api.fetcher";
+import type {
+  TEthUndelegate7702Body,
+  TEthUndelegate7702Response,
 } from "./public_api.fetcher";
 import type {
   TExecuteSwapBody,
@@ -1659,38 +1663,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
-   *
-   * Sign the provided `TGetSwapQuoteBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_swap_quote).
-   *
-   * See also {@link stampGetSwapQuote}.
-   */
-  getSwapQuote = async (
-    input: TGetSwapQuoteBody,
-  ): Promise<TGetSwapQuoteResponse> => {
-    return this.request("/public/v1/query/get_swap_quote", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TGetSwapQuoteBody` by using the client's `stamp` function.
-   *
-   * See also {@link GetSwapQuote}.
-   */
-  stampGetSwapQuote = async (
-    input: TGetSwapQuoteBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl = this.config.baseUrl + "/public/v1/query/get_swap_quote";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Get the status of a swap by the send_transaction_status_id returned from execute_swap. Covers same-chain and cross-chain swaps.
+   * Poll the status of a swap by its swap_request_id. Covers same-chain and cross-chain swaps.
    *
    * Sign the provided `TGetSwapStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_swap_status).
    *
@@ -3415,6 +3388,37 @@ export class TurnkeyClient {
   };
 
   /**
+   * Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
+   *
+   * Sign the provided `TCreateSwapQuoteBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_swap_quote).
+   *
+   * See also {@link stampCreateSwapQuote}.
+   */
+  createSwapQuote = async (
+    input: TCreateSwapQuoteBody,
+  ): Promise<TCreateSwapQuoteResponse> => {
+    return this.request("/public/v1/submit/create_swap_quote", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateSwapQuoteBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateSwapQuote}.
+   */
+  stampCreateSwapQuote = async (
+    input: TCreateSwapQuoteBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/create_swap_quote";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Create a new TVC application
    *
    * Sign the provided `TCreateTvcAppBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_tvc_app).
@@ -4592,7 +4596,39 @@ export class TurnkeyClient {
   };
 
   /**
-   * Execute a quoted swap through the activity pipeline and Turnkey broadcasting.
+   * Submit an EIP-7702 undelegation transaction.
+   *
+   * Sign the provided `TEthUndelegate7702Body` with the client's `stamp` function, and submit the request (POST /public/v1/submit/eth_undelegate_7702).
+   *
+   * See also {@link stampEthUndelegate7702}.
+   */
+  ethUndelegate7702 = async (
+    input: TEthUndelegate7702Body,
+  ): Promise<TEthUndelegate7702Response> => {
+    return this.request("/public/v1/submit/eth_undelegate_7702", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TEthUndelegate7702Body` by using the client's `stamp` function.
+   *
+   * See also {@link EthUndelegate7702}.
+   */
+  stampEthUndelegate7702 = async (
+    input: TEthUndelegate7702Body,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/eth_undelegate_7702";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2.
    *
    * Sign the provided `TExecuteSwapBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/execute_swap).
    *
