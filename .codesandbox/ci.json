@@ -25,5 +25,5 @@
     "packages/react-native-wallet-kit"
   ],
   "sandboxes": ["/examples/demos/react-components"],
-  "node": "20"
+  "node": "24"
 }
