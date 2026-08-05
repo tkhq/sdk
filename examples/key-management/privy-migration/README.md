@@ -19,16 +19,22 @@ Supports:
 
 ## Why this works
 
-Privy's export API and Turnkey's private-key import API both encrypt with
-the **same HPKE cipher suite**, in HPKE BASE mode:
+Privy's export and Turnkey's private-key import share the same HPKE
+**KEM and KDF**, both in HPKE BASE mode. Their **AEAD differs**, so this
+example bridges the two by decrypting inside the migration process and
+re-encrypting to the Turnkey enclave — it is **not** a raw ciphertext
+passthrough.
 
-| Component | Value                     |
-| --------- | ------------------------- |
-| KEM       | DHKEM(P-256, HKDF-SHA256) |
-| KDF       | HKDF-SHA256               |
-| AEAD      | ChaCha20-Poly1305         |
+| Component | Privy export              | Turnkey import            |
+| --------- | ------------------------- | ------------------------- |
+| KEM       | DHKEM(P-256, HKDF-SHA256) | DHKEM(P-256, HKDF-SHA256) |
+| KDF       | HKDF-SHA256               | HKDF-SHA256               |
+| AEAD      | ChaCha20-Poly1305         | AES-256-GCM               |
+| Mode      | BASE                      | BASE                      |
 
-Because the suites match, we can:
+Because a Privy ciphertext is sealed to a recipient key **and** uses a
+different AEAD than Turnkey's enclave expects, it cannot be handed to
+`importPrivateKey` unchanged. The migration script therefore:
 
 1. Ask Turnkey's enclave to issue a target encryption key (**TEK**) and
    sign it under the enclave quorum (`initImportPrivateKey`).
@@ -127,11 +133,12 @@ you:
    migration guidance says the same.
 
 If you need a stronger boundary (no plaintext in the migration script's
-memory at all), the same HPKE-suite match lets you build a pass-through
-variant that hands Privy's ciphertext-and-encapsulated-key directly to a
-Turnkey enclave endpoint that unwraps and re-wraps entirely inside the
-TEE. That is a Turnkey backend change, out of scope for this SDK
-example.
+memory at all), a Turnkey enclave that accepted a standards-exact
+RFC 9180 HPKE bundle (ChaCha20-Poly1305, sealed directly to the enclave
+target key) could unwrap Privy's export entirely inside the TEE, with no
+plaintext ever leaving a vendor boundary. That requires an enclave-side
+import change (a new bundle format the enclave can decrypt), not just an
+SDK change, and is out of scope for this example.
 
 ## Prerequisites
 
