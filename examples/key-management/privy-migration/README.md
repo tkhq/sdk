@@ -4,6 +4,10 @@ Server-side example that migrates a **Privy embedded wallet** private key
 into a **Turnkey**-managed private key. Runs entirely from a Node script;
 the plaintext key never touches disk and is never logged.
 
+![Privy to Turnkey migration flow](./assets/migration-flow.png)
+
+_High-level migration flow. See below for detail._
+
 Supports:
 
 - Both **EVM (secp256k1)** and **Solana (ed25519)** via `--chain`.
