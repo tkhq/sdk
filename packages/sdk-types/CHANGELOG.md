@@ -1,5 +1,37 @@
 # @turnkey/sdk-types
 
+## 1.3.0
+
+### Minor Changes
+
+- [#1448](https://github.com/tkhq/sdk/pull/1448) [`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Add Solana send-transaction v2 intent and result types. The new intent uses an ordered `signWiths` array and a hex-encoded full unsigned transaction.
+
+  **Before:**
+
+  ```ts
+  const intent: v1SolSendTransactionIntent = {
+    unsignedTransaction: unsignedTransactionBase64,
+    signWith: signerAddress,
+    caip2,
+    sponsor,
+  };
+  ```
+
+  **After:**
+
+  ```ts
+  const intent: v1SolSendTransactionIntentV2 = {
+    unsignedTransaction: unsignedTransactionHex,
+    signWiths: [signerAddress],
+    caip2,
+    sponsor,
+  };
+  ```
+
+- [#1452](https://github.com/tkhq/sdk/pull/1452) [`b447497`](https://github.com/tkhq/sdk/commit/b447497e965b0b1df02d2294e87f89cedb761719) Author [@ericvelazquez](https://github.com/ericvelazquez) - Add Turnkey Earn APIs (early access) to the high-level SDK clients: `earnVaults`, `earnEnabledVaults`, `earnPositions`, `earnDeposit`, `earnDepositStatus`, `earnWithdraw`, `earnWithdrawStatus`, `earnDeployWrapper`, and `earnDeployStatus`.
+
+  The Earn read endpoints live under `/query/` but aren't named `get`/`list`/`test`/`validate`, so each package's codegen pins `/query/earn_*` to query methods by path. `@turnkey/http` gains the previously-missing `earnDeployStatus` so its generated Earn surface matches the other packages.
+
 ## 1.2.0
 
 ### Minor Changes

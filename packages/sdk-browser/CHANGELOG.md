@@ -1,5 +1,51 @@
 # @turnkey/sdk-browser
 
+## 8.0.0
+
+### Major Changes
+
+- [#1448](https://github.com/tkhq/sdk/pull/1448) [`de5e169`](https://github.com/tkhq/sdk/commit/de5e1692ab79c18d898326e76777fa7ea54df812) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Add Solana send-transaction v2 support for transactions requiring multiple Turnkey signers.
+
+  `solSendTransaction()` now uses `ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2`. The v2 intent accepts an ordered `signWiths` array for transactions requiring multiple Turnkey signers, and its full unsigned transaction wire format is hex-encoded.
+
+  **Before:**
+
+  ```ts
+  await client.solSendTransaction({
+    unsignedTransaction: unsignedTransactionBase64,
+    signWith: signerAddress,
+    caip2,
+    sponsor,
+  });
+  ```
+
+  **After:**
+
+  ```ts
+  await client.solSendTransaction({
+    unsignedTransaction: unsignedTransactionHex,
+    signWiths: [signerAddress],
+    caip2,
+    sponsor,
+  });
+  ```
+
+### Minor Changes
+
+- [#1452](https://github.com/tkhq/sdk/pull/1452) [`b447497`](https://github.com/tkhq/sdk/commit/b447497e965b0b1df02d2294e87f89cedb761719) Author [@ericvelazquez](https://github.com/ericvelazquez) - Add Turnkey Earn APIs (early access) to the high-level SDK clients: `earnVaults`, `earnEnabledVaults`, `earnPositions`, `earnDeposit`, `earnDepositStatus`, `earnWithdraw`, `earnWithdrawStatus`, `earnDeployWrapper`, and `earnDeployStatus`.
+
+  The Earn read endpoints live under `/query/` but aren't named `get`/`list`/`test`/`validate`, so each package's codegen pins `/query/earn_*` to query methods by path. `@turnkey/http` gains the previously-missing `earnDeployStatus` so its generated Earn surface matches the other packages.
+
+### Patch Changes
+
+- Updated dependencies [[`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0), [`de5e169`](https://github.com/tkhq/sdk/commit/de5e1692ab79c18d898326e76777fa7ea54df812), [`b447497`](https://github.com/tkhq/sdk/commit/b447497e965b0b1df02d2294e87f89cedb761719), [`c9a13f6`](https://github.com/tkhq/sdk/commit/c9a13f65092e9a7cddc0716206331db9a8b614d2)]:
+  - @turnkey/sdk-types@1.3.0
+  - @turnkey/http@6.0.0
+  - @turnkey/crypto@2.11.0
+  - @turnkey/indexed-db-stamper@1.3.3
+  - @turnkey/wallet-stamper@1.1.21
+  - @turnkey/api-key-stamper@0.6.9
+
 ## 7.0.0
 
 ### Major Changes

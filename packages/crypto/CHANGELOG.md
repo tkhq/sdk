@@ -1,5 +1,16 @@
 # @turnkey/crypto
 
+## 2.11.0
+
+### Minor Changes
+
+- [#1191](https://github.com/tkhq/sdk/pull/1191) [`c9a13f6`](https://github.com/tkhq/sdk/commit/c9a13f65092e9a7cddc0716206331db9a8b614d2) Thanks [@t-vila](https://github.com/t-vila)! - Add `verifyOtpVerificationToken`: verifies an OTP verification token JWT's ES256 signature, required claims, and expiry.
+
+### Patch Changes
+
+- Updated dependencies [[`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0), [`b447497`](https://github.com/tkhq/sdk/commit/b447497e965b0b1df02d2294e87f89cedb761719)]:
+  - @turnkey/sdk-types@1.3.0
+
 ## 2.10.1
 
 ### Patch Changes

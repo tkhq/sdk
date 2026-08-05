@@ -1,5 +1,49 @@
 # @turnkey/react-wallet-kit
 
+## 2.3.0
+
+### Minor Changes
+
+- [#1448](https://github.com/tkhq/sdk/pull/1448) [`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Add Solana multi-signer transaction support to the core client and wallet kits.
+
+  `@turnkey/core` exposes a new `solSendTransactionV2()` HTTP client function that sends `ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2`. The existing `solSendTransaction()` HTTP client function remains on V1.
+
+  The shared `solSendTransaction` helper used by core and the wallet kits now accepts either version of the intent. Passing the legacy `signWith` field continues to use V1. Passing the new ordered `signWiths` array uses V2.
+
+  **Before (V1 remains supported):**
+
+  ```ts
+  await client.solSendTransaction({
+    transaction: {
+      unsignedTransaction: unsignedTransactionBase64,
+      signWith: signerAddress,
+      caip2,
+      sponsor,
+    },
+  });
+  ```
+
+  **After (V2):**
+
+  ```ts
+  await client.solSendTransaction({
+    transaction: {
+      unsignedTransaction: unsignedTransactionHex,
+      signWiths: [signerAddress],
+      caip2,
+      sponsor,
+    },
+  });
+  ```
+
+- Add Cloudflare Turnstile captcha support to the auth flows. Set `turnstileSiteKey` (auto-fetched from the auth proxy) to render a Turnstile widget that gates authentication; auth methods accept an optional `captchaToken`. Fails open when the widget can't load and auto-resets on token expiry.
+
+### Patch Changes
+
+- Updated dependencies [[`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0), [`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0), [`b447497`](https://github.com/tkhq/sdk/commit/b447497e965b0b1df02d2294e87f89cedb761719), [`257d52a`](https://github.com/tkhq/sdk/commit/257d52a108e903beea15be8b2a0e6d222fe07ed9)]:
+  - @turnkey/sdk-types@1.3.0
+  - @turnkey/core@2.4.0
+
 ## 2.2.0
 
 ### Minor Changes
