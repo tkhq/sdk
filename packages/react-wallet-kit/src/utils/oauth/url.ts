@@ -9,6 +9,7 @@ import {
   consumeOAuthState,
   consumeOAuthCaptchaToken,
 } from "./storage";
+import { capitalizeProviderName } from "./helpers";
 
 /**
  * Builds the OAuth state parameter string
@@ -53,6 +54,32 @@ export function openOAuthPopup(): Window | null {
     "_blank",
     `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
   );
+}
+
+/**
+ * Opens an OAuth popup synchronously (to preserve the click's user-activation
+ * window, which Safari requires for window.open), then runs `buildAuthUrl` and
+ * navigates the popup to the result. If `buildAuthUrl` throws, the popup is
+ * closed instead of being left open on a blank page.
+ */
+export async function openOAuthPopupAndNavigate(
+  provider: OAuthProviders,
+  buildAuthUrl: () => Promise<string>,
+  openPopup: () => Window | null = openOAuthPopup,
+): Promise<Window> {
+  const authWindow = openPopup();
+  if (!authWindow) {
+    throw new Error(
+      `Failed to open ${capitalizeProviderName(provider)} login window.`,
+    );
+  }
+  try {
+    authWindow.location.href = await buildAuthUrl();
+    return authWindow;
+  } catch (err) {
+    authWindow.close();
+    throw err;
+  }
 }
 
 /**
