@@ -1,5 +1,5 @@
 {
-  "buildCommand": "build-all",
+  "buildCommand": "codesandbox-install",
   "packages": [
     "packages/cosmjs",
     "packages/eip-1193-provider",
@@ -25,5 +25,5 @@
     "packages/react-native-wallet-kit"
   ],
   "sandboxes": ["/examples/demos/react-components"],
-  "node": "24"
+  "node": "20"
 }
