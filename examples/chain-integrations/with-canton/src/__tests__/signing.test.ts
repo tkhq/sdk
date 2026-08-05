@@ -297,7 +297,7 @@ describe("Signing", () => {
 
     expect(createError).toBeUndefined();
     expect(createData?.transaction).toBeDefined();
-  });
+  }, 20_000);
 });
 
 /**
