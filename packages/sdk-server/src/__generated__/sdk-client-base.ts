@@ -361,6 +361,38 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getClaimEarnFeesStatus = async (
+    input: SdkApiTypes.TGetClaimEarnFeesStatusBody,
+  ): Promise<SdkApiTypes.TGetClaimEarnFeesStatusResponse> => {
+    return this.request("/public/v1/query/get_claim_earn_fees_status", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetClaimEarnFeesStatus = async (
+    input: SdkApiTypes.TGetClaimEarnFeesStatusBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_claim_earn_fees_status";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getEarnDeployStatus = async (
     input: SdkApiTypes.TGetEarnDeployStatusBody,
   ): Promise<SdkApiTypes.TGetEarnDeployStatusResponse> => {
@@ -1013,6 +1045,37 @@ export class TurnkeySDKClientBase {
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getSwapStatus = async (
+    input: SdkApiTypes.TGetSwapStatusBody,
+  ): Promise<SdkApiTypes.TGetSwapStatusResponse> => {
+    return this.request("/public/v1/query/get_swap_status", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetSwapStatus = async (
+    input: SdkApiTypes.TGetSwapStatusBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_swap_status";
     const body = {
       ...input,
       organizationId: input.organizationId ?? this.config.organizationId,
@@ -2141,6 +2204,48 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CLAIM_EARN_FEES",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  claimSwapFees = async (
+    input: SdkApiTypes.TClaimSwapFeesBody,
+  ): Promise<SdkApiTypes.TClaimSwapFeesResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/claim_swap_fees",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CLAIM_SWAP_FEES",
+      },
+      "claimSwapFeesResult",
+    );
+  };
+
+  stampClaimSwapFees = async (
+    input: SdkApiTypes.TClaimSwapFeesBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/claim_swap_fees";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CLAIM_SWAP_FEES",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4248,6 +4353,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  ethUndelegate7702 = async (
+    input: SdkApiTypes.TEthUndelegate7702Body,
+  ): Promise<SdkApiTypes.TEthUndelegate7702Response> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/eth_undelegate_7702",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_ETH_UNDELEGATE7702",
+      },
+      "ethUndelegate7702Result",
+    );
+  };
+
+  stampEthUndelegate7702 = async (
+    input: SdkApiTypes.TEthUndelegate7702Body,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/eth_undelegate_7702";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_ETH_UNDELEGATE7702",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   exportPrivateKey = async (
     input: SdkApiTypes.TExportPrivateKeyBody,
   ): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
@@ -6196,6 +6343,48 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  upsertSwapConfig = async (
+    input: SdkApiTypes.TUpsertSwapConfigBody,
+  ): Promise<SdkApiTypes.TUpsertSwapConfigResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/upsert_swap_config",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPSERT_SWAP_CONFIG",
+      },
+      "upsertSwapConfigResult",
+    );
+  };
+
+  stampUpsertSwapConfig = async (
+    input: SdkApiTypes.TUpsertSwapConfigBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/upsert_swap_config";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPSERT_SWAP_CONFIG",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

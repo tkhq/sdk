@@ -1032,42 +1032,10 @@
         "tags": ["Policies"]
       }
     },
-    "/public/v1/query/get_swap_quote": {
-      "post": {
-        "summary": "Get swap quote",
-        "description": "Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.",
-        "operationId": "PublicApiService_GetSwapQuote",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetSwapQuoteResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetSwapQuoteRequest"
-            }
-          }
-        ],
-        "tags": ["Swaps"]
-      }
-    },
     "/public/v1/query/get_swap_status": {
       "post": {
         "summary": "Get swap status",
-        "description": "Get the status of a swap by the send_transaction_status_id returned from execute_swap. Covers same-chain and cross-chain swaps.",
+        "description": "Poll the status of a swap by its swap_request_id. Covers same-chain and cross-chain swaps.",
         "operationId": "PublicApiService_GetSwapStatus",
         "responses": {
           "200": {
@@ -2824,6 +2792,38 @@
         "tags": ["Organizations"]
       }
     },
+    "/public/v1/submit/create_swap_quote": {
+      "post": {
+        "summary": "Get swap quote",
+        "description": "Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.",
+        "operationId": "PublicApiService_CreateSwapQuote",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateSwapQuoteRequest"
+            }
+          }
+        ],
+        "tags": ["Swaps"]
+      }
+    },
     "/public/v1/submit/create_tvc_app": {
       "post": {
         "summary": "Create a TVC App",
@@ -4008,10 +4008,42 @@
         "tags": ["Broadcasting"]
       }
     },
+    "/public/v1/submit/eth_undelegate_7702": {
+      "post": {
+        "summary": "Undelegate an EVM account",
+        "description": "Submit an EIP-7702 undelegation transaction.",
+        "operationId": "PublicApiService_EthUndelegate7702",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EthUndelegate7702Request"
+            }
+          }
+        ],
+        "tags": ["Broadcasting"]
+      }
+    },
     "/public/v1/submit/execute_swap": {
       "post": {
         "summary": "Execute swap",
-        "description": "Execute a quoted swap through the activity pipeline and Turnkey broadcasting.",
+        "description": "Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2.",
         "operationId": "PublicApiService_ExecuteSwap",
         "responses": {
           "200": {
@@ -6462,7 +6494,11 @@
         "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
         "ACTIVITY_TYPE_CLAIM_SWAP_FEES",
         "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE",
-        "ACTIVITY_TYPE_CLAIM_EARN_FEES"
+        "ACTIVITY_TYPE_CLAIM_EARN_FEES",
+        "ACTIVITY_TYPE_UPDATE_WALLET_ACCOUNT_NAME",
+        "ACTIVITY_TYPE_ETH_UNDELEGATE_7702",
+        "ACTIVITY_TYPE_EXECUTE_SWAP_V2",
+        "ACTIVITY_TYPE_CREATE_SWAP_QUOTE"
       ]
     },
     "v1AddressFormat": {
@@ -6746,6 +6782,10 @@
         "name": {
           "type": "string",
           "description": "The asset name"
+        },
+        "stable": {
+          "type": "boolean",
+          "description": "Whether this asset is on Turnkey's stablecoin list (used for stablepair swap fee pricing)."
         }
       }
     },
@@ -7831,6 +7871,10 @@
         "notes": {
           "type": "string",
           "description": "Notes for a Policy."
+        },
+        "time": {
+          "type": "string",
+          "description": "The time expression that triggers the Effect"
         }
       },
       "required": ["policyName", "effect", "notes"]
@@ -8766,6 +8810,70 @@
       },
       "required": ["subOrganizationId"]
     },
+    "v1CreateSwapQuoteIntent": {
+      "type": "object",
+      "properties": {
+        "signWith": {
+          "type": "string",
+          "description": "Wallet account or Private Key address used to price the executable provider quote. Private Key identifiers are not supported."
+        },
+        "inputToken": {
+          "type": "string",
+          "description": "CAIP-19 asset ID for the input asset. The chain is derived from this value."
+        },
+        "outputToken": {
+          "type": "string",
+          "description": "CAIP-19 asset ID for the output asset."
+        },
+        "inputAmount": {
+          "type": "string",
+          "description": "Base-unit amount of the input asset."
+        },
+        "slippageBps": {
+          "type": "string",
+          "description": "Provider-neutral maximum allowed slippage in basis points. Turnkey converts this value to each provider's request format. When omitted, each provider applies its default slippage behavior."
+        }
+      },
+      "required": ["signWith", "inputToken", "outputToken", "inputAmount"]
+    },
+    "v1CreateSwapQuoteRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_SWAP_QUOTE"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateSwapQuoteIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateSwapQuoteResult": {
+      "type": "object",
+      "properties": {
+        "quotes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SwapQuote"
+          },
+          "description": "One or more provider quotes for this request. Today this contains a single Relay quote; pass quotes[i].quoteId to execute_swap_v2 to bind execution."
+        }
+      },
+      "required": ["quotes"]
+    },
     "v1CreateTvcAppIntent": {
       "type": "object",
       "properties": {
@@ -8847,13 +8955,32 @@
           "type": "integer",
           "format": "int64",
           "description": "The required number of approvals for the manifest set"
+        },
+        "shareSetId": {
+          "type": "string",
+          "description": "The unique identifier for the TVC share set"
+        },
+        "shareSetOperatorIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The unique identifiers of the share set operators"
+        },
+        "shareSetThreshold": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The required number of approvals for the share set"
         }
       },
       "required": [
         "appId",
         "manifestSetId",
         "manifestSetOperatorIds",
-        "manifestSetThreshold"
+        "manifestSetThreshold",
+        "shareSetId",
+        "shareSetOperatorIds",
+        "shareSetThreshold"
       ]
     },
     "v1CreateTvcDeploymentIntent": {
@@ -10603,7 +10730,7 @@
         },
         "clientFeeBps": {
           "type": "string",
-          "description": "Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield."
+          "description": "Your fee on gross yield, in basis points (e.g., '2000' for 20%). Maximum is 4000 (40%)."
         },
         "clientFeeWallet": {
           "type": "string",
@@ -10748,7 +10875,7 @@
         },
         "apyPct": {
           "type": "string",
-          "description": "Gross annual percentage yield, expressed as a decimal fraction (before Turnkey and client fees)."
+          "description": "Gross annual percentage yield, expressed as a decimal fraction (before fees)."
         },
         "totalDeposited": {
           "type": "string",
@@ -10760,11 +10887,11 @@
         },
         "netApyPct": {
           "type": "string",
-          "description": "Annual percentage yield net of the Turnkey and client performance fees, expressed as a decimal fraction."
+          "description": "Annual percentage yield net of fees, expressed as a decimal fraction."
         },
         "clientFeeBps": {
           "type": "string",
-          "description": "Client performance fee taken on yield, in basis points. Currently org-wide; moving to a per-vault setting."
+          "description": "Client fee taken on yield, in basis points."
         },
         "depositsDisabled": {
           "type": "boolean",
@@ -10780,11 +10907,15 @@
         },
         "claimableClientFee": {
           "type": "string",
-          "description": "The client's claimable performance fee (releasable now), in raw on-chain units of the underlying asset (the caip19 asset). Turnkey's fee is excluded. Only returned to the parent org; unset when a sub-org queries."
+          "description": "The client's claimable fee (releasable now), in raw on-chain units of the underlying asset (the caip19 asset). Turnkey's fee is excluded. Only returned to the parent org; unset when a sub-org queries."
         },
         "claimableClientFeeDisplay": {
           "$ref": "#/definitions/v1EarnValueDisplay",
           "description": "Normalized claimable_client_fee for display only (usd + crypto). Do not do arithmetic with these; use claimable_client_fee. Unset when a sub-org queries."
+        },
+        "clientFeeWallet": {
+          "type": "string",
+          "description": "The wallet address that receives the client's fee payouts on-chain. Unset when a sub-org queries."
         }
       }
     },
@@ -11359,6 +11490,10 @@
         "deliveryDelayType": {
           "type": "string",
           "description": "Delay type for DeliveryDelay events"
+        },
+        "complaintFeedbackType": {
+          "type": "string",
+          "description": "Feedback type for Complaint events"
         }
       }
     },
@@ -11599,7 +11734,7 @@
         },
         "gasStationNonce": {
           "type": "string",
-          "description": "The gas station delegate contract nonce. Only used when sponsor=true. Omit to auto-fetch."
+          "description": "The gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored transactions and non-sponsored multi-call batches. Omit to auto-fetch. Use the nonces endpoint for replay protection."
         },
         "calls": {
           "type": "array",
@@ -11720,6 +11855,86 @@
         "transfers"
       ]
     },
+    "v1EthUndelegate7702Intent": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "A wallet or private key address to undelegate. This does not support private key IDs."
+        },
+        "caip2": {
+          "type": "string",
+          "enum": [
+            "eip155:1",
+            "eip155:11155111",
+            "eip155:8453",
+            "eip155:84532",
+            "eip155:137",
+            "eip155:80002",
+            "eip155:56",
+            "eip155:97",
+            "eip155:10",
+            "eip155:11155420",
+            "eip155:143",
+            "eip155:10143",
+            "eip155:42161",
+            "eip155:421614"
+          ],
+          "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
+        },
+        "nonce": {
+          "type": "string",
+          "description": "Outer transaction nonce. Omit to auto-fetch."
+        },
+        "gasLimit": {
+          "type": "string",
+          "description": "Maximum amount of gas for the undelegation transaction. Omit to use the fixed undelegation gas limit."
+        },
+        "maxFeePerGas": {
+          "type": "string",
+          "description": "Maximum total fee per gas unit (base fee + priority fee) in wei. Omit to auto-estimate."
+        },
+        "maxPriorityFeePerGas": {
+          "type": "string",
+          "description": "Maximum priority fee (tip) per gas unit in wei. Omit to auto-estimate."
+        }
+      },
+      "required": ["from", "caip2"]
+    },
+    "v1EthUndelegate7702Request": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_ETH_UNDELEGATE_7702"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1EthUndelegate7702Intent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1EthUndelegate7702Result": {
+      "type": "object",
+      "properties": {
+        "sendTransactionStatusId": {
+          "type": "string",
+          "description": "The send_transaction_status ID associated with the undelegation transaction submission"
+        }
+      },
+      "required": ["sendTransactionStatusId"]
+    },
     "v1ExecuteSwapIntent": {
       "type": "object",
       "properties": {
@@ -11749,7 +11964,7 @@
         },
         "provider": {
           "type": "string",
-          "description": "Swap provider to execute with, as returned by get_swap_quote. When omitted, execution uses the default provider."
+          "description": "Swap provider to execute with, as returned by create_swap_quote. When omitted, execution uses the default provider."
         },
         "minOutputAmount": {
           "type": "string",
@@ -11764,12 +11979,66 @@
         "minOutputAmount"
       ]
     },
+    "v1ExecuteSwapIntentV2": {
+      "type": "object",
+      "properties": {
+        "quoteId": {
+          "type": "string",
+          "description": "Quote identifier returned by create_swap_quote. Execution is bound to this quote; the signer is derived from the quote and must not be resupplied."
+        },
+        "inputToken": {
+          "type": "string",
+          "description": "CAIP-19 asset ID for the input asset."
+        },
+        "inputAmount": {
+          "type": "string",
+          "description": "Exact base-unit amount of the input asset committed by the quote."
+        },
+        "outputToken": {
+          "type": "string",
+          "description": "CAIP-19 asset ID for the output asset."
+        },
+        "quotedOutputAmount": {
+          "type": "string",
+          "description": "Exact quoted base-unit output amount committed by the quote."
+        },
+        "minOutputAmount": {
+          "type": "string",
+          "description": "Exact minimum base-unit output committed by the quote."
+        },
+        "sponsor": {
+          "type": "boolean",
+          "description": "Whether the quoted transaction is sponsored."
+        },
+        "evmNonce": {
+          "type": "string",
+          "description": "Exact EVM sender (EOA account) nonce. Valid only for a non-sponsored EVM swap. Honored for already-delegated (Type-2) batch swaps and single-call swaps; ignored for not-yet-delegated EIP-7702 (Type-4) batches where the outer nonce is derived from the authorization. Prefer gas_station_nonce for batch replay protection and use the nonces endpoint to fetch it. Omit to auto-fetch."
+        },
+        "recentBlockhash": {
+          "type": "string",
+          "description": "Exact Solana recent blockhash. Valid only for a Solana swap, including sponsored swaps. Omit to auto-fetch."
+        },
+        "gasStationNonce": {
+          "type": "string",
+          "description": "Exact gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored EVM swaps and non-sponsored EVM swaps that execute as a multi-call batch (for example ERC-20 approve + swap). This is the replay-protection nonce for gas-station batches; use the nonces endpoint to fetch it. Omit to auto-fetch."
+        }
+      },
+      "required": [
+        "quoteId",
+        "inputToken",
+        "inputAmount",
+        "outputToken",
+        "quotedOutputAmount",
+        "minOutputAmount",
+        "sponsor"
+      ]
+    },
     "v1ExecuteSwapRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_EXECUTE_SWAP"]
+          "enum": ["ACTIVITY_TYPE_EXECUTE_SWAP_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -11780,7 +12049,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1ExecuteSwapIntent"
+          "$ref": "#/definitions/v1ExecuteSwapIntentV2"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -11791,9 +12060,9 @@
     "v1ExecuteSwapResult": {
       "type": "object",
       "properties": {
-        "sendTransactionStatusId": {
+        "swapRequestId": {
           "type": "string",
-          "description": "The send_transaction_status ID associated with the swap transaction submission"
+          "description": "Identifier to poll swap status via GetSwapStatus."
         },
         "provider": {
           "type": "string",
@@ -11804,7 +12073,7 @@
           "description": "Quote identifier used for execution, if any."
         }
       },
-      "required": ["sendTransactionStatusId"]
+      "required": ["swapRequestId"]
     },
     "v1ExportPrivateKeyIntent": {
       "type": "object",
@@ -12545,7 +12814,7 @@
         },
         "appName": {
           "type": "string",
-          "description": "Name of enclave app."
+          "description": "Unique identifier (UUID) of the enclave app."
         }
       },
       "required": ["organizationId", "appName"]
@@ -13110,68 +13379,6 @@
       },
       "required": ["organizationIds"]
     },
-    "v1GetSwapQuoteRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "inputToken": {
-          "type": "string",
-          "description": "CAIP-19 asset ID for the input asset. The chain is derived from this value."
-        },
-        "outputToken": {
-          "type": "string",
-          "description": "CAIP-19 asset ID for the output asset."
-        },
-        "inputAmount": {
-          "type": "string",
-          "description": "Base-unit amount of the input asset."
-        },
-        "walletAccount": {
-          "type": "string",
-          "description": "Wallet account address used to price the executable provider quote."
-        },
-        "slippage": {
-          "type": "string",
-          "description": "Maximum allowed slippage in basis points."
-        }
-      },
-      "required": [
-        "organizationId",
-        "inputToken",
-        "outputToken",
-        "inputAmount",
-        "walletAccount"
-      ]
-    },
-    "v1GetSwapQuoteResponse": {
-      "type": "object",
-      "properties": {
-        "inputToken": {
-          "type": "string",
-          "description": "CAIP-19 asset ID for the input asset."
-        },
-        "outputToken": {
-          "type": "string",
-          "description": "CAIP-19 asset ID for the output asset."
-        },
-        "inputAmount": {
-          "type": "string",
-          "description": "Base-unit amount of the input asset."
-        },
-        "quotes": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1SwapQuoteOption"
-          },
-          "description": "One quote per available swap provider."
-        }
-      },
-      "required": ["inputToken", "outputToken", "inputAmount", "quotes"]
-    },
     "v1GetSwapStatusRequest": {
       "type": "object",
       "properties": {
@@ -13179,12 +13386,12 @@
           "type": "string",
           "description": "Unique identifier for a given Organization."
         },
-        "sendTransactionStatusId": {
+        "swapRequestId": {
           "type": "string",
-          "description": "Identifier returned in the execute_swap activity result."
+          "description": "The swap_request_id returned by ExecuteSwap."
         }
       },
-      "required": ["organizationId", "sendTransactionStatusId"]
+      "required": ["organizationId", "swapRequestId"]
     },
     "v1GetSwapStatusResponse": {
       "type": "object",
@@ -13217,38 +13424,34 @@
           "type": "string",
           "description": "Final included origin-chain transaction hash, when known."
         },
-        "destinationTxHash": {
-          "type": "string",
-          "description": "Destination-chain fill transaction hash; cross-chain COMPLETED only."
+        "destinationTxHashes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Provider-reported destination-chain transaction hashes; cross-chain COMPLETED only."
         },
         "outputAmount": {
           "type": "string",
-          "description": "Actual base-unit output amount on COMPLETED, when known."
+          "description": "Actual base-unit output amount on COMPLETED, when known. Unset on FAILED."
         },
-        "settledAsset": {
-          "type": "string",
-          "description": "CAIP-19 of the asset the user holds after a FAILED swap, when recoverable."
-        },
-        "settledAmount": {
-          "type": "string",
-          "description": "Base-unit amount of settled_asset."
-        },
-        "settlementTxHash": {
-          "type": "string",
-          "description": "Transaction that delivered the settled funds, when applicable."
-        },
-        "providerStatus": {
-          "type": "string",
-          "description": "Non-normative raw provider status passthrough; cross-chain only."
+        "refund": {
+          "$ref": "#/definitions/v1SwapRefund",
+          "description": "Asset and amount returned to the user after a failed swap, when recoverable. Present only on FAILED."
         },
         "updatedAt": {
           "type": "string",
           "description": "Timestamp of the last swap status change, as millisecond epoch string."
+        },
+        "error": {
+          "$ref": "#/definitions/v1SwapError",
+          "description": "Normalized failure details, present whenever status is FAILED."
         }
       },
       "required": [
         "status",
         "swapKind",
+        "provider",
         "inputToken",
         "outputToken",
         "inputAmount",
@@ -13603,6 +13806,7 @@
             "eip155:42161",
             "eip155:4217",
             "eip155:42431",
+            "eip155:421614",
             "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
             "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
           ],
@@ -15056,6 +15260,18 @@
         },
         "claimEarnFeesIntent": {
           "$ref": "#/definitions/v1ClaimEarnFeesIntent"
+        },
+        "updateWalletAccountNameIntent": {
+          "$ref": "#/definitions/v1UpdateWalletAccountNameIntent"
+        },
+        "ethUndelegate7702Intent": {
+          "$ref": "#/definitions/v1EthUndelegate7702Intent"
+        },
+        "executeSwapIntentV2": {
+          "$ref": "#/definitions/v1ExecuteSwapIntentV2"
+        },
+        "createSwapQuoteIntent": {
+          "$ref": "#/definitions/v1CreateSwapQuoteIntent"
         }
       }
     },
@@ -15306,7 +15522,11 @@
             "type": "object",
             "$ref": "#/definitions/v1EarnVault"
           },
-          "description": "The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor."
+          "description": "The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass page_info.end_cursor as the pagination after cursor."
+        },
+        "pageInfo": {
+          "$ref": "#/definitions/v1PageInfo",
+          "description": "Pagination metadata for the returned page. Pass end_cursor as the next request's after cursor (or start_cursor as the before cursor) to page through the catalog. Cursors are opaque; do not parse them."
         }
       }
     },
@@ -15541,7 +15761,8 @@
             "eip155:42161",
             "eip155:4217",
             "eip155:42431",
-            "eip155:421614solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+            "eip155:421614",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
             "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values."
@@ -16359,8 +16580,26 @@
         "OUTCOME_REQUIRES_CONSENSUS",
         "OUTCOME_REJECTED",
         "OUTCOME_ERROR",
-        "OUTCOME_REQUIRES_AUTHENTICATORS"
+        "OUTCOME_REQUIRES_AUTHENTICATORS",
+        "OUTCOME_TIME_INACTIVE"
       ]
+    },
+    "v1PageInfo": {
+      "type": "object",
+      "properties": {
+        "hasNextPage": {
+          "type": "boolean"
+        },
+        "hasPreviousPage": {
+          "type": "boolean"
+        },
+        "startCursor": {
+          "type": "string"
+        },
+        "endCursor": {
+          "type": "string"
+        }
+      }
     },
     "v1Pagination": {
       "type": "object",
@@ -16424,6 +16663,10 @@
         "condition": {
           "type": "string",
           "description": "A condition expression that evalutes to true or false."
+        },
+        "time": {
+          "type": "string",
+          "description": "A time expression that evalutes to true or false."
         }
       },
       "required": [
@@ -17367,6 +17610,15 @@
         },
         "claimEarnFeesResult": {
           "$ref": "#/definitions/v1ClaimEarnFeesResult"
+        },
+        "updateWalletAccountNameResult": {
+          "$ref": "#/definitions/v1UpdateWalletAccountNameResult"
+        },
+        "ethUndelegate7702Result": {
+          "$ref": "#/definitions/v1EthUndelegate7702Result"
+        },
+        "createSwapQuoteResult": {
+          "$ref": "#/definitions/v1CreateSwapQuoteResult"
         }
       }
     },
@@ -18930,16 +19182,34 @@
       },
       "required": ["session"]
     },
-    "v1SwapQuoteOption": {
+    "v1SwapError": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "description": "Stable machine-readable failure reason. One of ORIGIN_TRANSACTION_FAILED or PROVIDER_FILL_FAILED."
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable description of the swap failure."
+        },
+        "originTxError": {
+          "$ref": "#/definitions/v1TxError",
+          "description": "Origin-chain transaction failure details, present when reason is ORIGIN_TRANSACTION_FAILED and details are available."
+        }
+      },
+      "required": ["reason", "message"]
+    },
+    "v1SwapQuote": {
       "type": "object",
       "properties": {
         "quoteId": {
           "type": "string",
-          "description": "Identifier for this provider quote."
+          "description": "Identifier for this provider quote. Pass this value to execute_swap_v2 to bind execution to this exact quote. The signer is derived from the quote; clients do not resupply sign_with on execute."
         },
         "provider": {
           "type": "string",
-          "description": "Swap provider that produced this quote. Pass this value to execute_swap to force a specific provider."
+          "description": "Swap provider that produced this quote."
         },
         "outputAmount": {
           "type": "string",
@@ -18948,9 +19218,50 @@
         "minOutputAmount": {
           "type": "string",
           "description": "Minimum acceptable base-unit amount of the output asset after slippage."
+        },
+        "expiresAt": {
+          "type": "string",
+          "description": "Quote expiration as a millisecond epoch string."
+        },
+        "slippageBps": {
+          "type": "string",
+          "description": "Provider-neutral maximum allowed slippage in basis points, echoed from the quote request when set."
+        },
+        "clientFeeBps": {
+          "type": "string",
+          "description": "Client fee in basis points applied for this pair. Informational only; already reflected in output_amount and min_output_amount."
+        },
+        "estimatedTimeSeconds": {
+          "type": "string",
+          "description": "Provider-estimated completion time in seconds, when available."
         }
       },
-      "required": ["quoteId", "provider", "outputAmount"]
+      "required": [
+        "quoteId",
+        "provider",
+        "outputAmount",
+        "minOutputAmount",
+        "expiresAt",
+        "clientFeeBps"
+      ]
+    },
+    "v1SwapRefund": {
+      "type": "object",
+      "properties": {
+        "asset": {
+          "type": "string",
+          "description": "CAIP-19 asset returned to the user after a failed swap."
+        },
+        "amount": {
+          "type": "string",
+          "description": "Base-unit amount of the refunded asset."
+        },
+        "txHash": {
+          "type": "string",
+          "description": "Transaction that delivered the refunded funds, when applicable."
+        }
+      },
+      "required": ["asset", "amount"]
     },
     "v1TagType": {
       "type": "string",
@@ -20003,6 +20314,10 @@
         "policyNotes": {
           "type": "string",
           "description": "Accompanying notes for a Policy (optional)."
+        },
+        "time": {
+          "type": "string",
+          "description": "The time expression that triggers the Effect (optional)."
         }
       },
       "required": ["policyId"]
@@ -20472,6 +20787,30 @@
       },
       "required": ["userTagId"]
     },
+    "v1UpdateWalletAccountNameIntent": {
+      "type": "object",
+      "properties": {
+        "walletAccountId": {
+          "type": "string",
+          "description": "Unique identifier for a given Wallet Account."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for this Wallet Account."
+        }
+      },
+      "required": ["walletAccountId", "name"]
+    },
+    "v1UpdateWalletAccountNameResult": {
+      "type": "object",
+      "properties": {
+        "walletAccountId": {
+          "type": "string",
+          "description": "Unique identifier for a given Wallet Account."
+        }
+      },
+      "required": ["walletAccountId"]
+    },
     "v1UpdateWalletIntent": {
       "type": "object",
       "properties": {
@@ -20630,12 +20969,9 @@
           "type": "string",
           "description": "Client fee in basis points applied to swaps; used for all pairs unless stable_fee_bps is set."
         },
-        "provider": {
-          "type": "string"
-        },
         "stableFeeBps": {
           "type": "string",
-          "description": "Optional override applied when both swap assets are stablecoins; falls back to fee_bps when unset."
+          "description": "Optional Enterprise-only override applied when both swap assets are stablecoins; falls back to fee_bps when unset. Non-Enterprise orgs may only set fee_bps."
         }
       }
     },

@@ -1500,52 +1500,6 @@ export const signGetSmartContractInterface = (
   });
 
 /**
- * `POST /public/v1/query/get_swap_quote`
- */
-export type TGetSwapQuoteResponse =
-  operations["PublicApiService_GetSwapQuote"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/get_swap_quote`
- */
-export type TGetSwapQuoteInput = { body: TGetSwapQuoteBody };
-
-/**
- * `POST /public/v1/query/get_swap_quote`
- */
-export type TGetSwapQuoteBody =
-  operations["PublicApiService_GetSwapQuote"]["parameters"]["body"]["body"];
-
-/**
- * Get swap quote
- *
- * Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
- *
- * `POST /public/v1/query/get_swap_quote`
- */
-export const getSwapQuote = (input: TGetSwapQuoteInput) =>
-  request<TGetSwapQuoteResponse, TGetSwapQuoteBody, never, never, never>({
-    uri: "/public/v1/query/get_swap_quote",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetSwapQuote` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetSwapQuote}
- */
-export const signGetSwapQuote = (
-  input: TGetSwapQuoteInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetSwapQuoteBody, never, never>({
-    uri: "/public/v1/query/get_swap_quote",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/query/get_swap_status`
  */
 export type TGetSwapStatusResponse =
@@ -1565,7 +1519,7 @@ export type TGetSwapStatusBody =
 /**
  * Get swap status
  *
- * Get the status of a swap by the send_transaction_status_id returned from execute_swap. Covers same-chain and cross-chain swaps.
+ * Poll the status of a swap by its swap_request_id. Covers same-chain and cross-chain swaps.
  *
  * `POST /public/v1/query/get_swap_status`
  */
@@ -4308,6 +4262,52 @@ export const signCreateSubOrganization = (
   });
 
 /**
+ * `POST /public/v1/submit/create_swap_quote`
+ */
+export type TCreateSwapQuoteResponse =
+  operations["PublicApiService_CreateSwapQuote"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_swap_quote`
+ */
+export type TCreateSwapQuoteInput = { body: TCreateSwapQuoteBody };
+
+/**
+ * `POST /public/v1/submit/create_swap_quote`
+ */
+export type TCreateSwapQuoteBody =
+  operations["PublicApiService_CreateSwapQuote"]["parameters"]["body"]["body"];
+
+/**
+ * Get swap quote
+ *
+ * Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
+ *
+ * `POST /public/v1/submit/create_swap_quote`
+ */
+export const createSwapQuote = (input: TCreateSwapQuoteInput) =>
+  request<TCreateSwapQuoteResponse, TCreateSwapQuoteBody, never, never, never>({
+    uri: "/public/v1/submit/create_swap_quote",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateSwapQuote` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateSwapQuote}
+ */
+export const signCreateSwapQuote = (
+  input: TCreateSwapQuoteInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateSwapQuoteBody, never, never>({
+    uri: "/public/v1/submit/create_swap_quote",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/create_tvc_app`
  */
 export type TCreateTvcAppResponse =
@@ -6166,6 +6166,58 @@ export const signEthSendTransaction = (
   });
 
 /**
+ * `POST /public/v1/submit/eth_undelegate_7702`
+ */
+export type TEthUndelegate7702Response =
+  operations["PublicApiService_EthUndelegate7702"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/eth_undelegate_7702`
+ */
+export type TEthUndelegate7702Input = { body: TEthUndelegate7702Body };
+
+/**
+ * `POST /public/v1/submit/eth_undelegate_7702`
+ */
+export type TEthUndelegate7702Body =
+  operations["PublicApiService_EthUndelegate7702"]["parameters"]["body"]["body"];
+
+/**
+ * Undelegate an EVM account
+ *
+ * Submit an EIP-7702 undelegation transaction.
+ *
+ * `POST /public/v1/submit/eth_undelegate_7702`
+ */
+export const ethUndelegate7702 = (input: TEthUndelegate7702Input) =>
+  request<
+    TEthUndelegate7702Response,
+    TEthUndelegate7702Body,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/eth_undelegate_7702",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `EthUndelegate7702` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link EthUndelegate7702}
+ */
+export const signEthUndelegate7702 = (
+  input: TEthUndelegate7702Input,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TEthUndelegate7702Body, never, never>({
+    uri: "/public/v1/submit/eth_undelegate_7702",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/execute_swap`
  */
 export type TExecuteSwapResponse =
@@ -6185,7 +6237,7 @@ export type TExecuteSwapBody =
 /**
  * Execute swap
  *
- * Execute a quoted swap through the activity pipeline and Turnkey broadcasting.
+ * Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2.
  *
  * `POST /public/v1/submit/execute_swap`
  */
