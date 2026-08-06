@@ -1,1 +1,1 @@
-export const VERSION = "@turnkey/eip-1193-provider@3.4.33";
+export const VERSION = "@turnkey/eip-1193-provider@3.4.34";
