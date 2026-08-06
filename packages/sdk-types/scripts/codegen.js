@@ -133,6 +133,16 @@ const API_TYPE_OVERRIDES = [
     intentType: "v1EthSendTransactionIntentV2",
     resultType: "v1EthSendTransactionResultV2",
   },
+  {
+    name: "SolSendTransaction",
+    intentType: "v1SolSendTransactionIntent",
+    resultType: "v1SolSendTransactionResult",
+  },
+  {
+    name: "SolSendTransactionV2",
+    intentType: "v1SolSendTransactionIntentV2",
+    resultType: "v1SolSendTransactionResultV2",
+  },
 ];
 
 const OVERRIDDEN_API_TYPE_NAMES = new Set(
@@ -405,7 +415,14 @@ function generateApiTypes(swagger, prefix = "") {
       continue;
     }
 
-    const methodType = methodTypeFromMethodName(methodName);
+    let methodType = methodTypeFromMethodName(methodName);
+    // Earn read endpoints live under /query/ but aren't named
+    // get/list/test/validate (e.g. earnVaults, earnPositions), so the
+    // name-based heuristic misclassifies them as submit activities. Pin them
+    // to "query" by path.
+    if (path.includes("/query/earn_")) {
+      methodType = "query";
+    }
 
     // Get response schema $ref
     const responseSchema =

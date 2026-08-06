@@ -137,7 +137,7 @@ async function main() {
     .solSendTransaction({
       organizationId,
       unsignedTransaction,
-      signWith: senderAddress.toBase58(),
+      signWiths: [senderAddress.toBase58()],
       caip2: network.caip2,
       sponsor: true,
     });

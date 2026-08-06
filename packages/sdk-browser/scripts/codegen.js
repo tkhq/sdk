@@ -40,6 +40,7 @@ const VERSIONED_ACTIVITY_TYPES = {
   ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS:
     "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
   ACTIVITY_TYPE_ETH_SEND_TRANSACTION: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
+  ACTIVITY_TYPE_SOL_SEND_TRANSACTION: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
 };
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
@@ -162,7 +163,14 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
       operationNameWithoutNamespace.slice(1)
     }`;
 
-    const methodType = methodTypeFromMethodName(methodName);
+    let methodType = methodTypeFromMethodName(methodName);
+    // Earn read endpoints live under /query/ but aren't named
+    // get/list/test/validate (e.g. earnVaults, earnPositions), so the
+    // name-based heuristic misclassifies them as commands. Pin them to
+    // "query" by path.
+    if (endpointPath.includes("/query/earn_")) {
+      methodType = "query";
+    }
 
     const parameterList = operation["parameters"] ?? [];
 
@@ -418,7 +426,14 @@ export class TurnkeySDKClientBase {
       operationNameWithoutNamespace.slice(1)
     }`;
 
-    const methodType = methodTypeFromMethodName(methodName);
+    let methodType = methodTypeFromMethodName(methodName);
+    // Earn read endpoints live under /query/ but aren't named
+    // get/list/test/validate (e.g. earnVaults, earnPositions), so the
+    // name-based heuristic misclassifies them as commands. Pin them to
+    // "query" by path.
+    if (endpointPath.includes("/query/earn_")) {
+      methodType = "query";
+    }
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 

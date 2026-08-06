@@ -7,6 +7,7 @@ import {
 export const OAUTH_INTENT_ADD_PROVIDER = "addProvider";
 export const OAUTH_ADD_PROVIDER_METADATA_KEY = "oauth_add_provider_metadata";
 export const OAUTH_STATE_KEY = "oauth_state";
+export const OAUTH_CAPTCHA_TOKEN_KEY = "oauth_captcha_token";
 
 export type OAuthAddProviderMetadata = {
   organizationId: string;
@@ -100,6 +101,23 @@ export function hasPKCEVerifier(provider: PKCEProvider): boolean {
 }
 
 /**
+ * Stores the captcha token for an in-page OAuth redirect.
+ */
+export function storeOAuthCaptchaToken(token: string): void {
+  localStorage.setItem(OAUTH_CAPTCHA_TOKEN_KEY, token);
+}
+
+/**
+ * Retrieves and removes the captcha token stored for an OAuth redirect.
+ * @returns The captcha token, or null if none was stored
+ */
+export function consumeOAuthCaptchaToken(): string | null {
+  const token = localStorage.getItem(OAUTH_CAPTCHA_TOKEN_KEY);
+  localStorage.removeItem(OAUTH_CAPTCHA_TOKEN_KEY);
+  return token;
+}
+
+/**
  * Stores the OAuth state string in local storage for later validation
  * @param state - The OAuth state string to store
  */
@@ -139,6 +157,7 @@ export function consumeOAuthState(returnedState: string) {
 export function clearAllOAuthData(): void {
   localStorage.removeItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
   localStorage.removeItem(OAUTH_STATE_KEY);
+  localStorage.removeItem(OAUTH_CAPTCHA_TOKEN_KEY);
   const pkceProviders: PKCEProvider[] = [
     OAuthProviders.FACEBOOK,
     OAuthProviders.DISCORD,

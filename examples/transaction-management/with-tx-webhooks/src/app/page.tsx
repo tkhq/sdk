@@ -326,8 +326,15 @@ export default function Page() {
 
   return (
     <main className="page">
+      <header className="app-header">
+        <div className="brand">
+          <img src="/turnkey-wordmark.svg" alt="Turnkey" />
+        </div>
+        <span className="eyebrow">Webhooks Example</span>
+      </header>
+
       <section className="panel">
-        <h1>Turnkey Webhook Feeds</h1>
+        <h1>Webhook Feeds</h1>
         <p className="subtitle">
           Fetches balances with Turnkey{" "}
           <code>getWalletAddressBalances (getBalances)</code> and listens for
@@ -439,6 +446,13 @@ export default function Page() {
       <BalanceFeed onWebhookEvent={maybeRefreshBalancesForWebhook} />
 
       <TxStatusFeed />
+
+      <footer className="app-footer">
+        <span className="secured-by">
+          <span className="mark" aria-hidden="true" />
+          Secured by Turnkey
+        </span>
+      </footer>
     </main>
   );
 }

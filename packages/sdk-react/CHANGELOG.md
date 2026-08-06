@@ -1,5 +1,40 @@
 # @turnkey/sdk-react
 
+## 6.0.5
+
+### Patch Changes
+
+- Updated dependencies [[`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47)]:
+  - @turnkey/sdk-browser@8.1.0
+  - @turnkey/sdk-server@8.1.0
+  - @turnkey/sdk-types@1.4.0
+  - @turnkey/crypto@2.11.1
+  - @turnkey/wallet-stamper@1.1.22
+
+## 6.0.4
+
+### Patch Changes
+
+- [#1460](https://github.com/tkhq/sdk/pull/1460) [`853dfc1`](https://github.com/tkhq/sdk/commit/853dfc14e6f232aa7797683c4f6e5ed92fd76a0b) Author [@mssabr01](https://github.com/mssabr01) - bumped nextjs and removed some unncessary overrides
+
+- Updated dependencies [[`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0), [`de5e169`](https://github.com/tkhq/sdk/commit/de5e1692ab79c18d898326e76777fa7ea54df812), [`b447497`](https://github.com/tkhq/sdk/commit/b447497e965b0b1df02d2294e87f89cedb761719), [`c9a13f6`](https://github.com/tkhq/sdk/commit/c9a13f65092e9a7cddc0716206331db9a8b614d2)]:
+  - @turnkey/sdk-types@1.3.0
+  - @turnkey/sdk-browser@8.0.0
+  - @turnkey/sdk-server@8.0.0
+  - @turnkey/crypto@2.11.0
+  - @turnkey/wallet-stamper@1.1.21
+
+## 6.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f), [`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f)]:
+  - @turnkey/sdk-browser@7.0.0
+  - @turnkey/sdk-server@7.0.0
+  - @turnkey/sdk-types@1.2.0
+  - @turnkey/wallet-stamper@1.1.20
+  - @turnkey/crypto@2.10.1
+
 ## 6.0.2
 
 ### Patch Changes

@@ -1,5 +1,88 @@
 # @turnkey/sdk-types
 
+## 1.4.0
+
+### Minor Changes
+
+- [#1475](https://github.com/tkhq/sdk/pull/1475) [`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47) Thanks [@moe-dev](https://github.com/moe-dev)! - Sync generated API clients and types with the latest public API swagger.
+
+  ### New query endpoints
+  - `getClaimEarnFeesStatus` (`POST /public/v1/query/get_claim_earn_fees_status`) — poll Earn fee-claim status by the `claimRequestId` returned from `ClaimEarnFees`. Response status is `PENDING` | `COMPLETED` | `FAILED`, with optional `claimTxHash` / `error`.
+  - `getSwapStatus` (`POST /public/v1/query/get_swap_status`) — poll swap status by the `swapRequestId` returned from `ExecuteSwap`. Covers same-chain and cross-chain swaps, and returns provider, input/output tokens and amounts, origin/destination tx hashes, optional refund info on failure, and normalized error details.
+
+  ### New submit endpoints / activities
+  - `claimSwapFees` (`POST /public/v1/submit/claim_swap_fees`, `ACTIVITY_TYPE_CLAIM_SWAP_FEES`) — claim swap fees through the activity pipeline; result includes a Relay `requestId`.
+  - `ethUndelegate7702` (`POST /public/v1/submit/eth_undelegate_7702`, `ACTIVITY_TYPE_ETH_UNDELEGATE_7702`) — submit an EIP-7702 undelegation for a wallet/private-key address on a supported CAIP-2 chain. Optional nonce / gas / fee fields; result returns a `sendTransactionStatusId` for polling.
+  - `upsertSwapConfig` (`POST /public/v1/submit/upsert_swap_config`, `ACTIVITY_TYPE_UPSERT_SWAP_CONFIG`) — enable or update org swap config (`feeReceiverWalletAddress`, `feeBps`, and Enterprise-only `stableFeeBps` for stablecoin pairs).
+  - `createSwapQuote` (`ACTIVITY_TYPE_CREATE_SWAP_QUOTE`) — request provider quotes for a swap (`signWith`, CAIP-19 `inputToken` / `outputToken`, `inputAmount`, optional `slippageBps`). Returns one or more `v1SwapQuote` values; pass `quoteId` into execute-swap v2.
+
+  ### Related activity / type updates
+  - `ACTIVITY_TYPE_EXECUTE_SWAP_V2` / `v1ExecuteSwapIntentV2` — quote-bound swap execution. Takes `quoteId` plus the exact quoted amounts (`inputAmount`, `quotedOutputAmount`, `minOutputAmount`, `sponsor`), with optional `evmNonce` / `recentBlockhash` / `gasStationNonce`. Signer is derived from the quote and must not be resupplied. Result still exposes `swapRequestId` for `getSwapStatus`.
+  - `ACTIVITY_TYPE_UPDATE_WALLET_ACCOUNT_NAME` / `v1UpdateWalletAccountNameIntent` — rename a wallet account by `walletAccountId`.
+  - Supporting swap types: `v1SwapQuote`, `v1SwapError`, `v1SwapRefund`.
+  - CAIP-2 enums used by transaction intents (including undelegation) now include `eip155:143`.
+
+  These surfaces are generated into `@turnkey/http`, `@turnkey/sdk-types`, `@turnkey/sdk-browser`, `@turnkey/sdk-server`, and `@turnkey/core`.
+
+## 1.3.0
+
+### Minor Changes
+
+- [#1448](https://github.com/tkhq/sdk/pull/1448) [`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Add Solana send-transaction v2 intent and result types. The new intent uses an ordered `signWiths` array and a hex-encoded full unsigned transaction.
+
+  **Before:**
+
+  ```ts
+  const intent: v1SolSendTransactionIntent = {
+    unsignedTransaction: unsignedTransactionBase64,
+    signWith: signerAddress,
+    caip2,
+    sponsor,
+  };
+  ```
+
+  **After:**
+
+  ```ts
+  const intent: v1SolSendTransactionIntentV2 = {
+    unsignedTransaction: unsignedTransactionHex,
+    signWiths: [signerAddress],
+    caip2,
+    sponsor,
+  };
+  ```
+
+- [#1452](https://github.com/tkhq/sdk/pull/1452) [`b447497`](https://github.com/tkhq/sdk/commit/b447497e965b0b1df02d2294e87f89cedb761719) Author [@ericvelazquez](https://github.com/ericvelazquez) - Add Turnkey Earn APIs (early access) to the high-level SDK clients: `earnVaults`, `earnEnabledVaults`, `earnPositions`, `earnDeposit`, `earnDepositStatus`, `earnWithdraw`, `earnWithdrawStatus`, `earnDeployWrapper`, and `earnDeployStatus`.
+
+  The Earn read endpoints live under `/query/` but aren't named `get`/`list`/`test`/`validate`, so each package's codegen pins `/query/earn_*` to query methods by path. `@turnkey/http` gains the previously-missing `earnDeployStatus` so its generated Earn surface matches the other packages.
+
+## 1.2.0
+
+### Minor Changes
+
+- [#1433](https://github.com/tkhq/sdk/pull/1433) [`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f) Author [@amircheikh](https://github.com/amircheikh) - - Synced with Mono v2026.7.3
+  - Added version-specific types for `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2`, which supports batching multiple eth calls together via the new `calls` array.
+
+    ```ts
+    // V1 (unchanged) — single call, top-level fields
+    type v1EthSendTransactionIntent = {
+      from: string;
+      caip2: string;
+      to: string;
+      value?: string;
+      data?: string;
+      // ...
+    };
+
+    // V2 (new) — one or more calls in a `calls` array
+    type v1EthSendTransactionIntentV2 = {
+      from: string;
+      caip2: string;
+      calls: v1EthCallParams[]; // [{ to, value?, data? }]
+      // ...
+    };
+    ```
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,0 +1,170 @@
+/* @import MUST precede @font-face per CSS spec; loads upright Inter. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+@font-face {
+  font-family: "ABC Favorit";
+  src: url("/fonts/ABCFavorit-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "ABC Favorit";
+  src: url("/fonts/ABCFavorit-RegularItalic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("/fonts/RobotoMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Core */
+  --tk-white: #ffffff;
+  --tk-black: #111111;
+  --tk-purple: #4c48ff;
+
+  /* Brand gradient stops */
+  --tk-grad-1: #4c48ff;
+  --tk-grad-2: #f8a9d8;
+  --tk-grad-3: #ffdcd1;
+
+  /* Neutral scale */
+  --tk-neutral-0: #ffffff;
+  --tk-neutral-50: #fafafa;
+  --tk-neutral-100: #f4f4f4;
+  --tk-neutral-200: #ececec;
+  --tk-neutral-300: #d6d6d6;
+  --tk-neutral-400: #a8a8a8;
+  --tk-neutral-500: #7a7a7a;
+  --tk-neutral-600: #525252;
+  --tk-neutral-700: #2e2e2e;
+  --tk-neutral-800: #1a1a1a;
+  --tk-neutral-900: #111111;
+
+  /* Purple scale */
+  --tk-purple-50: #eeedff;
+  --tk-purple-100: #dcdaff;
+  --tk-purple-200: #b8b4ff;
+  --tk-purple-300: #948eff;
+  --tk-purple-400: #7068ff;
+  --tk-purple-500: #4c48ff;
+  --tk-purple-600: #3d3acc;
+  --tk-purple-700: #2d2b99;
+  --tk-purple-800: #1e1d66;
+  --tk-purple-900: #0f0e33;
+
+  /* Semantic — status */
+  --tk-success: #17b26a;
+  --tk-warning: #f79009;
+  --tk-danger: #f04438;
+  --tk-info: #4c48ff;
+
+  --tk-success-50: #ecfdf3;
+  --tk-success-500: #17b26a;
+  --tk-success-700: #067647;
+  --tk-warning-50: #fffaeb;
+  --tk-warning-500: #f79009;
+  --tk-warning-700: #b54708;
+  --tk-danger-50: #fef3f2;
+  --tk-danger-500: #f04438;
+  --tk-danger-700: #b42318;
+
+  /* Surfaces — light theme */
+  --tk-bg: var(--tk-white);
+  --tk-bg-muted: var(--tk-neutral-50);
+  --tk-bg-sunken: var(--tk-neutral-100);
+  --tk-surface: var(--tk-white);
+  --tk-overlay: rgba(17, 17, 17, 0.6);
+
+  /* Foreground */
+  --tk-fg: var(--tk-black);
+  --tk-fg-muted: var(--tk-neutral-600);
+  --tk-fg-subtle: var(--tk-neutral-500);
+  --tk-fg-inverse: var(--tk-white);
+  --tk-fg-accent: var(--tk-purple);
+
+  /* Borders */
+  --tk-border: var(--tk-neutral-200);
+  --tk-border-strong: var(--tk-neutral-300);
+  --tk-border-focus: var(--tk-purple);
+
+  /* Brand gradient (composed) */
+  --tk-gradient: linear-gradient(
+    135deg,
+    var(--tk-grad-1) 0%,
+    var(--tk-grad-2) 55%,
+    var(--tk-grad-3) 100%
+  );
+  --tk-gradient-radial: radial-gradient(
+    60% 60% at 50% 40%,
+    rgba(76, 72, 255, 0.55) 0%,
+    rgba(248, 169, 216, 0.25) 45%,
+    rgba(255, 220, 209, 0) 100%
+  );
+
+  /* Spacing — 4px base */
+  --tk-space-1: 4px;
+  --tk-space-2: 8px;
+  --tk-space-3: 12px;
+  --tk-space-4: 16px;
+  --tk-space-5: 20px;
+  --tk-space-6: 24px;
+  --tk-space-8: 32px;
+  --tk-space-10: 40px;
+  --tk-space-12: 48px;
+  --tk-space-16: 64px;
+  --tk-space-20: 80px;
+
+  /* Radius */
+  --tk-radius-xs: 4px;
+  --tk-radius-sm: 6px;
+  --tk-radius-md: 10px;
+  --tk-radius-lg: 14px;
+  --tk-radius-xl: 20px;
+  --tk-radius-2xl: 28px;
+  --tk-radius-pill: 999px;
+
+  /* Shadow */
+  --tk-shadow-xs: 0 1px 2px rgba(17, 17, 17, 0.04);
+  --tk-shadow-sm:
+    0 1px 2px rgba(17, 17, 17, 0.06), 0 1px 3px rgba(17, 17, 17, 0.04);
+  --tk-shadow-md:
+    0 4px 8px -2px rgba(17, 17, 17, 0.08), 0 2px 4px -2px rgba(17, 17, 17, 0.04);
+  --tk-shadow-lg:
+    0 12px 24px -6px rgba(17, 17, 17, 0.1),
+    0 4px 8px -4px rgba(17, 17, 17, 0.06);
+  --tk-shadow-xl: 0 24px 48px -12px rgba(17, 17, 17, 0.18);
+  --tk-shadow-glow:
+    0 0 0 1px rgba(76, 72, 255, 0.25), 0 8px 32px -8px rgba(76, 72, 255, 0.45);
+
+  /* Motion */
+  --tk-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --tk-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --tk-dur-1: 120ms;
+  --tk-dur-2: 200ms;
+  --tk-dur-3: 320ms;
+
+  /* Families */
+  --tk-font-display:
+    "ABC Favorit", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --tk-font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --tk-font-mono:
+    "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Weights */
+  --tk-w-regular: 400;
+  --tk-w-medium: 500;
+  --tk-w-semi: 600;
+  --tk-w-bold: 700;
+
+  /* Tracking */
+  --tk-tracking-tight: -0.02em;
+  --tk-tracking-snug: -0.01em;
+  --tk-tracking-eyebrow: 0.08em;
+}

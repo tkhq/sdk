@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/core",
-  "version": "2.2.0",
+  "version": "2.5.0",
   "description": "A core JavaScript web and React Native package for interfacing with Turnkey's infrastructure.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -49,7 +49,7 @@
     "cross-fetch": "^3.1.5",
     "ethers": "^6.10.0",
     "jwt-decode": "4.0.0",
-    "uuid": "^11.1.0",
+    "uuid": "^11.1.1",
     "viem": "^2.33.1"
   },
   "devDependencies": {

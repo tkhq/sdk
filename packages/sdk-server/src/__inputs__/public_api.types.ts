@@ -4,26 +4,6 @@
  */
 
 export type paths = {
-  "/public/v1/query/earn_deposit_status": {
-    /** Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path). */
-    post: operations["PublicApiService_EarnDepositStatus"];
-  };
-  "/public/v1/query/earn_enabled_vaults": {
-    /** Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions. */
-    post: operations["PublicApiService_EarnEnabledVaults"];
-  };
-  "/public/v1/query/earn_positions": {
-    /** Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees. */
-    post: operations["PublicApiService_EarnPositions"];
-  };
-  "/public/v1/query/earn_vaults": {
-    /** Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled. */
-    post: operations["PublicApiService_EarnVaults"];
-  };
-  "/public/v1/query/earn_withdraw_status": {
-    /** Poll the status of a withdrawal by its withdraw_request_id. */
-    post: operations["PublicApiService_EarnWithdrawStatus"];
-  };
   "/public/v1/query/get_activity": {
     /** Get details about an activity. */
     post: operations["PublicApiService_GetActivity"];
@@ -51,6 +31,22 @@ export type paths = {
   "/public/v1/query/get_boot_proof": {
     /** Get the boot proof for a given ephemeral key. */
     post: operations["PublicApiService_GetBootProof"];
+  };
+  "/public/v1/query/get_claim_earn_fees_status": {
+    /** Poll the status of a fee claim by its claim_request_id. */
+    post: operations["PublicApiService_GetClaimEarnFeesStatus"];
+  };
+  "/public/v1/query/get_earn_deploy_status": {
+    /** Poll the status of a wrapper deployment by its deploy_request_id. */
+    post: operations["PublicApiService_GetEarnDeployStatus"];
+  };
+  "/public/v1/query/get_earn_deposit_status": {
+    /** Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path). */
+    post: operations["PublicApiService_GetEarnDepositStatus"];
+  };
+  "/public/v1/query/get_earn_withdraw_status": {
+    /** Poll the status of a withdrawal by its withdraw_request_id. */
+    post: operations["PublicApiService_GetEarnWithdrawStatus"];
   };
   "/public/v1/query/get_gas_usage": {
     /** Get gas usage and gas limits for either the parent organization or a sub-organization. */
@@ -128,12 +124,8 @@ export type paths = {
     /** Get details about a smart contract interface. */
     post: operations["PublicApiService_GetSmartContractInterface"];
   };
-  "/public/v1/query/get_swap_quote": {
-    /** Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
-    post: operations["PublicApiService_GetSwapQuote"];
-  };
   "/public/v1/query/get_swap_status": {
-    /** Get the status of a swap by the send_transaction_status_id returned from execute_swap. Covers same-chain and cross-chain swaps. */
+    /** Poll the status of a swap by its swap_request_id. Covers same-chain and cross-chain swaps. */
     post: operations["PublicApiService_GetSwapStatus"];
   };
   "/public/v1/query/get_tvc_app": {
@@ -176,9 +168,25 @@ export type paths = {
     /** List the App Proofs for the given activity. */
     post: operations["PublicApiService_GetAppProofs"];
   };
+  "/public/v1/query/list_earn_enabled_vaults": {
+    /** Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions. */
+    post: operations["PublicApiService_ListEarnEnabledVaults"];
+  };
+  "/public/v1/query/list_earn_positions": {
+    /** Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees. */
+    post: operations["PublicApiService_ListEarnPositions"];
+  };
+  "/public/v1/query/list_earn_vaults": {
+    /** Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled. */
+    post: operations["PublicApiService_ListEarnVaults"];
+  };
   "/public/v1/query/list_email_events": {
     /** List email events for the organization. */
     post: operations["PublicApiService_ListEmailEvents"];
+  };
+  "/public/v1/query/list_eth_transaction_history": {
+    /** List Ethereum transaction history for a wallet address on the specified network. */
+    post: operations["PublicApiService_ListEthTransactionHistory"];
   };
   "/public/v1/query/list_fiat_on_ramp_credentials": {
     /** List all fiat on ramp provider credentials within an organization. */
@@ -203,6 +211,10 @@ export type paths = {
   "/public/v1/query/list_smart_contract_interfaces": {
     /** List all smart contract interfaces within an organization. */
     post: operations["PublicApiService_GetSmartContractInterfaces"];
+  };
+  "/public/v1/query/list_sol_transaction_history": {
+    /** List Solana transaction history for a wallet address on the specified network. */
+    post: operations["PublicApiService_ListSolTransactionHistory"];
   };
   "/public/v1/query/list_suborgs": {
     /** Get all suborg IDs associated given a parent org ID and an optional filter. */
@@ -255,6 +267,14 @@ export type paths = {
   "/public/v1/submit/approve_activity": {
     /** Approve an activity. */
     post: operations["PublicApiService_ApproveActivity"];
+  };
+  "/public/v1/submit/claim_earn_fees": {
+    /** Claim earn fees through the activity pipeline. */
+    post: operations["PublicApiService_ClaimEarnFees"];
+  };
+  "/public/v1/submit/claim_swap_fees": {
+    /** Claim swap fees through the activity pipeline. */
+    post: operations["PublicApiService_ClaimSwapFees"];
   };
   "/public/v1/submit/create_api_keys": {
     /** Add API keys to an existing user. */
@@ -321,8 +341,12 @@ export type paths = {
     post: operations["PublicApiService_CreateSmartContractInterface"];
   };
   "/public/v1/submit/create_sub_organization": {
-    /** Create a new sub-organization. */
+    /** Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS). */
     post: operations["PublicApiService_CreateSubOrganization"];
+  };
+  "/public/v1/submit/create_swap_quote": {
+    /** Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
+    post: operations["PublicApiService_CreateSwapQuote"];
   };
   "/public/v1/submit/create_tvc_app": {
     /** Create a new TVC application */
@@ -349,7 +373,7 @@ export type paths = {
     post: operations["PublicApiService_CreateUserTag"];
   };
   "/public/v1/submit/create_users": {
-    /** Create users in an existing organization. */
+    /** Create users in an existing organization. Each user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the organization (email, email OTP, or SMS). */
     post: operations["PublicApiService_CreateUsers"];
   };
   "/public/v1/submit/create_wallet": {
@@ -452,6 +476,10 @@ export type paths = {
     /** Deposit assets from a wallet into an enabled yield vault. */
     post: operations["PublicApiService_EarnDeposit"];
   };
+  "/public/v1/submit/earn_set_wrapper_state": {
+    /** Enable or disable deposits to a deployed Earn wrapper. Withdrawals are always allowed. */
+    post: operations["PublicApiService_EarnSetWrapperState"];
+  };
   "/public/v1/submit/earn_withdraw": {
     /** Withdraw assets or redeem shares from an enabled yield vault. */
     post: operations["PublicApiService_EarnWithdraw"];
@@ -468,8 +496,12 @@ export type paths = {
     /** Submit a transaction intent describing an EVM transaction you would like to broadcast. */
     post: operations["PublicApiService_EthSendTransaction"];
   };
+  "/public/v1/submit/eth_undelegate_7702": {
+    /** Submit an EIP-7702 undelegation transaction. */
+    post: operations["PublicApiService_EthUndelegate7702"];
+  };
   "/public/v1/submit/execute_swap": {
-    /** Execute a quoted swap through the activity pipeline and Turnkey broadcasting. */
+    /** Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2. */
     post: operations["PublicApiService_ExecuteSwap"];
   };
   "/public/v1/submit/export_private_key": {
@@ -499,6 +531,10 @@ export type paths = {
   "/public/v1/submit/init_import_private_key": {
     /** Initialize a new private key import. */
     post: operations["PublicApiService_InitImportPrivateKey"];
+  };
+  "/public/v1/submit/init_import_secrets": {
+    /** Initialize secret imports by generating Ingress Encryption Target Keys. */
+    post: operations["PublicApiService_InitImportSecrets"];
   };
   "/public/v1/submit/init_import_wallet": {
     /** Initialize a new wallet import. */
@@ -589,7 +625,7 @@ export type paths = {
     post: operations["PublicApiService_SignTransaction"];
   };
   "/public/v1/submit/sol_send_transaction": {
-    /** Submit a transaction intent describing an SVM transaction you would like to broadcast. */
+    /** Submit a transaction intent describing an SVM transaction you would like to broadcast. Supports single- and multi-signer intents via activity type versioning. */
     post: operations["PublicApiService_SolSendTransaction"];
   };
   "/public/v1/submit/spark_claim_transfer": {
@@ -667,10 +703,6 @@ export type paths = {
   "/public/v1/submit/update_webhook_endpoint": {
     /** Update a webhook endpoint for an organization. */
     post: operations["PublicApiService_UpdateWebhookEndpoint"];
-  };
-  "/public/v1/submit/upsert_earn_client_fee_config": {
-    /** Set the client's Earn fee rate and payout wallet for the organization. */
-    post: operations["PublicApiService_UpsertEarnClientFeeConfig"];
   };
   "/public/v1/submit/upsert_swap_config": {
     /** Enable or disable swap configuration for an organization. */
@@ -1043,12 +1075,20 @@ export type definitions = {
     | "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER"
     | "ACTIVITY_TYPE_EARN_DEPOSIT"
     | "ACTIVITY_TYPE_EARN_WITHDRAW"
-    | "ACTIVITY_TYPE_UPSERT_EARN_CLIENT_FEE_CONFIG"
     | "ACTIVITY_TYPE_EXECUTE_SWAP"
     | "ACTIVITY_TYPE_UPSERT_SWAP_CONFIG"
     | "ACTIVITY_TYPE_CREATE_TVC_OPERATOR"
     | "ACTIVITY_TYPE_CREATE_TVC_QUORUM_KEY"
-    | "ACTIVITY_TYPE_RE_ENCRYPT_TVC_QUORUM_KEY_SHARE";
+    | "ACTIVITY_TYPE_RE_ENCRYPT_TVC_QUORUM_KEY_SHARE"
+    | "ACTIVITY_TYPE_INIT_IMPORT_SECRETS"
+    | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
+    | "ACTIVITY_TYPE_CLAIM_SWAP_FEES"
+    | "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE"
+    | "ACTIVITY_TYPE_CLAIM_EARN_FEES"
+    | "ACTIVITY_TYPE_UPDATE_WALLET_ACCOUNT_NAME"
+    | "ACTIVITY_TYPE_ETH_UNDELEGATE_7702"
+    | "ACTIVITY_TYPE_EXECUTE_SWAP_V2"
+    | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1198,6 +1238,8 @@ export type definitions = {
     logoUrl?: string;
     /** @description The asset name */
     name?: string;
+    /** @description Whether this asset is on Turnkey's stablecoin list (used for stablepair swap fee pricing). */
+    stable?: boolean;
   };
   v1Attestation: {
     /** @description The cbor encoded then base64 url encoded id of the credential. */
@@ -1300,6 +1342,39 @@ export type definitions = {
   };
   v1BootProofResponse: {
     bootProof: definitions["v1BootProof"];
+  };
+  v1ClaimEarnFeesIntent: {
+    /** @description Address of the deployed Earn wrapper to claim fees for. Must be one of the org's deployed wrappers. */
+    wrapperAddress: string;
+  };
+  v1ClaimEarnFeesRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CLAIM_EARN_FEES";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1ClaimEarnFeesIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1ClaimEarnFeesResult: {
+    /** @description Identifier to poll claim status and tx hash via GetClaimEarnFeesStatus. */
+    claimRequestId: string;
+  };
+  v1ClaimSwapFeesIntent: { [key: string]: unknown };
+  v1ClaimSwapFeesRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CLAIM_SWAP_FEES";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1ClaimSwapFeesIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1ClaimSwapFeesResult: {
+    /** @description Relay claim request ID submitted through the permit endpoint. */
+    requestId: string;
   };
   v1ClientSignature: {
     /** @description The public component of a cryptographic key pair used to create the signature. */
@@ -1586,6 +1661,8 @@ export type definitions = {
     consensus?: string;
     /** @description Notes for a Policy. */
     notes: string;
+    /** @description The time expression that triggers the Effect */
+    time?: string;
   };
   v1CreatePolicyRequest: {
     /** @enum {string} */
@@ -1961,6 +2038,32 @@ export type definitions = {
     wallet?: definitions["v1WalletResult"];
     rootUserIds?: string[];
   };
+  v1CreateSwapQuoteIntent: {
+    /** @description Wallet account or Private Key address used to price the executable provider quote. Private Key identifiers are not supported. */
+    signWith: string;
+    /** @description CAIP-19 asset ID for the input asset. The chain is derived from this value. */
+    inputToken: string;
+    /** @description CAIP-19 asset ID for the output asset. */
+    outputToken: string;
+    /** @description Base-unit amount of the input asset. */
+    inputAmount: string;
+    /** @description Provider-neutral maximum allowed slippage in basis points. Turnkey converts this value to each provider's request format. When omitted, each provider applies its default slippage behavior. */
+    slippageBps?: string;
+  };
+  v1CreateSwapQuoteRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateSwapQuoteIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1CreateSwapQuoteResult: {
+    /** @description One or more provider quotes for this request. Today this contains a single Relay quote; pass quotes[i].quoteId to execute_swap_v2 to bind execution. */
+    quotes: definitions["v1SwapQuote"][];
+  };
   v1CreateTvcAppIntent: {
     /** @description The name of the new TVC application */
     name: string;
@@ -2000,6 +2103,15 @@ export type definitions = {
      * @description The required number of approvals for the manifest set
      */
     manifestSetThreshold: number;
+    /** @description The unique identifier for the TVC share set */
+    shareSetId: string;
+    /** @description The unique identifiers of the share set operators */
+    shareSetOperatorIds: string[];
+    /**
+     * Format: int64
+     * @description The required number of approvals for the share set
+     */
+    shareSetThreshold: number;
   };
   v1CreateTvcDeploymentIntent: {
     /** @description The unique identifier of the to-be-deployed TVC application */
@@ -2035,6 +2147,11 @@ export type definitions = {
      * @description Port to use for public ingress.
      */
     publicIngressPort: number;
+    /**
+     * Format: int64
+     * @description Optional desired replica count for this deployment.
+     */
+    replicas?: number;
   };
   v1CreateTvcDeploymentRequest: {
     /** @enum {string} */
@@ -2687,7 +2804,7 @@ export type definitions = {
     privateKeyId: string;
   };
   v1EarnDeployWrapperIntent: {
-    /** @description Address of the underlying yield vault to wrap (from the EarnVaults catalog). */
+    /** @description Address of the underlying yield vault to wrap (from the ListEarnVaults catalog). */
     vaultAddress: string;
     /**
      * @description CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base).
@@ -2700,6 +2817,10 @@ export type definitions = {
       | "eip155:137"
       | "eip155:56"
       | "eip155:4217";
+    /** @description Your fee on gross yield, in basis points (e.g., '2000' for 20%). Maximum is 4000 (40%). */
+    clientFeeBps: string;
+    /** @description The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
+    clientFeeWallet: string;
   };
   v1EarnDeployWrapperRequest: {
     /** @enum {string} */
@@ -2716,12 +2837,12 @@ export type definitions = {
     wrapperAddress: string;
     /** @description Address of the deployed fee splitter (PaymentSplitter for Morpho, RevenueSplitterOwner for Aave). */
     splitterAddress: string;
-    /** @description Transaction hash of the wrapper deployment. */
-    deployTxHash: string;
+    /** @description Identifier to poll deploy status. */
+    deployRequestId: string;
   };
   v1EarnDepositIntent: {
-    /** @description Address of the underlying yield vault to deposit into. The org must have an enabled wrapper for this vault. */
-    vaultAddress: string;
+    /** @description Address of the deployed Earn wrapper to deposit into, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers. */
+    wrapperAddress: string;
     /** @description A Wallet account address or Private Key address to deposit from and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
     signWith: string;
     /** @description Amount of the underlying asset to deposit, in raw on-chain units (e.g., '1000000' for 1 USDC at 6 decimals). */
@@ -2751,119 +2872,128 @@ export type definitions = {
     generateAppProofs?: boolean;
   };
   v1EarnDepositResult: {
-    /** @description Transaction hash of the deposit. */
-    depositTxHash: string;
-    /** @description Number of wrapper shares minted to the depositor, in raw on-chain units. */
-    sharesMinted: string;
-    /** @description Address of the fee wrapper the deposit was routed to. */
-    wrapperAddress: string;
-    /** @description Identifier to poll deposit status via EarnDepositStatus (for the async/sponsored path). */
+    /** @description Identifier to poll deposit status and tx hash via GetEarnDepositStatus. */
     depositRequestId: string;
-  };
-  v1EarnDepositStatusRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description The deposit_request_id returned by EarnDeposit. */
-    depositRequestId: string;
-  };
-  v1EarnDepositStatusResponse: {
-    /**
-     * @description Status of the deposit.
-     * @enum {string}
-     */
-    status: "PENDING" | "COMPLETE" | "FAILED";
-    /** @description Transaction hash of the deposit, once available. */
-    depositTxHash?: string;
   };
   v1EarnEnabledVault: {
     /** @description Address of the underlying yield vault. */
     vaultAddress?: string;
     /** @description Address of the deployed fee wrapper (the deposit target). */
     wrapperAddress?: string;
-    /** @description Address of the deployed fee splitter. */
-    splitterAddress?: string;
-    /** @description CAIP-2 chain ID the vault lives on. */
-    chainCaip2?: string;
-    /** @description Yield provider for the vault ('morpho' or 'aave'). */
-    provider?: string;
-    /** @description Symbol of the vault's underlying asset (e.g., 'USDC'). */
-    asset?: string;
-    /** @description Current annual percentage yield, expressed as a decimal fraction. */
+    /** @description Yield provider for the vault. */
+    provider?: definitions["v1EarnProvider"];
+    /** @description CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
+    caip19?: string;
+    /** @description Gross annual percentage yield, expressed as a decimal fraction (before fees). */
     apyPct?: string;
     /** @description Total deposited through this wrapper (wrapper TVL), in raw on-chain units of the underlying asset. */
     totalDeposited?: string;
-  };
-  v1EarnEnabledVaultsRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-  };
-  v1EarnEnabledVaultsResponse: {
-    /** @description The organization's deployed wrappers. */
-    enabledVaults?: definitions["v1EarnEnabledVault"][];
+    /** @description Normalized total-deposited values for display only (usd + crypto). Do not do arithmetic with these; use total_deposited instead. */
+    display?: definitions["v1EarnValueDisplay"];
+    /** @description Annual percentage yield net of fees, expressed as a decimal fraction. */
+    netApyPct?: string;
+    /** @description Client fee taken on yield, in basis points. */
+    clientFeeBps?: string;
+    /** @description When true, deposits to this wrapper are rejected; withdrawals are unaffected. Toggled via EarnSetWrapperState. */
+    depositsDisabled?: boolean;
+    /** @description Human-readable vault name from the provider (e.g. 'Steakhouse Prime USDC' for Morpho; the reserve symbol for Aave). */
+    name?: string;
+    /** @description Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave). */
+    curator?: string;
+    /** @description The client's claimable fee (releasable now), in raw on-chain units of the underlying asset (the caip19 asset). Turnkey's fee is excluded. Only returned to the parent org; unset when a sub-org queries. */
+    claimableClientFee?: string;
+    /** @description Normalized claimable_client_fee for display only (usd + crypto). Do not do arithmetic with these; use claimable_client_fee. Unset when a sub-org queries. */
+    claimableClientFeeDisplay?: definitions["v1EarnValueDisplay"];
+    /** @description The wallet address that receives the client's fee payouts on-chain. Unset when a sub-org queries. */
+    clientFeeWallet?: string;
   };
   v1EarnPosition: {
     /** @description Address of the underlying yield vault. */
     vaultAddress?: string;
     /** @description Address of the fee wrapper holding the position. */
     wrapperAddress?: string;
-    /** @description CAIP-2 chain ID the vault lives on. */
-    chainCaip2?: string;
-    /** @description Yield provider for the vault ('morpho' or 'aave'). */
-    provider?: string;
-    /** @description Symbol of the vault's underlying asset (e.g., 'USDC'). */
-    asset?: string;
-    /** @description Number of wrapper shares held, in raw on-chain units. */
-    shares?: string;
+    /** @description Yield provider for the vault. */
+    provider?: definitions["v1EarnProvider"];
+    /** @description CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
+    caip19?: string;
     /** @description Current value of the position in the underlying asset, in raw on-chain units (already net of the wrapper fee). */
     currentValue?: string;
-    /** @description Net amount deposited, in raw on-chain units. */
-    costBasis?: string;
-    /** @description Yield grossed up for display, in raw on-chain units. */
-    grossYield?: string;
-    /** @description Combined Turnkey + client fee on the yield, in raw on-chain units. */
-    projectedFee?: string;
-    /** @description Yield net of fees, in raw on-chain units. */
-    yieldLessFees?: string;
+    /** @description Lifetime total deposited into this position, in raw on-chain units. */
+    totalDeposited?: string;
+    /** @description Lifetime total withdrawn from this position, in raw on-chain units. */
+    totalWithdrawn?: string;
+    /** @description USD + crypto renderings for display only. Do not do arithmetic with these. */
+    display?: definitions["v1EarnPositionDisplay"];
+    /** @description When true, deposits to this wrapper are rejected; withdrawals are unaffected. Toggled via EarnSetWrapperState. */
+    depositsDisabled?: boolean;
   };
-  v1EarnPositionsRequest: {
+  v1EarnPositionDisplay: {
+    /** @description Current value in USD, for display only. */
+    currentValueUsd?: string;
+    /** @description Total deposited in USD, for display only. */
+    totalDepositedUsd?: string;
+    /** @description Total withdrawn in USD, for display only. */
+    totalWithdrawnUsd?: string;
+    /** @description Current value in the asset's own units, for display only. */
+    currentValueCrypto?: string;
+    /** @description Total deposited in the asset's own units, for display only. */
+    totalDepositedCrypto?: string;
+    /** @description Total withdrawn in the asset's own units, for display only. */
+    totalWithdrawnCrypto?: string;
+  };
+  /** @enum {string} */
+  v1EarnProvider: "EARN_PROVIDER_MORPHO" | "EARN_PROVIDER_AAVE";
+  v1EarnSetWrapperStateIntent: {
+    /** @description Address of the deployed Earn wrapper to update, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers. */
+    wrapperAddress: string;
+    /** @description When true, deposits to this wrapper are rejected; withdrawals are unaffected. Set to false to re-enable deposits. */
+    depositsDisabled: boolean;
+  };
+  v1EarnSetWrapperStateRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    /** @description The wallet address to return positions for. */
-    walletAddress: string;
+    parameters: definitions["v1EarnSetWrapperStateIntent"];
+    generateAppProofs?: boolean;
   };
-  v1EarnPositionsResponse: {
-    /** @description The wallet's active Earn positions. */
-    positions?: definitions["v1EarnPosition"][];
+  v1EarnSetWrapperStateResult: {
+    /** @description Address of the updated Earn wrapper. */
+    wrapperAddress: string;
+    /** @description The wrapper's deposit state after this activity. */
+    depositsDisabled: boolean;
+  };
+  v1EarnValueDisplay: {
+    /** @description USD value, for display only. */
+    usd?: string;
+    /** @description Normalized amount in the asset's own units, for display only. */
+    crypto?: string;
   };
   v1EarnVault: {
     /** @description Address of the underlying yield vault. */
     vaultAddress?: string;
-    /** @description CAIP-2 chain ID the vault lives on. */
-    chainCaip2?: string;
-    /** @description Yield provider for the vault ('morpho' or 'aave'). */
-    provider?: string;
-    /** @description Symbol of the vault's underlying asset (e.g., 'USDC'). */
-    asset?: string;
-    /** @description Token address of the vault's underlying asset. */
-    assetAddress?: string;
-    /** @description Total value locked in the vault, in raw on-chain units of the underlying asset. */
+    /** @description Yield provider for the vault. */
+    provider?: definitions["v1EarnProvider"];
+    /** @description CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
+    caip19?: string;
+    /** @description Total value locked in the vault, in raw on-chain units of the underlying asset. The catalog is sorted by the USD value of this. */
     tvl?: string;
     /** @description Current annual percentage yield, expressed as a decimal fraction (e.g., '0.0812' for 8.12%). */
     apyPct?: string;
     /** @description Whether the organization has enabled this vault. */
     enabled?: boolean;
-  };
-  v1EarnVaultsRequest: {
-    /** @description Unique identifier for a given Organization. Annotates which vaults the organization has already enabled. */
-    organizationId: string;
-  };
-  v1EarnVaultsResponse: {
-    /** @description The catalog of wrappable vaults, sorted by TVL descending. */
-    vaults?: definitions["v1EarnVault"][];
+    /** @description Normalized TVL values for display purposes only (usd + crypto). Do not do arithmetic with these; use tvl instead. */
+    display?: definitions["v1EarnValueDisplay"];
+    /** @description Human-readable vault name from the provider (e.g. 'Steakhouse Prime USDC' for Morpho; the reserve symbol for Aave). */
+    name?: string;
+    /** @description Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave). */
+    curator?: string;
   };
   v1EarnWithdrawIntent: {
-    /** @description Address of the underlying yield vault to withdraw from. The org must have an enabled wrapper for this vault. */
-    vaultAddress: string;
+    /** @description Address of the deployed Earn wrapper holding the position to withdraw from, from ListEarnPositions. Must be one of the org's deployed wrappers. */
+    wrapperAddress: string;
     /** @description A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
     signWith: string;
     /**
@@ -2879,12 +3009,7 @@ export type definitions = {
       | "eip155:4217";
     /** @description Whether to sponsor this transaction via Gas Station. */
     sponsor?: boolean;
-    /**
-     * @description Whether amount_value is denominated in shares or assets. 'SHARES' redeems wrapper shares (calls redeem()); 'ASSETS' withdraws underlying assets (calls withdraw(), enabling yield-only claims).
-     * @enum {string}
-     */
-    amountType: "SHARES" | "ASSETS";
-    /** @description The amount to withdraw, in raw on-chain units, interpreted according to amount_type. */
+    /** @description The amount of the underlying asset to withdraw, in raw on-chain units. Pass 'MAX' to withdraw the entire position. */
     amountValue: string;
   };
   v1EarnWithdrawRequest: {
@@ -2898,29 +3023,8 @@ export type definitions = {
     generateAppProofs?: boolean;
   };
   v1EarnWithdrawResult: {
-    /** @description Transaction hash of the withdrawal. */
-    withdrawTxHash: string;
-    /** @description Identifier to poll withdrawal status via EarnWithdrawStatus. */
+    /** @description Identifier to poll withdrawal status and tx hash via GetEarnWithdrawStatus. */
     withdrawRequestId: string;
-    /** @description Amount of the underlying asset received, in raw on-chain units. */
-    assetsReceived: string;
-    /** @description Number of wrapper shares burned, in raw on-chain units. */
-    sharesBurned: string;
-  };
-  v1EarnWithdrawStatusRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description The withdraw_request_id returned by EarnWithdraw. */
-    withdrawRequestId: string;
-  };
-  v1EarnWithdrawStatusResponse: {
-    /**
-     * @description Status of the withdrawal.
-     * @enum {string}
-     */
-    status: "PENDING" | "COMPLETE" | "FAILED";
-    /** @description Transaction hash of the withdrawal, once available. */
-    withdrawTxHash?: string;
   };
   /** @enum {string} */
   v1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
@@ -3072,6 +3176,8 @@ export type definitions = {
     deliveryProcessingTimeMillis?: string;
     /** @description Delay type for DeliveryDelay events */
     deliveryDelayType?: string;
+    /** @description Feedback type for Complaint events */
+    complaintFeedbackType?: string;
   };
   v1EnableAuthProxyIntent: { [key: string]: unknown };
   v1EnableAuthProxyResult: {
@@ -3105,7 +3211,15 @@ export type definitions = {
       | "eip155:137"
       | "eip155:80002"
       | "eip155:56"
-      | "eip155:97";
+      | "eip155:97"
+      | "eip155:10"
+      | "eip155:11155420"
+      | "eip155:143"
+      | "eip155:10143"
+      | "eip155:42161"
+      | "eip155:4217"
+      | "eip155:42431"
+      | "eip155:421614";
   };
   v1EthSendRawTransactionRequest: {
     /** @enum {string} */
@@ -3138,7 +3252,15 @@ export type definitions = {
       | "eip155:137"
       | "eip155:80002"
       | "eip155:56"
-      | "eip155:97";
+      | "eip155:97"
+      | "eip155:10"
+      | "eip155:11155420"
+      | "eip155:143"
+      | "eip155:10143"
+      | "eip155:42161"
+      | "eip155:4217"
+      | "eip155:42431"
+      | "eip155:421614";
     /** @description Recipient address as a hex string with 0x prefix. */
     to: string;
     /** @description Amount of native asset to send in wei. */
@@ -3173,7 +3295,15 @@ export type definitions = {
       | "eip155:137"
       | "eip155:80002"
       | "eip155:56"
-      | "eip155:97";
+      | "eip155:97"
+      | "eip155:10"
+      | "eip155:11155420"
+      | "eip155:143"
+      | "eip155:10143"
+      | "eip155:42161"
+      | "eip155:4217"
+      | "eip155:42431"
+      | "eip155:421614";
     /** @description Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station. */
     sponsor?: boolean;
     /** @description Outer transaction nonce. Omit to auto-fetch. */
@@ -3186,7 +3316,7 @@ export type definitions = {
     maxPriorityFeePerGas?: string;
     /** @description Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true. */
     deadline?: string;
-    /** @description The gas station delegate contract nonce. Only used when sponsor=true. Omit to auto-fetch. */
+    /** @description The gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored transactions and non-sponsored multi-call batches. Omit to auto-fetch. Use the nonces endpoint for replay protection. */
     gasStationNonce?: string;
     /** @description Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station. */
     calls: definitions["v1EthCallParams"][];
@@ -3213,6 +3343,74 @@ export type definitions = {
     /** @description The Ethereum transaction hash, if available. */
     txHash?: string;
   };
+  v1EthTransactionHistoryItem: {
+    /** @description EVM transaction hash. */
+    transactionHash: string;
+    /** @description Block metadata for the transaction. */
+    block: definitions["v1TransactionHistoryBlock"];
+    /**
+     * @description Transaction confirmation status.
+     * @enum {string}
+     */
+    status: "CONFIRMED" | "FINALIZED";
+    /** @description Origin of the transaction. Examples include TURNKEY. */
+    origin: string;
+    /** @description EVM sender address for the transaction. */
+    from: string;
+    /** @description EVM transaction destination address, such as the called contract or EVM tx.to. Omitted for contract-creation transactions with no destination. Recipients and payers of value transfers are reflected in transfers[].counterparty. */
+    to?: string;
+    /** @description Transaction fee information. */
+    fee: definitions["v1TransactionHistoryFee"];
+    /** @description Asset transfers associated with the transaction. */
+    transfers: definitions["v1TransactionHistoryTransfer"][];
+    /** @description Turnkey-specific metadata for transactions originated by Turnkey. */
+    turnkey?: definitions["v1TransactionHistoryTurnkey"];
+  };
+  v1EthUndelegate7702Intent: {
+    /** @description A wallet or private key address to undelegate. This does not support private key IDs. */
+    from: string;
+    /**
+     * @description CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
+     * @enum {string}
+     */
+    caip2:
+      | "eip155:1"
+      | "eip155:11155111"
+      | "eip155:8453"
+      | "eip155:84532"
+      | "eip155:137"
+      | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97"
+      | "eip155:10"
+      | "eip155:11155420"
+      | "eip155:143"
+      | "eip155:10143"
+      | "eip155:42161"
+      | "eip155:421614";
+    /** @description Outer transaction nonce. Omit to auto-fetch. */
+    nonce?: string;
+    /** @description Maximum amount of gas for the undelegation transaction. Omit to use the fixed undelegation gas limit. */
+    gasLimit?: string;
+    /** @description Maximum total fee per gas unit (base fee + priority fee) in wei. Omit to auto-estimate. */
+    maxFeePerGas?: string;
+    /** @description Maximum priority fee (tip) per gas unit in wei. Omit to auto-estimate. */
+    maxPriorityFeePerGas?: string;
+  };
+  v1EthUndelegate7702Request: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_ETH_UNDELEGATE_7702";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1EthUndelegate7702Intent"];
+    generateAppProofs?: boolean;
+  };
+  v1EthUndelegate7702Result: {
+    /** @description The send_transaction_status ID associated with the undelegation transaction submission */
+    sendTransactionStatusId: string;
+  };
   v1ExecuteSwapIntent: {
     /** @description CAIP-19 asset ID for the input asset. The chain is derived from this value. */
     inputToken: string;
@@ -3226,22 +3424,46 @@ export type definitions = {
     sponsor?: boolean;
     /** @description Maximum allowed slippage in basis points. */
     slippage?: string;
-    /** @description Swap provider to execute with, as returned by get_swap_quote. When omitted, execution uses the default provider. */
+    /** @description Swap provider to execute with, as returned by create_swap_quote. When omitted, execution uses the default provider. */
     provider?: string;
+    /** @description Minimum acceptable base-unit amount of the output asset. Execution fails if the swap provider's quoted minimum output falls below this floor at execution time. */
+    minOutputAmount: string;
+  };
+  v1ExecuteSwapIntentV2: {
+    /** @description Quote identifier returned by create_swap_quote. Execution is bound to this quote; the signer is derived from the quote and must not be resupplied. */
+    quoteId: string;
+    /** @description CAIP-19 asset ID for the input asset. */
+    inputToken: string;
+    /** @description Exact base-unit amount of the input asset committed by the quote. */
+    inputAmount: string;
+    /** @description CAIP-19 asset ID for the output asset. */
+    outputToken: string;
+    /** @description Exact quoted base-unit output amount committed by the quote. */
+    quotedOutputAmount: string;
+    /** @description Exact minimum base-unit output committed by the quote. */
+    minOutputAmount: string;
+    /** @description Whether the quoted transaction is sponsored. */
+    sponsor: boolean;
+    /** @description Exact EVM sender (EOA account) nonce. Valid only for a non-sponsored EVM swap. Honored for already-delegated (Type-2) batch swaps and single-call swaps; ignored for not-yet-delegated EIP-7702 (Type-4) batches where the outer nonce is derived from the authorization. Prefer gas_station_nonce for batch replay protection and use the nonces endpoint to fetch it. Omit to auto-fetch. */
+    evmNonce?: string;
+    /** @description Exact Solana recent blockhash. Valid only for a Solana swap, including sponsored swaps. Omit to auto-fetch. */
+    recentBlockhash?: string;
+    /** @description Exact gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored EVM swaps and non-sponsored EVM swaps that execute as a multi-call batch (for example ERC-20 approve + swap). This is the replay-protection nonce for gas-station batches; use the nonces endpoint to fetch it. Omit to auto-fetch. */
+    gasStationNonce?: string;
   };
   v1ExecuteSwapRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_EXECUTE_SWAP";
+    type: "ACTIVITY_TYPE_EXECUTE_SWAP_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1ExecuteSwapIntent"];
+    parameters: definitions["v1ExecuteSwapIntentV2"];
     generateAppProofs?: boolean;
   };
   v1ExecuteSwapResult: {
-    /** @description The send_transaction_status ID associated with the swap transaction submission */
-    sendTransactionStatusId: string;
+    /** @description Identifier to poll swap status via GetSwapStatus. */
+    swapRequestId: string;
     /** @description Swap provider used to build the transaction. */
     provider?: string;
     /** @description Quote identifier used for execution, if any. */
@@ -3504,6 +3726,74 @@ export type definitions = {
     /** @description Hex encoded ephemeral public key. */
     ephemeralKey: string;
   };
+  v1GetClaimEarnFeesStatusRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The claim_request_id returned by ClaimEarnFees. */
+    claimRequestId: string;
+  };
+  v1GetClaimEarnFeesStatusResponse: {
+    /**
+     * @description Status of the fee claim.
+     * @enum {string}
+     */
+    status: "PENDING" | "COMPLETED" | "FAILED";
+    /** @description Transaction hash of the fee claim, once available. */
+    claimTxHash?: string;
+    /** @description Reason the fee claim transaction failed, when status is FAILED. */
+    error?: string;
+  };
+  v1GetEarnDeployStatusRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The deploy_request_id returned by EarnDeployWrapper. */
+    deployRequestId: string;
+  };
+  v1GetEarnDeployStatusResponse: {
+    /**
+     * @description Status of the wrapper deployment.
+     * @enum {string}
+     */
+    status: "PENDING" | "COMPLETED" | "FAILED";
+    /** @description Transaction hash of the deployment, once available. */
+    deployTxHash?: string;
+    /** @description Reason the deployment transaction failed, when status is FAILED. */
+    error?: string;
+  };
+  v1GetEarnDepositStatusRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The deposit_request_id returned by EarnDeposit. */
+    depositRequestId: string;
+  };
+  v1GetEarnDepositStatusResponse: {
+    /**
+     * @description Status of the deposit.
+     * @enum {string}
+     */
+    status: "PENDING" | "COMPLETED" | "FAILED";
+    /** @description Transaction hash of the deposit, once available. */
+    depositTxHash?: string;
+    /** @description Reason the deposit transaction failed, when status is FAILED. */
+    error?: string;
+  };
+  v1GetEarnWithdrawStatusRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The withdraw_request_id returned by EarnWithdraw. */
+    withdrawRequestId: string;
+  };
+  v1GetEarnWithdrawStatusResponse: {
+    /**
+     * @description Status of the withdrawal.
+     * @enum {string}
+     */
+    status: "PENDING" | "COMPLETED" | "FAILED";
+    /** @description Transaction hash of the withdrawal, once available. */
+    withdrawTxHash?: string;
+    /** @description Reason the withdrawal transaction failed, when status is FAILED. */
+    error?: string;
+  };
   v1GetGasUsageRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -3531,7 +3821,7 @@ export type definitions = {
   v1GetLatestBootProofRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    /** @description Name of enclave app. */
+    /** @description Unique identifier (UUID) of the enclave app. */
     appName: string;
   };
   v1GetMfaPoliciesRequest: {
@@ -3585,7 +3875,15 @@ export type definitions = {
       | "eip155:137"
       | "eip155:80002"
       | "eip155:56"
-      | "eip155:97";
+      | "eip155:97"
+      | "eip155:10"
+      | "eip155:11155420"
+      | "eip155:143"
+      | "eip155:10143"
+      | "eip155:42161"
+      | "eip155:4217"
+      | "eip155:42431"
+      | "eip155:421614";
     /** @description Whether to fetch the standard on-chain nonce. */
     nonce?: boolean;
     /** @description Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -3763,33 +4061,11 @@ export type definitions = {
     /** @description List of unique identifiers for the matching sub-organizations. */
     organizationIds: string[];
   };
-  v1GetSwapQuoteRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description CAIP-19 asset ID for the input asset. The chain is derived from this value. */
-    inputToken: string;
-    /** @description CAIP-19 asset ID for the output asset. */
-    outputToken: string;
-    /** @description Base-unit amount of the input asset. */
-    inputAmount: string;
-    /** @description Maximum allowed slippage in basis points. */
-    slippage?: string;
-  };
-  v1GetSwapQuoteResponse: {
-    /** @description CAIP-19 asset ID for the input asset. */
-    inputToken: string;
-    /** @description CAIP-19 asset ID for the output asset. */
-    outputToken: string;
-    /** @description Base-unit amount of the input asset. */
-    inputAmount: string;
-    /** @description One quote per available swap provider. */
-    quotes: definitions["v1SwapQuoteOption"][];
-  };
   v1GetSwapStatusRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    /** @description Identifier returned in the execute_swap activity result. */
-    sendTransactionStatusId: string;
+    /** @description The swap_request_id returned by ExecuteSwap. */
+    swapRequestId: string;
   };
   v1GetSwapStatusResponse: {
     /** @description Normalized swap status. One of PENDING, COMPLETED, FAILED. */
@@ -3797,7 +4073,7 @@ export type definitions = {
     /** @description SAME_CHAIN or CROSS_CHAIN. */
     swapKind: string;
     /** @description Swap provider that executed the swap. */
-    provider?: string;
+    provider: string;
     /** @description CAIP-19 asset ID for the input asset. */
     inputToken: string;
     /** @description CAIP-19 asset ID for the output asset. */
@@ -3806,20 +4082,16 @@ export type definitions = {
     inputAmount: string;
     /** @description Final included origin-chain transaction hash, when known. */
     originTxHash?: string;
-    /** @description Destination-chain fill transaction hash; cross-chain COMPLETED only. */
-    destinationTxHash?: string;
-    /** @description Actual base-unit output amount on COMPLETED, when known. */
+    /** @description Provider-reported destination-chain transaction hashes; cross-chain COMPLETED only. */
+    destinationTxHashes?: string[];
+    /** @description Actual base-unit output amount on COMPLETED, when known. Unset on FAILED. */
     outputAmount?: string;
-    /** @description CAIP-19 of the asset the user holds after a FAILED swap, when recoverable. */
-    settledAsset?: string;
-    /** @description Base-unit amount of settled_asset. */
-    settledAmount?: string;
-    /** @description Transaction that delivered the settled funds, when applicable. */
-    settlementTxHash?: string;
-    /** @description Non-normative raw provider status passthrough; cross-chain only. */
-    providerStatus?: string;
+    /** @description Asset and amount returned to the user after a failed swap, when recoverable. Present only on FAILED. */
+    refund?: definitions["v1SwapRefund"];
     /** @description Timestamp of the last swap status change, as millisecond epoch string. */
     updatedAt: string;
+    /** @description Normalized failure details, present whenever status is FAILED. */
+    error?: definitions["v1SwapError"];
   };
   v1GetTvcAppDeploymentsRequest: {
     /** @description Unique identifier for a given organization. */
@@ -3973,12 +4245,16 @@ export type definitions = {
       | "eip155:84532"
       | "eip155:137"
       | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97"
+      | "eip155:10"
+      | "eip155:11155420"
+      | "eip155:143"
+      | "eip155:10143"
       | "eip155:42161"
       | "eip155:4217"
       | "eip155:42431"
       | "eip155:421614"
-      | "eip155:56"
-      | "eip155:97"
       | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
@@ -4137,6 +4413,28 @@ export type definitions = {
   v1InitImportPrivateKeyResult: {
     /** @description Import bundle containing a public key and signature to use for importing client data. */
     importBundle: string;
+  };
+  v1InitImportSecretsIntent: {
+    /** @description Transport encryption suite used for ingress secrets. */
+    encryptionSuite: definitions["v1TransportEncryptionSuite"];
+    /**
+     * Format: int32
+     * @description The number of secrets the user intends to import.
+     */
+    numSecrets: number;
+  };
+  v1InitImportSecretsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_INIT_IMPORT_SECRETS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1InitImportSecretsIntent"];
+  };
+  v1InitImportSecretsResult: {
+    /** @description Enclave ingress target keys along with metadata specific to the encryption suite. For enclave encrypt v1 this will be ServerTargetMsgV1. */
+    enclaveTargetMessages: string[];
   };
   v1InitImportWalletIntent: {
     /** @description The ID of the User importing a Wallet. */
@@ -4544,12 +4842,20 @@ export type definitions = {
     earnDeployWrapperIntent?: definitions["v1EarnDeployWrapperIntent"];
     earnDepositIntent?: definitions["v1EarnDepositIntent"];
     earnWithdrawIntent?: definitions["v1EarnWithdrawIntent"];
-    upsertEarnClientFeeConfigIntent?: definitions["v1UpsertEarnClientFeeConfigIntent"];
     executeSwapIntent?: definitions["v1ExecuteSwapIntent"];
     upsertSwapConfigIntent?: definitions["v1UpsertSwapConfigIntent"];
     createTvcOperatorIntent?: definitions["v1CreateTvcOperatorIntent"];
     createTvcQuorumKeyIntent?: definitions["v1CreateTvcQuorumKeyIntent"];
     reEncryptTvcQuorumKeyShareIntent?: definitions["v1ReEncryptTvcQuorumKeyShareIntent"];
+    initImportSecretsIntent?: definitions["v1InitImportSecretsIntent"];
+    solSendTransactionIntentV2?: definitions["v1SolSendTransactionIntentV2"];
+    claimSwapFeesIntent?: definitions["v1ClaimSwapFeesIntent"];
+    earnSetWrapperStateIntent?: definitions["v1EarnSetWrapperStateIntent"];
+    claimEarnFeesIntent?: definitions["v1ClaimEarnFeesIntent"];
+    updateWalletAccountNameIntent?: definitions["v1UpdateWalletAccountNameIntent"];
+    ethUndelegate7702Intent?: definitions["v1EthUndelegate7702Intent"];
+    executeSwapIntentV2?: definitions["v1ExecuteSwapIntentV2"];
+    createSwapQuoteIntent?: definitions["v1CreateSwapQuoteIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -4612,6 +4918,44 @@ export type definitions = {
     /** @description Creation timestamp as millisecond epoch string. */
     createdAt?: string;
   };
+  v1ListEarnEnabledVaultsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
+    provider?: definitions["v1EarnProvider"];
+    /** @description Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
+    caip19?: string;
+  };
+  v1ListEarnEnabledVaultsResponse: {
+    /** @description The organization's deployed wrappers. */
+    enabledVaults?: definitions["v1EarnEnabledVault"][];
+  };
+  v1ListEarnPositionsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The wallet address to return positions for. */
+    walletAddress: string;
+  };
+  v1ListEarnPositionsResponse: {
+    /** @description The wallet's active Earn positions. */
+    positions?: definitions["v1EarnPosition"][];
+  };
+  v1ListEarnVaultsRequest: {
+    /** @description Unique identifier for a given Organization. Annotates which vaults the organization has already enabled. */
+    organizationId: string;
+    /** @description Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
+    provider?: definitions["v1EarnProvider"];
+    /** @description CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier. */
+    caip19: string;
+    /** @description Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page. */
+    paginationOptions?: definitions["v1Pagination"];
+  };
+  v1ListEarnVaultsResponse: {
+    /** @description The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass page_info.end_cursor as the pagination after cursor. */
+    vaults?: definitions["v1EarnVault"][];
+    /** @description Pagination metadata for the returned page. Pass end_cursor as the next request's after cursor (or start_cursor as the before cursor) to page through the catalog. Cursors are opaque; do not parse them. */
+    pageInfo?: definitions["v1PageInfo"];
+  };
   v1ListEmailEventsRequest: {
     /** @description Unique identifier for a given organization */
     organizationId: string;
@@ -4625,6 +4969,37 @@ export type definitions = {
   v1ListEmailEventsResponse: {
     /** @description Email events matching the requested filters, ordered by most recent event first. */
     emailEvents: definitions["v1EmailEvent"][];
+  };
+  v1ListEthTransactionHistoryRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Address corresponding to a wallet account. Private key addresses are not supported. */
+    address: string;
+    /**
+     * @description EVM CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
+     * @enum {string}
+     */
+    caip2:
+      | "eip155:1"
+      | "eip155:11155111"
+      | "eip155:8453"
+      | "eip155:84532"
+      | "eip155:137"
+      | "eip155:80002"
+      | "eip155:42161"
+      | "eip155:4217"
+      | "eip155:42431"
+      | "eip155:421614"
+      | "eip155:56"
+      | "eip155:97";
+    /** @description Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
+    paginationOptions?: definitions["v1TransactionHistoryPaginationOptions"];
+  };
+  v1ListEthTransactionHistoryResponse: {
+    /** @description EVM transactions for the requested address, ordered by most recent first. */
+    transactions: definitions["v1EthTransactionHistoryItem"][];
+    /** @description Opaque pagination cursors for fetching adjacent transaction-history pages. */
+    paginationCursors: definitions["v1TransactionHistoryPaginationCursors"];
   };
   v1ListFiatOnRampCredentialsRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -4648,6 +5023,29 @@ export type definitions = {
     /** @description A list of private key tags. */
     privateKeyTags: definitions["datav1Tag"][];
   };
+  v1ListSolTransactionHistoryRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Address corresponding to a wallet account. Private key addresses are not supported. */
+    address: string;
+    /**
+     * @description Solana CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values.
+     * @enum {string}
+     */
+    caip2:
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+      | "solana:mainnet"
+      | "solana:devnet";
+    /** @description Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
+    paginationOptions?: definitions["v1TransactionHistoryPaginationOptions"];
+  };
+  v1ListSolTransactionHistoryResponse: {
+    /** @description Solana transactions for the requested address, ordered by most recent first. */
+    transactions: definitions["v1SolTransactionHistoryItem"][];
+    /** @description Opaque pagination cursors for fetching adjacent transaction-history pages. */
+    paginationCursors: definitions["v1TransactionHistoryPaginationCursors"];
+  };
   v1ListSupportedAssetsRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
@@ -4662,12 +5060,16 @@ export type definitions = {
       | "eip155:84532"
       | "eip155:137"
       | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97"
+      | "eip155:10"
+      | "eip155:11155420"
+      | "eip155:143"
+      | "eip155:10143"
       | "eip155:42161"
       | "eip155:4217"
       | "eip155:42431"
       | "eip155:421614"
-      | "eip155:56"
-      | "eip155:97"
       | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
@@ -5001,7 +5403,14 @@ export type definitions = {
     | "OUTCOME_REQUIRES_CONSENSUS"
     | "OUTCOME_REJECTED"
     | "OUTCOME_ERROR"
-    | "OUTCOME_REQUIRES_AUTHENTICATORS";
+    | "OUTCOME_REQUIRES_AUTHENTICATORS"
+    | "OUTCOME_TIME_INACTIVE";
+  v1PageInfo: {
+    hasNextPage?: boolean;
+    hasPreviousPage?: boolean;
+    startCursor?: string;
+    endCursor?: string;
+  };
   v1Pagination: {
     /** @description A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
     limit?: string;
@@ -5033,6 +5442,8 @@ export type definitions = {
     consensus: string;
     /** @description A condition expression that evalutes to true or false. */
     condition: string;
+    /** @description A time expression that evalutes to true or false. */
+    time?: string;
   };
   v1PostTvcQuorumKeyShareIntent: {
     /** @description Unique identifier of the TVC deployment receiving quorum key share */
@@ -5355,12 +5766,19 @@ export type definitions = {
     earnDeployWrapperResult?: definitions["v1EarnDeployWrapperResult"];
     earnDepositResult?: definitions["v1EarnDepositResult"];
     earnWithdrawResult?: definitions["v1EarnWithdrawResult"];
-    upsertEarnClientFeeConfigResult?: definitions["v1UpsertEarnClientFeeConfigResult"];
     executeSwapResult?: definitions["v1ExecuteSwapResult"];
     upsertSwapConfigResult?: definitions["v1UpsertSwapConfigResult"];
     createTvcOperatorResult?: definitions["v1CreateTvcOperatorResult"];
     createTvcQuorumKeyResult?: definitions["v1CreateTvcQuorumKeyResult"];
     reEncryptTvcQuorumKeyShareResult?: definitions["v1ReEncryptTvcQuorumKeyShareResult"];
+    initImportSecretsResult?: definitions["v1InitImportSecretsResult"];
+    solSendTransactionResultV2?: definitions["v1SolSendTransactionResultV2"];
+    claimSwapFeesResult?: definitions["v1ClaimSwapFeesResult"];
+    earnSetWrapperStateResult?: definitions["v1EarnSetWrapperStateResult"];
+    claimEarnFeesResult?: definitions["v1ClaimEarnFeesResult"];
+    updateWalletAccountNameResult?: definitions["v1UpdateWalletAccountNameResult"];
+    ethUndelegate7702Result?: definitions["v1EthUndelegate7702Result"];
+    createSwapQuoteResult?: definitions["v1CreateSwapQuoteResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -5644,19 +6062,73 @@ export type definitions = {
     /** @description user-provided blockhash for replay protection / deadline control. If omitted and sponsor=true, we fetch a fresh blockhash during execution */
     recentBlockhash?: string;
   };
+  v1SolSendTransactionIntentV2: {
+    /** @description Hex-encoded serialized unsigned Solana transaction (full wire format with zeroed signature placeholders) */
+    unsignedTransaction: string;
+    /** @description Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers. For sponsored transactions this must list every required signer of the transaction in transaction order. */
+    signWiths: string[];
+    /** @description Whether to sponsor this transaction via Gas Station. */
+    sponsor?: boolean;
+    /**
+     * @description CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values.
+     * @enum {string}
+     */
+    caip2:
+      | "solana:mainnet"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d"
+      | "solana:devnet"
+      | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+      | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
+    /** @description User-provided blockhash for replay protection / deadline control. If provided, it is used as-is, including for sponsored transactions (the transaction is only broadcastable while the blockhash is current). If omitted and sponsor=true, a fresh blockhash is fetched during execution. */
+    recentBlockhash?: string;
+  };
   v1SolSendTransactionRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION";
+    type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1SolSendTransactionIntent"];
+    parameters: definitions["v1SolSendTransactionIntentV2"];
     generateAppProofs?: boolean;
   };
   v1SolSendTransactionResult: {
     /** @description The send_transaction_status ID associated with the transaction submission */
     sendTransactionStatusId: string;
+  };
+  v1SolSendTransactionResultV2: {
+    /** @description The send_transaction_status ID associated with the transaction submission */
+    sendTransactionStatusId: string;
+  };
+  v1SolTransactionHistoryItem: {
+    /** @description Solana transaction signature. */
+    signature: string;
+    /** @description Block metadata for the transaction. */
+    block: definitions["v1TransactionHistoryBlock"];
+    /**
+     * @description Transaction confirmation status.
+     * @enum {string}
+     */
+    status: "CONFIRMED" | "FINALIZED";
+    /** @description Origin of the transaction. Examples include TURNKEY. */
+    origin: string;
+    /** @description Address that paid the Solana transaction fee. This is the first signer in the transaction message. */
+    feePayer: string;
+    /** @description Addresses that signed the Solana transaction, in message order. */
+    signers: definitions["v1SolTransactionHistorySigner"][];
+    /** @description Transaction fee information. */
+    fee: definitions["v1TransactionHistoryFee"];
+    /** @description Asset transfers associated with the transaction. */
+    transfers: definitions["v1TransactionHistoryTransfer"][];
+    /** @description Turnkey-specific metadata for transactions originated by Turnkey. */
+    turnkey?: definitions["v1TransactionHistoryTurnkey"];
+  };
+  v1SolTransactionHistorySigner: {
+    /** @description Address of the Solana transaction signer. */
+    address: string;
+    /** @description Whether the signer account was writable in the Solana transaction message. */
+    writable: boolean;
   };
   v1SolanaConfig: {
     /** @description Whether Solana rent prefunding is enabled for the organization. When omitted, the existing rent-prefund state is left unchanged. */
@@ -5929,15 +6401,39 @@ export type definitions = {
     /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
     session: string;
   };
-  v1SwapQuoteOption: {
-    /** @description Identifier for this provider quote. */
+  v1SwapError: {
+    /** @description Stable machine-readable failure reason. One of ORIGIN_TRANSACTION_FAILED or PROVIDER_FILL_FAILED. */
+    reason: string;
+    /** @description Human-readable description of the swap failure. */
+    message: string;
+    /** @description Origin-chain transaction failure details, present when reason is ORIGIN_TRANSACTION_FAILED and details are available. */
+    originTxError?: definitions["v1TxError"];
+  };
+  v1SwapQuote: {
+    /** @description Identifier for this provider quote. Pass this value to execute_swap_v2 to bind execution to this exact quote. The signer is derived from the quote; clients do not resupply sign_with on execute. */
     quoteId: string;
-    /** @description Swap provider that produced this quote. Pass this value to execute_swap to force a specific provider. */
+    /** @description Swap provider that produced this quote. */
     provider: string;
     /** @description Estimated base-unit amount of the output asset. */
     outputAmount: string;
     /** @description Minimum acceptable base-unit amount of the output asset after slippage. */
-    minOutputAmount?: string;
+    minOutputAmount: string;
+    /** @description Quote expiration as a millisecond epoch string. */
+    expiresAt: string;
+    /** @description Provider-neutral maximum allowed slippage in basis points, echoed from the quote request when set. */
+    slippageBps?: string;
+    /** @description Client fee in basis points applied for this pair. Informational only; already reflected in output_amount and min_output_amount. */
+    clientFeeBps: string;
+    /** @description Provider-estimated completion time in seconds, when available. */
+    estimatedTimeSeconds?: string;
+  };
+  v1SwapRefund: {
+    /** @description CAIP-19 asset returned to the user after a failed swap. */
+    asset: string;
+    /** @description Base-unit amount of the refunded asset. */
+    amount: string;
+    /** @description Transaction that delivered the refunded funds, when applicable. */
+    txHash?: string;
   };
   /** @enum {string} */
   v1TagType: "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
@@ -5962,6 +6458,79 @@ export type definitions = {
     login?: definitions["v1LoginUsage"];
     signupV2?: definitions["v1SignupUsageV2"];
   };
+  v1TransactionHistoryAsset: {
+    /** @description The CAIP-19 asset identifier. */
+    caip19: string;
+    /** @description The asset symbol. */
+    symbol: string;
+    /** @description The asset name. */
+    name: string;
+    /**
+     * Format: int32
+     * @description The number of decimals this asset uses.
+     */
+    decimals: number;
+  };
+  v1TransactionHistoryBlock: {
+    /**
+     * Format: int64
+     * @description Block number containing the transaction.
+     */
+    number: string;
+    /** @description Block hash containing the transaction. */
+    hash: string;
+    /** @description Block timestamp in RFC 3339 format. */
+    timestamp: string;
+  };
+  v1TransactionHistoryDisplay: {
+    /** @description Normalized crypto value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+    crypto?: string;
+    /** @description USD value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+    usd?: string;
+  };
+  v1TransactionHistoryFee: {
+    /** @description Fee amount in atomic units. */
+    amount: string;
+    /** @description The CAIP-19 asset identifier. */
+    caip19: string;
+  };
+  v1TransactionHistoryPaginationCursors: {
+    /** @description Opaque base64-encoded cursor for fetching transactions immediately before the current page in the newest-first result order. Omitted when no such page exists. */
+    before?: string;
+    /** @description Opaque base64-encoded cursor for fetching transactions immediately after the current page in the newest-first result order. Omitted when no such page exists. */
+    after?: string;
+  };
+  v1TransactionHistoryPaginationOptions: {
+    /** @description Maximum number of transactions to return, between 1 and 100. Defaults to 25. */
+    limit?: string;
+    /** @description Opaque base64-encoded cursor returned by this API. Fetches transactions immediately before the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with after. */
+    before?: string;
+    /** @description Opaque base64-encoded cursor returned by this API. Fetches transactions immediately after the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with before. */
+    after?: string;
+  };
+  v1TransactionHistoryTransfer: {
+    /**
+     * @description Transfer direction relative to the queried address.
+     * @enum {string}
+     */
+    direction: "IN" | "OUT";
+    /** @description Asset metadata for the transfer. Omitted when the asset cannot be determined. */
+    asset?: definitions["v1TransactionHistoryAsset"];
+    /** @description Transfer amount in atomic units. */
+    amount: string;
+    /** @description Counterparty address for the transfer. */
+    counterparty: string;
+    /** @description Normalized transfer values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the amount field instead. */
+    display?: definitions["v1TransactionHistoryDisplay"];
+  };
+  v1TransactionHistoryTurnkey: {
+    /** @description Whether the transaction fee was sponsored by Turnkey. */
+    sponsored: boolean;
+    /** @description Fingerprint of the Turnkey activity that submitted the transaction. */
+    activityFingerprint?: string;
+    /** @description Timestamp when Turnkey submitted the transaction, in RFC 3339 format. */
+    submittedAt?: string;
+  };
   /** @enum {string} */
   v1TransactionType:
     | "TRANSACTION_TYPE_ETHEREUM"
@@ -5969,6 +6538,8 @@ export type definitions = {
     | "TRANSACTION_TYPE_TRON"
     | "TRANSACTION_TYPE_BITCOIN"
     | "TRANSACTION_TYPE_TEMPO";
+  /** @enum {string} */
+  v1TransportEncryptionSuite: "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1";
   v1TvcApp: {
     /** @description Unique Identifier for this TVC App. */
     id: string;
@@ -6197,6 +6768,8 @@ export type definitions = {
     verificationTokenRequiredForGetAccountPii?: boolean;
     /** @description Whitelisted OAuth client IDs for social account linking. When a user authenticates via a social provider with an email matching an existing account, the accounts will be linked if the client ID is in this list and the issuer is considered a trusted provider. */
     socialLinkingClientIds?: string[];
+    /** @description Whether captcha verification is required on sign up & otp init. */
+    captchaEnabled?: boolean;
   };
   v1UpdateAuthProxyConfigResult: {
     /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
@@ -6333,6 +6906,8 @@ export type definitions = {
     policyConsensus?: string;
     /** @description Accompanying notes for a Policy (optional). */
     policyNotes?: string;
+    /** @description The time expression that triggers the Effect (optional). */
+    time?: string;
   };
   v1UpdatePolicyRequest: {
     /** @enum {string} */
@@ -6525,6 +7100,16 @@ export type definitions = {
     /** @description Unique identifier for a given User Tag. */
     userTagId: string;
   };
+  v1UpdateWalletAccountNameIntent: {
+    /** @description Unique identifier for a given Wallet Account. */
+    walletAccountId: string;
+    /** @description Human-readable name for this Wallet Account. */
+    name: string;
+  };
+  v1UpdateWalletAccountNameResult: {
+    /** @description Unique identifier for a given Wallet Account. */
+    walletAccountId: string;
+  };
   v1UpdateWalletIntent: {
     /** @description Unique identifier for a given Wallet. */
     walletId: string;
@@ -6571,25 +7156,6 @@ export type definitions = {
     /** @description The updated webhook endpoint data. */
     webhookEndpoint: definitions["v1WebhookEndpointData"];
   };
-  v1UpsertEarnClientFeeConfigIntent: {
-    /** @description Your performance fee on gross yield, in basis points (e.g., '2000' for 20%). Your fee plus Turnkey's fee cannot exceed 50% of yield. */
-    clientFeeBps: string;
-    /** @description The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
-    clientFeeWallet: string;
-  };
-  v1UpsertEarnClientFeeConfigRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_UPSERT_EARN_CLIENT_FEE_CONFIG";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1UpsertEarnClientFeeConfigIntent"];
-  };
-  v1UpsertEarnClientFeeConfigResult: {
-    /** @description Transaction hash of the fee configuration update. */
-    feeUpdateTxHash: string;
-  };
   v1UpsertGasUsageConfigIntent: {
     /** @description Gas sponsorship USD limit for the billing organization window. */
     orgWindowLimitUsd: string;
@@ -6608,8 +7174,10 @@ export type definitions = {
   };
   v1UpsertSwapConfigIntent: {
     feeReceiverWalletAddress?: string;
+    /** @description Client fee in basis points applied to swaps; used for all pairs unless stable_fee_bps is set. */
     feeBps?: string;
-    provider?: string;
+    /** @description Optional Enterprise-only override applied when both swap assets are stablecoins; falls back to fee_bps when unset. Non-Enterprise orgs may only set fee_bps. */
+    stableFeeBps?: string;
   };
   v1UpsertSwapConfigRequest: {
     /** @enum {string} */
@@ -6624,6 +7192,7 @@ export type definitions = {
   v1UpsertSwapConfigResult: {
     feeReceiverWalletAddress?: string;
     feeBps?: string;
+    stableFeeBps?: string;
   };
   /** @enum {string} */
   v1UsageType: "USAGE_TYPE_SIGNUP" | "USAGE_TYPE_LOGIN";
@@ -6889,96 +7458,6 @@ export type definitions = {
 };
 
 export type operations = {
-  /** Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path). */
-  PublicApiService_EarnDepositStatus: {
-    parameters: {
-      body: {
-        body: definitions["v1EarnDepositStatusRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1EarnDepositStatusResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions. */
-  PublicApiService_EarnEnabledVaults: {
-    parameters: {
-      body: {
-        body: definitions["v1EarnEnabledVaultsRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1EarnEnabledVaultsResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees. */
-  PublicApiService_EarnPositions: {
-    parameters: {
-      body: {
-        body: definitions["v1EarnPositionsRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1EarnPositionsResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled. */
-  PublicApiService_EarnVaults: {
-    parameters: {
-      body: {
-        body: definitions["v1EarnVaultsRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1EarnVaultsResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Poll the status of a withdrawal by its withdraw_request_id. */
-  PublicApiService_EarnWithdrawStatus: {
-    parameters: {
-      body: {
-        body: definitions["v1EarnWithdrawStatusRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1EarnWithdrawStatusResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
   /** Get details about an activity. */
   PublicApiService_GetActivity: {
     parameters: {
@@ -7098,6 +7577,78 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1BootProofResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Poll the status of a fee claim by its claim_request_id. */
+  PublicApiService_GetClaimEarnFeesStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetClaimEarnFeesStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetClaimEarnFeesStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Poll the status of a wrapper deployment by its deploy_request_id. */
+  PublicApiService_GetEarnDeployStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetEarnDeployStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetEarnDeployStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path). */
+  PublicApiService_GetEarnDepositStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetEarnDepositStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetEarnDepositStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Poll the status of a withdrawal by its withdraw_request_id. */
+  PublicApiService_GetEarnWithdrawStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetEarnWithdrawStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetEarnWithdrawStatusResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -7447,25 +7998,7 @@ export type operations = {
       };
     };
   };
-  /** Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
-  PublicApiService_GetSwapQuote: {
-    parameters: {
-      body: {
-        body: definitions["v1GetSwapQuoteRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetSwapQuoteResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get the status of a swap by the send_transaction_status_id returned from execute_swap. Covers same-chain and cross-chain swaps. */
+  /** Poll the status of a swap by its swap_request_id. Covers same-chain and cross-chain swaps. */
   PublicApiService_GetSwapStatus: {
     parameters: {
       body: {
@@ -7663,6 +8196,60 @@ export type operations = {
       };
     };
   };
+  /** Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions. */
+  PublicApiService_ListEarnEnabledVaults: {
+    parameters: {
+      body: {
+        body: definitions["v1ListEarnEnabledVaultsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListEarnEnabledVaultsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees. */
+  PublicApiService_ListEarnPositions: {
+    parameters: {
+      body: {
+        body: definitions["v1ListEarnPositionsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListEarnPositionsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled. */
+  PublicApiService_ListEarnVaults: {
+    parameters: {
+      body: {
+        body: definitions["v1ListEarnVaultsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListEarnVaultsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** List email events for the organization. */
   PublicApiService_ListEmailEvents: {
     parameters: {
@@ -7674,6 +8261,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ListEmailEventsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List Ethereum transaction history for a wallet address on the specified network. */
+  PublicApiService_ListEthTransactionHistory: {
+    parameters: {
+      body: {
+        body: definitions["v1ListEthTransactionHistoryRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListEthTransactionHistoryResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -7782,6 +8387,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetSmartContractInterfacesResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List Solana transaction history for a wallet address on the specified network. */
+  PublicApiService_ListSolTransactionHistory: {
+    parameters: {
+      body: {
+        body: definitions["v1ListSolTransactionHistoryRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListSolTransactionHistoryResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -8010,6 +8633,42 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1ApproveActivityRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Claim earn fees through the activity pipeline. */
+  PublicApiService_ClaimEarnFees: {
+    parameters: {
+      body: {
+        body: definitions["v1ClaimEarnFeesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Claim swap fees through the activity pipeline. */
+  PublicApiService_ClaimSwapFees: {
+    parameters: {
+      body: {
+        body: definitions["v1ClaimSwapFeesRequest"];
       };
     };
     responses: {
@@ -8311,11 +8970,29 @@ export type operations = {
       };
     };
   };
-  /** Create a new sub-organization. */
+  /** Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS). */
   PublicApiService_CreateSubOrganization: {
     parameters: {
       body: {
         body: definitions["v1CreateSubOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
+  PublicApiService_CreateSwapQuote: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateSwapQuoteRequest"];
       };
     };
     responses: {
@@ -8437,7 +9114,7 @@ export type operations = {
       };
     };
   };
-  /** Create users in an existing organization. */
+  /** Create users in an existing organization. Each user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the organization (email, email OTP, or SMS). */
   PublicApiService_CreateUsers: {
     parameters: {
       body: {
@@ -8905,6 +9582,24 @@ export type operations = {
       };
     };
   };
+  /** Enable or disable deposits to a deployed Earn wrapper. Withdrawals are always allowed. */
+  PublicApiService_EarnSetWrapperState: {
+    parameters: {
+      body: {
+        body: definitions["v1EarnSetWrapperStateRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Withdraw assets or redeem shares from an enabled yield vault. */
   PublicApiService_EarnWithdraw: {
     parameters: {
@@ -8977,7 +9672,25 @@ export type operations = {
       };
     };
   };
-  /** Execute a quoted swap through the activity pipeline and Turnkey broadcasting. */
+  /** Submit an EIP-7702 undelegation transaction. */
+  PublicApiService_EthUndelegate7702: {
+    parameters: {
+      body: {
+        body: definitions["v1EthUndelegate7702Request"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2. */
   PublicApiService_ExecuteSwap: {
     parameters: {
       body: {
@@ -9108,6 +9821,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1InitImportPrivateKeyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Initialize secret imports by generating Ingress Encryption Target Keys. */
+  PublicApiService_InitImportSecrets: {
+    parameters: {
+      body: {
+        body: definitions["v1InitImportSecretsRequest"];
       };
     };
     responses: {
@@ -9517,7 +10248,7 @@ export type operations = {
       };
     };
   };
-  /** Submit a transaction intent describing an SVM transaction you would like to broadcast. */
+  /** Submit a transaction intent describing an SVM transaction you would like to broadcast. Supports single- and multi-signer intents via activity type versioning. */
   PublicApiService_SolSendTransaction: {
     parameters: {
       body: {
@@ -9864,24 +10595,6 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1UpdateWebhookEndpointRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Set the client's Earn fee rate and payout wallet for the organization. */
-  PublicApiService_UpsertEarnClientFeeConfig: {
-    parameters: {
-      body: {
-        body: definitions["v1UpsertEarnClientFeeConfigRequest"];
       };
     };
     responses: {

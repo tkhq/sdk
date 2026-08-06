@@ -84,6 +84,52 @@ export type TGetBootProofBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetClaimEarnFeesStatusResponse =
+  operations["PublicApiService_GetClaimEarnFeesStatus"]["responses"]["200"]["schema"];
+
+export type TGetClaimEarnFeesStatusInput = {
+  body: TGetClaimEarnFeesStatusBody;
+};
+
+export type TGetClaimEarnFeesStatusBody = Omit<
+  operations["PublicApiService_GetClaimEarnFeesStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetEarnDeployStatusResponse =
+  operations["PublicApiService_GetEarnDeployStatus"]["responses"]["200"]["schema"];
+
+export type TGetEarnDeployStatusInput = { body: TGetEarnDeployStatusBody };
+
+export type TGetEarnDeployStatusBody = Omit<
+  operations["PublicApiService_GetEarnDeployStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetEarnDepositStatusResponse =
+  operations["PublicApiService_GetEarnDepositStatus"]["responses"]["200"]["schema"];
+
+export type TGetEarnDepositStatusInput = { body: TGetEarnDepositStatusBody };
+
+export type TGetEarnDepositStatusBody = Omit<
+  operations["PublicApiService_GetEarnDepositStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetEarnWithdrawStatusResponse =
+  operations["PublicApiService_GetEarnWithdrawStatus"]["responses"]["200"]["schema"];
+
+export type TGetEarnWithdrawStatusInput = { body: TGetEarnWithdrawStatusBody };
+
+export type TGetEarnWithdrawStatusBody = Omit<
+  operations["PublicApiService_GetEarnWithdrawStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetGasUsageResponse =
   operations["PublicApiService_GetGasUsage"]["responses"]["200"]["schema"];
 
@@ -290,6 +336,17 @@ export type TGetSmartContractInterfaceBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetSwapStatusResponse =
+  operations["PublicApiService_GetSwapStatus"]["responses"]["200"]["schema"];
+
+export type TGetSwapStatusInput = { body: TGetSwapStatusBody };
+
+export type TGetSwapStatusBody = Omit<
+  operations["PublicApiService_GetSwapStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetTvcAppResponse =
   operations["PublicApiService_GetTvcApp"]["responses"]["200"]["schema"];
 
@@ -393,6 +450,39 @@ export type TGetAppProofsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TListEarnEnabledVaultsResponse =
+  operations["PublicApiService_ListEarnEnabledVaults"]["responses"]["200"]["schema"];
+
+export type TListEarnEnabledVaultsInput = { body: TListEarnEnabledVaultsBody };
+
+export type TListEarnEnabledVaultsBody = Omit<
+  operations["PublicApiService_ListEarnEnabledVaults"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListEarnPositionsResponse =
+  operations["PublicApiService_ListEarnPositions"]["responses"]["200"]["schema"];
+
+export type TListEarnPositionsInput = { body: TListEarnPositionsBody };
+
+export type TListEarnPositionsBody = Omit<
+  operations["PublicApiService_ListEarnPositions"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListEarnVaultsResponse =
+  operations["PublicApiService_ListEarnVaults"]["responses"]["200"]["schema"];
+
+export type TListEarnVaultsInput = { body: TListEarnVaultsBody };
+
+export type TListEarnVaultsBody = Omit<
+  operations["PublicApiService_ListEarnVaults"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TListEmailEventsResponse =
   operations["PublicApiService_ListEmailEvents"]["responses"]["200"]["schema"];
 
@@ -400,6 +490,19 @@ export type TListEmailEventsInput = { body: TListEmailEventsBody };
 
 export type TListEmailEventsBody = Omit<
   operations["PublicApiService_ListEmailEvents"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListEthTransactionHistoryResponse =
+  operations["PublicApiService_ListEthTransactionHistory"]["responses"]["200"]["schema"];
+
+export type TListEthTransactionHistoryInput = {
+  body: TListEthTransactionHistoryBody;
+};
+
+export type TListEthTransactionHistoryBody = Omit<
+  operations["PublicApiService_ListEthTransactionHistory"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -470,6 +573,19 @@ export type TGetSmartContractInterfacesInput = {
 
 export type TGetSmartContractInterfacesBody = Omit<
   operations["PublicApiService_GetSmartContractInterfaces"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListSolTransactionHistoryResponse =
+  operations["PublicApiService_ListSolTransactionHistory"]["responses"]["200"]["schema"];
+
+export type TListSolTransactionHistoryInput = {
+  body: TListSolTransactionHistoryBody;
+};
+
+export type TListSolTransactionHistoryBody = Omit<
+  operations["PublicApiService_ListSolTransactionHistory"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -614,6 +730,26 @@ export type TApproveActivityInput = { body: TApproveActivityBody };
 
 export type TApproveActivityBody =
   operations["PublicApiService_ApproveActivity"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TClaimEarnFeesResponse =
+  operations["PublicApiService_ClaimEarnFees"]["responses"]["200"]["schema"]["activity"]["result"]["claimEarnFeesResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TClaimEarnFeesInput = { body: TClaimEarnFeesBody };
+
+export type TClaimEarnFeesBody =
+  operations["PublicApiService_ClaimEarnFees"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TClaimSwapFeesResponse =
+  operations["PublicApiService_ClaimSwapFees"]["responses"]["200"]["schema"]["activity"]["result"]["claimSwapFeesResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TClaimSwapFeesInput = { body: TClaimSwapFeesBody };
+
+export type TClaimSwapFeesBody =
+  operations["PublicApiService_ClaimSwapFees"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateApiKeysResponse =
@@ -1074,6 +1210,46 @@ export type TDeleteWebhookEndpointBody =
   operations["PublicApiService_DeleteWebhookEndpoint"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TEarnDeployWrapperResponse =
+  operations["PublicApiService_EarnDeployWrapper"]["responses"]["200"]["schema"]["activity"]["result"]["earnDeployWrapperResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEarnDeployWrapperInput = { body: TEarnDeployWrapperBody };
+
+export type TEarnDeployWrapperBody =
+  operations["PublicApiService_EarnDeployWrapper"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEarnDepositResponse =
+  operations["PublicApiService_EarnDeposit"]["responses"]["200"]["schema"]["activity"]["result"]["earnDepositResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEarnDepositInput = { body: TEarnDepositBody };
+
+export type TEarnDepositBody =
+  operations["PublicApiService_EarnDeposit"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEarnSetWrapperStateResponse =
+  operations["PublicApiService_EarnSetWrapperState"]["responses"]["200"]["schema"]["activity"]["result"]["earnSetWrapperStateResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEarnSetWrapperStateInput = { body: TEarnSetWrapperStateBody };
+
+export type TEarnSetWrapperStateBody =
+  operations["PublicApiService_EarnSetWrapperState"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEarnWithdrawResponse =
+  operations["PublicApiService_EarnWithdraw"]["responses"]["200"]["schema"]["activity"]["result"]["earnWithdrawResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEarnWithdrawInput = { body: TEarnWithdrawBody };
+
+export type TEarnWithdrawBody =
+  operations["PublicApiService_EarnWithdraw"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TEmailAuthResponse =
   operations["PublicApiService_EmailAuth"]["responses"]["200"]["schema"]["activity"]["result"]["emailAuthResult"] &
     definitions["v1ActivityResponse"];
@@ -1092,6 +1268,16 @@ export type TEthSendTransactionInput = { body: TEthSendTransactionBody };
 
 export type TEthSendTransactionBody =
   operations["PublicApiService_EthSendTransaction"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEthUndelegate7702Response =
+  operations["PublicApiService_EthUndelegate7702"]["responses"]["200"]["schema"]["activity"]["result"]["ethUndelegate7702Result"] &
+    definitions["v1ActivityResponse"];
+
+export type TEthUndelegate7702Input = { body: TEthUndelegate7702Body };
+
+export type TEthUndelegate7702Body =
+  operations["PublicApiService_EthUndelegate7702"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TExportPrivateKeyResponse =
@@ -1371,7 +1557,7 @@ export type TSignTransactionBody =
     commandOverrideParams;
 
 export type TSolSendTransactionResponse =
-  operations["PublicApiService_SolSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["solSendTransactionResult"] &
+  operations["PublicApiService_SolSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["solSendTransactionResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TSolSendTransactionInput = { body: TSolSendTransactionBody };
@@ -1576,6 +1762,16 @@ export type TUpdateWebhookEndpointInput = { body: TUpdateWebhookEndpointBody };
 
 export type TUpdateWebhookEndpointBody =
   operations["PublicApiService_UpdateWebhookEndpoint"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpsertSwapConfigResponse =
+  operations["PublicApiService_UpsertSwapConfig"]["responses"]["200"]["schema"]["activity"]["result"]["upsertSwapConfigResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpsertSwapConfigInput = { body: TUpsertSwapConfigBody };
+
+export type TUpsertSwapConfigBody =
+  operations["PublicApiService_UpsertSwapConfig"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TVerifyOtpResponse =

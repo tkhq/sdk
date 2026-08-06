@@ -10,26 +10,6 @@ import {
 } from "../../../../../base";
 import { VERSION } from "../../../../../version";
 import type {
-  TEarnDepositStatusBody,
-  TEarnDepositStatusResponse,
-} from "./public_api.fetcher";
-import type {
-  TEarnEnabledVaultsBody,
-  TEarnEnabledVaultsResponse,
-} from "./public_api.fetcher";
-import type {
-  TEarnPositionsBody,
-  TEarnPositionsResponse,
-} from "./public_api.fetcher";
-import type {
-  TEarnVaultsBody,
-  TEarnVaultsResponse,
-} from "./public_api.fetcher";
-import type {
-  TEarnWithdrawStatusBody,
-  TEarnWithdrawStatusResponse,
-} from "./public_api.fetcher";
-import type {
   TGetActivityBody,
   TGetActivityResponse,
 } from "./public_api.fetcher";
@@ -53,6 +33,22 @@ import type {
 import type {
   TGetBootProofBody,
   TGetBootProofResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetClaimEarnFeesStatusBody,
+  TGetClaimEarnFeesStatusResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetEarnDeployStatusBody,
+  TGetEarnDeployStatusResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetEarnDepositStatusBody,
+  TGetEarnDepositStatusResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetEarnWithdrawStatusBody,
+  TGetEarnWithdrawStatusResponse,
 } from "./public_api.fetcher";
 import type {
   TGetGasUsageBody,
@@ -125,10 +121,6 @@ import type {
   TGetSmartContractInterfaceResponse,
 } from "./public_api.fetcher";
 import type {
-  TGetSwapQuoteBody,
-  TGetSwapQuoteResponse,
-} from "./public_api.fetcher";
-import type {
   TGetSwapStatusBody,
   TGetSwapStatusResponse,
 } from "./public_api.fetcher";
@@ -164,8 +156,24 @@ import type {
   TGetAppProofsResponse,
 } from "./public_api.fetcher";
 import type {
+  TListEarnEnabledVaultsBody,
+  TListEarnEnabledVaultsResponse,
+} from "./public_api.fetcher";
+import type {
+  TListEarnPositionsBody,
+  TListEarnPositionsResponse,
+} from "./public_api.fetcher";
+import type {
+  TListEarnVaultsBody,
+  TListEarnVaultsResponse,
+} from "./public_api.fetcher";
+import type {
   TListEmailEventsBody,
   TListEmailEventsResponse,
+} from "./public_api.fetcher";
+import type {
+  TListEthTransactionHistoryBody,
+  TListEthTransactionHistoryResponse,
 } from "./public_api.fetcher";
 import type {
   TListFiatOnRampCredentialsBody,
@@ -190,6 +198,10 @@ import type {
 import type {
   TGetSmartContractInterfacesBody,
   TGetSmartContractInterfacesResponse,
+} from "./public_api.fetcher";
+import type {
+  TListSolTransactionHistoryBody,
+  TListSolTransactionHistoryResponse,
 } from "./public_api.fetcher";
 import type {
   TGetSubOrgIdsBody,
@@ -236,6 +248,14 @@ import type { TGetWhoamiBody, TGetWhoamiResponse } from "./public_api.fetcher";
 import type {
   TApproveActivityBody,
   TApproveActivityResponse,
+} from "./public_api.fetcher";
+import type {
+  TClaimEarnFeesBody,
+  TClaimEarnFeesResponse,
+} from "./public_api.fetcher";
+import type {
+  TClaimSwapFeesBody,
+  TClaimSwapFeesResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateApiKeysBody,
@@ -304,6 +324,10 @@ import type {
 import type {
   TCreateSubOrganizationBody,
   TCreateSubOrganizationResponse,
+} from "./public_api.fetcher";
+import type {
+  TCreateSwapQuoteBody,
+  TCreateSwapQuoteResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateTvcAppBody,
@@ -434,6 +458,10 @@ import type {
   TEarnDepositResponse,
 } from "./public_api.fetcher";
 import type {
+  TEarnSetWrapperStateBody,
+  TEarnSetWrapperStateResponse,
+} from "./public_api.fetcher";
+import type {
   TEarnWithdrawBody,
   TEarnWithdrawResponse,
 } from "./public_api.fetcher";
@@ -445,6 +473,10 @@ import type {
 import type {
   TEthSendTransactionBody,
   TEthSendTransactionResponse,
+} from "./public_api.fetcher";
+import type {
+  TEthUndelegate7702Body,
+  TEthUndelegate7702Response,
 } from "./public_api.fetcher";
 import type {
   TExecuteSwapBody,
@@ -477,6 +509,10 @@ import type {
 import type {
   TInitImportPrivateKeyBody,
   TInitImportPrivateKeyResponse,
+} from "./public_api.fetcher";
+import type {
+  TInitImportSecretsBody,
+  TInitImportSecretsResponse,
 } from "./public_api.fetcher";
 import type {
   TInitImportWalletBody,
@@ -635,10 +671,6 @@ import type {
   TUpdateWebhookEndpointResponse,
 } from "./public_api.fetcher";
 import type {
-  TUpsertEarnClientFeeConfigBody,
-  TUpsertEarnClientFeeConfigResponse,
-} from "./public_api.fetcher";
-import type {
   TUpsertSwapConfigBody,
   TUpsertSwapConfigResponse,
 } from "./public_api.fetcher";
@@ -698,160 +730,6 @@ export class TurnkeyClient {
     const data = await response.json();
     return data as TResponseType;
   }
-
-  /**
-   * Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path).
-   *
-   * Sign the provided `TEarnDepositStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/earn_deposit_status).
-   *
-   * See also {@link stampEarnDepositStatus}.
-   */
-  earnDepositStatus = async (
-    input: TEarnDepositStatusBody,
-  ): Promise<TEarnDepositStatusResponse> => {
-    return this.request("/public/v1/query/earn_deposit_status", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TEarnDepositStatusBody` by using the client's `stamp` function.
-   *
-   * See also {@link EarnDepositStatus}.
-   */
-  stampEarnDepositStatus = async (
-    input: TEarnDepositStatusBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/query/earn_deposit_status";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions.
-   *
-   * Sign the provided `TEarnEnabledVaultsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/earn_enabled_vaults).
-   *
-   * See also {@link stampEarnEnabledVaults}.
-   */
-  earnEnabledVaults = async (
-    input: TEarnEnabledVaultsBody,
-  ): Promise<TEarnEnabledVaultsResponse> => {
-    return this.request("/public/v1/query/earn_enabled_vaults", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TEarnEnabledVaultsBody` by using the client's `stamp` function.
-   *
-   * See also {@link EarnEnabledVaults}.
-   */
-  stampEarnEnabledVaults = async (
-    input: TEarnEnabledVaultsBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/query/earn_enabled_vaults";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees.
-   *
-   * Sign the provided `TEarnPositionsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/earn_positions).
-   *
-   * See also {@link stampEarnPositions}.
-   */
-  earnPositions = async (
-    input: TEarnPositionsBody,
-  ): Promise<TEarnPositionsResponse> => {
-    return this.request("/public/v1/query/earn_positions", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TEarnPositionsBody` by using the client's `stamp` function.
-   *
-   * See also {@link EarnPositions}.
-   */
-  stampEarnPositions = async (
-    input: TEarnPositionsBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl = this.config.baseUrl + "/public/v1/query/earn_positions";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled.
-   *
-   * Sign the provided `TEarnVaultsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/earn_vaults).
-   *
-   * See also {@link stampEarnVaults}.
-   */
-  earnVaults = async (input: TEarnVaultsBody): Promise<TEarnVaultsResponse> => {
-    return this.request("/public/v1/query/earn_vaults", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TEarnVaultsBody` by using the client's `stamp` function.
-   *
-   * See also {@link EarnVaults}.
-   */
-  stampEarnVaults = async (input: TEarnVaultsBody): Promise<TSignedRequest> => {
-    const fullUrl = this.config.baseUrl + "/public/v1/query/earn_vaults";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Poll the status of a withdrawal by its withdraw_request_id.
-   *
-   * Sign the provided `TEarnWithdrawStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/earn_withdraw_status).
-   *
-   * See also {@link stampEarnWithdrawStatus}.
-   */
-  earnWithdrawStatus = async (
-    input: TEarnWithdrawStatusBody,
-  ): Promise<TEarnWithdrawStatusResponse> => {
-    return this.request("/public/v1/query/earn_withdraw_status", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TEarnWithdrawStatusBody` by using the client's `stamp` function.
-   *
-   * See also {@link EarnWithdrawStatus}.
-   */
-  stampEarnWithdrawStatus = async (
-    input: TEarnWithdrawStatusBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/query/earn_withdraw_status";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
 
   /**
    * Get details about an activity.
@@ -1053,6 +931,134 @@ export class TurnkeyClient {
     input: TGetBootProofBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_boot_proof";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Poll the status of a fee claim by its claim_request_id.
+   *
+   * Sign the provided `TGetClaimEarnFeesStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_claim_earn_fees_status).
+   *
+   * See also {@link stampGetClaimEarnFeesStatus}.
+   */
+  getClaimEarnFeesStatus = async (
+    input: TGetClaimEarnFeesStatusBody,
+  ): Promise<TGetClaimEarnFeesStatusResponse> => {
+    return this.request("/public/v1/query/get_claim_earn_fees_status", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetClaimEarnFeesStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetClaimEarnFeesStatus}.
+   */
+  stampGetClaimEarnFeesStatus = async (
+    input: TGetClaimEarnFeesStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_claim_earn_fees_status";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Poll the status of a wrapper deployment by its deploy_request_id.
+   *
+   * Sign the provided `TGetEarnDeployStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_earn_deploy_status).
+   *
+   * See also {@link stampGetEarnDeployStatus}.
+   */
+  getEarnDeployStatus = async (
+    input: TGetEarnDeployStatusBody,
+  ): Promise<TGetEarnDeployStatusResponse> => {
+    return this.request("/public/v1/query/get_earn_deploy_status", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetEarnDeployStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetEarnDeployStatus}.
+   */
+  stampGetEarnDeployStatus = async (
+    input: TGetEarnDeployStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_earn_deploy_status";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path).
+   *
+   * Sign the provided `TGetEarnDepositStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_earn_deposit_status).
+   *
+   * See also {@link stampGetEarnDepositStatus}.
+   */
+  getEarnDepositStatus = async (
+    input: TGetEarnDepositStatusBody,
+  ): Promise<TGetEarnDepositStatusResponse> => {
+    return this.request("/public/v1/query/get_earn_deposit_status", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetEarnDepositStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetEarnDepositStatus}.
+   */
+  stampGetEarnDepositStatus = async (
+    input: TGetEarnDepositStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_earn_deposit_status";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Poll the status of a withdrawal by its withdraw_request_id.
+   *
+   * Sign the provided `TGetEarnWithdrawStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_earn_withdraw_status).
+   *
+   * See also {@link stampGetEarnWithdrawStatus}.
+   */
+  getEarnWithdrawStatus = async (
+    input: TGetEarnWithdrawStatusBody,
+  ): Promise<TGetEarnWithdrawStatusResponse> => {
+    return this.request("/public/v1/query/get_earn_withdraw_status", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetEarnWithdrawStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetEarnWithdrawStatus}.
+   */
+  stampGetEarnWithdrawStatus = async (
+    input: TGetEarnWithdrawStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_earn_withdraw_status";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1657,38 +1663,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
-   *
-   * Sign the provided `TGetSwapQuoteBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_swap_quote).
-   *
-   * See also {@link stampGetSwapQuote}.
-   */
-  getSwapQuote = async (
-    input: TGetSwapQuoteBody,
-  ): Promise<TGetSwapQuoteResponse> => {
-    return this.request("/public/v1/query/get_swap_quote", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TGetSwapQuoteBody` by using the client's `stamp` function.
-   *
-   * See also {@link GetSwapQuote}.
-   */
-  stampGetSwapQuote = async (
-    input: TGetSwapQuoteBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl = this.config.baseUrl + "/public/v1/query/get_swap_quote";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Get the status of a swap by the send_transaction_status_id returned from execute_swap. Covers same-chain and cross-chain swaps.
+   * Poll the status of a swap by its swap_request_id. Covers same-chain and cross-chain swaps.
    *
    * Sign the provided `TGetSwapStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_swap_status).
    *
@@ -2027,6 +2002,101 @@ export class TurnkeyClient {
   };
 
   /**
+   * Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions.
+   *
+   * Sign the provided `TListEarnEnabledVaultsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_earn_enabled_vaults).
+   *
+   * See also {@link stampListEarnEnabledVaults}.
+   */
+  listEarnEnabledVaults = async (
+    input: TListEarnEnabledVaultsBody,
+  ): Promise<TListEarnEnabledVaultsResponse> => {
+    return this.request("/public/v1/query/list_earn_enabled_vaults", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListEarnEnabledVaultsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListEarnEnabledVaults}.
+   */
+  stampListEarnEnabledVaults = async (
+    input: TListEarnEnabledVaultsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_earn_enabled_vaults";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees.
+   *
+   * Sign the provided `TListEarnPositionsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_earn_positions).
+   *
+   * See also {@link stampListEarnPositions}.
+   */
+  listEarnPositions = async (
+    input: TListEarnPositionsBody,
+  ): Promise<TListEarnPositionsResponse> => {
+    return this.request("/public/v1/query/list_earn_positions", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListEarnPositionsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListEarnPositions}.
+   */
+  stampListEarnPositions = async (
+    input: TListEarnPositionsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_earn_positions";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled.
+   *
+   * Sign the provided `TListEarnVaultsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_earn_vaults).
+   *
+   * See also {@link stampListEarnVaults}.
+   */
+  listEarnVaults = async (
+    input: TListEarnVaultsBody,
+  ): Promise<TListEarnVaultsResponse> => {
+    return this.request("/public/v1/query/list_earn_vaults", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListEarnVaultsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListEarnVaults}.
+   */
+  stampListEarnVaults = async (
+    input: TListEarnVaultsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/list_earn_vaults";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * List email events for the organization.
    *
    * Sign the provided `TListEmailEventsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_email_events).
@@ -2048,6 +2118,38 @@ export class TurnkeyClient {
     input: TListEmailEventsBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_email_events";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List Ethereum transaction history for a wallet address on the specified network.
+   *
+   * Sign the provided `TListEthTransactionHistoryBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_eth_transaction_history).
+   *
+   * See also {@link stampListEthTransactionHistory}.
+   */
+  listEthTransactionHistory = async (
+    input: TListEthTransactionHistoryBody,
+  ): Promise<TListEthTransactionHistoryResponse> => {
+    return this.request("/public/v1/query/list_eth_transaction_history", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListEthTransactionHistoryBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListEthTransactionHistory}.
+   */
+  stampListEthTransactionHistory = async (
+    input: TListEthTransactionHistoryBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_eth_transaction_history";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2244,6 +2346,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/list_smart_contract_interfaces";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List Solana transaction history for a wallet address on the specified network.
+   *
+   * Sign the provided `TListSolTransactionHistoryBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_sol_transaction_history).
+   *
+   * See also {@link stampListSolTransactionHistory}.
+   */
+  listSolTransactionHistory = async (
+    input: TListSolTransactionHistoryBody,
+  ): Promise<TListSolTransactionHistoryResponse> => {
+    return this.request("/public/v1/query/list_sol_transaction_history", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListSolTransactionHistoryBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListSolTransactionHistory}.
+   */
+  stampListSolTransactionHistory = async (
+    input: TListSolTransactionHistoryBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_sol_transaction_history";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2636,6 +2770,68 @@ export class TurnkeyClient {
     input: TApproveActivityBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/approve_activity";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Claim earn fees through the activity pipeline.
+   *
+   * Sign the provided `TClaimEarnFeesBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/claim_earn_fees).
+   *
+   * See also {@link stampClaimEarnFees}.
+   */
+  claimEarnFees = async (
+    input: TClaimEarnFeesBody,
+  ): Promise<TClaimEarnFeesResponse> => {
+    return this.request("/public/v1/submit/claim_earn_fees", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TClaimEarnFeesBody` by using the client's `stamp` function.
+   *
+   * See also {@link ClaimEarnFees}.
+   */
+  stampClaimEarnFees = async (
+    input: TClaimEarnFeesBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/claim_earn_fees";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Claim swap fees through the activity pipeline.
+   *
+   * Sign the provided `TClaimSwapFeesBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/claim_swap_fees).
+   *
+   * See also {@link stampClaimSwapFees}.
+   */
+  claimSwapFees = async (
+    input: TClaimSwapFeesBody,
+  ): Promise<TClaimSwapFeesResponse> => {
+    return this.request("/public/v1/submit/claim_swap_fees", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TClaimSwapFeesBody` by using the client's `stamp` function.
+   *
+   * See also {@link ClaimSwapFees}.
+   */
+  stampClaimSwapFees = async (
+    input: TClaimSwapFeesBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/claim_swap_fees";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -3160,7 +3356,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create a new sub-organization.
+   * Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS).
    *
    * Sign the provided `TCreateSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_sub_organization).
    *
@@ -3182,6 +3378,37 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_sub_organization";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
+   *
+   * Sign the provided `TCreateSwapQuoteBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_swap_quote).
+   *
+   * See also {@link stampCreateSwapQuote}.
+   */
+  createSwapQuote = async (
+    input: TCreateSwapQuoteBody,
+  ): Promise<TCreateSwapQuoteResponse> => {
+    return this.request("/public/v1/submit/create_swap_quote", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateSwapQuoteBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateSwapQuote}.
+   */
+  stampCreateSwapQuote = async (
+    input: TCreateSwapQuoteBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/create_swap_quote";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -3385,7 +3612,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create users in an existing organization.
+   * Create users in an existing organization. Each user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the organization (email, email OTP, or SMS).
    *
    * Sign the provided `TCreateUsersBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_users).
    *
@@ -4215,6 +4442,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Enable or disable deposits to a deployed Earn wrapper. Withdrawals are always allowed.
+   *
+   * Sign the provided `TEarnSetWrapperStateBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/earn_set_wrapper_state).
+   *
+   * See also {@link stampEarnSetWrapperState}.
+   */
+  earnSetWrapperState = async (
+    input: TEarnSetWrapperStateBody,
+  ): Promise<TEarnSetWrapperStateResponse> => {
+    return this.request("/public/v1/submit/earn_set_wrapper_state", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TEarnSetWrapperStateBody` by using the client's `stamp` function.
+   *
+   * See also {@link EarnSetWrapperState}.
+   */
+  stampEarnSetWrapperState = async (
+    input: TEarnSetWrapperStateBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/earn_set_wrapper_state";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Withdraw assets or redeem shares from an enabled yield vault.
    *
    * Sign the provided `TEarnWithdrawBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/earn_withdraw).
@@ -4337,7 +4596,39 @@ export class TurnkeyClient {
   };
 
   /**
-   * Execute a quoted swap through the activity pipeline and Turnkey broadcasting.
+   * Submit an EIP-7702 undelegation transaction.
+   *
+   * Sign the provided `TEthUndelegate7702Body` with the client's `stamp` function, and submit the request (POST /public/v1/submit/eth_undelegate_7702).
+   *
+   * See also {@link stampEthUndelegate7702}.
+   */
+  ethUndelegate7702 = async (
+    input: TEthUndelegate7702Body,
+  ): Promise<TEthUndelegate7702Response> => {
+    return this.request("/public/v1/submit/eth_undelegate_7702", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TEthUndelegate7702Body` by using the client's `stamp` function.
+   *
+   * See also {@link EthUndelegate7702}.
+   */
+  stampEthUndelegate7702 = async (
+    input: TEthUndelegate7702Body,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/eth_undelegate_7702";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2.
    *
    * Sign the provided `TExecuteSwapBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/execute_swap).
    *
@@ -4579,6 +4870,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/init_import_private_key";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Initialize secret imports by generating Ingress Encryption Target Keys.
+   *
+   * Sign the provided `TInitImportSecretsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_import_secrets).
+   *
+   * See also {@link stampInitImportSecrets}.
+   */
+  initImportSecrets = async (
+    input: TInitImportSecretsBody,
+  ): Promise<TInitImportSecretsResponse> => {
+    return this.request("/public/v1/submit/init_import_secrets", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TInitImportSecretsBody` by using the client's `stamp` function.
+   *
+   * See also {@link InitImportSecrets}.
+   */
+  stampInitImportSecrets = async (
+    input: TInitImportSecretsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/init_import_secrets";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -5264,7 +5587,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Submit a transaction intent describing an SVM transaction you would like to broadcast.
+   * Submit a transaction intent describing an SVM transaction you would like to broadcast. Supports single- and multi-signer intents via activity type versioning.
    *
    * Sign the provided `TSolSendTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sol_send_transaction).
    *
@@ -5883,41 +6206,6 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/update_webhook_endpoint";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Set the client's Earn fee rate and payout wallet for the organization.
-   *
-   * Sign the provided `TUpsertEarnClientFeeConfigBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/upsert_earn_client_fee_config).
-   *
-   * See also {@link stampUpsertEarnClientFeeConfig}.
-   */
-  upsertEarnClientFeeConfig = async (
-    input: TUpsertEarnClientFeeConfigBody,
-  ): Promise<TUpsertEarnClientFeeConfigResponse> => {
-    return this.request(
-      "/public/v1/submit/upsert_earn_client_fee_config",
-      input,
-    );
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TUpsertEarnClientFeeConfigBody` by using the client's `stamp` function.
-   *
-   * See also {@link UpsertEarnClientFeeConfig}.
-   */
-  stampUpsertEarnClientFeeConfig = async (
-    input: TUpsertEarnClientFeeConfigBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/upsert_earn_client_fee_config";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

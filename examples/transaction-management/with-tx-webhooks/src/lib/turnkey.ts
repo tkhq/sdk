@@ -434,7 +434,7 @@ export async function sendSolanaTransactionUnsponsored(params: {
   const apiClient = getTurnkeyClient().apiClient();
   const sendResponse = await apiClient.solSendTransaction({
     organizationId: serverEnv.organizationId,
-    signWith: params.from,
+    signWiths: [params.from],
     unsignedTransaction,
     caip2: normalizedCaip2 as any,
     sponsor: false,

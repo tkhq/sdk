@@ -1,5 +1,93 @@
 # @turnkey/react-native-wallet-kit
 
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47)]:
+  - @turnkey/sdk-types@1.4.0
+  - @turnkey/core@2.5.0
+  - @turnkey/crypto@2.11.1
+  - @turnkey/react-native-passkey-stamper@1.2.19
+
+## 2.2.0
+
+### Minor Changes
+
+- [#1448](https://github.com/tkhq/sdk/pull/1448) [`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Add Solana multi-signer transaction support to the core client and wallet kits.
+
+  `@turnkey/core` exposes a new `solSendTransactionV2()` HTTP client function that sends `ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2`. The existing `solSendTransaction()` HTTP client function remains on V1.
+
+  The shared `solSendTransaction` helper used by core and the wallet kits now accepts either version of the intent. Passing the legacy `signWith` field continues to use V1. Passing the new ordered `signWiths` array uses V2.
+
+  **Before (V1 remains supported):**
+
+  ```ts
+  await client.solSendTransaction({
+    transaction: {
+      unsignedTransaction: unsignedTransactionBase64,
+      signWith: signerAddress,
+      caip2,
+      sponsor,
+    },
+  });
+  ```
+
+  **After (V2):**
+
+  ```ts
+  await client.solSendTransaction({
+    transaction: {
+      unsignedTransaction: unsignedTransactionHex,
+      signWiths: [signerAddress],
+      caip2,
+      sponsor,
+    },
+  });
+  ```
+
+### Patch Changes
+
+- [#1445](https://github.com/tkhq/sdk/pull/1445) [`257d52a`](https://github.com/tkhq/sdk/commit/257d52a108e903beea15be8b2a0e6d222fe07ed9) Thanks [@mark-nesbitt](https://github.com/mark-nesbitt)! - Patch vulnerable dependencies
+
+- Updated dependencies [[`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0), [`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0), [`b447497`](https://github.com/tkhq/sdk/commit/b447497e965b0b1df02d2294e87f89cedb761719), [`c9a13f6`](https://github.com/tkhq/sdk/commit/c9a13f65092e9a7cddc0716206331db9a8b614d2), [`257d52a`](https://github.com/tkhq/sdk/commit/257d52a108e903beea15be8b2a0e6d222fe07ed9)]:
+  - @turnkey/sdk-types@1.3.0
+  - @turnkey/core@2.4.0
+  - @turnkey/crypto@2.11.0
+  - @turnkey/react-native-passkey-stamper@1.2.18
+
+## 2.1.0
+
+### Minor Changes
+
+- [#1438](https://github.com/tkhq/sdk/pull/1438) [`e633614`](https://github.com/tkhq/sdk/commit/e6336141a89962b24c59d25c8c77c291d7e3f444) Author [@amircheikh](https://github.com/amircheikh) - - Synced with Mono v2026.7.3
+  - Added `EthSendTransactionV2()` `httpClient` function which uses `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2`. This activity allows for multiple eth calls to be batched together via the new `calls` array. The existing `EthSendTransaction()` `httpClient` remains on the previous activity version.
+  - `ethSendTransaction` helper function can now accept a `calls` array in the `transaction` parameter which will direct the call to use `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2`. Passing the legacy `to`/`value`/`data` fields still works and continues to use V1.
+
+    ```ts
+    // V1 (still works, unchanged)
+    await client.ethSendTransaction({
+      transaction: { from, caip2, to, value, data },
+    });
+
+    // V2 — batch one or more calls via `calls`
+    await client.ethSendTransaction({
+      transaction: {
+        from,
+        caip2,
+        calls: [{ to, value, data }],
+      },
+    });
+    ```
+
+### Patch Changes
+
+- Updated dependencies [[`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f), [`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f)]:
+  - @turnkey/sdk-types@1.2.0
+  - @turnkey/core@2.3.0
+  - @turnkey/react-native-passkey-stamper@1.2.17
+  - @turnkey/crypto@2.10.1
+
 ## 2.0.2
 
 ### Patch Changes

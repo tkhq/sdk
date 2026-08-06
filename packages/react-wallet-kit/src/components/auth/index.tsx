@@ -26,6 +26,7 @@ import {
   ExternalWalletSelector,
   WalletSelectorMode,
 } from "./wallet/ExternalWalletSelector";
+import { useTurnstile } from "./TurnstileWidget";
 
 type AuthComponentProps = {
   sessionKey?: string | undefined;
@@ -54,6 +55,8 @@ export function AuthComponent({
   } = useTurnkey();
   const { pushPage, isMobile, openSheet } = useModal();
 
+  const { turnstile, consumeToken, authEnabled } = useTurnstile();
+
   if (!config || clientState === ClientState.Loading) {
     // Don't check ClientState.Error here. We already check in the modal root
     return (
@@ -74,6 +77,7 @@ export function AuthComponent({
       const { otpId, otpEncryptionTargetBundle } = await initOtp({
         otpType: OtpType.Email,
         contact: email,
+        ...(await consumeToken()),
       });
       pushPage({
         key: "Verify OTP",
@@ -104,6 +108,7 @@ export function AuthComponent({
       const { otpId, otpEncryptionTargetBundle } = await initOtp({
         otpType: OtpType.Sms,
         contact: phone,
+        ...(await consumeToken()),
       });
       pushPage({
         key: "Verify OTP",
@@ -158,6 +163,7 @@ export function AuthComponent({
           action={async () => {
             await signUpWithPasskey({
               ...(sessionKey && { sessionKey: sessionKey }),
+              ...(await consumeToken()),
             });
           }}
           icon={<FontAwesomeIcon size="3x" icon={faFingerprint} />}
@@ -173,12 +179,13 @@ export function AuthComponent({
       content: (
         <ActionPage
           title="Authenticating with Google..."
-          action={() =>
+          action={async () =>
             handleGoogleOauth({
               additionalState: {
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(await consumeToken()),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faGoogle} />}
@@ -194,12 +201,13 @@ export function AuthComponent({
       content: (
         <ActionPage
           title="Authenticating with Apple..."
-          action={() =>
+          action={async () =>
             handleAppleOauth({
               additionalState: {
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(await consumeToken()),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faApple} />}
@@ -215,12 +223,13 @@ export function AuthComponent({
       content: (
         <ActionPage
           title="Authenticating with Facebook..."
-          action={() =>
+          action={async () =>
             handleFacebookOauth({
               additionalState: {
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(await consumeToken()),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faFacebook} />}
@@ -236,12 +245,13 @@ export function AuthComponent({
       content: (
         <ActionPage
           title="Authenticating with X..."
-          action={() =>
+          action={async () =>
             handleXOauth({
               additionalState: {
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(await consumeToken()),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faXTwitter} />}
@@ -257,12 +267,13 @@ export function AuthComponent({
       content: (
         <ActionPage
           title="Authenticating with Discord..."
-          action={() =>
+          action={async () =>
             handleDiscordOauth({
               additionalState: {
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(await consumeToken()),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faDiscord} />}
@@ -295,6 +306,7 @@ export function AuthComponent({
         name="Google"
         icon={<FontAwesomeIcon icon={faGoogle} />}
         onClick={handleGoogle}
+        disabled={!authEnabled}
       />
     ) : null,
     apple: methods.appleOauthEnabled ? (
@@ -303,6 +315,7 @@ export function AuthComponent({
         name="Apple"
         icon={<FontAwesomeIcon icon={faApple} />}
         onClick={handleApple}
+        disabled={!authEnabled}
       />
     ) : null,
     facebook: methods.facebookOauthEnabled ? (
@@ -311,6 +324,7 @@ export function AuthComponent({
         name="Facebook"
         icon={<FontAwesomeIcon icon={faFacebook} />}
         onClick={handleFacebook}
+        disabled={!authEnabled}
       />
     ) : null,
     x: methods.xOauthEnabled ? (
@@ -319,6 +333,7 @@ export function AuthComponent({
         name="X"
         icon={<FontAwesomeIcon icon={faXTwitter} />}
         onClick={handleX}
+        disabled={!authEnabled}
       />
     ) : null,
     discord: methods.discordOauthEnabled ? (
@@ -327,6 +342,7 @@ export function AuthComponent({
         name="Discord"
         icon={<FontAwesomeIcon icon={faDiscord} />}
         onClick={handleDiscord}
+        disabled={!authEnabled}
       />
     ) : null,
   };
@@ -353,6 +369,7 @@ export function AuthComponent({
           key="more"
           name="More"
           icon={<FontAwesomeIcon icon={faEllipsisH} />}
+          disabled={!authEnabled}
           onClick={() =>
             openSheet({
               key: "Select a social method",
@@ -375,19 +392,26 @@ export function AuthComponent({
   const methodComponents: Record<string, JSX.Element | null> = {
     socials: oauthBlock,
     email: methods.emailOtpAuthEnabled ? (
-      <EmailInput onContinue={handleEmailSubmit} />
+      <EmailInput onContinue={handleEmailSubmit} disabled={!authEnabled} />
     ) : null,
     sms: methods.smsOtpAuthEnabled ? (
-      <PhoneNumberInput onContinue={handlePhoneSubmit} />
+      <PhoneNumberInput
+        onContinue={handlePhoneSubmit}
+        disabled={!authEnabled}
+      />
     ) : null,
     passkey: methods.passkeyAuthEnabled ? (
       <PasskeyButtons
         onLogin={handlePasskeyLogin}
         onSignUp={handlePasskeySignUp}
+        disabled={!authEnabled}
       />
     ) : null,
     wallet: methods.walletAuthEnabled ? (
-      <WalletAuthButton onContinue={handleShowWalletSelector} />
+      <WalletAuthButton
+        onContinue={handleShowWalletSelector}
+        disabled={!authEnabled}
+      />
     ) : null,
   };
 
@@ -449,6 +473,8 @@ export function AuthComponent({
           userMessages={["You touched fuzzy.... and got dizzy."]}
         />
       )}
+
+      {turnstile}
 
       <div className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-xs mt-4 text-center">
         <span>

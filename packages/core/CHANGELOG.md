@@ -1,5 +1,122 @@
 # @turnkey/core
 
+## 2.5.0
+
+### Minor Changes
+
+- [#1475](https://github.com/tkhq/sdk/pull/1475) [`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47) Thanks [@moe-dev](https://github.com/moe-dev)! - Sync generated API clients and types with the latest public API swagger.
+
+  ### New query endpoints
+  - `getClaimEarnFeesStatus` (`POST /public/v1/query/get_claim_earn_fees_status`) — poll Earn fee-claim status by the `claimRequestId` returned from `ClaimEarnFees`. Response status is `PENDING` | `COMPLETED` | `FAILED`, with optional `claimTxHash` / `error`.
+  - `getSwapStatus` (`POST /public/v1/query/get_swap_status`) — poll swap status by the `swapRequestId` returned from `ExecuteSwap`. Covers same-chain and cross-chain swaps, and returns provider, input/output tokens and amounts, origin/destination tx hashes, optional refund info on failure, and normalized error details.
+
+  ### New submit endpoints / activities
+  - `claimSwapFees` (`POST /public/v1/submit/claim_swap_fees`, `ACTIVITY_TYPE_CLAIM_SWAP_FEES`) — claim swap fees through the activity pipeline; result includes a Relay `requestId`.
+  - `ethUndelegate7702` (`POST /public/v1/submit/eth_undelegate_7702`, `ACTIVITY_TYPE_ETH_UNDELEGATE_7702`) — submit an EIP-7702 undelegation for a wallet/private-key address on a supported CAIP-2 chain. Optional nonce / gas / fee fields; result returns a `sendTransactionStatusId` for polling.
+  - `upsertSwapConfig` (`POST /public/v1/submit/upsert_swap_config`, `ACTIVITY_TYPE_UPSERT_SWAP_CONFIG`) — enable or update org swap config (`feeReceiverWalletAddress`, `feeBps`, and Enterprise-only `stableFeeBps` for stablecoin pairs).
+  - `createSwapQuote` (`ACTIVITY_TYPE_CREATE_SWAP_QUOTE`) — request provider quotes for a swap (`signWith`, CAIP-19 `inputToken` / `outputToken`, `inputAmount`, optional `slippageBps`). Returns one or more `v1SwapQuote` values; pass `quoteId` into execute-swap v2.
+
+  ### Related activity / type updates
+  - `ACTIVITY_TYPE_EXECUTE_SWAP_V2` / `v1ExecuteSwapIntentV2` — quote-bound swap execution. Takes `quoteId` plus the exact quoted amounts (`inputAmount`, `quotedOutputAmount`, `minOutputAmount`, `sponsor`), with optional `evmNonce` / `recentBlockhash` / `gasStationNonce`. Signer is derived from the quote and must not be resupplied. Result still exposes `swapRequestId` for `getSwapStatus`.
+  - `ACTIVITY_TYPE_UPDATE_WALLET_ACCOUNT_NAME` / `v1UpdateWalletAccountNameIntent` — rename a wallet account by `walletAccountId`.
+  - Supporting swap types: `v1SwapQuote`, `v1SwapError`, `v1SwapRefund`.
+  - CAIP-2 enums used by transaction intents (including undelegation) now include `eip155:143`.
+
+  These surfaces are generated into `@turnkey/http`, `@turnkey/sdk-types`, `@turnkey/sdk-browser`, `@turnkey/sdk-server`, and `@turnkey/core`.
+
+### Patch Changes
+
+- Updated dependencies [[`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47)]:
+  - @turnkey/sdk-types@1.4.0
+  - @turnkey/http@6.1.0
+  - @turnkey/crypto@2.11.1
+  - @turnkey/react-native-passkey-stamper@1.2.19
+  - @turnkey/api-key-stamper@0.6.10
+
+## 2.4.0
+
+### Minor Changes
+
+- [#1448](https://github.com/tkhq/sdk/pull/1448) [`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Add Solana multi-signer transaction support to the core client and wallet kits.
+
+  `@turnkey/core` exposes a new `solSendTransactionV2()` HTTP client function that sends `ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2`. The existing `solSendTransaction()` HTTP client function remains on V1.
+
+  The shared `solSendTransaction` helper used by core and the wallet kits now accepts either version of the intent. Passing the legacy `signWith` field continues to use V1. Passing the new ordered `signWiths` array uses V2.
+
+  **Before (V1 remains supported):**
+
+  ```ts
+  await client.solSendTransaction({
+    transaction: {
+      unsignedTransaction: unsignedTransactionBase64,
+      signWith: signerAddress,
+      caip2,
+      sponsor,
+    },
+  });
+  ```
+
+  **After (V2):**
+
+  ```ts
+  await client.solSendTransaction({
+    transaction: {
+      unsignedTransaction: unsignedTransactionHex,
+      signWiths: [signerAddress],
+      caip2,
+      sponsor,
+    },
+  });
+  ```
+
+- [#1452](https://github.com/tkhq/sdk/pull/1452) [`b447497`](https://github.com/tkhq/sdk/commit/b447497e965b0b1df02d2294e87f89cedb761719) Author [@ericvelazquez](https://github.com/ericvelazquez) - Add Turnkey Earn APIs (early access) to the high-level SDK clients: `earnVaults`, `earnEnabledVaults`, `earnPositions`, `earnDeposit`, `earnDepositStatus`, `earnWithdraw`, `earnWithdrawStatus`, `earnDeployWrapper`, and `earnDeployStatus`.
+
+  The Earn read endpoints live under `/query/` but aren't named `get`/`list`/`test`/`validate`, so each package's codegen pins `/query/earn_*` to query methods by path. `@turnkey/http` gains the previously-missing `earnDeployStatus` so its generated Earn surface matches the other packages.
+
+### Patch Changes
+
+- [#1445](https://github.com/tkhq/sdk/pull/1445) [`257d52a`](https://github.com/tkhq/sdk/commit/257d52a108e903beea15be8b2a0e6d222fe07ed9) Thanks [@mark-nesbitt](https://github.com/mark-nesbitt)! - Patch vulnerable dependencies
+
+- Updated dependencies [[`09d0e19`](https://github.com/tkhq/sdk/commit/09d0e19ee6b4b2c1be14762650613f7fbae036b0), [`de5e169`](https://github.com/tkhq/sdk/commit/de5e1692ab79c18d898326e76777fa7ea54df812), [`b447497`](https://github.com/tkhq/sdk/commit/b447497e965b0b1df02d2294e87f89cedb761719), [`c9a13f6`](https://github.com/tkhq/sdk/commit/c9a13f65092e9a7cddc0716206331db9a8b614d2), [`257d52a`](https://github.com/tkhq/sdk/commit/257d52a108e903beea15be8b2a0e6d222fe07ed9)]:
+  - @turnkey/sdk-types@1.3.0
+  - @turnkey/http@6.0.0
+  - @turnkey/crypto@2.11.0
+  - @turnkey/react-native-passkey-stamper@1.2.18
+  - @turnkey/api-key-stamper@0.6.9
+
+## 2.3.0
+
+### Minor Changes
+
+- [#1433](https://github.com/tkhq/sdk/pull/1433) [`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f) Author [@amircheikh](https://github.com/amircheikh) - - Synced with Mono v2026.7.3
+  - Added `EthSendTransactionV2()` `httpClient` function which uses `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2`. This activity allows for multiple eth calls to be batched together via the new `calls` array. The existing `EthSendTransaction()` `httpClient` remains on the previous activity version.
+  - `ethSendTransaction` helper function can now accept a `calls` array in the `transaction` parameter which will direct the call to use `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2`. Passing the legacy `to`/`value`/`data` fields still works and continues to use V1.
+
+    ```ts
+    // V1 (still works, unchanged)
+    await client.ethSendTransaction({
+      transaction: { from, caip2, to, value, data },
+    });
+
+    // V2 — batch one or more calls via `calls`
+    await client.ethSendTransaction({
+      transaction: {
+        from,
+        caip2,
+        calls: [{ to, value, data }],
+      },
+    });
+    ```
+
+### Patch Changes
+
+- Updated dependencies [[`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f), [`cd1af93`](https://github.com/tkhq/sdk/commit/cd1af93c41a3f41c3c68589cfa6cfe17c1812c2f)]:
+  - @turnkey/http@5.0.0
+  - @turnkey/sdk-types@1.2.0
+  - @turnkey/react-native-passkey-stamper@1.2.17
+  - @turnkey/crypto@2.10.1
+  - @turnkey/api-key-stamper@0.6.8
+
 ## 2.2.0
 
 ### Minor Changes

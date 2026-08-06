@@ -17,6 +17,7 @@ import type {
   v1EthSendTransactionIntent,
   v1EthSendTransactionIntentV2,
   v1SolSendTransactionIntent,
+  v1SolSendTransactionIntentV2,
 } from "@turnkey/sdk-types";
 import type {
   CreateSubOrgParams,
@@ -75,6 +76,7 @@ export type SignUpWithPasskeyParams = {
   passkeyDisplayName?: string;
   expirationSeconds?: string;
   challenge?: string;
+  captchaToken?: string;
 };
 
 export type SwitchWalletAccountChainParams = {
@@ -107,6 +109,7 @@ export type SignUpWithWalletParams = {
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
   expirationSeconds?: string;
+  captchaToken?: string;
 };
 
 export type LoginOrSignupWithWalletParams = {
@@ -115,11 +118,13 @@ export type LoginOrSignupWithWalletParams = {
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
   expirationSeconds?: string;
+  captchaToken?: string;
 };
 
 export type InitOtpParams = {
   otpType: OtpType;
   contact: string;
+  captchaToken?: string;
 };
 
 export type InitOtpResult = {
@@ -153,6 +158,7 @@ export type SignUpWithOtpParams = {
   createSubOrgParams?: CreateSubOrgParams;
   invalidateExisting?: boolean;
   sessionKey?: string;
+  captchaToken?: string;
 };
 
 export type CompleteOtpParams = {
@@ -165,6 +171,7 @@ export type CompleteOtpParams = {
   invalidateExisting?: boolean;
   sessionKey?: string;
   createSubOrgParams?: CreateSubOrgParams;
+  captchaToken?: string;
 };
 
 export type CompleteOauthParams = {
@@ -174,6 +181,7 @@ export type CompleteOauthParams = {
   sessionKey?: string;
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
+  captchaToken?: string;
 };
 
 export type LoginWithOauthParams = {
@@ -191,6 +199,7 @@ export type SignUpWithOauthParams = {
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
+  captchaToken?: string;
 };
 
 export type FetchWalletsParams = {
@@ -279,7 +288,10 @@ export type Erc20Transfer = {
   sponsor?: boolean;
 };
 
-export type SolanaTransaction = v1SolSendTransactionIntent;
+// TODO (breaking change): eventually, we wont generate the v1 activity at all. Remove this OR-ing.
+export type SolanaTransaction =
+  | v1SolSendTransactionIntent
+  | v1SolSendTransactionIntentV2;
 
 export type EthSendTransactionParams = {
   organizationId?: string;

@@ -16,6 +16,12 @@ It includes:
 - a frontend popup notification when a webhook event arrives
 - per-asset send buttons in the balances table so you can send native assets, ERC-20 tokens, or SPL tokens (`sponsor: false`) to a prompted recipient address
 
+## Demo
+
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/0530d83d-a51f-4faf-8c02-3165fa8d8b46" controls width="720"></video>
+</div>
+
 ## Getting started
 
 ### 1/ Install dependencies

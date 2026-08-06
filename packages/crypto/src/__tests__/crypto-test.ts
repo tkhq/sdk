@@ -16,6 +16,7 @@ import {
   formatHpkeBuf,
   verifyStampSignature,
   verifySessionJwtSignature,
+  verifyOtpVerificationToken,
   fromDerSignature,
 } from "../";
 
@@ -457,6 +458,123 @@ describe("Session JWT signature", () => {
 
     const ok = await verifySessionJwtSignature(jwt);
     expect(ok).toBe(true);
+  });
+});
+
+describe("OTP Verification Token", () => {
+  // Real enclave-issued token, signed with the production TLS fetcher key.
+  const validJwt =
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9." +
+    "eyJleHAiOiIxNzgyOTE5NjUxMjYxIiwiaWQiOiJlYjM5YjE5OS0zMzUyLTQyODktYjMxZi01NzE5NGM3OTYwOWMiLCJvcmdhbml6YXRpb25faWQiOiI3ZmYxODlmYi1kZjdkLTQ1MmUtODU0MC01NzYzMmUzODBiNzciLCJ2ZXJpZmljYXRpb25fdHlwZSI6Ik9UUF9UWVBFX0VNQUlMIiwiY29udGFjdCI6InVzZXJAZXhhbXBsZS5jb20iLCJwdWJsaWNfa2V5IjoiMDM2MzM1Yjc4ZjkyNzM2ZTMyZTk5ZGM2YWVkOTc5YWZmMGI1YzI0MTkyZTc2YjE2MjhhYTU0ZWRhZjU4YzhjMTVkIn0." +
+    "YMtLA5vVUTiYhW5CIitrGXb-fk4MWx-MNVC4etopkKVro6tn0CP-Uz7biSZOunASsEc3jkjJWnFIn2AMpuZomg";
+
+  // Deterministic test signer, used to exercise the claim-validation branch with a
+  // *valid* signature — a real prod-signed token can never be missing a claim.
+  const testPrivKey = uint8ArrayFromHexString(
+    "7b2e9c5f4a1d8036e9b0c2a4f6d8e0f123456789abcdef0123456789abcdef01",
+  );
+  const testPubKeyHex = Buffer.from(p256.getPublicKey(testPrivKey)).toString(
+    "hex",
+  );
+  const signTestToken = (claims: Record<string, unknown>): string => {
+    const b64url = (obj: unknown) =>
+      Buffer.from(JSON.stringify(obj)).toString("base64url");
+    const signingInput = `${b64url({ typ: "JWT", alg: "ES256" })}.${b64url(claims)}`;
+    const sig = p256
+      .sign(sha256(new TextEncoder().encode(signingInput)), testPrivKey)
+      .toCompactRawBytes();
+    return `${signingInput}.${Buffer.from(sig).toString("base64url")}`;
+  };
+
+  const fullClaims: Record<string, string> = {
+    id: "test-id",
+    verification_type: "OTP_TYPE_EMAIL",
+    contact: "user@example.com",
+    organization_id: "test-org",
+    public_key: "deadbeef",
+    exp: "9999999999999",
+  };
+
+  test("verifies and decodes a valid OTP verification token JWT", async () => {
+    // Signed with the test key: the real prod-signed token (`validJwt`) is
+    // permanently expired, so it can't be verified successfully here. Its prod
+    // signature is still exercised by the invalid-signature and expired tests below.
+    const jwt = signTestToken(fullClaims);
+    const claims = await verifyOtpVerificationToken(jwt, testPubKeyHex);
+    expect(claims.id).toBe("test-id");
+    expect(claims.verification_type).toBe("OTP_TYPE_EMAIL");
+    expect(claims.contact).toBe("user@example.com");
+    expect(claims.organization_id).toBe("test-org");
+    expect(claims.public_key).toBe("deadbeef");
+    expect(claims.exp).toBe("9999999999999");
+  });
+
+  test("throws error for invalid JWT format", async () => {
+    await expect(verifyOtpVerificationToken("invalid.jwt")).rejects.toThrow(
+      "invalid JWT: need 3 parts",
+    );
+  });
+
+  test("throws for an invalid signature", async () => {
+    // Tamper the first signature char of the real token; JWT structure stays valid.
+    const [h, p, s] = validJwt.split(".");
+    const tampered = `${h}.${p}.${(s![0] === "A" ? "B" : "A") + s!.slice(1)}`;
+    await expect(verifyOtpVerificationToken(tampered)).rejects.toThrow(
+      "signature is invalid",
+    );
+  });
+
+  test("throws for a validly-signed token missing a required claim", async () => {
+    // Signed with the test key so the signature passes and we reach the
+    // claim-validation branch; this token is missing the required `contact`.
+    const claims: Record<string, unknown> = { ...fullClaims };
+    delete claims.contact;
+    const jwt = signTestToken(claims);
+    await expect(
+      verifyOtpVerificationToken(jwt, testPubKeyHex),
+    ).rejects.toThrow("missing required 'contact' claim");
+  });
+
+  test("rejects a token signed by a different key than the override", async () => {
+    // Token signed with the test key, but verified against the *production* key.
+    const jwt = signTestToken(fullClaims);
+    await expect(verifyOtpVerificationToken(jwt)).rejects.toThrow(
+      "signature is invalid",
+    );
+  });
+
+  test("throws for an expired token", async () => {
+    // The real prod-signed token is genuinely expired at the real clock. Reaching
+    // the expiry error (not "signature is invalid") also proves the production key
+    // verified its signature before expiry was checked.
+    await expect(verifyOtpVerificationToken(validJwt)).rejects.toThrow(
+      "has expired",
+    );
+  });
+
+  test("throws for a validly-signed but expired token", async () => {
+    // Signed with the test key so the signature passes; exp is in the past.
+    const jwt = signTestToken({ ...fullClaims, exp: "1000000000000" });
+    await expect(
+      verifyOtpVerificationToken(jwt, testPubKeyHex),
+    ).rejects.toThrow("has expired");
+  });
+
+  test("throws for a non-numeric exp claim", async () => {
+    const jwt = signTestToken({ ...fullClaims, exp: "notanumber" });
+    await expect(
+      verifyOtpVerificationToken(jwt, testPubKeyHex),
+    ).rejects.toThrow("invalid 'exp' claim");
+  });
+
+  test("throws for a non-ES256 alg header", async () => {
+    const b64url = (o: unknown) =>
+      Buffer.from(JSON.stringify(o)).toString("base64url");
+    // alg is checked before signature verification, so the signature is irrelevant.
+    const jwt = `${b64url({ typ: "JWT", alg: "HS256" })}.${b64url(fullClaims)}.AAAA`;
+    await expect(verifyOtpVerificationToken(jwt)).rejects.toThrow(
+      "unsupported alg",
+    );
   });
 });
 

@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-react",
-  "version": "6.0.2",
+  "version": "6.0.5",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -60,12 +60,12 @@
     "@turnkey/crypto": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
-    "@turnkey/sdk-types": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
     "jwt-decode": "^4.0.0",
     "libphonenumber-js": "^1.11.14",
-    "next": "15.5.18",
+    "next": "15.5.21",
     "react-apple-login": "^1.1.6",
     "react-international-phone": "^4.3.0",
     "usehooks-ts": "^3.1.1"
@@ -80,10 +80,11 @@
     }
   },
   "devDependencies": {
-    "@types/react": "18.2.14",
+    "@types/react": "18.3.24",
     "@types/react-dom": "18.2.6",
     "postcss-import": "^16.1.0",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "typescript": "5.4.3"
   },
   "engines": {
     "node": ">=18.0.0"

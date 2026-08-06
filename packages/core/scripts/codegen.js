@@ -139,6 +139,22 @@ const ACTIVITY_METHOD_OVERRIDES = [
     responseType: "TEthSendTransactionV2Response",
     resultKey: "ethSendTransactionResultV2",
   },
+  {
+    methodName: "solSendTransaction",
+    endpointPath: "/public/v1/submit/sol_send_transaction",
+    activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+    inputType: "TSolSendTransactionBody",
+    responseType: "TSolSendTransactionResponse",
+    resultKey: "solSendTransactionResult",
+  },
+  {
+    methodName: "solSendTransactionV2",
+    endpointPath: "/public/v1/submit/sol_send_transaction",
+    activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+    inputType: "TSolSendTransactionV2Body",
+    responseType: "TSolSendTransactionV2Response",
+    resultKey: "solSendTransactionResultV2",
+  },
 ];
 
 const OVERRIDDEN_METHOD_NAMES = new Set(
@@ -243,6 +259,13 @@ const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "getWhoami",
   "listPrivateKeys",
   "listUserTags",
+];
+
+const CAPTCHA_PROTECTED_METHODS = [
+  "proxyInitOtp",
+  "proxySignup",
+  "proxyInitOtpV2",
+  "proxySignupV2",
 ];
 
 /**
@@ -539,6 +562,7 @@ const generateSDKClientFromSwagger = async (
     async authProxyRequest<TBodyType, TResponseType>(
         url: string,
         body: TBodyType,
+        captchaToken?: string
     ): Promise<TResponseType> {
         if (!this.config.authProxyUrl || !this.config.authProxyConfigId) {
         throw new TurnkeyError("Auth Proxy URL or ID is not configured.", TurnkeyErrorCodes.INVALID_CONFIGURATION);
@@ -548,6 +572,10 @@ const generateSDKClientFromSwagger = async (
         var headers: Record<string, string> = {
         "Content-Type": "application/json",
         "X-Auth-Proxy-Config-ID": this.config.authProxyConfigId,
+        }
+
+        if (captchaToken) {
+        headers["X-Captcha-Token"] = captchaToken;
         }
 
         const response = await fetch(fullUrl, {
@@ -654,7 +682,14 @@ const generateSDKClientFromSwagger = async (
       continue;
     }
 
-    const methodType = methodTypeFromMethodName(methodName);
+    let methodType = methodTypeFromMethodName(methodName);
+    // Earn read endpoints live under /query/ but aren't named
+    // get/list/test/validate (e.g. earnVaults, earnPositions), so the
+    // name-based heuristic misclassifies them as activities. Pin them to
+    // "query" by path.
+    if (endpointPath.includes("/query/earn_")) {
+      methodType = "query";
+    }
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 
@@ -821,15 +856,27 @@ const generateSDKClientFromSwagger = async (
     const inputType = `ProxyT${operationNameWithoutNamespace}Body`;
     const responseType = `ProxyT${operationNameWithoutNamespace}Response`;
 
-    codeBuffer.push(
-      `\n\t${methodName} = async (input: SdkTypes.${inputType}${
-        METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
-          ? " = {}"
-          : ""
-      }): Promise<SdkTypes.${responseType}> => {
+    if (CAPTCHA_PROTECTED_METHODS.includes(methodName)) {
+      codeBuffer.push(
+        `\n\t${methodName} = async (input: SdkTypes.${inputType}${
+          METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
+            ? " = {}"
+            : ""
+        }, captchaToken?: string): Promise<SdkTypes.${responseType}> => {
+      return this.authProxyRequest("${endpointPath}", input, captchaToken);
+    }`,
+      );
+    } else {
+      codeBuffer.push(
+        `\n\t${methodName} = async (input: SdkTypes.${inputType}${
+          METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
+            ? " = {}"
+            : ""
+        }): Promise<SdkTypes.${responseType}> => {
       return this.authProxyRequest("${endpointPath}", input);
     }`,
-    );
+      );
+    }
   }
 
   // End of the TurnkeySDKClient Class Definition

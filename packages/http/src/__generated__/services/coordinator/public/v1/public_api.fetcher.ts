@@ -8,254 +8,6 @@ import {
 import type { operations } from "./public_api.types";
 
 /**
- * `POST /public/v1/query/earn_deposit_status`
- */
-export type TEarnDepositStatusResponse =
-  operations["PublicApiService_EarnDepositStatus"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/earn_deposit_status`
- */
-export type TEarnDepositStatusInput = { body: TEarnDepositStatusBody };
-
-/**
- * `POST /public/v1/query/earn_deposit_status`
- */
-export type TEarnDepositStatusBody =
-  operations["PublicApiService_EarnDepositStatus"]["parameters"]["body"]["body"];
-
-/**
- * Get Earn deposit status
- *
- * Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path).
- *
- * `POST /public/v1/query/earn_deposit_status`
- */
-export const earnDepositStatus = (input: TEarnDepositStatusInput) =>
-  request<
-    TEarnDepositStatusResponse,
-    TEarnDepositStatusBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/query/earn_deposit_status",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `EarnDepositStatus` request, ready to be POSTed to Turnkey.
- *
- * See {@link EarnDepositStatus}
- */
-export const signEarnDepositStatus = (
-  input: TEarnDepositStatusInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TEarnDepositStatusBody, never, never>({
-    uri: "/public/v1/query/earn_deposit_status",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/query/earn_enabled_vaults`
- */
-export type TEarnEnabledVaultsResponse =
-  operations["PublicApiService_EarnEnabledVaults"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/earn_enabled_vaults`
- */
-export type TEarnEnabledVaultsInput = { body: TEarnEnabledVaultsBody };
-
-/**
- * `POST /public/v1/query/earn_enabled_vaults`
- */
-export type TEarnEnabledVaultsBody =
-  operations["PublicApiService_EarnEnabledVaults"]["parameters"]["body"]["body"];
-
-/**
- * Get Earn enabled vaults
- *
- * Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions.
- *
- * `POST /public/v1/query/earn_enabled_vaults`
- */
-export const earnEnabledVaults = (input: TEarnEnabledVaultsInput) =>
-  request<
-    TEarnEnabledVaultsResponse,
-    TEarnEnabledVaultsBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/query/earn_enabled_vaults",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `EarnEnabledVaults` request, ready to be POSTed to Turnkey.
- *
- * See {@link EarnEnabledVaults}
- */
-export const signEarnEnabledVaults = (
-  input: TEarnEnabledVaultsInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TEarnEnabledVaultsBody, never, never>({
-    uri: "/public/v1/query/earn_enabled_vaults",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/query/earn_positions`
- */
-export type TEarnPositionsResponse =
-  operations["PublicApiService_EarnPositions"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/earn_positions`
- */
-export type TEarnPositionsInput = { body: TEarnPositionsBody };
-
-/**
- * `POST /public/v1/query/earn_positions`
- */
-export type TEarnPositionsBody =
-  operations["PublicApiService_EarnPositions"]["parameters"]["body"]["body"];
-
-/**
- * Get Earn positions
- *
- * Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees.
- *
- * `POST /public/v1/query/earn_positions`
- */
-export const earnPositions = (input: TEarnPositionsInput) =>
-  request<TEarnPositionsResponse, TEarnPositionsBody, never, never, never>({
-    uri: "/public/v1/query/earn_positions",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `EarnPositions` request, ready to be POSTed to Turnkey.
- *
- * See {@link EarnPositions}
- */
-export const signEarnPositions = (
-  input: TEarnPositionsInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TEarnPositionsBody, never, never>({
-    uri: "/public/v1/query/earn_positions",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/query/earn_vaults`
- */
-export type TEarnVaultsResponse =
-  operations["PublicApiService_EarnVaults"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/earn_vaults`
- */
-export type TEarnVaultsInput = { body: TEarnVaultsBody };
-
-/**
- * `POST /public/v1/query/earn_vaults`
- */
-export type TEarnVaultsBody =
-  operations["PublicApiService_EarnVaults"]["parameters"]["body"]["body"];
-
-/**
- * Get Earn vault catalog
- *
- * Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled.
- *
- * `POST /public/v1/query/earn_vaults`
- */
-export const earnVaults = (input: TEarnVaultsInput) =>
-  request<TEarnVaultsResponse, TEarnVaultsBody, never, never, never>({
-    uri: "/public/v1/query/earn_vaults",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `EarnVaults` request, ready to be POSTed to Turnkey.
- *
- * See {@link EarnVaults}
- */
-export const signEarnVaults = (
-  input: TEarnVaultsInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TEarnVaultsBody, never, never>({
-    uri: "/public/v1/query/earn_vaults",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/query/earn_withdraw_status`
- */
-export type TEarnWithdrawStatusResponse =
-  operations["PublicApiService_EarnWithdrawStatus"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/earn_withdraw_status`
- */
-export type TEarnWithdrawStatusInput = { body: TEarnWithdrawStatusBody };
-
-/**
- * `POST /public/v1/query/earn_withdraw_status`
- */
-export type TEarnWithdrawStatusBody =
-  operations["PublicApiService_EarnWithdrawStatus"]["parameters"]["body"]["body"];
-
-/**
- * Get Earn withdraw status
- *
- * Poll the status of a withdrawal by its withdraw_request_id.
- *
- * `POST /public/v1/query/earn_withdraw_status`
- */
-export const earnWithdrawStatus = (input: TEarnWithdrawStatusInput) =>
-  request<
-    TEarnWithdrawStatusResponse,
-    TEarnWithdrawStatusBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/query/earn_withdraw_status",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `EarnWithdrawStatus` request, ready to be POSTed to Turnkey.
- *
- * See {@link EarnWithdrawStatus}
- */
-export const signEarnWithdrawStatus = (
-  input: TEarnWithdrawStatusInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TEarnWithdrawStatusBody, never, never>({
-    uri: "/public/v1/query/earn_withdraw_status",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/query/get_activity`
  */
 export type TGetActivityResponse =
@@ -585,6 +337,216 @@ export const signGetBootProof = (
 ) =>
   signedRequest<TGetBootProofBody, never, never>({
     uri: "/public/v1/query/get_boot_proof",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_claim_earn_fees_status`
+ */
+export type TGetClaimEarnFeesStatusResponse =
+  operations["PublicApiService_GetClaimEarnFeesStatus"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_claim_earn_fees_status`
+ */
+export type TGetClaimEarnFeesStatusInput = {
+  body: TGetClaimEarnFeesStatusBody;
+};
+
+/**
+ * `POST /public/v1/query/get_claim_earn_fees_status`
+ */
+export type TGetClaimEarnFeesStatusBody =
+  operations["PublicApiService_GetClaimEarnFeesStatus"]["parameters"]["body"]["body"];
+
+/**
+ * Get Earn claim fees status
+ *
+ * Poll the status of a fee claim by its claim_request_id.
+ *
+ * `POST /public/v1/query/get_claim_earn_fees_status`
+ */
+export const getClaimEarnFeesStatus = (input: TGetClaimEarnFeesStatusInput) =>
+  request<
+    TGetClaimEarnFeesStatusResponse,
+    TGetClaimEarnFeesStatusBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_claim_earn_fees_status",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetClaimEarnFeesStatus` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetClaimEarnFeesStatus}
+ */
+export const signGetClaimEarnFeesStatus = (
+  input: TGetClaimEarnFeesStatusInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetClaimEarnFeesStatusBody, never, never>({
+    uri: "/public/v1/query/get_claim_earn_fees_status",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_earn_deploy_status`
+ */
+export type TGetEarnDeployStatusResponse =
+  operations["PublicApiService_GetEarnDeployStatus"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_earn_deploy_status`
+ */
+export type TGetEarnDeployStatusInput = { body: TGetEarnDeployStatusBody };
+
+/**
+ * `POST /public/v1/query/get_earn_deploy_status`
+ */
+export type TGetEarnDeployStatusBody =
+  operations["PublicApiService_GetEarnDeployStatus"]["parameters"]["body"]["body"];
+
+/**
+ * Get Earn deploy status
+ *
+ * Poll the status of a wrapper deployment by its deploy_request_id.
+ *
+ * `POST /public/v1/query/get_earn_deploy_status`
+ */
+export const getEarnDeployStatus = (input: TGetEarnDeployStatusInput) =>
+  request<
+    TGetEarnDeployStatusResponse,
+    TGetEarnDeployStatusBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_earn_deploy_status",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetEarnDeployStatus` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetEarnDeployStatus}
+ */
+export const signGetEarnDeployStatus = (
+  input: TGetEarnDeployStatusInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetEarnDeployStatusBody, never, never>({
+    uri: "/public/v1/query/get_earn_deploy_status",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_earn_deposit_status`
+ */
+export type TGetEarnDepositStatusResponse =
+  operations["PublicApiService_GetEarnDepositStatus"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_earn_deposit_status`
+ */
+export type TGetEarnDepositStatusInput = { body: TGetEarnDepositStatusBody };
+
+/**
+ * `POST /public/v1/query/get_earn_deposit_status`
+ */
+export type TGetEarnDepositStatusBody =
+  operations["PublicApiService_GetEarnDepositStatus"]["parameters"]["body"]["body"];
+
+/**
+ * Get Earn deposit status
+ *
+ * Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path).
+ *
+ * `POST /public/v1/query/get_earn_deposit_status`
+ */
+export const getEarnDepositStatus = (input: TGetEarnDepositStatusInput) =>
+  request<
+    TGetEarnDepositStatusResponse,
+    TGetEarnDepositStatusBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_earn_deposit_status",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetEarnDepositStatus` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetEarnDepositStatus}
+ */
+export const signGetEarnDepositStatus = (
+  input: TGetEarnDepositStatusInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetEarnDepositStatusBody, never, never>({
+    uri: "/public/v1/query/get_earn_deposit_status",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_earn_withdraw_status`
+ */
+export type TGetEarnWithdrawStatusResponse =
+  operations["PublicApiService_GetEarnWithdrawStatus"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_earn_withdraw_status`
+ */
+export type TGetEarnWithdrawStatusInput = { body: TGetEarnWithdrawStatusBody };
+
+/**
+ * `POST /public/v1/query/get_earn_withdraw_status`
+ */
+export type TGetEarnWithdrawStatusBody =
+  operations["PublicApiService_GetEarnWithdrawStatus"]["parameters"]["body"]["body"];
+
+/**
+ * Get Earn withdraw status
+ *
+ * Poll the status of a withdrawal by its withdraw_request_id.
+ *
+ * `POST /public/v1/query/get_earn_withdraw_status`
+ */
+export const getEarnWithdrawStatus = (input: TGetEarnWithdrawStatusInput) =>
+  request<
+    TGetEarnWithdrawStatusResponse,
+    TGetEarnWithdrawStatusBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_earn_withdraw_status",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetEarnWithdrawStatus` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetEarnWithdrawStatus}
+ */
+export const signGetEarnWithdrawStatus = (
+  input: TGetEarnWithdrawStatusInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetEarnWithdrawStatusBody, never, never>({
+    uri: "/public/v1/query/get_earn_withdraw_status",
     body: input.body,
     options,
   });
@@ -1538,52 +1500,6 @@ export const signGetSmartContractInterface = (
   });
 
 /**
- * `POST /public/v1/query/get_swap_quote`
- */
-export type TGetSwapQuoteResponse =
-  operations["PublicApiService_GetSwapQuote"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/get_swap_quote`
- */
-export type TGetSwapQuoteInput = { body: TGetSwapQuoteBody };
-
-/**
- * `POST /public/v1/query/get_swap_quote`
- */
-export type TGetSwapQuoteBody =
-  operations["PublicApiService_GetSwapQuote"]["parameters"]["body"]["body"];
-
-/**
- * Get swap quote
- *
- * Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
- *
- * `POST /public/v1/query/get_swap_quote`
- */
-export const getSwapQuote = (input: TGetSwapQuoteInput) =>
-  request<TGetSwapQuoteResponse, TGetSwapQuoteBody, never, never, never>({
-    uri: "/public/v1/query/get_swap_quote",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetSwapQuote` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetSwapQuote}
- */
-export const signGetSwapQuote = (
-  input: TGetSwapQuoteInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetSwapQuoteBody, never, never>({
-    uri: "/public/v1/query/get_swap_quote",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/query/get_swap_status`
  */
 export type TGetSwapStatusResponse =
@@ -1603,7 +1519,7 @@ export type TGetSwapStatusBody =
 /**
  * Get swap status
  *
- * Get the status of a swap by the send_transaction_status_id returned from execute_swap. Covers same-chain and cross-chain swaps.
+ * Poll the status of a swap by its swap_request_id. Covers same-chain and cross-chain swaps.
  *
  * `POST /public/v1/query/get_swap_status`
  */
@@ -2132,6 +2048,156 @@ export const signGetAppProofs = (
   });
 
 /**
+ * `POST /public/v1/query/list_earn_enabled_vaults`
+ */
+export type TListEarnEnabledVaultsResponse =
+  operations["PublicApiService_ListEarnEnabledVaults"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_earn_enabled_vaults`
+ */
+export type TListEarnEnabledVaultsInput = { body: TListEarnEnabledVaultsBody };
+
+/**
+ * `POST /public/v1/query/list_earn_enabled_vaults`
+ */
+export type TListEarnEnabledVaultsBody =
+  operations["PublicApiService_ListEarnEnabledVaults"]["parameters"]["body"]["body"];
+
+/**
+ * Get Earn enabled vaults
+ *
+ * Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions.
+ *
+ * `POST /public/v1/query/list_earn_enabled_vaults`
+ */
+export const listEarnEnabledVaults = (input: TListEarnEnabledVaultsInput) =>
+  request<
+    TListEarnEnabledVaultsResponse,
+    TListEarnEnabledVaultsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_earn_enabled_vaults",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListEarnEnabledVaults` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListEarnEnabledVaults}
+ */
+export const signListEarnEnabledVaults = (
+  input: TListEarnEnabledVaultsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListEarnEnabledVaultsBody, never, never>({
+    uri: "/public/v1/query/list_earn_enabled_vaults",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_earn_positions`
+ */
+export type TListEarnPositionsResponse =
+  operations["PublicApiService_ListEarnPositions"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_earn_positions`
+ */
+export type TListEarnPositionsInput = { body: TListEarnPositionsBody };
+
+/**
+ * `POST /public/v1/query/list_earn_positions`
+ */
+export type TListEarnPositionsBody =
+  operations["PublicApiService_ListEarnPositions"]["parameters"]["body"]["body"];
+
+/**
+ * Get Earn positions
+ *
+ * Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees.
+ *
+ * `POST /public/v1/query/list_earn_positions`
+ */
+export const listEarnPositions = (input: TListEarnPositionsInput) =>
+  request<
+    TListEarnPositionsResponse,
+    TListEarnPositionsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_earn_positions",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListEarnPositions` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListEarnPositions}
+ */
+export const signListEarnPositions = (
+  input: TListEarnPositionsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListEarnPositionsBody, never, never>({
+    uri: "/public/v1/query/list_earn_positions",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_earn_vaults`
+ */
+export type TListEarnVaultsResponse =
+  operations["PublicApiService_ListEarnVaults"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_earn_vaults`
+ */
+export type TListEarnVaultsInput = { body: TListEarnVaultsBody };
+
+/**
+ * `POST /public/v1/query/list_earn_vaults`
+ */
+export type TListEarnVaultsBody =
+  operations["PublicApiService_ListEarnVaults"]["parameters"]["body"]["body"];
+
+/**
+ * Get Earn vault catalog
+ *
+ * Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled.
+ *
+ * `POST /public/v1/query/list_earn_vaults`
+ */
+export const listEarnVaults = (input: TListEarnVaultsInput) =>
+  request<TListEarnVaultsResponse, TListEarnVaultsBody, never, never, never>({
+    uri: "/public/v1/query/list_earn_vaults",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListEarnVaults` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListEarnVaults}
+ */
+export const signListEarnVaults = (
+  input: TListEarnVaultsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListEarnVaultsBody, never, never>({
+    uri: "/public/v1/query/list_earn_vaults",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_email_events`
  */
 export type TListEmailEventsResponse =
@@ -2173,6 +2239,62 @@ export const signListEmailEvents = (
 ) =>
   signedRequest<TListEmailEventsBody, never, never>({
     uri: "/public/v1/query/list_email_events",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_eth_transaction_history`
+ */
+export type TListEthTransactionHistoryResponse =
+  operations["PublicApiService_ListEthTransactionHistory"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_eth_transaction_history`
+ */
+export type TListEthTransactionHistoryInput = {
+  body: TListEthTransactionHistoryBody;
+};
+
+/**
+ * `POST /public/v1/query/list_eth_transaction_history`
+ */
+export type TListEthTransactionHistoryBody =
+  operations["PublicApiService_ListEthTransactionHistory"]["parameters"]["body"]["body"];
+
+/**
+ * List Eth transaction history
+ *
+ * List Ethereum transaction history for a wallet address on the specified network.
+ *
+ * `POST /public/v1/query/list_eth_transaction_history`
+ */
+export const listEthTransactionHistory = (
+  input: TListEthTransactionHistoryInput,
+) =>
+  request<
+    TListEthTransactionHistoryResponse,
+    TListEthTransactionHistoryBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_eth_transaction_history",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListEthTransactionHistory` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListEthTransactionHistory}
+ */
+export const signListEthTransactionHistory = (
+  input: TListEthTransactionHistoryInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListEthTransactionHistoryBody, never, never>({
+    uri: "/public/v1/query/list_eth_transaction_history",
     body: input.body,
     options,
   });
@@ -2481,6 +2603,62 @@ export const signGetSmartContractInterfaces = (
 ) =>
   signedRequest<TGetSmartContractInterfacesBody, never, never>({
     uri: "/public/v1/query/list_smart_contract_interfaces",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_sol_transaction_history`
+ */
+export type TListSolTransactionHistoryResponse =
+  operations["PublicApiService_ListSolTransactionHistory"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_sol_transaction_history`
+ */
+export type TListSolTransactionHistoryInput = {
+  body: TListSolTransactionHistoryBody;
+};
+
+/**
+ * `POST /public/v1/query/list_sol_transaction_history`
+ */
+export type TListSolTransactionHistoryBody =
+  operations["PublicApiService_ListSolTransactionHistory"]["parameters"]["body"]["body"];
+
+/**
+ * List Sol transaction history
+ *
+ * List Solana transaction history for a wallet address on the specified network.
+ *
+ * `POST /public/v1/query/list_sol_transaction_history`
+ */
+export const listSolTransactionHistory = (
+  input: TListSolTransactionHistoryInput,
+) =>
+  request<
+    TListSolTransactionHistoryResponse,
+    TListSolTransactionHistoryBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_sol_transaction_history",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListSolTransactionHistory` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListSolTransactionHistory}
+ */
+export const signListSolTransactionHistory = (
+  input: TListSolTransactionHistoryInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListSolTransactionHistoryBody, never, never>({
+    uri: "/public/v1/query/list_sol_transaction_history",
     body: input.body,
     options,
   });
@@ -3115,6 +3293,98 @@ export const signApproveActivity = (
 ) =>
   signedRequest<TApproveActivityBody, never, never>({
     uri: "/public/v1/submit/approve_activity",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/claim_earn_fees`
+ */
+export type TClaimEarnFeesResponse =
+  operations["PublicApiService_ClaimEarnFees"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/claim_earn_fees`
+ */
+export type TClaimEarnFeesInput = { body: TClaimEarnFeesBody };
+
+/**
+ * `POST /public/v1/submit/claim_earn_fees`
+ */
+export type TClaimEarnFeesBody =
+  operations["PublicApiService_ClaimEarnFees"]["parameters"]["body"]["body"];
+
+/**
+ * Claim earn fees
+ *
+ * Claim earn fees through the activity pipeline.
+ *
+ * `POST /public/v1/submit/claim_earn_fees`
+ */
+export const claimEarnFees = (input: TClaimEarnFeesInput) =>
+  request<TClaimEarnFeesResponse, TClaimEarnFeesBody, never, never, never>({
+    uri: "/public/v1/submit/claim_earn_fees",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ClaimEarnFees` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ClaimEarnFees}
+ */
+export const signClaimEarnFees = (
+  input: TClaimEarnFeesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TClaimEarnFeesBody, never, never>({
+    uri: "/public/v1/submit/claim_earn_fees",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/claim_swap_fees`
+ */
+export type TClaimSwapFeesResponse =
+  operations["PublicApiService_ClaimSwapFees"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/claim_swap_fees`
+ */
+export type TClaimSwapFeesInput = { body: TClaimSwapFeesBody };
+
+/**
+ * `POST /public/v1/submit/claim_swap_fees`
+ */
+export type TClaimSwapFeesBody =
+  operations["PublicApiService_ClaimSwapFees"]["parameters"]["body"]["body"];
+
+/**
+ * Claim swap fees
+ *
+ * Claim swap fees through the activity pipeline.
+ *
+ * `POST /public/v1/submit/claim_swap_fees`
+ */
+export const claimSwapFees = (input: TClaimSwapFeesInput) =>
+  request<TClaimSwapFeesResponse, TClaimSwapFeesBody, never, never, never>({
+    uri: "/public/v1/submit/claim_swap_fees",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ClaimSwapFees` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ClaimSwapFees}
+ */
+export const signClaimSwapFees = (
+  input: TClaimSwapFeesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TClaimSwapFeesBody, never, never>({
+    uri: "/public/v1/submit/claim_swap_fees",
     body: input.body,
     options,
   });
@@ -3959,7 +4229,7 @@ export type TCreateSubOrganizationBody =
 /**
  * Create sub-organization
  *
- * Create a new sub-organization.
+ * Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS).
  *
  * `POST /public/v1/submit/create_sub_organization`
  */
@@ -3987,6 +4257,52 @@ export const signCreateSubOrganization = (
 ) =>
   signedRequest<TCreateSubOrganizationBody, never, never>({
     uri: "/public/v1/submit/create_sub_organization",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_swap_quote`
+ */
+export type TCreateSwapQuoteResponse =
+  operations["PublicApiService_CreateSwapQuote"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_swap_quote`
+ */
+export type TCreateSwapQuoteInput = { body: TCreateSwapQuoteBody };
+
+/**
+ * `POST /public/v1/submit/create_swap_quote`
+ */
+export type TCreateSwapQuoteBody =
+  operations["PublicApiService_CreateSwapQuote"]["parameters"]["body"]["body"];
+
+/**
+ * Get swap quote
+ *
+ * Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
+ *
+ * `POST /public/v1/submit/create_swap_quote`
+ */
+export const createSwapQuote = (input: TCreateSwapQuoteInput) =>
+  request<TCreateSwapQuoteResponse, TCreateSwapQuoteBody, never, never, never>({
+    uri: "/public/v1/submit/create_swap_quote",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateSwapQuote` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateSwapQuote}
+ */
+export const signCreateSwapQuote = (
+  input: TCreateSwapQuoteInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateSwapQuoteBody, never, never>({
+    uri: "/public/v1/submit/create_swap_quote",
     body: input.body,
     options,
   });
@@ -4315,7 +4631,7 @@ export type TCreateUsersBody =
 /**
  * Create users
  *
- * Create users in an existing organization.
+ * Create users in an existing organization. Each user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the organization (email, email OTP, or SMS).
  *
  * `POST /public/v1/submit/create_users`
  */
@@ -5602,6 +5918,58 @@ export const signEarnDeposit = (
   });
 
 /**
+ * `POST /public/v1/submit/earn_set_wrapper_state`
+ */
+export type TEarnSetWrapperStateResponse =
+  operations["PublicApiService_EarnSetWrapperState"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/earn_set_wrapper_state`
+ */
+export type TEarnSetWrapperStateInput = { body: TEarnSetWrapperStateBody };
+
+/**
+ * `POST /public/v1/submit/earn_set_wrapper_state`
+ */
+export type TEarnSetWrapperStateBody =
+  operations["PublicApiService_EarnSetWrapperState"]["parameters"]["body"]["body"];
+
+/**
+ * Set Earn wrapper state
+ *
+ * Enable or disable deposits to a deployed Earn wrapper. Withdrawals are always allowed.
+ *
+ * `POST /public/v1/submit/earn_set_wrapper_state`
+ */
+export const earnSetWrapperState = (input: TEarnSetWrapperStateInput) =>
+  request<
+    TEarnSetWrapperStateResponse,
+    TEarnSetWrapperStateBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/earn_set_wrapper_state",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `EarnSetWrapperState` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link EarnSetWrapperState}
+ */
+export const signEarnSetWrapperState = (
+  input: TEarnSetWrapperStateInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TEarnSetWrapperStateBody, never, never>({
+    uri: "/public/v1/submit/earn_set_wrapper_state",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/earn_withdraw`
  */
 export type TEarnWithdrawResponse =
@@ -5798,6 +6166,58 @@ export const signEthSendTransaction = (
   });
 
 /**
+ * `POST /public/v1/submit/eth_undelegate_7702`
+ */
+export type TEthUndelegate7702Response =
+  operations["PublicApiService_EthUndelegate7702"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/eth_undelegate_7702`
+ */
+export type TEthUndelegate7702Input = { body: TEthUndelegate7702Body };
+
+/**
+ * `POST /public/v1/submit/eth_undelegate_7702`
+ */
+export type TEthUndelegate7702Body =
+  operations["PublicApiService_EthUndelegate7702"]["parameters"]["body"]["body"];
+
+/**
+ * Undelegate an EVM account
+ *
+ * Submit an EIP-7702 undelegation transaction.
+ *
+ * `POST /public/v1/submit/eth_undelegate_7702`
+ */
+export const ethUndelegate7702 = (input: TEthUndelegate7702Input) =>
+  request<
+    TEthUndelegate7702Response,
+    TEthUndelegate7702Body,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/eth_undelegate_7702",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `EthUndelegate7702` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link EthUndelegate7702}
+ */
+export const signEthUndelegate7702 = (
+  input: TEthUndelegate7702Input,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TEthUndelegate7702Body, never, never>({
+    uri: "/public/v1/submit/eth_undelegate_7702",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/execute_swap`
  */
 export type TExecuteSwapResponse =
@@ -5817,7 +6237,7 @@ export type TExecuteSwapBody =
 /**
  * Execute swap
  *
- * Execute a quoted swap through the activity pipeline and Turnkey broadcasting.
+ * Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2.
  *
  * `POST /public/v1/submit/execute_swap`
  */
@@ -6185,6 +6605,58 @@ export const signInitImportPrivateKey = (
 ) =>
   signedRequest<TInitImportPrivateKeyBody, never, never>({
     uri: "/public/v1/submit/init_import_private_key",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/init_import_secrets`
+ */
+export type TInitImportSecretsResponse =
+  operations["PublicApiService_InitImportSecrets"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_import_secrets`
+ */
+export type TInitImportSecretsInput = { body: TInitImportSecretsBody };
+
+/**
+ * `POST /public/v1/submit/init_import_secrets`
+ */
+export type TInitImportSecretsBody =
+  operations["PublicApiService_InitImportSecrets"]["parameters"]["body"]["body"];
+
+/**
+ * Init import secrets
+ *
+ * Initialize secret imports by generating Ingress Encryption Target Keys.
+ *
+ * `POST /public/v1/submit/init_import_secrets`
+ */
+export const initImportSecrets = (input: TInitImportSecretsInput) =>
+  request<
+    TInitImportSecretsResponse,
+    TInitImportSecretsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/init_import_secrets",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitImportSecrets` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitImportSecrets}
+ */
+export const signInitImportSecrets = (
+  input: TInitImportSecretsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TInitImportSecretsBody, never, never>({
+    uri: "/public/v1/submit/init_import_secrets",
     body: input.body,
     options,
   });
@@ -7295,7 +7767,7 @@ export type TSolSendTransactionBody =
 /**
  * Broadcast SVM transaction
  *
- * Submit a transaction intent describing an SVM transaction you would like to broadcast.
+ * Submit a transaction intent describing an SVM transaction you would like to broadcast. Supports single- and multi-signer intents via activity type versioning.
  *
  * `POST /public/v1/submit/sol_send_transaction`
  */
@@ -8269,62 +8741,6 @@ export const signUpdateWebhookEndpoint = (
 ) =>
   signedRequest<TUpdateWebhookEndpointBody, never, never>({
     uri: "/public/v1/submit/update_webhook_endpoint",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/submit/upsert_earn_client_fee_config`
- */
-export type TUpsertEarnClientFeeConfigResponse =
-  operations["PublicApiService_UpsertEarnClientFeeConfig"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/upsert_earn_client_fee_config`
- */
-export type TUpsertEarnClientFeeConfigInput = {
-  body: TUpsertEarnClientFeeConfigBody;
-};
-
-/**
- * `POST /public/v1/submit/upsert_earn_client_fee_config`
- */
-export type TUpsertEarnClientFeeConfigBody =
-  operations["PublicApiService_UpsertEarnClientFeeConfig"]["parameters"]["body"]["body"];
-
-/**
- * Upsert Earn client fee config
- *
- * Set the client's Earn fee rate and payout wallet for the organization.
- *
- * `POST /public/v1/submit/upsert_earn_client_fee_config`
- */
-export const upsertEarnClientFeeConfig = (
-  input: TUpsertEarnClientFeeConfigInput,
-) =>
-  request<
-    TUpsertEarnClientFeeConfigResponse,
-    TUpsertEarnClientFeeConfigBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/upsert_earn_client_fee_config",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `UpsertEarnClientFeeConfig` request, ready to be POSTed to Turnkey.
- *
- * See {@link UpsertEarnClientFeeConfig}
- */
-export const signUpsertEarnClientFeeConfig = (
-  input: TUpsertEarnClientFeeConfigInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TUpsertEarnClientFeeConfigBody, never, never>({
-    uri: "/public/v1/submit/upsert_earn_client_fee_config",
     body: input.body,
     options,
   });
