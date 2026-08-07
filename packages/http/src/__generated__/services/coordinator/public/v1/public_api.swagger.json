@@ -15596,7 +15596,7 @@
           "description": "EVM CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
         "paginationOptions": {
-          "$ref": "#/definitions/v1TransactionHistoryPaginationOptions",
+          "$ref": "#/definitions/v1Pagination",
           "description": "Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query."
         }
       },
@@ -15613,12 +15613,11 @@
           },
           "description": "EVM transactions for the requested address, ordered by most recent first."
         },
-        "paginationCursors": {
-          "$ref": "#/definitions/v1TransactionHistoryPaginationCursors",
-          "description": "Opaque pagination cursors for fetching adjacent transaction-history pages."
+        "pageInfo": {
+          "$ref": "#/definitions/v1PageInfo"
         }
       },
-      "required": ["transactions", "paginationCursors"]
+      "required": ["transactions"]
     },
     "v1ListFiatOnRampCredentialsRequest": {
       "type": "object",
@@ -15712,7 +15711,7 @@
           "description": "Solana CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values."
         },
         "paginationOptions": {
-          "$ref": "#/definitions/v1TransactionHistoryPaginationOptions",
+          "$ref": "#/definitions/v1Pagination",
           "description": "Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query."
         }
       },
@@ -15729,12 +15728,11 @@
           },
           "description": "Solana transactions for the requested address, ordered by most recent first."
         },
-        "paginationCursors": {
-          "$ref": "#/definitions/v1TransactionHistoryPaginationCursors",
-          "description": "Opaque pagination cursors for fetching adjacent transaction-history pages."
+        "pageInfo": {
+          "$ref": "#/definitions/v1PageInfo"
         }
       },
-      "required": ["transactions", "paginationCursors"]
+      "required": ["transactions"]
     },
     "v1ListSupportedAssetsRequest": {
       "type": "object",
@@ -19380,36 +19378,6 @@
         }
       },
       "required": ["amount", "caip19"]
-    },
-    "v1TransactionHistoryPaginationCursors": {
-      "type": "object",
-      "properties": {
-        "before": {
-          "type": "string",
-          "description": "Opaque base64-encoded cursor for fetching transactions immediately before the current page in the newest-first result order. Omitted when no such page exists."
-        },
-        "after": {
-          "type": "string",
-          "description": "Opaque base64-encoded cursor for fetching transactions immediately after the current page in the newest-first result order. Omitted when no such page exists."
-        }
-      }
-    },
-    "v1TransactionHistoryPaginationOptions": {
-      "type": "object",
-      "properties": {
-        "limit": {
-          "type": "string",
-          "description": "Maximum number of transactions to return, between 1 and 100. Defaults to 25."
-        },
-        "before": {
-          "type": "string",
-          "description": "Opaque base64-encoded cursor returned by this API. Fetches transactions immediately before the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with after."
-        },
-        "after": {
-          "type": "string",
-          "description": "Opaque base64-encoded cursor returned by this API. Fetches transactions immediately after the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with before."
-        }
-      }
     },
     "v1TransactionHistoryTransfer": {
       "type": "object",

@@ -1673,6 +1673,16 @@ export type v1CreateSwapQuoteIntent = {
   slippageBps?: string;
 };
 
+export type v1CreateSwapQuoteRequest = {
+  type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateSwapQuoteIntent;
+  generateAppProofs?: boolean;
+};
+
 export type v1CreateSwapQuoteResult = {
   /** One or more provider quotes for this request. Today this contains a single Relay quote; pass quotes[i].quoteId to execute_swap_v2 to bind execution. */
   quotes: v1SwapQuote[];
@@ -3081,6 +3091,16 @@ export type v1ExecuteSwapIntentV2 = {
   recentBlockhash?: string;
   /** Exact gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored EVM swaps and non-sponsored EVM swaps that execute as a multi-call batch (for example ERC-20 approve + swap). This is the replay-protection nonce for gas-station batches; use the nonces endpoint to fetch it. Omit to auto-fetch. */
   gasStationNonce?: string;
+};
+
+export type v1ExecuteSwapRequest = {
+  type: "ACTIVITY_TYPE_EXECUTE_SWAP_V2";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1ExecuteSwapIntentV2;
+  generateAppProofs?: boolean;
 };
 
 export type v1ExecuteSwapResult = {
@@ -4637,14 +4657,13 @@ export type v1ListEthTransactionHistoryRequest = {
     | "eip155:56"
     | "eip155:97";
   /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
-  paginationOptions?: v1TransactionHistoryPaginationOptions;
+  paginationOptions?: v1Pagination;
 };
 
 export type v1ListEthTransactionHistoryResponse = {
   /** EVM transactions for the requested address, ordered by most recent first. */
   transactions: v1EthTransactionHistoryItem[];
-  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
-  paginationCursors: v1TransactionHistoryPaginationCursors;
+  pageInfo?: v1PageInfo;
 };
 
 export type v1ListFiatOnRampCredentialsRequest = {
@@ -4687,14 +4706,13 @@ export type v1ListSolTransactionHistoryRequest = {
     | "solana:mainnet"
     | "solana:devnet";
   /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
-  paginationOptions?: v1TransactionHistoryPaginationOptions;
+  paginationOptions?: v1Pagination;
 };
 
 export type v1ListSolTransactionHistoryResponse = {
   /** Solana transactions for the requested address, ordered by most recent first. */
   transactions: v1SolTransactionHistoryItem[];
-  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
-  paginationCursors: v1TransactionHistoryPaginationCursors;
+  pageInfo?: v1PageInfo;
 };
 
 export type v1ListSupportedAssetsRequest = {
@@ -6125,22 +6143,6 @@ export type v1TransactionHistoryFee = {
   amount: string;
   /** The CAIP-19 asset identifier. */
   caip19: string;
-};
-
-export type v1TransactionHistoryPaginationCursors = {
-  /** Opaque base64-encoded cursor for fetching transactions immediately before the current page in the newest-first result order. Omitted when no such page exists. */
-  before?: string;
-  /** Opaque base64-encoded cursor for fetching transactions immediately after the current page in the newest-first result order. Omitted when no such page exists. */
-  after?: string;
-};
-
-export type v1TransactionHistoryPaginationOptions = {
-  /** Maximum number of transactions to return, between 1 and 100. Defaults to 25. */
-  limit?: string;
-  /** Opaque base64-encoded cursor returned by this API. Fetches transactions immediately before the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with after. */
-  before?: string;
-  /** Opaque base64-encoded cursor returned by this API. Fetches transactions immediately after the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with before. */
-  after?: string;
 };
 
 export type v1TransactionHistoryTransfer = {
@@ -7764,8 +7766,7 @@ export type TListEmailEventsInput = { body: TListEmailEventsBody };
 export type TListEthTransactionHistoryResponse = {
   /** EVM transactions for the requested address, ordered by most recent first. */
   transactions: v1EthTransactionHistoryItem[];
-  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
-  paginationCursors: v1TransactionHistoryPaginationCursors;
+  pageInfo?: v1PageInfo;
 };
 
 export type TListEthTransactionHistoryBody = {
@@ -7787,7 +7788,7 @@ export type TListEthTransactionHistoryBody = {
     | "eip155:56"
     | "eip155:97";
   /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
-  paginationOptions?: v1TransactionHistoryPaginationOptions;
+  paginationOptions?: v1Pagination;
 };
 
 export type TListEthTransactionHistoryInput = {
@@ -7865,8 +7866,7 @@ export type TGetSmartContractInterfacesInput = {
 export type TListSolTransactionHistoryResponse = {
   /** Solana transactions for the requested address, ordered by most recent first. */
   transactions: v1SolTransactionHistoryItem[];
-  /** Opaque pagination cursors for fetching adjacent transaction-history pages. */
-  paginationCursors: v1TransactionHistoryPaginationCursors;
+  pageInfo?: v1PageInfo;
 };
 
 export type TListSolTransactionHistoryBody = {
@@ -7880,7 +7880,7 @@ export type TListSolTransactionHistoryBody = {
     | "solana:mainnet"
     | "solana:devnet";
   /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
-  paginationOptions?: v1TransactionHistoryPaginationOptions;
+  paginationOptions?: v1Pagination;
 };
 
 export type TListSolTransactionHistoryInput = {
@@ -8475,6 +8475,30 @@ export type TCreateSubOrganizationBody = {
 };
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
+
+export type TCreateSwapQuoteResponse = {
+  activity: v1Activity;
+  /** One or more provider quotes for this request. Today this contains a single Relay quote; pass quotes[i].quoteId to execute_swap_v2 to bind execution. */
+  quotes: v1SwapQuote[];
+};
+
+export type TCreateSwapQuoteBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Wallet account or Private Key address used to price the executable provider quote. Private Key identifiers are not supported. */
+  signWith: string;
+  /** CAIP-19 asset ID for the input asset. The chain is derived from this value. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Provider-neutral maximum allowed slippage in basis points. Turnkey converts this value to each provider's request format. When omitted, each provider applies its default slippage behavior. */
+  slippageBps?: string;
+  generateAppProofs?: boolean;
+};
+
+export type TCreateSwapQuoteInput = { body: TCreateSwapQuoteBody };
 
 export type TCreateTvcAppResponse = {
   activity: v1Activity;
@@ -9207,6 +9231,44 @@ export type TEthUndelegate7702Body = {
 };
 
 export type TEthUndelegate7702Input = { body: TEthUndelegate7702Body };
+
+export type TExecuteSwapResponse = {
+  activity: v1Activity;
+  /** Identifier to poll swap status via GetSwapStatus. */
+  swapRequestId: string;
+  /** Swap provider used to build the transaction. */
+  provider?: string;
+  /** Quote identifier used for execution, if any. */
+  quoteId?: string;
+};
+
+export type TExecuteSwapBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Quote identifier returned by create_swap_quote. Execution is bound to this quote; the signer is derived from the quote and must not be resupplied. */
+  quoteId: string;
+  /** CAIP-19 asset ID for the input asset. */
+  inputToken: string;
+  /** Exact base-unit amount of the input asset committed by the quote. */
+  inputAmount: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Exact quoted base-unit output amount committed by the quote. */
+  quotedOutputAmount: string;
+  /** Exact minimum base-unit output committed by the quote. */
+  minOutputAmount: string;
+  /** Whether the quoted transaction is sponsored. */
+  sponsor: boolean;
+  /** Exact EVM sender (EOA account) nonce. Valid only for a non-sponsored EVM swap. Honored for already-delegated (Type-2) batch swaps and single-call swaps; ignored for not-yet-delegated EIP-7702 (Type-4) batches where the outer nonce is derived from the authorization. Prefer gas_station_nonce for batch replay protection and use the nonces endpoint to fetch it. Omit to auto-fetch. */
+  evmNonce?: string;
+  /** Exact Solana recent blockhash. Valid only for a Solana swap, including sponsored swaps. Omit to auto-fetch. */
+  recentBlockhash?: string;
+  /** Exact gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored EVM swaps and non-sponsored EVM swaps that execute as a multi-call batch (for example ERC-20 approve + swap). This is the replay-protection nonce for gas-station batches; use the nonces endpoint to fetch it. Omit to auto-fetch. */
+  gasStationNonce?: string;
+  generateAppProofs?: boolean;
+};
+
+export type TExecuteSwapInput = { body: TExecuteSwapBody };
 
 export type TExportPrivateKeyResponse = {
   activity: v1Activity;

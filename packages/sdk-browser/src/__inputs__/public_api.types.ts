@@ -4993,13 +4993,12 @@ export type definitions = {
       | "eip155:56"
       | "eip155:97";
     /** @description Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
-    paginationOptions?: definitions["v1TransactionHistoryPaginationOptions"];
+    paginationOptions?: definitions["v1Pagination"];
   };
   v1ListEthTransactionHistoryResponse: {
     /** @description EVM transactions for the requested address, ordered by most recent first. */
     transactions: definitions["v1EthTransactionHistoryItem"][];
-    /** @description Opaque pagination cursors for fetching adjacent transaction-history pages. */
-    paginationCursors: definitions["v1TransactionHistoryPaginationCursors"];
+    pageInfo?: definitions["v1PageInfo"];
   };
   v1ListFiatOnRampCredentialsRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -5038,13 +5037,12 @@ export type definitions = {
       | "solana:mainnet"
       | "solana:devnet";
     /** @description Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
-    paginationOptions?: definitions["v1TransactionHistoryPaginationOptions"];
+    paginationOptions?: definitions["v1Pagination"];
   };
   v1ListSolTransactionHistoryResponse: {
     /** @description Solana transactions for the requested address, ordered by most recent first. */
     transactions: definitions["v1SolTransactionHistoryItem"][];
-    /** @description Opaque pagination cursors for fetching adjacent transaction-history pages. */
-    paginationCursors: definitions["v1TransactionHistoryPaginationCursors"];
+    pageInfo?: definitions["v1PageInfo"];
   };
   v1ListSupportedAssetsRequest: {
     /** @description Unique identifier for a given organization. */
@@ -6493,20 +6491,6 @@ export type definitions = {
     amount: string;
     /** @description The CAIP-19 asset identifier. */
     caip19: string;
-  };
-  v1TransactionHistoryPaginationCursors: {
-    /** @description Opaque base64-encoded cursor for fetching transactions immediately before the current page in the newest-first result order. Omitted when no such page exists. */
-    before?: string;
-    /** @description Opaque base64-encoded cursor for fetching transactions immediately after the current page in the newest-first result order. Omitted when no such page exists. */
-    after?: string;
-  };
-  v1TransactionHistoryPaginationOptions: {
-    /** @description Maximum number of transactions to return, between 1 and 100. Defaults to 25. */
-    limit?: string;
-    /** @description Opaque base64-encoded cursor returned by this API. Fetches transactions immediately before the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with after. */
-    before?: string;
-    /** @description Opaque base64-encoded cursor returned by this API. Fetches transactions immediately after the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with before. */
-    after?: string;
   };
   v1TransactionHistoryTransfer: {
     /**

@@ -920,6 +920,16 @@ export type TCreateSubOrganizationBody =
   operations["PublicApiService_CreateSubOrganization"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateSwapQuoteResponse =
+  operations["PublicApiService_CreateSwapQuote"]["responses"]["200"]["schema"]["activity"]["result"]["createSwapQuoteResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateSwapQuoteInput = { body: TCreateSwapQuoteBody };
+
+export type TCreateSwapQuoteBody =
+  operations["PublicApiService_CreateSwapQuote"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateTvcAppResponse =
   operations["PublicApiService_CreateTvcApp"]["responses"]["200"]["schema"]["activity"]["result"]["createTvcAppResult"] &
     definitions["v1ActivityResponse"];
@@ -1278,6 +1288,16 @@ export type TEthUndelegate7702Input = { body: TEthUndelegate7702Body };
 
 export type TEthUndelegate7702Body =
   operations["PublicApiService_EthUndelegate7702"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TExecuteSwapResponse =
+  operations["PublicApiService_ExecuteSwap"]["responses"]["200"]["schema"]["activity"]["result"]["executeSwapResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TExecuteSwapInput = { body: TExecuteSwapBody };
+
+export type TExecuteSwapBody =
+  operations["PublicApiService_ExecuteSwap"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TExportPrivateKeyResponse =
