@@ -2696,6 +2696,38 @@
         "tags": ["Organizations"]
       }
     },
+    "/public/v1/submit/create_swap_quote": {
+      "post": {
+        "summary": "Get swap quote",
+        "description": "Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.",
+        "operationId": "PublicApiService_CreateSwapQuote",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateSwapQuoteRequest"
+            }
+          }
+        ],
+        "tags": ["Swaps"]
+      }
+    },
     "/public/v1/submit/create_tvc_app": {
       "post": {
         "summary": "Create a TVC App",
@@ -3814,6 +3846,38 @@
           }
         ],
         "tags": ["Broadcasting"]
+      }
+    },
+    "/public/v1/submit/execute_swap": {
+      "post": {
+        "summary": "Execute swap",
+        "description": "Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2.",
+        "operationId": "PublicApiService_ExecuteSwap",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ExecuteSwapRequest"
+            }
+          }
+        ],
+        "tags": ["Swaps"]
       }
     },
     "/public/v1/submit/export_private_key": {
@@ -8396,6 +8460,30 @@
       },
       "required": ["signWith", "inputToken", "outputToken", "inputAmount"]
     },
+    "v1CreateSwapQuoteRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_SWAP_QUOTE"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateSwapQuoteIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1CreateSwapQuoteResult": {
       "type": "object",
       "properties": {
@@ -11496,6 +11584,30 @@
         "minOutputAmount",
         "sponsor"
       ]
+    },
+    "v1ExecuteSwapRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_EXECUTE_SWAP_V2"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1ExecuteSwapIntentV2"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1ExecuteSwapResult": {
       "type": "object",
@@ -14904,7 +15016,7 @@
           "description": "EVM CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
         "paginationOptions": {
-          "$ref": "#/definitions/v1TransactionHistoryPaginationOptions",
+          "$ref": "#/definitions/v1Pagination",
           "description": "Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query."
         }
       },
@@ -14921,12 +15033,11 @@
           },
           "description": "EVM transactions for the requested address, ordered by most recent first."
         },
-        "paginationCursors": {
-          "$ref": "#/definitions/v1TransactionHistoryPaginationCursors",
-          "description": "Opaque pagination cursors for fetching adjacent transaction-history pages."
+        "pageInfo": {
+          "$ref": "#/definitions/v1PageInfo"
         }
       },
-      "required": ["transactions", "paginationCursors"]
+      "required": ["transactions"]
     },
     "v1ListFiatOnRampCredentialsRequest": {
       "type": "object",
@@ -15020,7 +15131,7 @@
           "description": "Solana CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values."
         },
         "paginationOptions": {
-          "$ref": "#/definitions/v1TransactionHistoryPaginationOptions",
+          "$ref": "#/definitions/v1Pagination",
           "description": "Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query."
         }
       },
@@ -15037,12 +15148,11 @@
           },
           "description": "Solana transactions for the requested address, ordered by most recent first."
         },
-        "paginationCursors": {
-          "$ref": "#/definitions/v1TransactionHistoryPaginationCursors",
-          "description": "Opaque pagination cursors for fetching adjacent transaction-history pages."
+        "pageInfo": {
+          "$ref": "#/definitions/v1PageInfo"
         }
       },
-      "required": ["transactions", "paginationCursors"]
+      "required": ["transactions"]
     },
     "v1ListSupportedAssetsRequest": {
       "type": "object",
@@ -18531,36 +18641,6 @@
         }
       },
       "required": ["amount", "caip19"]
-    },
-    "v1TransactionHistoryPaginationCursors": {
-      "type": "object",
-      "properties": {
-        "before": {
-          "type": "string",
-          "description": "Opaque base64-encoded cursor for fetching transactions immediately before the current page in the newest-first result order. Omitted when no such page exists."
-        },
-        "after": {
-          "type": "string",
-          "description": "Opaque base64-encoded cursor for fetching transactions immediately after the current page in the newest-first result order. Omitted when no such page exists."
-        }
-      }
-    },
-    "v1TransactionHistoryPaginationOptions": {
-      "type": "object",
-      "properties": {
-        "limit": {
-          "type": "string",
-          "description": "Maximum number of transactions to return, between 1 and 100. Defaults to 25."
-        },
-        "before": {
-          "type": "string",
-          "description": "Opaque base64-encoded cursor returned by this API. Fetches transactions immediately before the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with after."
-        },
-        "after": {
-          "type": "string",
-          "description": "Opaque base64-encoded cursor returned by this API. Fetches transactions immediately after the cursor in the newest-first result order. Must not be constructed or modified by clients. Cannot be used with before."
-        }
-      }
     },
     "v1TransactionHistoryTransfer": {
       "type": "object",

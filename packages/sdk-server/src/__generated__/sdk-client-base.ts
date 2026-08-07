@@ -2930,6 +2930,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  createSwapQuote = async (
+    input: SdkApiTypes.TCreateSwapQuoteBody,
+  ): Promise<SdkApiTypes.TCreateSwapQuoteResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_swap_quote",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE",
+      },
+      "createSwapQuoteResult",
+    );
+  };
+
+  stampCreateSwapQuote = async (
+    input: SdkApiTypes.TCreateSwapQuoteBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_swap_quote";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   createTvcApp = async (
     input: SdkApiTypes.TCreateTvcAppBody,
   ): Promise<SdkApiTypes.TCreateTvcAppResponse> => {
@@ -4384,6 +4426,47 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_ETH_UNDELEGATE7702",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  executeSwap = async (
+    input: SdkApiTypes.TExecuteSwapV2Body,
+  ): Promise<SdkApiTypes.TExecuteSwapV2Response> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/execute_swap",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_EXECUTE_SWAP_V2",
+      },
+      "executeSwapResult",
+    );
+  };
+
+  stampExecuteSwap = async (
+    input: SdkApiTypes.TExecuteSwapV2Body,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/execute_swap";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_EXECUTE_SWAP_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
