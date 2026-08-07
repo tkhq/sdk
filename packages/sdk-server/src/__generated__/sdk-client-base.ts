@@ -4438,8 +4438,8 @@ export class TurnkeySDKClientBase {
   };
 
   executeSwap = async (
-    input: SdkApiTypes.TExecuteSwapV2Body,
-  ): Promise<SdkApiTypes.TExecuteSwapV2Response> => {
+    input: SdkApiTypes.TExecuteSwapBody,
+  ): Promise<SdkApiTypes.TExecuteSwapResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/execute_swap",
@@ -4454,7 +4454,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampExecuteSwap = async (
-    input: SdkApiTypes.TExecuteSwapV2Body,
+    input: SdkApiTypes.TExecuteSwapBody,
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;

@@ -44,10 +44,9 @@ const VERSIONED_ACTIVITY_TYPES = {
     activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
     typeVersion: "V2",
   },
-  ACTIVITY_TYPE_EXECUTE_SWAP: {
-    activityType: "ACTIVITY_TYPE_EXECUTE_SWAP_V2",
-    typeVersion: "V2",
-  },
+  // Endpoint is execute_swap / ExecuteSwap; sdk-types emits TExecuteSwapBody
+  // (not TExecuteSwapV2Body). Only the activity type enum is V2.
+  ACTIVITY_TYPE_EXECUTE_SWAP: "ACTIVITY_TYPE_EXECUTE_SWAP_V2",
 };
 
 /**
