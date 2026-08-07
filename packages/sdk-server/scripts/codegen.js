@@ -44,6 +44,10 @@ const VERSIONED_ACTIVITY_TYPES = {
     activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
     typeVersion: "V2",
   },
+  ACTIVITY_TYPE_EXECUTE_SWAP: {
+    activityType: "ACTIVITY_TYPE_EXECUTE_SWAP_V2",
+    typeVersion: "V2",
+  },
 };
 
 /**

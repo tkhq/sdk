@@ -114,6 +114,11 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1VerifyOtpIntentV2",
     "v1VerifyOtpResultV2",
   ],
+  ACTIVITY_TYPE_EXECUTE_SWAP: [
+    "ACTIVITY_TYPE_EXECUTE_SWAP_V2",
+    "v1ExecuteSwapIntentV2",
+    "v1ExecuteSwapResult",
+  ],
 };
 
 /**
