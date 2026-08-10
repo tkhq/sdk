@@ -125,7 +125,6 @@ export function isSupported(): boolean {
 }
 
 // Context: https://github.com/f-23/react-native-passkey/issues/54
-type BrokenPasskeyCreateResult = PasskeyCreateResult | string;
 type BrokenPasskeyGetResult = PasskeyGetResult | string;
 
 /**
@@ -171,15 +170,6 @@ export async function createPasskey(
       },
     ],
   });
-
-  // See https://github.com/f-23/react-native-passkey/issues/54
-  // On Android the typedef lies. Registration result is actually a string!
-  // TODO: remove me once the above is resolved.
-  const brokenRegistrationResult =
-    registrationResult as BrokenPasskeyCreateResult;
-  if (typeof brokenRegistrationResult === "string") {
-    registrationResult = JSON.parse(brokenRegistrationResult);
-  }
 
   return {
     authenticatorName: config.authenticatorName,
