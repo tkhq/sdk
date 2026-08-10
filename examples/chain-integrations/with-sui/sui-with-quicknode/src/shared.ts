@@ -1,11 +1,21 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
+import { SuiGrpcClient } from "@mysten/sui/grpc";
 import { Ed25519PublicKey } from "@mysten/sui/keypairs/ed25519";
 import { Turnkey } from "@turnkey/sdk-server";
 
 // Load .env.local from the example's working directory.
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+
+/**
+ * Public Sui gRPC fullnode URLs, used as fallbacks when `QUICKNODE_SUI_URL`
+ * is not set. Sourced from the `@mysten/sui/grpc` docs; production
+ * deployments should point at a dedicated QuickNode Sui endpoint.
+ */
+const PUBLIC_SUI_GRPC_URLS: Record<"testnet" | "mainnet", string> = {
+  testnet: "https://fullnode.testnet.sui.io:443",
+  mainnet: "https://fullnode.mainnet.sui.io:443",
+};
 
 /**
  * Serialize a raw Ed25519 signature (r||s) into Sui's flagged, base64
@@ -53,20 +63,30 @@ export function getTurnkeyClient(): Turnkey {
 }
 
 /**
- * Build a {@link SuiClient} pointed at the configured node provider.
+ * Build a {@link SuiGrpcClient} pointed at the configured node provider.
  *
  * Precedence:
  *   1. `QUICKNODE_SUI_URL` (recommended for production and demos — QuickNode
- *      is the node provider used in this example).
- *   2. Public testnet fullnode via `getFullnodeUrl("testnet")` so the example
- *      runs out-of-the-box without a QuickNode key.
+ *      is the node provider used in this example, and supports Sui gRPC on
+ *      both mainnet and testnet).
+ *   2. The public testnet gRPC fullnode so the example runs out-of-the-box
+ *      without a QuickNode key.
+ *
+ * The example defaults to testnet. Set `SUI_NETWORK=mainnet` alongside a
+ * mainnet `QUICKNODE_SUI_URL` to point the client at mainnet.
  *
  * Turnkey handles signing only. Broadcast, balance reads, and transaction
- * history all flow through this client.
+ * history all flow through this client over gRPC (QuickNode has announced
+ * deprecation of the Sui JSON-RPC API for July 2026).
  */
-export function getSuiClient(): SuiClient {
-  const url = process.env.QUICKNODE_SUI_URL || getFullnodeUrl("testnet");
-  return new SuiClient({ url });
+export function getSuiClient(): SuiGrpcClient {
+  const network =
+    (process.env.SUI_NETWORK as "testnet" | "mainnet") || "testnet";
+  const baseUrl =
+    process.env.QUICKNODE_SUI_URL ||
+    PUBLIC_SUI_GRPC_URLS[network] ||
+    PUBLIC_SUI_GRPC_URLS.testnet;
+  return new SuiGrpcClient({ network, baseUrl });
 }
 
 /**

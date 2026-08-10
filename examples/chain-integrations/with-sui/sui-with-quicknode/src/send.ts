@@ -8,7 +8,7 @@ import {
   getTurnkeyClient,
   loadSignerPublicKey,
   toSerializedSignature,
-} from "./shared";
+} from "./shared.js";
 
 async function main() {
   const { address, publicKey } = loadSignerPublicKey();
@@ -22,22 +22,27 @@ async function main() {
 
   // *** TRANSACTION BUILDING *** //
 
-  // Fetch the user's SUI coin objects (via the configured node provider).
-  const coins = await provider.getCoins({
+  // Fetch the user's SUI coin objects via the gRPC node provider.
+  // `listCoins` returns `{ objects: Coin[], hasNextPage, cursor }` where
+  // each `Coin` is `{ objectId, version, digest, owner, type, balance }`.
+  const coins = await provider.listCoins({
     owner: address,
     coinType: "0x2::sui::SUI",
   });
-  if (!coins.data.length) throw new Error("No SUI coins");
+  if (!coins.objects.length) throw new Error("No SUI coins");
+
+  const gasCoin = coins.objects[0]!;
 
   const tx = new Transaction();
   tx.setSender(address);
-  tx.setGasPrice(await provider.getReferenceGasPrice());
+  const { referenceGasPrice } = await provider.getReferenceGasPrice();
+  tx.setGasPrice(referenceGasPrice);
   tx.setGasBudget(5_000_000n);
   tx.setGasPayment([
     {
-      objectId: coins.data[0]!.coinObjectId,
-      version: coins.data[0]!.version,
-      digest: coins.data[0]!.digest,
+      objectId: gasCoin.objectId,
+      version: gasCoin.version,
+      digest: gasCoin.digest,
     },
   ]); // separate intended send amount from gas payment
   const coin = tx.splitCoins(tx.gas, [tx.pure("u64", amount)]);
@@ -45,7 +50,7 @@ async function main() {
 
   const txBytes = await tx.build();
 
-  // Canonical Turnkey-Sui signing flow: wrap tx bytes in the
+  // Canonical Turnkey-Sui signing flow (unchanged): wrap tx bytes in the
   // "TransactionData" intent, blake2b(32) it, then have Turnkey sign the
   // raw 32-byte digest.
   const intentMsg = messageWithIntent("TransactionData", txBytes);
@@ -63,16 +68,24 @@ async function main() {
 
   // *** EXECUTION *** //
 
-  // Broadcast through the configured node provider (QuickNode by default
-  // when QUICKNODE_SUI_URL is set, otherwise the public testnet fullnode).
-  const result = await provider.executeTransactionBlock({
-    transactionBlock: Buffer.from(txBytes).toString("base64"),
-    signature: serialized,
-    requestType: "WaitForEffectsCert",
-    options: { showEffects: true },
+  // Broadcast through the gRPC node provider. QuickNode by default when
+  // QUICKNODE_SUI_URL is set, otherwise the public testnet gRPC fullnode.
+  // The gRPC `executeTransaction` takes raw transaction bytes plus an
+  // array of base64-encoded flagged signatures.
+  const result = await provider.executeTransaction({
+    transaction: txBytes,
+    signatures: [serialized],
   });
 
-  console.log("Transaction digest:", result.digest);
+  const executed =
+    result.$kind === "Transaction"
+      ? result.Transaction
+      : result.FailedTransaction;
+  console.log("Transaction digest:", executed.digest);
+  if (result.$kind === "FailedTransaction") {
+    console.error("Transaction failed:", executed.status.error);
+    process.exit(1);
+  }
 }
 
 main().catch((err) => {

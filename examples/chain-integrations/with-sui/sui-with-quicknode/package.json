@@ -2,6 +2,7 @@
   "name": "@turnkey/example-sui-with-quicknode",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "start": "pnpm tsx src/send.ts",
     "start:send": "pnpm tsx src/send.ts",
@@ -11,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@mysten/sui": "1.37.6",
+    "@mysten/sui": "^2.23.2",
     "@noble/hashes": "1.4.0",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",

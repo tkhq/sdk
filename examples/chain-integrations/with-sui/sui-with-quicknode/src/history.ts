@@ -1,4 +1,9 @@
-import { getSuiClient, resolveAddress } from "./shared";
+import {
+  GrpcTypes,
+  parseGrpcTransactionResponse,
+  SuiGrpcClient,
+} from "@mysten/sui/grpc";
+import { getSuiClient, resolveAddress } from "./shared.js";
 
 const SUI_COIN_TYPE = "0x2::sui::SUI";
 const MIST_PER_SUI = 1_000_000_000n;
@@ -25,27 +30,22 @@ function formatTimestamp(ms?: string | null): string {
  * Sum SUI balance changes attributed to `owner` across a tx's balanceChanges
  * array. Returns MIST as a signed bigint (positive = inflow, negative =
  * outflow). Silently returns 0n when balance changes are absent.
+ *
+ * The gRPC `BalanceChange` shape is flat: `{ coinType, address, amount }`
+ * (unlike the deprecated JSON-RPC shape that nested owner as
+ * `{ AddressOwner: '0x...' }`).
  */
-function suiDeltaForOwner(balanceChanges: unknown, owner: string): bigint {
-  if (!Array.isArray(balanceChanges)) return 0n;
+function suiDeltaForOwner(
+  balanceChanges:
+    | ReadonlyArray<{ coinType?: string; address?: string; amount?: string }>
+    | undefined,
+  owner: string,
+): bigint {
+  if (!balanceChanges || !balanceChanges.length) return 0n;
   let delta = 0n;
-  for (const bc of balanceChanges) {
-    if (!bc || typeof bc !== "object") continue;
-    const change = bc as {
-      coinType?: string;
-      amount?: string;
-      owner?: unknown;
-    };
+  for (const change of balanceChanges) {
     if (change.coinType !== SUI_COIN_TYPE) continue;
-    const ownerField = change.owner as
-      | { AddressOwner?: string; ObjectOwner?: string }
-      | string
-      | undefined;
-    const addressOwner =
-      typeof ownerField === "object" && ownerField
-        ? ownerField.AddressOwner
-        : undefined;
-    if (addressOwner !== owner) continue;
+    if (change.address !== owner) continue;
     if (!change.amount) continue;
     try {
       delta += BigInt(change.amount);
@@ -56,26 +56,133 @@ function suiDeltaForOwner(balanceChanges: unknown, owner: string): bigint {
   return delta;
 }
 
-async function printTxList(
-  label: string,
+interface HistoryEntry {
+  digest: string;
+  timestampMs: string | null;
+  delta: bigint;
+}
+
+/**
+ * Convert a proto Timestamp (`{ seconds: bigint, nanos: number }`) into
+ * milliseconds as a decimal string, matching the JSON-RPC `timestampMs`
+ * format the previous implementation printed.
+ */
+function timestampToMs(timestamp?: {
+  seconds?: bigint | string | number;
+  nanos?: number;
+}): string | null {
+  if (!timestamp || timestamp.seconds === undefined) return null;
+  const seconds = BigInt(timestamp.seconds as bigint | string | number);
+  const nanos = BigInt(timestamp.nanos ?? 0);
+  const ms = seconds * 1000n + nanos / 1_000_000n;
+  return ms.toString();
+}
+
+/**
+ * List transactions affecting `owner` via the gRPC `LedgerService.
+ * ListTransactions` RPC with an `affectedAddress` filter.
+ *
+ * The unified `SuiGrpcClient.listTransactions` helper only exposes
+ * `sender` / `moveCall` filters (see `@mysten/sui/dist/grpc/filters.mjs`),
+ * so we drive the raw `ledgerService` streaming client directly to gain
+ * access to the richer proto filter surface (`affected_address`,
+ * `affected_object`, etc.). We still delegate the response parsing to the
+ * SDK's `parseGrpcTransactionResponse` so the friendly `balanceChanges`
+ * shape (`{ coinType, address, amount }`) matches the rest of the code.
+ *
+ * Migration note: the deprecated JSON-RPC `queryTransactionBlocks`
+ * accepted `{ FromAddress }` and `{ ToAddress }` filters, which do not
+ * exist on gRPC. We now do ONE query with `affectedAddress` (matches any
+ * transaction that touched the address as sender, recipient, or object
+ * owner) and split the results into inflows vs outflows locally, using
+ * the balance-change delta as the criterion.
+ */
+async function listAffectingTransactions(
+  provider: SuiGrpcClient,
   owner: string,
-  txs: Array<{
-    digest: string;
-    timestampMs?: string | null;
-    balanceChanges?: unknown;
-  }>,
-) {
-  console.log(`\n=== ${label} (${txs.length}) ===`);
-  if (!txs.length) {
+  pageLimit: number,
+): Promise<HistoryEntry[]> {
+  // Raw proto filter. Structure documented in
+  // `@mysten/sui/dist/grpc/proto/sui/rpc/v2/filter.d.mts` (TransactionFilter
+  // -> TransactionTerm -> TransactionLiteral).
+  const filter: GrpcTypes.TransactionFilter = {
+    terms: [
+      {
+        literals: [
+          {
+            negated: false,
+            predicate: {
+              oneofKind: "affectedAddress",
+              affectedAddress: { address: owner },
+            },
+          },
+        ],
+      },
+    ],
+  };
+
+  const call = provider.ledgerService.listTransactions({
+    // Field mask: pull digest, timestamp, and balance_changes only. The
+    // SDK's own helper adds `signatures` and `effects.status`; we include
+    // those too so `parseGrpcTransactionResponse` yields a usable
+    // `TransactionResult`.
+    readMask: {
+      paths: [
+        "digest",
+        "signatures",
+        "effects.status",
+        "timestamp",
+        "balance_changes",
+      ],
+    },
+    filter,
+    options: {
+      // Descending order to get the most recent transactions first, and
+      // request one extra so we know whether more pages exist.
+      ordering: 1 /* DESCENDING */,
+      limit: pageLimit,
+    },
+  });
+
+  const entries: HistoryEntry[] = [];
+  for await (const frame of call.responses) {
+    const executed = frame.transaction;
+    if (!executed) continue;
+    if (entries.length >= pageLimit) break;
+
+    // The SDK helper handles digest, status, and balance-changes mapping.
+    // We reach into the raw proto for the timestamp (not surfaced on the
+    // friendly Transaction type).
+    const parsed = parseGrpcTransactionResponse(executed, {
+      include: { balanceChanges: true },
+    });
+    const inner =
+      parsed.$kind === "Transaction"
+        ? parsed.Transaction
+        : parsed.FailedTransaction;
+
+    entries.push({
+      digest: inner.digest,
+      timestampMs: timestampToMs(executed.timestamp),
+      delta: suiDeltaForOwner(inner.balanceChanges, owner),
+    });
+  }
+  return entries;
+}
+
+function printTxList(label: string, entries: HistoryEntry[]): void {
+  console.log(`\n=== ${label} (${entries.length}) ===`);
+  if (!entries.length) {
     console.log("  (none)");
     return;
   }
-  for (const tx of txs) {
-    const delta = suiDeltaForOwner(tx.balanceChanges, owner);
+  for (const entry of entries) {
     const deltaStr =
-      delta === 0n ? "delta: n/a" : `delta: ${formatSui(delta)} SUI`;
+      entry.delta === 0n
+        ? "delta: n/a"
+        : `delta: ${formatSui(entry.delta)} SUI`;
     console.log(
-      `  - ${tx.digest}  ts=${formatTimestamp(tx.timestampMs)}  ${deltaStr}`,
+      `  - ${entry.digest}  ts=${formatTimestamp(entry.timestampMs)}  ${deltaStr}`,
     );
   }
 }
@@ -85,27 +192,24 @@ async function main() {
   const provider = getSuiClient();
 
   console.log(`Address: ${address}`);
-  console.log(`Fetching most recent ${PAGE_LIMIT} inflows and outflows...`);
+  console.log(
+    `Fetching most recent ${PAGE_LIMIT * 2} transactions affecting this address...`,
+  );
 
-  // Node-provider reads. Two separate queries because the JSON-RPC filter
-  // is either FromAddress or ToAddress, not both.
-  const [outflowsResp, inflowsResp] = await Promise.all([
-    provider.queryTransactionBlocks({
-      filter: { FromAddress: address },
-      options: { showBalanceChanges: true },
-      order: "descending",
-      limit: PAGE_LIMIT,
-    }),
-    provider.queryTransactionBlocks({
-      filter: { ToAddress: address },
-      options: { showBalanceChanges: true },
-      order: "descending",
-      limit: PAGE_LIMIT,
-    }),
-  ]);
+  // Single gRPC query, classified locally into inflows vs outflows by
+  // balance-change delta. We over-fetch to make each side more likely to
+  // fill up to PAGE_LIMIT even in noisy address histories.
+  const entries = await listAffectingTransactions(
+    provider,
+    address,
+    PAGE_LIMIT * 2,
+  );
 
-  await printTxList("Outflows (FromAddress)", address, outflowsResp.data);
-  await printTxList("Inflows  (ToAddress)", address, inflowsResp.data);
+  const inflows = entries.filter((e) => e.delta > 0n).slice(0, PAGE_LIMIT);
+  const outflows = entries.filter((e) => e.delta < 0n).slice(0, PAGE_LIMIT);
+
+  printTxList("Outflows (delta < 0)", outflows);
+  printTxList("Inflows  (delta > 0)", inflows);
 }
 
 main().catch((err) => {

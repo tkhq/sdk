@@ -1,4 +1,4 @@
-import { getSuiClient, resolveAddress } from "./shared";
+import { getSuiClient, resolveAddress } from "./shared.js";
 
 const SUI_COIN_TYPE = "0x2::sui::SUI";
 const MIST_PER_SUI = 1_000_000_000n;
@@ -18,19 +18,26 @@ async function main() {
   const address = resolveAddress(process.argv[2]);
   const provider = getSuiClient();
 
-  // Node-provider read: `provider.getBalance` calls `suix_getBalance`.
-  const balance = await provider.getBalance({
+  // Node-provider read: `provider.getBalance` calls the gRPC
+  // `LedgerService.GetBalance` (replaces JSON-RPC `suix_getBalance`).
+  // The response shape on gRPC is:
+  //   { balance: { coinType, balance, coinBalance, addressBalance } }
+  // where `balance` is total (coin objects + address-scoped balance),
+  // `coinBalance` is the coin-object portion, and `addressBalance` is
+  // the accumulator-tracked portion.
+  const { balance } = await provider.getBalance({
     owner: address,
     coinType: SUI_COIN_TYPE,
   });
 
-  const totalMist = BigInt(balance.totalBalance);
+  const totalMist = BigInt(balance.balance);
 
   console.log(`Address: ${address}`);
   console.log(`Coin type: ${balance.coinType}`);
-  console.log(`Coin object count: ${balance.coinObjectCount}`);
-  console.log(`Balance (MIST): ${totalMist.toString()}`);
-  console.log(`Balance (SUI):  ${formatSui(totalMist)}`);
+  console.log(`Coin balance (MIST):    ${balance.coinBalance}`);
+  console.log(`Address balance (MIST): ${balance.addressBalance}`);
+  console.log(`Total balance (MIST):   ${totalMist.toString()}`);
+  console.log(`Total balance (SUI):    ${formatSui(totalMist)}`);
 }
 
 main().catch((err) => {

@@ -2,7 +2,14 @@
   "extends": "../../../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "tsBuildInfoFile": "./.cache/.tsbuildinfo"
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    // `@mysten/sui@2.x` publishes ESM-only entry points via the package
+    // `exports` map (e.g. `@mysten/sui/grpc`). The base tsconfig uses
+    // `moduleResolution: node` (Node10-classic), which ignores that map.
+    // Switch this example to `node16` resolution so those sub-paths (and
+    // the corresponding `.d.mts` types) are visible to `tsc`.
+    "module": "node16",
+    "moduleResolution": "node16"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
 }
