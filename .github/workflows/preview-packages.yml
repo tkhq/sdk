@@ -1,0 +1,66 @@
+name: Preview packages
+
+on:
+  pull_request:
+    types:
+      - labeled
+      - reopened
+      - synchronize
+
+concurrency:
+  cancel-in-progress: true
+  group: preview-packages-${{ github.event.pull_request.number }}
+
+permissions: {}
+
+jobs:
+  build:
+    name: Build preview packages
+    if: >-
+      (github.event.action == 'labeled' && github.event.label.name == 'preview-packages') ||
+      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'preview-packages'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version-file: ".nvmrc"
+          package-manager-cache: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build-all
+
+      - name: Create tarballs
+        env:
+          PREVIEW_DIRECTORY: ${{ runner.temp }}/preview-packages
+        run: |
+          mkdir -p "$PREVIEW_DIRECTORY"
+          pnpm --filter "./packages/**" pack --pack-destination "$PREVIEW_DIRECTORY"
+
+      - name: Create package manifest
+        env:
+          PREVIEW_DIRECTORY: ${{ runner.temp }}/preview-packages
+        run: node .github/scripts/create-preview-package-manifest.mjs "$PREVIEW_DIRECTORY" > "$PREVIEW_DIRECTORY/manifest.json"
+
+      - name: Upload package tarballs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          compression-level: 0
+          if-no-files-found: error
+          name: preview-packages-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/preview-packages
+          retention-days: 30
