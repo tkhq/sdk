@@ -48,14 +48,27 @@ async function importEcdsaPublicKey(spki: ArrayBuffer): Promise<CryptoKey> {
 }
 
 /**
- * verify goes through the following verification steps for an app proof & boot proof pair:
- *  - Verify app proof signature
- *  - Verify the boot proof
- *    - Attestation doc was signed by AWS
- *    - Attestation doc's `user_data` is the hash of the qos manifest
- *  - Verify the connection between the app proof & boot proof i.e. that the ephemeral keys match
+ * Verifies an app proof and boot proof pair as an example/reference-grade
+ * remote-attestation check.
  *
- *  For more information, check out https://whitepaper.turnkey.com/foundations
+ * This verifies that the app proof signature is valid, the attestation document
+ * is signed by the AWS Nitro attestation PKI, the attestation document's
+ * `user_data` is the hash of the QOS manifest, and the app proof, boot proof,
+ * and attestation document all use the same ephemeral public key.
+ *
+ * @remarks
+ * WARNING: This is not full verification of a Turnkey enclave. It does not
+ * verify the enclave identity or image measurements: it does not inspect
+ * `attestationDoc.pcrs` (PCR0-3 image measurements), and it does not compare
+ * the QOS manifest content against a known-good or pinned Turnkey manifest.
+ * Any party with an AWS account can run their own Nitro enclave and produce
+ * attestations that pass this check.
+ *
+ * For full verification, callers must additionally pin and verify the expected
+ * PCR measurements and manifest content. See the QOS repository for the
+ * reference implementation: https://github.com/tkhq/qos
+ *
+ * For more information, check out https://whitepaper.turnkey.com/foundations
  */
 export async function verify(
   appProof: v1AppProof,
