@@ -3,7 +3,12 @@ import {
   TurnkeyError,
   TurnkeyErrorCodes,
 } from "@turnkey/sdk-types";
-import { OAUTH_PROVIDER_CONFIGS, popupWidth, popupHeight } from "./config";
+import {
+  OAUTH_PROVIDER_CONFIGS,
+  OAuthResponseMode,
+  popupWidth,
+  popupHeight,
+} from "./config";
 import {
   storeOAuthState,
   consumeOAuthState,
@@ -67,6 +72,103 @@ export function redirectToOAuthProvider(url: string): Promise<never> {
     }, timeLimit);
     window.addEventListener("beforeunload", () => clearTimeout(timeout));
   });
+}
+
+const OAUTH_QUERY_RESPONSE_PARAMS = new Set([
+  "code",
+  "error",
+  "error_description",
+  "error_uri",
+  "iss",
+  "scope",
+  "session_state",
+  "state",
+]);
+
+type QueryParam = [string, string];
+
+function hasSameUrlBase(response: URL, expected: URL): boolean {
+  return (
+    response.protocol === expected.protocol &&
+    response.username === expected.username &&
+    response.password === expected.password &&
+    response.host === expected.host &&
+    response.pathname === expected.pathname
+  );
+}
+
+function isExpectedFragmentResponse(response: URL, expected: URL): boolean {
+  return (
+    response.hash !== "" &&
+    hasSameUrlBase(response, expected) &&
+    response.search === expected.search
+  );
+}
+
+function hasValidQueryResponseParams(
+  appendedParams: QueryParam[],
+  expectedNames: Set<string>,
+): boolean {
+  const responseNames = appendedParams.map(([name]) => name);
+  if (responseNames.some((name) => expectedNames.has(name))) return false;
+
+  const recognizedNames = responseNames.filter((name) =>
+    OAUTH_QUERY_RESPONSE_PARAMS.has(name),
+  );
+  const uniqueNames = new Set(recognizedNames);
+  if (recognizedNames.length !== uniqueNames.size) return false;
+
+  const hasCode = uniqueNames.has("code");
+  const hasError = uniqueNames.has("error");
+  // Every authorization request built by this package includes state. Its
+  // exact value is validated by parseOAuthResponse immediately afterward.
+  return uniqueNames.has("state") && hasCode !== hasError;
+}
+
+function isExpectedQueryResponse(response: URL, expected: URL): boolean {
+  if (!hasSameUrlBase(response, expected)) return false;
+
+  const expectedParams = Array.from(expected.searchParams.entries());
+  const expectedNames = new Set(expectedParams.map(([name]) => name));
+  const hasReservedName = expectedParams.some(([name]) =>
+    OAUTH_QUERY_RESPONSE_PARAMS.has(name),
+  );
+  if (hasReservedName) return false;
+
+  const responseParams = Array.from(response.searchParams.entries());
+  const configuredQuery = new URLSearchParams(
+    responseParams.slice(0, expectedParams.length),
+  ).toString();
+  if (configuredQuery !== expected.searchParams.toString()) return false;
+
+  const oauthParams = responseParams.slice(expectedParams.length);
+  return hasValidQueryResponseParams(oauthParams, expectedNames);
+}
+
+/** Checks that an OAuth response used the expected mode and redirect URI. */
+export function isExpectedOAuthRedirectUrl(
+  responseUrl: string,
+  redirectUri: string,
+  responseMode: OAuthResponseMode,
+): boolean {
+  // OAuth redirect URIs cannot contain fragments, including an empty one.
+  if (redirectUri.includes("#")) return false;
+  if (responseMode !== OAuthResponseMode.Fragment && responseUrl.includes("#"))
+    return false;
+
+  let response: URL;
+  let expected: URL;
+
+  try {
+    response = new URL(responseUrl);
+    expected = new URL(redirectUri);
+  } catch {
+    return false;
+  }
+
+  return responseMode === OAuthResponseMode.Fragment
+    ? isExpectedFragmentResponse(response, expected)
+    : isExpectedQueryResponse(response, expected);
 }
 
 /**

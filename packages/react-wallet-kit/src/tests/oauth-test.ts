@@ -2,12 +2,14 @@ import { beforeEach, describe, expect, it } from "@jest/globals";
 import { OAuthProviders, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import {
   OAUTH_CAPTCHA_TOKEN_KEY,
+  OAuthResponseMode,
   OAUTH_STATE_KEY,
   buildOAuthState,
   buildOAuthUrl,
   clearAllOAuthData,
   consumeOAuthCaptchaToken,
   consumeOAuthState,
+  isExpectedOAuthRedirectUrl,
   parseStateParam,
   parseOAuthResponse,
   storeOAuthCaptchaToken,
@@ -34,6 +36,161 @@ beforeEach(() => {
         store = {};
       },
     },
+  });
+});
+
+describe("isExpectedOAuthRedirectUrl", () => {
+  const redirectUri = "https://example.com/oauth/callback";
+  const matchesFragment = (response: string, expected = redirectUri) =>
+    isExpectedOAuthRedirectUrl(response, expected, OAuthResponseMode.Fragment);
+  const matchesQuery = (response: string, expected = redirectUri) =>
+    isExpectedOAuthRedirectUrl(response, expected, OAuthResponseMode.Query);
+
+  describe("fragment responses", () => {
+    it("accepts the exact configured endpoint", () => {
+      expect(matchesFragment(`${redirectUri}#id_token=token&state=state`)).toBe(
+        true,
+      );
+    });
+
+    it("rejects query parameters added before the fragment", () => {
+      expect(
+        matchesFragment(
+          `${redirectUri}?state=attacker-controlled#id_token=token`,
+        ),
+      ).toBe(false);
+    });
+
+    it("normalizes URLs while preserving case-sensitive components", () => {
+      expect(
+        matchesFragment("HTTPS://EXAMPLE.COM/oauth/callback#id_token=token"),
+      ).toBe(true);
+      expect(
+        matchesFragment(
+          `${redirectUri}#id_token=token`,
+          "HTTPS://EXAMPLE.COM:443/oauth/callback",
+        ),
+      ).toBe(true);
+      expect(
+        matchesFragment("https://example.com/OAuth/callback#id_token=token"),
+      ).toBe(false);
+      expect(
+        matchesFragment(
+          `${redirectUri}?tenant=turnkey#id_token=token`,
+          `${redirectUri}?tenant=Turnkey`,
+        ),
+      ).toBe(false);
+    });
+
+    it.each([
+      "https://example.com/oauth/callback/child#id_token=token",
+      "https://example.com/oauth/callback-evil#id_token=token",
+      "https://example.com/another-path#id_token=token",
+      "https://example.com.evil/oauth/callback#id_token=token",
+      "not a URL",
+    ])("rejects a different endpoint: %s", (response) => {
+      expect(matchesFragment(response)).toBe(false);
+    });
+
+    it("rejects an empty fragment", () => {
+      expect(matchesFragment(`${redirectUri}#`)).toBe(false);
+    });
+  });
+
+  describe("query responses", () => {
+    it("accepts the exact configured endpoint", () => {
+      expect(matchesQuery(`${redirectUri}?code=code&state=state`)).toBe(true);
+    });
+
+    it("requires configured query parameters to match", () => {
+      const expected = `${redirectUri}?tenant=turnkey&tenant=wallet`;
+
+      expect(matchesQuery(`${expected}&code=code&state=state`, expected)).toBe(
+        true,
+      );
+      expect(
+        matchesQuery(
+          `${redirectUri}?tenant=other&code=code&state=state`,
+          expected,
+        ),
+      ).toBe(false);
+      expect(
+        matchesQuery(`${redirectUri}?code=code&state=state`, expected),
+      ).toBe(false);
+    });
+
+    it("ignores unrecognized response parameters", () => {
+      expect(
+        matchesQuery(
+          `${redirectUri}?code=code&state=state&provider_extension=value`,
+        ),
+      ).toBe(true);
+    });
+
+    it("rejects a response containing both a code and an error", () => {
+      expect(
+        matchesQuery(
+          `${redirectUri}?code=code&error=access_denied&state=state`,
+        ),
+      ).toBe(false);
+    });
+
+    it("rejects duplicate configured query parameters", () => {
+      const expected = `${redirectUri}?tenant=trusted`;
+
+      expect(
+        matchesQuery(
+          `${expected}&tenant=attacker&code=code&state=state`,
+          expected,
+        ),
+      ).toBe(false);
+    });
+
+    it("rejects configured response parameter names", () => {
+      const expected = `${redirectUri}?state=route-value`;
+
+      expect(matchesQuery(`${expected}&code=code&state=state`, expected)).toBe(
+        false,
+      );
+    });
+
+    it("handles configured query delimiters", () => {
+      expect(
+        matchesQuery(`${redirectUri}?code=code&state=state`, `${redirectUri}?`),
+      ).toBe(true);
+      expect(
+        matchesQuery(
+          `${redirectUri}?tenant=turnkey&code=code&state=state`,
+          `${redirectUri}?tenant=turnkey&`,
+        ),
+      ).toBe(true);
+    });
+  });
+
+  describe("shared validation", () => {
+    it("requires the configured response mode", () => {
+      expect(matchesFragment(`${redirectUri}?code=code&state=state`)).toBe(
+        false,
+      );
+      expect(matchesQuery(`${redirectUri}#id_token=token&state=state`)).toBe(
+        false,
+      );
+    });
+
+    it("rejects configured fragments, including an empty fragment", () => {
+      expect(
+        matchesFragment(
+          `${redirectUri}#id_token=token`,
+          `${redirectUri}#configured-fragment`,
+        ),
+      ).toBe(false);
+      expect(
+        matchesFragment(
+          "https://example.com/some/url#",
+          "https://example.com/some/url#",
+        ),
+      ).toBe(false);
+    });
   });
 });
 
