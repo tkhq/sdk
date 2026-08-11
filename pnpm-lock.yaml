@@ -3885,6 +3885,25 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  examples/test/import:
+    dependencies:
+      '@peculiar/webcrypto':
+        specifier: ^1.5.0
+        version: 1.5.0
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+    devDependencies:
+      '@types/node':
+        specifier: ^18.19.124
+        version: 18.19.124
+
   examples/transaction-management/rebalancer:
     dependencies:
       '@turnkey/ethers':
