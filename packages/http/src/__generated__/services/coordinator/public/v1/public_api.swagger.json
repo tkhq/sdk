@@ -1192,6 +1192,38 @@
         "tags": ["TVC"]
       }
     },
+    "/public/v1/query/get_tvc_qos_versions": {
+      "post": {
+        "summary": "Get TVC QOS versions",
+        "description": "List QOS versions supported for new TVC deployments and the latest recommended QOS version.",
+        "operationId": "PublicApiService_GetTvcQosVersions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcQosVersionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcQosVersionsRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
     "/public/v1/query/get_user": {
       "post": {
         "summary": "Get user",
@@ -1702,6 +1734,38 @@
           }
         ],
         "tags": ["Private Keys"]
+      }
+    },
+    "/public/v1/query/list_secrets": {
+      "post": {
+        "summary": "List secrets",
+        "description": "List secret metadata for an organization.",
+        "operationId": "PublicApiService_ListSecrets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListSecretsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListSecretsRequest"
+            }
+          }
+        ],
+        "tags": ["Secrets"]
       }
     },
     "/public/v1/query/list_smart_contract_interfaces": {
@@ -4104,6 +4168,38 @@
         "tags": ["Private Keys"]
       }
     },
+    "/public/v1/submit/export_secrets": {
+      "post": {
+        "summary": "Export secrets",
+        "description": "Export secrets encrypted to client-provided target public keys.",
+        "operationId": "PublicApiService_ExportSecrets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ExportSecretsRequest"
+            }
+          }
+        ],
+        "tags": ["Secrets"]
+      }
+    },
     "/public/v1/submit/export_wallet": {
       "post": {
         "summary": "Export wallet",
@@ -4198,6 +4294,38 @@
           }
         ],
         "tags": ["Private Keys"]
+      }
+    },
+    "/public/v1/submit/import_secrets": {
+      "post": {
+        "summary": "Import secrets",
+        "description": "Import secrets encrypted to target keys returned from InitImportSecrets.",
+        "operationId": "PublicApiService_ImportSecrets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ImportSecretsRequest"
+            }
+          }
+        ],
+        "tags": ["Secrets"]
       }
     },
     "/public/v1/submit/import_wallet": {
@@ -6498,7 +6626,9 @@
         "ACTIVITY_TYPE_UPDATE_WALLET_ACCOUNT_NAME",
         "ACTIVITY_TYPE_ETH_UNDELEGATE_7702",
         "ACTIVITY_TYPE_EXECUTE_SWAP_V2",
-        "ACTIVITY_TYPE_CREATE_SWAP_QUOTE"
+        "ACTIVITY_TYPE_CREATE_SWAP_QUOTE",
+        "ACTIVITY_TYPE_IMPORT_SECRETS",
+        "ACTIVITY_TYPE_EXPORT_SECRETS"
       ]
     },
     "v1AddressFormat": {
@@ -12127,6 +12257,72 @@
       },
       "required": ["privateKeyId", "exportBundle"]
     },
+    "v1ExportSecretParams": {
+      "type": "object",
+      "properties": {
+        "secretId": {
+          "type": "string",
+          "description": "Unique identifier for the secret to export."
+        },
+        "targetPublicKey": {
+          "type": "string",
+          "description": "Client-side public key generated by the user, to which the exported secret will be encrypted."
+        },
+        "encryptionSuite": {
+          "$ref": "#/definitions/v1TransportEncryptionSuite",
+          "description": "Transport encryption suite used for the exported secret."
+        }
+      },
+      "required": ["secretId", "targetPublicKey", "encryptionSuite"]
+    },
+    "v1ExportSecretsIntent": {
+      "type": "object",
+      "properties": {
+        "secrets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ExportSecretParams"
+          },
+          "description": "A list of secrets to export."
+        }
+      },
+      "required": ["secrets"]
+    },
+    "v1ExportSecretsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_EXPORT_SECRETS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1ExportSecretsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1ExportSecretsResult": {
+      "type": "object",
+      "properties": {
+        "secretPayloads": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Encryption suite specific payload containing each secret ciphertext, in the order the params were specified. For enclave encrypt v1 each entry is a JSON-encoded ServerSendMsg."
+        }
+      },
+      "required": ["secretPayloads"]
+    },
     "v1ExportWalletAccountIntent": {
       "type": "object",
       "properties": {
@@ -13437,7 +13633,7 @@
         },
         "refund": {
           "$ref": "#/definitions/v1SwapRefund",
-          "description": "Asset and amount returned to the user after a failed swap, when recoverable. Present only on FAILED."
+          "description": "Funds returned by the provider after a successful origin transfer and failed cross-chain fill. Omitted for origin transaction failures and same-chain swaps."
         },
         "updatedAt": {
           "type": "string",
@@ -13625,6 +13821,33 @@
         }
       },
       "required": ["tvcDeployment"]
+    },
+    "v1GetTvcQosVersionsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetTvcQosVersionsResponse": {
+      "type": "object",
+      "properties": {
+        "availableVersions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "QOS versions supported for new TVC deployments."
+        },
+        "latestVersion": {
+          "type": "string",
+          "description": "Latest recommended QOS version for new TVC deployments."
+        }
+      },
+      "required": ["availableVersions", "latestVersion"]
     },
     "v1GetUserRequest": {
       "type": "object",
@@ -13993,6 +14216,84 @@
         }
       },
       "required": ["privateKeyId", "addresses"]
+    },
+    "v1ImportSecretParams": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Optional human-readable name for the secret. Names must be unique within an organization when provided."
+        },
+        "secretPayload": {
+          "type": "string",
+          "description": "Encryption suite specific payload containing the secret ciphertext. For enclave encrypt v1 this is a JSON-encoded ClientSendMsg."
+        },
+        "targetPublicKey": {
+          "type": "string",
+          "description": "Targeted transport encryption public key, as returned by InitImportSecrets."
+        },
+        "encryptionSuite": {
+          "$ref": "#/definitions/v1TransportEncryptionSuite",
+          "description": "Transport encryption suite used for the ingress secret."
+        },
+        "staticProperties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1KeyValue"
+          },
+          "description": "Policy-visible, static properties to permanently bind to the secret."
+        }
+      },
+      "required": ["secretPayload", "targetPublicKey", "encryptionSuite"]
+    },
+    "v1ImportSecretsIntent": {
+      "type": "object",
+      "properties": {
+        "secrets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ImportSecretParams"
+          },
+          "description": "A list of secrets to import."
+        }
+      },
+      "required": ["secrets"]
+    },
+    "v1ImportSecretsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_IMPORT_SECRETS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1ImportSecretsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1ImportSecretsResult": {
+      "type": "object",
+      "properties": {
+        "secretIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Unique identifier for each imported secret, in the order the params were specified."
+        }
+      },
+      "required": ["secretIds"]
     },
     "v1ImportWalletIntent": {
       "type": "object",
@@ -15272,6 +15573,12 @@
         },
         "createSwapQuoteIntent": {
           "$ref": "#/definitions/v1CreateSwapQuoteIntent"
+        },
+        "importSecretsIntent": {
+          "$ref": "#/definitions/v1ImportSecretsIntent"
+        },
+        "exportSecretsIntent": {
+          "$ref": "#/definitions/v1ExportSecretsIntent"
         }
       }
     },
@@ -15432,6 +15739,17 @@
         }
       },
       "required": ["cidr"]
+    },
+    "v1KeyValue": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
     },
     "v1ListEarnEnabledVaultsRequest": {
       "type": "object",
@@ -15688,6 +16006,34 @@
         }
       },
       "required": ["privateKeyTags"]
+    },
+    "v1ListSecretsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for the organization or sub-organization whose secrets are listed."
+        },
+        "paginationOptions": {
+          "$ref": "#/definitions/v1Pagination",
+          "description": "Parameters used for cursor-based pagination."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1ListSecretsResponse": {
+      "type": "object",
+      "properties": {
+        "secrets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SecretMetadata"
+          },
+          "description": "Metadata for each secret in the organization, ordered by most recently created first."
+        }
+      },
+      "required": ["secrets"]
     },
     "v1ListSolTransactionHistoryRequest": {
       "type": "object",
@@ -17617,6 +17963,12 @@
         },
         "createSwapQuoteResult": {
           "$ref": "#/definitions/v1CreateSwapQuoteResult"
+        },
+        "importSecretsResult": {
+          "$ref": "#/definitions/v1ImportSecretsResult"
+        },
+        "exportSecretsResult": {
+          "$ref": "#/definitions/v1ExportSecretsResult"
         }
       }
     },
@@ -17838,6 +18190,33 @@
         }
       },
       "required": ["userName", "apiKeys", "authenticators", "oauthProviders"]
+    },
+    "v1SecretMetadata": {
+      "type": "object",
+      "properties": {
+        "secretId": {
+          "type": "string",
+          "description": "Unique identifier for the secret."
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional human-readable name for the secret."
+        },
+        "staticProperties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1KeyValue"
+          },
+          "description": "Policy visible static properties bound to the secret at creation time."
+        },
+        "createdAtUnixMs": {
+          "type": "string",
+          "format": "uint64",
+          "description": "Unix timestamp in milliseconds for when the secret was created."
+        }
+      },
+      "required": ["secretId", "staticProperties", "createdAtUnixMs"]
     },
     "v1Selector": {
       "type": "object",
@@ -19194,6 +19573,10 @@
         "originTxError": {
           "$ref": "#/definitions/v1TxError",
           "description": "Origin-chain transaction failure details, present when reason is ORIGIN_TRANSACTION_FAILED and details are available."
+        },
+        "providerReason": {
+          "type": "string",
+          "description": "Optional detail from the swap provider about why the fill did not complete, when available."
         }
       },
       "required": ["reason", "message"]
@@ -19223,7 +19606,7 @@
         },
         "slippageBps": {
           "type": "string",
-          "description": "Provider-neutral maximum allowed slippage in basis points, echoed from the quote request when set."
+          "description": "Effective total slippage tolerance in basis points for this quote, taken from the provider response when present. When the request omits input slippage_bps, the provider may calculate this value."
         },
         "clientFeeBps": {
           "type": "string",
@@ -19248,15 +19631,15 @@
       "properties": {
         "asset": {
           "type": "string",
-          "description": "CAIP-19 asset returned to the user after a failed swap."
+          "description": "CAIP-19 asset returned by the swap provider after a failed cross-chain fill."
         },
         "amount": {
           "type": "string",
-          "description": "Base-unit amount of the refunded asset."
+          "description": "Base-unit amount returned by the swap provider."
         },
         "txHash": {
           "type": "string",
-          "description": "Transaction that delivered the refunded funds, when applicable."
+          "description": "Transaction that delivered the provider refund, when applicable."
         }
       },
       "required": ["asset", "amount"]
@@ -21499,6 +21882,10 @@
         "name": {
           "type": "string",
           "description": "Human-readable name for this Wallet Account, unique within the organization."
+        },
+        "caip2Prefix": {
+          "type": "string",
+          "description": "The CAIP-2 namespace shared by the chains supported by this account (for example, 'eip155' or 'solana')."
         }
       },
       "required": [
