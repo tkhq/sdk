@@ -42,8 +42,15 @@ export function OtpVerification(props: OtpVerificationProps) {
   const [error, setError] = useState<string | null>(null);
   const [shaking, setShaking] = useState(false);
 
-  const { turnstile, consumeToken, authEnabled, turnstileConfigured } =
-    useTurnstile({ visible: !submitting });
+  // Deferred: entering the code doesn't need a captcha, only resending does. The
+  // widget stays unmounted until the user actually asks for a new code.
+  const { turnstile, requestToken, turnstileConfigured } = useTurnstile({
+    visible: !submitting,
+    deferred: true,
+  });
+
+  // The widget is only ever on screen while a resend is waiting on a challenge.
+  const awaitingCaptcha = turnstile !== null;
 
   const shakeInput = () => {
     setShaking(true);
@@ -83,7 +90,7 @@ export function OtpVerification(props: OtpVerificationProps) {
     setResending(true);
     setError(null);
     try {
-      const captchaParams = await consumeToken();
+      const captchaParams = await requestToken();
       if (turnstileConfigured && !("captchaToken" in captchaParams)) {
         setError("Please complete the CAPTCHA verification before continuing.");
         return;
@@ -146,18 +153,16 @@ export function OtpVerification(props: OtpVerificationProps) {
         )}
         <BaseButton
           onClick={handleResend}
-          disabled={resending || resent || !authEnabled}
-          className={`text-xs text-inherit font-semibold bg-transparent border-none ${(resent || !authEnabled) && "opacity-30"}`}
+          disabled={resending || resent}
+          className={`text-xs text-inherit font-semibold bg-transparent border-none ${resent && "opacity-30"}`}
         >
           {resending ? (
             <span className="flex items-center gap-2.5">
               <Spinner className="size-3" />
-              Resending...
+              {awaitingCaptcha ? "Waiting for verification..." : "Resending..."}
             </span>
           ) : resent ? (
             "Code sent!"
-          ) : !authEnabled ? (
-            "Waiting for verification..."
           ) : (
             "Resend Code"
           )}
