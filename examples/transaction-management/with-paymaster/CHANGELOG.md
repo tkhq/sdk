@@ -1,5 +1,12 @@
 # @turnkey/paymaster-usdc-transfer
 
+## 0.1.13
+
+### Patch Changes
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a)]:
+  - @turnkey/sdk-server@8.2.0
+
 ## 0.1.12
 
 ### Patch Changes

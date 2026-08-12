@@ -1,5 +1,15 @@
 # @turnkey/eip-1193-provider
 
+## 3.4.35
+
+### Patch Changes
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a)]:
+  - @turnkey/sdk-browser@8.2.0
+  - @turnkey/core@2.6.0
+  - @turnkey/http@6.2.0
+  - @turnkey/api-key-stamper@0.6.11
+
 ## 3.4.34
 
 ### Patch Changes

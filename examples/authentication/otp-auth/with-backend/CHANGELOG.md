@@ -1,5 +1,15 @@
 # @turnkey/otp-auth-with-backend
 
+## 0.1.24
+
+### Patch Changes
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a), [`751b8fe`](https://github.com/tkhq/sdk/commit/751b8fe0132e21ab388f045227306ed8ebef4cc4)]:
+  - @turnkey/sdk-server@8.2.0
+  - @turnkey/sdk-types@1.5.0
+  - @turnkey/react-wallet-kit@2.3.2
+  - @turnkey/crypto@2.11.2
+
 ## 0.1.23
 
 ### Patch Changes
