@@ -1,5 +1,13 @@
 # @turnkey/sdk-types
 
+## 1.5.0
+
+### Minor Changes
+
+- [#1480](https://github.com/tkhq/sdk/pull/1480) [`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a) Thanks [@moe-dev](https://github.com/moe-dev)! - Expose `createSwapQuote` (`ACTIVITY_TYPE_CREATE_SWAP_QUOTE`) and `executeSwap` (`ACTIVITY_TYPE_EXECUTE_SWAP_V2`) on the high-level SDK clients. `createSwapQuote` takes `signWith`, CAIP-19 tokens, amount, and optional `slippageBps`, and returns provider quotes. `executeSwap` is quote-bound: pass `quoteId` plus the exact quoted amounts (`quotedOutputAmount`, `minOutputAmount`, `sponsor`); the signer is derived from the quote. Poll with `getSwapStatus` using the returned `swapRequestId`.
+
+  Also align transaction-history list responses with standard pagination (`v1Pagination` / `pageInfo`) instead of the previous transaction-history-specific cursor types.
+
 ## 1.4.0
 
 ### Minor Changes

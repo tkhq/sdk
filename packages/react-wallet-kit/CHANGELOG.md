@@ -1,5 +1,15 @@
 # @turnkey/react-wallet-kit
 
+## 2.3.2
+
+### Patch Changes
+
+- [#1461](https://github.com/tkhq/sdk/pull/1461) [`751b8fe`](https://github.com/tkhq/sdk/commit/751b8fe0132e21ab388f045227306ed8ebef4cc4) Thanks [@lreading-turnkey](https://github.com/lreading-turnkey)! - Validate the configured OAuth redirect endpoint before processing popup responses, aligned with RFC 6749.
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a)]:
+  - @turnkey/sdk-types@1.5.0
+  - @turnkey/core@2.6.0
+
 ## 2.3.1
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @turnkey/eth-usdc-swap
 
+## 0.1.16
+
+### Patch Changes
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a)]:
+  - @turnkey/sdk-server@8.2.0
+  - @turnkey/ethers@1.3.35
+
 ## 0.1.15
 
 ### Patch Changes
