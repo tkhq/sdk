@@ -137,6 +137,10 @@ import type {
   TGetTvcDeploymentProvisioningDetailsBody,
   TGetTvcDeploymentProvisioningDetailsResponse,
 } from "./public_api.fetcher";
+import type {
+  TGetTvcQosVersionsBody,
+  TGetTvcQosVersionsResponse,
+} from "./public_api.fetcher";
 import type { TGetUserBody, TGetUserResponse } from "./public_api.fetcher";
 import type { TGetWalletBody, TGetWalletResponse } from "./public_api.fetcher";
 import type {
@@ -194,6 +198,10 @@ import type {
 import type {
   TGetPrivateKeysBody,
   TGetPrivateKeysResponse,
+} from "./public_api.fetcher";
+import type {
+  TListSecretsBody,
+  TListSecretsResponse,
 } from "./public_api.fetcher";
 import type {
   TGetSmartContractInterfacesBody,
@@ -487,6 +495,10 @@ import type {
   TExportPrivateKeyResponse,
 } from "./public_api.fetcher";
 import type {
+  TExportSecretsBody,
+  TExportSecretsResponse,
+} from "./public_api.fetcher";
+import type {
   TExportWalletBody,
   TExportWalletResponse,
 } from "./public_api.fetcher";
@@ -497,6 +509,10 @@ import type {
 import type {
   TImportPrivateKeyBody,
   TImportPrivateKeyResponse,
+} from "./public_api.fetcher";
+import type {
+  TImportSecretsBody,
+  TImportSecretsResponse,
 } from "./public_api.fetcher";
 import type {
   TImportWalletBody,
@@ -1823,6 +1839,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * List QOS versions supported for new TVC deployments and the latest recommended QOS version.
+   *
+   * Sign the provided `TGetTvcQosVersionsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_tvc_qos_versions).
+   *
+   * See also {@link stampGetTvcQosVersions}.
+   */
+  getTvcQosVersions = async (
+    input: TGetTvcQosVersionsBody,
+  ): Promise<TGetTvcQosVersionsResponse> => {
+    return this.request("/public/v1/query/get_tvc_qos_versions", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetTvcQosVersionsBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetTvcQosVersions}.
+   */
+  stampGetTvcQosVersions = async (
+    input: TGetTvcQosVersionsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_tvc_qos_versions";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Get details about a user.
    *
    * Sign the provided `TGetUserBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_user).
@@ -2311,6 +2359,37 @@ export class TurnkeyClient {
     input: TGetPrivateKeysBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List secret metadata for an organization.
+   *
+   * Sign the provided `TListSecretsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_secrets).
+   *
+   * See also {@link stampListSecrets}.
+   */
+  listSecrets = async (
+    input: TListSecretsBody,
+  ): Promise<TListSecretsResponse> => {
+    return this.request("/public/v1/query/list_secrets", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListSecretsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListSecrets}.
+   */
+  stampListSecrets = async (
+    input: TListSecretsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/list_secrets";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -4691,6 +4770,37 @@ export class TurnkeyClient {
   };
 
   /**
+   * Export secrets encrypted to client-provided target public keys.
+   *
+   * Sign the provided `TExportSecretsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/export_secrets).
+   *
+   * See also {@link stampExportSecrets}.
+   */
+  exportSecrets = async (
+    input: TExportSecretsBody,
+  ): Promise<TExportSecretsResponse> => {
+    return this.request("/public/v1/submit/export_secrets", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TExportSecretsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ExportSecrets}.
+   */
+  stampExportSecrets = async (
+    input: TExportSecretsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/export_secrets";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Export a wallet.
    *
    * Sign the provided `TExportWalletBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/export_wallet).
@@ -4776,6 +4886,37 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/import_private_key";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Import secrets encrypted to target keys returned from InitImportSecrets.
+   *
+   * Sign the provided `TImportSecretsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/import_secrets).
+   *
+   * See also {@link stampImportSecrets}.
+   */
+  importSecrets = async (
+    input: TImportSecretsBody,
+  ): Promise<TImportSecretsResponse> => {
+    return this.request("/public/v1/submit/import_secrets", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TImportSecretsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ImportSecrets}.
+   */
+  stampImportSecrets = async (
+    input: TImportSecretsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/import_secrets";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

@@ -1526,6 +1526,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getTvcQosVersions = async (
+    input: SdkApiTypes.TGetTvcQosVersionsBody,
+  ): Promise<SdkApiTypes.TGetTvcQosVersionsResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/get_tvc_qos_versions", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetTvcQosVersions = async (
+    input: SdkApiTypes.TGetTvcQosVersionsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_tvc_qos_versions";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getUser = async (
     input: SdkApiTypes.TGetUserBody,
   ): Promise<SdkApiTypes.TGetUserResponse> => {
@@ -2176,6 +2218,47 @@ export class TurnkeySDKClientBase {
     const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_private_keys";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listSecrets = async (
+    input: SdkApiTypes.TListSecretsBody,
+  ): Promise<SdkApiTypes.TListSecretsResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/list_secrets", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampListSecrets = async (
+    input: SdkApiTypes.TListSecretsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_secrets";
     const body = {
       ...input,
       organizationId:
@@ -5729,6 +5812,57 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  exportSecrets = async (
+    input: SdkApiTypes.TExportSecretsBody,
+  ): Promise<SdkApiTypes.TExportSecretsResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/export_secrets",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_EXPORT_SECRETS",
+      },
+      "exportSecretsResult",
+    );
+  };
+
+  stampExportSecrets = async (
+    input: SdkApiTypes.TExportSecretsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/export_secrets";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_EXPORT_SECRETS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   exportWallet = async (
     input: SdkApiTypes.TExportWalletBody,
   ): Promise<SdkApiTypes.TExportWalletResponse> => {
@@ -5873,6 +6007,57 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  importSecrets = async (
+    input: SdkApiTypes.TImportSecretsBody,
+  ): Promise<SdkApiTypes.TImportSecretsResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/import_secrets",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_IMPORT_SECRETS",
+      },
+      "importSecretsResult",
+    );
+  };
+
+  stampImportSecrets = async (
+    input: SdkApiTypes.TImportSecretsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/import_secrets";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_IMPORT_SECRETS",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

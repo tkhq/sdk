@@ -1885,6 +1885,53 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getTvcQosVersions = async (
+    input: SdkTypes.TGetTvcQosVersionsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetTvcQosVersionsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_tvc_qos_versions",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetTvcQosVersions = async (
+    input: SdkTypes.TGetTvcQosVersionsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_tvc_qos_versions";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getUser = async (
     input: SdkTypes.TGetUserBody,
     stampWith?: StamperType,
@@ -2615,6 +2662,52 @@ export class TurnkeySDKClientBase {
     const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_private_keys";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listSecrets = async (
+    input: SdkTypes.TListSecretsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TListSecretsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_secrets",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampListSecrets = async (
+    input: SdkTypes.TListSecretsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_secrets";
     const body = {
       ...input,
       organizationId:
@@ -6524,6 +6617,63 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  exportSecrets = async (
+    input: SdkTypes.TExportSecretsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TExportSecretsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/export_secrets",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_EXPORT_SECRETS",
+      },
+      "exportSecretsResult",
+      stampWith,
+    );
+  };
+
+  stampExportSecrets = async (
+    input: SdkTypes.TExportSecretsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/export_secrets";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_EXPORT_SECRETS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   exportWallet = async (
     input: SdkTypes.TExportWalletBody,
     stampWith?: StamperType,
@@ -6686,6 +6836,63 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  importSecrets = async (
+    input: SdkTypes.TImportSecretsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TImportSecretsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/import_secrets",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_IMPORT_SECRETS",
+      },
+      "importSecretsResult",
+      stampWith,
+    );
+  };
+
+  stampImportSecrets = async (
+    input: SdkTypes.TImportSecretsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/import_secrets";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_IMPORT_SECRETS",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

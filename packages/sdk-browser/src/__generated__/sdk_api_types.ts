@@ -382,6 +382,17 @@ export type TGetTvcDeploymentDebugLogsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetTvcQosVersionsResponse =
+  operations["PublicApiService_GetTvcQosVersions"]["responses"]["200"]["schema"];
+
+export type TGetTvcQosVersionsInput = { body: TGetTvcQosVersionsBody };
+
+export type TGetTvcQosVersionsBody = Omit<
+  operations["PublicApiService_GetTvcQosVersions"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetUserResponse =
   operations["PublicApiService_GetUser"]["responses"]["200"]["schema"];
 
@@ -560,6 +571,17 @@ export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
 
 export type TGetPrivateKeysBody = Omit<
   operations["PublicApiService_GetPrivateKeys"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListSecretsResponse =
+  operations["PublicApiService_ListSecrets"]["responses"]["200"]["schema"];
+
+export type TListSecretsInput = { body: TListSecretsBody };
+
+export type TListSecretsBody = Omit<
+  operations["PublicApiService_ListSecrets"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -1310,6 +1332,16 @@ export type TExportPrivateKeyBody =
   operations["PublicApiService_ExportPrivateKey"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TExportSecretsResponse =
+  operations["PublicApiService_ExportSecrets"]["responses"]["200"]["schema"]["activity"]["result"]["exportSecretsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TExportSecretsInput = { body: TExportSecretsBody };
+
+export type TExportSecretsBody =
+  operations["PublicApiService_ExportSecrets"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TExportWalletResponse =
   operations["PublicApiService_ExportWallet"]["responses"]["200"]["schema"]["activity"]["result"]["exportWalletResult"] &
     definitions["v1ActivityResponse"];
@@ -1338,6 +1370,16 @@ export type TImportPrivateKeyInput = { body: TImportPrivateKeyBody };
 
 export type TImportPrivateKeyBody =
   operations["PublicApiService_ImportPrivateKey"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TImportSecretsResponse =
+  operations["PublicApiService_ImportSecrets"]["responses"]["200"]["schema"]["activity"]["result"]["importSecretsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TImportSecretsInput = { body: TImportSecretsBody };
+
+export type TImportSecretsBody =
+  operations["PublicApiService_ImportSecrets"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TImportWalletResponse =

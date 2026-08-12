@@ -1756,6 +1756,58 @@ export const signGetTvcDeploymentProvisioningDetails = (
   });
 
 /**
+ * `POST /public/v1/query/get_tvc_qos_versions`
+ */
+export type TGetTvcQosVersionsResponse =
+  operations["PublicApiService_GetTvcQosVersions"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_tvc_qos_versions`
+ */
+export type TGetTvcQosVersionsInput = { body: TGetTvcQosVersionsBody };
+
+/**
+ * `POST /public/v1/query/get_tvc_qos_versions`
+ */
+export type TGetTvcQosVersionsBody =
+  operations["PublicApiService_GetTvcQosVersions"]["parameters"]["body"]["body"];
+
+/**
+ * Get TVC QOS versions
+ *
+ * List QOS versions supported for new TVC deployments and the latest recommended QOS version.
+ *
+ * `POST /public/v1/query/get_tvc_qos_versions`
+ */
+export const getTvcQosVersions = (input: TGetTvcQosVersionsInput) =>
+  request<
+    TGetTvcQosVersionsResponse,
+    TGetTvcQosVersionsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_tvc_qos_versions",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetTvcQosVersions` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetTvcQosVersions}
+ */
+export const signGetTvcQosVersions = (
+  input: TGetTvcQosVersionsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetTvcQosVersionsBody, never, never>({
+    uri: "/public/v1/query/get_tvc_qos_versions",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_user`
  */
 export type TGetUserResponse =
@@ -2547,6 +2599,52 @@ export const signGetPrivateKeys = (
 ) =>
   signedRequest<TGetPrivateKeysBody, never, never>({
     uri: "/public/v1/query/list_private_keys",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_secrets`
+ */
+export type TListSecretsResponse =
+  operations["PublicApiService_ListSecrets"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_secrets`
+ */
+export type TListSecretsInput = { body: TListSecretsBody };
+
+/**
+ * `POST /public/v1/query/list_secrets`
+ */
+export type TListSecretsBody =
+  operations["PublicApiService_ListSecrets"]["parameters"]["body"]["body"];
+
+/**
+ * List secrets
+ *
+ * List secret metadata for an organization.
+ *
+ * `POST /public/v1/query/list_secrets`
+ */
+export const listSecrets = (input: TListSecretsInput) =>
+  request<TListSecretsResponse, TListSecretsBody, never, never, never>({
+    uri: "/public/v1/query/list_secrets",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListSecrets` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListSecrets}
+ */
+export const signListSecrets = (
+  input: TListSecretsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListSecretsBody, never, never>({
+    uri: "/public/v1/query/list_secrets",
     body: input.body,
     options,
   });
@@ -6316,6 +6414,52 @@ export const signExportPrivateKey = (
   });
 
 /**
+ * `POST /public/v1/submit/export_secrets`
+ */
+export type TExportSecretsResponse =
+  operations["PublicApiService_ExportSecrets"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/export_secrets`
+ */
+export type TExportSecretsInput = { body: TExportSecretsBody };
+
+/**
+ * `POST /public/v1/submit/export_secrets`
+ */
+export type TExportSecretsBody =
+  operations["PublicApiService_ExportSecrets"]["parameters"]["body"]["body"];
+
+/**
+ * Export secrets
+ *
+ * Export secrets encrypted to client-provided target public keys.
+ *
+ * `POST /public/v1/submit/export_secrets`
+ */
+export const exportSecrets = (input: TExportSecretsInput) =>
+  request<TExportSecretsResponse, TExportSecretsBody, never, never, never>({
+    uri: "/public/v1/submit/export_secrets",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ExportSecrets` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ExportSecrets}
+ */
+export const signExportSecrets = (
+  input: TExportSecretsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TExportSecretsBody, never, never>({
+    uri: "/public/v1/submit/export_secrets",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/export_wallet`
  */
 export type TExportWalletResponse =
@@ -6461,6 +6605,52 @@ export const signImportPrivateKey = (
 ) =>
   signedRequest<TImportPrivateKeyBody, never, never>({
     uri: "/public/v1/submit/import_private_key",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/import_secrets`
+ */
+export type TImportSecretsResponse =
+  operations["PublicApiService_ImportSecrets"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/import_secrets`
+ */
+export type TImportSecretsInput = { body: TImportSecretsBody };
+
+/**
+ * `POST /public/v1/submit/import_secrets`
+ */
+export type TImportSecretsBody =
+  operations["PublicApiService_ImportSecrets"]["parameters"]["body"]["body"];
+
+/**
+ * Import secrets
+ *
+ * Import secrets encrypted to target keys returned from InitImportSecrets.
+ *
+ * `POST /public/v1/submit/import_secrets`
+ */
+export const importSecrets = (input: TImportSecretsInput) =>
+  request<TImportSecretsResponse, TImportSecretsBody, never, never, never>({
+    uri: "/public/v1/submit/import_secrets",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ImportSecrets` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ImportSecrets}
+ */
+export const signImportSecrets = (
+  input: TImportSecretsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TImportSecretsBody, never, never>({
+    uri: "/public/v1/submit/import_secrets",
     body: input.body,
     options,
   });
