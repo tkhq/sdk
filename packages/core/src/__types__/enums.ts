@@ -5,6 +5,7 @@ export enum StamperType {
   ApiKey = "api-key",
   Passkey = "passkey",
   Wallet = "wallet",
+  Attested = "attested",
 }
 
 /** @internal */

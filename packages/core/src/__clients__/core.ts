@@ -112,6 +112,7 @@ import {
   type PollTransactionStatusParams,
   type OverrideApiKeyStamperParams,
   type OverridePasskeyStamperParams,
+  type OverrideAttestedStamperParams,
   type DeleteApiKeyPairParams,
 } from "../__types__";
 import {
@@ -140,7 +141,7 @@ import {
   mapAccountsToWallet,
   getActiveSessionOrThrowIfRequired,
   fetchAllWalletAccountsWithCursor,
-  getClientSignatureMessageForLogin,
+  decodeVerificationToken,
   getClientSignatureMessageForSignup,
   ERC20_TRANSFER_ABI,
 } from "../utils";
@@ -158,6 +159,7 @@ import { toUtf8Bytes } from "ethers";
 import { verify } from "@turnkey/crypto";
 import { SignatureFormat } from "@turnkey/api-key-stamper";
 import { encodeFunctionData } from "viem";
+import { AttestedScheme, AttestedStamper } from "../__stampers__/attested/base";
 
 /**
  * @internal
@@ -182,6 +184,7 @@ export class TurnkeyClient {
 
   private apiKeyStamper?: CrossPlatformApiKeyStamper | undefined;
   private passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
+  private attestedStamper?: AttestedStamper | undefined;
   private walletManager?: WalletManagerBase | undefined;
   private storageManager!: StorageBase;
 
@@ -191,6 +194,7 @@ export class TurnkeyClient {
     // Users can pass in their own stampers, or we will create them. Should we remove this?
     apiKeyStamper?: CrossPlatformApiKeyStamper,
     passkeyStamper?: CrossPlatformPasskeyStamper,
+    attestedStamper?: AttestedStamper,
     walletManager?: WalletManagerBase,
   ) {
     this.config = config;
@@ -198,6 +202,7 @@ export class TurnkeyClient {
     // Just store any explicitly provided stampers
     this.apiKeyStamper = apiKeyStamper;
     this.passkeyStamper = passkeyStamper;
+    this.attestedStamper = attestedStamper;
     this.walletManager = walletManager;
 
     // Actual initialization will happen in init()
@@ -210,6 +215,8 @@ export class TurnkeyClient {
 
     // Initialize the API key stamper
     this.apiKeyStamper = new CrossPlatformApiKeyStamper(this.storageManager);
+    // Then use it to initialize the attested stamper
+    this.attestedStamper = new AttestedStamper(this.apiKeyStamper);
 
     // we parallelize independent initializations:
     // - API key stamper init
@@ -323,6 +330,75 @@ export class TurnkeyClient {
   };
 
   /**
+   * Overrides the attested stamper with a verification token or OIDC token.
+   *
+   * - This function updates the attested stamper's identity and automatically sets the correct scheme.
+   * - Pass `verificationToken` to set the attestation identity and scheme to STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN.
+   * - Pass `oidcToken` to set the attestation identity and scheme to STAMP_ATTESTED_SCHEME_P256_OIDC.
+   * - Only one of `verificationToken` or `oidcToken` can be provided at a time.
+   * - If neither token is provided, the attestation identity is cleared.
+   * - Useful for dynamically changing the attested identity and scheme used for signing requests.
+   *
+   * @param params.verificationToken - verification token to use as the attested identity with STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN scheme.
+   * @param params.oidcToken - OIDC token to use as the attested identity with STAMP_ATTESTED_SCHEME_P256_OIDC scheme.
+   * @param params.publicKey - public key that signs the attested stamp. Must match the key bound to the token.
+   * @returns A promise that resolves when the stamper has been updated.
+   * @throws {TurnkeyError} If the attested stamper is not initialized, if both tokens are provided, or if there is an error updating it.
+   */
+  overrideAttestedStamper = async (
+    params: OverrideAttestedStamperParams,
+  ): Promise<void> => {
+    return withTurnkeyErrorHandling(
+      async () => {
+        if (!this.attestedStamper) {
+          throw new TurnkeyError(
+            "Attested stamper is not initialized",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+          );
+        }
+
+        const { verificationToken, oidcToken, publicKey } = params;
+
+        // we enforce that you cannot set both a verificationToken and an oidcToken
+        if (verificationToken && oidcToken) {
+          throw new TurnkeyError(
+            "Cannot set both verificationToken and oidcToken. Please provide only one.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        // we require a publicKey if either a verificationToken or an oidcToken is provided
+        if ((verificationToken || oidcToken) && !publicKey) {
+          throw new TurnkeyError(
+            "A publicKey must be provided when setting a verificationToken or oidcToken.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        if (verificationToken) {
+          this.attestedStamper.configure({
+            attestedIdentity: verificationToken,
+            publicKey: publicKey!,
+            scheme: AttestedScheme.P256_VERIFICATION_TOKEN,
+          });
+        } else if (oidcToken) {
+          this.attestedStamper.configure({
+            attestedIdentity: oidcToken,
+            publicKey: publicKey!,
+            scheme: AttestedScheme.P256_OIDC,
+          });
+        } else {
+          this.attestedStamper.clear();
+        }
+      },
+      {
+        errorMessage: "Failed to override attested stamper",
+        errorCode: TurnkeyErrorCodes.INTERNAL_ERROR,
+      },
+    );
+  };
+
+  /**
    * Creates a new TurnkeySDKClientBase instance with the provided configuration.
    * This method is used internally to create the HTTP client for making API requests,
    * but can also be used to create an additional client with different configurations if needed.
@@ -360,6 +436,7 @@ export class TurnkeyClient {
       organizationId,
       apiKeyStamper: this.apiKeyStamper,
       passkeyStamper: this.passkeyStamper,
+      attestedStamper: this.attestedStamper,
       walletStamper: this.walletManager?.stamper,
       storageManager: this.storageManager,
     });
@@ -546,6 +623,8 @@ export class TurnkeyClient {
           await this.overridePasskeyStamper({ config: mergedConfig });
         }
 
+        const sessionProfileId = params?.sessionProfileId;
+
         if (!generatedPublicKey) {
           throw new TurnkeyError(
             "A publickey could not be found or generated.",
@@ -557,6 +636,7 @@ export class TurnkeyClient {
           publicKey: generatedPublicKey,
           organizationId: params?.organizationId ?? this.config.organizationId,
           expirationSeconds,
+          ...(sessionProfileId && { sessionProfileId }),
         };
 
         const passkeyLoginRequest = await this.httpClient.stampStampLogin(
@@ -658,6 +738,7 @@ export class TurnkeyClient {
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       createSubOrgParams,
       sessionKey = SessionKey.DefaultSessionkey,
+      sessionProfileId,
       captchaToken,
     } = params || {};
 
@@ -731,6 +812,7 @@ export class TurnkeyClient {
           publicKey: newGeneratedKeyPair!,
           organizationId: res.organizationId,
           expirationSeconds,
+          ...(sessionProfileId && { sessionProfileId }),
         });
 
         await this.storeSession({
@@ -959,7 +1041,11 @@ export class TurnkeyClient {
   buildWalletLoginRequest = async (
     params: BuildWalletLoginRequestParams,
   ): Promise<BuildWalletLoginRequestResult> => {
-    const { walletProvider, publicKey: providedPublicKey } = params;
+    const {
+      walletProvider,
+      publicKey: providedPublicKey,
+      sessionProfileId,
+    } = params;
     const expirationSeconds =
       params.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
@@ -997,6 +1083,7 @@ export class TurnkeyClient {
                 publicKey: futureSessionPublicKey,
                 organizationId: this.config.organizationId,
                 expirationSeconds,
+                ...(sessionProfileId && { sessionProfileId }),
               },
               StamperType.Wallet,
             );
@@ -1499,46 +1586,43 @@ export class TurnkeyClient {
       invalidateExisting = false,
       organizationId,
       sessionKey = SessionKey.DefaultSessionkey,
+      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+      sessionProfileId,
     } = params;
 
     return withTurnkeyErrorHandling(
       async () => {
-        const { message, publicKey: verificationPublicKey } =
-          getClientSignatureMessageForLogin({ verificationToken });
+        const { public_key: verificationPublicKey } =
+          decodeVerificationToken(verificationToken);
 
-        // we sign with the verification token key. This is the key bound during
-        // verifyOtp() and is what Turnkey expects to sign the client signature for login
-        const signature = await this.signWithApiKey({
-          message,
-          publicKey: verificationPublicKey,
-        });
-
-        if (!signature) {
+        if (!verificationPublicKey) {
           throw new TurnkeyError(
-            `Failed to sign client signature for OTP login`,
-            TurnkeyErrorCodes.INTERNAL_ERROR,
+            "Invalid verification token: missing publicKey",
+            TurnkeyErrorCodes.INVALID_REQUEST,
           );
         }
 
-        const clientSignature: v1ClientSignature = {
-          message: message,
-          publicKey: verificationPublicKey,
-          scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
-          signature: signature,
-        };
-
-        // the verification token's public key is also used as the session public key for login
-        const loginRes = await this.httpClient.proxyOtpLoginV2({
+        // We override the attested stamper with the verification token so the stampLogin request can be stamped with it.
+        await this.overrideAttestedStamper({
           verificationToken,
           publicKey: verificationPublicKey,
-          clientSignature,
-          invalidateExisting,
-          ...(organizationId && { organizationId }),
         });
+
+        // the verification token's public key is also used as the session public key for login
+        const loginRes = await this.httpClient.stampLogin(
+          {
+            publicKey: verificationPublicKey,
+            expirationSeconds,
+            invalidateExisting,
+            ...(organizationId && { organizationId }),
+            ...(sessionProfileId && { sessionProfileId }),
+          },
+          StamperType.Attested,
+        );
 
         if (!loginRes) {
           throw new TurnkeyError(
-            `Auth proxy OTP login failed`,
+            `OTP login failed`,
             TurnkeyErrorCodes.OTP_LOGIN_ERROR,
           );
         }
@@ -1596,6 +1680,7 @@ export class TurnkeyClient {
       createSubOrgParams,
       invalidateExisting,
       sessionKey,
+      sessionProfileId,
       captchaToken,
     } = params;
 
@@ -1664,6 +1749,7 @@ export class TurnkeyClient {
           verificationToken,
           ...(invalidateExisting && { invalidateExisting }),
           ...(sessionKey && { sessionKey }),
+          ...(sessionProfileId && { sessionProfileId }),
         });
 
         return {
@@ -1718,6 +1804,7 @@ export class TurnkeyClient {
       invalidateExisting = false,
       sessionKey,
       createSubOrgParams,
+      sessionProfileId,
       captchaToken,
     } = params;
 
@@ -1769,6 +1856,7 @@ export class TurnkeyClient {
             ...(createSubOrgParams && { createSubOrgParams }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(sessionProfileId && { sessionProfileId }),
             ...(captchaToken && { captchaToken }),
           });
 
@@ -1782,6 +1870,7 @@ export class TurnkeyClient {
             verificationToken,
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(sessionProfileId && { sessionProfileId }),
           });
 
           return {
@@ -1843,6 +1932,7 @@ export class TurnkeyClient {
       createSubOrgParams,
       invalidateExisting,
       sessionKey,
+      sessionProfileId,
       captchaToken,
     } = params;
 
@@ -1866,6 +1956,7 @@ export class TurnkeyClient {
             publicKey,
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(sessionProfileId && { sessionProfileId }),
           });
 
           return {
@@ -1884,6 +1975,7 @@ export class TurnkeyClient {
             }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(sessionProfileId && { sessionProfileId }),
             ...(captchaToken && { captchaToken }),
           });
 
@@ -1928,6 +2020,8 @@ export class TurnkeyClient {
       organizationId,
       invalidateExisting = false,
       sessionKey = SessionKey.DefaultSessionkey,
+      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+      sessionProfileId,
     } = params;
 
     return withTurnkeyErrorHandling(
@@ -1939,16 +2033,26 @@ export class TurnkeyClient {
           );
         }
 
-        const loginRes = await this.httpClient.proxyOAuthLogin({
+        // We override the attested stamper with the oidcToken so the stampLogin request can be stamped with it.
+        await this.overrideAttestedStamper({
           oidcToken,
           publicKey,
-          invalidateExisting,
-          ...(organizationId && { organizationId }),
         });
+
+        const loginRes = await this.httpClient.stampLogin(
+          {
+            publicKey,
+            expirationSeconds,
+            invalidateExisting,
+            ...(organizationId && { organizationId }),
+            ...(sessionProfileId && { sessionProfileId }),
+          },
+          StamperType.Attested,
+        );
 
         if (!loginRes) {
           throw new TurnkeyError(
-            `Auth proxy OAuth login failed`,
+            `OAuth login failed`,
             TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
           );
         }
@@ -2022,6 +2126,7 @@ export class TurnkeyClient {
       providerName = "OpenID Connect Provider" + " " + Date.now(),
       createSubOrgParams,
       sessionKey,
+      sessionProfileId,
       captchaToken,
     } = params;
 
@@ -2056,6 +2161,7 @@ export class TurnkeyClient {
           oidcToken,
           publicKey: publicKey!,
           ...(sessionKey && { sessionKey }),
+          ...(sessionProfileId && { sessionProfileId }),
         });
 
         return {
@@ -4999,6 +5105,9 @@ export class TurnkeyClient {
             publicKey: keyPair,
             expirationSeconds,
             invalidateExisting: invalidateExisitng,
+            ...(session.sessionProfileId && {
+              sessionProfileId: session.sessionProfileId,
+            }),
           },
           stampWith,
         );

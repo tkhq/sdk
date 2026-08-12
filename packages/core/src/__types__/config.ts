@@ -1,5 +1,34 @@
-import type { Session, TStamper } from "@turnkey/sdk-types";
+import type {
+  Session,
+  v1ActivityType,
+  v1ActivityStatus,
+  v1MfaStatus,
+  TStamper,
+} from "@turnkey/sdk-types";
 import type { StamperType } from "./enums";
+
+/**
+ * Context provided to the `onMfaRequired` callback when an activity
+ * returns `ACTIVITY_STATUS_AUTHENTICATORS_NEEDED` or
+ * `ACTIVITY_STATUS_CONSENSUS_NEEDED` with outstanding MFA statuses.
+ *
+ * The callback should use these fields to display an approval UI
+ * (e.g. showing the fingerprint) and resolve when MFA is complete.
+ */
+export interface MfaContext {
+  /** The ID of the activity that requires MFA. */
+  activityId: string;
+  /** The fingerprint of the activity, used for approval. */
+  fingerprint: string;
+  /** The organization ID associated with the activity. */
+  organizationId: string;
+  /** The type of the activity (e.g. "ACTIVITY_TYPE_SIGN_TRANSACTION_V2"). */
+  activityType: v1ActivityType;
+  /** The status of the activity. */
+  activityStatus: v1ActivityStatus;
+  /** The MFA statuses for the activity, from the getMfaStatus query. */
+  mfaStatuses: v1MfaStatus[];
+}
 
 /**
  * TurnkeyHttpClientConfig defines the configuration for the Turnkey HTTP client.
@@ -30,9 +59,23 @@ export interface TurnkeyHttpClientConfig {
   apiKeyStamper?: TStamper | undefined;
   passkeyStamper?: TStamper | undefined;
   walletStamper?: TStamper | undefined;
+  attestedStamper?: TStamper | undefined;
   storageManager?: StorageBase | undefined;
 
   defaultStamperType?: StamperType | undefined;
+
+  /**
+   * Callback invoked when an activity requires MFA approval
+   * (`ACTIVITY_STATUS_AUTHENTICATORS_NEEDED`).
+   *
+   * The `activity()` method will `await` this callback before resuming polling.
+   * - Resolve the returned promise when MFA approval is complete.
+   * - Reject to abort the operation (the error propagates to the caller).
+   *
+   * If not provided, the activity response is returned as-is with the
+   * `AUTHENTICATORS_NEEDED` status, and the caller is responsible for handling it.
+   */
+  onMfaRequired?: ((context: MfaContext) => Promise<void>) | undefined;
 }
 
 /**
@@ -68,6 +111,12 @@ export interface TurnkeySDKClientConfig {
   defaultStamperType?: StamperType | undefined;
   /** whether to scope passkey authentication to the authenticated user's authenticators. Defaults to true. */
   scopePasskeyToUser?: boolean;
+  /**
+   * Callback invoked when an activity requires MFA approval.
+   * Passed through to the underlying HTTP client.
+   * @see TurnkeyHttpClientConfig.onMfaRequired
+   */
+  onMfaRequired?: ((context: MfaContext) => Promise<void>) | undefined;
 }
 
 /**
