@@ -47,7 +47,9 @@
     "codegen": "node scripts/codegen.js"
   },
   "dependencies": {
+    "@noble/hashes": "1.8.0",
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/crypto": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",

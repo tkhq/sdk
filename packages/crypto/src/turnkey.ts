@@ -187,6 +187,142 @@ export const decryptExportBundle = async ({
   }
 };
 
+interface EncryptSecretToBundleParams {
+  plaintext: string;
+  ingressTargetBundle: string;
+  organizationId: string;
+  dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
+}
+
+interface DecryptSecretBundleParams {
+  secretPayload: string;
+  /** Hex-encoded ephemeral private key (e.g. from generateP256KeyPair). */
+  embeddedPrivateKey: string;
+  organizationId: string;
+  dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
+}
+
+/**
+ * Encrypts a secret to an ingress target bundle returned by the
+ * `init_import_secrets` activity.
+ *
+ * Verifies the signer enclave quorum key signature on the bundle and checks
+ * the signed organization ID before trusting the embedded target public key,
+ * then HPKE-encrypts the plaintext to that key.
+ *
+ * @param {EncryptSecretToBundleParams} params - An object containing the following properties:
+ *   - plaintext {string}: The secret material to encrypt.
+ *   - ingressTargetBundle {string}: A JSON-encoded ServerTargetMsg entry from InitImportSecretsResult.enclaveTargetMessages.
+ *   - organizationId {string}: The expected organization ID to verify against the signed data.
+ *   - dangerouslyOverrideSignerPublicKey {string} [Optional]: Override the default signer public key for verification. Testing only.
+ * @returns {Promise<{secretPayload: string; targetPublicKey: string}>} - The encryption-suite payload for ImportSecretParams.secretPayload and the verified target public key.
+ * @throws {Error} - If signature verification or validation fails.
+ */
+export const encryptSecretToBundle = async ({
+  plaintext,
+  ingressTargetBundle,
+  organizationId,
+  dangerouslyOverrideSignerPublicKey,
+}: EncryptSecretToBundleParams): Promise<{
+  secretPayload: string;
+  targetPublicKey: string;
+}> => {
+  const parsedBundle = JSON.parse(ingressTargetBundle);
+  const verified = await verifyEnclaveSignature(
+    parsedBundle.enclaveQuorumPublic,
+    parsedBundle.dataSignature,
+    parsedBundle.data,
+    dangerouslyOverrideSignerPublicKey,
+  );
+  if (!verified) {
+    throw new Error(
+      `failed to verify enclave signature on ingress target bundle`,
+    );
+  }
+
+  const signedData = JSON.parse(
+    new TextDecoder().decode(uint8ArrayFromHexString(parsedBundle.data)),
+  );
+
+  if (
+    !signedData.organizationId ||
+    signedData.organizationId !== organizationId
+  ) {
+    throw new Error(
+      `organization id does not match expected value. Expected: ${organizationId}. Found: ${signedData.organizationId}.`,
+    );
+  }
+  if (!signedData.targetPublic) {
+    throw new Error('missing "targetPublic" in bundle signed data');
+  }
+
+  const plainTextBuf = new TextEncoder().encode(plaintext);
+  const targetKeyBuf = uint8ArrayFromHexString(signedData.targetPublic);
+  const encrypted = hpkeEncrypt({ plainTextBuf, targetKeyBuf });
+
+  return {
+    secretPayload: formatHpkeBuf(encrypted),
+    targetPublicKey: signedData.targetPublic,
+  };
+};
+
+/**
+ * Decrypts one entry of ExportSecretsResult.secretPayloads (a JSON-encoded
+ * ServerSendMsg) with the client-side ephemeral private key.
+ *
+ * Verifies the signer enclave quorum key signature and the signed
+ * organization ID before decrypting.
+ *
+ * @param {DecryptSecretBundleParams} params - An object containing the following properties:
+ *   - secretPayload {string}: One entry of ExportSecretsResult.secretPayloads.
+ *   - embeddedPrivateKey {string}: The hex-encoded ephemeral private key the export was encrypted to.
+ *   - organizationId {string}: The expected organization ID to verify against the signed data.
+ *   - dangerouslyOverrideSignerPublicKey {string} [Optional]: Override the default signer public key for verification. Testing only.
+ * @returns {Promise<string>} - The decrypted secret.
+ * @throws {Error} - If decryption or signature verification fails.
+ */
+export const decryptSecretBundle = async ({
+  secretPayload,
+  embeddedPrivateKey,
+  organizationId,
+  dangerouslyOverrideSignerPublicKey,
+}: DecryptSecretBundleParams): Promise<string> => {
+  const parsedPayload = JSON.parse(secretPayload);
+  const verified = await verifyEnclaveSignature(
+    parsedPayload.enclaveQuorumPublic,
+    parsedPayload.dataSignature,
+    parsedPayload.data,
+    dangerouslyOverrideSignerPublicKey,
+  );
+  if (!verified) {
+    throw new Error(`failed to verify enclave signature on secret payload`);
+  }
+
+  const signedData = JSON.parse(
+    new TextDecoder().decode(uint8ArrayFromHexString(parsedPayload.data)),
+  );
+
+  if (
+    !signedData.organizationId ||
+    signedData.organizationId !== organizationId
+  ) {
+    throw new Error(
+      `organization id does not match expected value. Expected: ${organizationId}. Found: ${signedData.organizationId}.`,
+    );
+  }
+  if (!signedData.encappedPublic) {
+    throw new Error('missing "encappedPublic" in payload signed data');
+  }
+
+  const decryptedData = hpkeDecrypt({
+    ciphertextBuf: uint8ArrayFromHexString(signedData.ciphertext),
+    encappedKeyBuf: uint8ArrayFromHexString(signedData.encappedPublic),
+    receiverPriv: embeddedPrivateKey,
+  });
+
+  return new TextDecoder().decode(decryptedData);
+};
+
 /**
  * Verifies a signature from a Turnkey stamp using ECDSA and SHA-256.
  *
