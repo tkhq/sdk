@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout pull request
@@ -51,16 +52,21 @@ jobs:
           mkdir -p "$PREVIEW_DIRECTORY"
           pnpm --filter "./packages/**" pack --pack-destination "$PREVIEW_DIRECTORY"
 
-      - name: Create package manifest
-        env:
-          PREVIEW_DIRECTORY: ${{ runner.temp }}/preview-packages
-        run: node .github/scripts/create-preview-package-manifest.mjs "$PREVIEW_DIRECTORY" > "$PREVIEW_DIRECTORY/manifest.json"
-
       - name: Upload package tarballs
+        id: upload
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           compression-level: 0
           if-no-files-found: error
           name: preview-packages-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
-          path: ${{ runner.temp }}/preview-packages
+          path: ${{ runner.temp }}/preview-packages/*.tgz
           retention-days: 30
+
+      - name: Comment on pull request
+        env:
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PREVIEW_DIRECTORY: ${{ runner.temp }}/preview-packages
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: bash .github/scripts/comment-preview-packages.sh
