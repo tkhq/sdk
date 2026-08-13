@@ -22,12 +22,8 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 // CARDANO_PUBLIC_KEY is your Turnkey Ed25519 account's public key (hex), created
 // in the Turnkey app. For an ADDRESS_FORMAT_COMPRESSED account this is also the
 // account address, so it doubles as `signWith`.
-const {
-  ORGANIZATION_ID,
-  API_PUBLIC_KEY,
-  API_PRIVATE_KEY,
-  CARDANO_PUBLIC_KEY,
-} = process.env;
+const { ORGANIZATION_ID, API_PUBLIC_KEY, API_PRIVATE_KEY, CARDANO_PUBLIC_KEY } =
+  process.env;
 
 const NETWORK = (process.env.NETWORK ?? "preprod") as
   | "preprod"
@@ -65,9 +61,14 @@ async function main() {
   // Build an unsigned transaction (1 ADA back to ourselves).
   const utxos = await provider.fetchAddressUTxOs(cardanoAddress);
   if (!utxos.length) {
-    throw new Error(`No UTxOs at ${cardanoAddress} — fund it from the faucet first.`);
+    throw new Error(
+      `No UTxOs at ${cardanoAddress} — fund it from the faucet first.`,
+    );
   }
-  const txBuilder = new MeshTxBuilder({ fetcher: provider, submitter: provider });
+  const txBuilder = new MeshTxBuilder({
+    fetcher: provider,
+    submitter: provider,
+  });
   const unsignedTx = await txBuilder
     .setNetwork(NETWORK)
     .txOut(cardanoAddress, [{ unit: "lovelace", quantity: "1000000" }])
@@ -97,7 +98,10 @@ async function main() {
       VkeyWitness.fromCore,
     ),
   );
-  const signedTx = addVKeyWitnessSetToTransaction(unsignedTx, witnessSet.toCbor());
+  const signedTx = addVKeyWitnessSetToTransaction(
+    unsignedTx,
+    witnessSet.toCbor(),
+  );
 
   const submittedTxHash = await provider.submitTx(signedTx);
   console.log("Transaction submitted:", submittedTxHash);
