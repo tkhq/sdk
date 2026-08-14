@@ -1,5 +1,29 @@
 # @turnkey/react-native-wallet-kit
 
+## 2.3.0
+
+### Minor Changes
+
+- [#1240](https://github.com/tkhq/sdk/pull/1240) [`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900) Author [@amircheikh](https://github.com/amircheikh) - ### Attested stamping
+
+  Add attested stamping support. Expose `overrideAttestedStamper()` on the provider context. OTP verification and OAuth flows now automatically configure the attested stamper with the verification token or OIDC token. OTP and OAuth login flows use `stampLogin` with an attested stamp (`X-Stamp-Attested`) instead of the proxy-specific `proxyOtpLoginV2` / `proxyOAuthLogin` endpoints.
+
+  ### Session profiles
+
+  Add session profile support for creating scoped sessions. Auth methods now accept an optional `sessionProfileId` parameter to restrict a session's permissions to those defined by the profile: `loginWithPasskey`, `signUpWithPasskey`, `buildWalletLoginRequest`, `loginWithWallet`, `signUpWithWallet`, `loginOrSignupWithWallet`, `loginWithOtp`, `signUpWithOtp`, `completeOtp`, `loginWithOauth`, `signUpWithOauth`, and `completeOauth`.
+
+  ### MFA handling
+
+  Add MFA support. Expose `setMfaHandler` on the provider context, a ref-based function that lets you register or clear a custom MFA handler at any point during the component lifecycle. When set, the handler is invoked with an `MfaContext` whenever an activity requires multi-factor approval (`ACTIVITY_STATUS_AUTHENTICATORS_NEEDED` or `ACTIVITY_STATUS_CONSENSUS_NEEDED`). The client automatically fetches MFA statuses via `getMfaStatus` and re-polls for completion after the handler resolves. Pass `undefined` to clear the handler and restore the default behavior.
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900), [`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900)]:
+  - @turnkey/sdk-types@1.5.1
+  - @turnkey/core@2.7.0
+  - @turnkey/crypto@2.11.3
+  - @turnkey/react-native-passkey-stamper@1.2.21
+
 ## 2.2.2
 
 ### Patch Changes

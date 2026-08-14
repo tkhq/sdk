@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 1.5.1
+
+### Patch Changes
+
+- [#1240](https://github.com/tkhq/sdk/pull/1240) [`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900) Author [@amircheikh](https://github.com/amircheikh) - Add `ActivityStatus` enum
+
 ## 1.5.0
 
 ### Minor Changes

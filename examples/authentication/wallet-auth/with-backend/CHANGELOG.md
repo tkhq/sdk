@@ -1,5 +1,14 @@
 # @turnkey/wallet-auth-with-backend
 
+## 0.1.24
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900), [`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900), [`e9ae3e6`](https://github.com/tkhq/sdk/commit/e9ae3e6e8db3423df143cac4c1b1e7fdc1e757e0)]:
+  - @turnkey/react-wallet-kit@2.4.0
+  - @turnkey/sdk-types@1.5.1
+  - @turnkey/sdk-server@8.2.1
+
 ## 0.1.23
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @turnkey/react-wallet-kit-playground
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900), [`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900), [`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900), [`e9ae3e6`](https://github.com/tkhq/sdk/commit/e9ae3e6e8db3423df143cac4c1b1e7fdc1e757e0)]:
+  - @turnkey/react-wallet-kit@2.4.0
+  - @turnkey/sdk-types@1.5.1
+  - @turnkey/core@2.7.0
+  - @turnkey/sdk-react@6.0.7
+  - @turnkey/sdk-server@8.2.1
+  - @turnkey/viem@0.14.36
+
 ## 0.1.6
 
 ### Patch Changes
