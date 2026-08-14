@@ -3,21 +3,15 @@ import {
   parseGrpcTransactionResponse,
   SuiGrpcClient,
 } from "@mysten/sui/grpc";
-import { getSuiClient, resolveAddress } from "./shared.js";
+import { normalizeStructTag } from "@mysten/sui/utils";
+import {
+  createCoinMetaResolver,
+  formatUnits,
+  getSuiClient,
+  resolveAddress,
+} from "./shared.js";
 
-const SUI_COIN_TYPE = "0x2::sui::SUI";
-const MIST_PER_SUI = 1_000_000_000n;
 const PAGE_LIMIT = 10;
-
-function formatSui(mist: bigint): string {
-  const negative = mist < 0n;
-  const abs = negative ? -mist : mist;
-  const whole = abs / MIST_PER_SUI;
-  const fraction = abs % MIST_PER_SUI;
-  const fractionStr = fraction.toString().padStart(9, "0").replace(/0+$/, "");
-  const body = fractionStr.length > 0 ? `${whole}.${fractionStr}` : `${whole}`;
-  return negative ? `-${body}` : body;
-}
 
 function formatTimestamp(ms?: string | null): string {
   if (!ms) return "unknown";
@@ -27,39 +21,53 @@ function formatTimestamp(ms?: string | null): string {
 }
 
 /**
- * Sum SUI balance changes attributed to `owner` across a tx's balanceChanges
- * array. Returns MIST as a signed bigint (positive = inflow, negative =
- * outflow). Silently returns 0n when balance changes are absent.
+ * Sum per-coin-type balance changes attributed to `owner` across a tx's
+ * balanceChanges array. Returns a Map keyed by normalized (fully-qualified)
+ * coin type, with signed bigint deltas in base units (positive = inflow,
+ * negative = outflow). Silently returns an empty map when balance changes
+ * are absent.
+ *
+ * Vincent's Round 2 feedback: a tx that pays SUI gas but receives USDC
+ * would previously classify as pure Outflow, because the old
+ * implementation only summed the SUI delta. We now surface every coin the
+ * owner touched so mixed-coin txs are classified correctly and the UI can
+ * print per-coin deltas.
  *
  * The gRPC `BalanceChange` shape is flat: `{ coinType, address, amount }`
  * (unlike the deprecated JSON-RPC shape that nested owner as
- * `{ AddressOwner: '0x...' }`).
+ * `{ AddressOwner: '0x...' }`). Coin types come back fully-qualified
+ * (e.g. `0x000…002::sui::SUI`), so we normalize both sides for the
+ * per-coin comparison to survive short-form vs long-form differences.
  */
-function suiDeltaForOwner(
+function deltasForOwner(
   balanceChanges:
     | ReadonlyArray<{ coinType?: string; address?: string; amount?: string }>
     | undefined,
   owner: string,
-): bigint {
-  if (!balanceChanges || !balanceChanges.length) return 0n;
-  let delta = 0n;
+): Map<string, bigint> {
+  const deltas = new Map<string, bigint>();
+  if (!balanceChanges || !balanceChanges.length) return deltas;
   for (const change of balanceChanges) {
-    if (change.coinType !== SUI_COIN_TYPE) continue;
+    if (!change.coinType || !change.amount) continue;
     if (change.address !== owner) continue;
-    if (!change.amount) continue;
+    let amount: bigint;
     try {
-      delta += BigInt(change.amount);
+      amount = BigInt(change.amount);
     } catch {
-      // ignore non-numeric amounts
+      continue;
     }
+    if (amount === 0n) continue;
+    const key = normalizeStructTag(change.coinType);
+    deltas.set(key, (deltas.get(key) ?? 0n) + amount);
   }
-  return delta;
+  return deltas;
 }
 
 interface HistoryEntry {
   digest: string;
   timestampMs: string | null;
-  delta: bigint;
+  /** Per-coin-type signed deltas in base units. */
+  deltas: Map<string, bigint>;
 }
 
 /**
@@ -79,6 +87,22 @@ function timestampToMs(timestamp?: {
 }
 
 /**
+ * True if the tx has any positive delta on any coin type (inflow).
+ */
+function hasInflow(entry: HistoryEntry): boolean {
+  for (const delta of entry.deltas.values()) if (delta > 0n) return true;
+  return false;
+}
+
+/**
+ * True if the tx has any negative delta on any coin type (outflow).
+ */
+function hasOutflow(entry: HistoryEntry): boolean {
+  for (const delta of entry.deltas.values()) if (delta < 0n) return true;
+  return false;
+}
+
+/**
  * List transactions affecting `owner` via the gRPC `LedgerService.
  * ListTransactions` RPC with an `affectedAddress` filter.
  *
@@ -95,7 +119,7 @@ function timestampToMs(timestamp?: {
  * exist on gRPC. We now do ONE query with `affectedAddress` (matches any
  * transaction that touched the address as sender, recipient, or object
  * owner) and split the results into inflows vs outflows locally, using
- * the balance-change delta as the criterion.
+ * per-coin balance-change deltas as the criterion.
  */
 async function listAffectingTransactions(
   provider: SuiGrpcClient,
@@ -164,25 +188,44 @@ async function listAffectingTransactions(
     entries.push({
       digest: inner.digest,
       timestampMs: timestampToMs(executed.timestamp),
-      delta: suiDeltaForOwner(inner.balanceChanges, owner),
+      deltas: deltasForOwner(inner.balanceChanges, owner),
     });
   }
   return entries;
 }
 
-function printTxList(label: string, entries: HistoryEntry[]): void {
+/**
+ * Print a labeled list of transactions with per-coin deltas, filtered to
+ * only show the deltas that match this list's direction (inflows show
+ * positive deltas, outflows show negative deltas).
+ */
+async function printTxList(
+  label: string,
+  entries: HistoryEntry[],
+  direction: "inflow" | "outflow",
+  resolveMeta: (
+    coinType: string,
+  ) => Promise<{ symbol: string; decimals: number }>,
+): Promise<void> {
   console.log(`\n=== ${label} (${entries.length}) ===`);
   if (!entries.length) {
     console.log("  (none)");
     return;
   }
   for (const entry of entries) {
-    const deltaStr =
-      entry.delta === 0n
-        ? "delta: n/a"
-        : `delta: ${formatSui(entry.delta)} SUI`;
+    const relevant = [...entry.deltas.entries()].filter(([, delta]) =>
+      direction === "inflow" ? delta > 0n : delta < 0n,
+    );
+    // Resolve metadata for every coin type touched by this entry so we
+    // print with the right decimals + symbol.
+    const parts: string[] = [];
+    for (const [coinType, delta] of relevant) {
+      const { symbol, decimals } = await resolveMeta(coinType);
+      parts.push(`${formatUnits(delta, decimals)} ${symbol}`);
+    }
+    const deltasStr = parts.length ? parts.join(", ") : "n/a";
     console.log(
-      `  - ${entry.digest}  ts=${formatTimestamp(entry.timestampMs)}  ${deltaStr}`,
+      `  - ${entry.digest}  ts=${formatTimestamp(entry.timestampMs)}  ${deltasStr}`,
     );
   }
 }
@@ -190,6 +233,7 @@ function printTxList(label: string, entries: HistoryEntry[]): void {
 async function main() {
   const address = resolveAddress(process.argv[2]);
   const provider = getSuiClient();
+  const resolveMeta = createCoinMetaResolver(provider);
 
   console.log(`Address: ${address}`);
   console.log(
@@ -197,19 +241,21 @@ async function main() {
   );
 
   // Single gRPC query, classified locally into inflows vs outflows by
-  // balance-change delta. We over-fetch to make each side more likely to
-  // fill up to PAGE_LIMIT even in noisy address histories.
+  // per-coin balance-change deltas. We over-fetch to make each side more
+  // likely to fill up to PAGE_LIMIT even in noisy address histories, and
+  // classification is "any positive delta" / "any negative delta" so a
+  // single tx can appear in both lists (e.g. a swap: SUI out, USDC in).
   const entries = await listAffectingTransactions(
     provider,
     address,
     PAGE_LIMIT * 2,
   );
 
-  const inflows = entries.filter((e) => e.delta > 0n).slice(0, PAGE_LIMIT);
-  const outflows = entries.filter((e) => e.delta < 0n).slice(0, PAGE_LIMIT);
+  const inflows = entries.filter(hasInflow).slice(0, PAGE_LIMIT);
+  const outflows = entries.filter(hasOutflow).slice(0, PAGE_LIMIT);
 
-  printTxList("Outflows (delta < 0)", outflows);
-  printTxList("Inflows  (delta > 0)", inflows);
+  await printTxList("Outflows", outflows, "outflow", resolveMeta);
+  await printTxList("Inflows", inflows, "inflow", resolveMeta);
 }
 
 main().catch((err) => {

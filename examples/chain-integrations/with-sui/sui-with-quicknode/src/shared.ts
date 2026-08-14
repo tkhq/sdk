@@ -2,6 +2,7 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 import { SuiGrpcClient } from "@mysten/sui/grpc";
 import { Ed25519PublicKey } from "@mysten/sui/keypairs/ed25519";
+import { normalizeStructTag } from "@mysten/sui/utils";
 import { Turnkey } from "@turnkey/sdk-server";
 
 // Load .env.local from the example's working directory.
@@ -62,6 +63,10 @@ export function getTurnkeyClient(): Turnkey {
   });
 }
 
+// Guard so the public-fullnode fallback warning fires at most once per
+// process, regardless of how many `getSuiClient()` callers there are.
+let publicFallbackWarned = false;
+
 /**
  * Build a {@link SuiGrpcClient} pointed at the configured node provider.
  *
@@ -70,7 +75,8 @@ export function getTurnkeyClient(): Turnkey {
  *      is the node provider used in this example, and supports Sui gRPC on
  *      both mainnet and testnet).
  *   2. The public testnet gRPC fullnode so the example runs out-of-the-box
- *      without a QuickNode key.
+ *      without a QuickNode key. Emits a one-shot `console.warn` on fallback
+ *      so callers don't conflate public-node latency with QuickNode perf.
  *
  * The example defaults to testnet. Set `SUI_NETWORK=mainnet` alongside a
  * mainnet `QUICKNODE_SUI_URL` to point the client at mainnet.
@@ -82,11 +88,124 @@ export function getTurnkeyClient(): Turnkey {
 export function getSuiClient(): SuiGrpcClient {
   const network =
     (process.env.SUI_NETWORK as "testnet" | "mainnet") || "testnet";
+  const quickNodeUrl = process.env.QUICKNODE_SUI_URL;
   const baseUrl =
-    process.env.QUICKNODE_SUI_URL ||
+    quickNodeUrl ||
     PUBLIC_SUI_GRPC_URLS[network] ||
     PUBLIC_SUI_GRPC_URLS.testnet;
+
+  if (!quickNodeUrl && !publicFallbackWarned) {
+    publicFallbackWarned = true;
+    console.warn(
+      "[with-sui-quicknode] QUICKNODE_SUI_URL not set — using public Sui fullnode. Performance is NOT representative of QuickNode. Set QUICKNODE_SUI_URL to benchmark QuickNode.",
+    );
+  }
+
   return new SuiGrpcClient({ network, baseUrl });
+}
+
+/**
+ * Fully-qualified normalized coin type for native SUI, as returned by gRPC
+ * (`normalizeStructTag("0x2::sui::SUI")` pads the package address to 32
+ * bytes). Use this everywhere we compare coin types.
+ */
+export const NORMALIZED_SUI_COIN_TYPE = normalizeStructTag("0x2::sui::SUI");
+
+/**
+ * Known-coin fallback metadata (symbol + decimals) for common Sui coins.
+ * Used when `getCoinMetadata` is unavailable or returns null. Keys are
+ * normalized (fully-qualified) struct tags. Add entries here as needed.
+ */
+const KNOWN_COIN_META: Record<string, { symbol: string; decimals: number }> = {
+  [normalizeStructTag("0x2::sui::SUI")]: { symbol: "SUI", decimals: 9 },
+  // Native USDC on Sui mainnet
+  [normalizeStructTag(
+    "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+  )]: { symbol: "USDC", decimals: 6 },
+  // Bridged/native USDT on Sui mainnet (Wormhole)
+  [normalizeStructTag(
+    "0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN",
+  )]: { symbol: "USDT", decimals: 6 },
+};
+
+/**
+ * Format a raw amount (base units) as a decimal string using `decimals`.
+ * Preserves sign for signed input (used for balance deltas in history).
+ */
+export function formatUnits(amount: bigint, decimals: number): string {
+  if (decimals <= 0) return amount.toString();
+  const negative = amount < 0n;
+  const abs = negative ? -amount : amount;
+  const divisor = 10n ** BigInt(decimals);
+  const whole = abs / divisor;
+  const fraction = abs % divisor;
+  const fractionStr = fraction
+    .toString()
+    .padStart(decimals, "0")
+    .replace(/0+$/, "");
+  const body = fractionStr.length > 0 ? `${whole}.${fractionStr}` : `${whole}`;
+  return negative ? `-${body}` : body;
+}
+
+/**
+ * Cached lookup for `{ symbol, decimals }` per normalized coinType.
+ * Falls back to a static table for common coins, then to raw base units
+ * (decimals = 0) with a truncated coinType symbol so output is never
+ * misleadingly labeled.
+ *
+ * Cache is keyed by normalized coin type so callers can pass either the
+ * short `0x2::sui::SUI` form or the fully-qualified form.
+ */
+export function createCoinMetaResolver(
+  provider: SuiGrpcClient,
+): (coinType: string) => Promise<{ symbol: string; decimals: number }> {
+  const cache = new Map<string, { symbol: string; decimals: number }>();
+  return async (rawCoinType: string) => {
+    const coinType = normalizeStructTag(rawCoinType);
+    const cached = cache.get(coinType);
+    if (cached) return cached;
+
+    const known = KNOWN_COIN_META[coinType];
+    if (known) {
+      cache.set(coinType, known);
+      return known;
+    }
+
+    try {
+      const { coinMetadata } = await provider.getCoinMetadata({ coinType });
+      if (coinMetadata) {
+        const resolved = {
+          symbol: coinMetadata.symbol || shortCoinType(coinType),
+          decimals: coinMetadata.decimals,
+        };
+        cache.set(coinType, resolved);
+        return resolved;
+      }
+    } catch {
+      // Metadata lookup can fail on fullnodes that don't index the coin
+      // registry entry — fall through to a raw-units fallback below.
+    }
+
+    const fallback = { symbol: shortCoinType(coinType), decimals: 0 };
+    cache.set(coinType, fallback);
+    return fallback;
+  };
+}
+
+/**
+ * Shorten a fully-qualified coin type for display (`0x…abcd::mod::Sym`).
+ */
+export function shortCoinType(coinType: string): string {
+  const parts = coinType.split("::");
+  if (parts.length !== 3) return coinType;
+  const address = parts[0] as string;
+  const mod = parts[1] as string;
+  const sym = parts[2] as string;
+  const shortAddr =
+    address.length > 12
+      ? `${address.slice(0, 6)}…${address.slice(-4)}`
+      : address;
+  return `${shortAddr}::${mod}::${sym}`;
 }
 
 /**
