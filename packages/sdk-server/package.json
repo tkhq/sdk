@@ -42,6 +42,7 @@
     "version": "node -p \"'export const VERSION = ' + JSON.stringify(require('./package.json').name + '@' + require('./package.json').version) + ';'\" > src/__generated__/version.ts",
     "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
+    "test": "jest",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run clean && pnpm run build",
     "codegen": "node scripts/codegen.js"
@@ -58,7 +59,9 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
-    "glob": "^8.0.3"
+    "@types/jest": "^29.5.3",
+    "glob": "^8.0.3",
+    "jest": "29.7.0"
   },
   "engines": {
     "node": ">=18.0.0"
