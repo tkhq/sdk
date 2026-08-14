@@ -1,5 +1,14 @@
 # @turnkey/bitcoin
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900)]:
+  - @turnkey/core@2.7.0
+  - @turnkey/sdk-browser@8.2.1
+  - @turnkey/sdk-server@8.2.1
+
 ## 0.1.4
 
 ### Patch Changes

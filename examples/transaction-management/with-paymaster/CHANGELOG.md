@@ -1,5 +1,12 @@
 # @turnkey/paymaster-usdc-transfer
 
+## 0.1.14
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@8.2.1
+
 ## 0.1.13
 
 ### Patch Changes

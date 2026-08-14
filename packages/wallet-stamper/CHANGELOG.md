@@ -1,5 +1,12 @@
 # @turnkey/wallet-stamper
 
+## 1.1.24
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/crypto@2.11.3
+
 ## 1.1.23
 
 ### Patch Changes

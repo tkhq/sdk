@@ -1,5 +1,12 @@
 # @turnkey/solana-usdc-swap
 
+## 0.1.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@8.2.1
+
 ## 0.1.10
 
 ### Patch Changes

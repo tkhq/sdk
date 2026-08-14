@@ -1,5 +1,15 @@
 # @turnkey/sdk-server
 
+## 8.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900)]:
+  - @turnkey/sdk-types@1.5.1
+  - @turnkey/api-key-stamper@0.6.12
+  - @turnkey/wallet-stamper@1.1.24
+  - @turnkey/http@6.2.1
+
 ## 8.2.0
 
 ### Minor Changes
