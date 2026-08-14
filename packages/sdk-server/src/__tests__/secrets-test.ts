@@ -1,4 +1,11 @@
-import { test, expect, jest, describe, afterEach } from "@jest/globals";
+import {
+  test,
+  expect,
+  jest,
+  describe,
+  afterEach,
+  beforeEach,
+} from "@jest/globals";
 import { createHash } from "crypto";
 import { ApiKeyStamper, signWithApiKey } from "@turnkey/api-key-stamper";
 import {
@@ -58,6 +65,7 @@ const createClient = (): TurnkeyApiClient =>
 
 afterEach(() => {
   mockedFetch.mockReset();
+  jest.useRealTimers();
 });
 
 describe("createExportSecretsProposal", () => {
@@ -402,6 +410,10 @@ describe("exportSecret", () => {
 });
 
 describe("awaitExportedSecrets", () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
   const proposalFor = (client: TurnkeyApiClient) =>
     client.createExportSecretsProposal({
       secrets: [{ secretId: "secret-1" }],
@@ -457,7 +469,7 @@ describe("awaitExportedSecrets", () => {
     const proposal = proposalFor(client);
     (client as any).getActivities = jest.fn(async () => ({ activities: [] }));
 
-    await expect(
+    const result = expect(
       client.awaitExportedSecrets({
         proposal,
         embeddedPrivateKey: "unused",
@@ -467,5 +479,37 @@ describe("awaitExportedSecrets", () => {
     ).rejects.toThrow(
       `Timed out after 30ms waiting for export secrets activity ${proposal.fingerprint}`,
     );
+    await jest.advanceTimersByTimeAsync(30);
+    await result;
+  });
+
+  test("times out when the discovered activity remains nonterminal", async () => {
+    const client = createClient();
+    const proposal = proposalFor(client);
+    (client as any).getActivities = jest.fn(async () => ({
+      activities: [
+        { id: "activity-pending", fingerprint: proposal.fingerprint },
+      ],
+    }));
+    (client as any).getActivity = jest.fn(async () => ({
+      activity: {
+        id: "activity-pending",
+        fingerprint: proposal.fingerprint,
+        status: "ACTIVITY_STATUS_PENDING",
+      },
+    }));
+
+    const result = expect(
+      client.awaitExportedSecrets({
+        proposal,
+        embeddedPrivateKey: "unused",
+        timeoutMs: 30,
+        pollingIntervalMs: 5,
+      }),
+    ).rejects.toThrow(
+      "Timed out waiting for export secrets activity activity-pending to reach a terminal status (last status: ACTIVITY_STATUS_PENDING)",
+    );
+    await jest.advanceTimersByTimeAsync(30);
+    await result;
   });
 });

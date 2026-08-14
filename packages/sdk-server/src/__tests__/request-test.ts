@@ -1,4 +1,5 @@
 import { test, expect, jest, afterEach } from "@jest/globals";
+import { TurnkeyRequestError } from "@turnkey/sdk-types";
 
 import { readFixture } from "../__fixtures__/shared";
 import { Turnkey } from "../index";
@@ -70,22 +71,25 @@ test("requests return grpc status details as part of their errors", async () => 
 
   mockedFetch.mockReturnValue(Promise.resolve(response));
 
-  try {
-    // Arbitrary request URL
-    await turnkeyServerClient.apiClient().getWhoami({
-      organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
-    });
-  } catch (e: any) {
-    expect(e.message).toEqual(
-      `Turnkey error 1: invalid request (Details: [{\"@type\":\"type.googleapis.com/google.rpc.BadRequest\",\"fieldViolations\":[{\"field\":\"privateKeys.0.privateKeyName\",\"description\":\"This field must be unique.\"}]}])`,
-    );
-    expect(e.details.length).toEqual(1);
-    expect(e.details[0].fieldViolations.length).toEqual(1);
-    expect(e.details[0].fieldViolations[0].field).toEqual(
-      "privateKeys.0.privateKeyName",
-    );
-    expect(e.details[0].fieldViolations[0].description).toEqual(
-      "This field must be unique.",
-    );
-  }
+  // Arbitrary request URL
+  const request = turnkeyServerClient.apiClient().getWhoami({
+    organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
+  });
+  await expect(request).rejects.toBeInstanceOf(TurnkeyRequestError);
+  await expect(request).rejects.toMatchObject({
+    name: "TurnkeyRequestError",
+    message: `Turnkey error 1: invalid request (Details: [{\"@type\":\"type.googleapis.com/google.rpc.BadRequest\",\"fieldViolations\":[{\"field\":\"privateKeys.0.privateKeyName\",\"description\":\"This field must be unique.\"}]}])`,
+    code: 1,
+    details: [
+      {
+        "@type": "type.googleapis.com/google.rpc.BadRequest",
+        fieldViolations: [
+          {
+            field: "privateKeys.0.privateKeyName",
+            description: "This field must be unique.",
+          },
+        ],
+      },
+    ],
+  });
 });
