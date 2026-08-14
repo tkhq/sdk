@@ -363,6 +363,7 @@ const generateSDKClientFromSwagger = async (
   );
 
   imports.push('import { StamperType } from "../__types__";');
+  imports.push('import { assertRedirectErrorSupported } from "../redirects";');
 
   codeBuffer.push(`
     export class TurnkeySDKClientBase {
@@ -497,6 +498,7 @@ const generateSDKClientFromSwagger = async (
         stampWith?: StamperType
     ): Promise<TResponseType> {
         const fullUrl = this.config.apiBaseUrl + url;
+        assertRedirectErrorSupported(fullUrl);
         const stringifiedBody = JSON.stringify(body);
         var headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -515,7 +517,7 @@ const generateSDKClientFromSwagger = async (
         method: "POST",
         headers: headers,
         body: stringifiedBody,
-        redirect: "follow"
+        redirect: "error"
         });
 
         if (!response.ok) {
@@ -573,6 +575,7 @@ const generateSDKClientFromSwagger = async (
         throw new TurnkeyError("Auth Proxy URL or ID is not configured.", TurnkeyErrorCodes.INVALID_CONFIGURATION);
         }
         const fullUrl = this.config.authProxyUrl + url;
+        assertRedirectErrorSupported(fullUrl);
         const stringifiedBody = JSON.stringify(body);
         var headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -587,6 +590,7 @@ const generateSDKClientFromSwagger = async (
         method: "POST",
         headers: headers,
         body: stringifiedBody,
+        redirect: "error",
         });
 
         if (!response.ok) {
@@ -623,6 +627,7 @@ const generateSDKClientFromSwagger = async (
         signedRequest: TSignedRequest,
         options?: { resultKey?: string }
     ): Promise<TResponseType> {
+        assertRedirectErrorSupported(signedRequest.url);
         const headers: Record<string, string> = {
         "Content-Type": "application/json",
         "X-Client-Version": VERSION,
@@ -633,6 +638,7 @@ const generateSDKClientFromSwagger = async (
         method: "POST",
         headers,
         body: signedRequest.body,
+        redirect: "error",
         });
 
         if (!response.ok) {

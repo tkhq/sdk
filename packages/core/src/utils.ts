@@ -91,6 +91,7 @@ import {
 import { keccak256, toUtf8String } from "ethers";
 import type { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import { jwtDecode } from "jwt-decode";
+import { assertRedirectErrorSupported } from "./redirects";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -989,6 +990,7 @@ export async function getAuthProxyConfig(
 ): Promise<ProxyTGetWalletKitConfigResponse> {
   const fullUrl =
     (authProxyUrl ?? "https://authproxy.turnkey.com") + "/v1/wallet_kit_config";
+  assertRedirectErrorSupported(fullUrl);
 
   var headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -998,6 +1000,7 @@ export async function getAuthProxyConfig(
   const response = await fetch(fullUrl, {
     method: "POST",
     headers: headers,
+    redirect: "error",
   });
 
   if (!response.ok) {
@@ -1023,6 +1026,7 @@ export async function getClientParams(
   const fullUrl =
     (authProxyUrl ?? "https://authproxy.turnkey.com") +
     "/v1/wallet_kit_client_params";
+  assertRedirectErrorSupported(fullUrl);
 
   var headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -1032,6 +1036,7 @@ export async function getClientParams(
   const response = await fetch(fullUrl, {
     method: "POST",
     headers: headers,
+    redirect: "error",
   });
 
   if (!response.ok) {
