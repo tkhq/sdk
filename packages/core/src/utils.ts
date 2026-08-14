@@ -471,6 +471,8 @@ export function parseSession(token: string | Session): Session {
     session_type: sessionType,
     user_id: userId,
     organization_id: organizationId,
+    session_profile_id: sessionProfileId,
+    scope,
   } = decoded;
 
   if (!exp || !publicKey || !sessionType || !userId || !organizationId) {
@@ -487,6 +489,8 @@ export function parseSession(token: string | Session): Session {
     expirationSeconds: expSeconds.toString(),
     publicKey,
     token,
+    ...(sessionProfileId && { sessionProfileId }),
+    ...(scope && { scope }),
   };
 }
 

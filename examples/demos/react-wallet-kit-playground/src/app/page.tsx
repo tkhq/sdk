@@ -37,6 +37,8 @@ export default function AuthPage() {
   const [organizationId, setOrganizationId] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [connectedWallets, setConnectedWallets] = useState<Wallet[]>([]);
+  const [mfaFingerprint, setMfaFingerprint] = useState<string>("");
+  const [sessionProfileId, setSessionProfileId] = useState<string>("");
 
   const [activeSessionKey, setActiveSessionKey] = useState<string | null>(null);
   const [sessionKey, setSessionKey] = useState<string>("");
@@ -164,7 +166,17 @@ export default function AuthPage() {
     setPrivateKeys(privateKeys || []);
   };
 
-  const handleVerifyOtp = async (
+  const handleVerifyOtp = async (otpCode: string) => {
+    const res = await turnkey.verifyOtp({
+      otpId,
+      otpCode,
+      otpEncryptionTargetBundle,
+    });
+
+    console.log("OTP verify response:", res);
+  };
+
+  const handleCompleteOtp = async (
     otpCode: string,
     contact: string,
     otpType: OtpType,
@@ -177,7 +189,7 @@ export default function AuthPage() {
       otpType,
     });
 
-    console.log("OTP verification response:", res);
+    console.log("OTP completion response:", res);
   };
 
   const doSignMessage = async () => {
@@ -2445,9 +2457,7 @@ export default function AuthPage() {
 
             <button
               className="h-fit"
-              onClick={() =>
-                handleVerifyOtp(emailOtpCode, email, OtpType.Email)
-              }
+              onClick={() => handleVerifyOtp(emailOtpCode)}
               style={{
                 backgroundColor: "rebeccapurple",
                 borderRadius: "8px",
@@ -2456,6 +2466,21 @@ export default function AuthPage() {
               }}
             >
               Verify OTP
+            </button>
+
+            <button
+              className="h-fit"
+              onClick={() =>
+                handleCompleteOtp(emailOtpCode, email, OtpType.Email)
+              }
+              style={{
+                backgroundColor: "rebeccapurple",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+              }}
+            >
+              Complete OTP
             </button>
           </div>
         </div>
@@ -2520,9 +2545,7 @@ export default function AuthPage() {
 
             <button
               className="h-fit"
-              onClick={() =>
-                handleVerifyOtp(smsOtpCode, phoneNumber, OtpType.Sms)
-              }
+              onClick={() => handleVerifyOtp(smsOtpCode)}
               style={{
                 backgroundColor: "rebeccapurple",
                 borderRadius: "8px",
@@ -2532,7 +2555,65 @@ export default function AuthPage() {
             >
               Verify OTP
             </button>
+
+            <button
+              className="h-fit"
+              onClick={() =>
+                handleCompleteOtp(smsOtpCode, phoneNumber, OtpType.Sms)
+              }
+              style={{
+                backgroundColor: "rebeccapurple",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+              }}
+            >
+              Complete OTP
+            </button>
           </div>
+        </div>
+      </div>
+      <div>
+        <h2>Session profile auth</h2>
+        <div className="flex flex-wrap gap-2 mb-2 items-center">
+          <input
+            type="text"
+            placeholder="Enter session profile ID"
+            className="p-1 border border-neutral-300 rounded"
+            value={sessionProfileId}
+            onChange={(e) => setSessionProfileId(e.target.value)}
+          />
+          <button
+            onClick={async () => {
+              await turnkey.signUpWithPasskey({
+                passkeyDisplayName: `Passkey-${Date.now()}`,
+                sessionProfileId,
+              });
+            }}
+            style={{
+              backgroundColor: "teal",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Sign Up with Passkey
+          </button>
+          <button
+            onClick={async () => {
+              await turnkey.loginWithPasskey({
+                sessionProfileId,
+              });
+            }}
+            style={{
+              backgroundColor: "teal",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Login with Passkey
+          </button>
         </div>
       </div>
       <div>
@@ -2826,6 +2907,243 @@ export default function AuthPage() {
           </button>
         </div>
       </div>
+      {authState === AuthState.Authenticated && (
+        <div>
+          <h2>MFA Practice</h2>
+
+          <div className="flex flex-wrap gap-2 mb-2">
+            <button
+              data-testid="mfa-create-mfa-policy"
+              onClick={async () => {
+                console.log(
+                  "Creating mfa policy",
+                  await httpClient?.createMfaPolicy({
+                    userId: user?.userId!,
+                    mfaPolicyName: "Some policy",
+                    condition: "activity.action == 'SIGN'",
+                    requiredAuthenticationMethods: [
+                      {
+                        any: [{ type: "AUTHENTICATION_TYPE_SESSION" }],
+                      },
+                      {
+                        any: [{ type: "AUTHENTICATION_TYPE_PASSKEY" }],
+                      },
+                    ],
+                    order: 0,
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "deepskyblue",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "black",
+              }}
+            >
+              Create mfa policy - Passkey + API Key for signing
+            </button>
+
+            <button
+              onClick={async () => {
+                console.log(
+                  "Creating email otp + session mfa policy",
+                  await httpClient?.createMfaPolicy({
+                    userId: user?.userId!,
+                    mfaPolicyName: "Email OTP + Session policy",
+                    condition: "activity.action == 'SIGN'",
+                    requiredAuthenticationMethods: [
+                      {
+                        any: [{ type: "AUTHENTICATION_TYPE_SESSION" }],
+                      },
+                      {
+                        any: [{ type: "AUTHENTICATION_TYPE_EMAIL_OTP" }],
+                      },
+                    ],
+                    order: 0,
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "gold",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "black",
+              }}
+            >
+              Create mfa policy - Email OTP + Session for signing
+            </button>
+
+            <button
+              data-testid="mfa-sign-raw-payload-api-key"
+              onClick={async () => {
+                const res = await httpClient?.signRawPayload({
+                  signWith: activeWalletAccount?.address!,
+                  payload: "Hello, Turnkey!",
+                  encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+                  hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+                });
+                if (res) {
+                  setMfaFingerprint(res.activity.fingerprint);
+                }
+                console.log("Signing raw payload", res);
+              }}
+              style={{
+                backgroundColor: "deepskyblue",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "black",
+              }}
+            >
+              Sign raw payload using Api Key - should trigger MFA
+            </button>
+            <button
+              data-testid="mfa-sign-raw-payload-passkey"
+              onClick={async () => {
+                const res = await httpClient?.signRawPayload(
+                  {
+                    signWith: activeWalletAccount?.address!,
+                    payload: "Hello, Turnkey!",
+                    encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+                    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+                  },
+                  StamperType.Passkey,
+                );
+                if (res) {
+                  setMfaFingerprint(res.activity.fingerprint);
+                }
+                console.log("Signing raw payload", res);
+              }}
+              style={{
+                backgroundColor: "deepskyblue",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "black",
+              }}
+            >
+              Sign raw payload using Passkey - should trigger MFA
+            </button>
+
+            <button
+              data-testid="mfa-sign-raw-payload-attested-identifier"
+              onClick={async () => {
+                const res = await httpClient?.signRawPayload(
+                  {
+                    signWith: activeWalletAccount?.address!,
+                    payload: "Hello, Turnkey!",
+                    encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+                    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+                  },
+                  StamperType.Attested,
+                );
+                if (res) {
+                  setMfaFingerprint(res.activity.fingerprint);
+                }
+                console.log("Signing raw payload", res);
+              }}
+              style={{
+                backgroundColor: "deepskyblue",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "black",
+              }}
+            >
+              Sign raw payload using Attested Identifier - should trigger MFA
+            </button>
+          </div>
+          <div className="flex flex-row gap-2">
+            <input
+              data-testid="mfa-fingerprint-input"
+              type="text"
+              placeholder="Enter activity fingerprint"
+              className="p-1 border border-neutral-300 rounded"
+              value={mfaFingerprint}
+              onChange={(e) => setMfaFingerprint(e.target.value)}
+            />
+            <button
+              data-testid="mfa-add-api-key-authenticator"
+              onClick={async () => {
+                console.log(
+                  "Adding api-key authenticator to activity",
+                  await httpClient?.approveActivity({
+                    fingerprint: mfaFingerprint,
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "deepskyblue",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "black",
+              }}
+            >
+              Add Api Key authenticator
+            </button>
+
+            <button
+              data-testid="mfa-add-passkey-authenticator"
+              onClick={async () => {
+                console.log(
+                  "Adding passkey authenticator to activity",
+                  await httpClient?.approveActivity(
+                    {
+                      fingerprint: mfaFingerprint,
+                    },
+                    StamperType.Passkey,
+                  ),
+                );
+              }}
+              style={{
+                backgroundColor: "deepskyblue",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "black",
+              }}
+            >
+              Add Passkey authenticator
+            </button>
+
+            <button
+              data-testid="mfa-add-attested-identifier-authenticator"
+              onClick={async () => {
+                console.log(
+                  "Adding attested identifier authenticator to activity",
+                  await httpClient?.approveActivity(
+                    {
+                      fingerprint: mfaFingerprint,
+                    },
+                    StamperType.Attested,
+                  ),
+                );
+              }}
+              style={{
+                backgroundColor: "deepskyblue",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "black",
+              }}
+            >
+              Add Attesed Identifier authenticator
+            </button>
+          </div>
+
+          <button
+            data-testid="mfa-set-handler"
+            onClick={async () => {
+              turnkey.setMfaHandler(async (ctx) => {
+                console.log("Hello, my name is custom MFA handler:", ctx);
+              });
+            }}
+            style={{
+              backgroundColor: "deepskyblue",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Set MFA Handler
+          </button>
+        </div>
+      )}
     </main>
   );
 }
