@@ -998,6 +998,7 @@ export async function getAuthProxyConfig(
   const response = await fetch(fullUrl, {
     method: "POST",
     headers: headers,
+    redirect: "error",
   });
 
   if (!response.ok) {
@@ -1032,6 +1033,7 @@ export async function getClientParams(
   const response = await fetch(fullUrl, {
     method: "POST",
     headers: headers,
+    redirect: "error",
   });
 
   if (!response.ok) {

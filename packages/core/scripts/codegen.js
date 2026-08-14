@@ -515,7 +515,7 @@ const generateSDKClientFromSwagger = async (
         method: "POST",
         headers: headers,
         body: stringifiedBody,
-        redirect: "follow"
+        redirect: "error"
         });
 
         if (!response.ok) {
@@ -587,6 +587,7 @@ const generateSDKClientFromSwagger = async (
         method: "POST",
         headers: headers,
         body: stringifiedBody,
+        redirect: "error",
         });
 
         if (!response.ok) {
@@ -633,6 +634,7 @@ const generateSDKClientFromSwagger = async (
         method: "POST",
         headers,
         body: signedRequest.body,
+        redirect: "error",
         });
 
         if (!response.ok) {
