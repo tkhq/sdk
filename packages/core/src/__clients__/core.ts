@@ -1224,6 +1224,7 @@ export class TurnkeyClient {
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.captchaToken - optional captcha token for bot prevention during sign up (must be enabled in the auth proxy config to take effect).
    * @returns A promise that resolves to a {@link WalletAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    *          - `address`: the authenticated wallet address.
@@ -1236,6 +1237,7 @@ export class TurnkeyClient {
       walletProvider,
       createSubOrgParams,
       sessionKey = SessionKey.DefaultSessionkey,
+      captchaToken,
     } = params;
 
     return withTurnkeyErrorHandling(
@@ -1256,7 +1258,10 @@ export class TurnkeyClient {
           },
         });
 
-        const res = await this.httpClient.proxySignupV2(signUpBody);
+        const res = await this.httpClient.proxySignupV2(
+          signUpBody,
+          captchaToken,
+        );
 
         if (!res) {
           throw new TurnkeyError(
