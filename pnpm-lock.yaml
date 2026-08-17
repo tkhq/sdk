@@ -4692,6 +4692,9 @@ importers:
       glob:
         specifier: '>=10.5.0'
         version: 13.0.0
+      jest-environment-jsdom:
+        specifier: ^29.7.0
+        version: 29.7.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       postcss:
         specifier: '>=8.5.18'
         version: 8.5.23
