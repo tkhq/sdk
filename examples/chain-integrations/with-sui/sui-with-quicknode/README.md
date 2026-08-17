@@ -94,18 +94,21 @@ Sends a 0.001 SUI self-transfer, signed via Turnkey and broadcast through the
 configured gRPC node provider via `LedgerService.ExecuteTransaction`. Prints
 the resulting transaction digest.
 
-#### Look up a wallet's SUI balance
+#### Look up a wallet's balances
 
 ```bash
 $ pnpm start:balance                # uses SUI_ADDRESS from .env.local
 $ pnpm start:balance 0xYourAddress  # or pass an address explicitly
 ```
 
-Prints the wallet's SUI balance in both MIST and SUI, split into the
+Prints the wallet's balance for every coin type it holds (SUI plus any
+fungible coins such as USDC and USDT). Each entry is split into the
 coin-object portion (`coinBalance`) and the accumulator-tracked portion
-(`addressBalance`). Uses `SuiGrpcClient.getBalance`
-(gRPC `LedgerService.GetBalance`, the gRPC replacement for the deprecated
-JSON-RPC `suix_getBalance`).
+(`addressBalance`), and formatted with the correct decimals resolved via
+`SuiGrpcClient.getCoinMetadata` (with a fallback table for common coins).
+Uses `SuiGrpcClient.listBalances`
+(gRPC `LedgerService.ListBalances`, the gRPC replacement for the deprecated
+JSON-RPC `suix_getAllBalances`).
 
 #### List a wallet's transaction history
 
@@ -117,9 +120,12 @@ $ pnpm start:history 0xYourAddress  # or pass an address explicitly
 Queries the node provider once via gRPC `LedgerService.ListTransactions`
 with an `affected_address` filter (matches transactions where the address
 was sender, recipient, or an object owner), then classifies each result
-locally as an inflow or outflow using the sign of the SUI `BalanceChange`
-attributed to the address. Prints two labeled lists (digest, timestamp, and
-SUI delta).
+locally by walking every `BalanceChange` attributed to the address. A
+transaction with any positive per-coin delta appears in the Inflows list;
+any transaction with any negative per-coin delta appears in the Outflows
+list, so a mixed-coin swap (SUI out, USDC in) shows up in both. Prints
+two labeled lists (digest, timestamp, and per-coin deltas with each
+coin's resolved decimals and symbol).
 
 The deprecated JSON-RPC `queryTransactionBlocks` filters `FromAddress` and
 `ToAddress` do not exist on gRPC — `affected_address` is the closest
