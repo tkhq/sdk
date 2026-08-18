@@ -11,7 +11,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 /**
  * Public Sui gRPC fullnode URLs, used as fallbacks when `QUICKNODE_SUI_URL`
  * is not set. Sourced from the `@mysten/sui/grpc` docs; production
- * deployments should point at a dedicated QuickNode Sui endpoint.
+ * deployments should point at a dedicated Quicknode Sui endpoint.
  */
 const PUBLIC_SUI_GRPC_URLS: Record<"testnet" | "mainnet", string> = {
   testnet: "https://fullnode.testnet.sui.io:443",
@@ -71,19 +71,20 @@ let publicFallbackWarned = false;
  * Build a {@link SuiGrpcClient} pointed at the configured node provider.
  *
  * Precedence:
- *   1. `QUICKNODE_SUI_URL` (recommended for production and demos — QuickNode
+ *   1. `QUICKNODE_SUI_URL` (recommended for production and demos — Quicknode
  *      is the node provider used in this example, and supports Sui gRPC on
  *      both mainnet and testnet).
  *   2. The public testnet gRPC fullnode so the example runs out-of-the-box
- *      without a QuickNode key. Emits a one-shot `console.warn` on fallback
- *      so callers don't conflate public-node latency with QuickNode perf.
+ *      without a Quicknode key. Emits a one-shot `console.warn` on fallback
+ *      so callers don't conflate public-node latency with Quicknode perf.
  *
  * The example defaults to testnet. Set `SUI_NETWORK=mainnet` alongside a
  * mainnet `QUICKNODE_SUI_URL` to point the client at mainnet.
  *
  * Turnkey handles signing only. Broadcast, balance reads, and transaction
- * history all flow through this client over gRPC (QuickNode has announced
- * deprecation of the Sui JSON-RPC API for July 2026).
+ * history all flow through this client over gRPC. Sui is deprecating the
+ * JSON-RPC API, and Quicknode is following that by deactivating their Sui
+ * JSON-RPC transport around July 2026 — gRPC is the forward-compatible path.
  */
 export function getSuiClient(): SuiGrpcClient {
   const network =
@@ -97,7 +98,7 @@ export function getSuiClient(): SuiGrpcClient {
   if (!quickNodeUrl && !publicFallbackWarned) {
     publicFallbackWarned = true;
     console.warn(
-      "[with-sui-quicknode] QUICKNODE_SUI_URL not set — using public Sui fullnode. Performance is NOT representative of QuickNode. Set QUICKNODE_SUI_URL to benchmark QuickNode.",
+      "[with-sui-quicknode] QUICKNODE_SUI_URL not set — using public Sui fullnode. Performance is NOT representative of Quicknode. Set QUICKNODE_SUI_URL to benchmark Quicknode.",
     );
   }
 

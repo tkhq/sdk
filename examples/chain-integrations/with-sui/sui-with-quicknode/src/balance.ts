@@ -17,7 +17,7 @@ async function main() {
   console.log(`Address: ${address}`);
 
   // Node-provider read: `provider.listBalances` calls the gRPC
-  // `LedgerService.ListBalances` and returns one entry per coin type the
+  // `StateService.ListBalances` and returns one entry per coin type the
   // address holds. Each entry:
   //   { coinType, balance, coinBalance, addressBalance }
   // where `balance` is total (coin objects + address-scoped balance),

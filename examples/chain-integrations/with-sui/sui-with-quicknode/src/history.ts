@@ -161,8 +161,13 @@ async function listAffectingTransactions(
     },
     filter,
     options: {
-      // Descending order to get the most recent transactions first, and
-      // request one extra so we know whether more pages exist.
+      // Descending order so we get the most recent transactions first.
+      // This is a single bounded fetch of up to `pageLimit` items — the
+      // demo does not paginate. A caller that wants pagination would keep
+      // the last `watermark.cursor` from the stream and pass it as
+      // `options.before` on the next request (or `options.after` for
+      // ascending); the terminal frame's `end.reason` (a `QueryEndReason`)
+      // reports whether more items may exist beyond the returned window.
       ordering: 1 /* DESCENDING */,
       limit: pageLimit,
     },

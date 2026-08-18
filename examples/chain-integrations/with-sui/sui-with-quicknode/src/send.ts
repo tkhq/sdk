@@ -52,6 +52,13 @@ function selectGasCoins(coins: CoinObject[], required: bigint): CoinObject[] {
   // Fast path: pick the smallest single coin that covers `required` so we
   // don't unnecessarily lock up a big coin. Falls back to the largest coin
   // when nothing covers on its own.
+  //
+  // Equivocation risk (demo-only trade-off): this selection is deterministic,
+  // so two concurrent sends from the same address will pick the same coin
+  // object and lock it until epoch end. Fine for a single-shot demo. For
+  // production or any concurrent sender, randomize the pick or use an
+  // explicit coin-locking / coordination mechanism so parallel transactions
+  // don't race on the same input.
   const sortedAsc = [...coins].sort((a, b) => {
     const av = BigInt(a.balance);
     const bv = BigInt(b.balance);
@@ -176,7 +183,7 @@ async function main() {
 
   // *** EXECUTION *** //
 
-  // Broadcast through the gRPC node provider. QuickNode by default when
+  // Broadcast through the gRPC node provider. Quicknode by default when
   // QUICKNODE_SUI_URL is set, otherwise the public testnet gRPC fullnode.
   // The gRPC `executeTransaction` takes raw transaction bytes plus an
   // array of base64-encoded flagged signatures.

@@ -2,14 +2,15 @@
 
 A 3-command Sui demo that pairs **Turnkey** (signing) with a **node provider**
 (broadcast + reads) over **gRPC**. Turnkey never touches RPC. The node provider
-(QuickNode is recommended) handles `LedgerService.ExecuteTransaction`,
-`GetBalance`, and `ListTransactions` — all through the `@mysten/sui/grpc`
-`SuiGrpcClient`.
+(Quicknode is recommended) handles
+`TransactionExecutionService.ExecuteTransaction`,
+`StateService.ListBalances`, and `LedgerService.ListTransactions` — all
+through the `@mysten/sui/grpc` `SuiGrpcClient`.
 
 > This example targets `@mysten/sui@^2.23.2` and uses the gRPC full-node API.
-> Sui JSON-RPC is deprecated and QuickNode has announced deactivation of that
-> transport for July 2026. QuickNode supports Sui gRPC on both mainnet and
-> testnet.
+> Sui is deprecating the JSON-RPC API, and Quicknode is following that by
+> deactivating their Sui JSON-RPC transport around July 2026. Quicknode
+> supports Sui gRPC on both mainnet and testnet.
 
 Commands:
 
@@ -29,8 +30,8 @@ is unset the client falls back to the public testnet gRPC fullnode
 (`https://fullnode.testnet.sui.io:443`) so the example still runs
 out-of-the-box.
 
-Set `QUICKNODE_SUI_URL` to your QuickNode Sui gRPC endpoint (mainnet or
-testnet) to route all reads and broadcasts through QuickNode without changing
+Set `QUICKNODE_SUI_URL` to your Quicknode Sui gRPC endpoint (mainnet or
+testnet) to route all reads and broadcasts through Quicknode without changing
 any other code. Set `SUI_NETWORK=mainnet` (default `testnet`) if you point at
 a mainnet endpoint.
 
@@ -84,15 +85,16 @@ Now open `.env.local` and set:
 The example runs on Sui testnet by default. Fund `SUI_ADDRESS` from the
 [Sui testnet faucet](https://faucet.sui.io/) before running `start:send`.
 
-#### Send a testnet SUI transfer (Turnkey-signed, QuickNode-broadcast)
+#### Send a testnet SUI transfer (Turnkey-signed, Quicknode-broadcast)
 
 ```bash
 $ pnpm start:send
 ```
 
 Sends a 0.001 SUI self-transfer, signed via Turnkey and broadcast through the
-configured gRPC node provider via `LedgerService.ExecuteTransaction`. Prints
-the resulting transaction digest.
+configured gRPC node provider via
+`TransactionExecutionService.ExecuteTransaction`. Prints the resulting
+transaction digest.
 
 #### Look up a wallet's balances
 
@@ -107,7 +109,7 @@ coin-object portion (`coinBalance`) and the accumulator-tracked portion
 (`addressBalance`), and formatted with the correct decimals resolved via
 `SuiGrpcClient.getCoinMetadata` (with a fallback table for common coins).
 Uses `SuiGrpcClient.listBalances`
-(gRPC `LedgerService.ListBalances`, the gRPC replacement for the deprecated
+(gRPC `StateService.ListBalances`, the gRPC replacement for the deprecated
 JSON-RPC `suix_getAllBalances`).
 
 #### List a wallet's transaction history
