@@ -1,5 +1,14 @@
 # with-lifi
 
+## 0.1.33
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@2.4.1
+  - @turnkey/solana@1.1.37
+  - @turnkey/viem@0.14.37
+
 ## 0.1.32
 
 ### Patch Changes

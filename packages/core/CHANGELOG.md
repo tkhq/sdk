@@ -1,5 +1,11 @@
 # @turnkey/core
 
+## 2.7.1
+
+### Patch Changes
+
+- [#1492](https://github.com/tkhq/sdk/pull/1492) [`9fe6ceb`](https://github.com/tkhq/sdk/commit/9fe6cebf0047a22b8106f4cd79568ca1da429da7) Author [@ethankonk](https://github.com/ethankonk) - Added missing optional captchaToken param to `SignUpWithWalletParams`
+
 ## 2.7.0
 
 ### Minor Changes

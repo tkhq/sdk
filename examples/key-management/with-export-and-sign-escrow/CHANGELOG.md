@@ -1,5 +1,12 @@
 # with-export-and-sign-escrow
 
+## 0.1.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@2.4.1
+
 ## 0.1.14
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # with-x
 
+## 0.1.40
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@2.4.1
+
 ## 0.1.39
 
 ### Patch Changes
