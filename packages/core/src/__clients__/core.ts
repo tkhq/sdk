@@ -3106,14 +3106,20 @@ export class TurnkeyClient {
         // TODO (breaking change): eventually, we wont generate the v1 activity at all, remove this check and update the intent.
         const resp =
           "calls" in transaction
-            ? await this.httpClient.ethSendTransactionV2({
-                ...transaction,
-                organizationId,
-              })
-            : await this.httpClient.ethSendTransaction({
-                ...transaction,
-                organizationId,
-              });
+            ? await this.httpClient.ethSendTransactionV2(
+                {
+                  ...transaction,
+                  organizationId,
+                },
+                stampWith,
+              )
+            : await this.httpClient.ethSendTransaction(
+                {
+                  ...transaction,
+                  organizationId,
+                },
+                stampWith,
+              );
 
         const id = resp.sendTransactionStatusId;
         if (!id) {
@@ -3277,10 +3283,13 @@ export class TurnkeyClient {
           const timeoutMs = 60_000; // 1 minute
 
           const ref = setInterval(async () => {
-            const resp = await this.httpClient.getSendTransactionStatus({
-              organizationId,
-              sendTransactionStatusId,
-            });
+            const resp = await this.httpClient.getSendTransactionStatus(
+              {
+                organizationId,
+                sendTransactionStatusId,
+              },
+              stampWith,
+            );
 
             const txStatus = resp?.txStatus;
 
