@@ -32,8 +32,8 @@ const DEFAULT_RPC_BY_CAIP2: Record<
   "eip155:11155111": "https://ethereum-sepolia-rpc.publicnode.com",
   "eip155:8453": "https://mainnet.base.org",
   "eip155:84532": "https://sepolia.base.org",
-  "eip155:137": "https://polygon-rpc.com",
-  "eip155:80002": "https://rpc-amoy.polygon.technology",
+  "eip155:137": "https://polygon.drpc.org",
+  "eip155:80002": "https://polygon-amoy.drpc.org",
 };
 
 type SupportedEvmCaip2 = (typeof SUPPORTED_EVM_CAIP2)[number];
