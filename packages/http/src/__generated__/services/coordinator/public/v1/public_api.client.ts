@@ -729,7 +729,7 @@ export class TurnkeyClient {
         [stamp.stampHeaderName]: stamp.stampHeaderValue,
       },
       body: stringifiedBody,
-      redirect: "follow",
+      redirect: "error",
     });
 
     if (!response.ok) {
