@@ -6217,7 +6217,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     let currentUrl = "";
                     try {
                       currentUrl = onRampWindow?.location.href || "";
-                    } catch {}
+                    } catch {
+                      // Cross-origin popup access can throw; treat it as not navigated yet.
+                    }
 
                     if (
                       currentUrl &&
@@ -6245,7 +6247,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       cleanup();
                       try {
                         onRampWindow?.close();
-                      } catch {}
+                      } catch {
+                        // Closing an already-closed popup is best-effort cleanup.
+                      }
                       setCompleted(true);
                       resolveAction();
                     }
