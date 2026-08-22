@@ -13,7 +13,7 @@
     "clean-all": "turbo clean",
     "prettier-all:check": "prettier --check \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml,mjs}\" --ignore-path ./.prettierignore",
     "prettier-all:write": "prettier --write \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml,mjs}\" --ignore-path ./.prettierignore",
-    "prettier-codegen:write": "prettier --write \"packages/{core,sdk-browser,sdk-server,sdk-types}/src/**/*.{css,html,js,json,md,ts,tsx,yaml,yml,mjs}\"",
+    "prettier-codegen:write": "prettier --write \"packages/{core,http,sdk-browser,sdk-server,sdk-types}/src/**/*.{css,html,js,json,md,ts,tsx,yaml,yml,mjs}\"",
     "test-all": "pnpm run -r --no-bail test",
     "test": "turbo test",
     "typecheck-all": "pnpm run -r typecheck",
