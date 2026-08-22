@@ -69,3 +69,29 @@ const event = JSON.parse(body.toString("utf8"));
 ```
 
 Do not verify a parsed and re-stringified JSON object. Even harmless-looking changes to whitespace or key ordering will change the signed payload.
+
+## Policy-aware QOS proof verification
+
+The existing `verify()` helper checks the App Proof signature, AWS Nitro
+attestation signature and certificate chain, manifest hash binding, and
+Ephemeral Key binding. Use `verifyWithQosPolicy()` when the relying party also
+has independently trusted QOS release measurements:
+
+```ts
+import { verifyWithQosPolicy } from "@turnkey/crypto";
+
+await verifyWithQosPolicy(appProof, bootProof, {
+  allowedManifestSha256: [trustedRelease.manifestSha256],
+  expectedPcrs: {
+    0: trustedRelease.pcr0,
+    1: trustedRelease.pcr1,
+    2: trustedRelease.pcr2,
+    3: trustedRelease.pcr3,
+  },
+});
+```
+
+Never populate this policy from the Boot Proof or the service being verified.
+The policy must arrive through an independent trusted release channel. The
+policy-aware verifier additionally requires all attestable PCRs and verifies
+the QOS live manifest/Ephemeral Key commitment in PCR17.

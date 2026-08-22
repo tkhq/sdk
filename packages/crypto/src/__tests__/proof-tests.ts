@@ -1,6 +1,11 @@
 /** @jest-environment node */
 
-import { verify, verifyAppProofSignature } from "../proof";
+import {
+  computeQosLiveManifestCommitmentPcr,
+  verify,
+  verifyAppProofSignature,
+  verifyWithQosPolicy,
+} from "../proof";
 import type { v1AppProof, v1BootProof } from "@turnkey/sdk-types";
 import { test, expect, describe } from "@jest/globals";
 
@@ -128,5 +133,58 @@ describe("Proof verification tests", () => {
     await expect(verify(testAppProof2, malformedBootProof2)).rejects.toThrow(
       "attestationDoc's user_data doesn't match the hash of the manifest. ",
     );
+  });
+
+  test("computes the QOS live manifest commitment PCR", () => {
+    const manifestDigest = new Uint8Array(32);
+    const ephemeralPublicKey = new Uint8Array(130).fill(0x11);
+    ephemeralPublicKey[0] = 0x04;
+
+    expect(
+      Buffer.from(
+        computeQosLiveManifestCommitmentPcr(manifestDigest, ephemeralPublicKey),
+      ).toString("hex"),
+    ).toBe(
+      "d19443155765a0795affb170c1e13a2360ea38202a5fa703950261f3d0a0c2321dd0ae2b8d7c9d1798d6898b1e25a94c",
+    );
+  });
+
+  test("requires an independently pinned manifest", async () => {
+    await expect(
+      verifyWithQosPolicy(testAppProof1, testBootProof1, {
+        allowedManifestSha256: [],
+        expectedPcrs: {
+          0: "00".repeat(48),
+          1: "00".repeat(48),
+          2: "00".repeat(48),
+          3: "00".repeat(48),
+        },
+      }),
+    ).rejects.toThrow(
+      "QOS verification policy must allow at least one semantic manifest hash",
+    );
+  });
+
+  test("rejects attestations without the complete QOS PCR bank", async () => {
+    // The policy-aware verifier pins the semantic manifest hash from the
+    // signed attestation. It must not confuse it with SHA-256 of these raw
+    // serialized bytes.
+    const bootProofWithDifferentRawManifest = {
+      ...testBootProof1,
+      qosManifestB64: "AA==",
+    };
+    await expect(
+      verifyWithQosPolicy(testAppProof1, bootProofWithDifferentRawManifest, {
+        allowedManifestSha256: [
+          "24a9e2c0b0ce26bcbc3e65172f8b06b100d5e712591f604832cbea9ff5ce02be",
+        ],
+        expectedPcrs: {
+          0: "f67076a8f9796b90d7f0eb148ec6926f66fe04c80861151916961f7dec715b3c8a36e5908e9551c20048719da134b207",
+          1: "f67076a8f9796b90d7f0eb148ec6926f66fe04c80861151916961f7dec715b3c8a36e5908e9551c20048719da134b207",
+          2: "21b9efbc184807662e966d34f390821309eeac6802309798826296bf3e8bec7c10edb30948c90ba67310f7b964fc500a",
+          3: "864e9095a9947ab14698122370c13baf23183f4e9911953cf5b909a49db00f43f446707314674d9309974f3cc4b24728",
+        },
+      }),
+    ).rejects.toThrow("QOS attestation document must contain exactly 32 PCRs");
   });
 });
