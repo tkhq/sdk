@@ -14,7 +14,8 @@ overrides:
   semver: '>=6.3.1'
   elliptic: '>=6.6.1'
   adm-zip: 0.6.0
-  js-yaml@>=4.0.0 <4.3.0: 4.3.0
+  js-yaml@>=4.0.0 <4.3.1: 4.3.1
+  js-yaml@>=3.0.0 <3.15.1: 3.15.1
   uuid@<11.1.1: 11.1.1
   axios: '>=1.18.0'
   form-data: '>=4.0.6'
@@ -43,6 +44,7 @@ overrides:
   ajv@>=7.0.0 <8.18.0: '>=8.18.0'
   tough-cookie@<4.1.3: '>=4.1.3'
   '@eslint/plugin-kit@<0.3.4': '>=0.3.4'
+  nanoid@<3.3.18: ^3.3.18
 
 importers:
 
@@ -15024,12 +15026,12 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  js-yaml@3.15.0:
-    resolution: {integrity: sha512-ttBQIIQPDeLjpPOohtUdXuXUVoA2uIB6fEH9HyJ7234s5mBJ5wTx20njxplLZQgLaOfpmPQA7X2t5AX6tIPbog==}
+  js-yaml@3.15.1:
+    resolution: {integrity: sha512-S99WuO3HlhO3XN41EtYUNl9zzXjoJx7QvmipxsJVxtCBT0YHEFy+iOJhjSvrmV12nYhWpZaM8lPHkJm0yUMbag==}
     hasBin: true
 
-  js-yaml@4.3.0:
-    resolution: {integrity: sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==}
+  js-yaml@4.3.1:
+    resolution: {integrity: sha512-CY6crGq313MX8GkwvB7tzgp99vjQxY1++5y10/BKN/GUfHqWaOGQMNZkBvqSzsZKWk/ijwHlWzzkLulsGHhjWQ==}
     hasBin: true
 
   jsbi@3.2.5:
@@ -15896,13 +15898,8 @@ packages:
   nanoassert@2.0.0:
     resolution: {integrity: sha512-7vO7n28+aYO4J+8w96AzhmU8G+Y/xpPDJz/se19ICsqj/momRbb9mh9ZUtkoJ5X3nTnPdhEJyc0qnM6yAsHBaA==}
 
-  nanoid@3.3.12:
-    resolution: {integrity: sha512-ZB9RH/39qpq5Vu6Y+NmUaFhQR6pp+M2Xt76XBnEwDaGcVAqhlvxrl3B2bKS5D3NH3QR76v3aSrKaF/Kiy7lEtQ==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
-
-  nanoid@3.3.16:
-    resolution: {integrity: sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==}
+  nanoid@3.3.18:
+    resolution: {integrity: sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
@@ -21735,7 +21732,7 @@ snapshots:
       cross-fetch: 3.2.0(encoding@0.1.13)
       fastq: 1.19.1
       isomorphic-ws: 4.0.1(ws@8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
-      nanoid: 3.3.12
+      nanoid: 3.3.18
       ts-custom-error: 3.3.1
       ws: 8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
@@ -22008,7 +22005,7 @@ snapshots:
   '@changesets/parse@0.4.3':
     dependencies:
       '@changesets/types': 6.1.0
-      js-yaml: 4.3.0
+      js-yaml: 4.3.1
 
   '@changesets/pre@2.0.2':
     dependencies:
@@ -22610,7 +22607,7 @@ snapshots:
       globals: 13.24.0
       ignore: 5.3.2
       import-fresh: 3.3.1
-      js-yaml: 4.3.0
+      js-yaml: 4.3.1
       minimatch: 3.1.5
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
@@ -22624,7 +22621,7 @@ snapshots:
       globals: 14.0.0
       ignore: 5.3.2
       import-fresh: 3.3.1
-      js-yaml: 4.3.0
+      js-yaml: 4.3.1
       minimatch: 3.1.5
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
@@ -23536,7 +23533,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.29.7
       chalk: 4.1.2
-      js-yaml: 4.3.0
+      js-yaml: 4.3.1
     optional: true
 
   '@farcaster/frame-core@0.0.26(typescript@5.4.3)':
@@ -24121,7 +24118,7 @@ snapshots:
       camelcase: 5.3.1
       find-up: 4.1.0
       get-package-type: 0.1.0
-      js-yaml: 3.15.0
+      js-yaml: 3.15.1
       resolve-from: 5.0.0
 
   '@istanbuljs/schema@0.1.3': {}
@@ -27052,7 +27049,7 @@ snapshots:
       '@react-navigation/routers': 7.5.5
       escape-string-regexp: 4.0.0
       fast-deep-equal: 3.1.3
-      nanoid: 3.3.16
+      nanoid: 3.3.18
       query-string: 7.1.3
       react: 18.3.1
       react-is: 19.1.1
@@ -27065,7 +27062,7 @@ snapshots:
       '@react-navigation/routers': 7.5.5
       escape-string-regexp: 4.0.0
       fast-deep-equal: 3.1.3
-      nanoid: 3.3.16
+      nanoid: 3.3.18
       query-string: 7.1.3
       react: 19.2.4
       react-is: 19.1.1
@@ -27130,7 +27127,7 @@ snapshots:
       '@react-navigation/core': 7.17.5(react@19.2.4)
       escape-string-regexp: 4.0.0
       fast-deep-equal: 3.1.3
-      nanoid: 3.3.16
+      nanoid: 3.3.18
       react: 19.2.4
       react-native: 0.81.4(@babel/core@7.29.7)(@types/react@18.2.14)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)
       use-latest-callback: 0.2.6(react@19.2.4)
@@ -27141,7 +27138,7 @@ snapshots:
       '@react-navigation/core': 7.17.5(react@18.3.1)
       escape-string-regexp: 4.0.0
       fast-deep-equal: 3.1.3
-      nanoid: 3.3.16
+      nanoid: 3.3.18
       react: 18.3.1
       react-native: 0.81.4(@babel/core@7.29.7)(@types/react@18.3.24)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10)
       use-latest-callback: 0.2.6(react@18.3.1)
@@ -27149,7 +27146,7 @@ snapshots:
 
   '@react-navigation/routers@7.5.5':
     dependencies:
-      nanoid: 3.3.16
+      nanoid: 3.3.18
     optional: true
 
   '@react-oauth/google@0.12.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
@@ -27267,7 +27264,7 @@ snapshots:
       colorette: 1.4.0
       https-proxy-agent: 7.0.6(supports-color@10.2.2)
       js-levenshtein: 1.1.6
-      js-yaml: 4.3.0
+      js-yaml: 4.3.1
       minimatch: 5.1.9
       pluralize: 8.0.0
       yaml-ast-parser: 0.0.43
@@ -36686,7 +36683,7 @@ snapshots:
     dependencies:
       import-fresh: 2.0.0
       is-directory: 0.3.1
-      js-yaml: 3.15.0
+      js-yaml: 3.15.1
       parse-json: 4.0.0
 
   cosmiconfig@7.1.0:
@@ -36700,7 +36697,7 @@ snapshots:
   cosmiconfig@8.3.6(typescript@5.4.3):
     dependencies:
       import-fresh: 3.3.1
-      js-yaml: 4.3.0
+      js-yaml: 4.3.1
       parse-json: 5.2.0
       path-type: 4.0.0
     optionalDependencies:
@@ -38042,7 +38039,7 @@ snapshots:
       imurmurhash: 0.1.4
       is-glob: 4.0.3
       is-path-inside: 3.0.3
-      js-yaml: 4.3.0
+      js-yaml: 4.3.1
       json-stable-stringify-without-jsonify: 1.0.1
       levn: 0.4.1
       lodash.merge: 4.6.2
@@ -38556,7 +38553,7 @@ snapshots:
       expo-server: 1.0.7
       fast-deep-equal: 3.1.3
       invariant: 2.2.4
-      nanoid: 3.3.16
+      nanoid: 3.3.18
       query-string: 7.1.3
       react: 19.2.4
       react-fast-compare: 3.2.2
@@ -38600,7 +38597,7 @@ snapshots:
       expo-server: 1.0.7
       fast-deep-equal: 3.1.3
       invariant: 2.2.4
-      nanoid: 3.3.16
+      nanoid: 3.3.18
       query-string: 7.1.3
       react: 18.3.1
       react-fast-compare: 3.2.2
@@ -40722,12 +40719,12 @@ snapshots:
 
   js-tokens@4.0.0: {}
 
-  js-yaml@3.15.0:
+  js-yaml@3.15.1:
     dependencies:
       argparse: 1.0.10
       esprima: 4.0.1
 
-  js-yaml@4.3.0:
+  js-yaml@4.3.1:
     dependencies:
       argparse: 2.0.1
 
@@ -41858,7 +41855,7 @@ snapshots:
       find-up: 5.0.0
       glob: 13.0.0
       he: 1.2.0
-      js-yaml: 4.3.0
+      js-yaml: 4.3.1
       log-symbols: 4.1.0
       minimatch: 5.1.9
       ms: 2.1.3
@@ -41927,9 +41924,7 @@ snapshots:
 
   nanoassert@2.0.0: {}
 
-  nanoid@3.3.12: {}
-
-  nanoid@3.3.16: {}
+  nanoid@3.3.18: {}
 
   napi-postinstall@0.3.3: {}
 
@@ -43292,7 +43287,7 @@ snapshots:
 
   postcss@8.5.23:
     dependencies:
-      nanoid: 3.3.16
+      nanoid: 3.3.18
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -44315,7 +44310,7 @@ snapshots:
   read-yaml-file@1.1.0:
     dependencies:
       graceful-fs: 4.2.11
-      js-yaml: 3.15.0
+      js-yaml: 3.15.1
       pify: 4.0.1
       strip-bom: 3.0.0
 
