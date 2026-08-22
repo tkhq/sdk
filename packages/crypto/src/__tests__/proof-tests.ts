@@ -161,13 +161,20 @@ describe("Proof verification tests", () => {
         },
       }),
     ).rejects.toThrow(
-      "QOS verification policy must allow at least one manifest SHA-256 digest",
+      "QOS verification policy must allow at least one semantic manifest hash",
     );
   });
 
   test("rejects attestations without the complete QOS PCR bank", async () => {
+    // The policy-aware verifier pins the semantic manifest hash from the
+    // signed attestation. It must not confuse it with SHA-256 of these raw
+    // serialized bytes.
+    const bootProofWithDifferentRawManifest = {
+      ...testBootProof1,
+      qosManifestB64: "AA==",
+    };
     await expect(
-      verifyWithQosPolicy(testAppProof1, testBootProof1, {
+      verifyWithQosPolicy(testAppProof1, bootProofWithDifferentRawManifest, {
         allowedManifestSha256: [
           "24a9e2c0b0ce26bcbc3e65172f8b06b100d5e712591f604832cbea9ff5ce02be",
         ],

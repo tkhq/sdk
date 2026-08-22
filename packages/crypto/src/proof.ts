@@ -5,7 +5,7 @@ import {
 import type { v1AppProof, v1BootProof } from "@turnkey/sdk-types";
 import { p256 } from "@noble/curves/p256";
 import { sha256, sha384 } from "@noble/hashes/sha2";
-import * as CBOR from "cbor-js";
+import CBOR from "cbor-js";
 import * as x509 from "@peculiar/x509";
 import { AWS_ROOT_CERT_PEM, AWS_ROOT_CERT_SHA256 } from "./constants";
 
@@ -26,7 +26,11 @@ export type QosIdentityPcrIndex = 0 | 1 | 2 | 3;
  * from the boot proof or from the service being verified.
  */
 export type QosVerificationPolicy = {
-  /** SHA-256 digests of complete, independently approved QOS manifests. */
+  /**
+   * Semantic QOS manifest hashes from `VersionedManifest::manifest_hash()`.
+   * These are the 32 bytes committed in the Nitro attestation `user_data`,
+   * not SHA-256 of the raw serialized Borsh manifest.
+   */
   allowedManifestSha256: readonly string[];
   /** Expected SHA-384 PCR0 through PCR3 measurements. */
   expectedPcrs: Readonly<Record<QosIdentityPcrIndex, string>>;
@@ -114,16 +118,19 @@ export async function verify(
   appProof: v1AppProof,
   bootProof: v1BootProof,
 ): Promise<void> {
-  await verifyProofPair(appProof, bootProof);
+  await verifyProofPair(appProof, bootProof, true);
 }
 
 /**
  * Verifies an app proof and boot proof pair against an independently trusted
  * QOS deployment policy.
  *
- * In addition to {@link verify}, this pins the complete QOS manifest digest,
- * checks PCR0 through PCR3, requires the complete attestable PCR bank, and
- * verifies the QOS live manifest/Ephemeral Key commitment in PCR17.
+ * This verifies the core App Proof, AWS attestation, and Ephemeral-key chain,
+ * pins the semantic QOS manifest hash committed in `user_data`, checks PCR0
+ * through PCR3, requires the complete attestable PCR bank, and verifies the
+ * QOS live manifest/Ephemeral Key commitment in PCR17. Because the semantic
+ * hash is independently pinned, this path does not use the legacy
+ * SHA-256(raw serialized manifest) compatibility check from {@link verify}.
  */
 export async function verifyWithQosPolicy(
   appProof: v1AppProof,
@@ -134,6 +141,7 @@ export async function verifyWithQosPolicy(
   const { attestationDoc, manifestDigest } = await verifyProofPair(
     appProof,
     bootProof,
+    false,
   );
 
   if (
@@ -215,6 +223,7 @@ export function computeQosLiveManifestCommitmentPcr(
 async function verifyProofPair(
   appProof: v1AppProof,
   bootProof: v1BootProof,
+  verifyLegacySerializedManifestHash: boolean,
 ): Promise<VerifiedProofPair> {
   // 1. Verify App Proof
   verifyAppProofSignature(appProof);
@@ -246,17 +255,32 @@ async function verifyProofPair(
     appProofTimestampMs,
   );
 
-  // Verify manifest digest
-  const decodedBootProofManifest = Uint8Array.from(
-    atob(bootProof.qosManifestB64)
-      .split("")
-      .map((c) => c.charCodeAt(0)),
+  const manifestDigest = asBytes(
+    attestationDoc.user_data,
+    "attestation document user_data manifest hash",
   );
-  const manifestDigest = sha256(decodedBootProofManifest);
-  if (!bytesEq(manifestDigest, attestationDoc.user_data)) {
+  if (manifestDigest.length !== SHA256_LENGTH) {
     throw new Error(
-      `attestationDoc's user_data doesn't match the hash of the manifest. attestationDoc.user_data: ${attestationDoc.user_data} , manifest digest: ${manifestDigest}`,
+      `QOS attestation user_data manifest hash must be ${SHA256_LENGTH} bytes, got ${manifestDigest.length}`,
     );
+  }
+
+  // Preserve the original reference verifier's behavior for older proof
+  // fixtures. Current QOS releases commit the semantic
+  // `VersionedManifest::manifest_hash()` in user_data; the policy-aware path
+  // pins that value directly and must not substitute SHA-256(raw Borsh bytes).
+  if (verifyLegacySerializedManifestHash) {
+    const decodedBootProofManifest = Uint8Array.from(
+      atob(bootProof.qosManifestB64)
+        .split("")
+        .map((c) => c.charCodeAt(0)),
+    );
+    const serializedManifestDigest = sha256(decodedBootProofManifest);
+    if (!bytesEq(serializedManifestDigest, manifestDigest)) {
+      throw new Error(
+        `attestationDoc's user_data doesn't match the hash of the manifest. attestationDoc.user_data: ${manifestDigest} , manifest digest: ${serializedManifestDigest}`,
+      );
+    }
   }
 
   // 3. Verify that all the ephemeral public keys match: app proof, boot proof structure, actual attestation doc
@@ -450,7 +474,7 @@ function normalizeQosVerificationPolicy(policy: QosVerificationPolicy): {
     policy.allowedManifestSha256.length === 0
   ) {
     throw new Error(
-      "QOS verification policy must allow at least one manifest SHA-256 digest",
+      "QOS verification policy must allow at least one semantic manifest hash",
     );
   }
 
