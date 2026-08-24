@@ -4901,9 +4901,6 @@ importers:
 
   packages/sdk-server:
     dependencies:
-      '@noble/hashes':
-        specifier: 1.8.0
-        version: 1.8.0
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../api-key-stamper
