@@ -115,10 +115,13 @@ async function main() {
     privateKey: embeddedPrivateKey,
     publicKeyUncompressed: targetPublicKey,
   } = generateP256KeyPair();
+  // The timestamp is part of the signed bytes, so every co-signer shares this
+  // one value: the proposal is built once and passed around.
   const proposal = paymentAgent.createExportSecretsProposal({
     secrets: [{ secretId }],
     targetPublicKey,
     organizationId,
+    timestampMs: String(Date.now()),
   });
   console.log(
     `Built export proposal with fingerprint: ${proposal.fingerprint}`,
@@ -133,14 +136,16 @@ async function main() {
     try {
       const result = await agent.submitExportSecrets(proposal);
       console.log(`${label} submitted: ${result.status}`);
+      return result;
     } catch (_) {
       const result = await agent.submitExportSecrets(proposal);
       console.log(
         `${label} submitted (after conflict retry): ${result.status}`,
       );
+      return result;
     }
   };
-  await Promise.all([
+  const [paymentSubmission] = await Promise.all([
     submitAsAgent(paymentAgent, "payment-agent"),
     submitAsAgent(browserAgent, "browser-agent"),
   ]);
@@ -151,6 +156,7 @@ async function main() {
   const [exportedCard] = await paymentAgent.awaitExportedSecrets({
     proposal,
     embeddedPrivateKey,
+    activityId: paymentSubmission.activityId,
   });
   if (exportedCard !== card) {
     throw new Error("Exported plaintext does not match the imported value");
