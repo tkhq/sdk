@@ -1,0 +1,21 @@
+{
+  "name": "@turnkey/example-with-transaction-history",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "list-eth-transaction-history": "NODE_NO_WARNINGS=1 tsx src/list-eth-transaction-history.ts",
+    "list-sol-transaction-history": "NODE_NO_WARNINGS=1 tsx src/list-sol-transaction-history.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
+    "dotenv": "^16.0.3",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.2",
+    "typescript": "5.4.3"
+  }
+}
