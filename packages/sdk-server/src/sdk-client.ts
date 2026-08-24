@@ -353,6 +353,7 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
       secrets: [{ secretId: params.secretId }],
       targetPublicKey: publicKeyUncompressed,
       organizationId,
+      timestampMs: params.timestampMs ?? String(Date.now()),
     });
 
     const submitted = await this.submitExportSecrets(proposal);
@@ -369,6 +370,7 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
 
     const [plaintext] = await this.awaitExportedSecrets({
       proposal,
+      activityId: submitted.activityId,
       embeddedPrivateKey: privateKey,
       ...(params.timeoutMs !== undefined
         ? { timeoutMs: params.timeoutMs }
@@ -408,7 +410,7 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
 
     const request: v1ExportSecretsRequest = {
       type: "ACTIVITY_TYPE_EXPORT_SECRETS",
-      timestampMs: params.timestampMs ?? String(Date.now()),
+      timestampMs: params.timestampMs,
       organizationId,
       parameters: {
         secrets: params.secrets.map((secret) => ({
@@ -483,9 +485,8 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
   };
 
   /**
-   * Polls the activity identified by the proposal's fingerprint until it
-   * reaches a terminal status, then decrypts each exported payload with the
-   * ephemeral private key.
+   * Polls the export activity until it reaches a terminal status, then
+   * decrypts each exported payload with the ephemeral private key.
    */
   awaitExportedSecrets = async (
     params: AwaitExportedSecretsParams,
@@ -502,7 +503,7 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
     // The public API has no fingerprint filter, so first resolve the
     // fingerprint to an activity ID by walking list_activities pages, then
     // poll that activity directly.
-    let activityId: string | undefined;
+    let activityId = params.activityId;
     while (!activityId && Date.now() < deadline) {
       activityId = await this.findExportActivityIdByFingerprint(
         proposal.organizationId,

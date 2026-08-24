@@ -48,6 +48,7 @@ export type SecretMetadata = {
 export type ExportSecretParams = {
   secretId: string;
   organizationId?: string;
+  timestampMs?: string;
   /** How long to wait for the activity to reach a terminal status. Defaults to 60s. */
   timeoutMs?: number;
   /** Defaults to 500ms. */
@@ -61,8 +62,8 @@ export type CreateExportSecretsProposalParams = {
   /** Recipient's ephemeral P-256 public key (compressed hex). Only the holder of the private half can decrypt the export. */
   targetPublicKey: string;
   organizationId?: string;
-  /** Defaults to now. Part of the signed bytes: all co-signers share this value. */
-  timestampMs?: string;
+  /** Part of the signed bytes: all co-signers share this value. */
+  timestampMs: string;
 };
 
 export type ExportSecretsProposal = {
@@ -90,6 +91,7 @@ export type AwaitExportedSecretsParams = {
   proposal: ExportSecretsProposal;
   /** The hex-encoded ephemeral private key the proposal targets (e.g. from generateP256KeyPair). */
   embeddedPrivateKey: string;
+  activityId?: string;
   timeoutMs?: number;
   pollingIntervalMs?: number;
   /** Override the signer public key used to verify enclave bundles. Testing only. */
