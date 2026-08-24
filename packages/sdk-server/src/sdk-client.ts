@@ -10,11 +10,11 @@ import {
   type v1InitImportSecretsResult,
 } from "@turnkey/sdk-types";
 import {
+  computeActivityFingerprint,
   decryptSecretBundle,
   encryptSecretToBundle,
   generateP256KeyPair,
 } from "@turnkey/crypto";
-import { sha256 } from "@noble/hashes/sha256";
 
 import { fetch } from "./universal";
 import { VERSION } from "./__generated__/version";
@@ -421,10 +421,7 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
       },
     };
     const body = JSON.stringify(request);
-
-    const fingerprint = `sha256:${Buffer.from(
-      sha256(new TextEncoder().encode(body)),
-    ).toString("hex")}`;
+    const fingerprint = computeActivityFingerprint(body);
 
     return {
       body,

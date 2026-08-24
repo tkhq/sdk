@@ -18,6 +18,7 @@ import {
   verifySessionJwtSignature,
   verifyOtpVerificationToken,
   fromDerSignature,
+  computeActivityFingerprint,
 } from "../";
 
 // Mock data for testing
@@ -446,6 +447,46 @@ describe("Turnkey Crypto Primitives", () => {
         /invalid tag for s/,
       );
     });
+  });
+});
+
+describe("computeActivityFingerprint", () => {
+  test("matches sha256: + hex digest of the exact request bytes", () => {
+    const body = JSON.stringify({
+      type: "ACTIVITY_TYPE_EXPORT_SECRETS",
+      timestampMs: "1700000000000",
+      organizationId: "9c4dfaa6-fd39-4b40-8ec8-2e0d5ac0a1cb",
+    });
+
+    const expected = `sha256:${Buffer.from(
+      sha256(new TextEncoder().encode(body)),
+    ).toString("hex")}`;
+
+    expect(computeActivityFingerprint(body)).toBe(expected);
+  });
+
+  test("is stable and 71 characters of lowercase hex", () => {
+    const body = '{"type":"ACTIVITY_TYPE_EXPORT_SECRETS"}';
+    const fingerprint = computeActivityFingerprint(body);
+
+    expect(fingerprint).toBe(computeActivityFingerprint(body));
+    expect(fingerprint).toMatch(/^sha256:[0-9a-f]{64}$/);
+  });
+
+  test("is byte-sensitive: whitespace changes the fingerprint", () => {
+    expect(computeActivityFingerprint('{"a":1}')).not.toBe(
+      computeActivityFingerprint('{"a": 1}'),
+    );
+  });
+
+  test("hashes UTF-8 bytes, not UTF-16 code units", () => {
+    // "é" is two bytes in UTF-8; a code-unit hash would differ from this.
+    const body = '{"name":"café"}';
+    const expected = `sha256:${Buffer.from(
+      sha256(new TextEncoder().encode(body)),
+    ).toString("hex")}`;
+
+    expect(computeActivityFingerprint(body)).toBe(expected);
   });
 });
 

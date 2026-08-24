@@ -54,6 +54,10 @@ interface EncryptWalletToBundleParams {
   dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
 }
 
+// Server-side format for activity fingerprints: the hash name, then the hex
+// digest. Only SHA-256 is used today.
+const ACTIVITY_FINGERPRINT_PREFIX = "sha256:";
+
 export enum Enclave {
   NOTARIZER = "notarizer",
   SIGNER = "signer",
@@ -321,6 +325,26 @@ export const decryptSecretBundle = async ({
   });
 
   return new TextDecoder().decode(decryptedData);
+};
+
+/**
+ * Computes the activity fingerprint for a Turnkey request body.
+ *
+ * The fingerprint is how the server identifies an activity independently of
+ * who submitted it, so any party holding the exact request bytes can derive
+ * it locally — to look up an activity they did not submit, or to check that
+ * co-signers of a consensus activity are all voting on the same bytes.
+ *
+ * Byte-sensitive by design: the digest is taken over `requestBody` as given,
+ * so a re-serialized body (different key order or whitespace) yields a
+ * different fingerprint and, server-side, a different activity.
+ *
+ * @param {string} requestBody - The exact serialized request body that is (or was) submitted.
+ * @returns {string} - The fingerprint, formatted as "sha256:<hex digest>".
+ */
+export const computeActivityFingerprint = (requestBody: string): string => {
+  const digest = sha256(new TextEncoder().encode(requestBody));
+  return `${ACTIVITY_FINGERPRINT_PREFIX}${uint8ArrayToHexString(digest)}`;
 };
 
 /**
