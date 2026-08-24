@@ -59,7 +59,7 @@ export type ExportSecretParams = {
 
 export type CreateExportSecretsProposalParams = {
   secrets: { secretId: string }[];
-  /** Recipient's ephemeral P-256 public key (compressed hex). Only the holder of the private half can decrypt the export. */
+  /** Recipient's ephemeral P-256 public key (65-byte uncompressed hex, e.g. `generateP256KeyPair().publicKeyUncompressed`). Only the holder of the private half can decrypt the export. */
   targetPublicKey: string;
   organizationId?: string;
   /** Part of the signed bytes: all co-signers share this value. */
