@@ -1,6 +1,10 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-import { Turnkey, TurnkeyApiClient } from "@turnkey/sdk-server";
+import {
+  Turnkey,
+  TurnkeyApiClient,
+  TurnkeyRequestError,
+} from "@turnkey/sdk-server";
 import { generateP256KeyPair } from "@turnkey/crypto";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -132,12 +136,21 @@ async function main() {
   // other registers as an approval vote. If the two submissions race to
   // create the activity, the loser gets a conflict error and its retry lands
   // as the approval.
+  // The losing side of the race fails with gRPC ALREADY_EXISTS (code 6):
+  // "an activity with the same fingerprint already exists". Only that error
+  // is safe to retry; anything else (auth, validation, rate limits) is a
+  // real failure.
+  const isConflictError = (error: unknown) =>
+    error instanceof TurnkeyRequestError && error.code === 6;
   const submitAsAgent = async (agent: TurnkeyApiClient, label: string) => {
     try {
       const result = await agent.submitExportSecrets(proposal);
       console.log(`${label} submitted: ${result.status}`);
       return result;
-    } catch (_) {
+    } catch (error) {
+      if (!isConflictError(error)) {
+        throw error;
+      }
       const result = await agent.submitExportSecrets(proposal);
       console.log(
         `${label} submitted (after conflict retry): ${result.status}`,
