@@ -1,1 +1,1 @@
-export const VERSION = "@turnkey/sdk-server@8.2.1";
+export const VERSION = "@turnkey/sdk-server@8.3.0";

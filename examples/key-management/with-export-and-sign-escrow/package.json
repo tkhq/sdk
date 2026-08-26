@@ -1,6 +1,6 @@
 {
   "name": "with-export-and-sign-escrow",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "private": true,
   "scripts": {
     "dev": "next dev",

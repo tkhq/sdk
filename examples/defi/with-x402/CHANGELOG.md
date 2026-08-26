@@ -1,5 +1,13 @@
 # with-x402
 
+## 0.1.25
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/viem@0.14.38
+  - @turnkey/react-wallet-kit@2.4.2
+
 ## 0.1.24
 
 ### Patch Changes
