@@ -1,5 +1,18 @@
 # @turnkey/crypto
 
+## 2.12.0
+
+### Minor Changes
+
+- [#1497](https://github.com/tkhq/sdk/pull/1497) [`3af9589`](https://github.com/tkhq/sdk/commit/3af958959c2827d3404525fd22d73be5e306111c) Author [@emostov](https://github.com/emostov) - Add `computeActivityFingerprint` to `@turnkey/crypto`, deriving the `sha256:<hex>` activity fingerprint from a request body. `createExportSecretsProposal` now uses it instead of building the string inline.
+
+- [#1479](https://github.com/tkhq/sdk/pull/1479) [`35f9cce`](https://github.com/tkhq/sdk/commit/35f9cce418b3704d8e77840c0d76b325079982cb) Author [@emostov](https://github.com/emostov) - Add Secrets API support: `importSecret`, `exportSecret`, `getSecrets`, and the multi-party export proposal API (`createExportSecretsProposal`, `submitExportSecrets`, `awaitExportedSecrets`) on the server client, plus `encryptSecretToBundle` and `decryptSecretBundle` crypto helpers
+
+### Patch Changes
+
+- Updated dependencies [[`35f9cce`](https://github.com/tkhq/sdk/commit/35f9cce418b3704d8e77840c0d76b325079982cb), [`22a6682`](https://github.com/tkhq/sdk/commit/22a6682a3a7c5ad7b192cb46ffc599e073802ccf)]:
+  - @turnkey/sdk-types@1.6.0
+
 ## 2.11.3
 
 ### Patch Changes
