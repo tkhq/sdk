@@ -1,12 +1,6 @@
 name: Version and Publish
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version tag (leave empty to auto-generate v{year}.{month}.{counter})"
-        required: false
-        type: string
   pull_request:
     types: [closed]
     branches:
@@ -20,8 +14,7 @@ permissions:
 jobs:
   version:
     runs-on: ubuntu-latest
-    # workflow_dispatch always runs; pull_request only runs when a release/* PR is merged into main
-    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/'))
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/')
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
@@ -33,19 +26,8 @@ jobs:
       - name: Determine version
         id: get-version
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            # Extract version from the release/* branch name
-            VERSION=$(./.github/scripts/get-version.sh "${{ github.head_ref }}")
-          else
-            # workflow_dispatch: use the provided input, or auto-generate
-            VERSION="${{ inputs.version }}"
-            if [ -z "$VERSION" ]; then
-              VERSION=$(./.github/scripts/generate-version.sh)
-            fi
-          fi
-
+          VERSION=$(./.github/scripts/get-version.sh "${{ github.head_ref }}")
           ./.github/scripts/check-version.sh "$VERSION"
-
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
   publish:
