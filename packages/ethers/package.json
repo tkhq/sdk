@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/ethers",
-  "version": "1.3.38",
+  "version": "1.3.39",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {

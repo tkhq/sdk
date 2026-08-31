@@ -1,5 +1,12 @@
 # @turnkey/ethers
 
+## 1.3.39
+
+### Patch Changes
+
+- Updated dependencies [[`67ba5a3`](https://github.com/tkhq/sdk/commit/67ba5a3cf559b10b4b16ba0545bcf8e6efe8db7d)]:
+  - @turnkey/core@2.8.1
+
 ## 1.3.38
 
 ### Patch Changes

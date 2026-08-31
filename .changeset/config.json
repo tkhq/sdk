@@ -11,6 +11,23 @@
     "@turnkey/jest-config",
     "@turnkey/example-*",
     "@turnkey/kitchen-sink",
-    "@turnkey/with-*"
+    "@turnkey/with-*",
+    "@turnkey/atomic-batch-with-aave",
+    "@turnkey/eth-usdc-swap",
+    "@turnkey/import-export-with-*",
+    "@turnkey/otp-auth-*",
+    "@turnkey/paymaster-usdc-transfer",
+    "@turnkey/react-wallet-kit-playground",
+    "@turnkey/solana-usdc-swap",
+    "@turnkey/wallet-auth-*",
+    "magic-link-auth",
+    "oauth-cross-platform-mobile",
+    "with-0x",
+    "with-delegated-client-side",
+    "with-export-and-sign-escrow",
+    "with-lifi",
+    "with-react-native-wallet-kit",
+    "with-x",
+    "with-x402"
   ]
 }
