@@ -1,5 +1,11 @@
 # @turnkey/core
 
+## 2.8.1
+
+### Patch Changes
+
+- [#1504](https://github.com/tkhq/sdk/pull/1504) [`67ba5a3`](https://github.com/tkhq/sdk/commit/67ba5a3cf559b10b4b16ba0545bcf8e6efe8db7d) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed an OAuth and OTP login issue where users with multiple verified sub-organizations could not authenticate
+
 ## 2.8.0
 
 ### Minor Changes
