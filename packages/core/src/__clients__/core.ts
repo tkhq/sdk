@@ -1745,8 +1745,17 @@ export class TurnkeyClient {
           );
         }
 
+        const subOrganizationId = signupRes.organizationId;
+        if (!subOrganizationId) {
+          throw new TurnkeyError(
+            `Failed to retrieve sub-organization ID after OTP sign up`,
+            TurnkeyErrorCodes.OTP_SIGNUP_ERROR,
+          );
+        }
+
         const otpRes = await this.loginWithOtp({
           verificationToken,
+          organizationId: subOrganizationId,
           ...(invalidateExisting && { invalidateExisting }),
           ...(sessionKey && { sessionKey }),
           ...(sessionProfileId && { sessionProfileId }),
@@ -1868,6 +1877,7 @@ export class TurnkeyClient {
         } else {
           const loginRes = await this.loginWithOtp({
             verificationToken,
+            organizationId: subOrganizationId,
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
             ...(sessionProfileId && { sessionProfileId }),
@@ -1954,6 +1964,7 @@ export class TurnkeyClient {
           const loginRes = await this.loginWithOauth({
             oidcToken,
             publicKey,
+            organizationId: subOrganizationId,
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
             ...(sessionProfileId && { sessionProfileId }),
@@ -2157,9 +2168,18 @@ export class TurnkeyClient {
           );
         }
 
+        const subOrganizationId = signupRes.organizationId;
+        if (!subOrganizationId) {
+          throw new TurnkeyError(
+            `Failed to retrieve sub-organization ID after OAuth sign up`,
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
         const oauthRes = await this.loginWithOauth({
           oidcToken,
           publicKey: publicKey!,
+          organizationId: subOrganizationId,
           ...(sessionKey && { sessionKey }),
           ...(sessionProfileId && { sessionProfileId }),
         });
