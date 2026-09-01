@@ -2,15 +2,15 @@
 
 > **Closed beta:** Turnkey Swap is currently in closed beta. Your organization must be allowlisted (with the relevant swap feature flags enabled) before this example will work.
 
-This example uses the typed `createSwapQuote`, `executeSwap`, and `getSwapStatus` wrapper methods from `@turnkey/sdk-server` to create a quote, execute it, and poll until the swap completes or fails.
+This example uses the typed swap methods from `@turnkey/sdk-server`. It submits create-swap-quote V2 and execute-swap V3 activities.
 
 By default it is configured for Solana mainnet SOL → USDC. Token pair and amount are driven by env vars (`FROM_TOKEN` / `TO_TOKEN` as CAIP-19 asset IDs, `AMOUNT` in base units), so you can point it at other supported pairs without code changes.
 
 The script will:
 
-1. Call `createSwapQuote` with `signWith`, CAIP-19 tokens, amount, and slippage
+1. Call `createSwapQuote` (V2) with the tokens, amount, slippage, and optional destination address
 2. Prompt whether to use Turnkey gas sponsorship
-3. Call `executeSwap` (V2) bound to the selected quote’s `quoteId`, including `quotedOutputAmount` and `minOutputAmount`
+3. Call `executeSwap` (V3) with the selected quote and the same destination address
 4. Poll `getSwapStatus` with the returned `swapRequestId` until `COMPLETED` or a terminal failure
 
 ---
@@ -60,7 +60,8 @@ Fill in the following values:
 - `SIGN_WITH` — Turnkey wallet account address used as `signWith` on `createSwapQuote` (signer is derived from the quote on execute)
 - `FROM_TOKEN` — CAIP-19 input asset ID
 - `TO_TOKEN` — CAIP-19 output asset ID
-- `AMOUNT` — input amount in base units (e.g. lamports for SOL)
+- `DESTINATION_ADDRESS` — optional raw output address. Set this value for a cross-protocol swap.
+- `AMOUNT` — input amount in base units (for example, lamports for SOL)
 
 The example defaults to Solana mainnet SOL → USDC with `AMOUNT=5000000` (0.005 SOL).
 

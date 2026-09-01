@@ -472,6 +472,16 @@ export type billingSetPaymentMethodResult = {
   cardHolderEmail: string;
 };
 
+export type billingUpdatePaymentMethodIntent = {
+  /** The email that will receive invoices for the payment method. */
+  paymentEmail: string;
+};
+
+export type billingUpdatePaymentMethodResult = {
+  /** The email address associated with the payment method. */
+  paymentEmail: string;
+};
+
 export type datav1Tag = {
   /** Unique identifier for a given Tag. */
   tagId: string;
@@ -579,6 +589,19 @@ export type v1AccessType =
   | "ACCESS_TYPE_WEB"
   | "ACCESS_TYPE_API"
   | "ACCESS_TYPE_ALL";
+
+export type v1ActivePolicyStatus = {
+  /** Unique identifier for the organization the policy belongs to. */
+  organizationId: string;
+  /** Unique identifier for a given policy. */
+  policyId: string;
+  /** Whether the policy is currently active. A policy without a time window is always active. */
+  active: boolean;
+  /** The policy's time expression, absent when the policy has no time window. */
+  timeExpr?: string;
+  /** Set when the policy's time expression could not be evaluated; the policy is reported inactive. */
+  error?: string;
+};
 
 export type v1Activity = {
   /** Unique identifier for a given Activity object. */
@@ -783,7 +806,12 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_EXECUTE_SWAP_V2"
   | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE"
   | "ACTIVITY_TYPE_IMPORT_SECRETS"
-  | "ACTIVITY_TYPE_EXPORT_SECRETS";
+  | "ACTIVITY_TYPE_EXPORT_SECRETS"
+  | "ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL"
+  | "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROL"
+  | "ACTIVITY_TYPE_UPDATE_PAYMENT_METHOD"
+  | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2"
+  | "ACTIVITY_TYPE_EXECUTE_SWAP_V3";
 
 export type v1ApiKey = {
   /** A User credential that can be used to authenticate to Turnkey. */
@@ -868,6 +896,8 @@ export type v1AssetMetadata = {
   name?: string;
   /** Whether this asset is on Turnkey's stablecoin list (used for stablepair swap fee pricing). */
   stable?: boolean;
+  /** Earn yield providers with vaults denominated in this asset. Empty when the asset is not supported by Earn. */
+  earnProviders?: v1EarnProvider[];
 };
 
 export type v1AuthenticationMethod = {
@@ -1675,6 +1705,21 @@ export type v1CreateSwapQuoteIntent = {
   slippageBps?: string;
 };
 
+export type v1CreateSwapQuoteIntentV2 = {
+  /** Wallet account address used to price the executable provider quote. Private Key identifiers are not supported. */
+  signWith: string;
+  /** CAIP-19 asset ID for the input asset. The chain is derived from this value. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Provider-neutral maximum allowed slippage in basis points. Turnkey converts this value to each provider's request format. When omitted, each provider applies its default slippage behavior. */
+  slippageBps?: string;
+  /** Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported. */
+  destinationAddress?: string;
+};
+
 export type v1CreateSwapQuoteRequest = {
   type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
@@ -1896,6 +1941,31 @@ export type v1CreateUsersRequest = {
 export type v1CreateUsersResult = {
   /** A list of User IDs. */
   userIds: string[];
+};
+
+export type v1CreateVelocityControlIntent = {
+  /** Human-readable name for the Velocity Control. */
+  name: string;
+  /** Data source for the Velocity Control. */
+  dataSource: v1VelocityControlDataSource;
+  /** Aggregation expression that the Velocity Control evaluates. */
+  aggregation: v1VelocityControlAggregation;
+  /** Identifier for the Velocity Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
+  identifier: string;
+};
+
+export type v1CreateVelocityControlRequest = {
+  type: "ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateVelocityControlIntent;
+  generateAppProofs?: boolean;
+};
+
+export type v1CreateVelocityControlResult = {
+  velocityControlId: string;
 };
 
 export type v1CreateWalletAccountsIntent = {
@@ -2360,6 +2430,24 @@ export type v1DeleteUsersResult = {
   userIds: string[];
 };
 
+export type v1DeleteVelocityControlIntent = {
+  velocityControlId: string;
+};
+
+export type v1DeleteVelocityControlRequest = {
+  type: "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROL";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1DeleteVelocityControlIntent;
+  generateAppProofs?: boolean;
+};
+
+export type v1DeleteVelocityControlResult = {
+  velocityControlId: string;
+};
+
 export type v1DeleteWalletAccountsIntent = {
   /** List of unique identifiers for wallet accounts within an organization */
   walletAccountIds: string[];
@@ -2433,6 +2521,8 @@ export type v1DeploymentStatus = {
   desiredReplicas: number;
   /** Last time this deployment was updated */
   lastUpdatedTime: externaldatav1Timestamp;
+  /** Current quorum-key provisioning state for this deployment */
+  provisioningState?: v1ProvisioningState;
 };
 
 export type v1DisableAuthProxyIntent = {};
@@ -2548,6 +2638,12 @@ export type v1EarnEnabledVault = {
   claimableClientFeeDisplay?: v1EarnValueDisplay;
   /** The wallet address that receives the client's fee payouts on-chain. Unset when a sub-org queries. */
   clientFeeWallet?: string;
+  /** Assets currently withdrawable from the underlying vault without a reallocation, in raw on-chain units of the underlying asset. This is the vault's liquidity, not the wrapper's balance. Empty when the provider does not report it. */
+  liquidity?: string;
+  /** Normalized liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use liquidity instead. */
+  liquidityDisplay?: v1EarnValueDisplay;
+  /** The underlying markets the vault allocates into, ranked by supplied amount descending. Only populated when the request sets include_exposure, and only for providers that expose an allocation breakdown (Morpho). */
+  exposures?: v1EarnVaultExposure[];
 };
 
 export type v1EarnPosition = {
@@ -2638,6 +2734,27 @@ export type v1EarnVault = {
   name?: string;
   /** Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave). */
   curator?: string;
+  /** Assets currently withdrawable from the vault without a reallocation, in raw on-chain units of the underlying asset. Empty when the provider does not report it. */
+  liquidity?: string;
+  /** Normalized liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use liquidity instead. */
+  liquidityDisplay?: v1EarnValueDisplay;
+};
+
+export type v1EarnVaultExposure = {
+  /** Provider-specific identifier for the market (the Morpho Blue market id). */
+  marketId?: string;
+  /** Symbol of the market's collateral asset (e.g. 'cbBTC'). Empty for an idle/uncollateralized market. */
+  collateralSymbol?: string;
+  /** CAIP-19 asset ID of the market's collateral asset. Empty for an idle/uncollateralized market. */
+  collateralCaip19?: string;
+  /** The market's liquidation loan-to-value, expressed as a decimal fraction (e.g. '0.86' for 86%). */
+  lltvPct?: string;
+  /** Assets the vault supplies to this market, in raw on-chain units of the underlying asset. */
+  supplied?: string;
+  /** Normalized supplied values for display purposes only (usd + crypto). Do not do arithmetic with these; use supplied instead. */
+  display?: v1EarnValueDisplay;
+  /** This market's share of the vault's supplied assets, as a decimal fraction (e.g. '0.997' for 99.7%). */
+  sharePct?: string;
 };
 
 export type v1EarnWithdrawIntent = {
@@ -2873,7 +2990,9 @@ export type v1EthSendRawTransactionIntent = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614";
+    | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630";
 };
 
 export type v1EthSendRawTransactionResult = {
@@ -2903,7 +3022,9 @@ export type v1EthSendTransactionIntent = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614";
+    | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630";
   /** Recipient address as a hex string with 0x prefix. */
   to: string;
   /** Amount of native asset to send in wei. */
@@ -2944,7 +3065,9 @@ export type v1EthSendTransactionIntentV2 = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614";
+    | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630";
   /** Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station. */
   sponsor?: boolean;
   /** Outer transaction nonce. Omit to auto-fetch. */
@@ -3027,7 +3150,9 @@ export type v1EthUndelegate7702Intent = {
     | "eip155:143"
     | "eip155:10143"
     | "eip155:42161"
-    | "eip155:421614";
+    | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630";
   /** Outer transaction nonce. Omit to auto-fetch. */
   nonce?: string;
   /** Maximum amount of gas for the undelegation transaction. Omit to use the fixed undelegation gas limit. */
@@ -3093,6 +3218,31 @@ export type v1ExecuteSwapIntentV2 = {
   recentBlockhash?: string;
   /** Exact gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored EVM swaps and non-sponsored EVM swaps that execute as a multi-call batch (for example ERC-20 approve + swap). This is the replay-protection nonce for gas-station batches; use the nonces endpoint to fetch it. Omit to auto-fetch. */
   gasStationNonce?: string;
+};
+
+export type v1ExecuteSwapIntentV3 = {
+  /** Quote identifier returned by create_swap_quote. Execution is bound to this quote; the signer is derived from the quote and must not be resupplied. */
+  quoteId: string;
+  /** CAIP-19 asset ID for the input asset. */
+  inputToken: string;
+  /** Exact base-unit amount of the input asset committed by the quote. */
+  inputAmount: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Exact quoted base-unit output amount committed by the quote. */
+  quotedOutputAmount: string;
+  /** Exact minimum base-unit output committed by the quote. */
+  minOutputAmount: string;
+  /** Whether the quoted transaction is sponsored. */
+  sponsor: boolean;
+  /** Exact EVM sender (EOA account) nonce. Valid only for a non-sponsored EVM swap. Honored for already-delegated (Type-2) batch swaps and single-call swaps; ignored for not-yet-delegated EIP-7702 (Type-4) batches where the outer nonce is derived from the authorization. Prefer gas_station_nonce for batch replay protection and use the nonces endpoint to fetch it. Omit to auto-fetch. */
+  evmNonce?: string;
+  /** Exact Solana recent blockhash. Valid only for a Solana swap, including sponsored swaps. Omit to auto-fetch. */
+  recentBlockhash?: string;
+  /** Exact gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored EVM swaps and non-sponsored EVM swaps that execute as a multi-call batch (for example ERC-20 approve + swap). This is the replay-protection nonce for gas-station batches; use the nonces endpoint to fetch it. Omit to auto-fetch. */
+  gasStationNonce?: string;
+  /** Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported. */
+  destinationAddress?: string;
 };
 
 export type v1ExecuteSwapRequest = {
@@ -3321,6 +3471,18 @@ export type v1FiatOnRampPaymentMethod =
 export type v1FiatOnRampProvider =
   | "FIAT_ON_RAMP_PROVIDER_COINBASE"
   | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
+
+export type v1GetActivePoliciesRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+};
+
+export type v1GetActivePoliciesResponse = {
+  /** The active/inactive status of every policy in the organization. */
+  statuses: v1ActivePolicyStatus[];
+  /** The enclave's trusted timestamp (Unix epoch milliseconds) used to evaluate every policy. */
+  evaluatedAtMs: string;
+};
 
 export type v1GetActivitiesRequest = {
   /** Unique identifier for a given organization. */
@@ -3581,7 +3743,9 @@ export type v1GetNoncesRequest = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614";
+    | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -3907,6 +4071,15 @@ export type v1GetUsersResponse = {
   users: v1User[];
 };
 
+export type v1GetVelocityControlRequest = {
+  organizationId: string;
+  velocityControlId: string;
+};
+
+export type v1GetVelocityControlResponse = {
+  velocityControl: v1VelocityControl;
+};
+
 export type v1GetVerifiedSubOrgIdsRequest = {
   /** Unique identifier for the parent organization. This is used to find sub-organizations within it. */
   organizationId: string;
@@ -3978,6 +4151,8 @@ export type v1GetWalletAddressBalancesRequest = {
     | "eip155:4217"
     | "eip155:42431"
     | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -4192,6 +4367,15 @@ export type v1InitImportSecretsIntent = {
   numSecrets: number;
 };
 
+export type v1InitImportSecretsRequest = {
+  type: "ACTIVITY_TYPE_INIT_IMPORT_SECRETS";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1InitImportSecretsIntent;
+};
+
 export type v1InitImportSecretsResult = {
   /** Enclave ingress target keys along with metadata specific to the encryption suite. For enclave encrypt v1 this will be ServerTargetMsgV1. */
   enclaveTargetMessages: string[];
@@ -4218,7 +4402,7 @@ export type v1InitImportWalletResult = {
 };
 
 export type v1InitOtpAuthIntent = {
-  /** Enum to specify whether to send OTP via SMS or email */
+  /** Enum to specify whether to send OTP via SMS, email, or WhatsApp */
   otpType: string;
   /** Email or phone number to send the OTP code to */
   contact: string;
@@ -4237,7 +4421,7 @@ export type v1InitOtpAuthIntent = {
 };
 
 export type v1InitOtpAuthIntentV2 = {
-  /** Enum to specify whether to send OTP via SMS or email */
+  /** Enum to specify whether to send OTP via SMS, email, or WhatsApp */
   otpType: string;
   /** Email or phone number to send the OTP code to */
   contact: string;
@@ -4260,7 +4444,7 @@ export type v1InitOtpAuthIntentV2 = {
 };
 
 export type v1InitOtpAuthIntentV3 = {
-  /** Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
+  /** Whether to send OTP via SMS, email, or WhatsApp. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL, OTP_TYPE_WHATSAPP */
   otpType: string;
   /** Email or phone number to send the OTP code to */
   contact: string;
@@ -4307,7 +4491,7 @@ export type v1InitOtpAuthResultV2 = {
 };
 
 export type v1InitOtpIntent = {
-  /** Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
+  /** Whether to send OTP via SMS, email, or WhatsApp. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL, OTP_TYPE_WHATSAPP */
   otpType: string;
   /** Email or phone number to send the OTP code to */
   contact: string;
@@ -4332,7 +4516,7 @@ export type v1InitOtpIntent = {
 };
 
 export type v1InitOtpIntentV2 = {
-  /** Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
+  /** Whether to send OTP via SMS, email, or WhatsApp. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL, OTP_TYPE_WHATSAPP */
   otpType: string;
   /** Email or phone number to send the OTP code to */
   contact: string;
@@ -4359,7 +4543,7 @@ export type v1InitOtpIntentV2 = {
 };
 
 export type v1InitOtpIntentV3 = {
-  /** Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
+  /** Whether to send OTP via SMS, email, or WhatsApp. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL, OTP_TYPE_WHATSAPP */
   otpType: string;
   /** Email or phone number to send the OTP code to */
   contact: string;
@@ -4609,6 +4793,11 @@ export type v1Intent = {
   createSwapQuoteIntent?: v1CreateSwapQuoteIntent;
   importSecretsIntent?: v1ImportSecretsIntent;
   exportSecretsIntent?: v1ExportSecretsIntent;
+  createVelocityControlIntent?: v1CreateVelocityControlIntent;
+  deleteVelocityControlIntent?: v1DeleteVelocityControlIntent;
+  updatePaymentMethodIntent?: billingUpdatePaymentMethodIntent;
+  createSwapQuoteIntentV2?: v1CreateSwapQuoteIntentV2;
+  executeSwapIntentV3?: v1ExecuteSwapIntentV3;
 };
 
 export type v1InvitationParams = {
@@ -4665,6 +4854,8 @@ export type v1ListEarnEnabledVaultsRequest = {
   provider?: v1EarnProvider;
   /** Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
   caip19?: string;
+  /** When true, populate each vault's exposures (the underlying markets it allocates into). This costs an extra provider query per vault, so leave it off for list views. */
+  includeExposure?: boolean;
 };
 
 export type v1ListEarnEnabledVaultsResponse = {
@@ -4736,7 +4927,9 @@ export type v1ListEthTransactionHistoryRequest = {
     | "eip155:42431"
     | "eip155:421614"
     | "eip155:56"
-    | "eip155:97";
+    | "eip155:97"
+    | "eip155:4663"
+    | "eip155:46630";
   /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
   paginationOptions?: v1Pagination;
 };
@@ -4829,6 +5022,8 @@ export type v1ListSupportedAssetsRequest = {
     | "eip155:4217"
     | "eip155:42431"
     | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -4846,6 +5041,16 @@ export type v1ListUserTagsRequest = {
 export type v1ListUserTagsResponse = {
   /** A list of user tags. */
   userTags: datav1Tag[];
+};
+
+export type v1ListVelocityControlsRequest = {
+  organizationId: string;
+  paginationOptions?: v1Pagination;
+};
+
+export type v1ListVelocityControlsResponse = {
+  velocityControls: v1VelocityControl[];
+  pageInfo: v1PageInfo;
 };
 
 export type v1ListWebhookEndpointsRequest = {
@@ -5228,6 +5433,11 @@ export type v1PrivateKeyResult = {
   addresses?: immutableactivityv1Address[];
 };
 
+export type v1ProvisioningState =
+  | "PROVISIONING_STATE_PENDING"
+  | "PROVISIONING_STATE_AWAITING_PROVISION"
+  | "PROVISIONING_STATE_PROVISIONED";
+
 export type v1PublicKeyCredentialWithAttestation = {
   id: string;
   type: "public-key";
@@ -5509,6 +5719,9 @@ export type v1Result = {
   createSwapQuoteResult?: v1CreateSwapQuoteResult;
   importSecretsResult?: v1ImportSecretsResult;
   exportSecretsResult?: v1ExportSecretsResult;
+  createVelocityControlResult?: v1CreateVelocityControlResult;
+  deleteVelocityControlResult?: v1DeleteVelocityControlResult;
+  updatePaymentMethodResult?: billingUpdatePaymentMethodResult;
 };
 
 export type v1RevertChainEntry = {
@@ -7055,6 +7268,126 @@ export type v1ValidateTvcImageResponse = {
   resolvedImageDigest?: string;
 };
 
+export type v1VelocityControl = {
+  /** Unique identifier for the Velocity Control. */
+  velocityControlId: string;
+  /** Identifier of the Organization that owns the Velocity Control. */
+  organizationId: string;
+  /** Human-readable name for the Velocity Control. */
+  name: string;
+  /** Data source for the Velocity Control. */
+  dataSource: v1VelocityControlDataSource;
+  /** Aggregation expression that the Velocity Control evaluates. */
+  aggregation: v1VelocityControlAggregation;
+  /** Time when the Velocity Control was created. */
+  createdAt: externaldatav1Timestamp;
+  /** Time when the Velocity Control was last updated. */
+  updatedAt: externaldatav1Timestamp;
+  /** Identifier for the Velocity Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
+  identifier: string;
+};
+
+export type v1VelocityControlAggregation = {
+  /** Method that aggregates matching data points. */
+  method: v1VelocityControlAggregationMethod;
+  /** Comparison between the aggregate and the threshold. */
+  operator: v1VelocityControlAggregationOperator;
+  /** Non-negative base-10 decimal string with at most 38 total digits and 18 fractional digits. */
+  threshold: string;
+  /** Time window for the aggregation. */
+  window: v1VelocityControlAggregationWindow;
+  /** Scope that partitions matching data before aggregation. */
+  groupBy: v1VelocityControlAggregationGroupBy;
+};
+
+export type v1VelocityControlAggregationGroupBy = {
+  /** Uses one shared bucket for the Organization. */
+  organization?: v1VelocityControlAggregationGroupByOrganization;
+  /** Uses one bucket for each User. */
+  user?: v1VelocityControlAggregationGroupByUser;
+  /** Uses one bucket for each Wallet. */
+  wallet?: v1VelocityControlAggregationGroupByWallet;
+};
+
+export type v1VelocityControlAggregationGroupByOrganization = {};
+export type v1VelocityControlAggregationGroupByUser = {};
+export type v1VelocityControlAggregationGroupByWallet = {};
+export type v1VelocityControlAggregationMethod =
+  | "VELOCITY_CONTROL_AGGREGATION_METHOD_SUM"
+  | "VELOCITY_CONTROL_AGGREGATION_METHOD_COUNT";
+
+export type v1VelocityControlAggregationOperator =
+  | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_LESS_THAN"
+  | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL"
+  | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_EQUAL"
+  | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL"
+  | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN";
+
+export type v1VelocityControlAggregationWindow = {
+  /** Uses a rolling time window. */
+  rolling?: v1VelocityControlAggregationWindowRolling;
+  /** Uses all matching data without a time limit. */
+  infinite?: v1VelocityControlAggregationWindowInfinite;
+};
+
+export type v1VelocityControlAggregationWindowInfinite = {};
+export type v1VelocityControlAggregationWindowRolling = {
+  /** Duration of the rolling window, in seconds, as a base-10 integer string. */
+  duration: string;
+};
+
+export type v1VelocityControlDataSource = {
+  /** Uses transfers of the listed on-chain assets as input data. */
+  chainAssetTransfer?: v1VelocityControlDataSourceChainAssetTransfer;
+  /** Uses executed Turnkey activities as input data. */
+  activityExecution?: v1VelocityControlDataSourceActivityExecution;
+};
+
+export type v1VelocityControlDataSourceActivityExecution = {
+  /** Filters activity executions by type. */
+  filter?: v1VelocityControlDataSourceActivityExecutionFilter;
+};
+
+export type v1VelocityControlDataSourceActivityExecutionFilter = {
+  /** Activity types whose executions are included. */
+  activity?: v1VelocityControlDataSourceFilterActivity[];
+};
+
+export type v1VelocityControlDataSourceChainAssetTransfer = {
+  /** Assets whose transfers are included in the data source. */
+  definition: v1VelocityControlDataSourceChainAssetTransferDefinition[];
+  /** Filters asset transfers by activity type. */
+  filter?: v1VelocityControlDataSourceChainAssetTransferFilter;
+  /** Selects when to measure an asset transfer. */
+  phase?: v1VelocityControlDataSourcePhase;
+};
+
+export type v1VelocityControlDataSourceChainAssetTransferDefinition = {
+  /** CAIP-19 identifier for the asset. */
+  caip19: string;
+  /** Base-10 integer string from 0 through 255 that specifies the number of decimal places for the asset. */
+  decimals: string;
+};
+
+export type v1VelocityControlDataSourceChainAssetTransferFilter = {
+  /** Activity types whose asset transfers are included. */
+  activity?: v1VelocityControlDataSourceFilterActivity[];
+};
+
+export type v1VelocityControlDataSourceFilterActivity = {
+  /** Name of an activity type to include, such as `ACTIVITY_TYPE_SOL_SEND_TRANSACTION`. */
+  activityType: string;
+};
+
+export type v1VelocityControlDataSourcePhase = {
+  /** Measures the transfer when Turnkey signs the transaction and returns it to the user. */
+  signature?: v1VelocityControlDataSourcePhaseSignature;
+  /** Reserved for future use. Measures the transfer after the transaction lands on chain. */
+  submission?: v1VelocityControlDataSourcePhaseSubmission;
+};
+
+export type v1VelocityControlDataSourcePhaseSignature = {};
+export type v1VelocityControlDataSourcePhaseSubmission = {};
 export type v1VerifyOtpIntent = {
   /** ID representing the result of an init OTP activity. */
   otpId: string;
@@ -7188,6 +7521,19 @@ export type v1WebhookSubscriptionParams = {
 };
 
 // --- API Types from Swagger Paths ---
+export type TGetActivePoliciesResponse = {
+  /** The active/inactive status of every policy in the organization. */
+  statuses: v1ActivePolicyStatus[];
+  /** The enclave's trusted timestamp (Unix epoch milliseconds) used to evaluate every policy. */
+  evaluatedAtMs: string;
+};
+
+export type TGetActivePoliciesBody = {
+  organizationId?: string;
+};
+
+export type TGetActivePoliciesInput = { body: TGetActivePoliciesBody };
+
 export type TGetActivityResponse = {
   /** An action that can be taken within the Turnkey infrastructure. */
   activity: v1Activity;
@@ -7458,7 +7804,9 @@ export type TGetNoncesBody = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614";
+    | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -7728,6 +8076,17 @@ export type TGetUserBody = {
 
 export type TGetUserInput = { body: TGetUserBody };
 
+export type TGetVelocityControlResponse = {
+  velocityControl: v1VelocityControl;
+};
+
+export type TGetVelocityControlBody = {
+  organizationId?: string;
+  velocityControlId: string;
+};
+
+export type TGetVelocityControlInput = { body: TGetVelocityControlBody };
+
 export type TGetWalletResponse = {
   /** A collection of deterministically generated cryptographic public / private key pairs that share a common seed. */
   wallet: v1Wallet;
@@ -7785,6 +8144,8 @@ export type TGetWalletAddressBalancesBody = {
     | "eip155:4217"
     | "eip155:42431"
     | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -7833,6 +8194,8 @@ export type TListEarnEnabledVaultsBody = {
   provider?: v1EarnProvider;
   /** Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
   caip19?: string;
+  /** When true, populate each vault's exposures (the underlying markets it allocates into). This costs an extra provider query per vault, so leave it off for list views. */
+  includeExposure?: boolean;
 };
 
 export type TListEarnEnabledVaultsInput = { body: TListEarnEnabledVaultsBody };
@@ -7909,7 +8272,9 @@ export type TListEthTransactionHistoryBody = {
     | "eip155:42431"
     | "eip155:421614"
     | "eip155:56"
-    | "eip155:97";
+    | "eip155:97"
+    | "eip155:4663"
+    | "eip155:46630";
   /** Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
   paginationOptions?: v1Pagination;
 };
@@ -8065,6 +8430,8 @@ export type TListSupportedAssetsBody = {
     | "eip155:4217"
     | "eip155:42431"
     | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -8116,6 +8483,18 @@ export type TGetUsersBody = {
 };
 
 export type TGetUsersInput = { body: TGetUsersBody };
+
+export type TListVelocityControlsResponse = {
+  velocityControls: v1VelocityControl[];
+  pageInfo: v1PageInfo;
+};
+
+export type TListVelocityControlsBody = {
+  organizationId?: string;
+  paginationOptions?: v1Pagination;
+};
+
+export type TListVelocityControlsInput = { body: TListVelocityControlsBody };
 
 export type TGetVerifiedSubOrgIdsResponse = {
   /** List of unique identifiers for the matching sub-organizations. */
@@ -8621,7 +9000,7 @@ export type TCreateSwapQuoteResponse = {
 export type TCreateSwapQuoteBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** Wallet account or Private Key address used to price the executable provider quote. Private Key identifiers are not supported. */
+  /** Wallet account address used to price the executable provider quote. Private Key identifiers are not supported. */
   signWith: string;
   /** CAIP-19 asset ID for the input asset. The chain is derived from this value. */
   inputToken: string;
@@ -8631,6 +9010,8 @@ export type TCreateSwapQuoteBody = {
   inputAmount: string;
   /** Provider-neutral maximum allowed slippage in basis points. Turnkey converts this value to each provider's request format. When omitted, each provider applies its default slippage behavior. */
   slippageBps?: string;
+  /** Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported. */
+  destinationAddress?: string;
   generateAppProofs?: boolean;
 };
 
@@ -8772,6 +9153,27 @@ export type TCreateUsersBody = {
 };
 
 export type TCreateUsersInput = { body: TCreateUsersBody };
+
+export type TCreateVelocityControlResponse = {
+  activity: v1Activity;
+  velocityControlId: string;
+};
+
+export type TCreateVelocityControlBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Human-readable name for the Velocity Control. */
+  name: string;
+  /** Data source for the Velocity Control. */
+  dataSource: v1VelocityControlDataSource;
+  /** Aggregation expression that the Velocity Control evaluates. */
+  aggregation: v1VelocityControlAggregation;
+  /** Identifier for the Velocity Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
+  identifier: string;
+  generateAppProofs?: boolean;
+};
+
+export type TCreateVelocityControlInput = { body: TCreateVelocityControlBody };
 
 export type TCreateWalletResponse = {
   activity: v1Activity;
@@ -9130,6 +9532,20 @@ export type TDeleteUsersBody = {
 
 export type TDeleteUsersInput = { body: TDeleteUsersBody };
 
+export type TDeleteVelocityControlResponse = {
+  activity: v1Activity;
+  velocityControlId: string;
+};
+
+export type TDeleteVelocityControlBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  velocityControlId: string;
+  generateAppProofs?: boolean;
+};
+
+export type TDeleteVelocityControlInput = { body: TDeleteVelocityControlBody };
+
 export type TDeleteWalletAccountsResponse = {
   activity: v1Activity;
   /** A list of wallet account unique identifiers that were removed */
@@ -9354,7 +9770,9 @@ export type TEthUndelegate7702Body = {
     | "eip155:143"
     | "eip155:10143"
     | "eip155:42161"
-    | "eip155:421614";
+    | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630";
   /** Outer transaction nonce. Omit to auto-fetch. */
   nonce?: string;
   /** Maximum amount of gas for the undelegation transaction. Omit to use the fixed undelegation gas limit. */
@@ -9401,6 +9819,8 @@ export type TExecuteSwapBody = {
   recentBlockhash?: string;
   /** Exact gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored EVM swaps and non-sponsored EVM swaps that execute as a multi-call batch (for example ERC-20 approve + swap). This is the replay-protection nonce for gas-station batches; use the nonces endpoint to fetch it. Omit to auto-fetch. */
   gasStationNonce?: string;
+  /** Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported. */
+  destinationAddress?: string;
   generateAppProofs?: boolean;
 };
 
@@ -9604,6 +10024,23 @@ export type TInitImportPrivateKeyBody = {
 
 export type TInitImportPrivateKeyInput = { body: TInitImportPrivateKeyBody };
 
+export type TInitImportSecretsResponse = {
+  activity: v1Activity;
+  /** Enclave ingress target keys along with metadata specific to the encryption suite. For enclave encrypt v1 this will be ServerTargetMsgV1. */
+  enclaveTargetMessages: string[];
+};
+
+export type TInitImportSecretsBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Transport encryption suite used for ingress secrets. */
+  encryptionSuite: v1TransportEncryptionSuite;
+  /** The number of secrets the user intends to import. */
+  numSecrets: number;
+};
+
+export type TInitImportSecretsInput = { body: TInitImportSecretsBody };
+
 export type TInitImportWalletResponse = {
   activity: v1Activity;
   /** Import bundle containing a public key and signature to use for importing client data. */
@@ -9631,7 +10068,7 @@ export type TInitOtpResponse = {
 export type TInitOtpBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
+  /** Whether to send OTP via SMS, email, or WhatsApp. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL, OTP_TYPE_WHATSAPP */
   otpType: string;
   /** Email or phone number to send the OTP code to */
   contact: string;
@@ -9669,7 +10106,7 @@ export type TInitOtpAuthResponse = {
 export type TInitOtpAuthBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
+  /** Whether to send OTP via SMS, email, or WhatsApp. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL, OTP_TYPE_WHATSAPP */
   otpType: string;
   /** Email or phone number to send the OTP code to */
   contact: string;
@@ -10546,7 +10983,9 @@ export type TEthSendTransactionBody = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614";
+    | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630";
   /** Recipient address as a hex string with 0x prefix. */
   to: string;
   /** Amount of native asset to send in wei. */
@@ -10598,7 +11037,9 @@ export type TEthSendTransactionV2Body = {
     | "eip155:42161"
     | "eip155:4217"
     | "eip155:42431"
-    | "eip155:421614";
+    | "eip155:421614"
+    | "eip155:4663"
+    | "eip155:46630";
   /** Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station. */
   sponsor?: boolean;
   /** Outer transaction nonce. Omit to auto-fetch. */

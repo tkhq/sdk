@@ -8,6 +8,58 @@ import {
 import type { operations } from "./public_api.types";
 
 /**
+ * `POST /public/v1/query/get_active_policies`
+ */
+export type TGetActivePoliciesResponse =
+  operations["PublicApiService_GetActivePolicies"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_active_policies`
+ */
+export type TGetActivePoliciesInput = { body: TGetActivePoliciesBody };
+
+/**
+ * `POST /public/v1/query/get_active_policies`
+ */
+export type TGetActivePoliciesBody =
+  operations["PublicApiService_GetActivePolicies"]["parameters"]["body"]["body"];
+
+/**
+ * Get active policies
+ *
+ * For each policy in an organization, report whether it is currently active based on the enclave's trusted timestamp and the policy's time window (if any). Policies without a time field are always active.
+ *
+ * `POST /public/v1/query/get_active_policies`
+ */
+export const getActivePolicies = (input: TGetActivePoliciesInput) =>
+  request<
+    TGetActivePoliciesResponse,
+    TGetActivePoliciesBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_active_policies",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetActivePolicies` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetActivePolicies}
+ */
+export const signGetActivePolicies = (
+  input: TGetActivePoliciesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetActivePoliciesBody, never, never>({
+    uri: "/public/v1/query/get_active_policies",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_activity`
  */
 export type TGetActivityResponse =
@@ -1854,6 +1906,58 @@ export const signGetUser = (
   });
 
 /**
+ * `POST /public/v1/query/get_velocity_control`
+ */
+export type TGetVelocityControlResponse =
+  operations["PublicApiService_GetVelocityControl"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_velocity_control`
+ */
+export type TGetVelocityControlInput = { body: TGetVelocityControlBody };
+
+/**
+ * `POST /public/v1/query/get_velocity_control`
+ */
+export type TGetVelocityControlBody =
+  operations["PublicApiService_GetVelocityControl"]["parameters"]["body"]["body"];
+
+/**
+ * Get velocity control
+ *
+ * Get details about a velocity control.
+ *
+ * `POST /public/v1/query/get_velocity_control`
+ */
+export const getVelocityControl = (input: TGetVelocityControlInput) =>
+  request<
+    TGetVelocityControlResponse,
+    TGetVelocityControlBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_velocity_control",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetVelocityControl` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetVelocityControl}
+ */
+export const signGetVelocityControl = (
+  input: TGetVelocityControlInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetVelocityControlBody, never, never>({
+    uri: "/public/v1/query/get_velocity_control",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_wallet`
  */
 export type TGetWalletResponse =
@@ -3050,6 +3154,58 @@ export const signGetUsers = (
   });
 
 /**
+ * `POST /public/v1/query/list_velocity_controls`
+ */
+export type TListVelocityControlsResponse =
+  operations["PublicApiService_ListVelocityControls"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_velocity_controls`
+ */
+export type TListVelocityControlsInput = { body: TListVelocityControlsBody };
+
+/**
+ * `POST /public/v1/query/list_velocity_controls`
+ */
+export type TListVelocityControlsBody =
+  operations["PublicApiService_ListVelocityControls"]["parameters"]["body"]["body"];
+
+/**
+ * List velocity controls
+ *
+ * List all velocity controls within an organization.
+ *
+ * `POST /public/v1/query/list_velocity_controls`
+ */
+export const listVelocityControls = (input: TListVelocityControlsInput) =>
+  request<
+    TListVelocityControlsResponse,
+    TListVelocityControlsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_velocity_controls",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListVelocityControls` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListVelocityControls}
+ */
+export const signListVelocityControls = (
+  input: TListVelocityControlsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListVelocityControlsBody, never, never>({
+    uri: "/public/v1/query/list_velocity_controls",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_verified_suborgs`
  */
 export type TGetVerifiedSubOrgIdsResponse =
@@ -3119,7 +3275,7 @@ export type TGetWalletAccountsBody =
   operations["PublicApiService_GetWalletAccounts"]["parameters"]["body"]["body"];
 
 /**
- * List wallets accounts
+ * List wallet accounts
  *
  * List all accounts within a wallet.
  *
@@ -4756,6 +4912,58 @@ export const signCreateUsers = (
   });
 
 /**
+ * `POST /public/v1/submit/create_velocity_control`
+ */
+export type TCreateVelocityControlResponse =
+  operations["PublicApiService_CreateVelocityControl"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_velocity_control`
+ */
+export type TCreateVelocityControlInput = { body: TCreateVelocityControlBody };
+
+/**
+ * `POST /public/v1/submit/create_velocity_control`
+ */
+export type TCreateVelocityControlBody =
+  operations["PublicApiService_CreateVelocityControl"]["parameters"]["body"]["body"];
+
+/**
+ * Create velocity control
+ *
+ * Create a new velocity control.
+ *
+ * `POST /public/v1/submit/create_velocity_control`
+ */
+export const createVelocityControl = (input: TCreateVelocityControlInput) =>
+  request<
+    TCreateVelocityControlResponse,
+    TCreateVelocityControlBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_velocity_control",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateVelocityControl` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateVelocityControl}
+ */
+export const signCreateVelocityControl = (
+  input: TCreateVelocityControlInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateVelocityControlBody, never, never>({
+    uri: "/public/v1/submit/create_velocity_control",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/create_wallet`
  */
 export type TCreateWalletResponse =
@@ -5763,6 +5971,58 @@ export const signDeleteUsers = (
 ) =>
   signedRequest<TDeleteUsersBody, never, never>({
     uri: "/public/v1/submit/delete_users",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_velocity_control`
+ */
+export type TDeleteVelocityControlResponse =
+  operations["PublicApiService_DeleteVelocityControl"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_velocity_control`
+ */
+export type TDeleteVelocityControlInput = { body: TDeleteVelocityControlBody };
+
+/**
+ * `POST /public/v1/submit/delete_velocity_control`
+ */
+export type TDeleteVelocityControlBody =
+  operations["PublicApiService_DeleteVelocityControl"]["parameters"]["body"]["body"];
+
+/**
+ * Delete velocity control
+ *
+ * Delete an existing velocity control.
+ *
+ * `POST /public/v1/submit/delete_velocity_control`
+ */
+export const deleteVelocityControl = (input: TDeleteVelocityControlInput) =>
+  request<
+    TDeleteVelocityControlResponse,
+    TDeleteVelocityControlBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_velocity_control",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteVelocityControl` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteVelocityControl}
+ */
+export const signDeleteVelocityControl = (
+  input: TDeleteVelocityControlInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteVelocityControlBody, never, never>({
+    uri: "/public/v1/submit/delete_velocity_control",
     body: input.body,
     options,
   });

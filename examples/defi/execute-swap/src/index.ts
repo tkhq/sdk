@@ -21,12 +21,17 @@ export async function main() {
   const inputToken = requireEnv("FROM_TOKEN");
   const outputToken = requireEnv("TO_TOKEN");
   const inputAmount = requireEnv("AMOUNT");
+  const destinationAddress =
+    process.env.DESTINATION_ADDRESS?.trim() || undefined;
   const turnkey = getTurnkeyClient();
   const apiClient = turnkey.apiClient();
 
   console.log(`\nUsing wallet: ${signWith}`);
   console.log(`Swap: ${inputToken} -> ${outputToken}`);
   console.log(`Amount (base units): ${inputAmount}\n`);
+  if (destinationAddress) {
+    console.log(`Destination address: ${destinationAddress}\n`);
+  }
 
   const { sponsored } = await prompts({
     type: "confirm",
@@ -35,7 +40,7 @@ export async function main() {
     initial: true,
   });
 
-  console.log("Fetching swap quotes via CREATE_SWAP_QUOTE...");
+  console.log("Fetching swap quotes via CREATE_SWAP_QUOTE_V2...");
   const quoteResponse = await apiClient.createSwapQuote({
     organizationId,
     signWith,
@@ -43,6 +48,7 @@ export async function main() {
     outputToken,
     inputAmount,
     slippageBps: SLIPPAGE_BPS,
+    destinationAddress,
   });
 
   if (!quoteResponse.quotes?.length) {
@@ -64,7 +70,7 @@ export async function main() {
     );
   }
   console.log(
-    `\nExecuting quote ${selectedQuote.quoteId} via EXECUTE_SWAP_V2...\n`,
+    `\nExecuting quote ${selectedQuote.quoteId} via EXECUTE_SWAP_V3...\n`,
   );
 
   const executeResponse = await apiClient.executeSwap({
@@ -76,6 +82,7 @@ export async function main() {
     quotedOutputAmount: selectedQuote.outputAmount,
     minOutputAmount: selectedQuote.minOutputAmount,
     sponsor: sponsored,
+    destinationAddress,
   });
 
   const swapRequestId = executeResponse.swapRequestId;

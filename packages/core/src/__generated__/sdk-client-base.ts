@@ -437,6 +437,53 @@ export class TurnkeySDKClientBase {
     return data as TResponseType;
   }
 
+  getActivePolicies = async (
+    input: SdkTypes.TGetActivePoliciesBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetActivePoliciesResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_active_policies",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetActivePolicies = async (
+    input: SdkTypes.TGetActivePoliciesBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_active_policies";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getActivity = async (
     input: SdkTypes.TGetActivityBody,
     stampWith?: StamperType,
@@ -2068,6 +2115,53 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getVelocityControl = async (
+    input: SdkTypes.TGetVelocityControlBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetVelocityControlResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_velocity_control",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetVelocityControl = async (
+    input: SdkTypes.TGetVelocityControlBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_velocity_control";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getWallet = async (
     input: SdkTypes.TGetWalletBody,
     stampWith?: StamperType,
@@ -3171,6 +3265,53 @@ export class TurnkeySDKClientBase {
 
     const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_users";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listVelocityControls = async (
+    input: SdkTypes.TListVelocityControlsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TListVelocityControlsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_velocity_controls",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampListVelocityControls = async (
+    input: SdkTypes.TListVelocityControlsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_velocity_controls";
     const body = {
       ...input,
       organizationId:
@@ -4587,7 +4728,7 @@ export class TurnkeySDKClientBase {
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
         generateAppProofs: generateAppProofs ?? false,
-        type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE",
+        type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2",
       },
       "createSwapQuoteResult",
       stampWith,
@@ -4613,7 +4754,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE",
+      type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4903,6 +5044,64 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_USERS_V4",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createVelocityControl = async (
+    input: SdkTypes.TCreateVelocityControlBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TCreateVelocityControlResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/create_velocity_control",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL",
+      },
+      "createVelocityControlResult",
+      stampWith,
+    );
+  };
+
+  stampCreateVelocityControl = async (
+    input: SdkTypes.TCreateVelocityControlBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_velocity_control";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -6074,6 +6273,64 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  deleteVelocityControl = async (
+    input: SdkTypes.TDeleteVelocityControlBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TDeleteVelocityControlResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/delete_velocity_control",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROL",
+      },
+      "deleteVelocityControlResult",
+      stampWith,
+    );
+  };
+
+  stampDeleteVelocityControl = async (
+    input: SdkTypes.TDeleteVelocityControlBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_velocity_control";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   deleteWalletAccounts = async (
     input: SdkTypes.TDeleteWalletAccountsBody,
     stampWith?: StamperType,
@@ -6612,7 +6869,7 @@ export class TurnkeySDKClientBase {
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
         generateAppProofs: generateAppProofs ?? false,
-        type: "ACTIVITY_TYPE_EXECUTE_SWAP_V2",
+        type: "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
       },
       "executeSwapResult",
       stampWith,
@@ -6637,7 +6894,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EXECUTE_SWAP_V2",
+      type: "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -7156,6 +7413,64 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  initImportSecrets = async (
+    input: SdkTypes.TInitImportSecretsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TInitImportSecretsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/init_import_secrets",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_INIT_IMPORT_SECRETS",
+      },
+      "initImportSecretsResult",
+      stampWith,
+    );
+  };
+
+  stampInitImportSecrets = async (
+    input: SdkTypes.TInitImportSecretsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/init_import_secrets";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_IMPORT_SECRETS",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
