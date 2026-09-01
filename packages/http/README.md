@@ -45,6 +45,10 @@ const data = await client.getWhoami({
 
 The OpenAPI spec that generates all fetchers is also [included](/packages/http/src/__generated__/services/coordinator/public/v1/public_api.swagger.json) in the package.
 
+## Development
+
+The checked-in OpenAPI spec under `src/__generated__/services/coordinator/public/v1/public_api.swagger.json` is the source for local `@turnkey/http` generation. After updating that spec, run `pnpm --filter @turnkey/http codegen` from the SDK repo root, then run the root generated-code formatter. Mono sync ownership changes are tracked separately in INT-571.
+
 ## `withAsyncPolling(...)` helper
 
 All Turnkey mutation endpoints are asynchronous (with the exception of private key-related signing endpoints, e.g. `/submit/sign_transaction`, `/submit/sign_raw_payload`). To help you simplify async mutations, `@turnkey/http` provides a `withAsyncPolling(...)` wrapper. Here's a quick example:
