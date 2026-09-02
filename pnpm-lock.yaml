@@ -3699,6 +3699,18 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
 
+  examples/key-management/export-path-policies:
+    dependencies:
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+
   examples/key-management/import-export-with-iframe-stamper:
     dependencies:
       '@turnkey/iframe-stamper':
