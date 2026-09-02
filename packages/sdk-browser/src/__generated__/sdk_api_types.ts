@@ -7,6 +7,17 @@ import type {
   commandOverrideParams,
 } from "../__types__/base";
 
+export type TGetActivePoliciesResponse =
+  operations["PublicApiService_GetActivePolicies"]["responses"]["200"]["schema"];
+
+export type TGetActivePoliciesInput = { body: TGetActivePoliciesBody };
+
+export type TGetActivePoliciesBody = Omit<
+  operations["PublicApiService_GetActivePolicies"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetActivityResponse =
   operations["PublicApiService_GetActivity"]["responses"]["200"]["schema"];
 
@@ -404,6 +415,17 @@ export type TGetUserBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetVelocityControlResponse =
+  operations["PublicApiService_GetVelocityControl"]["responses"]["200"]["schema"];
+
+export type TGetVelocityControlInput = { body: TGetVelocityControlBody };
+
+export type TGetVelocityControlBody = Omit<
+  operations["PublicApiService_GetVelocityControl"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetWalletResponse =
   operations["PublicApiService_GetWallet"]["responses"]["200"]["schema"];
 
@@ -678,6 +700,17 @@ export type TGetUsersBody = Omit<
 > &
   queryOverrideParams;
 
+export type TListVelocityControlsResponse =
+  operations["PublicApiService_ListVelocityControls"]["responses"]["200"]["schema"];
+
+export type TListVelocityControlsInput = { body: TListVelocityControlsBody };
+
+export type TListVelocityControlsBody = Omit<
+  operations["PublicApiService_ListVelocityControls"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetVerifiedSubOrgIdsResponse =
   operations["PublicApiService_GetVerifiedSubOrgIds"]["responses"]["200"]["schema"];
 
@@ -948,9 +981,8 @@ export type TCreateSwapQuoteResponse =
 
 export type TCreateSwapQuoteInput = { body: TCreateSwapQuoteBody };
 
-export type TCreateSwapQuoteBody =
-  operations["PublicApiService_CreateSwapQuote"]["parameters"]["body"]["body"]["parameters"] &
-    commandOverrideParams;
+export type TCreateSwapQuoteBody = definitions["v1CreateSwapQuoteIntentV2"] &
+  commandOverrideParams;
 
 export type TCreateTvcAppResponse =
   operations["PublicApiService_CreateTvcApp"]["responses"]["200"]["schema"]["activity"]["result"]["createTvcAppResult"] &
@@ -1002,6 +1034,16 @@ export type TCreateUsersInput = { body: TCreateUsersBody };
 
 export type TCreateUsersBody =
   operations["PublicApiService_CreateUsers"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateVelocityControlResponse =
+  operations["PublicApiService_CreateVelocityControl"]["responses"]["200"]["schema"]["activity"]["result"]["createVelocityControlResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateVelocityControlInput = { body: TCreateVelocityControlBody };
+
+export type TCreateVelocityControlBody =
+  operations["PublicApiService_CreateVelocityControl"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateWalletResponse =
@@ -1212,6 +1254,16 @@ export type TDeleteUsersBody =
   operations["PublicApiService_DeleteUsers"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TDeleteVelocityControlResponse =
+  operations["PublicApiService_DeleteVelocityControl"]["responses"]["200"]["schema"]["activity"]["result"]["deleteVelocityControlResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteVelocityControlInput = { body: TDeleteVelocityControlBody };
+
+export type TDeleteVelocityControlBody =
+  operations["PublicApiService_DeleteVelocityControl"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TDeleteWalletAccountsResponse =
   operations["PublicApiService_DeleteWalletAccounts"]["responses"]["200"]["schema"]["activity"]["result"]["deleteWalletAccountsResult"] &
     definitions["v1ActivityResponse"];
@@ -1318,9 +1370,8 @@ export type TExecuteSwapResponse =
 
 export type TExecuteSwapInput = { body: TExecuteSwapBody };
 
-export type TExecuteSwapBody =
-  operations["PublicApiService_ExecuteSwap"]["parameters"]["body"]["body"]["parameters"] &
-    commandOverrideParams;
+export type TExecuteSwapBody = definitions["v1ExecuteSwapIntentV3"] &
+  commandOverrideParams;
 
 export type TExportPrivateKeyResponse =
   operations["PublicApiService_ExportPrivateKey"]["responses"]["200"]["schema"]["activity"]["result"]["exportPrivateKeyResult"] &
@@ -1410,6 +1461,16 @@ export type TInitImportPrivateKeyInput = { body: TInitImportPrivateKeyBody };
 
 export type TInitImportPrivateKeyBody =
   operations["PublicApiService_InitImportPrivateKey"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TInitImportSecretsResponse =
+  operations["PublicApiService_InitImportSecrets"]["responses"]["200"]["schema"]["activity"]["result"]["initImportSecretsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TInitImportSecretsInput = { body: TInitImportSecretsBody };
+
+export type TInitImportSecretsBody =
+  operations["PublicApiService_InitImportSecrets"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TInitImportWalletResponse =

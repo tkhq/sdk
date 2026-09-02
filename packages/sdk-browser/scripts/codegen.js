@@ -41,8 +41,27 @@ const VERSIONED_ACTIVITY_TYPES = {
     "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
   ACTIVITY_TYPE_ETH_SEND_TRANSACTION: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
   ACTIVITY_TYPE_SOL_SEND_TRANSACTION: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
-  ACTIVITY_TYPE_EXECUTE_SWAP: "ACTIVITY_TYPE_EXECUTE_SWAP_V2",
+  ACTIVITY_TYPE_CREATE_SWAP_QUOTE: {
+    activityType: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2",
+    intentType: "v1CreateSwapQuoteIntentV2",
+  },
+  ACTIVITY_TYPE_EXECUTE_SWAP: {
+    activityType: "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
+    intentType: "v1ExecuteSwapIntentV3",
+  },
 };
+
+/**
+ * @param {string | { activityType: string, intentType?: string } | undefined} entry
+ * @returns {{ activityType: string | undefined, intentType: string | undefined }}
+ */
+function resolveVersionedActivity(entry) {
+  if (!entry) return { activityType: undefined, intentType: undefined };
+  if (typeof entry === "string") {
+    return { activityType: entry, intentType: undefined };
+  }
+  return entry;
+}
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "getActivities",
@@ -174,6 +193,12 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
     }
 
     const parameterList = operation["parameters"] ?? [];
+    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
+      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+      .toUpperCase()}`;
+    const { intentType: versionedIntentType } = resolveVersionedActivity(
+      VERSIONED_ACTIVITY_TYPES[unversionedActivityType],
+    );
 
     let responseValue = "void";
     if (methodType === "command") {
@@ -196,7 +221,9 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
 
     let bodyValue = "{}";
     if (["activityDecision", "command"].includes(methodType)) {
-      bodyValue = `operations["${operationId}"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams`;
+      bodyValue = versionedIntentType
+        ? `definitions["${versionedIntentType}"] & commandOverrideParams`
+        : `operations["${operationId}"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams`;
     } else if (methodType === "query") {
       bodyValue = `Omit<operations["${operationId}"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams`;
     }
@@ -441,8 +468,9 @@ export class TurnkeySDKClientBase {
     const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
       .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
       .toUpperCase()}`;
-    const versionedActivityType =
-      VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
+    const { activityType: versionedActivityType } = resolveVersionedActivity(
+      VERSIONED_ACTIVITY_TYPES[unversionedActivityType],
+    );
 
     if (methodType === "query") {
       codeBuffer.push(
