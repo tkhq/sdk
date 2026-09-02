@@ -48,7 +48,7 @@ export async function main() {
     outputToken,
     inputAmount,
     slippageBps: SLIPPAGE_BPS,
-    destinationAddress,
+    ...(destinationAddress ? { destinationAddress } : {}),
   });
 
   if (!quoteResponse.quotes?.length) {
@@ -82,7 +82,7 @@ export async function main() {
     quotedOutputAmount: selectedQuote.outputAmount,
     minOutputAmount: selectedQuote.minOutputAmount,
     sponsor: sponsored,
-    destinationAddress,
+    ...(destinationAddress ? { destinationAddress } : {}),
   });
 
   const swapRequestId = executeResponse.swapRequestId;
