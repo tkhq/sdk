@@ -1,8 +1,22 @@
 "use client";
 
-import { useTurnkey, ClientState } from "@turnkey/react-wallet-kit";
+import {
+  useTurnkey,
+  ClientState,
+  StamperType,
+} from "@turnkey/react-wallet-kit";
 import { v1CreateMfaPolicyIntent } from "@turnkey/sdk-types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  DangerButton,
+  formatError,
+  Notice,
+  PolicyGrid,
+  PrimaryButton,
+  ScenarioCard,
+  ScenarioHeader,
+  SessionInfo,
+} from "./ui";
 
 export const SESSION_KEY = "scenario-1";
 
@@ -17,11 +31,28 @@ export default function Scenario1() {
     wallets,
     httpClient,
     clientState,
+    setMfaHandler,
   } = useTurnkey();
 
   const session = allSessions?.[SESSION_KEY];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // The SIGN activity trips the MFA policy (SESSION is satisfied by the session
+  // stamp, PASSKEY is still required), so it comes back AUTHENTICATORS_NEEDED.
+  // This handler approves it with the passkey to satisfy the second factor.
+  useEffect(() => {
+    if (!httpClient) return;
+
+    setMfaHandler(async ({ fingerprint, organizationId }) => {
+      await httpClient.approveActivity(
+        { fingerprint, organizationId },
+        StamperType.Passkey,
+      );
+    });
+
+    return () => setMfaHandler(undefined);
+  }, [httpClient, setMfaHandler]);
 
   const run = async (fn: () => Promise<void>) => {
     setError(null);
@@ -29,7 +60,7 @@ export default function Scenario1() {
     try {
       await fn();
     } catch (e: any) {
-      setError(e?.message ?? String(e));
+      setError(formatError(e));
     } finally {
       setLoading(false);
     }
@@ -49,55 +80,45 @@ export default function Scenario1() {
   } as v1CreateMfaPolicyIntent;
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6 w-full max-w-sm">
-      <h2 className="text-xl font-semibold">Scenario 1</h2>
-      <p className="text-sm text-gray-500 text-center">
-        MFA with session + passkey policy
-      </p>
+    <ScenarioCard>
+      <ScenarioHeader
+        title="Scenario 1"
+        subtitle="MFA with session + passkey policy"
+      />
 
-      {session && (
-        <div className="text-xs text-gray-400 font-mono text-center">
-          <div>User: {session.userId}</div>
-          <div>Org: {session.organizationId}</div>
-        </div>
-      )}
+      {session && <SessionInfo session={session} />}
 
       {/* 1. Login */}
-      <button
+      <PrimaryButton
         disabled={loading || !!session}
         onClick={() => run(() => handleLogin({ sessionKey: SESSION_KEY }))}
-        className="w-full rounded px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
       >
         1. Login / Sign Up
-      </button>
+      </PrimaryButton>
 
       {/* 2. Add passkey */}
-      <button
+      <PrimaryButton
         disabled={loading || !session}
         onClick={() => run(() => handleAddPasskey().then(() => {}))}
-        className="w-full rounded px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
       >
         2. Add Passkey
-      </button>
+      </PrimaryButton>
 
       {/* 3. Create MFA policy */}
       <div className="w-full flex flex-col gap-2">
-        <button
+        <PrimaryButton
           disabled={loading || !session}
           onClick={() =>
             run(() => httpClient!.createMfaPolicy(mfaPolicy).then(() => {}))
           }
-          className="w-full rounded px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           3. Create MFA Policy
-        </button>
-        <pre className="w-full rounded bg-gray-100 p-3 text-xs text-gray-600 overflow-x-auto">
-          {JSON.stringify(mfaPolicy, null, 2)}
-        </pre>
+        </PrimaryButton>
+        <PolicyGrid policies={[mfaPolicy]} />
       </div>
 
       {/* 4. Sign message */}
-      <button
+      <PrimaryButton
         disabled={loading || !session || !wallets?.[0]?.accounts?.[0]}
         onClick={() =>
           run(() =>
@@ -107,23 +128,19 @@ export default function Scenario1() {
             }).then(() => {}),
           )
         }
-        className="w-full rounded px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
       >
         4. Sign Message (triggers MFA)
-      </button>
+      </PrimaryButton>
 
-      {error && (
-        <p className="text-xs text-red-500 text-center break-words">{error}</p>
-      )}
+      {error && <Notice tone="error">{error}</Notice>}
 
       {/* Logout */}
-      <button
+      <DangerButton
         disabled={!session}
         onClick={() => logout({ sessionKey: SESSION_KEY })}
-        className="w-full rounded px-4 py-2 text-white bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed"
       >
         Logout
-      </button>
-    </div>
+      </DangerButton>
+    </ScenarioCard>
   );
 }
