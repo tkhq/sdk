@@ -51,6 +51,7 @@
     "@marsidev/react-turnstile": "^1.4.2",
     "@noble/hashes": "^1.8.0",
     "@turnkey/core": "workspace:*",
+    "@turnkey/crypto": "workspace:*",
     "@turnkey/iframe-stamper": "workspace:^",
     "@turnkey/sdk-types": "workspace:*",
     "buffer": "^6.0.3",

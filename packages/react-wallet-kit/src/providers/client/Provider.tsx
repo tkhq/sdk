@@ -2,6 +2,7 @@
 
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
+import { encryptOauthSessionBinding } from "@turnkey/crypto";
 import {
   buildOAuthUrl,
   capitalizeProviderName,
@@ -570,13 +571,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             await completePKCERedirect(
               OAuthProviders.DISCORD,
               async (codeVerifier) => {
+                const encryptedSessionBinding =
+                  await encryptOauthSessionBinding(publicKey, codeVerifier);
                 const resp = await client?.httpClient.proxyOAuth2Authenticate({
                   provider: "OAUTH2_PROVIDER_DISCORD",
                   authCode: code,
                   redirectUri: redirectURI,
-                  codeVerifier,
+                  codeVerifier, // kept for backward compat with old servers
                   clientId,
-                  nonce,
+                  nonce, // kept for backward compat with old servers
+                  encryptedSessionBinding,
                 });
                 const oidcToken = resp?.oidcToken;
                 if (!oidcToken) {
@@ -605,13 +609,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             await completePKCERedirect(
               OAuthProviders.X,
               async (codeVerifier) => {
+                const encryptedSessionBinding =
+                  await encryptOauthSessionBinding(publicKey, codeVerifier);
                 const resp = await client?.httpClient.proxyOAuth2Authenticate({
                   provider: "OAUTH2_PROVIDER_X",
                   authCode: code,
                   redirectUri: redirectURI,
-                  codeVerifier,
+                  codeVerifier, // kept for backward compat with old servers
                   clientId,
-                  nonce,
+                  nonce, // kept for backward compat with old servers
+                  encryptedSessionBinding,
                 });
                 const oidcToken = resp?.oidcToken;
                 if (!oidcToken) {
@@ -3687,14 +3694,20 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   captchaToken,
                   onOauthSuccess: params?.onOauthSuccess,
                   exchangeCodeForToken: async (codeVerifier) => {
+                    const encryptedSessionBinding =
+                      await encryptOauthSessionBinding(
+                        publicKey,
+                        codeVerifier,
+                      );
                     const resp =
                       await client?.httpClient.proxyOAuth2Authenticate({
                         provider: "OAUTH2_PROVIDER_DISCORD",
                         authCode: result.authCode!,
                         redirectUri,
-                        codeVerifier,
+                        codeVerifier, // kept for backward compat with old servers
                         clientId,
-                        nonce,
+                        nonce, // kept for backward compat with old servers
+                        encryptedSessionBinding,
                       });
                     const oidcToken = resp?.oidcToken ?? "";
                     // Set the attested stamper with the oidcToken
@@ -3856,14 +3869,20 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   captchaToken,
                   onOauthSuccess: params?.onOauthSuccess,
                   exchangeCodeForToken: async (codeVerifier) => {
+                    const encryptedSessionBinding =
+                      await encryptOauthSessionBinding(
+                        publicKey,
+                        codeVerifier,
+                      );
                     const resp =
                       await client?.httpClient.proxyOAuth2Authenticate({
                         provider: "OAUTH2_PROVIDER_X",
                         authCode: result.authCode!,
                         redirectUri,
-                        codeVerifier,
+                        codeVerifier, // kept for backward compat with old servers
                         clientId,
-                        nonce,
+                        nonce, // kept for backward compat with old servers
+                        encryptedSessionBinding,
                       });
                     const oidcToken = resp?.oidcToken ?? "";
                     // Set the attested stamper with the oidcToken
