@@ -1,8 +1,26 @@
 /** @jest-environment node */
 
-import { verify, verifyAppProofSignature } from "../proof";
+import {
+  computeQosLiveManifestCommitmentPcr,
+  computeQosSetupManifestCommitmentPcr,
+  verify,
+  verifyAppProofSignature,
+  verifyWithQosPolicy,
+} from "../proof";
 import type { v1AppProof, v1BootProof } from "@turnkey/sdk-types";
 import { test, expect, describe } from "@jest/globals";
+import qosCommitmentPcrFixture from "../__fixtures__/qos-manifest-commitment-pcrs.json";
+
+const expectedPcrs = {
+  0: "f67076a8f9796b90d7f0eb148ec6926f66fe04c80861151916961f7dec715b3c8a36e5908e9551c20048719da134b207",
+  1: "f67076a8f9796b90d7f0eb148ec6926f66fe04c80861151916961f7dec715b3c8a36e5908e9551c20048719da134b207",
+  2: "21b9efbc184807662e966d34f390821309eeac6802309798826296bf3e8bec7c10edb30948c90ba67310f7b964fc500a",
+  3: "864e9095a9947ab14698122370c13baf23183f4e9911953cf5b909a49db00f43f446707314674d9309974f3cc4b24728",
+};
+
+function policy(allowedManifestSha256: string[]) {
+  return { allowedManifestSha256, expectedPcrs };
+}
 
 describe("Proof verification tests", () => {
   const testAppProof1: v1AppProof = {
@@ -128,5 +146,52 @@ describe("Proof verification tests", () => {
     await expect(verify(testAppProof2, malformedBootProof2)).rejects.toThrow(
       "attestationDoc's user_data doesn't match the hash of the manifest. ",
     );
+  });
+
+  test("computes QOS manifest commitment PCRs", () => {
+    const vector = qosCommitmentPcrFixture.vectors[0]!;
+    const manifestHash = Buffer.from(vector.manifestHashHex, "hex");
+    const ephemeralPublicKey = Buffer.from(vector.ephemeralPublicKeyHex, "hex");
+    expect(
+      Buffer.from(
+        computeQosSetupManifestCommitmentPcr(manifestHash, ephemeralPublicKey),
+      ).toString("hex"),
+    ).toBe(vector.pcr16Hex);
+    expect(
+      Buffer.from(
+        computeQosLiveManifestCommitmentPcr(manifestHash, ephemeralPublicKey),
+      ).toString("hex"),
+    ).toBe(vector.pcr17Hex);
+  });
+
+  test("rejects attestations without the complete QOS PCR bank", async () => {
+    await expect(
+      verifyWithQosPolicy(
+        testAppProof1,
+        testBootProof1,
+        policy([
+          "24a9e2c0b0ce26bcbc3e65172f8b06b100d5e712591f604832cbea9ff5ce02be",
+        ]),
+      ),
+    ).rejects.toThrow("QOS attestation document must contain exactly 32 PCRs");
+  });
+
+  test("rejects a manifest digest that is not allowed by policy", async () => {
+    await expect(
+      verifyWithQosPolicy(
+        testAppProof1,
+        testBootProof1,
+        policy(["11".repeat(32)]),
+      ),
+    ).rejects.toThrow("QOS manifest digest is not allowed by policy:");
+  });
+
+  test("rejects a QOS PCR3 mismatch", async () => {
+    await expect(
+      verifyWithQosPolicy(testAppProof1, testBootProof1, {
+        allowedManifestSha256: ["11".repeat(32)],
+        expectedPcrs: { ...expectedPcrs, 3: "11".repeat(48) },
+      }),
+    ).rejects.toThrow("QOS PCR3 does not match policy:");
   });
 });

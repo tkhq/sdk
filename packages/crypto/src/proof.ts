@@ -4,10 +4,33 @@ import {
 } from "@turnkey/encoding";
 import type { v1AppProof, v1BootProof } from "@turnkey/sdk-types";
 import { p256 } from "@noble/curves/p256";
-import { sha256 } from "@noble/hashes/sha2";
-import * as CBOR from "cbor-js";
+import { sha256, sha384 } from "@noble/hashes/sha2";
+import CBOR from "cbor-js";
 import * as x509 from "@peculiar/x509";
 import { AWS_ROOT_CERT_PEM, AWS_ROOT_CERT_SHA256 } from "./constants";
+
+const QOS_ATTESTABLE_PCR_COUNT = 32;
+const SHA256_LENGTH = 32;
+const SHA384_LENGTH = 48;
+const QOS_EPHEMERAL_PUBLIC_KEY_LENGTH = 130;
+
+export type QosIdentityPcrIndex = 0 | 1 | 2 | 3;
+const QOS_IDENTITY_PCR_INDICES: readonly QosIdentityPcrIndex[] = [0, 1, 2, 3];
+
+export type QosVerificationPolicy = {
+  allowedManifestSha256: readonly string[];
+  expectedPcrs: Readonly<Record<QosIdentityPcrIndex, string>>;
+};
+
+type AwsNitroAttestationDocument = {
+  cabundle: Uint8Array[];
+  certificate: Uint8Array;
+  digest: string;
+  nonce?: Uint8Array | null;
+  pcrs: Record<string, Uint8Array>;
+  public_key: Uint8Array;
+  user_data: Uint8Array;
+};
 
 export const getCryptoInstance = async () => {
   let cryptoInstance: Crypto;
@@ -74,19 +97,154 @@ export async function verify(
   appProof: v1AppProof,
   bootProof: v1BootProof,
 ): Promise<void> {
+  const { manifestDigest } = await verifyPair(appProof, bootProof);
+  const decodedBootProofManifest = decodeBase64(bootProof.qosManifestB64);
+  const serializedManifestDigest = sha256(decodedBootProofManifest);
+  if (!bytesEq(serializedManifestDigest, manifestDigest)) {
+    throw new Error(
+      `attestationDoc's user_data doesn't match the hash of the manifest. attestationDoc.user_data: ${manifestDigest} , manifest digest: ${serializedManifestDigest}`,
+    );
+  }
+}
+
+/** Verifies a proof pair against trusted QOS PCRs, manifest hashes, and PCR17. */
+export async function verifyWithQosPolicy(
+  appProof: v1AppProof,
+  bootProof: v1BootProof,
+  policy: QosVerificationPolicy,
+): Promise<void> {
+  if (
+    !Array.isArray(policy?.allowedManifestSha256) ||
+    !policy.allowedManifestSha256.length
+  ) {
+    throw new Error("QOS policy requires an allowed manifest hash");
+  }
+  const allowedManifestDigests = policy.allowedManifestSha256.map(
+    (digest, index) =>
+      decodeFixedHex(digest, SHA256_LENGTH, `allowedManifestSha256[${index}]`),
+  );
+  const expectedPcrs = QOS_IDENTITY_PCR_INDICES.map((index) =>
+    decodeFixedHex(
+      policy.expectedPcrs?.[index],
+      SHA384_LENGTH,
+      `expectedPcrs[${index}]`,
+    ),
+  );
+
+  const { attestationDoc, manifestDigest } = await verifyPair(
+    appProof,
+    bootProof,
+  );
+
+  if (attestationDoc.digest !== "SHA384") {
+    throw new Error(
+      `AWS Nitro attestation document must use SHA384, got ${String(attestationDoc.digest)}`,
+    );
+  }
+  if (attestationDoc.nonce !== null && attestationDoc.nonce !== undefined) {
+    throw new Error("QOS attestation document must not contain a nonce");
+  }
+  expectedPcrs.forEach((expected, index) => {
+    const actual = getAttestationPcr(attestationDoc, index);
+    if (!bytesEq(actual, expected)) {
+      throw new Error(
+        `QOS PCR${index} does not match policy: expected=${bytesToHex(expected)} actual=${bytesToHex(actual)}`,
+      );
+    }
+  });
+
+  if (
+    !allowedManifestDigests.some((allowed) => bytesEq(allowed, manifestDigest))
+  ) {
+    throw new Error(
+      `QOS manifest digest is not allowed by policy: ${bytesToHex(manifestDigest)}`,
+    );
+  }
+
+  if (
+    Object.keys(attestationDoc.pcrs ?? {}).length !== QOS_ATTESTABLE_PCR_COUNT
+  ) {
+    throw new Error(
+      `QOS attestation document must contain exactly ${QOS_ATTESTABLE_PCR_COUNT} PCRs`,
+    );
+  }
+  for (let index = 0; index < QOS_ATTESTABLE_PCR_COUNT; index++) {
+    getAttestationPcr(attestationDoc, index);
+  }
+
+  const expectedLivePcr = computeQosLiveManifestCommitmentPcr(
+    manifestDigest,
+    asBytes(attestationDoc.public_key, "attestation document public_key"),
+  );
+  const actualLivePcr = getAttestationPcr(attestationDoc, 17);
+  if (!bytesEq(actualLivePcr, expectedLivePcr)) {
+    throw new Error(
+      `QOS PCR17 live manifest commitment mismatch: expected=${bytesToHex(expectedLivePcr)} actual=${bytesToHex(actualLivePcr)}`,
+    );
+  }
+}
+
+/** Computes the QOS setup manifest/Ephemeral Key commitment PCR16 value. */
+export function computeQosSetupManifestCommitmentPcr(
+  manifestDigest: Uint8Array,
+  ephemeralPublicKey: Uint8Array,
+): Uint8Array {
+  return computeQosManifestCommitmentPcr(
+    "qos-setup-manifest-pcr-commitment-v1",
+    manifestDigest,
+    ephemeralPublicKey,
+  );
+}
+
+/** Computes the QOS live manifest/Ephemeral Key commitment PCR17 value. */
+export function computeQosLiveManifestCommitmentPcr(
+  manifestDigest: Uint8Array,
+  ephemeralPublicKey: Uint8Array,
+): Uint8Array {
+  return computeQosManifestCommitmentPcr(
+    "qos-live-manifest-pcr-commitment-v1",
+    manifestDigest,
+    ephemeralPublicKey,
+  );
+}
+
+function computeQosManifestCommitmentPcr(
+  domain: string,
+  manifestDigest: Uint8Array,
+  ephemeralPublicKey: Uint8Array,
+): Uint8Array {
+  if (manifestDigest.length !== SHA256_LENGTH) {
+    throw new Error(
+      `QOS manifest digest must be ${SHA256_LENGTH} bytes, got ${manifestDigest.length}`,
+    );
+  }
+  if (ephemeralPublicKey.length !== QOS_EPHEMERAL_PUBLIC_KEY_LENGTH) {
+    throw new Error(
+      `QOS Ephemeral Public Key must be ${QOS_EPHEMERAL_PUBLIC_KEY_LENGTH} bytes, got ${ephemeralPublicKey.length}`,
+    );
+  }
+
+  const preimage = new TextEncoder().encode(
+    `{"domain":"${domain}","ephemeralPublicKey":"${bytesToHex(ephemeralPublicKey)}","manifestHash":"${bytesToHex(manifestDigest)}"}`,
+  );
+  const commitment = sha384(preimage);
+  const extensionInput = new Uint8Array(SHA384_LENGTH + commitment.length);
+  extensionInput.set(commitment, SHA384_LENGTH);
+  return sha384(extensionInput);
+}
+
+async function verifyPair(appProof: v1AppProof, bootProof: v1BootProof) {
   // 1. Verify App Proof
   verifyAppProofSignature(appProof);
 
   // 2. Verify Boot Proof
   // Parse attestation
-  const coseSign1Der = Uint8Array.from(
-    atob(bootProof.awsAttestationDocB64)
-      .split("")
-      .map((c) => c.charCodeAt(0)),
-  );
+  const coseSign1Der = decodeBase64(bootProof.awsAttestationDocB64);
   const coseSign1 = CBOR.decode(coseSign1Der.buffer);
   const [, , payload] = coseSign1;
-  const attestationDoc = CBOR.decode(new Uint8Array(payload).buffer);
+  const attestationDoc = CBOR.decode(
+    new Uint8Array(payload).buffer,
+  ) as AwsNitroAttestationDocument;
 
   // Verify cose sign1 signature
   await verifyCoseSign1Sig(coseSign1, attestationDoc.certificate);
@@ -103,15 +261,13 @@ export async function verify(
   );
 
   // Verify manifest digest
-  const decodedBootProofManifest = Uint8Array.from(
-    atob(bootProof.qosManifestB64)
-      .split("")
-      .map((c) => c.charCodeAt(0)),
+  const manifestDigest = asBytes(
+    attestationDoc.user_data,
+    "attestation document user_data manifest hash",
   );
-  const manifestDigest = sha256(decodedBootProofManifest);
-  if (!bytesEq(manifestDigest, attestationDoc.user_data)) {
+  if (manifestDigest.length !== SHA256_LENGTH) {
     throw new Error(
-      `attestationDoc's user_data doesn't match the hash of the manifest. attestationDoc.user_data: ${attestationDoc.user_data} , manifest digest: ${manifestDigest}`,
+      `QOS attestation user_data manifest hash must be ${SHA256_LENGTH} bytes, got ${manifestDigest.length}`,
     );
   }
 
@@ -126,6 +282,8 @@ export async function verify(
       `Ephemeral pub keys from app proof: ${appProof.publicKey}, boot proof structure ${bootProof.ephemeralPublicKeyHex}, and attestation doc ${attestationPubKey} should all match`,
     );
   }
+
+  return { attestationDoc, manifestDigest };
 }
 
 /**
@@ -294,10 +452,53 @@ export async function verifyCoseSign1Sig(
   if (!ok) throw new Error("COSE_Sign1 ES384 verification failed");
 }
 
-function bytesEq(a: ArrayBuffer, b: ArrayBuffer) {
-  const A = new Uint8Array(a),
-    B = new Uint8Array(b);
-  if (A.length !== B.length) return false;
-  for (let i = 0; i < A.length; i++) if (A[i] !== B[i]) return false;
+function getAttestationPcr(
+  attestationDoc: AwsNitroAttestationDocument,
+  index: number,
+): Uint8Array {
+  const value = attestationDoc.pcrs?.[index];
+  if (value === undefined) {
+    throw new Error(`AWS Nitro attestation document is missing PCR${index}`);
+  }
+  const pcr = asBytes(value, `attestation document PCR${index}`);
+  if (pcr.length !== SHA384_LENGTH) {
+    throw new Error(
+      `AWS Nitro attestation document PCR${index} must be ${SHA384_LENGTH} bytes, got ${pcr.length}`,
+    );
+  }
+  return pcr;
+}
+
+function decodeFixedHex(
+  value: unknown,
+  expectedBytes: number,
+  label: string,
+): Uint8Array {
+  if (
+    typeof value !== "string" ||
+    !new RegExp(`^[0-9a-fA-F]{${expectedBytes * 2}}$`).test(value)
+  ) {
+    throw new Error(`${label} must be a ${expectedBytes}-byte hex string`);
+  }
+  return uint8ArrayFromHexString(value.toLowerCase());
+}
+
+function asBytes(value: unknown, label: string): Uint8Array {
+  if (value instanceof Uint8Array) return value;
+  if (value instanceof ArrayBuffer) return new Uint8Array(value);
+  throw new Error(`${label} must be a byte string`);
+}
+
+function bytesToHex(bytes: Uint8Array): string {
+  return uint8ArrayToHexString(bytes).toLowerCase();
+}
+
+function decodeBase64(value: string): Uint8Array {
+  return Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
+}
+
+function bytesEq(a: Uint8Array, b: Uint8Array) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
   return true;
 }
