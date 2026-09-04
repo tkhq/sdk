@@ -91,12 +91,17 @@ export default function Dashboard() {
   const {
     authState,
     logout,
+    deleteSubOrganization,
     session,
     wallets,
     signMessage,
     signAndSendTransaction,
   } = useTurnkey();
   const router = useRouter();
+
+  const [armDelete, setArmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteErr, setDeleteErr] = useState<string | null>(null);
 
   // Redirect unauthenticated users
   useEffect(() => {
@@ -346,18 +351,83 @@ export default function Dashboard() {
     }
   };
 
+  // Deletes the sub-organization this session belongs to, so the same email can sign up
+  // again from scratch. Handy when re-testing: an email keeps its sub-organization, along
+  // with whatever authenticators, policies and providers were added to it.
+  //
+  // Irreversible, and it takes the wallets with it. deleteWithoutExport is required because
+  // the demo wallets have never been exported. The sub-organization has to delete itself:
+  // the parent API key behind the server actions cannot do this on its behalf.
+  const handleDeleteSuborg = async () => {
+    try {
+      setDeleteErr(null);
+      setDeleting(true);
+      await deleteSubOrganization({ deleteWithoutExport: true });
+      await logout();
+      window.location.replace("/");
+    } catch (e: any) {
+      console.error(e);
+      setDeleteErr(e?.message ?? "Failed to delete sub-organization.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (authState !== AuthState.Authenticated) {
     return <p className="p-6">Loading…</p>;
   }
 
   return (
     <main className="relative min-h-screen p-6 sm:p-8 bg-gray-50">
-      <button
-        onClick={handleLogout}
-        className="absolute top-4 right-4 rounded bg-red-600 px-3 py-1.5 text-white text-xs sm:text-sm hover:bg-red-700"
-      >
-        Logout
-      </button>
+      <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
+        <div className="flex gap-2">
+          <button
+            onClick={handleLogout}
+            className="rounded bg-red-600 px-3 py-1.5 text-white text-xs sm:text-sm hover:bg-red-700"
+          >
+            Logout
+          </button>
+          <button
+            onClick={() => setArmDelete((armed) => !armed)}
+            disabled={deleting}
+            className="rounded border border-red-300 px-3 py-1.5 text-red-700 text-xs sm:text-sm hover:bg-red-50 disabled:opacity-50"
+            title="Delete this sub-organization so the same email can sign up again"
+          >
+            Delete sub-org
+          </button>
+        </div>
+
+        {armDelete && (
+          <div className="w-72 rounded border border-red-300 bg-red-50 p-3 text-xs text-red-800">
+            <p className="font-semibold">Delete this sub-organization?</p>
+            <p className="mt-1">
+              Irreversible, and it takes the wallets with it. Do this only for
+              throwaway test accounts. Frees the email so you can sign up again
+              from scratch.
+            </p>
+            <p className="mt-1 break-all font-mono">
+              {session?.organizationId}
+            </p>
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={handleDeleteSuborg}
+                disabled={deleting}
+                className="rounded bg-red-600 px-3 py-1.5 text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleting ? "Deleting…" : "Yes, delete it"}
+              </button>
+              <button
+                onClick={() => setArmDelete(false)}
+                disabled={deleting}
+                className="rounded border border-red-300 bg-white px-3 py-1.5 hover:bg-red-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+            {deleteErr && <p className="mt-2 break-words">{deleteErr}</p>}
+          </div>
+        )}
+      </div>
 
       <div className="mx-auto mt-10 max-w-screen-xl px-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">

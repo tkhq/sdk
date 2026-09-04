@@ -1,27 +1,28 @@
 "use client";
 
-import {
-  useTurnkey,
-  ClientState,
-  OtpType,
-  StamperType,
-} from "@turnkey/react-wallet-kit";
-import { v1CreateMfaPolicyIntent } from "@turnkey/sdk-types";
+import { useTurnkey, ClientState, OtpType } from "@turnkey/react-wallet-kit";
+import type { v1CreateMfaPolicyIntent } from "@turnkey/sdk-types";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { useEffect, useRef, useState } from "react";
 import {
   DangerButton,
   formatError,
   Notice,
+  OrDivider,
+  Panel,
   PolicyGrid,
+  PolicySummary,
   PrimaryButton,
   ScenarioCard,
   ScenarioHeader,
   SecondaryButton,
   SessionInfo,
   StatusNotices,
+  SuccessDialog,
   TextInput,
 } from "./ui";
+import { deleteAllMfaPolicies, otpMfaLogin, passkeyMfaHandler } from "./mfa";
+import { DeleteSubOrg } from "./DeleteSubOrg";
 
 export const SESSION_KEY = "scenario-3";
 const EXPORT_IFRAME_CONTAINER_ID = "scenario-3-export-iframe-container";
@@ -32,7 +33,6 @@ export default function Scenario3() {
     handleLogin,
     handleAddPasskey,
     exportWallet,
-    createWallet,
     initOtp,
     verifyOtp,
     storeSession,
@@ -50,6 +50,10 @@ export default function Scenario3() {
   const wallet = wallets?.[0];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [createdPolicies, setCreatedPolicies] = useState<
+    v1CreateMfaPolicyIntent[] | null
+  >(null);
   const [email, setEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -78,7 +82,7 @@ export default function Scenario3() {
     setExportModalError(null);
   };
 
-  const authMfaPolicy = {
+  const authMfaPolicy: v1CreateMfaPolicyIntent = {
     userId: user?.userId ?? "",
     mfaPolicyName: "Require OTP + passkey for auth",
     condition: "activity.resource == 'AUTH'",
@@ -87,9 +91,9 @@ export default function Scenario3() {
       { any: [{ type: "AUTHENTICATION_TYPE_PASSKEY" }] },
     ],
     order: 0,
-  } as v1CreateMfaPolicyIntent;
+  };
 
-  const exportMfaPolicy = {
+  const exportMfaPolicy: v1CreateMfaPolicyIntent = {
     userId: user?.userId ?? "",
     mfaPolicyName: "Require session + passkey for export",
     condition: "activity.action == 'EXPORT'",
@@ -98,9 +102,9 @@ export default function Scenario3() {
       { any: [{ type: "AUTHENTICATION_TYPE_PASSKEY" }] },
     ],
     order: 1,
-  } as v1CreateMfaPolicyIntent;
+  };
 
-  const sessionMfaPolicy = {
+  const sessionMfaPolicy: v1CreateMfaPolicyIntent = {
     userId: user?.userId ?? "",
     mfaPolicyName: "Require session for everything else",
     condition: "true",
@@ -108,7 +112,7 @@ export default function Scenario3() {
       { any: [{ type: "AUTHENTICATION_TYPE_SESSION" }] },
     ],
     order: 2,
-  } as v1CreateMfaPolicyIntent;
+  };
 
   // Export decrypts the wallet inside a sandboxed iframe hosted by Turnkey so the
   // key material never touches this app. Spin the iframe up when the modal opens,
@@ -139,8 +143,8 @@ export default function Scenario3() {
 
         exportIframeClientRef.current = iframeClient;
         setExportIframeReady(true);
-      } catch (e: any) {
-        setExportModalError(e?.message ?? String(e));
+      } catch (e) {
+        setExportModalError(formatError(e));
       }
     };
 
@@ -154,33 +158,41 @@ export default function Scenario3() {
 
   const run = async (fn: () => Promise<void>) => {
     setError(null);
+    setNotice(null);
     setLoading(true);
     try {
       await fn();
-    } catch (e: any) {
+    } catch (e) {
       setError(formatError(e));
     } finally {
       setLoading(false);
     }
   };
 
-  // Unlike Scenario 1 (handler installed for the whole session), here the passkey
-  // MFA handler is only active around the wrapped call. The export activity comes
-  // back AUTHENTICATORS_NEEDED, this handler approves it with the passkey, then it
-  // is torn down so nothing else silently prompts for a passkey.
+  // Errors raised while the export modal is open have to land inside the modal. The card's
+  // own notices sit behind the overlay, so reporting there means reporting nowhere.
+  const runInExportModal = async (fn: () => Promise<void>) => {
+    setExportModalError(null);
+    setLoading(true);
+    try {
+      await fn();
+    } catch (e) {
+      setExportModalError(formatError(e));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Unlike Scenario 1 (handler installed for the whole session), here the passkey MFA
+  // handler is only active around the wrapped call. The export activity comes back
+  // AUTHENTICATORS_NEEDED, this handler approves it with the passkey, then it is torn down
+  // so nothing else silently prompts for a passkey.
   const runWithPasskeyMfa = async (fn: () => Promise<void>) => {
     if (!httpClient) {
       throw new Error("Turnkey client is not ready.");
     }
 
-    setMfaHandler(async ({ fingerprint, organizationId }) => {
-      setMfaStatus("requested");
-      await httpClient.approveActivity(
-        { fingerprint, organizationId },
-        StamperType.Passkey,
-      );
-      setMfaStatus("approved");
-    });
+    setMfaHandler(passkeyMfaHandler(httpClient, setMfaStatus));
 
     try {
       await fn();
@@ -219,113 +231,41 @@ export default function Scenario3() {
       throw new Error("Send an email OTP first.");
     }
 
-    // Verify the OTP to get the verification token.
-    const { verificationToken, publicKey } = await verifyOtp({
+    const sessionToken = await otpMfaLogin({
+      httpClient: httpClient!,
+      verifyOtp,
       otpId,
       otpCode,
       otpEncryptionTargetBundle,
+      contact: normalizedEmail,
+      parentOrganizationId: config?.organizationId,
+      onOtpVerified: () => setOtpVerified(true),
+      onProgress: setMfaStatus,
     });
-    setOtpVerified(true);
-
-    // Resolve the sub-org this email lives on (the verification token authorizes
-    // the PII lookup). Every request below targets this sub-org.
-    const { organizationId: subOrgId } = await httpClient!.proxyGetAccount({
-      filterType: "EMAIL",
-      filterValue: normalizedEmail,
-      verificationToken,
-    });
-    if (!subOrgId) {
-      throw new Error("No sub-organization found for this email.");
-    }
-    if (subOrgId === config?.organizationId) {
-      throw new Error(
-        "OTP resolved to the parent organization. Run initial setup with this email to create a sub-organization before testing MFA login.",
-      );
-    }
-
-    const signedLoginRequest = await httpClient!.stampStampLogin(
-      { organizationId: subOrgId, publicKey },
-      StamperType.Attested,
-    );
-    if (!signedLoginRequest) {
-      throw new Error("Failed to create OTP login request.");
-    }
-
-    const loginResponse = await fetch(signedLoginRequest.url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        [signedLoginRequest.stamp.stampHeaderName]:
-          signedLoginRequest.stamp.stampHeaderValue,
-      },
-      body: signedLoginRequest.body,
-    });
-    if (!loginResponse.ok) {
-      throw new Error(await loginResponse.text());
-    }
-
-    // The auth policy requires OTP + passkey. The OTP stamp satisfies the first
-    // factor, so login returns AUTHENTICATORS_NEEDED, approve it with the passkey,
-    // then re-read the activity to pick up the resulting session.
-    let otpLoginRes = await loginResponse.json();
-    if (
-      otpLoginRes?.activity?.status === "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED"
-    ) {
-      setMfaStatus("requested");
-      await httpClient!.approveActivity(
-        {
-          fingerprint: otpLoginRes.activity.fingerprint,
-          organizationId: subOrgId,
-        },
-        StamperType.Passkey,
-      );
-      setMfaStatus("approved");
-
-      otpLoginRes = await httpClient!.getActivity(
-        {
-          activityId: otpLoginRes.activity.id,
-          organizationId: subOrgId,
-        },
-        StamperType.Attested,
-      );
-    }
-
-    const session = otpLoginRes?.activity?.result?.stampLoginResult?.session;
-    if (!session) {
-      throw new Error(
-        `OTP login did not return a session (activity status: ${otpLoginRes?.activity?.status}).`,
-      );
-    }
 
     // The activity path returns the session JWT but doesn't persist it — store
     // it under our session key so the UI picks it up.
-    await storeSession({ sessionToken: session, sessionKey: SESSION_KEY });
-  };
-
-  const createWalletForExport = async () => {
-    await createWallet({
-      walletName: `Scenario 3 Wallet ${Date.now()}`,
-      accounts: ["ADDRESS_FORMAT_ETHEREUM"],
-    });
+    await storeSession({ sessionToken, sessionKey: SESSION_KEY });
   };
 
   const createMfaPolicies = async () => {
     await httpClient!.createMfaPolicy(authMfaPolicy);
     await httpClient!.createMfaPolicy(exportMfaPolicy);
     await httpClient!.createMfaPolicy(sessionMfaPolicy);
+    setCreatedPolicies([authMfaPolicy, exportMfaPolicy, sessionMfaPolicy]);
   };
 
-  const exportWalletWithModal = async () => {
-    if (!wallet?.walletId) {
-      throw new Error("Create a wallet before exporting.");
-    }
-
-    setExportModalOpen(true);
+  const resetMfaPolicies = async () => {
+    const deleted = await deleteAllMfaPolicies(httpClient!, {
+      userId: session!.userId,
+      organizationId: session!.organizationId,
+    });
+    setNotice(`Deleted ${deleted} MFA polic${deleted === 1 ? "y" : "ies"}.`);
   };
 
   const injectExportBundleIntoModal = async () => {
     if (!wallet?.walletId) {
-      throw new Error("Create a wallet before exporting.");
+      throw new Error("No wallet on this user to export.");
     }
 
     const iframeClient = exportIframeClientRef.current;
@@ -335,7 +275,6 @@ export default function Scenario3() {
 
     setMfaStatus("idle");
     setExportCompleted(false);
-    setExportModalError(null);
 
     // exportWallet trips the EXPORT policy; runWithPasskeyMfa (wrapping this call)
     // handles the passkey approval. The returned bundle is encrypted to the
@@ -361,7 +300,8 @@ export default function Scenario3() {
     <ScenarioCard>
       <ScenarioHeader
         title="Scenario 3"
-        subtitle="MFA login, export requires session + passkey"
+        subtitle="Two factors to log in, and again to export a wallet"
+        description="Logging in needs an email OTP and a passkey. Day-to-day activity needs only the session, but exporting the wallet steps back up to a second passkey approval, because export hands over the keys themselves."
       />
 
       {session && (
@@ -379,19 +319,12 @@ export default function Scenario3() {
             1. Add Passkey
           </PrimaryButton>
 
-          <PrimaryButton
-            disabled={loading || !!wallet?.walletId}
-            onClick={() => run(createWalletForExport)}
-          >
-            2. Create Wallet
-          </PrimaryButton>
-
           <div className="w-full flex flex-col gap-2">
             <PrimaryButton
-              disabled={loading}
+              disabled={loading || !user?.userId}
               onClick={() => run(createMfaPolicies)}
             >
-              3. Create MFA Policies
+              2. Create MFA Policies
             </PrimaryButton>
             <PolicyGrid
               policies={[authMfaPolicy, exportMfaPolicy, sessionMfaPolicy]}
@@ -400,10 +333,17 @@ export default function Scenario3() {
 
           <PrimaryButton
             disabled={loading || !wallet?.walletId}
-            onClick={() => run(exportWalletWithModal)}
+            onClick={() => setExportModalOpen(true)}
           >
-            4. Export Wallet (triggers passkey MFA)
+            3. Export Wallet (triggers passkey MFA)
           </PrimaryButton>
+
+          {!wallet?.walletId && (
+            <Notice>
+              This user has no wallet yet. Sign-up creates one automatically, so
+              this usually means setup did not finish.
+            </Notice>
+          )}
 
           {exportModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/50 p-4">
@@ -430,7 +370,7 @@ export default function Scenario3() {
                     <PrimaryButton
                       disabled={loading || !exportIframeReady}
                       onClick={() =>
-                        run(() =>
+                        runInExportModal(() =>
                           runWithPasskeyMfa(injectExportBundleIntoModal),
                         )
                       }
@@ -455,14 +395,24 @@ export default function Scenario3() {
                   )}
 
                   {exportModalError && (
-                    <Notice tone="error">
-                      {formatError(exportModalError)}
-                    </Notice>
+                    <Notice tone="error">{exportModalError}</Notice>
                   )}
                 </div>
               </div>
             </div>
           )}
+
+          <SecondaryButton
+            disabled={loading}
+            onClick={() => run(resetMfaPolicies)}
+          >
+            Reset MFA policies
+          </SecondaryButton>
+
+          <DeleteSubOrg
+            sessionKey={SESSION_KEY}
+            organizationId={session.organizationId}
+          />
 
           {clientState === ClientState.Ready && (
             <DangerButton
@@ -475,39 +425,58 @@ export default function Scenario3() {
         </>
       ) : (
         <div className="w-full flex flex-col gap-4">
-          {clientState === ClientState.Ready && !otpId && (
-            <SecondaryButton
-              onClick={() => handleLogin({ sessionKey: SESSION_KEY })}
-            >
-              Initial Setup Login / Sign Up
-            </SecondaryButton>
-          )}
+          <Panel
+            title="Set this scenario up"
+            hint="Start here on a new email. Creates the sub-organization, its wallet, and a session, so you can add a passkey and the MFA policies. No MFA yet: the policies do not exist until you create them."
+          >
+            {clientState === ClientState.Ready && (
+              <SecondaryButton
+                disabled={loading}
+                onClick={() => handleLogin({ sessionKey: SESSION_KEY })}
+              >
+                Initial Setup Login / Sign Up
+              </SecondaryButton>
+            )}
+          </Panel>
 
-          <div className="w-full flex flex-col gap-2">
-            <TextInput value={email} onChange={setEmail} placeholder="Email" />
-            <PrimaryButton
-              disabled={loading || !normalizedEmail || emailHasWhitespace}
-              onClick={() => run(sendEmailOtp)}
-            >
-              1. Send Email OTP
-            </PrimaryButton>
-          </div>
+          <OrDivider />
 
-          <div className="w-full flex flex-col gap-2">
-            <TextInput
-              value={otpCode}
-              onChange={setOtpCode}
-              placeholder="OTP code"
-            />
-            <PrimaryButton
-              disabled={loading || !otpId || !otpCode}
-              onClick={() => run(verifyOtpAndLogin)}
-            >
-              2. Verify OTP + Passkey Login
-            </PrimaryButton>
-          </div>
+          <Panel
+            title="Test the MFA login"
+            hint="Come back here after setup and logout, with the same email. This is the flow the policies gate: an email OTP, then a passkey approval. Exporting afterwards asks for the passkey again."
+          >
+            <div className="w-full flex flex-col gap-2">
+              <TextInput
+                value={email}
+                onChange={setEmail}
+                placeholder="Email"
+              />
+              <PrimaryButton
+                disabled={loading || !normalizedEmail || emailHasWhitespace}
+                onClick={() => run(sendEmailOtp)}
+              >
+                1. Send Email OTP
+              </PrimaryButton>
+            </div>
+
+            <div className="w-full flex flex-col gap-2">
+              <TextInput
+                value={otpCode}
+                onChange={setOtpCode}
+                placeholder="OTP code"
+              />
+              <PrimaryButton
+                disabled={loading || !otpId || !otpCode}
+                onClick={() => run(verifyOtpAndLogin)}
+              >
+                2. Verify OTP + Passkey Login
+              </PrimaryButton>
+            </div>
+          </Panel>
         </div>
       )}
+
+      {notice && <Notice tone="success">{notice}</Notice>}
 
       <StatusNotices
         otpSent={!!otpId}
@@ -516,6 +485,15 @@ export default function Scenario3() {
         exportCompleted={exportCompleted}
         error={error}
       />
+
+      <SuccessDialog
+        open={!!createdPolicies}
+        title="MFA policies created"
+        description="All three are live on your Turnkey user. Login needs OTP + passkey, export needs the session plus another passkey, everything else needs only the session. Only the first policy whose condition matches applies, which is why the catch-all sits last."
+        onClose={() => setCreatedPolicies(null)}
+      >
+        <PolicySummary policies={createdPolicies ?? []} />
+      </SuccessDialog>
     </ScenarioCard>
   );
 }

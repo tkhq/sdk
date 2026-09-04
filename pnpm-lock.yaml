@@ -3412,12 +3412,6 @@ importers:
       '@tailwindcss/postcss':
         specifier: 4.1.13
         version: 4.1.13
-      '@turnkey/core':
-        specifier: workspace:*
-        version: link:../../../packages/core
-      '@turnkey/crypto':
-        specifier: workspace:*
-        version: link:../../../packages/crypto
       '@turnkey/iframe-stamper':
         specifier: workspace:*
         version: link:../../../packages/iframe-stamper
