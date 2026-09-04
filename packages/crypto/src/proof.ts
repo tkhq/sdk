@@ -18,8 +18,8 @@ export type QosIdentityPcrIndex = 0 | 1 | 2 | 3;
 const QOS_IDENTITY_PCR_INDICES: readonly QosIdentityPcrIndex[] = [0, 1, 2, 3];
 
 export type QosVerificationPolicy = {
-  allowedManifestSha256: readonly string[];
-  expectedPcrs: Readonly<Record<QosIdentityPcrIndex, string>>;
+  allowedManifestSha256: readonly Uint8Array[];
+  expectedPcrs: Readonly<Record<QosIdentityPcrIndex, Uint8Array>>;
 };
 
 type AwsNitroAttestationDocument = {
@@ -121,10 +121,10 @@ export async function verifyWithQosPolicy(
   }
   const allowedManifestDigests = policy.allowedManifestSha256.map(
     (digest, index) =>
-      decodeFixedHex(digest, SHA256_LENGTH, `allowedManifestSha256[${index}]`),
+      fixedBytes(digest, SHA256_LENGTH, `allowedManifestSha256[${index}]`),
   );
   const expectedPcrs = QOS_IDENTITY_PCR_INDICES.map((index) =>
-    decodeFixedHex(
+    fixedBytes(
       policy.expectedPcrs?.[index],
       SHA384_LENGTH,
       `expectedPcrs[${index}]`,
@@ -182,18 +182,6 @@ export async function verifyWithQosPolicy(
       `QOS PCR17 live manifest commitment mismatch: expected=${bytesToHex(expectedLivePcr)} actual=${bytesToHex(actualLivePcr)}`,
     );
   }
-}
-
-/** Computes the QOS setup manifest/Ephemeral Key commitment PCR16 value. */
-export function computeQosSetupManifestCommitmentPcr(
-  manifestDigest: Uint8Array,
-  ephemeralPublicKey: Uint8Array,
-): Uint8Array {
-  return computeQosManifestCommitmentPcr(
-    "qos-setup-manifest-pcr-commitment-v1",
-    manifestDigest,
-    ephemeralPublicKey,
-  );
 }
 
 /** Computes the QOS live manifest/Ephemeral Key commitment PCR17 value. */
@@ -469,18 +457,18 @@ function getAttestationPcr(
   return pcr;
 }
 
-function decodeFixedHex(
+function fixedBytes(
   value: unknown,
   expectedBytes: number,
   label: string,
 ): Uint8Array {
-  if (
-    typeof value !== "string" ||
-    !new RegExp(`^[0-9a-fA-F]{${expectedBytes * 2}}$`).test(value)
-  ) {
-    throw new Error(`${label} must be a ${expectedBytes}-byte hex string`);
+  const bytes = asBytes(value, label);
+  if (bytes.length !== expectedBytes) {
+    throw new Error(
+      `${label} must be ${expectedBytes} bytes, got ${bytes.length}`,
+    );
   }
-  return uint8ArrayFromHexString(value.toLowerCase());
+  return bytes;
 }
 
 function asBytes(value: unknown, label: string): Uint8Array {

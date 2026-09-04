@@ -2,7 +2,6 @@
 
 import {
   computeQosLiveManifestCommitmentPcr,
-  computeQosSetupManifestCommitmentPcr,
   verify,
   verifyAppProofSignature,
   verifyWithQosPolicy,
@@ -11,15 +10,28 @@ import type { v1AppProof, v1BootProof } from "@turnkey/sdk-types";
 import { test, expect, describe } from "@jest/globals";
 import qosCommitmentPcrFixture from "../__fixtures__/qos-manifest-commitment-pcrs.json";
 
+const fromHex = (hex: string): Uint8Array => Buffer.from(hex, "hex");
+
 const expectedPcrs = {
-  0: "f67076a8f9796b90d7f0eb148ec6926f66fe04c80861151916961f7dec715b3c8a36e5908e9551c20048719da134b207",
-  1: "f67076a8f9796b90d7f0eb148ec6926f66fe04c80861151916961f7dec715b3c8a36e5908e9551c20048719da134b207",
-  2: "21b9efbc184807662e966d34f390821309eeac6802309798826296bf3e8bec7c10edb30948c90ba67310f7b964fc500a",
-  3: "864e9095a9947ab14698122370c13baf23183f4e9911953cf5b909a49db00f43f446707314674d9309974f3cc4b24728",
+  0: fromHex(
+    "f67076a8f9796b90d7f0eb148ec6926f66fe04c80861151916961f7dec715b3c8a36e5908e9551c20048719da134b207",
+  ),
+  1: fromHex(
+    "f67076a8f9796b90d7f0eb148ec6926f66fe04c80861151916961f7dec715b3c8a36e5908e9551c20048719da134b207",
+  ),
+  2: fromHex(
+    "21b9efbc184807662e966d34f390821309eeac6802309798826296bf3e8bec7c10edb30948c90ba67310f7b964fc500a",
+  ),
+  3: fromHex(
+    "864e9095a9947ab14698122370c13baf23183f4e9911953cf5b909a49db00f43f446707314674d9309974f3cc4b24728",
+  ),
 };
 
 function policy(allowedManifestSha256: string[]) {
-  return { allowedManifestSha256, expectedPcrs };
+  return {
+    allowedManifestSha256: allowedManifestSha256.map(fromHex),
+    expectedPcrs,
+  };
 }
 
 describe("Proof verification tests", () => {
@@ -148,15 +160,10 @@ describe("Proof verification tests", () => {
     );
   });
 
-  test("computes QOS manifest commitment PCRs", () => {
+  test("computes QOS live manifest commitment PCR", () => {
     const vector = qosCommitmentPcrFixture.vectors[0]!;
     const manifestHash = Buffer.from(vector.manifestHashHex, "hex");
     const ephemeralPublicKey = Buffer.from(vector.ephemeralPublicKeyHex, "hex");
-    expect(
-      Buffer.from(
-        computeQosSetupManifestCommitmentPcr(manifestHash, ephemeralPublicKey),
-      ).toString("hex"),
-    ).toBe(vector.pcr16Hex);
     expect(
       Buffer.from(
         computeQosLiveManifestCommitmentPcr(manifestHash, ephemeralPublicKey),
@@ -189,8 +196,8 @@ describe("Proof verification tests", () => {
   test("rejects a QOS PCR3 mismatch", async () => {
     await expect(
       verifyWithQosPolicy(testAppProof1, testBootProof1, {
-        allowedManifestSha256: ["11".repeat(32)],
-        expectedPcrs: { ...expectedPcrs, 3: "11".repeat(48) },
+        allowedManifestSha256: [fromHex("11".repeat(32))],
+        expectedPcrs: { ...expectedPcrs, 3: fromHex("11".repeat(48)) },
       }),
     ).rejects.toThrow("QOS PCR3 does not match policy:");
   });
