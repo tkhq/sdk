@@ -5,6 +5,7 @@ import type { v1CreateMfaPolicyIntent } from "@turnkey/sdk-types";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { useEffect, useRef, useState } from "react";
 import {
+  Checklist,
   DangerButton,
   formatError,
   Notice,
@@ -21,7 +22,12 @@ import {
   SuccessDialog,
   TextInput,
 } from "./ui";
-import { deleteAllMfaPolicies, otpMfaLogin, passkeyMfaHandler } from "./mfa";
+import {
+  deleteAllMfaPolicies,
+  otpMfaLogin,
+  passkeyMfaHandler,
+  setupChecklistItems,
+} from "./mfa";
 import { DeleteSubOrg } from "./DeleteSubOrg";
 
 export const SESSION_KEY = "scenario-3";
@@ -36,6 +42,7 @@ export default function Scenario3() {
     initOtp,
     verifyOtp,
     storeSession,
+    refreshUser,
     logout,
     allSessions,
     user,
@@ -253,6 +260,7 @@ export default function Scenario3() {
     await httpClient!.createMfaPolicy(exportMfaPolicy);
     await httpClient!.createMfaPolicy(sessionMfaPolicy);
     setCreatedPolicies([authMfaPolicy, exportMfaPolicy, sessionMfaPolicy]);
+    await refreshUser();
   };
 
   const resetMfaPolicies = async () => {
@@ -260,6 +268,7 @@ export default function Scenario3() {
       userId: session!.userId,
       organizationId: session!.organizationId,
     });
+    await refreshUser();
     setNotice(`Deleted ${deleted} MFA polic${deleted === 1 ? "y" : "ies"}.`);
   };
 
@@ -312,6 +321,8 @@ export default function Scenario3() {
 
       {session ? (
         <>
+          <Checklist items={setupChecklistItems(user)} />
+
           <PrimaryButton
             disabled={loading}
             onClick={() => run(() => handleAddPasskey().then(() => {}))}

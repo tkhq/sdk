@@ -6,9 +6,40 @@ import {
   type TurnkeyClientMethods,
   type TurnkeySDKClientBase,
 } from "@turnkey/react-wallet-kit";
-import type { v1MfaStatus } from "@turnkey/sdk-types";
+import type { v1MfaStatus, v1User } from "@turnkey/sdk-types";
 
 export type MfaProgress = "idle" | "requested" | "approved";
+
+/**
+ * What a scenario has set up so far, for the checklist. Both come off `user`, so they persist
+ * across reloads rather than depending on having watched a dialog go by.
+ */
+export function setupChecklistItems(user: v1User | undefined) {
+  const authenticators = user?.authenticators ?? [];
+  const policies = [...(user?.mfaPolicies ?? [])].sort(
+    (a, b) => a.order - b.order,
+  );
+
+  return [
+    {
+      label: "Passkey enrolled",
+      done: authenticators.length > 0,
+      ...(authenticators.length > 0 && {
+        detail: `${authenticators.length} authenticator(s)`,
+      }),
+    },
+    {
+      label: "MFA policies created",
+      done: policies.length > 0,
+      detail:
+        policies.length > 0
+          ? policies
+              .map((policy) => `${policy.order}. ${policy.mfaPolicyName}`)
+              .join(" · ")
+          : "Nothing is enforced until these exist.",
+    },
+  ];
+}
 
 /**
  * Whether a passkey is still outstanding. Reading `mfaStatuses` rather than assuming is what

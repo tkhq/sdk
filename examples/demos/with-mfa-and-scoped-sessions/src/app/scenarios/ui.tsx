@@ -38,6 +38,14 @@ const ERROR_HINTS: { match: string; hint: string }[] = [
  * "Failed to ..." and the useful text is on `cause`. Walk the chain so hints can match
  * the real message, and so the reader sees it.
  */
+function safeStringify(value: unknown): string {
+  try {
+    return JSON.stringify(value) ?? String(value);
+  } catch {
+    return String(value);
+  }
+}
+
 function errorChain(error: unknown, depth = 0): string[] {
   if (error == null || depth > 5) return [];
   if (typeof error === "string") return [error];
@@ -56,7 +64,11 @@ function errorChain(error: unknown, depth = 0): string[] {
 
 export function formatError(error: unknown) {
   const chain = errorChain(error);
-  const message = chain.join("\n") || String(error);
+  // Some things throw plain objects with no `message`, which would render as "[object
+  // Object]". Show the shape instead.
+  const fallback =
+    error && typeof error === "object" ? safeStringify(error) : String(error);
+  const message = chain.join("\n") || fallback;
   const hint = ERROR_HINTS.find(({ match }) => message.includes(match))?.hint;
 
   return hint ? `${message}\n\n${hint}` : message;

@@ -4,6 +4,7 @@ import { useTurnkey, ClientState } from "@turnkey/react-wallet-kit";
 import type { v1CreateMfaPolicyIntent } from "@turnkey/sdk-types";
 import { useEffect, useState } from "react";
 import {
+  Checklist,
   DangerButton,
   formatError,
   Notice,
@@ -16,7 +17,11 @@ import {
   SessionInfo,
   SuccessDialog,
 } from "./ui";
-import { deleteAllMfaPolicies, passkeyMfaHandler } from "./mfa";
+import {
+  deleteAllMfaPolicies,
+  passkeyMfaHandler,
+  setupChecklistItems,
+} from "./mfa";
 import { DeleteSubOrg } from "./DeleteSubOrg";
 
 export const SESSION_KEY = "scenario-1";
@@ -26,6 +31,7 @@ export default function Scenario1() {
     handleLogin,
     handleAddPasskey,
     handleSignMessage,
+    refreshUser,
     logout,
     allSessions,
     user,
@@ -83,6 +89,7 @@ export default function Scenario1() {
   const createMfaPolicy = async () => {
     await httpClient!.createMfaPolicy(mfaPolicy);
     setCreatedPolicies([mfaPolicy]);
+    await refreshUser();
   };
 
   const signMessage = async () => {
@@ -98,6 +105,7 @@ export default function Scenario1() {
       userId: session!.userId,
       organizationId: session!.organizationId,
     });
+    await refreshUser();
     setNotice(`Deleted ${deleted} MFA polic${deleted === 1 ? "y" : "ies"}.`);
   };
 
@@ -113,6 +121,8 @@ export default function Scenario1() {
 
       {session ? (
         <>
+          <Checklist items={setupChecklistItems(user)} />
+
           <PrimaryButton
             disabled={loading}
             onClick={() => run(() => handleAddPasskey().then(() => {}))}
