@@ -1,5 +1,15 @@
 # @turnkey/react-wallet-kit
 
+## 2.4.4
+
+### Patch Changes
+
+- [#1509](https://github.com/tkhq/sdk/pull/1509) [`2511465`](https://github.com/tkhq/sdk/commit/25114656b9a4024f5dcbcb8819b3833b4100e8b5) Author [@truham](https://github.com/truham) - Add United Arab Emirates (+971) to the supported phone country codes.
+
+- Updated dependencies [[`8e25b38`](https://github.com/tkhq/sdk/commit/8e25b3886c4cb8d9646fdf8473735e96ebed556f)]:
+  - @turnkey/core@2.9.0
+  - @turnkey/sdk-types@1.7.0
+
 ## 2.4.3
 
 ### Patch Changes

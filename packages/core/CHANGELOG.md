@@ -1,5 +1,20 @@
 # @turnkey/core
 
+## 2.9.0
+
+### Minor Changes
+
+- [#1506](https://github.com/tkhq/sdk/pull/1506) [`8e25b38`](https://github.com/tkhq/sdk/commit/8e25b3886c4cb8d9646fdf8473735e96ebed556f) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Use the latest public swap activities. `createSwapQuote` now submits V2, and `executeSwap` now submits V3. Both inputs support an optional `destinationAddress` for cross-protocol swaps. Also sync the public API types from mono v2026.8.4.
+
+### Patch Changes
+
+- Updated dependencies [[`8e25b38`](https://github.com/tkhq/sdk/commit/8e25b3886c4cb8d9646fdf8473735e96ebed556f)]:
+  - @turnkey/sdk-types@1.7.0
+  - @turnkey/http@6.4.0
+  - @turnkey/crypto@2.12.1
+  - @turnkey/react-native-passkey-stamper@1.2.23
+  - @turnkey/api-key-stamper@0.6.14
+
 ## 2.8.1
 
 ### Patch Changes

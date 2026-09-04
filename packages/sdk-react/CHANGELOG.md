@@ -1,5 +1,18 @@
 # @turnkey/sdk-react
 
+## 6.0.9
+
+### Patch Changes
+
+- [#1509](https://github.com/tkhq/sdk/pull/1509) [`2511465`](https://github.com/tkhq/sdk/commit/25114656b9a4024f5dcbcb8819b3833b4100e8b5) Author [@truham](https://github.com/truham) - Add United Arab Emirates (+971) to the supported phone country codes.
+
+- Updated dependencies [[`8e25b38`](https://github.com/tkhq/sdk/commit/8e25b3886c4cb8d9646fdf8473735e96ebed556f)]:
+  - @turnkey/sdk-browser@8.4.0
+  - @turnkey/sdk-server@8.4.0
+  - @turnkey/sdk-types@1.7.0
+  - @turnkey/crypto@2.12.1
+  - @turnkey/wallet-stamper@1.1.26
+
 ## 6.0.8
 
 ### Patch Changes

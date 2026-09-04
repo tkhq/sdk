@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/telegram-cloud-storage-stamper",
-  "version": "2.1.14",
+  "version": "2.1.15",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
