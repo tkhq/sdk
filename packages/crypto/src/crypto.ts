@@ -37,11 +37,6 @@ interface HpkeEncryptParams {
   plainTextBuf: Uint8Array;
   targetKeyBuf: Uint8Array;
 }
-interface HpkeAuthEncryptParams {
-  plainTextBuf: Uint8Array;
-  targetKeyBuf: Uint8Array;
-  senderPriv: string;
-}
 
 interface KeyPair {
   privateKey: string;
@@ -152,70 +147,6 @@ export const hpkeEncrypt = ({
 };
 
 /**
- * HPKE Encrypt Function
- * Encrypts data using Authenticated ,Hybrid Public Key Encryption (HPKE) standard https://datatracker.ietf.org/doc/rfc9180/.
- *
- * @param {HpkeAuthEncryptParams} params - The encryption parameters including plain text, encapsulated key, and sender private key.
- * @returns {Uint8Array} - The encrypted data.
- */
-
-export const hpkeAuthEncrypt = ({
-  plainTextBuf,
-  targetKeyBuf,
-  senderPriv,
-}: HpkeAuthEncryptParams): Uint8Array => {
-  try {
-    // Authenticated HPKE Mode
-    const senderPrivBuf = uint8ArrayFromHexString(senderPriv);
-    const senderPubBuf = getPublicKey(senderPriv, false);
-
-    const aad = buildAdditionalAssociatedData(senderPubBuf, targetKeyBuf);
-
-    // Step 1: Generate Shared Secret
-    const ss = deriveSS(targetKeyBuf, uint8ArrayToHexString(senderPrivBuf!));
-
-    // Step 2: Generate the KEM context
-    const kemContext = getKemContext(
-      senderPubBuf,
-      uint8ArrayToHexString(targetKeyBuf),
-    );
-
-    // Step 3: Build the HKDF inputs for key derivation
-    let ikm = buildLabeledIkm(LABEL_EAE_PRK, ss, SUITE_ID_1);
-    let info = buildLabeledInfo(
-      LABEL_SHARED_SECRET,
-      kemContext,
-      SUITE_ID_1,
-      32,
-    );
-    const sharedSecret = extractAndExpand(new Uint8Array([]), ikm, info, 32);
-
-    // Step 4: Derive the AES key
-    ikm = buildLabeledIkm(LABEL_SECRET, new Uint8Array([]), SUITE_ID_2);
-    info = AES_KEY_INFO;
-    const key = extractAndExpand(sharedSecret, ikm, info, 32);
-
-    // Step 5: Derive the initialization vector
-    info = IV_INFO;
-    const iv = extractAndExpand(sharedSecret, ikm, info, 12);
-
-    // Step 6: Encrypt the data using AES-GCM
-    const encryptedData = aesGcmEncrypt(plainTextBuf, key, iv, aad);
-
-    // Step 7: Concatenate the encapsulated key and the encrypted data for output
-    const compressedSenderBuf = compressRawPublicKey(senderPubBuf);
-    const result = new Uint8Array(
-      compressedSenderBuf.length + encryptedData.length,
-    );
-    result.set(compressedSenderBuf, 0);
-    result.set(encryptedData, compressedSenderBuf.length);
-    return result;
-  } catch (error) {
-    throw new Error(`Unable to perform hpkeEncrypt: ${error}`);
-  }
-};
-
-/**
  * Encrypt a message to a quorum key. Algorithm originally implemented in qos here: https://github.com/tkhq/qos/blob/ae01904c756107f850aea42000137ef124df3fe4/src/qos_p256/src/encrypt.rs#L123
  * Returns a borsh serialized encrypted Envelope which is the nonce + ephemeralSenderPublicKey + encryptedMessage
  * This function creates an ephemeral key, creates a shared secret with the recipient targetPublicKeyUncompressed
@@ -279,7 +210,7 @@ export const quorumKeyEncrypt = async (
  * Format HPKE Buffer Function
  * Returns a JSON string of an encrypted bundle, separating out the cipher text and the sender public key
  *
- * @param {Uint8Array} encryptedBuf - The result of hpkeAuthEncrypt or hpkeEncrypt
+ * @param {Uint8Array} encryptedBuf - The result of hpkeEncrypt
  * @returns {string} - A JSON string with "encappedPublic" and "ciphertext"
  */
 
