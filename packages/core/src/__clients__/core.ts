@@ -3126,14 +3126,20 @@ export class TurnkeyClient {
         // TODO (breaking change): eventually, we wont generate the v1 activity at all, remove this check and update the intent.
         const resp =
           "calls" in transaction
-            ? await this.httpClient.ethSendTransactionV2({
-                ...transaction,
-                organizationId,
-              })
-            : await this.httpClient.ethSendTransaction({
-                ...transaction,
-                organizationId,
-              });
+            ? await this.httpClient.ethSendTransactionV2(
+                {
+                  ...transaction,
+                  organizationId,
+                },
+                stampWith,
+              )
+            : await this.httpClient.ethSendTransaction(
+                {
+                  ...transaction,
+                  organizationId,
+                },
+                stampWith,
+              );
 
         const id = resp.sendTransactionStatusId;
         if (!id) {
