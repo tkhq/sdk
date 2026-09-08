@@ -5,11 +5,13 @@ import { useState } from "react";
 import Scenario1, { SESSION_KEY as KEY1 } from "./scenarios/Scenario1";
 import Scenario2, { SESSION_KEY as KEY2 } from "./scenarios/Scenario2";
 import Scenario3, { SESSION_KEY as KEY3 } from "./scenarios/Scenario3";
+import Scenario4, { SESSION_KEY as KEY4 } from "./scenarios/Scenario4";
 
 const scenarios = [
   { label: "Scenario 1", sessionKey: KEY1, Component: Scenario1 },
   { label: "Scenario 2", sessionKey: KEY2, Component: Scenario2 },
   { label: "Scenario 3", sessionKey: KEY3, Component: Scenario3 },
+  { label: "Scenario 4", sessionKey: KEY4, Component: Scenario4 },
 ];
 
 export default function AuthPage() {

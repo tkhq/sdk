@@ -1,25 +1,33 @@
 "use client";
 
+import { useTurnkey, ClientState, OtpType } from "@turnkey/react-wallet-kit";
+import type { v1CreateMfaPolicyIntent } from "@turnkey/sdk-types";
+import { useEffect, useState } from "react";
 import {
-  useTurnkey,
-  ClientState,
-  OtpType,
-  StamperType,
-} from "@turnkey/react-wallet-kit";
-import { v1CreateMfaPolicyIntent } from "@turnkey/sdk-types";
-import { useState } from "react";
-import {
+  Checklist,
   DangerButton,
   formatError,
+  Notice,
+  OrDivider,
+  Panel,
   PolicyGrid,
+  PolicySummary,
   PrimaryButton,
   ScenarioCard,
   ScenarioHeader,
   SecondaryButton,
   SessionInfo,
   StatusNotices,
+  SuccessDialog,
   TextInput,
 } from "./ui";
+import {
+  deleteAllMfaPolicies,
+  otpMfaLogin,
+  passkeyMfaHandler,
+  setupChecklistItems,
+} from "./mfa";
+import { DeleteSubOrg } from "./DeleteSubOrg";
 
 export const SESSION_KEY = "scenario-2";
 
@@ -27,19 +35,28 @@ export default function Scenario2() {
   const {
     handleLogin,
     handleAddPasskey,
+    handleSignMessage,
     initOtp,
     verifyOtp,
     storeSession,
+    refreshUser,
     logout,
     allSessions,
     user,
+    wallets,
+    config,
     clientState,
     httpClient,
+    setMfaHandler,
   } = useTurnkey();
 
   const session = allSessions?.[SESSION_KEY];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [createdPolicies, setCreatedPolicies] = useState<
+    v1CreateMfaPolicyIntent[] | null
+  >(null);
   const [email, setEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -53,7 +70,19 @@ export default function Scenario2() {
   const normalizedEmail = email.trim();
   const emailHasWhitespace = /\s/.test(email);
 
-  const mfaPolicy1 = {
+  // Same handler as Scenario 1, deliberately. Here it stays quiet: the catch-all policy below
+  // is satisfied by the session stamp alone, so signing never reaches AUTHENTICATORS_NEEDED.
+  // Same code, different policy, different experience. It is still wired to the status notices
+  // so that if it ever does fire, the card says so rather than prompting out of nowhere.
+  useEffect(() => {
+    if (!httpClient) return;
+
+    setMfaHandler(passkeyMfaHandler(httpClient, setMfaStatus));
+
+    return () => setMfaHandler(undefined);
+  }, [httpClient, setMfaHandler]);
+
+  const mfaPolicy1: v1CreateMfaPolicyIntent = {
     userId: user?.userId ?? "",
     mfaPolicyName: "Require OTP + passkey for auth",
     condition: "activity.resource == 'AUTH'",
@@ -62,9 +91,9 @@ export default function Scenario2() {
       { any: [{ type: "AUTHENTICATION_TYPE_PASSKEY" }] },
     ],
     order: 0,
-  } as v1CreateMfaPolicyIntent;
+  };
 
-  const mfaPolicy2 = {
+  const mfaPolicy2: v1CreateMfaPolicyIntent = {
     userId: user?.userId ?? "",
     mfaPolicyName: "Require session for everything else",
     condition: "true",
@@ -72,14 +101,15 @@ export default function Scenario2() {
       { any: [{ type: "AUTHENTICATION_TYPE_SESSION" }] },
     ],
     order: 1,
-  } as v1CreateMfaPolicyIntent;
+  };
 
   const run = async (fn: () => Promise<void>) => {
     setError(null);
+    setNotice(null);
     setLoading(true);
     try {
       await fn();
-    } catch (e: any) {
+    } catch (e) {
       setError(formatError(e));
     } finally {
       setLoading(false);
@@ -115,102 +145,63 @@ export default function Scenario2() {
       throw new Error("Send an email OTP first.");
     }
 
-    // Verify the OTP to get the verification token.
-    const { verificationToken, publicKey } = await verifyOtp({
+    const sessionToken = await otpMfaLogin({
+      httpClient: httpClient!,
+      verifyOtp,
       otpId,
       otpCode,
       otpEncryptionTargetBundle,
+      contact: normalizedEmail,
+      parentOrganizationId: config?.organizationId,
+      onOtpVerified: () => setOtpVerified(true),
+      onProgress: setMfaStatus,
     });
-    setOtpVerified(true);
-
-    // Resolve the sub-org this email lives on (the verification token authorizes
-    // the PII lookup). Every request below targets this sub-org.
-    const { organizationId: subOrgId } = await httpClient!.proxyGetAccount({
-      filterType: "EMAIL",
-      filterValue: normalizedEmail,
-      verificationToken,
-    });
-    if (!subOrgId) {
-      throw new Error("No sub-organization found for this email.");
-    }
-    if (subOrgId === httpClient!.config.organizationId) {
-      throw new Error(
-        "OTP resolved to the parent organization. Run setup with this email to create a sub-organization before testing MFA login.",
-      );
-    }
-
-    const signedLoginRequest = await httpClient!.stampStampLogin(
-      { organizationId: subOrgId, publicKey },
-      StamperType.Attested,
-    );
-    if (!signedLoginRequest) {
-      throw new Error("Failed to create OTP login request.");
-    }
-
-    const loginResponse = await fetch(signedLoginRequest.url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        [signedLoginRequest.stamp.stampHeaderName]:
-          signedLoginRequest.stamp.stampHeaderValue,
-      },
-      body: signedLoginRequest.body,
-    });
-    if (!loginResponse.ok) {
-      throw new Error(await loginResponse.text());
-    }
-
-    let otpLoginRes = await loginResponse.json();
-    if (
-      otpLoginRes?.activity?.status === "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED"
-    ) {
-      setMfaStatus("requested");
-      await httpClient!.approveActivity(
-        {
-          fingerprint: otpLoginRes.activity.fingerprint,
-          organizationId: subOrgId,
-        },
-        StamperType.Passkey,
-      );
-      setMfaStatus("approved");
-
-      otpLoginRes = await httpClient!.getActivity(
-        {
-          activityId: otpLoginRes.activity.id,
-          organizationId: subOrgId,
-        },
-        StamperType.Attested,
-      );
-    }
-
-    const session = otpLoginRes?.activity?.result?.stampLoginResult?.session;
-    if (!session) {
-      throw new Error(
-        `OTP login did not return a session (activity status: ${otpLoginRes?.activity?.status}).`,
-      );
-    }
 
     // The activity path returns the session JWT but doesn't persist it, store
     // it under our session key so the UI picks it up.
-    await storeSession({ sessionToken: session, sessionKey: SESSION_KEY });
+    await storeSession({ sessionToken, sessionKey: SESSION_KEY });
   };
 
   const createMfaPolicies = async () => {
     await httpClient!.createMfaPolicy(mfaPolicy1);
     await httpClient!.createMfaPolicy(mfaPolicy2);
+    setCreatedPolicies([mfaPolicy1, mfaPolicy2]);
+    await refreshUser();
+  };
+
+  const signMessage = async () => {
+    await handleSignMessage({
+      message: "turnkey mfa test " + Date.now(),
+      walletAccount: wallets[0].accounts![0],
+    });
+    setNotice(
+      "Signed with no passkey prompt. The session alone satisfied the catch-all policy.",
+    );
+  };
+
+  const resetMfaPolicies = async () => {
+    const deleted = await deleteAllMfaPolicies(httpClient!, {
+      userId: session!.userId,
+      organizationId: session!.organizationId,
+    });
+    await refreshUser();
+    setNotice(`Deleted ${deleted} MFA polic${deleted === 1 ? "y" : "ies"}.`);
   };
 
   return (
     <ScenarioCard>
       <ScenarioHeader
         title="Scenario 2"
-        subtitle="MFA login, no re-auth for later actions"
+        subtitle="Require two factors to log in, then stay out of the way"
+        description="Logging in needs an email OTP and a passkey. Everything after that is authorized by the session alone, so the user is never prompted again during normal use. Sign a message once you are back in to see it."
       />
 
       {session && <SessionInfo session={session} />}
 
       {session ? (
         <>
+          <Checklist items={setupChecklistItems(user)} />
+
           <PrimaryButton
             disabled={loading}
             onClick={() => run(() => handleAddPasskey().then(() => {}))}
@@ -220,13 +211,33 @@ export default function Scenario2() {
 
           <div className="w-full flex flex-col gap-2">
             <PrimaryButton
-              disabled={loading}
+              disabled={loading || !user?.userId}
               onClick={() => run(createMfaPolicies)}
             >
               2. Create MFA Policies
             </PrimaryButton>
             <PolicyGrid policies={[mfaPolicy1, mfaPolicy2]} />
           </div>
+
+          {/* The payoff: the same action that prompts in Scenario 1 stays silent here. */}
+          <PrimaryButton
+            disabled={loading || !wallets?.[0]?.accounts?.[0]}
+            onClick={() => run(signMessage)}
+          >
+            Sign Message (session only, no passkey prompt)
+          </PrimaryButton>
+
+          <SecondaryButton
+            disabled={loading}
+            onClick={() => run(resetMfaPolicies)}
+          >
+            Reset MFA policies
+          </SecondaryButton>
+
+          <DeleteSubOrg
+            sessionKey={SESSION_KEY}
+            organizationId={session.organizationId}
+          />
 
           {clientState === ClientState.Ready && (
             <DangerButton onClick={() => logout({ sessionKey: SESSION_KEY })}>
@@ -236,39 +247,58 @@ export default function Scenario2() {
         </>
       ) : (
         <div className="w-full flex flex-col gap-4">
-          {clientState === ClientState.Ready && !otpId && (
-            <SecondaryButton
-              onClick={() => handleLogin({ sessionKey: SESSION_KEY })}
-            >
-              Setup Login / Sign Up
-            </SecondaryButton>
-          )}
+          <Panel
+            title="Set this scenario up"
+            hint="Start here on a new email. Creates the sub-organization and signs you in, so you can add a passkey and the MFA policies. No MFA yet: the policies do not exist until you create them."
+          >
+            {clientState === ClientState.Ready && (
+              <SecondaryButton
+                disabled={loading}
+                onClick={() => handleLogin({ sessionKey: SESSION_KEY })}
+              >
+                Setup Login / Sign Up
+              </SecondaryButton>
+            )}
+          </Panel>
 
-          <div className="w-full flex flex-col gap-2">
-            <TextInput value={email} onChange={setEmail} placeholder="Email" />
-            <PrimaryButton
-              disabled={loading || !normalizedEmail || emailHasWhitespace}
-              onClick={() => run(sendEmailOtp)}
-            >
-              1. Send Email OTP
-            </PrimaryButton>
-          </div>
+          <OrDivider />
 
-          <div className="w-full flex flex-col gap-2">
-            <TextInput
-              value={otpCode}
-              onChange={setOtpCode}
-              placeholder="OTP code"
-            />
-            <PrimaryButton
-              disabled={loading || !otpId || !otpCode}
-              onClick={() => run(verifyOtpAndLogin)}
-            >
-              2. Verify OTP + Passkey Login
-            </PrimaryButton>
-          </div>
+          <Panel
+            title="Test the MFA login"
+            hint="Come back here after setup and logout, with the same email. This is the flow the policies gate: an email OTP, then a passkey approval."
+          >
+            <div className="w-full flex flex-col gap-2">
+              <TextInput
+                value={email}
+                onChange={setEmail}
+                placeholder="Email"
+              />
+              <PrimaryButton
+                disabled={loading || !normalizedEmail || emailHasWhitespace}
+                onClick={() => run(sendEmailOtp)}
+              >
+                1. Send Email OTP
+              </PrimaryButton>
+            </div>
+
+            <div className="w-full flex flex-col gap-2">
+              <TextInput
+                value={otpCode}
+                onChange={setOtpCode}
+                placeholder="OTP code"
+              />
+              <PrimaryButton
+                disabled={loading || !otpId || !otpCode}
+                onClick={() => run(verifyOtpAndLogin)}
+              >
+                2. Verify OTP + Passkey Login
+              </PrimaryButton>
+            </div>
+          </Panel>
         </div>
       )}
+
+      {notice && <Notice tone="success">{notice}</Notice>}
 
       <StatusNotices
         otpSent={!!otpId}
@@ -276,6 +306,15 @@ export default function Scenario2() {
         mfaStatus={mfaStatus}
         error={error}
       />
+
+      <SuccessDialog
+        open={!!createdPolicies}
+        title="MFA policies created"
+        description="Both are live on your Turnkey user. Logging in now needs OTP + passkey; everything after that needs only the session. Only the first policy whose condition matches applies, which is why the catch-all sits last."
+        onClose={() => setCreatedPolicies(null)}
+      >
+        <PolicySummary policies={createdPolicies ?? []} />
+      </SuccessDialog>
     </ScenarioCard>
   );
 }

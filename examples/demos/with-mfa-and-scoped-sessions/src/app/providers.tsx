@@ -40,8 +40,28 @@ export function Providers({ children }: { children: React.ReactNode }) {
     apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL,
     exportIframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL,
     auth: {
+      // Scenario 4 uses Google as the second recovery factor. If your auth proxy config
+      // already has Google enabled these are unnecessary, but setting them locally is the
+      // quicker way to run the scenario. Both are required: a client ID with no redirect URI
+      // fails the same way as no client ID at all.
+      ...((process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+        process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI) && {
+        oauthConfig: {
+          ...(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && {
+            google: {
+              primaryClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+            },
+          }),
+          ...(process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI && {
+            oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
+          }),
+        },
+      }),
       createSuborgParams: {
         emailOtpAuth: suborgParams,
+        // Scenario 4 signs up with a passkey rather than an OTP, and still needs a wallet
+        // so its "try to sign" negative test has something to sign with.
+        passkeyAuth: suborgParams,
       },
     },
   };
