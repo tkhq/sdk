@@ -5,7 +5,6 @@ This package consolidates some common cryptographic utilities used across our ap
 Example usage (Hpke E2E):
 
 ```
-const senderKeyPair = generateP256KeyPair();
 const receiverKeyPair = generateP256KeyPair();
 
 const receiverPublicKeyUncompressed = uncompressRawPublicKey(
@@ -15,9 +14,8 @@ const receiverPublicKeyUncompressed = uncompressRawPublicKey(
 const plainText = "Hello, this is a secure message!";
 const plainTextBuf = textEncoder.encode(plainText);
 const encryptedData = hpkeEncrypt({
-  plainTextBuf: plainTextBuf,
-  encappedKeyBuf: receiverPublicKeyUncompressed,
-  senderPriv: senderKeyPair.privateKey,
+  plainTextBuf,
+  targetKeyBuf: receiverPublicKeyUncompressed,
 });
 
 // Extract the encapsulated key buffer and the ciphertext
