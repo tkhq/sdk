@@ -85,14 +85,14 @@ interface TStamper {
 
 The example below shows how to initialize and use the `ApiKeyStamper` with the `TurnkeyClient` to make a request to Turnkey's [`/public/v1/query/whoami`](/api-reference/sessions/who-am-i) endpoint:
 
-```js
+```typescript
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 // Following best practices, define parameters in your .env file
 const baseUrl = process.env.TURNKEY_BASE_URL || "https://api.turnkey.com";
-const apiPublicKey = process.env.TURNKEY_API_PUBLIC_KEY;
-const apiPrivateKey = process.env.TURNKEY_API_PRIVATE_KEY;
+const apiPublicKey = process.env.TURNKEY_API_PUBLIC_KEY!;
+const apiPrivateKey = process.env.TURNKEY_API_PRIVATE_KEY!;
 
 // Initialize the API key stamper
 const stamper = new ApiKeyStamper({ apiPublicKey, apiPrivateKey });
@@ -102,7 +102,7 @@ const tk = new TurnkeyClient({ baseUrl }, stamper);
 
 // Now you can make authenticated requests using the APIKeyStamper
 const whoami = await tk.getWhoami({
-  organizationId: "<Your Org ID>",
+  organizationId: process.env.TURNKEY_ORGANIZATION_ID!,
 });
 ```
 

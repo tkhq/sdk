@@ -12,8 +12,9 @@ Turnkey API documentation lives here: https://docs.turnkey.com.
 $ npm install @turnkey/sdk-server
 ```
 
-```js
-const { Turnkey } = require("@turnkey/sdk-server");
+```typescript
+import { Turnkey } from "@turnkey/sdk-server";
+import fs from "fs";
 
 // This config contains parameters including base URLs, API credentials, and org ID
 const turnkeyConfig = JSON.parse(fs.readFileSync("./turnkey.json", "utf8"));
@@ -35,6 +36,4 @@ app.listen(PORT, () => {
 
 `@turnkey/sdk-server` provides `Turnkey`, which offers wrappers around commonly used Turnkey API setups. This enables you to easily stand up a minimal backend to proxy end-users' requests to Turnkey. You can also use this to call on the Turnkey API directly from a server setting.
 
-// TODO:
-// - typescript-ify example
 // - include nextjs server example
