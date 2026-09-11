@@ -22,7 +22,7 @@ const sharedHeaders: THeadersShape = {
 };
 
 const sharedRequestOptions: Partial<RequestInit> = {
-  redirect: "follow",
+  redirect: "error",
 };
 
 /**

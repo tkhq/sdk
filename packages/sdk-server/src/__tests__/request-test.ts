@@ -1,10 +1,13 @@
-import { test, expect, jest } from "@jest/globals";
+import { afterEach, test, expect, jest } from "@jest/globals";
 
 import { readFixture } from "../__fixtures__/shared";
 import { Turnkey } from "../index";
-import { fetch } from "../universal";
 
-jest.mock("cross-fetch");
+const originalFetch = global.fetch;
+
+afterEach(() => {
+  global.fetch = originalFetch;
+});
 
 test("requests are stamped after client creation", async () => {
   const { privateKey, publicKey } = await readFixture();
@@ -16,7 +19,8 @@ test("requests are stamped after client creation", async () => {
     defaultOrganizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
   });
 
-  const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
+  const mockedFetch = jest.fn<typeof fetch>();
+  global.fetch = mockedFetch;
 
   const response: any = {};
   response.status = 200;
@@ -29,10 +33,11 @@ test("requests are stamped after client creation", async () => {
     organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
   });
 
-  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(mockedFetch).toHaveBeenCalledTimes(1);
 
   const stamp = (mockedFetch.mock.lastCall![1]?.headers as any)?.["X-Stamp"];
   expect(stamp).toBeTruthy();
+  expect(mockedFetch.mock.lastCall![1]?.redirect).toBe("error");
 });
 
 test("requests return grpc status details as part of their errors", async () => {
@@ -45,7 +50,8 @@ test("requests return grpc status details as part of their errors", async () => 
     defaultOrganizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
   });
 
-  const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
+  const mockedFetch = jest.fn<typeof fetch>();
+  global.fetch = mockedFetch;
 
   const response: any = {};
   response.status = 200;
