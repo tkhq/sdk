@@ -25,14 +25,30 @@ yarn add @turnkey/sdk-server
 
 ## Initializing
 
-```js
-import { Turnkey } from "@turnkey/sdk-server";
+```typescript
+import {
+  Turnkey,
+  ApiKeyStamper,
+  TurnkeyServerClient,
+} from "@turnkey/sdk-server";
 
 const turnkey = new Turnkey({
-  defaultOrganizationId: process.env.TURNKEY_ORGANIZATION_ID,
+  defaultOrganizationId: process.env.TURNKEY_ORGANIZATION_ID!,
   apiBaseUrl: "https://api.turnkey.com",
-  apiPrivateKey: process.env.TURNKEY_API_PRIVATE_KEY,
-  apiPublicKey: process.env.TURNKEY_API_PUBLIC_KEY,
+  apiPrivateKey: process.env.TURNKEY_API_PRIVATE_KEY!,
+  apiPublicKey: process.env.TURNKEY_API_PUBLIC_KEY!,
+});
+
+// Or initialize a client with an explicit ApiKeyStamper:
+const stamper = new ApiKeyStamper({
+  apiPublicKey: process.env.TURNKEY_API_PUBLIC_KEY!,
+  apiPrivateKey: process.env.TURNKEY_API_PRIVATE_KEY!,
+});
+
+const client = new TurnkeyServerClient({
+  stamper,
+  apiBaseUrl: "https://api.turnkey.com",
+  organizationId: process.env.TURNKEY_ORGANIZATION_ID!,
 });
 ```
 
@@ -134,9 +150,9 @@ export default turnkeyProxyHandler;
 // this will sign requests made with the client-side `serverSign` function with the root organization's API key for the allowedMethods in the config
 ```
 
-## TurnkeyServerClient
+## Turnkey Server Actions
 
-The `@turnkey/sdk-server` exposes NextJS Server Actions. These server actions can be used to facilitate implementing common authentication flows.
+The `@turnkey/sdk-server` exposes NextJS Server Actions via `server`. These server actions can be used to facilitate implementing common authentication flows.
 
 ### `sendOtp()`
 
@@ -146,16 +162,18 @@ Initiate an OTP authentication flow for either an `EMAIL` or `SMS`.
 import { server } from "@turnkey/sdk-server";
 
 const initAuthResponse = await server.sendOtp({
-  suborgID: suborgId!,
   otpType,
   contact: value,
+  appName: "My App",
   ...(emailCustomization && { emailCustomization }),
   ...(sendFromEmailAddress && { sendFromEmailAddress }),
   ...(customSmsMessage && { customSmsMessage }),
   userIdentifier: authIframeClient?.iframePublicKey!,
+  otpLength: 6,
+  alphanumeric: true,
 });
 
-if (initAuthResponse && initAuthResponse.otpId) {
+if (initAuthResponse?.otpId) {
   // proceed to verifyOtp
 } else {
   // error handling
@@ -169,10 +187,6 @@ if (initAuthResponse && initAuthResponse.otpId) {
   authentication flow.
 </ParamField>
 
-<ParamField body="suborgID" type="string" required>
-  The ID of the sub organization for the given request.
-</ParamField>
-
 <ParamField body="otpType" type="string" required>
   The type of OTP request, either `EMAIL` or `SMS`.
 </ParamField>
@@ -181,8 +195,8 @@ if (initAuthResponse && initAuthResponse.otpId) {
   The contact information (email or phone number) where the OTP will be sent.
 </ParamField>
 
-<ParamField body="customSmsMessage" type="string">
-  Use to customize the SMS message.
+<ParamField body="appName" type="string" required>
+  The name of the application initiating the OTP request.
 </ParamField>
 
 <ParamField body="userIdentifier" type="string">
@@ -190,26 +204,53 @@ if (initAuthResponse && initAuthResponse.otpId) {
   limiting.
 </ParamField>
 
+<ParamField body="customSmsMessage" type="string">
+  Use to customize the SMS message.
+</ParamField>
+
+<ParamField body="emailCustomization" type="EmailCustomization">
+  An option to customize the email.
+</ParamField>
+
+<ParamField body="sendFromEmailAddress" type="string">
+  Provide a custom email address which will be used as the sender of the email.
+</ParamField>
+
+<ParamField body="otpLength" type="number">
+  The length of the OTP code.
+</ParamField>
+
+<ParamField body="alphanumeric" type="boolean">
+  Whether the OTP should contain alphanumeric characters. Defaults to true.
+</ParamField>
+
 ### `verifyOtp()`
 
-Verify the OTP Code sent to the user via `EMAIL` or `SMS`. If verification is successful, a Session is returned which is used to log in with.
+Verify the encrypted OTP bundle sent to the user via `EMAIL` or `SMS`. If verification is successful, a `verificationToken` is returned which can be passed to `otpLogin()` to complete session login.
 
 ```typescript
 import { server } from "@turnkey/sdk-server";
 
-const authSession = await server.verifyOtp({
-  suborgID: suborgId,
+const verifyResponse = await server.verifyOtp({
   otpId,
-  otpCode: otp,
-  targetPublicKey: authIframeClient!.iframePublicKey!,
+  encryptedOtpBundle,
   sessionLengthSeconds,
 });
 
-if (authSession?.token) {
-  // log in with Session
-  await authIframeClient!.loginWithSession(authSession);
-  // call onValidateSuccess callback
-  await onValidateSuccess();
+if (verifyResponse?.verificationToken) {
+  // Log in using otpLogin with the verificationToken
+  const sessionResponse = await server.otpLogin({
+    suborgID: suborgId,
+    verificationToken: verifyResponse.verificationToken,
+    publicKey: authIframeClient!.iframePublicKey!,
+    clientSignature,
+    sessionLengthSeconds,
+  });
+
+  if (sessionResponse?.session) {
+    await authIframeClient!.loginWithSession(sessionResponse.session);
+    await onValidateSuccess();
+  }
 } else {
   // error handling
 }
@@ -221,21 +262,13 @@ if (authSession?.token) {
   An object containing the parameters to verify an OTP authentication attempt.
 </ParamField>
 
-<ParamField body="suborgID" type="string" required>
-  The ID of the sub organization for the given request.
-</ParamField>
-
 <ParamField body="otpId" type="string" required>
   The ID for the given OTP request. This ID is returned in the `SendOtpResponse`
   from `sendOtp()`.
 </ParamField>
 
-<ParamField body="otpCode" type="string" required>
-  The OTP Code sent to the user.
-</ParamField>
-
-<ParamField body="targetPublicKey" type="string" required>
-  The public key of the target user.
+<ParamField body="encryptedOtpBundle" type="string" required>
+  The encrypted OTP bundle generated for verification.
 </ParamField>
 
 <ParamField body="sessionLengthSeconds" type="number">
@@ -243,23 +276,74 @@ if (authSession?.token) {
   minutes.
 </ParamField>
 
-### `oauth()`
+### `otpLogin()`
+
+Complete an OTP login flow using the `verificationToken` from `verifyOtp()` and a signed public key.
+
+```typescript
+import { server } from "@turnkey/sdk-server";
+
+const sessionResponse = await server.otpLogin({
+  suborgID: suborgId,
+  verificationToken: verifyResponse.verificationToken,
+  publicKey: authIframeClient!.iframePublicKey!,
+  clientSignature,
+  sessionLengthSeconds,
+});
+
+if (sessionResponse?.session) {
+  // log in with Session
+  await authIframeClient!.loginWithSession(sessionResponse.session);
+  await onValidateSuccess();
+} else {
+  // error handling
+}
+```
+
+#### Parameters
+
+<ParamField body="request" type="OtpLoginRequest" required>
+  An object containing the parameters to complete an OTP authentication session.
+</ParamField>
+
+<ParamField body="suborgID" type="string" required>
+  The ID of the sub organization for the given request.
+</ParamField>
+
+<ParamField body="verificationToken" type="string" required>
+  The verification token returned from `verifyOtp()`.
+</ParamField>
+
+<ParamField body="publicKey" type="string" required>
+  The public key to associate with the authenticated session.
+</ParamField>
+
+<ParamField body="clientSignature" type="ClientSignature" required>
+  The client signature verifying possession of the private key.
+</ParamField>
+
+<ParamField body="sessionLengthSeconds" type="number">
+  Specify the length of the session in seconds. Defaults to 900 seconds or 15
+  minutes.
+</ParamField>
+
+### `oauthLogin()`
 
 Complete an OAuth authentication flow once the OIDC Token has been obtained from the OAuth provider.
 
 ```typescript
 import { server } from "@turnkey/sdk-server";
 
-const oauthSession = await server.oauth({
+const oauthSession = await server.oauthLogin({
   suborgID: suborgId!,
   oidcToken: credential,
-  targetPublicKey: authIframeClient?.iframePublicKey!,
+  publicKey: authIframeClient?.iframePublicKey!,
   sessionLengthSeconds: authConfig.sessionLengthSeconds,
 });
 
-if (oauthSession && oauthSession.token) {
+if (oauthSession?.session) {
   // log in with Session
-  await authIframeClient!.loginWithSession(oauthSession);
+  await authIframeClient!.loginWithSession(oauthSession.session);
   // call onAuthSuccess callback
   await onAuthSuccess();
 } else {
@@ -269,7 +353,7 @@ if (oauthSession && oauthSession.token) {
 
 #### Parameters
 
-<ParamField body="request" type="OauthRequest" required>
+<ParamField body="request" type="OauthLoginRequest" required>
   An object containing the parameters to complete an OAuth authentication flow.
 </ParamField>
 
@@ -282,7 +366,7 @@ if (oauthSession && oauthSession.token) {
   basic profile information about the user.
 </ParamField>
 
-<ParamField body="targetPublicKey" type="string" required>
+<ParamField body="publicKey" type="string" required>
   The public key of the target user.
 </ParamField>
 
@@ -301,13 +385,15 @@ import { server } from "@turnkey/sdk-server";
 const sendCredentialResponse = await server.sendCredential({
   email,
   targetPublicKey: authIframeClient?.iframePublicKey!,
-  organizationId: suborgId!,
+  suborgID: suborgId!,
+  emailCustomization: {
+    appName: "My App",
+    ...emailCustomization,
+  },
   ...(apiKeyName && { apiKeyName }),
   ...(sendFromEmailAddress && { sendFromEmailAddress }),
   ...(sessionLengthSeconds && { sessionLengthSeconds }),
   ...(invalidateExisting && { invalidateExisting }),
-  ...(emailCustomization && { emailCustomization }),
-  ...(sendFromEmailAddress && { sendFromEmailAddress }),
 });
 ```
 
@@ -325,8 +411,12 @@ const sendCredentialResponse = await server.sendCredential({
   The public key of the target user.
 </ParamField>
 
-<ParamField body="organizationId" type="string" required>
+<ParamField body="suborgID" type="string" required>
   The ID of the sub organization for the given request.
+</ParamField>
+
+<ParamField body="emailCustomization" type="EmailCustomization" required>
+  An option to customize the email. Must include `appName`.
 </ParamField>
 
 <ParamField body="apiKeyName" type="string">
@@ -345,10 +435,6 @@ const sendCredentialResponse = await server.sendCredential({
 
 <ParamField body="invalidateExisting" type="boolean">
   Invalidate all pre-existing sessions. Defaults to `false`.
-</ParamField>
-
-<ParamField body="emailCustomization" type="EmailCustomization">
-  An option to customize the email.
 </ParamField>
 
 <ParamField body="sendFromEmailAddress" type="string">
