@@ -4,7 +4,11 @@ import { useEffect } from "react";
 import { HelloWave } from "@/components/hello-wave";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { useTurnkey, ClientState } from "@turnkey/react-native-wallet-kit";
+import {
+  useTurnkey,
+  ClientState,
+  type WalletAccount,
+} from "@turnkey/react-native-wallet-kit";
 
 export default function HomeScreen() {
   const {
@@ -68,7 +72,7 @@ export default function HomeScreen() {
     }
   };
 
-  const handleSignMessage = async (account: any) => {
+  const handleSignMessage = async (account: WalletAccount) => {
     try {
       const message = "Hello, Turnkey!";
       const signature = await signMessage({
@@ -92,7 +96,7 @@ export default function HomeScreen() {
       const exportedWalletMnemonic = await exportWallet({
         walletId,
       });
-      console.log("Wallet mnemonic:", exportedWalletMnemonic);
+
       Alert.alert(
         "Success",
         "Wallet exported successfully!\n\nMnemonic: " + exportedWalletMnemonic,
@@ -109,7 +113,7 @@ export default function HomeScreen() {
       const exportedAccountPrivateKey = await exportWalletAccount({
         address,
       });
-      console.log("Exported account private key:", exportedAccountPrivateKey);
+
       Alert.alert(
         "Success",
         "Account exported successfully!\n\nPrivate Key: " +
