@@ -137,4 +137,39 @@ describe("pollTransactionStatus", () => {
       cause: response,
     });
   });
+
+  it("forwards an explicit stampWith when fetching the transaction status", async () => {
+    jest.useFakeTimers();
+
+    const getSendTransactionStatus = jest.fn(async () => ({
+      txStatus: "INCLUDED",
+      eth: { txHash: "0xhash" },
+    }));
+
+    const client = new TurnkeyClient({
+      organizationId: "org-id",
+    });
+    (client as any).storageManager = {
+      getActiveSession: async () => undefined,
+    };
+    (client as any).httpClient = { getSendTransactionStatus };
+
+    const promise = client.pollTransactionStatus({
+      organizationId: "org-id",
+      sendTransactionStatusId: "status-id",
+      stampWith: StamperType.Passkey,
+      pollingIntervalMs: 10,
+    });
+
+    await jest.advanceTimersByTimeAsync(10);
+    await promise;
+
+    expect(getSendTransactionStatus).toHaveBeenCalledWith(
+      {
+        organizationId: "org-id",
+        sendTransactionStatusId: "status-id",
+      },
+      StamperType.Passkey,
+    );
+  });
 });

@@ -3303,10 +3303,13 @@ export class TurnkeyClient {
           const timeoutMs = 60_000; // 1 minute
 
           const ref = setInterval(async () => {
-            const resp = await this.httpClient.getSendTransactionStatus({
-              organizationId,
-              sendTransactionStatusId,
-            });
+            const resp = await this.httpClient.getSendTransactionStatus(
+              {
+                organizationId,
+                sendTransactionStatusId,
+              },
+              stampWith,
+            );
 
             const txStatus = resp?.txStatus;
 
