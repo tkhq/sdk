@@ -63,6 +63,16 @@ export const ERC20_ABI = [
     inputs: [{ name: "account", type: "address" }],
     outputs: [{ name: "", type: "uint256" }],
   },
+  {
+    type: "function",
+    name: "allowance",
+    stateMutability: "view",
+    inputs: [
+      { name: "owner", type: "address" },
+      { name: "spender", type: "address" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+  },
 ] as const;
 
 /** MiniBank's full ABI. Two writes, two reads, two events, three errors. */
@@ -162,6 +172,48 @@ export function buildDepositScope(
   const approveForMinibank = `(eth.tx.to == '${u}' && eth.tx.function_name == 'approve' && eth.tx.contract_call_args['spender'] == '${m}')`;
   const deposit = `(eth.tx.to == '${m}' && eth.tx.function_name == 'deposit')`;
   return `activity.kind == 'ETH_SEND_TRANSACTION' && (${approveForMinibank} || ${deposit})`;
+}
+
+/**
+ * Single-branch variant: deposit only, no `||`, no `contract_call_args`.
+ *
+ * Exists because the policy engine currently evaluates every branch of a
+ * scope, so the two-branch scope above evaluates `contract_call_args['spender']`
+ * on deposit calls, which have no such argument, and fails. This variant
+ * cannot hit that. The approve must then happen outside the session, once,
+ * with the passkey.
+ */
+export function buildDepositOnlyScope(
+  minibank: `0x${string}` = MINIBANK_ADDRESS,
+): string {
+  const m = minibank.toLowerCase();
+  return `activity.kind == 'ETH_SEND_TRANSACTION' && eth.tx.to == '${m}' && eth.tx.function_name == 'deposit'`;
+}
+
+export const SCOPE_VARIANTS = {
+  "approve+deposit": {
+    name: DEPOSIT_PROFILE_NAME,
+    build: buildDepositScope,
+    notes:
+      "with-scoped-deposit-session example: allows USDC.approve(minibank) and " +
+      "MiniBank.deposit only. Withdrawals need a passkey stamp.",
+  },
+  "deposit-only": {
+    name: `${DEPOSIT_PROFILE_NAME}-single-branch`,
+    build: buildDepositOnlyScope,
+    notes:
+      "with-scoped-deposit-session example: single-branch variant, " +
+      "MiniBank.deposit only. Approve is done once with the passkey.",
+  },
+} as const;
+export type ScopeVariant = keyof typeof SCOPE_VARIANTS;
+
+/** Which known scope a JWT's scope claim matches, if any. */
+export function identifyScope(scope: string): ScopeVariant | undefined {
+  const n = normalizeScope(scope);
+  return (Object.keys(SCOPE_VARIANTS) as ScopeVariant[]).find(
+    (k) => normalizeScope(SCOPE_VARIANTS[k].build()) === n,
+  );
 }
 
 /** Collapse whitespace so two renderings of the same scope compare equal. */

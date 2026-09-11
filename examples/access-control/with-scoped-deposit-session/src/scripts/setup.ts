@@ -25,14 +25,14 @@ import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import type { v1Activity, v1Result } from "@turnkey/sdk-types";
 import {
   DEPOSIT_PROFILE_EXPIRATION_SECONDS,
-  DEPOSIT_PROFILE_NAME,
   ERC20_ABI,
   MINIBANK_ABI,
   MINIBANK_ADDRESS,
+  SCOPE_VARIANTS,
   USDC_ADDRESS,
-  buildDepositScope,
   formatScope,
   normalizeScope,
+  type ScopeVariant,
 } from "../lib/config";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -100,8 +100,10 @@ async function awaitResult<T>(
 async function ensureSessionProfile(
   client: ApiClient,
   organizationId: string,
+  variant: ScopeVariant,
 ): Promise<string> {
-  const scope = buildDepositScope();
+  const { name, build, notes } = SCOPE_VARIANTS[variant];
+  const scope = build();
 
   const { sessionProfiles } = await client.getSessionProfiles({
     organizationId,
@@ -123,15 +125,13 @@ async function ensureSessionProfile(
     return existing.sessionProfileId;
   }
 
-  console.log(`session profile: creating "${DEPOSIT_PROFILE_NAME}"`);
+  console.log(`session profile: creating "${name}"`);
   const res = await client.createSessionProfile({
     organizationId,
-    sessionProfileName: DEPOSIT_PROFILE_NAME,
+    sessionProfileName: name,
     scope,
     expirationSeconds: DEPOSIT_PROFILE_EXPIRATION_SECONDS,
-    notes:
-      "with-scoped-deposit-session example: allows USDC.approve(minibank) and " +
-      "MiniBank.deposit only. Withdrawals need a passkey stamp.",
+    notes,
   });
 
   const sessionProfileId =
@@ -214,17 +214,34 @@ async function main() {
     defaultOrganizationId: organizationId,
   }).apiClient();
 
+  // `--variant <name>` picks a scope from SCOPE_VARIANTS; default is the
+  // two-branch approve+deposit scope the example is built around.
+  const variantIdx = process.argv.indexOf("--variant");
+  const variant = (
+    variantIdx !== -1 ? process.argv[variantIdx + 1] : "approve+deposit"
+  ) as ScopeVariant;
+  if (!(variant in SCOPE_VARIANTS)) {
+    throw new Error(
+      `Unknown --variant "${variant}". Known: ${Object.keys(SCOPE_VARIANTS).join(", ")}`,
+    );
+  }
+
   console.log(`parent org: ${organizationId}`);
   console.log(`USDC:       ${USDC_ADDRESS}`);
   console.log(`MiniBank:   ${MINIBANK_ADDRESS}`);
-  console.log(`scope:\n${formatScope(buildDepositScope())}\n`);
+  console.log(`variant:    ${variant}`);
+  console.log(`scope:\n${formatScope(SCOPE_VARIANTS[variant].build())}\n`);
 
   if (process.argv.includes("--interfaces")) {
     await ensureInterfaces(client, organizationId);
     console.log();
   }
 
-  const sessionProfileId = await ensureSessionProfile(client, organizationId);
+  const sessionProfileId = await ensureSessionProfile(
+    client,
+    organizationId,
+    variant,
+  );
 
   // Read it back so the output shows what Turnkey stored, not what we sent.
   const { sessionProfile } = await client.getSessionProfile({

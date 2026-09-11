@@ -3,15 +3,26 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTurnkey, StamperType } from "@turnkey/react-wallet-kit";
 import {
+  BASESCAN,
+  CAIP2_BASE_SEPOLIA,
   DEPOSIT_PROFILE_EXPIRATION_SECONDS,
   ERC20_ABI,
   MINIBANK_ABI,
   MINIBANK_ADDRESS,
+  SCOPE_VARIANTS,
   USDC_ADDRESS,
-  buildDepositScope,
   formatScope,
-  normalizeScope,
+  identifyScope,
 } from "@/lib/config";
+import {
+  approveCall,
+  depositCall,
+  fmtUsdc,
+  readBalances,
+  toUsdc,
+  type Balances,
+  type Call,
+} from "@/lib/minibank";
 import {
   Card,
   Checklist,
@@ -123,6 +134,8 @@ export function Demo() {
     session,
     wallets,
     httpClient,
+    ethSendTransaction,
+    pollTransactionStatus,
   } = useTurnkey();
 
   const depositSession = allSessions?.[DEPOSIT_SESSION_KEY];
@@ -132,13 +145,26 @@ export function Demo() {
   const ethAccount = wallets
     .flatMap((w) => w.accounts ?? [])
     .find((a) => a.addressFormat === "ADDRESS_FORMAT_ETHEREUM");
+  const depositor = ethAccount?.address as `0x${string}` | undefined;
 
+  const [balances, setBalances] = useState<Balances | null>(null);
+  const [amount, setAmount] = useState("1");
+  const [lastTx, setLastTx] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [interfaces, setInterfaces] = useState<Record<string, string> | null>(
     null,
   );
+
+  const refreshBalances = useCallback(async () => {
+    if (!depositor) return;
+    setBalances(await readBalances(depositor));
+  }, [depositor]);
+
+  useEffect(() => {
+    refreshBalances().catch(() => {});
+  }, [refreshBalances]);
 
   const run = async (fn: () => Promise<void>) => {
     setError(null);
@@ -154,6 +180,98 @@ export function Demo() {
   };
 
   /**
+   * Submit one ETH_SEND_TRANSACTION_V2 with `sponsor: true` and wait for the
+   * hash. With more than one call Gas Station composes an EIP-7702 batch, so
+   * approve + deposit land atomically in one transaction. The wallet pays no
+   * gas. Stamped by the active session unless `stampWith` says otherwise.
+   */
+  const sendSponsored = async (
+    calls: Call[],
+    stampWith?: StamperType,
+  ): Promise<string> => {
+    if (!depositor) throw new Error("No Ethereum account in this wallet.");
+    const sendTransactionStatusId = await ethSendTransaction({
+      transaction: {
+        from: depositor,
+        caip2: CAIP2_BASE_SEPOLIA,
+        sponsor: true,
+        calls,
+      },
+      ...(stampWith && { stampWith }),
+    });
+    const status = await pollTransactionStatus({ sendTransactionStatusId });
+    const txHash = status.eth?.txHash;
+    if (!txHash) {
+      throw new Error(`No transaction hash in status ${status.txStatus}.`);
+    }
+    return txHash;
+  };
+
+  const parseAmount = (): bigint => {
+    const units = toUsdc(amount);
+    if (units <= 0n) throw new Error("Enter an amount above 0.");
+    if (balances && units > balances.wallet) {
+      throw new Error(
+        `Wallet holds ${fmtUsdc(balances.wallet)} USDC, less than ${amount}.`,
+      );
+    }
+    return units;
+  };
+
+  /**
+   * Two-branch scope: approve(minibank, amount) + deposit(amount) as one
+   * batch, stamped by the scoped session. No prompt.
+   */
+  const depositBatched = async () => {
+    const units = parseAmount();
+    const txHash = await sendSponsored([
+      approveCall(MINIBANK_ADDRESS, units),
+      depositCall(units),
+    ]);
+    setLastTx(txHash);
+    await refreshBalances();
+    setNotice(
+      `Deposited ${amount} USDC in one sponsored transaction, stamped by the scoped session. No passkey prompt.`,
+    );
+  };
+
+  /**
+   * Single-branch scope, step 1: the approve is outside the scope, so it is
+   * stamped with the passkey. One prompt. Done once per allowance.
+   */
+  const approveWithPasskey = async () => {
+    const units = parseAmount();
+    const txHash = await sendSponsored(
+      [approveCall(MINIBANK_ADDRESS, units)],
+      StamperType.Passkey,
+    );
+    setLastTx(txHash);
+    await refreshBalances();
+    setNotice(
+      `Approved ${amount} USDC for MiniBank with the passkey. The session can now deposit up to that amount.`,
+    );
+  };
+
+  /**
+   * Single-branch scope, step 2: deposit(amount) alone, stamped by the
+   * scoped session. No prompt. Needs the allowance from step 1.
+   */
+  const depositSingle = async () => {
+    const units = parseAmount();
+    if (balances && units > balances.allowance) {
+      throw new Error(
+        `MiniBank is allowed ${fmtUsdc(balances.allowance)} USDC, less than ${amount}. Approve first.`,
+      );
+    }
+    const txHash = await sendSponsored([depositCall(units)]);
+    setLastTx(txHash);
+    await refreshBalances();
+    setNotice(
+      `Deposited ${amount} USDC, stamped by the scoped session. No passkey prompt.`,
+    );
+  };
+
+  /**
    * Make sure the sub-organization has an interface for each contract the
    * scope names. `function_name` and `contract_call_args` are only decoded
    * when an interface for `eth.tx.to` exists in the organization evaluating
@@ -161,7 +279,8 @@ export function Demo() {
    *
    * Uploads with whatever stamper is passed: the bootstrap session at
    * sign-up, or the passkey later, since the scoped session cannot create
-   * interfaces.
+   * interfaces. The read that precedes the uploads is never gated by the
+   * scope, so it always goes out on the active session and never prompts.
    */
   const ensureInterfaces = useCallback(
     async (
@@ -171,10 +290,7 @@ export function Demo() {
       if (!httpClient) throw new Error("Client not ready.");
 
       const { smartContractInterfaces } =
-        await httpClient.getSmartContractInterfaces(
-          { organizationId },
-          stampWith,
-        );
+        await httpClient.getSmartContractInterfaces({ organizationId });
       const found: Record<string, string> = {};
       for (const i of smartContractInterfaces) {
         if (i.type === "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM") {
@@ -275,12 +391,7 @@ export function Demo() {
     () => (depositToken ? decodeClaims(depositToken) : {}),
     [depositToken],
   );
-  useEffect(() => {
-    if (depositToken) console.log("Claims JWT:", claims);
-  }, [depositToken, claims]);
-  const scopeMatches =
-    !!claims.scope &&
-    normalizeScope(claims.scope) === normalizeScope(buildDepositScope());
+  const scopeVariant = claims.scope ? identifyScope(claims.scope) : undefined;
 
   // ---------------------------------------------------------------------------
 
@@ -300,10 +411,15 @@ export function Demo() {
         )}
 
         <Panel
-          title="Scope of the session you are about to get"
-          hint="Same language as policy conditions. Evaluated on every activity the session submits."
+          title="Scopes this app understands"
+          hint="Same language as policy conditions. Whichever one your profile carries is evaluated on every activity the session submits."
         >
-          <Pre>{formatScope(buildDepositScope())}</Pre>
+          {Object.entries(SCOPE_VARIANTS).map(([key, v]) => (
+            <div key={key} className="flex flex-col gap-1">
+              <p className="text-xs font-semibold">{key}</p>
+              <Pre>{formatScope(v.build())}</Pre>
+            </div>
+          ))}
         </Panel>
 
         {session && !inScopedSession && (
@@ -346,6 +462,16 @@ export function Demo() {
   }));
   const interfacesReady = interfaceItems.every((i) => i.done);
 
+  const amountInput = (
+    <input
+      value={amount}
+      onChange={(e) => setAmount(e.target.value)}
+      inputMode="decimal"
+      className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-sm"
+      placeholder="USDC amount"
+    />
+  );
+
   return (
     <Card>
       <Header
@@ -382,22 +508,22 @@ export function Demo() {
         <Pre>
           {claims.scope ? formatScope(claims.scope) : "(no scope claim)"}
         </Pre>
-        {scopeMatches ? (
+        {scopeVariant ? (
           <Notice tone="success">
-            The scope in the JWT is the one this app expects.
+            The scope in the JWT is the &quot;{scopeVariant}&quot; scope.
           </Notice>
         ) : (
           <Notice tone="error">
-            The scope in the JWT does not match the scope this app was built
-            for. Check NEXT_PUBLIC_SESSION_PROFILE_ID and the contract addresses
-            in .env.local.
+            The scope in the JWT is not one this app knows. Check
+            NEXT_PUBLIC_SESSION_PROFILE_ID and the contract addresses in
+            .env.local.
           </Notice>
         )}
       </Panel>
 
       <Panel
         title="Smart contract interfaces in this sub-organization"
-        hint="The scope compares decoded function names and arguments. Those only exist when the organization evaluating the transaction has an interface for the contract. Without these two uploads every clause is false and even a deposit is denied."
+        hint="The scope compares decoded function names and arguments. Those only exist when the organization evaluating the transaction has an interface for the contract. Without these uploads every clause is false and even a deposit is denied."
       >
         <Checklist items={interfaceItems} />
         {!interfacesReady && (
@@ -419,12 +545,12 @@ export function Demo() {
       </Panel>
 
       <Panel
-        title="Depositor wallet"
-        hint="The sub-organization's Ethereum account. Fund it with Base Sepolia USDC from the Circle faucet; it never needs ETH."
+        title="1. Fund the depositor"
+        hint="The sub-organization's Ethereum account. Send it Base Sepolia USDC from the Circle faucet. It never needs ETH: every write below is sponsored."
       >
         <KeyValue
           rows={[
-            { label: "address", value: ethAccount?.address ?? "(loading)" },
+            { label: "address", value: depositor ?? "(loading)" },
             {
               label: "faucet",
               value: (
@@ -438,9 +564,75 @@ export function Demo() {
                 </a>
               ),
             },
+            {
+              label: "wallet USDC",
+              value: balances ? fmtUsdc(balances.wallet) : "…",
+            },
+            {
+              label: "in MiniBank",
+              value: balances ? fmtUsdc(balances.bank) : "…",
+            },
+            {
+              label: "allowance to MiniBank",
+              value: balances ? fmtUsdc(balances.allowance) : "…",
+            },
           ]}
         />
+        <SecondaryButton disabled={busy} onClick={() => run(refreshBalances)}>
+          Refresh balances
+        </SecondaryButton>
       </Panel>
+
+      {scopeVariant === "approve+deposit" && (
+        <Panel
+          title="2. Deposit with the session (no prompt)"
+          hint="approve(minibank, amount) and deposit(amount) go out as one sponsored batch, stamped by the scoped session. Both calls match the scope, so it completes without a passkey."
+        >
+          <div className="flex gap-2">
+            {amountInput}
+            <PrimaryButton
+              disabled={busy || !depositor}
+              onClick={() => run(depositBatched)}
+            >
+              Approve + deposit
+            </PrimaryButton>
+          </div>
+        </Panel>
+      )}
+
+      {scopeVariant === "deposit-only" && (
+        <Panel
+          title="2. Approve once with the passkey, then deposit with the session"
+          hint="This scope allows deposit and nothing else, so the approve is outside it and needs the passkey. After that the session deposits on its own, up to the allowance, with no prompt."
+        >
+          {amountInput}
+          <div className="flex gap-2">
+            <SecondaryButton
+              disabled={busy || !depositor}
+              onClick={() => run(approveWithPasskey)}
+            >
+              Approve (passkey)
+            </SecondaryButton>
+            <PrimaryButton
+              disabled={busy || !depositor}
+              onClick={() => run(depositSingle)}
+            >
+              Deposit (session)
+            </PrimaryButton>
+          </div>
+        </Panel>
+      )}
+
+      {lastTx && (
+        <a
+          className="break-all font-mono text-xs underline"
+          href={`${BASESCAN}/tx/${lastTx}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {BASESCAN}/tx/{lastTx}
+        </a>
+      )}
 
       {notice && <Notice tone="success">{notice}</Notice>}
       {error && <Notice tone="error">{error}</Notice>}
