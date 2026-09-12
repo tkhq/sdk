@@ -855,6 +855,32 @@ export const encryptOauth2ClientSecret = async (
 };
 
 /**
+ * Encrypts the OAuth session binding (public key + code verifier) to the
+ * TLS Fetcher quorum key. This cryptographically binds the session key to
+ * the PKCE flow, preventing a malicious relay from substituting the nonce.
+ *
+ * The server will decrypt this, derive nonce = SHA256(utf8(publicKey)),
+ * and use the enclosed code_verifier — ignoring any plaintext values.
+ */
+export const encryptOauthSessionBinding = async (
+  sessionPublicKey: string, // compressed hex, same as used for nonce
+  codeVerifier: string,
+  dangerouslyOverrideTlsFetcherPublicKey?: string,
+): Promise<string> => {
+  const payload = JSON.stringify({
+    session_public_key: sessionPublicKey,
+    code_verifier: codeVerifier,
+  });
+  return uint8ArrayToHexString(
+    await encryptToEnclave(
+      dangerouslyOverrideTlsFetcherPublicKey ??
+        PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
+      payload,
+    ),
+  );
+};
+
+/**
  * Helper function used specifically to encrypt your on ramp private/secret api keys
  * to the on ramp encryption public key. This is used before uploading your on ramp
  * credentials to Turnkey via the CreateFiatOnRampCredential activity

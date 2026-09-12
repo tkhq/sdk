@@ -205,6 +205,8 @@ export type v1OAuth2AuthenticateRequest = {
   nonce: string;
   /** The client ID registered with the OAuth 2.0 provider */
   clientId: string;
+  /** A bundle encrypted to the TLS Fetcher quorum key that cryptographically binds the session public key and code_verifier together. When present, the server derives nonce and code_verifier from this bundle instead of trusting the plaintext nonce/codeVerifier fields, preventing a malicious relay from substituting the nonce. */
+  encryptedSessionBinding?: string;
 };
 
 export type v1OAuth2AuthenticateResponse = {
@@ -11156,6 +11158,8 @@ export type ProxyTOAuth2AuthenticateBody = {
   nonce: string;
   /** The client ID registered with the OAuth 2.0 provider */
   clientId: string;
+  /** A bundle encrypted to the TLS Fetcher quorum key that cryptographically binds the session public key and code_verifier together. When present, the server derives nonce and code_verifier from this bundle instead of trusting the plaintext nonce/codeVerifier fields, preventing a malicious relay from substituting the nonce. */
+  encryptedSessionBinding?: string;
 };
 
 export type ProxyTOAuth2AuthenticateInput = {
