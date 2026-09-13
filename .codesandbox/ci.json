@@ -1,5 +1,5 @@
 {
-  "buildCommand": "build-all",
+  "buildCommand": "codesandbox-install",
   "packages": [
     "packages/cosmjs",
     "packages/eip-1193-provider",
