@@ -25,6 +25,9 @@ import {
   fmtUsdc,
   readBalances,
   toUsdc,
+  transferCall,
+  unrecognizedCall,
+  withdrawCall,
   type Balances,
   type Call,
 } from "@/lib/minibank";
@@ -116,6 +119,51 @@ function Countdown({ exp }: { exp: number | undefined }) {
   );
 }
 
+/**
+ * Calls the deposit-only session must refuse. Each is a real request to
+ * Turnkey; the assertion is that it never gets past the scope.
+ */
+const DENIAL_PROBES = [
+  {
+    key: "withdraw",
+    label: "MiniBank.withdraw(1)",
+    why: "Decodes against the uploaded ABI, but the function is not the one the scope allows.",
+    call: () => withdrawCall(1n),
+  },
+  {
+    key: "transfer",
+    label: "USDC.transfer(self, 1)",
+    why: "Decodes fine too, and targets a contract the scope never names.",
+    call: (self: `0x${string}`) => transferCall(self, 1n),
+  },
+  {
+    key: "unrecognized",
+    label: "USDC with calldata 0xdeadbeef",
+    why: "Matches no function in the uploaded ABI, so function_name is empty and nothing in the scope can be true.",
+    call: () => unrecognizedCall(),
+  },
+] as const;
+type DenialKey = (typeof DENIAL_PROBES)[number]["key"];
+type DenialOutcome =
+  | { status: "denied"; message: string }
+  | { status: "allowed"; txHash: string }
+  | { status: "error"; message: string };
+
+/**
+ * A scope refusal comes back as a permissions error whose detail reads
+ * "No policies evaluated to outcome: Allow". The wording talks about
+ * policies even when the session scope is what said no.
+ */
+function isDenial(error: unknown): boolean {
+  return formatError(error).includes("No policies evaluated to outcome: Allow");
+}
+
+/** The line of the error chain that carries Turnkey's own message. */
+function turnkeyLine(error: unknown): string {
+  const lines = formatError(error).split("\n");
+  return lines.find((l) => l.startsWith("Turnkey error")) ?? lines[0] ?? "";
+}
+
 /** The two interfaces the scopes depend on, keyed by lowercase address. */
 const REQUIRED_INTERFACES = [
   {
@@ -160,7 +208,11 @@ export function Demo() {
 
   const [balances, setBalances] = useState<Balances | null>(null);
   const [amount, setAmount] = useState("1");
+  const [withdrawAmount, setWithdrawAmount] = useState("1");
   const [lastTxs, setLastTxs] = useState<string[]>([]);
+  const [denials, setDenials] = useState<
+    Partial<Record<DenialKey, DenialOutcome>>
+  >({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -274,6 +326,72 @@ export function Demo() {
       txs.length === 2
         ? `Deposited ${amount} USDC: approve on the approve-only session, deposit on this one. Two sponsored transactions, no passkey prompt.`
         : `Deposited ${amount} USDC on this session; the existing allowance covered it. No passkey prompt.`,
+    );
+  };
+
+  /**
+   * The assertion the ticket asks for. Send each out-of-scope call on the
+   * deposit-only session and record what Turnkey did. "denied" is the pass
+   * condition; a transaction hash is the failure, since it would mean the
+   * scope let money move. Any other error is reported as such rather than
+   * counted as a pass.
+   */
+  const runDenialProbes = async () => {
+    if (!depositor) throw new Error("No Ethereum account in this wallet.");
+    if (activeVariant !== "deposit-only") await activate("deposit-only");
+
+    const results: Partial<Record<DenialKey, DenialOutcome>> = {};
+    for (const probe of DENIAL_PROBES) {
+      try {
+        const txHash = await sendSponsored([probe.call(depositor)]);
+        results[probe.key] = { status: "allowed", txHash };
+      } catch (e) {
+        results[probe.key] = isDenial(e)
+          ? { status: "denied", message: turnkeyLine(e) }
+          : { status: "error", message: turnkeyLine(e) };
+      }
+      setDenials({ ...results });
+    }
+
+    const allowed = DENIAL_PROBES.filter(
+      (p) => results[p.key]?.status === "allowed",
+    );
+    if (allowed.length > 0) {
+      throw new Error(
+        `The session was allowed to send: ${allowed.map((p) => p.label).join(", ")}. The scope is not doing its job.`,
+      );
+    }
+    const errored = DENIAL_PROBES.filter(
+      (p) => results[p.key]?.status === "error",
+    );
+    setNotice(
+      errored.length === 0
+        ? "All three refused by the scope. The session can deposit and nothing else."
+        : `Refused, but ${errored.length} came back as something other than a clean denial; see below.`,
+    );
+  };
+
+  /**
+   * Withdrawing is outside every scope, so it is stamped with the passkey.
+   * One prompt, and the same wallet that could only deposit a moment ago
+   * moves USDC back out.
+   */
+  const withdrawWithPasskey = async () => {
+    const units = toUsdc(withdrawAmount);
+    if (units <= 0n) throw new Error("Enter an amount above 0.");
+    if (balances && units > balances.bank) {
+      throw new Error(
+        `MiniBank holds ${fmtUsdc(balances.bank)} USDC for this wallet, less than ${withdrawAmount}.`,
+      );
+    }
+    const txHash = await sendSponsored(
+      [withdrawCall(units)],
+      StamperType.Passkey,
+    );
+    setLastTxs([txHash]);
+    await refreshBalances();
+    setNotice(
+      `Withdrew ${withdrawAmount} USDC with the passkey. The sessions were not involved.`,
     );
   };
 
@@ -717,6 +835,80 @@ export function Demo() {
           </div>
         </Panel>
       )}
+
+      <Panel
+        title="3. Try to take money out with the session (must be denied)"
+        hint="Three calls the deposit-only session should never be able to make, sent for real. A denial is the pass. If any of them returned a transaction hash, the scope would have failed and this panel would say so in red."
+      >
+        <ul className="flex w-full flex-col gap-2 rounded border border-gray-200 bg-gray-50 p-3">
+          {DENIAL_PROBES.map((p) => {
+            const r = denials[p.key];
+            const mark =
+              r?.status === "denied"
+                ? "✓"
+                : r?.status === "allowed"
+                  ? "✗"
+                  : r?.status === "error"
+                    ? "!"
+                    : "○";
+            const tone =
+              r?.status === "denied"
+                ? "text-green-700"
+                : r?.status === "allowed"
+                  ? "text-red-700"
+                  : r?.status === "error"
+                    ? "text-amber-700"
+                    : "text-gray-400";
+            return (
+              <li key={p.key} className="flex gap-2 text-xs">
+                <span className={tone}>{mark}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="font-mono">{p.label}</span>
+                  <span className="mt-0.5 block text-gray-600">{p.why}</span>
+                  {r && (
+                    <span
+                      className={`mt-0.5 block break-all font-mono ${tone}`}
+                    >
+                      {r.status === "denied" && `denied: ${r.message}`}
+                      {r.status === "allowed" &&
+                        `ALLOWED, tx ${r.txHash}. This must not happen.`}
+                      {r.status === "error" &&
+                        `not a clean denial: ${r.message}`}
+                    </span>
+                  )}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+        <PrimaryButton
+          disabled={busy || !depositor}
+          onClick={() => run(runDenialProbes)}
+        >
+          Send all three with the deposit-only session
+        </PrimaryButton>
+      </Panel>
+
+      <Panel
+        title="4. Withdraw with the passkey (one prompt)"
+        hint="Withdrawing is outside every scope, so it needs the passkey. Same wallet, same contract, different credential: this is the step a stolen session cannot take."
+      >
+        <div className="flex gap-2">
+          <input
+            value={withdrawAmount}
+            onChange={(e) => setWithdrawAmount(e.target.value)}
+            inputMode="decimal"
+            className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-sm"
+            placeholder="USDC amount"
+          />
+          <PrimaryButton
+            disabled={busy || !depositor}
+            onClick={() => run(withdrawWithPasskey)}
+          >
+            Withdraw (passkey)
+          </PrimaryButton>
+        </div>
+      </Panel>
 
       {lastTxs.length > 0 && (
         <div className="flex flex-col gap-1">
