@@ -560,11 +560,10 @@ export function Demo() {
     );
   };
 
+  /** Every stored session, not only the configured ones, so nothing lingers. */
   const logOutAll = async () => {
-    for (const v of CONFIGURED_VARIANTS) {
-      if (allSessions?.[scopedKey(v)]) {
-        await logout({ sessionKey: scopedKey(v) });
-      }
+    for (const key of Object.keys(allSessions ?? {})) {
+      await logout({ sessionKey: key });
     }
     setInterfaces(null);
   };
