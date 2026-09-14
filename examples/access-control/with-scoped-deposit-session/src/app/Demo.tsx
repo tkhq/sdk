@@ -391,7 +391,7 @@ export function Demo() {
     setLastTxs([txHash]);
     await refreshBalances();
     setNotice(
-      `Withdrew ${withdrawAmount} USDC with the passkey. The sessions were not involved.`,
+      `Withdrew ${withdrawAmount} USDC. Passkey stamp used, session stamp not used.`,
     );
   };
 
