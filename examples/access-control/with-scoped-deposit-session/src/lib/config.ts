@@ -140,49 +140,44 @@ export const MINIBANK_ABI = [
   { type: "error", name: "TransferFailed", inputs: [] },
 ] as const;
 
-/** Name of the session profile. Also becomes `session_type` in the JWT. */
-export const DEPOSIT_PROFILE_NAME = "minibank-deposit-only";
-
 /**
- * Ceiling for sessions issued with the profile, in seconds. A login may ask
- * for less, never more. Fifteen minutes keeps the cap visible in the demo.
+ * Ceiling for sessions issued with either profile, in seconds. A login may
+ * ask for less, never more. Fifteen minutes keeps the cap visible in the demo.
  */
-export const DEPOSIT_PROFILE_EXPIRATION_SECONDS = "900";
+export const PROFILE_EXPIRATION_SECONDS = "900";
 
 /**
- * The scope. Same language as policy conditions.
+ * Two session profiles, one action each. Same language as policy conditions.
  *
- * - `activity.kind` is version-agnostic, so the profile keeps working if
+ * - `activity.kind` is version-agnostic, so a profile keeps working if
  *   ETH_SEND_TRANSACTION gets a V3. Profiles are immutable, which makes that
  *   matter.
- * - Each clause pins a contract AND a decoded function name, and the approve
- *   clause pins the spender argument. `function_name` and
- *   `contract_call_args` are only populated when a smart contract interface
- *   for `eth.tx.to` has been uploaded; without one they are empty and every
- *   clause is false.
- * - Batches are all-or-nothing: every call in an ETH_SEND_TRANSACTION must
- *   satisfy the scope or the whole activity is denied.
+ * - Each scope pins a contract AND a decoded function name; the approve scope
+ *   also pins the spender argument. `function_name` and `contract_call_args`
+ *   are only populated when this sub-organization has a smart contract
+ *   interface for `eth.tx.to`; without one they are empty and the scope is
+ *   false.
+ * - Why two profiles rather than one with `||`: the policy engine evaluates
+ *   every clause on every request (it does not short circuit; see the
+ *   Appendix of the policy language docs), so a clause that reads an
+ *   argument the call does not have, `contract_call_args['spender']` on a
+ *   `deposit`, cannot be evaluated. One policy or profile per action is the
+ *   standard pattern for exactly this reason: every clause is then evaluable
+ *   on the one call its session sends. The client holds a session per
+ *   profile and composes them.
  */
-export function buildDepositScope(
+
+/** approve-only: `USDC.approve(spender)` where spender is MiniBank. */
+export function buildApproveOnlyScope(
   usdc: `0x${string}` = USDC_ADDRESS,
   minibank: `0x${string}` = MINIBANK_ADDRESS,
 ): string {
   const u = usdc.toLowerCase();
   const m = minibank.toLowerCase();
-  const approveForMinibank = `(eth.tx.to == '${u}' && eth.tx.function_name == 'approve' && eth.tx.contract_call_args['spender'] == '${m}')`;
-  const deposit = `(eth.tx.to == '${m}' && eth.tx.function_name == 'deposit')`;
-  return `activity.kind == 'ETH_SEND_TRANSACTION' && (${approveForMinibank} || ${deposit})`;
+  return `activity.kind == 'ETH_SEND_TRANSACTION' && eth.tx.to == '${u}' && eth.tx.function_name == 'approve' && eth.tx.contract_call_args['spender'] == '${m}'`;
 }
 
-/**
- * Single-branch variant: deposit only, no `||`, no `contract_call_args`.
- *
- * Exists because the policy engine currently evaluates every branch of a
- * scope, so the two-branch scope above evaluates `contract_call_args['spender']`
- * on deposit calls, which have no such argument, and fails. This variant
- * cannot hit that. The approve must then happen outside the session, once,
- * with the passkey.
- */
+/** deposit-only: `MiniBank.deposit(amount)`, any amount. */
 export function buildDepositOnlyScope(
   minibank: `0x${string}` = MINIBANK_ADDRESS,
 ): string {
@@ -191,22 +186,48 @@ export function buildDepositOnlyScope(
 }
 
 export const SCOPE_VARIANTS = {
-  "approve+deposit": {
-    name: DEPOSIT_PROFILE_NAME,
-    build: buildDepositScope,
+  "approve-only": {
+    name: "approve-only",
+    build: buildApproveOnlyScope,
     notes:
-      "with-scoped-deposit-session example: allows USDC.approve(minibank) and " +
-      "MiniBank.deposit only. Withdrawals need a passkey stamp.",
+      "with-scoped-deposit-session example: USDC.approve with MiniBank as " +
+      "spender, nothing else.",
   },
   "deposit-only": {
-    name: `${DEPOSIT_PROFILE_NAME}-single-branch`,
+    name: "deposit-only",
     build: buildDepositOnlyScope,
     notes:
-      "with-scoped-deposit-session example: single-branch variant, " +
-      "MiniBank.deposit only. Approve is done once with the passkey.",
+      "with-scoped-deposit-session example: MiniBank.deposit, nothing else. " +
+      "Withdrawals need a passkey stamp.",
   },
 } as const;
 export type ScopeVariant = keyof typeof SCOPE_VARIANTS;
+
+/** Env var that carries each variant's session profile id. */
+export const PROFILE_ENV: Record<ScopeVariant, string> = {
+  "approve-only": "NEXT_PUBLIC_SESSION_PROFILE_ID_APPROVE_ONLY",
+  "deposit-only": "NEXT_PUBLIC_SESSION_PROFILE_ID_DEPOSIT_ONLY",
+};
+
+/**
+ * Profile ids by variant. Next.js inlines `process.env.NEXT_PUBLIC_*` only
+ * when the name is written out literally, hence no loop over PROFILE_ENV.
+ * A variant with no id is simply not offered by the app.
+ */
+export const PROFILE_IDS: Record<ScopeVariant, string | undefined> = {
+  "approve-only": process.env.NEXT_PUBLIC_SESSION_PROFILE_ID_APPROVE_ONLY,
+  "deposit-only": process.env.NEXT_PUBLIC_SESSION_PROFILE_ID_DEPOSIT_ONLY,
+};
+
+export const CONFIGURED_VARIANTS = (
+  Object.keys(SCOPE_VARIANTS) as ScopeVariant[]
+).filter((v) => !!PROFILE_IDS[v]);
+
+/** Which variant a session profile id belongs to, if any. */
+export function variantForProfileId(id: string | undefined) {
+  if (!id) return undefined;
+  return CONFIGURED_VARIANTS.find((v) => PROFILE_IDS[v] === id);
+}
 
 /** Which known scope a JWT's scope claim matches, if any. */
 export function identifyScope(scope: string): ScopeVariant | undefined {

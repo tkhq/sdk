@@ -1,16 +1,16 @@
 /**
  * Parent-org setup for the scoped deposit session example.
  *
- * Creates the session profile whose scope allows exactly two things:
- * `USDC.approve(minibank, *)` and `MiniBank.deposit(*)`. Session profiles are
- * parent-org resources, immutable once created, so this script is idempotent:
- * it reuses a profile whose scope already matches instead of creating another.
+ * Creates the two session profiles the app composes: `approve-only`
+ * (`USDC.approve` with MiniBank as spender) and `deposit-only`
+ * (`MiniBank.deposit`). Session profiles are parent-org resources, immutable
+ * once created, so this script is idempotent: it reuses a profile whose name
+ * and scope already match instead of creating another.
  *
- * With `--interfaces` it also uploads the ERC-20 and MiniBank ABIs to the
- * parent org as smart contract interfaces. Whether the policy engine consults
- * a parent's interfaces when evaluating a sub-org's transaction is not
- * documented; the browser app uploads them into each sub-org regardless, so
- * this flag exists to test the question, not as a required step.
+ * Smart contract interfaces are NOT created here. The policy engine only
+ * consults the interfaces of the organization whose transaction it is
+ * evaluating, never the parent's, so the browser app uploads them into each
+ * sub-organization at sign-up.
  *
  * If the org's root quorum is above 1, each create sits in CONSENSUS_NEEDED
  * until another root user approves it in the dashboard. The script prints the
@@ -24,13 +24,11 @@ import * as dotenv from "dotenv";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import type { v1Activity, v1Result } from "@turnkey/sdk-types";
 import {
-  DEPOSIT_PROFILE_EXPIRATION_SECONDS,
-  ERC20_ABI,
-  MINIBANK_ABI,
   MINIBANK_ADDRESS,
+  PROFILE_ENV,
+  PROFILE_EXPIRATION_SECONDS,
   SCOPE_VARIANTS,
   USDC_ADDRESS,
-  formatScope,
   normalizeScope,
   type ScopeVariant,
 } from "../lib/config";
@@ -108,29 +106,36 @@ async function ensureSessionProfile(
   const { sessionProfiles } = await client.getSessionProfiles({
     organizationId,
   });
-  const existing = sessionProfiles.find(
+  const sameScope = sessionProfiles.filter(
     (p) => normalizeScope(p.scope) === normalizeScope(scope),
   );
+  const existing = sameScope.find((p) => p.sessionProfileName === name);
   if (existing) {
     console.log(
-      `session profile: reusing ${existing.sessionProfileId} (${existing.sessionProfileName})`,
+      `session profile "${name}": reusing ${existing.sessionProfileId}`,
     );
-    if (existing.expirationSeconds !== DEPOSIT_PROFILE_EXPIRATION_SECONDS) {
+    if (existing.expirationSeconds !== PROFILE_EXPIRATION_SECONDS) {
       console.log(
         `  note: its expirationSeconds is ${existing.expirationSeconds ?? "unset"}, ` +
-          `not ${DEPOSIT_PROFILE_EXPIRATION_SECONDS}. Profiles are immutable; ` +
-          `change the scope text if you need a fresh one.`,
+          `not ${PROFILE_EXPIRATION_SECONDS}. Profiles are immutable; ` +
+          `rename the variant if you need a fresh one.`,
       );
     }
     return existing.sessionProfileId;
   }
+  for (const p of sameScope) {
+    console.log(
+      `session profile "${name}": same scope exists under another name, ` +
+        `${p.sessionProfileId} ("${p.sessionProfileName}"); creating a new one`,
+    );
+  }
 
-  console.log(`session profile: creating "${name}"`);
+  console.log(`session profile "${name}": creating`);
   const res = await client.createSessionProfile({
     organizationId,
     sessionProfileName: name,
     scope,
-    expirationSeconds: DEPOSIT_PROFILE_EXPIRATION_SECONDS,
+    expirationSeconds: PROFILE_EXPIRATION_SECONDS,
     notes,
   });
 
@@ -143,66 +148,8 @@ async function ensureSessionProfile(
       (r) => r.createSessionProfileResult?.sessionProfileId,
     ));
 
-  console.log(`session profile: created ${sessionProfileId}`);
+  console.log(`session profile "${name}": created ${sessionProfileId}`);
   return sessionProfileId;
-}
-
-async function ensureInterfaces(
-  client: ApiClient,
-  organizationId: string,
-): Promise<void> {
-  const wanted = [
-    {
-      label: "USDC (Base Sepolia)",
-      address: USDC_ADDRESS,
-      abi: ERC20_ABI,
-      notes:
-        "ERC-20 approve/transfer/balanceOf for the scoped deposit example.",
-    },
-    {
-      label: "MiniBank (Base Sepolia)",
-      address: MINIBANK_ADDRESS,
-      abi: MINIBANK_ABI,
-      notes: "deposit/withdraw for the scoped deposit example.",
-    },
-  ];
-
-  const { smartContractInterfaces } = await client.getSmartContractInterfaces({
-    organizationId,
-  });
-
-  for (const w of wanted) {
-    const existing = smartContractInterfaces.find(
-      (i) =>
-        i.type === "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM" &&
-        i.smartContractAddress.toLowerCase() === w.address,
-    );
-    if (existing) {
-      console.log(
-        `interface: reusing ${existing.smartContractInterfaceId} for ${w.label}`,
-      );
-      continue;
-    }
-
-    console.log(`interface: uploading ${w.label} at ${w.address}`);
-    const res = await client.createSmartContractInterface({
-      organizationId,
-      label: w.label,
-      notes: w.notes,
-      type: "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM",
-      smartContractAddress: w.address,
-      smartContractInterface: JSON.stringify(w.abi),
-    });
-    const id =
-      res.smartContractInterfaceId ||
-      (await awaitResult(
-        client,
-        organizationId,
-        res.activity,
-        (r) => r.createSmartContractInterfaceResult?.smartContractInterfaceId,
-      ));
-    console.log(`interface: created ${id} for ${w.label}`);
-  }
 }
 
 async function main() {
@@ -214,59 +161,54 @@ async function main() {
     defaultOrganizationId: organizationId,
   }).apiClient();
 
-  // `--variant <name>` picks a scope from SCOPE_VARIANTS; default is the
-  // two-branch approve+deposit scope the example is built around.
+  // Both profiles by default; `--variant <name>` creates just one.
+  const allVariants = Object.keys(SCOPE_VARIANTS) as ScopeVariant[];
   const variantIdx = process.argv.indexOf("--variant");
-  const variant = (
-    variantIdx !== -1 ? process.argv[variantIdx + 1] : "approve+deposit"
-  ) as ScopeVariant;
-  if (!(variant in SCOPE_VARIANTS)) {
-    throw new Error(
-      `Unknown --variant "${variant}". Known: ${Object.keys(SCOPE_VARIANTS).join(", ")}`,
-    );
+  let variants = allVariants;
+  if (variantIdx !== -1) {
+    const picked = process.argv[variantIdx + 1] as ScopeVariant;
+    if (!(picked in SCOPE_VARIANTS)) {
+      throw new Error(
+        `Unknown --variant "${picked}". Known: ${allVariants.join(", ")}`,
+      );
+    }
+    variants = [picked];
   }
 
   console.log(`parent org: ${organizationId}`);
   console.log(`USDC:       ${USDC_ADDRESS}`);
   console.log(`MiniBank:   ${MINIBANK_ADDRESS}`);
-  console.log(`variant:    ${variant}`);
-  console.log(`scope:\n${formatScope(SCOPE_VARIANTS[variant].build())}\n`);
+  console.log(`expiration: ${PROFILE_EXPIRATION_SECONDS}s`);
+  console.log(`profiles:   ${variants.join(", ")}\n`);
 
-  if (process.argv.includes("--interfaces")) {
-    await ensureInterfaces(client, organizationId);
-    console.log();
+  const envLines: string[] = [];
+  for (const variant of variants) {
+    const sessionProfileId = await ensureSessionProfile(
+      client,
+      organizationId,
+      variant,
+    );
+
+    // Read it back so the output shows what Turnkey stored, not what we sent.
+    const { sessionProfile } = await client.getSessionProfile({
+      organizationId,
+      sessionProfileId,
+    });
+
+    console.log(
+      [
+        `  id:         ${sessionProfile.sessionProfileId}`,
+        `  expiration: ${sessionProfile.expirationSeconds ?? "(login decides)"}s`,
+        `  scope:      ${normalizeScope(sessionProfile.scope)}`,
+        ``,
+      ].join("\n"),
+    );
+    envLines.push(
+      `${PROFILE_ENV[variant]}="${sessionProfile.sessionProfileId}"`,
+    );
   }
 
-  const sessionProfileId = await ensureSessionProfile(
-    client,
-    organizationId,
-    variant,
-  );
-
-  // Read it back so the output shows what Turnkey stored, not what we sent.
-  const { sessionProfile } = await client.getSessionProfile({
-    organizationId,
-    sessionProfileId,
-  });
-
-  console.log(
-    [
-      ``,
-      `Stored profile:`,
-      `  id:         ${sessionProfile.sessionProfileId}`,
-      `  name:       ${sessionProfile.sessionProfileName}`,
-      `  expiration: ${sessionProfile.expirationSeconds ?? "(login decides)"}s`,
-      `  scope:`,
-      formatScope(sessionProfile.scope)
-        .split("\n")
-        .map((l) => `    ${l}`)
-        .join("\n"),
-      ``,
-      `Add to .env.local:`,
-      `NEXT_PUBLIC_SESSION_PROFILE_ID="${sessionProfile.sessionProfileId}"`,
-      ``,
-    ].join("\n"),
-  );
+  console.log(["Add to .env.local:", ...envLines, ""].join("\n"));
 }
 
 main().catch((e) => {
