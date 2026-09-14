@@ -64,6 +64,14 @@ const BOOTSTRAP_SESSION_KEY = "bootstrap";
 const scopedKey = (v: ScopeVariant) => `scoped:${v}`;
 
 /**
+ * The unscoped session only needs to live long enough to upload interfaces
+ * and mint the scoped sessions. Ask for one minute rather than the SDK's
+ * 15-minute default, so that if the logout below ever failed, the window
+ * in which a fully privileged session exists stays short.
+ */
+const BOOTSTRAP_EXPIRATION_SECONDS = "60";
+
+/**
  * What this app asks for when it mints a scoped session. Deliberately far
  * above the profile's cap: the final expiry is the minimum of the request and
  * the profile's `expirationSeconds`, so asking for a day and receiving
@@ -521,6 +529,7 @@ export function Demo() {
   const signUp = async () => {
     const { sessionToken } = await signUpWithPasskey({
       sessionKey: BOOTSTRAP_SESSION_KEY,
+      expirationSeconds: BOOTSTRAP_EXPIRATION_SECONDS,
       passkeyDisplayName: `MiniBank depositor ${new Date().toISOString().slice(0, 16)}`,
     });
     const organizationId = decodeClaims(sessionToken).organization_id;
@@ -540,6 +549,7 @@ export function Demo() {
   const logIn = async () => {
     const { sessionToken } = await loginWithPasskey({
       sessionKey: BOOTSTRAP_SESSION_KEY,
+      expirationSeconds: BOOTSTRAP_EXPIRATION_SECONDS,
     });
     const organizationId = decodeClaims(sessionToken).organization_id;
     if (!organizationId) throw new Error("Login returned no organization.");
