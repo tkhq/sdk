@@ -13,6 +13,8 @@ export function LoginWithXButton({ subOrgId }: { subOrgId?: string }) {
     setIsRedirecting(true);
     const state = crypto.randomUUID();
     localStorage.setItem("oauth_state", state); // satisfies the kit's internal state check on redirect
+    // Remembered so a failed claim can offer a retry that still carries the allocation.
+    if (subOrgId) localStorage.setItem("claim_allocation", subOrgId);
     const params = new URLSearchParams({ state });
     if (subOrgId) params.set("allocation", subOrgId);
     router.push(`/auth/x?${params.toString()}`);

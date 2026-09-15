@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 import { DEFAULT_SOLANA_ACCOUNTS } from "@turnkey/sdk-server";
-import { backendSignDenyPolicy } from "../src/lib/policies";
+import { backendOauthLoginAllowPolicy, backendSignDenyPolicy } from "../src/lib/policies";
 import {
   backendPublicKey,
   getAllocation,
@@ -55,7 +55,9 @@ async function main() {
     const subOrgId = created.subOrganizationId;
     const backendUserId = created.rootUserIds?.[0];
     if (!subOrgId || !backendUserId) throw new Error("incomplete createSubOrganization result");
-    await turnkeyClient(subOrgId).createPolicy(backendSignDenyPolicy(backendUserId));
+    const subOrg = turnkeyClient(subOrgId);
+    await subOrg.createPolicy(backendSignDenyPolicy(backendUserId));
+    await subOrg.createPolicy(backendOauthLoginAllowPolicy(backendUserId));
     const depositAddress = created.wallet?.addresses?.[0];
     if (!depositAddress) throw new Error("created Solana wallet has no deposit address");
     console.log(`CREATED @${target.handle} ${target.numericId}: http://127.0.0.1:3456/claim/${subOrgId}`);

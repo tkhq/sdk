@@ -42,19 +42,19 @@ The private key material is never in the application at any point in this flow.
 
 1. Resolve each target to an immutable numeric X ID (`src/lib/xid.ts`), manually or through the X API.
 2. `createSubOrganization` creates one sub-org named `allocation:claim:x:<numeric_id>:@<handle>`, with the backend API-key user as its sole root and a Solana wallet inside it. **That name is the binding**: it is what the claim gate later checks against.
-3. `createPolicy` installs the backend signing deny from `src/lib/policies.ts`. It cannot bite yet — the backend is root, and root bypasses policy — hence "latent".
+3. `createPolicy` installs two latent policies from `src/lib/policies.ts`: the backend signing **deny**, and an **allow** for the backend to run `oauth_login`. Neither can bite yet — the backend is root, and root bypasses policy — hence "latent". The second exists because the backend key remains a non-root *member* of the sub-org after handoff, so Turnkey evaluates its policies when it stamps the claimant's session mint; without it, `oauth_login` is implicitly denied the instant root rotates.
 4. Re-runs are idempotent: `getSubOrgIds` filtered by the backend public key, then a name match on `claim:x:<numeric_id>`.
 
 ### Claim — the three routes
 
 1. **`src/app/auth/x/route.tsx`** builds the X authorize URL with PKCE (S256) and stores the code verifier, state, and allocation ID in `HttpOnly`, `SameSite=lax` cookies. The allocation rides through the round trip in a cookie rather than in the URL, so the claim target cannot be swapped by editing a link.
 2. **`src/app/auth/x/redirect/page.tsx`** receives X's authorization code and posts it, with a target public key, to the backend route.
-3. **`src/app/auth/turnkey/x/route.ts`** calls `oauth2Authenticate` with the stored credential ID and code verifier. Turnkey performs the exchange with X and returns an OIDC token whose `sub` is `x:<numeric_id>`.
+3. **`src/app/auth/turnkey/x/route.ts`** calls `oauth2Authenticate` with the stored credential ID and code verifier. Turnkey performs the exchange with X and returns an OIDC token whose `sub` is the bare numeric X user ID (verified live: `sub="1270562298"`, no prefix).
 
 Then the gate, and only if it passes, the handoff:
 
 4. `assertClaimMatches` (`src/lib/claim-gate.ts`) compares that Turnkey-issued subject against the numeric ID embedded in the allocation name. Mismatch returns HTTP 403 and nothing is mutated. A forged token cannot pass, because the subject is one Turnkey signed after talking to X itself — `pnpm test:claim-gate` exercises exactly this.
-5. `createUsers` creates the claimant, `createOauthProviders` attaches that X identity to them, and `createPolicy` installs a signing allow scoped to that concrete user ID.
+5. `createUsers` creates the claimant **with the X provider attached in the same call** — Turnkey rejects a user with no credential (`user missing valid credential`), so a separate `createOauthProviders` step can never work. `createPolicy` then installs a signing allow scoped to that concrete user ID.
 6. `updateRootQuorum` sets the root quorum to the claimant alone. This is the moment custody actually moves: the backend stops being root, and the deny from step 3 becomes enforceable against it.
 7. `oauthLogin` returns a session for the claimant, and the dashboard opens.
 
@@ -174,8 +174,10 @@ pnpm attack -- <subOrgId>
 ```
 
 ```text
-DENIED AS EXPECTED: Turnkey error 7: policy engine denied request...
+DENIED AS EXPECTED (explicit deny policy fired): Turnkey error 7: You don't have sufficient permissions to take this action. ...
 ```
+
+The parenthetical matters. Turnkey's details list every policy's outcome; the gate passes on any `PolicyEnginePermissionError` but reports whether the backend deny evaluated to `OUTCOME_DENY_EXPLICIT` (as above) or the request was only implicitly denied — which would mean the deny policy is missing.
 
 The gate passes only when it prints `DENIED AS EXPECTED` and exits 0. A successful signature is a security failure and exits 1.
 
@@ -195,7 +197,7 @@ The policy language does not expose a dependable “has an X provider” approve
 
 ## Why funds move only at claim
 
-Pre-association creates an address for a numeric X ID, but the operator must not fund it while the backend remains temporary root. The claim gate compares the Turnkey-issued `x:<numeric_id>` subject with the ID embedded in the allocation name, so handle changes and handle squatting do not redirect an allocation. A successful match creates the claimant, attaches that X identity, installs a claimant-specific signing allow, and rotates root quorum exclusively to that claimant. The previously installed deny then policy-blocks the demoted backend key from raw signing. Funds move to the verified address only after the post-claim verification and adversarial signing gate pass.
+Pre-association creates an address for a numeric X ID, but the operator must not fund it while the backend remains temporary root. The claim gate compares the Turnkey-issued numeric subject with the ID embedded in the allocation name, so handle changes and handle squatting do not redirect an allocation. A successful match creates the claimant, attaches that X identity, installs a claimant-specific signing allow, and rotates root quorum exclusively to that claimant. The previously installed deny then policy-blocks the demoted backend key from raw signing. Funds move to the verified address only after the post-claim verification and adversarial signing gate pass.
 
 ## Relationship to claim-links-delegated-reclaim
 
@@ -211,7 +213,7 @@ Both examples build [claim links](https://docs.turnkey.com/features/wallets/clai
 
 ## Policy expressions
 
-See the heavily commented reusable documents in `src/lib/policies.ts`. Their conditions are `activity.type == 'ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2'`; consensus is bound respectively to the concrete backend user ID (deny) and concrete claimant user ID (allow). With no other allow policy, non-root activity is default-denied.
+See the heavily commented reusable documents in `src/lib/policies.ts`. Three policies: the backend signing **deny** and the claimant signing **allow** are both conditioned on `activity.type == 'ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2'`, bound respectively to the concrete backend and claimant user IDs; the backend **`oauth_login` allow** is conditioned on `ACTIVITY_TYPE_OAUTH_LOGIN` and lets the demoted backend keep minting the claimant's sessions without regaining any signing ability. With no other allow policy, non-root activity is default-denied.
 
 ### Why the gate signs a raw payload
 
@@ -233,6 +235,8 @@ Note that ed25519 requires `HASH_FUNCTION_NOT_APPLICABLE`. Ed25519 hashes during
 | `Missing OAUTH2_CREDENTIAL_ID` or authentication fails | X client secret was not uploaded | Run `pnpm credential-upload -- '<secret>'` and copy its output to `.env.local` |
 | HTTP 403 with the allocation message | Authenticated numeric X ID differs from the allocation ID | Sign in as the assigned account; never edit IDs to match a handle |
 | `verified X claimant is not attached` | Allocation has not been claimed yet | Complete the browser claim first |
+| `user missing valid credential: <id>` from `createUsers` | A user was created with no credential; the X provider must be attached in the same call | Already fixed in this example; if you fork the route, keep `oauthProviders` inline |
+| `oauth_login` denied with `OUTCOME_DENY_IMPLICIT` after handoff | Sub-org pre-dates the backend `oauth_login` allow policy; the demoted backend cannot add it | Allocate afresh — the claimant now holds root and the old allocation is otherwise intact |
 | `SECURITY FAILURE` before the claim completes | Backend is still sole root, and root bypasses the policy engine | Expected pre-claim; re-run the gate after handoff |
 | `DENIED AS EXPECTED` | Expected post-claim backend policy denial | Treat it as a passing attack gate; investigate if signing succeeds instead |
 | X authorization is unavailable or limited | X app approval is pending or permissions are wrong | Complete X approval and enable OAuth 2.0 Web App + Read permission |
@@ -244,4 +248,4 @@ Note that ed25519 requires `HASH_FUNCTION_NOT_APPLICABLE`. Ed25519 hashes during
 - Post-claim passkey enrollment and recovery policies
 - A target-chain transfer/deposit step gated on verification and backend attack denial
 - Monitoring and alerts for claim failures, root changes, policy changes, and signing attempts
-- An Option A upgrade using cold `oidcClaims` pre-registration if Turnkey confirms that lifecycle for X
+- Nothing that removes the temporary-root phase. Turnkey's `oidcClaims` pre-registration was checked as a way to make the claimant root from day one; it registers *additional audiences* for an identity already proven by an accompanying `oidcToken` in the same request, so it cannot register a claimant cold from a numeric ID. The latent-deny sequence is forced by the platform, not chosen for convenience.

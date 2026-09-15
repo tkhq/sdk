@@ -13,6 +13,17 @@ import {
 import { claimantSignAllowPolicy } from "@/lib/policies";
 import { getAllocation, turnkeyClient } from "@/lib/turnkey-server";
 
+async function step<T>(name: string, fn: () => Promise<T>): Promise<T> {
+  try {
+    const out = await fn();
+    console.info(`claim step ok: ${name}`);
+    return out;
+  } catch (e) {
+    console.error(`claim step FAILED: ${name}: ${e instanceof Error ? e.message : String(e)}`);
+    throw e;
+  }
+}
+
 interface ClaimRequest {
   auth_code?: unknown;
   state?: unknown;
@@ -35,21 +46,37 @@ export async function POST(req: Request) {
   if (body.state !== expectedState) return NextResponse.json({ error: "Invalid state" }, { status: 400 });
   if (!subOrgId) return NextResponse.json({ error: "Missing claim allocation" }, { status: 400 });
 
+  // Hoist the narrowed values: TypeScript does not keep narrowing of object
+  // properties inside the closures below.
+  const authCode: string = body.auth_code;
+  const clientPublicKey: string = body.public_key;
+  const redirectUri: string = process.env.X_REDIRECT_URI;
+
   try {
     const parent = turnkeyClient();
     const keypair = generateP256KeyPair();
-    const authenticated = await parent.oauth2Authenticate({
+    const authenticated = await step("oauth2Authenticate", () => parent.oauth2Authenticate({
       oauth2CredentialId: process.env.OAUTH2_CREDENTIAL_ID!,
-      authCode: body.auth_code,
-      redirectUri: process.env.X_REDIRECT_URI,
+      authCode,
+      redirectUri,
       codeVerifier,
       bearerTokenTargetPublicKey: keypair.publicKeyUncompressed,
-      nonce: bytesToHex(sha256(body.public_key)),
-    });
+      nonce: bytesToHex(sha256(clientPublicKey)),
+    }));
     const allocation = await getAllocation(subOrgId);
+    // Log before the gate, not after: a rejection is exactly when this is needed,
+    // and the claimant only ever sees the generic message.
+    try {
+      const payload = authenticated.oidcToken.split(".")[1]!;
+      const claims = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+      console.info(
+        `claim gate: sub=${JSON.stringify(claims.sub)} allocation=${JSON.stringify(allocation.name)} claims=${Object.keys(claims).join(",")}`,
+      );
+    } catch (e) {
+      console.info(`claim gate: could not decode OIDC token payload: ${e}`);
+    }
     const numericXId = assertClaimMatches(authenticated.oidcToken, allocation.name ?? "");
     const subject = decodeOidcSubject(authenticated.oidcToken);
-    console.info(`Turnkey OIDC subject format received: ${subject}`);
     const subOrg = turnkeyClient(subOrgId);
 
     let claimantExists = false;
@@ -59,27 +86,32 @@ export async function POST(req: Request) {
       }
     }
     if (!claimantExists) {
-      const created = await subOrg.createUsers({ users: [{
+      // The X provider must be attached in the same call that creates the user.
+      // Turnkey rejects a user with no credential at all ("user missing valid
+      // credential"), so creating an empty user and calling createOauthProviders
+      // afterwards can never work. This matches the with-x example, which builds
+      // its root user with oauthProviders inline.
+      const created = await step("createUsers", () => subOrg.createUsers({ users: [{
         userName: `X claimant ${numericXId}`,
-        apiKeys: [], authenticators: [], oauthProviders: [], userTags: [],
-      }] });
+        apiKeys: [],
+        authenticators: [],
+        oauthProviders: [{ providerName: "X", oidcToken: authenticated.oidcToken }],
+        userTags: [],
+      }] }));
       const claimantUserId = created.userIds[0];
       if (!claimantUserId) throw new Error("createUsers returned no claimant user ID");
-      await subOrg.createOauthProviders({
-        userId: claimantUserId,
-        oauthProviders: [{ providerName: "X", oidcToken: authenticated.oidcToken }],
-      });
-      await subOrg.createPolicy(claimantSignAllowPolicy(claimantUserId));
-      await subOrg.updateRootQuorum({ threshold: 1, userIds: [claimantUserId] });
+      console.info(`claim: created claimant ${claimantUserId}`);
+      await step("createPolicy(claimant allow)", () => subOrg.createPolicy(claimantSignAllowPolicy(claimantUserId)));
+      await step("updateRootQuorum", () => subOrg.updateRootQuorum({ threshold: 1, userIds: [claimantUserId] }));
     }
 
     // oauth_login both proves the attached provider and creates the claimant's session.
     numericXIdFromSubject(subject);
-    const login = await parent.oauthLogin({
+    const login = await step("oauthLogin", () => parent.oauthLogin({
       organizationId: subOrgId,
       oidcToken: authenticated.oidcToken,
-      publicKey: body.public_key,
-    });
+      publicKey: clientPublicKey,
+    }));
     const response = NextResponse.json({ ok: true, session: login.session });
     response.cookies.delete("pkce_verifier");
     response.cookies.delete("pkce_state");
@@ -87,7 +119,10 @@ export async function POST(req: Request) {
     return response;
   } catch (error: unknown) {
     if (error instanceof ClaimGateError) {
-      return new NextResponse(CLAIM_MISMATCH_MESSAGE, { status: 403 });
+      console.warn(`claim gate refused: ${error.detail}`);
+      // JSON, like every other error path here, so the client can read it uniformly.
+      // The claimant gets the generic message; the reason stays server-side.
+      return NextResponse.json({ error: CLAIM_MISMATCH_MESSAGE }, { status: 403 });
     }
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ error: `Error performing OAuth 2.0 authentication: ${message}` }, { status: 400 });

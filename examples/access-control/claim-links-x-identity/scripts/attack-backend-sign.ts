@@ -34,10 +34,19 @@ async function main() {
     process.exit(1);
   } catch (error: unknown) {
     const reason = error instanceof Error ? error.message : String(error);
-    if (!/policy engine denied request/i.test(reason)) {
+    // Turnkey reports a policy denial as a PolicyEnginePermissionError whose details
+    // list each policy's outcome. Match on that structure, not on prose that may change.
+    if (!/PolicyEnginePermissionError/.test(reason)) {
       throw new Error(`SIGN_RAW_PAYLOAD failed for a non-policy reason: ${reason}`);
     }
-    console.log(`DENIED AS EXPECTED: ${reason}`);
+    const explicit = /OUTCOME_DENY_EXPLICIT/.test(reason);
+    console.log(
+      `DENIED AS EXPECTED (${explicit ? "explicit deny policy fired" : "implicit deny only"}): ` +
+        reason.split(" (Details:")[0],
+    );
+    if (!explicit) {
+      console.warn("note: the backend deny policy did not evaluate to an explicit deny; check it is installed");
+    }
   }
 }
 

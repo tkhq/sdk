@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { AuthState, ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
-import { LoginWithXButton } from "@/components/LoginWithXButton";
 
 export default function Home() {
   const router = useRouter();
@@ -32,8 +31,11 @@ export default function Home() {
           />
         </div>
         <h1 className="text-4xl font-bold text-foreground">Welcome</h1>
-        <p className="text-muted-foreground text-lg">Sign in to get started</p>
-        <LoginWithXButton />
+        <p className="text-muted-foreground text-lg">
+          This demo is opened through a claim link. Ask whoever created your
+          allocation for its <code>/claim/&lt;subOrgId&gt;</code> URL — signing
+          in from here has no allocation to bind to.
+        </p>
       </div>
     </main>
   );

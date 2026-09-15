@@ -33,6 +33,34 @@ export const CLAIMANT_SIGN_ALLOW = {
   notes: "Replace CLAIMANT_USER_ID with the user created for the verified X subject.",
 };
 
+/**
+ * The backend API key stays a (non-root) user of the sub-organization after handoff,
+ * so Turnkey evaluates its policies when it stamps oauth_login — unlike with-x, where
+ * the parent key is not a member and oauth_login is authorized by the OIDC token alone.
+ * Without this allow, the backend's session mint for the claimant is implicitly denied
+ * the moment updateRootQuorum demotes it. Like the deny above it is latent while the
+ * backend is root and becomes live at handoff.
+ *
+ * Trust note: this lets the backend mint a claimant session, which is the same trust
+ * every backend-mediated OAuth flow carries (the backend relays the client's public
+ * key). It requires a fresh X OIDC token, so it is only possible during a genuine
+ * claimant login, and it grants no signing ability: the deny above still applies.
+ */
+export const BACKEND_OAUTH_LOGIN_ALLOW = {
+  policyName: "Allow allocation backend to mint claimant sessions",
+  effect: "EFFECT_ALLOW" as const,
+  condition: "activity.type == 'ACTIVITY_TYPE_OAUTH_LOGIN'",
+  consensus: "approvers.any(user, user.id == 'BACKEND_USER_ID')",
+  notes: "Replace BACKEND_USER_ID. Needed for oauth_login after the backend leaves root quorum.",
+};
+
+export function backendOauthLoginAllowPolicy(backendUserId: string) {
+  return {
+    ...BACKEND_OAUTH_LOGIN_ALLOW,
+    consensus: `approvers.any(user, user.id == '${backendUserId}')`,
+  };
+}
+
 export function backendSignDenyPolicy(backendUserId: string) {
   return {
     ...PRECLAIM_BACKEND_SIGN_DENY,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
 import { Loading } from "@/components/Loading";
@@ -10,6 +10,7 @@ function Redirect() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initiated = useRef(false);
+  const [error, setError] = useState<string | null>(null);
 
   const auth_code = searchParams.get("code");
   const state = searchParams.get("state");
@@ -34,22 +35,48 @@ function Redirect() {
           }),
         });
 
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error ?? "Auth failed");
+        // Never assume the body is JSON: a proxy or an unhandled server error can
+        // return HTML or text, and blindly parsing it hides the real status.
+        const raw = await res.text();
+        let data: { error?: string; session?: string } = {};
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          data = { error: raw.trim() || `Request failed with HTTP ${res.status}` };
         }
 
-        await storeSession({ sessionToken: data.session });
+        if (!res.ok) {
+          throw new Error(data.error ?? `Request failed with HTTP ${res.status}`);
+        }
+
+        await storeSession({ sessionToken: data.session! });
         router.push("/dashboard");
       } catch (e) {
-        console.error(`Failed logging in: ${e}`);
-        router.push("/");
+        // Show the reason rather than bouncing to "/" with it only in the console.
+        // The claim gate rejecting a wrong X account is the expected path here.
+        setError(e instanceof Error ? e.message : String(e));
       }
     };
 
     turnkeyAuth();
   }, [clientState, auth_code, state, router, createApiKeyPair, storeSession]);
+
+  if (error) {
+    const allocation =
+      typeof window === "undefined" ? null : localStorage.getItem("claim_allocation");
+    return (
+      <div className="flex flex-col items-center gap-4 max-w-md text-center">
+        <h1 className="text-lg font-semibold">Claim rejected</h1>
+        <p className="text-sm text-muted-foreground">{error}</p>
+        <button
+          onClick={() => router.push(allocation ? `/claim/${allocation}` : "/")}
+          className="text-sm underline text-muted-foreground hover:text-foreground"
+        >
+          {allocation ? "Back to the claim page" : "Back to start"}
+        </button>
+      </div>
+    );
+  }
 
   return <Loading />;
 }
@@ -60,7 +87,6 @@ export default function RedirectPage() {
       <Suspense fallback={<Loading />}>
         <Redirect />
       </Suspense>
-      ;
     </main>
   );
 }
