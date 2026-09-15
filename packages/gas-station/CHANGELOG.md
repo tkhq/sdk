@@ -1,5 +1,12 @@
 # @turnkey/gas-station
 
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434)]:
+  - @turnkey/sdk-server@8.5.0
+
 ## 15.0.0
 
 ### Patch Changes

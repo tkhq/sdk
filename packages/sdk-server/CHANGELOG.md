@@ -1,5 +1,20 @@
 # @turnkey/sdk-server
 
+## 8.5.0
+
+### Minor Changes
+
+- [#1525](https://github.com/tkhq/sdk/pull/1525) [`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434) Thanks [@moe-dev](https://github.com/moe-dev)! - Update as per mono v2026.9.4
+
+### Patch Changes
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434), [`66f2acd`](https://github.com/tkhq/sdk/commit/66f2acda2fc99534316eba8a1e6e9aff674fb621), [`a68b73a`](https://github.com/tkhq/sdk/commit/a68b73a6c2b3d76ef94f9447ec3a9f3794eda857)]:
+  - @turnkey/http@6.5.0
+  - @turnkey/sdk-types@1.8.0
+  - @turnkey/crypto@2.13.0
+  - @turnkey/wallet-stamper@1.1.27
+  - @turnkey/api-key-stamper@0.6.15
+
 ## 8.4.0
 
 ### Minor Changes
