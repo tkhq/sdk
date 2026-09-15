@@ -456,6 +456,10 @@ export type paths = {
     /** Delete private keys for an organization. */
     post: operations["PublicApiService_DeletePrivateKeys"];
   };
+  "/public/v1/submit/delete_secrets": {
+    /** Delete secrets by their unique identifiers. All secrets must belong to the organization. */
+    post: operations["PublicApiService_DeleteSecrets"];
+  };
   "/public/v1/submit/delete_smart_contract_interface": {
     /** Delete a smart contract interface. */
     post: operations["PublicApiService_DeleteSmartContractInterface"];
@@ -1151,7 +1155,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROL"
     | "ACTIVITY_TYPE_UPDATE_PAYMENT_METHOD"
     | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2"
-    | "ACTIVITY_TYPE_EXECUTE_SWAP_V3";
+    | "ACTIVITY_TYPE_EXECUTE_SWAP_V3"
+    | "ACTIVITY_TYPE_DELETE_SECRETS";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -2711,6 +2716,23 @@ export type definitions = {
     /** @description A list of private key unique identifiers that were removed */
     privateKeyIds: string[];
   };
+  v1DeleteSecretsIntent: {
+    /** @description Unique identifiers of the secrets to delete. Must contain between 1 and 32 distinct UUIDs. All secrets must belong to the organization. */
+    secretIds: string[];
+  };
+  v1DeleteSecretsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_SECRETS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteSecretsIntent"];
+  };
+  v1DeleteSecretsResult: {
+    /** @description Unique identifiers of the deleted secrets, in the order requested. */
+    secretIds: string[];
+  };
   v1DeleteSmartContractInterfaceIntent: {
     /** @description The ID of a Smart Contract Interface intended for deletion. */
     smartContractInterfaceId: string;
@@ -3032,6 +3054,16 @@ export type definitions = {
     liquidityDisplay?: definitions["v1EarnValueDisplay"];
     /** @description The underlying markets the vault allocates into, ranked by supplied amount descending. Only populated when the request sets include_exposure, and only for providers that expose an allocation breakdown (Morpho). */
     exposures?: definitions["v1EarnVaultExposure"][];
+    /** @description Additional assets withdrawable from the underlying vault by force-deallocating its non-liquidity adapters at zero penalty, in raw on-chain units of the underlying asset. Additive to liquidity. Empty when the provider does not report it. */
+    forceDeallocatableLiquidity?: string;
+    /** @description Normalized force-deallocatable liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use force_deallocatable_liquidity instead. */
+    forceDeallocatableLiquidityDisplay?: definitions["v1EarnValueDisplay"];
+    /** @description On-chain status of the wrapper deployment: PENDING, COMPLETED, or FAILED. Only a COMPLETED wrapper is usable. Empty when no deploy is recorded for the wrapper. */
+    deployStatus?: string;
+    /** @description Request id of the wrapper's most recent deploy, for polling GetEarnDeployStatus. Empty when no deploy is recorded. */
+    deployRequestId?: string;
+    /** @description Failure detail when deploy_status is FAILED. */
+    deployError?: string;
   };
   v1EarnPosition: {
     /** @description Address of the underlying yield vault. */
@@ -3120,6 +3152,10 @@ export type definitions = {
     liquidity?: string;
     /** @description Normalized liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use liquidity instead. */
     liquidityDisplay?: definitions["v1EarnValueDisplay"];
+    /** @description Additional assets withdrawable from the vault by force-deallocating its non-liquidity adapters at zero penalty, in raw on-chain units of the underlying asset. Additive to liquidity. Empty when the provider does not report it. */
+    forceDeallocatableLiquidity?: string;
+    /** @description Normalized force-deallocatable liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use force_deallocatable_liquidity instead. */
+    forceDeallocatableLiquidityDisplay?: definitions["v1EarnValueDisplay"];
   };
   v1EarnVaultExposure: {
     /** @description Provider-specific identifier for the market (the Morpho Blue market id). */
@@ -3367,7 +3403,9 @@ export type definitions = {
       | "eip155:42431"
       | "eip155:421614"
       | "eip155:4663"
-      | "eip155:46630";
+      | "eip155:46630"
+      | "eip155:5042"
+      | "eip155:5042002";
   };
   v1EthSendRawTransactionRequest: {
     /** @enum {string} */
@@ -3410,7 +3448,9 @@ export type definitions = {
       | "eip155:42431"
       | "eip155:421614"
       | "eip155:4663"
-      | "eip155:46630";
+      | "eip155:46630"
+      | "eip155:5042"
+      | "eip155:5042002";
     /** @description Recipient address as a hex string with 0x prefix. */
     to: string;
     /** @description Amount of native asset to send in wei. */
@@ -3455,7 +3495,9 @@ export type definitions = {
       | "eip155:42431"
       | "eip155:421614"
       | "eip155:4663"
-      | "eip155:46630";
+      | "eip155:46630"
+      | "eip155:5042"
+      | "eip155:5042002";
     /** @description Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station. */
     sponsor?: boolean;
     /** @description Outer transaction nonce. Omit to auto-fetch. */
@@ -3517,6 +3559,8 @@ export type definitions = {
     transfers: definitions["v1TransactionHistoryTransfer"][];
     /** @description Turnkey-specific metadata for transactions originated by Turnkey. */
     turnkey?: definitions["v1TransactionHistoryTurnkey"];
+    /** @description Whether the transaction failed during on-chain execution. Omitted when execution outcome is unavailable. */
+    executionFailed?: boolean;
   };
   v1EthUndelegate7702Intent: {
     /** @description A wallet or private key address to undelegate. This does not support private key IDs. */
@@ -3541,7 +3585,9 @@ export type definitions = {
       | "eip155:42161"
       | "eip155:421614"
       | "eip155:4663"
-      | "eip155:46630";
+      | "eip155:46630"
+      | "eip155:5042"
+      | "eip155:5042002";
     /** @description Outer transaction nonce. Omit to auto-fetch. */
     nonce?: string;
     /** @description Maximum amount of gas for the undelegation transaction. Omit to use the fixed undelegation gas limit. */
@@ -3676,6 +3722,8 @@ export type definitions = {
     targetPublicKey: string;
     /** @description Transport encryption suite used for the exported secret. */
     encryptionSuite: definitions["v1TransportEncryptionSuite"];
+    /** @description Bind metadata to the request. */
+    requestContext?: definitions["v1KeyValue"][];
   };
   v1ExportSecretsIntent: {
     /** @description A list of secrets to export. */
@@ -4101,7 +4149,9 @@ export type definitions = {
       | "eip155:42431"
       | "eip155:421614"
       | "eip155:4663"
-      | "eip155:46630";
+      | "eip155:46630"
+      | "eip155:5042"
+      | "eip155:5042002";
     /** @description Whether to fetch the standard on-chain nonce. */
     nonce?: boolean;
     /** @description Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -4310,6 +4360,8 @@ export type definitions = {
     updatedAt: string;
     /** @description Normalized failure details, present whenever status is FAILED. */
     error?: definitions["v1SwapError"];
+    /** @description Address that receives the output asset. */
+    destinationAddress?: string;
   };
   v1GetTvcAppDeploymentsRequest: {
     /** @description Unique identifier for a given organization. */
@@ -4494,6 +4546,8 @@ export type definitions = {
       | "eip155:421614"
       | "eip155:4663"
       | "eip155:46630"
+      | "eip155:5042"
+      | "eip155:5042002"
       | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
@@ -5131,6 +5185,7 @@ export type definitions = {
     updatePaymentMethodIntent?: definitions["billingUpdatePaymentMethodIntent"];
     createSwapQuoteIntentV2?: definitions["v1CreateSwapQuoteIntentV2"];
     executeSwapIntentV3?: definitions["v1ExecuteSwapIntentV3"];
+    deleteSecretsIntent?: definitions["v1DeleteSecretsIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -5274,7 +5329,9 @@ export type definitions = {
       | "eip155:56"
       | "eip155:97"
       | "eip155:4663"
-      | "eip155:46630";
+      | "eip155:46630"
+      | "eip155:5042"
+      | "eip155:5042002";
     /** @description Cursor-based pagination options. Cursors are opaque and valid only for the same address and CAIP-2 query. */
     paginationOptions?: definitions["v1Pagination"];
   };
@@ -5363,6 +5420,8 @@ export type definitions = {
       | "eip155:421614"
       | "eip155:4663"
       | "eip155:46630"
+      | "eip155:5042"
+      | "eip155:5042002"
       | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
@@ -6090,6 +6149,7 @@ export type definitions = {
     createVelocityControlResult?: definitions["v1CreateVelocityControlResult"];
     deleteVelocityControlResult?: definitions["v1DeleteVelocityControlResult"];
     updatePaymentMethodResult?: definitions["billingUpdatePaymentMethodResult"];
+    deleteSecretsResult?: definitions["v1DeleteSecretsResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -6447,6 +6507,8 @@ export type definitions = {
     transfers: definitions["v1TransactionHistoryTransfer"][];
     /** @description Turnkey-specific metadata for transactions originated by Turnkey. */
     turnkey?: definitions["v1TransactionHistoryTurnkey"];
+    /** @description Whether the transaction failed during on-chain execution. Omitted when execution outcome is unavailable. */
+    executionFailed?: boolean;
   };
   v1SolTransactionHistorySigner: {
     /** @description Address of the Solana transaction signer. */
@@ -9900,6 +9962,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1DeletePrivateKeysRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Delete secrets by their unique identifiers. All secrets must belong to the organization. */
+  PublicApiService_DeleteSecrets: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteSecretsRequest"];
       };
     };
     responses: {

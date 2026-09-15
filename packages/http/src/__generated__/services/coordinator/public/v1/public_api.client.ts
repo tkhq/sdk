@@ -438,6 +438,10 @@ import type {
   TDeletePrivateKeysResponse,
 } from "./public_api.fetcher";
 import type {
+  TDeleteSecretsBody,
+  TDeleteSecretsResponse,
+} from "./public_api.fetcher";
+import type {
   TDeleteSmartContractInterfaceBody,
   TDeleteSmartContractInterfaceResponse,
 } from "./public_api.fetcher";
@@ -4305,6 +4309,37 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Delete secrets by their unique identifiers. All secrets must belong to the organization.
+   *
+   * Sign the provided `TDeleteSecretsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_secrets).
+   *
+   * See also {@link stampDeleteSecrets}.
+   */
+  deleteSecrets = async (
+    input: TDeleteSecretsBody,
+  ): Promise<TDeleteSecretsResponse> => {
+    return this.request("/public/v1/submit/delete_secrets", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteSecretsBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteSecrets}.
+   */
+  stampDeleteSecrets = async (
+    input: TDeleteSecretsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_secrets";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

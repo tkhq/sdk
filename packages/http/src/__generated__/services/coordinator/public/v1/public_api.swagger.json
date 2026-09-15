@@ -3688,6 +3688,38 @@
         "tags": ["Private Keys"]
       }
     },
+    "/public/v1/submit/delete_secrets": {
+      "post": {
+        "summary": "Delete secrets",
+        "description": "Delete secrets by their unique identifiers. All secrets must belong to the organization.",
+        "operationId": "PublicApiService_DeleteSecrets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteSecretsRequest"
+            }
+          }
+        ],
+        "tags": ["Secrets"]
+      }
+    },
     "/public/v1/submit/delete_smart_contract_interface": {
       "post": {
         "summary": "Delete smart contract interface",
@@ -6839,7 +6871,8 @@
         "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROL",
         "ACTIVITY_TYPE_UPDATE_PAYMENT_METHOD",
         "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2",
-        "ACTIVITY_TYPE_EXECUTE_SWAP_V3"
+        "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
+        "ACTIVITY_TYPE_DELETE_SECRETS"
       ]
     },
     "v1AddressFormat": {
@@ -10653,6 +10686,53 @@
       },
       "required": ["privateKeyIds"]
     },
+    "v1DeleteSecretsIntent": {
+      "type": "object",
+      "properties": {
+        "secretIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Unique identifiers of the secrets to delete. Must contain between 1 and 32 distinct UUIDs. All secrets must belong to the organization."
+        }
+      },
+      "required": ["secretIds"]
+    },
+    "v1DeleteSecretsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_SECRETS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteSecretsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteSecretsResult": {
+      "type": "object",
+      "properties": {
+        "secretIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Unique identifiers of the deleted secrets, in the order requested."
+        }
+      },
+      "required": ["secretIds"]
+    },
     "v1DeleteSmartContractInterfaceIntent": {
       "type": "object",
       "properties": {
@@ -11411,6 +11491,26 @@
             "$ref": "#/definitions/v1EarnVaultExposure"
           },
           "description": "The underlying markets the vault allocates into, ranked by supplied amount descending. Only populated when the request sets include_exposure, and only for providers that expose an allocation breakdown (Morpho)."
+        },
+        "forceDeallocatableLiquidity": {
+          "type": "string",
+          "description": "Additional assets withdrawable from the underlying vault by force-deallocating its non-liquidity adapters at zero penalty, in raw on-chain units of the underlying asset. Additive to liquidity. Empty when the provider does not report it."
+        },
+        "forceDeallocatableLiquidityDisplay": {
+          "$ref": "#/definitions/v1EarnValueDisplay",
+          "description": "Normalized force-deallocatable liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use force_deallocatable_liquidity instead."
+        },
+        "deployStatus": {
+          "type": "string",
+          "description": "On-chain status of the wrapper deployment: PENDING, COMPLETED, or FAILED. Only a COMPLETED wrapper is usable. Empty when no deploy is recorded for the wrapper."
+        },
+        "deployRequestId": {
+          "type": "string",
+          "description": "Request id of the wrapper's most recent deploy, for polling GetEarnDeployStatus. Empty when no deploy is recorded."
+        },
+        "deployError": {
+          "type": "string",
+          "description": "Failure detail when deploy_status is FAILED."
         }
       }
     },
@@ -11599,6 +11699,14 @@
         "liquidityDisplay": {
           "$ref": "#/definitions/v1EarnValueDisplay",
           "description": "Normalized liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use liquidity instead."
+        },
+        "forceDeallocatableLiquidity": {
+          "type": "string",
+          "description": "Additional assets withdrawable from the vault by force-deallocating its non-liquidity adapters at zero penalty, in raw on-chain units of the underlying asset. Additive to liquidity. Empty when the provider does not report it."
+        },
+        "forceDeallocatableLiquidityDisplay": {
+          "$ref": "#/definitions/v1EarnValueDisplay",
+          "description": "Normalized force-deallocatable liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use force_deallocatable_liquidity instead."
         }
       }
     },
@@ -12104,7 +12212,9 @@
             "eip155:42431",
             "eip155:421614",
             "eip155:4663",
-            "eip155:46630"
+            "eip155:46630",
+            "eip155:5042",
+            "eip155:5042002"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         }
@@ -12176,7 +12286,9 @@
             "eip155:42431",
             "eip155:421614",
             "eip155:4663",
-            "eip155:46630"
+            "eip155:46630",
+            "eip155:5042",
+            "eip155:5042002"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
@@ -12246,7 +12358,9 @@
             "eip155:42431",
             "eip155:421614",
             "eip155:4663",
-            "eip155:46630"
+            "eip155:46630",
+            "eip155:5042",
+            "eip155:5042002"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
@@ -12385,6 +12499,10 @@
         "turnkey": {
           "$ref": "#/definitions/v1TransactionHistoryTurnkey",
           "description": "Turnkey-specific metadata for transactions originated by Turnkey."
+        },
+        "executionFailed": {
+          "type": "boolean",
+          "description": "Whether the transaction failed during on-chain execution. Omitted when execution outcome is unavailable."
         }
       },
       "required": [
@@ -12422,7 +12540,9 @@
             "eip155:42161",
             "eip155:421614",
             "eip155:4663",
-            "eip155:46630"
+            "eip155:46630",
+            "eip155:5042",
+            "eip155:5042002"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
@@ -12743,6 +12863,14 @@
         "encryptionSuite": {
           "$ref": "#/definitions/v1TransportEncryptionSuite",
           "description": "Transport encryption suite used for the exported secret."
+        },
+        "requestContext": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1KeyValue"
+          },
+          "description": "Bind metadata to the request."
         }
       },
       "required": ["secretId", "targetPublicKey", "encryptionSuite"]
@@ -13635,7 +13763,9 @@
             "eip155:42431",
             "eip155:421614",
             "eip155:4663",
-            "eip155:46630"
+            "eip155:46630",
+            "eip155:5042",
+            "eip155:5042002"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
@@ -14145,6 +14275,10 @@
         "error": {
           "$ref": "#/definitions/v1SwapError",
           "description": "Normalized failure details, present whenever status is FAILED."
+        },
+        "destinationAddress": {
+          "type": "string",
+          "description": "Address that receives the output asset."
         }
       },
       "required": [
@@ -14559,6 +14693,8 @@
             "eip155:421614",
             "eip155:4663",
             "eip155:46630",
+            "eip155:5042",
+            "eip155:5042002",
             "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
             "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
           ],
@@ -16123,6 +16259,9 @@
         },
         "executeSwapIntentV3": {
           "$ref": "#/definitions/v1ExecuteSwapIntentV3"
+        },
+        "deleteSecretsIntent": {
+          "$ref": "#/definitions/v1DeleteSecretsIntent"
         }
       }
     },
@@ -16459,7 +16598,9 @@
             "eip155:56",
             "eip155:97",
             "eip155:4663",
-            "eip155:46630"
+            "eip155:46630",
+            "eip155:5042",
+            "eip155:5042002"
           ],
           "description": "EVM CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
@@ -16658,6 +16799,8 @@
             "eip155:421614",
             "eip155:4663",
             "eip155:46630",
+            "eip155:5042",
+            "eip155:5042002",
             "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
             "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
           ],
@@ -18566,6 +18709,9 @@
         },
         "updatePaymentMethodResult": {
           "$ref": "#/definitions/billingUpdatePaymentMethodResult"
+        },
+        "deleteSecretsResult": {
+          "$ref": "#/definitions/v1DeleteSecretsResult"
         }
       }
     },
@@ -19472,6 +19618,10 @@
         "turnkey": {
           "$ref": "#/definitions/v1TransactionHistoryTurnkey",
           "description": "Turnkey-specific metadata for transactions originated by Turnkey."
+        },
+        "executionFailed": {
+          "type": "boolean",
+          "description": "Whether the transaction failed during on-chain execution. Omitted when execution outcome is unavailable."
         }
       },
       "required": [

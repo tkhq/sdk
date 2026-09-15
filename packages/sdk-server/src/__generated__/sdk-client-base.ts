@@ -1280,38 +1280,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  getVelocityControl = async (
-    input: SdkApiTypes.TGetVelocityControlBody,
-  ): Promise<SdkApiTypes.TGetVelocityControlResponse> => {
-    return this.request("/public/v1/query/get_velocity_control", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampGetVelocityControl = async (
-    input: SdkApiTypes.TGetVelocityControlBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_velocity_control";
-    const body = {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   getWallet = async (
     input: SdkApiTypes.TGetWalletBody,
   ): Promise<SdkApiTypes.TGetWalletResponse> => {
@@ -2058,38 +2026,6 @@ export class TurnkeySDKClientBase {
     }
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_users";
-    const body = {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  listVelocityControls = async (
-    input: SdkApiTypes.TListVelocityControlsBody,
-  ): Promise<SdkApiTypes.TListVelocityControlsResponse> => {
-    return this.request("/public/v1/query/list_velocity_controls", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampListVelocityControls = async (
-    input: SdkApiTypes.TListVelocityControlsBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/list_velocity_controls";
     const body = {
       ...input,
       organizationId: input.organizationId ?? this.config.organizationId,
@@ -3340,48 +3276,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  createVelocityControl = async (
-    input: SdkApiTypes.TCreateVelocityControlBody,
-  ): Promise<SdkApiTypes.TCreateVelocityControlResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_velocity_control",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL",
-      },
-      "createVelocityControlResult",
-    );
-  };
-
-  stampCreateVelocityControl = async (
-    input: SdkApiTypes.TCreateVelocityControlBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_velocity_control";
-    const bodyWithType = {
-      parameters,
-      organizationId: organizationId ?? this.config.organizationId,
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   createWallet = async (
     input: SdkApiTypes.TCreateWalletBody,
   ): Promise<SdkApiTypes.TCreateWalletResponse> => {
@@ -3969,6 +3863,47 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  deleteSecrets = async (
+    input: SdkApiTypes.TDeleteSecretsBody,
+  ): Promise<SdkApiTypes.TDeleteSecretsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_secrets",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_SECRETS",
+      },
+      "deleteSecretsResult",
+    );
+  };
+
+  stampDeleteSecrets = async (
+    input: SdkApiTypes.TDeleteSecretsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_secrets";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_SECRETS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   deleteSmartContractInterface = async (
     input: SdkApiTypes.TDeleteSmartContractInterfaceBody,
   ): Promise<SdkApiTypes.TDeleteSmartContractInterfaceResponse> => {
@@ -4211,48 +4146,6 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_USERS",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  deleteVelocityControl = async (
-    input: SdkApiTypes.TDeleteVelocityControlBody,
-  ): Promise<SdkApiTypes.TDeleteVelocityControlResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/delete_velocity_control",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROL",
-      },
-      "deleteVelocityControlResult",
-    );
-  };
-
-  stampDeleteVelocityControl = async (
-    input: SdkApiTypes.TDeleteVelocityControlBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/delete_velocity_control";
-    const bodyWithType = {
-      parameters,
-      organizationId: organizationId ?? this.config.organizationId,
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROL",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
