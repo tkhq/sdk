@@ -1,5 +1,20 @@
 # @turnkey/crypto
 
+## 2.13.0
+
+### Minor Changes
+
+- [#1515](https://github.com/tkhq/sdk/pull/1515) [`66f2acd`](https://github.com/tkhq/sdk/commit/66f2acda2fc99534316eba8a1e6e9aff674fb621) Author [@moeodeh3](https://github.com/moeodeh3) - We removed `hpkeAuthEncrypt` because it was designed to be used with a newly generated, one-time sender key, but its API also allowed callers to provide a long-lived `senderPriv`.
+
+  Using the same long-lived sender key for multiple encryptions with the same recipient deterministically reused the AES-GCM key and nonce. Reusing an AES-GCM key and nonce can reveal relationships between plaintexts and compromise message authentication. If you used `hpkeAuthEncrypt` with a long-lived sender key, rotate that key and use `hpkeEncrypt({ plainTextBuf, targetKeyBuf })` instead. It provides the same encryption behavior while generating a fresh ephemeral sender key for each encryption, so callers do not need to generate, manage, or pass `senderPriv` manually.
+
+- [#1512](https://github.com/tkhq/sdk/pull/1512) [`a68b73a`](https://github.com/tkhq/sdk/commit/a68b73a6c2b3d76ef94f9447ec3a9f3794eda857) Author [@emostov](https://github.com/emostov) - Add policy-aware QOS proof verification and manifest commitment PCR helpers.
+
+### Patch Changes
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434)]:
+  - @turnkey/sdk-types@1.8.0
+
 ## 2.12.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @turnkey/indexed-db-stamper
 
+## 1.3.9
+
+### Patch Changes
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434)]:
+  - @turnkey/sdk-types@1.8.0
+
 ## 1.3.8
 
 ### Patch Changes
