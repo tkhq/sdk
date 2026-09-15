@@ -155,27 +155,14 @@ You need:
 
 ### 3/ Configure `.env.local`
 
-Create `.env.local` in this directory:
-
 ```bash
-# Used by the setup script (server side)
-API_PUBLIC_KEY="<parent org API public key>"
-API_PRIVATE_KEY="<parent org API private key>"
-BASE_URL="https://api.turnkey.com"
-ORGANIZATION_ID="<parent organization id>"
-
-# Used by the app (browser)
-NEXT_PUBLIC_ORGANIZATION_ID="<parent organization id>"
-NEXT_PUBLIC_AUTH_PROXY_CONFIG_ID="<auth proxy config id>"
-NEXT_PUBLIC_SESSION_PROFILE_ID_APPROVE_ONLY=""   # filled in the next step
-NEXT_PUBLIC_SESSION_PROFILE_ID_DEPOSIT_ONLY=""   # filled in the next step
-
-# Optional overrides
-# NEXT_PUBLIC_BASE_URL="https://api.turnkey.com"
-# NEXT_PUBLIC_AUTH_PROXY_BASE_URL="https://authproxy.turnkey.com"
-# NEXT_PUBLIC_USDC_ADDRESS="0x036CbD53842c5426634e7929541eC2318f3dCF7e"
-# NEXT_PUBLIC_MINIBANK_ADDRESS="0xcAdD4bb1Cfcd76C25f3702AD698679CbD934d12E"
+$ cp .env.local.example .env.local
 ```
+
+Fill in the parent organization id, the API key pair, and the Auth Proxy
+config id. The two `NEXT_PUBLIC_SESSION_PROFILE_ID_*` values come from the
+next step. The commented-out overrides at the bottom are only needed to point
+the example at a different Turnkey environment or your own contracts.
 
 ### 4/ Create the session profiles
 
