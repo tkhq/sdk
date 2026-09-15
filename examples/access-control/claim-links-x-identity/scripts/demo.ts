@@ -1,7 +1,7 @@
 async function main() {
   const dryRun = process.argv.includes("--dry-run");
   if (dryRun) {
-    console.log("DRY RUN: x-claim-links");
+    console.log("DRY RUN: claim-links-x-identity");
     console.log("1. Resolve immutable numeric X IDs (manual or X API live lookup).");
     console.log("2. Pre-create backend-rooted sub-org + Solana wallet + latent backend deny.");
     console.log("3. At /claim/<subOrgId>, verify Turnkey OIDC sub against claim:x:<id>.");

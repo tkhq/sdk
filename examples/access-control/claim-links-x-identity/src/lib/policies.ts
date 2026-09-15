@@ -1,5 +1,9 @@
 /**
  * Reusable policy documents for the X allocation lifecycle.
+ * See the Delegated Access pattern:
+ * https://docs.turnkey.com/features/policies/delegated-access/overview
+ * The sibling ../claim-links-delegated-reclaim example demonstrates the
+ * two-root variant, where a bootstrap key installs policy and self-demotes.
  *
  * Turnkey root users bypass every policy. PRECLAIM_BACKEND_SIGN_DENY is
  * therefore a latent guard while the backend is the sole root and becomes

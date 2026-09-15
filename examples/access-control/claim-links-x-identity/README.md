@@ -1,4 +1,4 @@
-# Example: `x-claim-links`
+# Example: `claim-links-x-identity`
 
 **This is a proof of concept / demo, not production code.**
 
@@ -6,9 +6,23 @@ This Next.js 15 example pre-creates a Turnkey sub-organization and Solana wallet
 
 ## Security model and an important boundary
 
-Turnkey root-quorum users bypass the policy engine. The API-key backend must temporarily be the sole root to create the claimant, attach OAuth, install the claimant policy, and hand over root; consequently **no policy can deny that key from signing before handoff**. This demo creates an explicit backend signing-deny policy during pre-association, but it becomes enforceable only after the claimant replaces the backend in root quorum. Do not fund a pre-associated address: transfer or deposit value only after `pnpm demo:verify` and `pnpm attack` both pass.
+Turnkey root-quorum users bypass the policy engine. The API-key backend must temporarily be the sole root to create the claimant, attach OAuth, install the claimant policy, and hand over root. Consequently, **no policy can deny that key from signing before handoff**. This demo creates an explicit backend signing-deny policy during pre-association, but it becomes enforceable only after the claimant replaces the backend in root quorum. Do not fund a pre-associated address. Transfer or deposit value only after `pnpm demo:verify` and `pnpm attack` both pass.
 
-The policy language does not expose a dependable “has an X provider” approver predicate. The claim route therefore installs a signing allow bound to the exact claimant user ID after verifying the Turnkey-issued `sub`; recovery that replaces the user must deliberately replace this policy.
+The sibling [`claim-links-delegated-reclaim`](../claim-links-delegated-reclaim/) example can demote a bootstrap key before use because it starts with two roots. Its order is: create the claim and sweep users as roots, let the sweep root install its policy, then remove only the sweep user from root quorum. This example starts with one backend root because the future claimant does not exist before X authentication. Turnkey does not permit an empty root quorum, so the backend cannot self-demote before the verified claimant is ready to replace it. That difference forces the latent-deny and fund-only-after-claim sequence.
+
+The policy language does not expose a dependable “has an X provider” approver predicate. The claim route therefore installs a signing allow bound to the exact claimant user ID after verifying the Turnkey-issued `sub`. Recovery that replaces the user must deliberately replace this policy.
+
+## Relationship to claim-links-delegated-reclaim
+
+Both examples build claim links with per-allocation Turnkey sub-organizations, but they grant the right to claim differently.
+
+| | [Bearer-link model](../claim-links-delegated-reclaim/) | Identity-bound model (this example) |
+| --- | --- | --- |
+| Right to claim | Possession of a claim key in the URL fragment | Control of the allocated numeric X account |
+| Gate | The fragment secret is the credential; possession grants the claim | Turnkey verifies the numeric X ID in its enclave during OAuth |
+| Forwarding risk | A recipient can leak or forward the bearer secret | There is no bearer claim secret to leak or forward |
+| Expiry and reclaim | Claim-key TTL plus a sweep key for automatic return to the sender | Not implemented; value must arrive only after claim gates pass |
+| Policy bootstrap | Delegated Access with two roots; the sweep key installs its policy and demotes itself | One temporary backend root; its signing deny is latent until claimant root rotation |
 
 ## Setup
 
@@ -18,7 +32,7 @@ From the repository root, install and build workspace dependencies:
 corepack enable
 pnpm install -r
 pnpm run build-all
-cd examples/authentication/x-claim-links
+cd examples/access-control/claim-links-x-identity
 cp .env.local.example .env.local
 ```
 
@@ -80,7 +94,7 @@ Pre-association creates an address for a numeric X ID, but the operator must not
 
 ## What production adds
 
-- Expiry and a claimant-controlled or separately governed reclaim design
+- TTL reclaim based on the production reference pattern in [`claim-links-delegated-reclaim`](../claim-links-delegated-reclaim/)
 - Durable allocation state, batch jobs, retries, idempotency locks, and X API rate-limit handling
 - Post-claim passkey enrollment and recovery policies
 - A target-chain transfer/deposit step gated on verification and backend attack denial
