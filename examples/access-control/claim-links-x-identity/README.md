@@ -23,6 +23,45 @@ PASS: forged OIDC sub cannot cross the numeric-X-ID claim gate
 
 Everything below sets up the full flow against live Turnkey and X.
 
+## What Turnkey provides here
+
+Turnkey documents [claim links](https://docs.turnkey.com/features/wallets/claim-links) as a first-class pattern: you can hold value in a wallet for someone who has no account yet, and hand it over later without anyone custodying it in the meantime. That guide describes the **bearer** variant, where the claim credential travels in the URL — the model our sibling [`claim-links-delegated-reclaim`](../claim-links-delegated-reclaim/) implements. This example is the identity-bound variant of the same idea.
+
+Four Turnkey capabilities do the work:
+
+- **[Sub-organizations](https://docs.turnkey.com/features/sub-organizations)** give every allocation its own isolated policy and quorum boundary, so one claim can never reach another's keys.
+- **[Pre-generated wallets](https://docs.turnkey.com/features/wallets/pregenerated-wallets)** mean an address exists — and can receive — before its owner has authenticated even once.
+- **[OAuth 2.0 authentication](https://docs.turnkey.com/api-reference/activities/oauth-20-authentication)** has Turnkey perform the code exchange with X *inside its secure enclave* and return an OIDC token it signed itself. The claim decision rests on Turnkey's attestation of the identity, not on anything this app parsed from a redirect.
+- **[The policy engine](https://docs.turnkey.com/features/policies/overview)** plus root-quorum rotation turn "the backend hands custody over" into an enforced state change rather than a promise. After handoff the claimant is the only root user, and the former backend is denied by an explicit policy on top of implicit deny.
+
+The private key material is never in the application at any point in this flow.
+
+## How it works
+
+### Pre-association — `scripts/preassociate.ts`
+
+1. Resolve each target to an immutable numeric X ID (`src/lib/xid.ts`), manually or through the X API.
+2. `createSubOrganization` creates one sub-org named `allocation:claim:x:<numeric_id>:@<handle>`, with the backend API-key user as its sole root and a Solana wallet inside it. **That name is the binding**: it is what the claim gate later checks against.
+3. `createPolicy` installs the backend signing deny from `src/lib/policies.ts`. It cannot bite yet — the backend is root, and root bypasses policy — hence "latent".
+4. Re-runs are idempotent: `getSubOrgIds` filtered by the backend public key, then a name match on `claim:x:<numeric_id>`.
+
+### Claim — the three routes
+
+1. **`src/app/auth/x/route.tsx`** builds the X authorize URL with PKCE (S256) and stores the code verifier, state, and allocation ID in `HttpOnly`, `SameSite=lax` cookies. The allocation rides through the round trip in a cookie rather than in the URL, so the claim target cannot be swapped by editing a link.
+2. **`src/app/auth/x/redirect/page.tsx`** receives X's authorization code and posts it, with a target public key, to the backend route.
+3. **`src/app/auth/turnkey/x/route.ts`** calls `oauth2Authenticate` with the stored credential ID and code verifier. Turnkey performs the exchange with X and returns an OIDC token whose `sub` is `x:<numeric_id>`.
+
+Then the gate, and only if it passes, the handoff:
+
+4. `assertClaimMatches` (`src/lib/claim-gate.ts`) compares that Turnkey-issued subject against the numeric ID embedded in the allocation name. Mismatch returns HTTP 403 and nothing is mutated. A forged token cannot pass, because the subject is one Turnkey signed after talking to X itself — `pnpm test:claim-gate` exercises exactly this.
+5. `createUsers` creates the claimant, `createOauthProviders` attaches that X identity to them, and `createPolicy` installs a signing allow scoped to that concrete user ID.
+6. `updateRootQuorum` sets the root quorum to the claimant alone. This is the moment custody actually moves: the backend stops being root, and the deny from step 3 becomes enforceable against it.
+7. `oauthLogin` returns a session for the claimant, and the dashboard opens.
+
+### Verification
+
+`pnpm demo:verify` re-reads the sub-org and asserts all four post-conditions independently: the X provider is attached, the root quorum is exactly the claimant, and both policies are present. `pnpm attack` then tries to actually sign with the demoted backend credential and requires a policy denial.
+
 ## Prerequisites
 
 Budget roughly 30 minutes, plus however long X takes to approve your developer application.
@@ -160,7 +199,7 @@ Pre-association creates an address for a numeric X ID, but the operator must not
 
 ## Relationship to claim-links-delegated-reclaim
 
-Both examples build claim links with per-allocation Turnkey sub-organizations, but they grant the right to claim differently.
+Both examples build [claim links](https://docs.turnkey.com/features/wallets/claim-links) with per-allocation Turnkey sub-organizations, but they grant the right to claim differently. The bearer model is the one Turnkey's own guide describes; the identity-bound model trades the ability to forward a link for a guarantee about who ends up holding the wallet.
 
 | | [Bearer-link model](../claim-links-delegated-reclaim/) | Identity-bound model (this example) |
 | --- | --- | --- |
