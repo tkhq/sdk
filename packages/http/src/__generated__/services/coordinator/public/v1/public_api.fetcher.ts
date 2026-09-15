@@ -5668,6 +5668,52 @@ export const signDeletePrivateKeys = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_secrets`
+ */
+export type TDeleteSecretsResponse =
+  operations["PublicApiService_DeleteSecrets"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_secrets`
+ */
+export type TDeleteSecretsInput = { body: TDeleteSecretsBody };
+
+/**
+ * `POST /public/v1/submit/delete_secrets`
+ */
+export type TDeleteSecretsBody =
+  operations["PublicApiService_DeleteSecrets"]["parameters"]["body"]["body"];
+
+/**
+ * Delete secrets
+ *
+ * Delete secrets by their unique identifiers. All secrets must belong to the organization.
+ *
+ * `POST /public/v1/submit/delete_secrets`
+ */
+export const deleteSecrets = (input: TDeleteSecretsInput) =>
+  request<TDeleteSecretsResponse, TDeleteSecretsBody, never, never, never>({
+    uri: "/public/v1/submit/delete_secrets",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteSecrets` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteSecrets}
+ */
+export const signDeleteSecrets = (
+  input: TDeleteSecretsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteSecretsBody, never, never>({
+    uri: "/public/v1/submit/delete_secrets",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/delete_smart_contract_interface`
  */
 export type TDeleteSmartContractInterfaceResponse =

@@ -743,7 +743,7 @@
       "properties": {
         "otpType": {
           "type": "string",
-          "description": "Enum to specify whether to send OTP via SMS or email"
+          "description": "Enum to specify whether to send OTP via SMS, email, or WhatsApp"
         },
         "contact": {
           "type": "string",
@@ -771,7 +771,7 @@
       "properties": {
         "otpType": {
           "type": "string",
-          "description": "Enum to specify whether to send OTP code via SMS or email"
+          "description": "Enum to specify whether to send OTP code via SMS, email, or WhatsApp"
         },
         "contact": {
           "type": "string",

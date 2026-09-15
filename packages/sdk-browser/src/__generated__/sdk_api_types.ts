@@ -415,17 +415,6 @@ export type TGetUserBody = Omit<
 > &
   queryOverrideParams;
 
-export type TGetVelocityControlResponse =
-  operations["PublicApiService_GetVelocityControl"]["responses"]["200"]["schema"];
-
-export type TGetVelocityControlInput = { body: TGetVelocityControlBody };
-
-export type TGetVelocityControlBody = Omit<
-  operations["PublicApiService_GetVelocityControl"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
 export type TGetWalletResponse =
   operations["PublicApiService_GetWallet"]["responses"]["200"]["schema"];
 
@@ -696,17 +685,6 @@ export type TGetUsersInput = { body: TGetUsersBody };
 
 export type TGetUsersBody = Omit<
   operations["PublicApiService_GetUsers"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
-export type TListVelocityControlsResponse =
-  operations["PublicApiService_ListVelocityControls"]["responses"]["200"]["schema"];
-
-export type TListVelocityControlsInput = { body: TListVelocityControlsBody };
-
-export type TListVelocityControlsBody = Omit<
-  operations["PublicApiService_ListVelocityControls"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -1036,16 +1014,6 @@ export type TCreateUsersBody =
   operations["PublicApiService_CreateUsers"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
-export type TCreateVelocityControlResponse =
-  operations["PublicApiService_CreateVelocityControl"]["responses"]["200"]["schema"]["activity"]["result"]["createVelocityControlResult"] &
-    definitions["v1ActivityResponse"];
-
-export type TCreateVelocityControlInput = { body: TCreateVelocityControlBody };
-
-export type TCreateVelocityControlBody =
-  operations["PublicApiService_CreateVelocityControl"]["parameters"]["body"]["body"]["parameters"] &
-    commandOverrideParams;
-
 export type TCreateWalletResponse =
   operations["PublicApiService_CreateWallet"]["responses"]["200"]["schema"]["activity"]["result"]["createWalletResult"] &
     definitions["v1ActivityResponse"];
@@ -1190,6 +1158,16 @@ export type TDeletePrivateKeysBody =
   operations["PublicApiService_DeletePrivateKeys"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TDeleteSecretsResponse =
+  operations["PublicApiService_DeleteSecrets"]["responses"]["200"]["schema"]["activity"]["result"]["deleteSecretsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteSecretsInput = { body: TDeleteSecretsBody };
+
+export type TDeleteSecretsBody =
+  operations["PublicApiService_DeleteSecrets"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TDeleteSmartContractInterfaceResponse =
   operations["PublicApiService_DeleteSmartContractInterface"]["responses"]["200"]["schema"]["activity"]["result"]["deleteSmartContractInterfaceResult"] &
     definitions["v1ActivityResponse"];
@@ -1252,16 +1230,6 @@ export type TDeleteUsersInput = { body: TDeleteUsersBody };
 
 export type TDeleteUsersBody =
   operations["PublicApiService_DeleteUsers"]["parameters"]["body"]["body"]["parameters"] &
-    commandOverrideParams;
-
-export type TDeleteVelocityControlResponse =
-  operations["PublicApiService_DeleteVelocityControl"]["responses"]["200"]["schema"]["activity"]["result"]["deleteVelocityControlResult"] &
-    definitions["v1ActivityResponse"];
-
-export type TDeleteVelocityControlInput = { body: TDeleteVelocityControlBody };
-
-export type TDeleteVelocityControlBody =
-  operations["PublicApiService_DeleteVelocityControl"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TDeleteWalletAccountsResponse =
