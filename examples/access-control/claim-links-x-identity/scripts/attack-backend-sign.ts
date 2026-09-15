@@ -6,7 +6,8 @@ import { scriptArgs } from "./args";
 async function main() {
   const args = scriptArgs();
   const subOrgId = args[0];
-  if (!subOrgId) throw new Error("usage: pnpm attack -- <subOrgId> [solanaAddress]");
+  if (!subOrgId)
+    throw new Error("usage: pnpm attack -- <subOrgId> [solanaAddress]");
   const organization = await getAllocation(subOrgId);
   // get_organization returns wallets without their accounts, so resolve the
   // address through list_wallet_accounts unless one was passed explicitly.
@@ -37,7 +38,9 @@ async function main() {
     // Turnkey reports a policy denial as a PolicyEnginePermissionError whose details
     // list each policy's outcome. Match on that structure, not on prose that may change.
     if (!/PolicyEnginePermissionError/.test(reason)) {
-      throw new Error(`SIGN_RAW_PAYLOAD failed for a non-policy reason: ${reason}`);
+      throw new Error(
+        `SIGN_RAW_PAYLOAD failed for a non-policy reason: ${reason}`,
+      );
     }
     const explicit = /OUTCOME_DENY_EXPLICIT/.test(reason);
     console.log(
@@ -45,7 +48,9 @@ async function main() {
         reason.split(" (Details:")[0],
     );
     if (!explicit) {
-      console.warn("note: the backend deny policy did not evaluate to an explicit deny; check it is installed");
+      console.warn(
+        "note: the backend deny policy did not evaluate to an explicit deny; check it is installed",
+      );
     }
   }
 }

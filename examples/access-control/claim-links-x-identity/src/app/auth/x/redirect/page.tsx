@@ -42,11 +42,15 @@ function Redirect() {
         try {
           data = JSON.parse(raw);
         } catch {
-          data = { error: raw.trim() || `Request failed with HTTP ${res.status}` };
+          data = {
+            error: raw.trim() || `Request failed with HTTP ${res.status}`,
+          };
         }
 
         if (!res.ok) {
-          throw new Error(data.error ?? `Request failed with HTTP ${res.status}`);
+          throw new Error(
+            data.error ?? `Request failed with HTTP ${res.status}`,
+          );
         }
 
         await storeSession({ sessionToken: data.session! });
@@ -63,7 +67,9 @@ function Redirect() {
 
   if (error) {
     const allocation =
-      typeof window === "undefined" ? null : localStorage.getItem("claim_allocation");
+      typeof window === "undefined"
+        ? null
+        : localStorage.getItem("claim_allocation");
     return (
       <div className="flex flex-col items-center gap-4 max-w-md text-center">
         <h1 className="text-lg font-semibold">Claim rejected</h1>

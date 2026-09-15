@@ -31,7 +31,7 @@ Four Turnkey capabilities do the work:
 
 - **[Sub-organizations](https://docs.turnkey.com/features/sub-organizations)** give every allocation its own isolated policy and quorum boundary, so one claim can never reach another's keys.
 - **[Pre-generated wallets](https://docs.turnkey.com/features/wallets/pregenerated-wallets)** mean an address exists — and can receive — before its owner has authenticated even once.
-- **[OAuth 2.0 authentication](https://docs.turnkey.com/api-reference/activities/oauth-20-authentication)** has Turnkey perform the code exchange with X *inside its secure enclave* and return an OIDC token it signed itself. The claim decision rests on Turnkey's attestation of the identity, not on anything this app parsed from a redirect.
+- **[OAuth 2.0 authentication](https://docs.turnkey.com/api-reference/activities/oauth-20-authentication)** has Turnkey perform the code exchange with X _inside its secure enclave_ and return an OIDC token it signed itself. The claim decision rests on Turnkey's attestation of the identity, not on anything this app parsed from a redirect.
 - **[The policy engine](https://docs.turnkey.com/features/policies/overview)** plus root-quorum rotation turn "the backend hands custody over" into an enforced state change rather than a promise. After handoff the claimant is the only root user, and the former backend is denied by an explicit policy on top of implicit deny.
 
 The private key material is never in the application at any point in this flow.
@@ -42,7 +42,7 @@ The private key material is never in the application at any point in this flow.
 
 1. Resolve each target to an immutable numeric X ID (`src/lib/xid.ts`), manually or through the X API.
 2. `createSubOrganization` creates one sub-org named `allocation:claim:x:<numeric_id>:@<handle>`, with the backend API-key user as its sole root and a Solana wallet inside it. **That name is the binding**: it is what the claim gate later checks against.
-3. `createPolicy` installs two latent policies from `src/lib/policies.ts`: the backend signing **deny**, and an **allow** for the backend to run `oauth_login`. Neither can bite yet — the backend is root, and root bypasses policy — hence "latent". The second exists because the backend key remains a non-root *member* of the sub-org after handoff, so Turnkey evaluates its policies when it stamps the claimant's session mint; without it, `oauth_login` is implicitly denied the instant root rotates.
+3. `createPolicy` installs two latent policies from `src/lib/policies.ts`: the backend signing **deny**, and an **allow** for the backend to run `oauth_login`. Neither can bite yet — the backend is root, and root bypasses policy — hence "latent". The second exists because the backend key remains a non-root _member_ of the sub-org after handoff, so Turnkey evaluates its policies when it stamps the claimant's session mint; without it, `oauth_login` is implicitly denied the instant root rotates.
 4. Re-runs are idempotent: `getSubOrgIds` filtered by the backend public key, then a name match on `claim:x:<numeric_id>`.
 
 ### Claim — the three routes
@@ -66,12 +66,12 @@ Then the gate, and only if it passes, the handoff:
 
 Budget roughly 30 minutes, plus however long X takes to approve your developer application.
 
-| | Why |
-| --- | --- |
-| A Turnkey organization and a P-256 API keypair | Becomes each allocation's temporary backend root |
-| One X account you control | The claimant. The 403 rejection is shown by trying to claim an allocation bound to someone *else's* numeric ID |
-| An X developer app (OAuth 2.0, confidential client) | Turnkey exchanges the authorization code with it |
-| `pnpm` 10.16.0 | Pinned by this repo; see the note in Setup |
+|                                                     | Why                                                                                                            |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| A Turnkey organization and a P-256 API keypair      | Becomes each allocation's temporary backend root                                                               |
+| One X account you control                           | The claimant. The 403 rejection is shown by trying to claim an allocation bound to someone _else's_ numeric ID |
+| An X developer app (OAuth 2.0, confidential client) | Turnkey exchanges the authorization code with it                                                               |
+| `pnpm` 10.16.0                                      | Pinned by this repo; see the note in Setup                                                                     |
 
 The X Developer Program application asks for a use-case description of at least 100 characters and **may sit pending approval**. Start it first if you are on a schedule. Your app must be created as a **Web App, Automated App or Bot** — only that type is a confidential client and is issued the client secret this example uploads to Turnkey. A Native App or Single Page App yields no secret and cannot work.
 
@@ -101,7 +101,7 @@ Add the client ID to `.env.local` as `X_CLIENT_ID`, then upload the client secre
 pnpm credential-upload -- '<X client secret>'
 ```
 
-The secret is encrypted to Turnkey and never stored in `.env.local`. Copy the returned credential ID into `OAUTH2_CREDENTIAL_ID`. `credential-upload.tsx` is copied from `with-x`, with one change: it strips the `--` separator that pnpm forwards to the script, which otherwise makes it reject its own documented invocation.
+The secret is encrypted to Turnkey and never stored in `.env.local`. Copy the returned credential ID into `OAUTH2_CREDENTIAL_ID`. `credential-upload.tsx` is copied from `with-x` with two changes: it strips the `--` separator that pnpm forwards to the script, which otherwise makes it reject its own documented invocation, and the `@ts-ignore` above its `globalThis.crypto` shim is dropped, since the assignment typechecks without it and the directive fails lint.
 
 ## Finding a numeric X ID
 
@@ -201,7 +201,7 @@ pnpm attack -- <subOrgId>
 DENIED AS EXPECTED (explicit deny policy fired): Turnkey error 7: You don't have sufficient permissions to take this action. …
 ```
 
-This uses the *same API key that was root of this sub-org one step ago* and asks Turnkey to sign with the wallet. The parenthetical matters: Turnkey's details list every policy's outcome, and the gate reports whether the backend deny reached `OUTCOME_DENY_EXPLICIT` (as above) or the request was only implicitly denied, which would mean the deny policy is missing. The gate passes only when it prints `DENIED AS EXPECTED` and exits 0; a successful signature is a security failure and exits 1.
+This uses the _same API key that was root of this sub-org one step ago_ and asks Turnkey to sign with the wallet. The parenthetical matters: Turnkey's details list every policy's outcome, and the gate reports whether the backend deny reached `OUTCOME_DENY_EXPLICIT` (as above) or the request was only implicitly denied, which would mean the deny policy is missing. The gate passes only when it prints `DENIED AS EXPECTED` and exits 0; a successful signature is a security failure and exits 1.
 
 **Before claim, this command prints `SECURITY FAILURE`, and that is the expected result.** The backend is still sole root, and root quorum bypasses the policy engine, so the latent deny cannot yet be enforced. A pre-claim run tells you nothing except that the boundary described below is real — which is precisely why funds must wait.
 
@@ -213,10 +213,10 @@ Each allocation creates a Turnkey sub-organization that cannot be deleted, so re
 
 If you are showing this rather than testing it, the order above is the talk track. Keep the server log on screen.
 
-1. *"An address exists for this X account before they have ever logged in."* Show the allocation output and the address.
-2. *"Nobody else can take it."* The foreign allocation's rejection, with `X ID mismatch` in the log.
-3. *"The owner claims it with an ordinary X login."* The consent screen, then the seven log lines. Pause on `updateRootQuorum`: that line is custody moving.
-4. *"And we, the operator, are now locked out."* `pnpm attack`. The key that created the wallet cannot sign with it.
+1. _"An address exists for this X account before they have ever logged in."_ Show the allocation output and the address.
+2. _"Nobody else can take it."_ The foreign allocation's rejection, with `X ID mismatch` in the log.
+3. _"The owner claims it with an ordinary X login."_ The consent screen, then the seven log lines. Pause on `updateRootQuorum`: that line is custody moving.
+4. _"And we, the operator, are now locked out."_ `pnpm attack`. The key that created the wallet cannot sign with it.
 5. Close on the funding rule: value moves only after step 4 passes, because until root rotates, Turnkey's own root-bypass rule means no policy can bind the operator. That is not a limitation of the demo; it is the property that makes the handoff trustworthy.
 
 ## Security model and an important boundary
@@ -235,13 +235,13 @@ Pre-association creates an address for a numeric X ID, but the operator must not
 
 Both examples build [claim links](https://docs.turnkey.com/features/wallets/claim-links) with per-allocation Turnkey sub-organizations, but they grant the right to claim differently. The bearer model is the one Turnkey's own guide describes; the identity-bound model trades the ability to forward a link for a guarantee about who ends up holding the wallet.
 
-| | [Bearer-link model](../claim-links-delegated-reclaim/) | Identity-bound model (this example) |
-| --- | --- | --- |
-| Right to claim | Possession of a claim key in the URL fragment | Control of the allocated numeric X account |
-| Gate | The fragment secret is the credential; possession grants the claim | Turnkey verifies the numeric X ID in its enclave during OAuth |
-| Forwarding risk | A recipient can leak or forward the bearer secret | There is no bearer claim secret to leak or forward |
-| Expiry and reclaim | Claim-key TTL plus a sweep key for automatic return to the sender | Not implemented; value must arrive only after claim gates pass |
-| Policy bootstrap | Delegated Access with two roots; the sweep key installs its policy and demotes itself | One temporary backend root; its signing deny is latent until claimant root rotation |
+|                    | [Bearer-link model](../claim-links-delegated-reclaim/)                                | Identity-bound model (this example)                                                 |
+| ------------------ | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Right to claim     | Possession of a claim key in the URL fragment                                         | Control of the allocated numeric X account                                          |
+| Gate               | The fragment secret is the credential; possession grants the claim                    | Turnkey verifies the numeric X ID in its enclave during OAuth                       |
+| Forwarding risk    | A recipient can leak or forward the bearer secret                                     | There is no bearer claim secret to leak or forward                                  |
+| Expiry and reclaim | Claim-key TTL plus a sweep key for automatic return to the sender                     | Not implemented; value must arrive only after claim gates pass                      |
+| Policy bootstrap   | Delegated Access with two roots; the sweep key installs its policy and demotes itself | One temporary backend root; its signing deny is latent until claimant root rotation |
 
 ## Policy expressions
 
@@ -251,29 +251,29 @@ See the heavily commented reusable documents in `src/lib/policies.ts`. Three pol
 
 The allocation wallet is Solana, so its accounts are ed25519 and `TRANSACTION_TYPE_ETHEREUM` does not apply. Beyond that, `SIGN_RAW_PAYLOAD_V2` is the right primitive for an adversarial gate: it asks the narrowest possible question — can this credential produce a signature at all — without needing a well-formed unsigned transaction, whose own construction errors (a stale blockhash, say) would be indistinguishable from a policy denial.
 
-Note that ed25519 requires `HASH_FUNCTION_NOT_APPLICABLE`. Ed25519 hashes during signature computation rather than before it, so passing a hash function returns a validation error that fires *before* policy evaluation — which would make the gate fail identically whether or not the policy works. See the [Turnkey FAQ](https://docs.turnkey.com/reference/faq#what-is-hash_function_not_applicable-and-how-does-it-differ-from-hash_function_no_op).
+Note that ed25519 requires `HASH_FUNCTION_NOT_APPLICABLE`. Ed25519 hashes during signature computation rather than before it, so passing a hash function returns a validation error that fires _before_ policy evaluation — which would make the gate fail identically whether or not the policy works. See the [Turnkey FAQ](https://docs.turnkey.com/reference/faq#what-is-hash_function_not_applicable-and-how-does-it-differ-from-hash_function_no_op).
 
 **Coverage limit.** Both policies, and the attack gate, name only `ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2`. A demoted backend could instead attempt `ACTIVITY_TYPE_SIGN_TRANSACTION_V2` or the batch `ACTIVITY_TYPE_SIGN_RAW_PAYLOADS`. Those are implicitly denied — the demoted backend is a non-root user with no allow policy — so this is not an exploitable hole. But the explicit deny exists precisely to survive a future accidental broad allow, and it would not cover those two activity types. Production should enumerate every signing activity type it means to deny, and the gate should probe each one.
 
 ## Failure modes
 
-| Symptom | Cause | Fix |
-| --- | --- | --- |
-| `Unknown options: 'allow-build'` | An older pnpm shadows the pinned `pnpm@10.16.0` | `brew upgrade pnpm`, or remove it and let corepack own the version |
-| `tsc` errors on `accounts` or `bearerTokenTargetPublicKey` | Workspace packages not built | Run `pnpm run build-all` from the repository root |
-| X reports a callback error | Callback uses `localhost`, a different port, or a different path | Use exactly `http://127.0.0.1:3456/auth/x/redirect` everywhere |
-| No client secret shown in the X portal | App was created as a Native or Single Page App | Recreate it as a Web App, Automated App or Bot |
-| `Invalid client ID provided` from `credential-upload` | `X_CLIENT_ID` is still the placeholder | Set it in `.env.local` before uploading the secret |
-| `Missing OAUTH2_CREDENTIAL_ID` or authentication fails | X client secret was not uploaded | Run `pnpm credential-upload -- '<secret>'` and copy its output to `.env.local` |
-| HTTP 403 with the allocation message | Authenticated numeric X ID differs from the allocation ID (step 3 does this on purpose) | Open *your* allocation's URL; never edit IDs to match a handle |
-| `Missing claim allocation` | Flow started from `/` or `/dashboard`, not a claim URL, or the cookie expired | Open the `/claim/<subOrgId>` URL and start again |
-| `Missing PKCE verifier` | More than ten minutes on the X consent screen; the PKCE cookies expired | Reopen the claim URL and authorize promptly |
-| `verified X claimant is not attached` | Allocation has not been claimed yet | Complete the browser claim first |
-| `user missing valid credential: <id>` from `createUsers` | A user was created with no credential; the X provider must be attached in the same call | Already fixed in this example; if you fork the route, keep `oauthProviders` inline |
+| Symptom                                                         | Cause                                                                                       | Fix                                                                                      |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `Unknown options: 'allow-build'`                                | An older pnpm shadows the pinned `pnpm@10.16.0`                                             | `brew upgrade pnpm`, or remove it and let corepack own the version                       |
+| `tsc` errors on `accounts` or `bearerTokenTargetPublicKey`      | Workspace packages not built                                                                | Run `pnpm run build-all` from the repository root                                        |
+| X reports a callback error                                      | Callback uses `localhost`, a different port, or a different path                            | Use exactly `http://127.0.0.1:3456/auth/x/redirect` everywhere                           |
+| No client secret shown in the X portal                          | App was created as a Native or Single Page App                                              | Recreate it as a Web App, Automated App or Bot                                           |
+| `Invalid client ID provided` from `credential-upload`           | `X_CLIENT_ID` is still the placeholder                                                      | Set it in `.env.local` before uploading the secret                                       |
+| `Missing OAUTH2_CREDENTIAL_ID` or authentication fails          | X client secret was not uploaded                                                            | Run `pnpm credential-upload -- '<secret>'` and copy its output to `.env.local`           |
+| HTTP 403 with the allocation message                            | Authenticated numeric X ID differs from the allocation ID (step 3 does this on purpose)     | Open _your_ allocation's URL; never edit IDs to match a handle                           |
+| `Missing claim allocation`                                      | Flow started from `/` or `/dashboard`, not a claim URL, or the cookie expired               | Open the `/claim/<subOrgId>` URL and start again                                         |
+| `Missing PKCE verifier`                                         | More than ten minutes on the X consent screen; the PKCE cookies expired                     | Reopen the claim URL and authorize promptly                                              |
+| `verified X claimant is not attached`                           | Allocation has not been claimed yet                                                         | Complete the browser claim first                                                         |
+| `user missing valid credential: <id>` from `createUsers`        | A user was created with no credential; the X provider must be attached in the same call     | Already fixed in this example; if you fork the route, keep `oauthProviders` inline       |
 | `oauth_login` denied with `OUTCOME_DENY_IMPLICIT` after handoff | Sub-org pre-dates the backend `oauth_login` allow policy; the demoted backend cannot add it | Allocate afresh — the claimant now holds root and the old allocation is otherwise intact |
-| `SECURITY FAILURE` before the claim completes | Backend is still sole root, and root bypasses the policy engine | Expected pre-claim; re-run the gate after handoff |
-| `DENIED AS EXPECTED` | Expected post-claim backend policy denial | Treat it as a passing attack gate; investigate if signing succeeds instead |
-| X authorization is unavailable or limited | X app approval is pending or permissions are wrong | Complete X approval and enable OAuth 2.0 Web App + Read permission |
+| `SECURITY FAILURE` before the claim completes                   | Backend is still sole root, and root bypasses the policy engine                             | Expected pre-claim; re-run the gate after handoff                                        |
+| `DENIED AS EXPECTED`                                            | Expected post-claim backend policy denial                                                   | Treat it as a passing attack gate; investigate if signing succeeds instead               |
+| X authorization is unavailable or limited                       | X app approval is pending or permissions are wrong                                          | Complete X approval and enable OAuth 2.0 Web App + Read permission                       |
 
 ## What production adds
 
@@ -282,4 +282,4 @@ Note that ed25519 requires `HASH_FUNCTION_NOT_APPLICABLE`. Ed25519 hashes during
 - Post-claim passkey enrollment and recovery policies
 - A target-chain transfer/deposit step gated on verification and backend attack denial
 - Monitoring and alerts for claim failures, root changes, policy changes, and signing attempts
-- Nothing that removes the temporary-root phase. Turnkey's `oidcClaims` pre-registration was checked as a way to make the claimant root from day one; it registers *additional audiences* for an identity already proven by an accompanying `oidcToken` in the same request, so it cannot register a claimant cold from a numeric ID. The latent-deny sequence is forced by the platform, not chosen for convenience.
+- Nothing that removes the temporary-root phase. Turnkey's `oidcClaims` pre-registration was checked as a way to make the claimant root from day one; it registers _additional audiences_ for an identity already proven by an accompanying `oidcToken` in the same request, so it cannot register a claimant cold from a numeric ID. The latent-deny sequence is forced by the platform, not chosen for convenience.

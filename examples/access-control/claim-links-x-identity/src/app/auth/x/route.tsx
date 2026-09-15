@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
   };
   response.cookies.set("pkce_verifier", codeVerifier, cookieOptions);
   response.cookies.set("pkce_state", state, cookieOptions);
-  if (allocation) response.cookies.set("claim_allocation", allocation, cookieOptions);
+  if (allocation)
+    response.cookies.set("claim_allocation", allocation, cookieOptions);
   return response;
 }

@@ -1,6 +1,5 @@
 import { webcrypto as nodeCrypto } from "node:crypto";
 if (!globalThis.crypto) {
-  // @ts-ignore
   globalThis.crypto = nodeCrypto as unknown as Crypto;
 }
 
