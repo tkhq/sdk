@@ -1,5 +1,5 @@
-process.env.DOTENV_CONFIG_PATH ??= ".env.local";
-await import("dotenv/config");
+import * as dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
 import { expectedXIdFromAllocationName } from "../src/lib/claim-gate";
 import { getAllocation } from "../src/lib/turnkey-server";
 

@@ -49,6 +49,7 @@ export async function POST(req: Request) {
     const allocation = await getAllocation(subOrgId);
     const numericXId = assertClaimMatches(authenticated.oidcToken, allocation.name ?? "");
     const subject = decodeOidcSubject(authenticated.oidcToken);
+    console.info(`Turnkey OIDC subject format received: ${subject}`);
     const subOrg = turnkeyClient(subOrgId);
 
     let claimantExists = false;

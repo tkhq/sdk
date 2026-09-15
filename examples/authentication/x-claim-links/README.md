@@ -51,7 +51,7 @@ Re-running pre-association skips a matching `claim:x:<numeric_id>` allocation.
 ## Run the demo
 
 ```bash
-pnpm preassociate -- turnkey:2244994945
+pnpm demo -- turnkey:2244994945
 pnpm dev
 ```
 

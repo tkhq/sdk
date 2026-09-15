@@ -38,7 +38,7 @@ export function numericXIdFromSubject(subject: string): string {
 export function expectedXIdFromAllocationName(name: string): string {
   const match = /(?:^|:)claim:x:([1-9][0-9]*)(?:$|:)/.exec(name);
   if (!match) throw new ClaimGateError();
-  return match[1];
+  return match[1]!;
 }
 
 export function assertClaimMatches(
