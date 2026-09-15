@@ -69,7 +69,7 @@ Budget roughly 30 minutes, plus however long X takes to approve your developer a
 | | Why |
 | --- | --- |
 | A Turnkey organization and a P-256 API keypair | Becomes each allocation's temporary backend root |
-| **Two** X accounts | One is the assigned claimant; the second proves the 403 rejection |
+| One X account you control | The claimant. The 403 rejection is shown by trying to claim an allocation bound to someone *else's* numeric ID |
 | An X developer app (OAuth 2.0, confidential client) | Turnkey exchanges the authorization code with it |
 | `pnpm` 10.16.0 | Pinned by this repo; see the note in Setup |
 
@@ -126,7 +126,7 @@ Manual mode takes the pair directly and needs no X API access (see `handles.exam
 X_LOOKUP_MODE=manual pnpm preassociate -- turnkey:16088008
 ```
 
-`X_LOOKUP_MODE` defaults to `manual`. Re-running pre-association skips a matching `claim:x:<numeric_id>` allocation, so it is safe to run twice.
+`X_LOOKUP_MODE` defaults to `manual`. Re-running pre-association reuses an existing **unclaimed** allocation for the same `claim:x:<numeric_id>`, so it is safe to run twice. Once an allocation has been claimed it belongs to the claimant; to run the demo again for the same account, pass `--reallocate` to mint a fresh one.
 
 ## Run the demo
 
@@ -143,7 +143,7 @@ CREATED @turnkey 16088008: http://127.0.0.1:3456/claim/08ecd397-...
 SOLANA ADDRESS (DO NOT FUND BEFORE CLAIM GATES PASS): 2C6fhniK6Ft...
 ```
 
-Re-running prints `SKIP @turnkey 16088008: <subOrgId>` instead of allocating again.
+Re-running prints `SKIP … (unclaimed allocation exists)` instead of allocating again; after a claim it prints `CLAIMED … (pass --reallocate to allocate again)`.
 
 **2. Start the app.**
 
@@ -151,7 +151,7 @@ Re-running prints `SKIP @turnkey 16088008: <subOrgId>` instead of allocating aga
 pnpm dev
 ```
 
-**3. Prove the gate rejects the wrong account.** Open the printed `/claim/<subOrgId>` URL while signed in to your *second* X account. Expect HTTP 403 and `this allocation belongs to a different X account`. Do this before the successful claim — it is the check the whole design rests on, and it is far more convincing before you know the happy path works.
+**3. Prove the gate rejects the wrong account.** Allocate for a numeric ID you do *not* control — `pnpm demo -- turnkey:16088008` — and open *that* claim URL signed in as yourself. Expect HTTP 403 and `this allocation belongs to a different X account`, and `pnpm demo:verify` on it should still report `verified X claimant is not attached` afterwards: a rejection mutates nothing. Do this before the successful claim — it is the check the whole design rests on, and it is far more convincing before you know the happy path works.
 
 **4. Claim.** Sign out of X, sign in as the assigned account, and open the claim URL again. The dashboard opens once handoff completes.
 
@@ -185,7 +185,7 @@ The gate passes only when it prints `DENIED AS EXPECTED` and exits 0. A successf
 
 **7. Only now move value**, if you are going that far.
 
-Each allocation creates a Turnkey sub-organization that cannot be deleted, so repeated runs accumulate them in your organization. Vary the numeric ID to allocate again, or reuse the same one and let idempotency skip it.
+Each allocation creates a Turnkey sub-organization that cannot be deleted, so repeated runs accumulate them in your organization. Unclaimed allocations are reused automatically; use `--reallocate` only when you deliberately want a fresh one after a claim.
 
 ## Security model and an important boundary
 

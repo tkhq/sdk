@@ -12,7 +12,7 @@ async function main() {
     return;
   }
   if (scriptArgs().length === 0) {
-    throw new Error("usage: pnpm demo -- handle:numeric_id [...]");
+    throw new Error("usage: pnpm demo -- handle:numeric_id [...] [--reallocate]");
   }
   await import("./preassociate");
 }
