@@ -19,6 +19,7 @@ async function main() {
     organizationId: parentId,
     filterType: "PUBLIC_KEY",
     filterValue: backendPublicKey(),
+    paginationOptions: { limit: "100" },
   });
 
   for (const target of targets) {

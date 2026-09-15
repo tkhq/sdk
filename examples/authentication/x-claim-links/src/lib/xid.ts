@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+
 const NUMERIC_X_ID = /^[1-9][0-9]*$/;
 const HANDLE = /^[A-Za-z0-9_]{1,15}$/;
 
@@ -13,7 +15,14 @@ function normalizeHandle(value: string): string {
 }
 
 export function parseManualTargets(values: string[]): XAllocationTarget[] {
-  return values.map((value) => {
+  const expanded = values.flatMap((value) => {
+    if (!existsSync(value)) return [value];
+    return readFileSync(value, "utf8")
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0 && !line.startsWith("#"));
+  });
+  return expanded.map((value) => {
     const [rawHandle, numericId, extra] = value.split(":");
     if (!rawHandle || !numericId || extra || !NUMERIC_X_ID.test(numericId)) {
       throw new Error(`manual target must be handle:numeric_id: ${value}`);
