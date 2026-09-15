@@ -2,9 +2,10 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 import { expectedXIdFromAllocationName } from "../src/lib/claim-gate";
 import { getAllocation } from "../src/lib/turnkey-server";
+import { scriptArgs } from "./args";
 
 async function main() {
-  const subOrgId = process.argv[2];
+  const subOrgId = scriptArgs()[0];
   if (!subOrgId) throw new Error("usage: pnpm demo:verify -- <subOrgId>");
   const org = await getAllocation(subOrgId);
   const expected = expectedXIdFromAllocationName(org.name ?? "");

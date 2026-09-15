@@ -4,13 +4,15 @@ import { DEFAULT_SOLANA_ACCOUNTS } from "@turnkey/sdk-server";
 import { backendSignDenyPolicy } from "../src/lib/policies";
 import {
   backendPublicKey,
+  getAllocation,
   parentOrganizationId,
   turnkeyClient,
 } from "../src/lib/turnkey-server";
 import { resolveXTargets } from "../src/lib/xid";
+import { scriptArgs } from "./args";
 
 async function main() {
-  const values = process.argv.slice(2);
+  const values = scriptArgs();
   if (values.length === 0) throw new Error("usage: pnpm preassociate -- handle:numeric_id [...]");
   const targets = await resolveXTargets(values);
   const parentId = parentOrganizationId();
@@ -26,8 +28,8 @@ async function main() {
     const marker = `claim:x:${target.numericId}`;
     let existing: string | undefined;
     for (const organizationId of candidates.organizationIds) {
-      const { organizationData } = await turnkeyClient(organizationId).getOrganization({ organizationId });
-      if (organizationData.name?.includes(marker)) existing = organizationId;
+      const { name } = await getAllocation(organizationId);
+      if (name?.includes(marker)) existing = organizationId;
     }
     if (existing) {
       console.log(`SKIP @${target.handle} ${target.numericId}: ${existing}`);

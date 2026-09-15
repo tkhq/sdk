@@ -23,10 +23,24 @@ export function turnkeyClient(organizationId = parentOrganizationId()) {
   }).apiClient();
 }
 
-export async function getAllocation(subOrgId: string) {
-  const { organizationData } = await turnkeyClient(subOrgId).getOrganization({
-    organizationId: subOrgId,
-  });
+// The fields of v1OrganizationData this example reads. @turnkey/sdk-server does not
+// surface get_organization as a named method, so we post to the endpoint directly
+// rather than taking a dependency on @turnkey/http just for its response type.
+type AllocationData = {
+  organizationId: string;
+  name?: string;
+  users?: { userId: string; oauthProviders: { subject: string }[] }[];
+  rootQuorum?: { threshold: number; userIds: string[] };
+  policies?: { policyName: string }[];
+  // note: get_organization does not include wallet accounts; use getWalletAccounts
+  wallets?: { walletId: string; walletName?: string }[];
+};
+
+export async function getAllocation(subOrgId: string): Promise<AllocationData> {
+  const { organizationData } = await turnkeyClient(subOrgId).request<
+    { organizationId: string },
+    { organizationData: AllocationData }
+  >("/public/v1/query/get_organization", { organizationId: subOrgId });
   if (!organizationData.name || organizationData.organizationId !== subOrgId) {
     throw new Error("allocation not found");
   }
