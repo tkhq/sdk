@@ -1,0 +1,3 @@
+# Manual mode: immutable allocation input is handle:numeric_id (one per argument/line).
+# Confirm the numeric ID with X before allocating; handles are display-only.
+turnkey:2244994945

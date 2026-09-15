@@ -51,10 +51,13 @@ export async function POST(req: Request) {
     const subject = decodeOidcSubject(authenticated.oidcToken);
     const subOrg = turnkeyClient(subOrgId);
 
-    const claimant = allocation.users?.find((user) =>
-      user.oauthProviders.some((provider) => provider.subject === subject),
-    );
-    if (!claimant) {
+    let claimantExists = false;
+    for (const user of allocation.users ?? []) {
+      for (const provider of user.oauthProviders) {
+        if (provider.subject === subject) claimantExists = true;
+      }
+    }
+    if (!claimantExists) {
       const created = await subOrg.createUsers({ users: [{
         userName: `X claimant ${numericXId}`,
         apiKeys: [], authenticators: [], oauthProviders: [], userTags: [],

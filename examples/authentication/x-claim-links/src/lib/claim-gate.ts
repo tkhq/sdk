@@ -32,7 +32,7 @@ export function decodeOidcSubject(oidcToken: string): string {
 export function numericXIdFromSubject(subject: string): string {
   const match = /^x:([1-9][0-9]*)$/.exec(subject);
   if (!match) throw new ClaimGateError();
-  return match[1];
+  return match[1]!;
 }
 
 export function expectedXIdFromAllocationName(name: string): string {

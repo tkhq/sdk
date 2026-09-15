@@ -8,20 +8,25 @@ async function main() {
   if (!subOrgId) throw new Error("usage: pnpm demo:verify -- <subOrgId>");
   const org = await getAllocation(subOrgId);
   const expected = expectedXIdFromAllocationName(org.name ?? "");
-  const claimant = org.users?.find((user) =>
-    user.oauthProviders.some((provider) => provider.subject === `x:${expected}`),
-  );
-  if (!claimant) throw new Error("verified X claimant is not attached");
+  let claimantId: string | undefined;
+  for (const user of org.users ?? []) {
+    for (const provider of user.oauthProviders) {
+      if (provider.subject === `x:${expected}`) claimantId = user.userId;
+    }
+  }
+  if (!claimantId) throw new Error("verified X claimant is not attached");
   if (org.rootQuorum?.threshold !== 1 || org.rootQuorum.userIds.length !== 1 ||
-      org.rootQuorum.userIds[0] !== claimant.userId) {
+      org.rootQuorum.userIds[0] !== claimantId) {
     throw new Error("root quorum has not handed off exclusively to claimant");
   }
-  const backendDeny = org.policies?.some((policy) =>
-    policy.policyName === "Deny allocation backend signing after handoff");
-  const claimantAllow = org.policies?.some((policy) =>
-    policy.policyName === "Allow the bound X claimant to sign");
+  let backendDeny = false;
+  let claimantAllow = false;
+  for (const policy of org.policies ?? []) {
+    if (policy.policyName === "Deny allocation backend signing after handoff") backendDeny = true;
+    if (policy.policyName === "Allow the bound X claimant to sign") claimantAllow = true;
+  }
   if (!backendDeny || !claimantAllow) throw new Error("required signing policies are missing");
-  console.log(`VERIFIED CLAIM: ${subOrgId} -> X ${expected} -> ${claimant.userId}`);
+  console.log(`VERIFIED CLAIM: ${subOrgId} -> X ${expected} -> ${claimantId}`);
 }
 
 main().catch((error: unknown) => {

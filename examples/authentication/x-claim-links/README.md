@@ -1,95 +1,92 @@
-# Example: `with-x`
+# Example: `x-claim-links`
 
-This example shows a complete OAuth 2.0 login flow with X (Twitter) using [`@turnkey/react-wallet-kit`](https://www.npmjs.com/package/@turnkey/react-wallet-kit) and a custom Next.js backend. It contains:
+**This is a proof of concept / demo, not production code.**
 
-- A login page that initiates the X OAuth 2.0 flow
-- A backend route (`/auth/x`) that redirects to X's authorization endpoint
-- A backend route (`/auth/turnkey/x`) that exchanges the auth code for a Turnkey session via `oauth2Authenticate`
-- A redirect page (`/auth/x/redirect`) that handles the OAuth callback and stores the session
-- A dashboard page that displays the authenticated user's ID and Solana wallet address
+This Next.js 15 example pre-creates a Turnkey sub-organization and Solana wallet for an immutable numeric X user ID. The assigned X account can claim it through X OAuth 2.0 + PKCE, Turnkey `OAuth2Authenticate`, provider attachment, root-quorum handoff, and `oauth_login`.
 
-For more information on OAuth, [check out our documentation](https://docs.turnkey.com/authentication/social-logins).
+## Security model and an important boundary
 
-## Getting started
+Turnkey root-quorum users bypass the policy engine. The API-key backend must temporarily be the sole root to create the claimant, attach OAuth, install the claimant policy, and hand over root; consequently **no policy can deny that key from signing before handoff**. This demo creates an explicit backend signing-deny policy during pre-association, but it becomes enforceable only after the claimant replaces the backend in root quorum. Do not fund a pre-associated address: transfer or deposit value only after `pnpm demo:verify` and `pnpm attack` both pass.
 
-### 1/ Cloning the example
+The policy language does not expose a dependable “has an X provider” approver predicate. The claim route therefore installs a signing allow bound to the exact claimant user ID after verifying the Turnkey-issued `sub`; recovery that replaces the user must deliberately replace this policy.
 
-Make sure you have `node` installed locally; we recommend using Node v18+.
+## Setup
+
+From the repository root, install and build workspace dependencies:
 
 ```bash
-$ git clone https://github.com/tkhq/sdk
-$ cd sdk/
-$ corepack enable  # Install `pnpm`
-$ pnpm install -r  # Install dependencies
-$ pnpm run build-all  # Compile source code
-$ cd examples/authentication/with-x/
+corepack enable
+pnpm install -r
+pnpm run build-all
+cd examples/authentication/x-claim-links
+cp .env.local.example .env.local
 ```
 
-### 2/ Setting up Turnkey
+Create a Turnkey organization and a P-256 API keypair. Put its organization ID and API key values in `.env.local`; this key becomes each allocation's temporary backend root.
 
-If you don't have a Turnkey account yet, follow the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide to create an organization.
-
-You'll also need a **Turnkey API keypair** for the backend to authenticate with the Turnkey API. Create one in the Turnkey dashboard and save the public and private keys — they will be used for `API_PUBLIC_KEY` and `API_PRIVATE_KEY` in your `.env.local`.
-
-### 3/ Setting up X
-
-Navigate to the [X developer console](https://console.x.com/) and create an app. Then:
-
-1. In **User authentication settings** for your app, click **Set up**. You'll be asked to fill in:
-   - **App permissions**: select **Read**
-   - **Type of App**: select **Web App**
-   - **App info**: add a **Callback URI / Redirect URL** and a **Website URL**
-
-   For the callback URI use:
-
-   ```
-   http://127.0.0.1:3456/auth/x/redirect
-   ```
-
-   > Use `127.0.0.1` and NOT `localhost`. The port must match the `PORT` value in your `.env.local`.
-
-   Save changes. These settings can be updated later via the app's settings menu.
-
-2. After setup completes, your **Client ID** and **Client Secret** are shown once — copy them immediately. The secret cannot be viewed again (only regenerated). Your Client ID can always be found later under **OAuth 2.0 Keys** in the app view.
-
-> **Note on email:** X does not return the user's email address as part of the OAuth login flow. To access additional user data via X's API (e.g. username, profile info), you can decrypt the X user access token that Turnkey returns — see the commented-out code in [`src/app/auth/turnkey/x/route.ts`](./src/app/auth/turnkey/x/route.ts#L86-L93) for how to decrypt it and use it to call `GET /2/users/me`.
-
-### 4/ Configuring your environment
-
-Copy the example env file:
+In the X developer portal, create an OAuth 2.0 **Web App** with Read permission. Set the callback to exactly `http://127.0.0.1:3456/auth/x/redirect`. Use `127.0.0.1`, **not `localhost`**: X, the environment value, and the browser origin must match exactly. Add the X client ID to `.env.local`, then upload the X client secret to Turnkey:
 
 ```bash
-$ cp .env.local.example .env.local
+pnpm credential-upload -- '<X client secret>'
 ```
 
-Open `.env.local` and fill in all values:
+Copy the returned credential ID into `OAUTH2_CREDENTIAL_ID`. The copied `credential-upload.tsx` is unchanged from `with-x`.
 
-- `NEXT_PUBLIC_BASE_URL` — Turnkey API base URL (`https://api.turnkey.com`)
-- `NEXT_PUBLIC_ORGANIZATION_ID` — your Turnkey organization ID
-- `API_PUBLIC_KEY` — your Turnkey API public key
-- `API_PRIVATE_KEY` — your Turnkey API private key
-- `X_CLIENT_ID` — your X OAuth 2.0 Client ID
-- `X_REDIRECT_URI` — the callback URI you registered on X (`http://127.0.0.1:3456/auth/x/redirect`)
-- `PORT` — port for the dev server (`3456`)
+## Resolve X IDs
 
-> **Production note:** the PKCE cookies set by the backend use `secure: true` automatically when `NODE_ENV=production` (set by Next.js during `next build`). In local development the flag is omitted so cookies work over plain HTTP.
-
-### 5/ Uploading X credentials to Turnkey
-
-The backend uses Turnkey's `oauth2Authenticate` to exchange X auth codes for OIDC tokens. To do this, Turnkey needs your X Client Secret uploaded and encrypted. Run the credential-upload script:
+Allocations bind to stable numeric IDs, never handles. Manual mode accepts `handle:numeric_id` values (see `handles.example.txt`):
 
 ```bash
-pnpm run credential-upload -- <client_secret>
+X_LOOKUP_MODE=manual pnpm preassociate -- turnkey:2244994945
 ```
 
-On success it prints an **OAuth 2.0 Credential ID**. Add that value to `.env.local`:
-
-- `OAUTH2_CREDENTIAL_ID` — the credential ID returned by the script
-
-### 6/ Running the app
+Live mode resolves handles through `GET https://api.x.com/2/users/by?usernames=...` and requires `X_BEARER_TOKEN`:
 
 ```bash
-pnpm run dev
+X_LOOKUP_MODE=live X_BEARER_TOKEN=... pnpm preassociate -- turnkey
 ```
 
-Navigate to http://127.0.0.1:3456 in your browser and follow the prompts to sign in with X.
+Re-running pre-association skips a matching `claim:x:<numeric_id>` allocation.
+
+## Run the demo
+
+```bash
+pnpm preassociate -- turnkey:2244994945
+pnpm dev
+```
+
+Open the printed `http://127.0.0.1:3456/claim/<subOrgId>` URL and log in with the assigned X account. A different numeric X subject receives HTTP 403 with `this allocation belongs to a different X account`. After the dashboard opens, verify the provider and exclusive claimant root, then prove the old backend cannot sign:
+
+```bash
+pnpm demo:verify -- <subOrgId>
+pnpm attack -- <subOrgId>
+```
+
+The attack gate passes only when it prints `DENIED AS EXPECTED: <reason>` and exits 0. A successful signature is a security failure and exits 1. `pnpm demo -- --dry-run` prints the lifecycle without credentials; `pnpm test:claim-gate` checks a forged-sub mismatch locally.
+
+## Why funds move only at claim
+
+Pre-association creates an address for a numeric X ID, but the operator must not fund it while the backend remains temporary root. The claim gate compares the Turnkey-issued `x:<numeric_id>` subject with the ID embedded in the allocation name, so handle changes and handle squatting do not redirect an allocation. A successful match creates the claimant, attaches that X identity, installs a claimant-specific signing allow, and rotates root quorum exclusively to that claimant. The previously installed deny then policy-blocks the demoted backend key from raw signing. Funds move to the verified address only after the post-claim verification and adversarial signing gate pass.
+
+## Failure modes
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| X reports a callback error | Callback uses `localhost`, a different port, or a different path | Use exactly `http://127.0.0.1:3456/auth/x/redirect` everywhere |
+| `Missing OAUTH2_CREDENTIAL_ID` or authentication fails | X client secret was not uploaded | Run `pnpm credential-upload -- '<secret>'` and copy its output to `.env.local` |
+| HTTP 403 with the allocation message | Authenticated numeric X ID differs from the allocation ID | Sign out of X and authenticate as the assigned account; never edit IDs to match a handle |
+| `DENIED AS EXPECTED` | Expected post-claim backend policy denial | Treat it as a passing attack gate; investigate if signing succeeds instead |
+| X authorization is unavailable or limited | X app approval is pending or permissions are wrong | Complete X approval and enable OAuth 2.0 Web App + Read permission |
+
+## What production adds
+
+- Expiry and a claimant-controlled or separately governed reclaim design
+- Durable allocation state, batch jobs, retries, idempotency locks, and X API rate-limit handling
+- Post-claim passkey enrollment and recovery policies
+- A target-chain transfer/deposit step gated on verification and backend attack denial
+- Monitoring and alerts for claim failures, root changes, policy changes, and signing attempts
+- An Option A upgrade using cold `oidcClaims` pre-registration if Turnkey confirms that lifecycle for X
+
+## Policy expressions
+
+See the heavily commented reusable documents in `src/lib/policies.ts`. Their conditions are `activity.type == 'ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2'`; consensus is bound respectively to the concrete backend user ID (deny) and concrete claimant user ID (allow). With no other allow policy, non-root activity is default-denied.
