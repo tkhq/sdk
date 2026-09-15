@@ -60,7 +60,7 @@ Then the gate, and only if it passes, the handoff:
 
 ### Verification
 
-`pnpm demo:verify` re-reads the sub-org and asserts all four post-conditions independently: the X provider is attached, the root quorum is exactly the claimant, and both policies are present. `pnpm attack` then tries to actually sign with the demoted backend credential and requires a policy denial.
+`pnpm demo:verify` re-reads the sub-org and asserts the post-conditions independently of the app: the X provider is attached to a user, the root quorum is exactly that user, and both signing policies are present (it warns if the backend `oauth_login` allow is missing, which only happens on allocations that pre-date it). `pnpm attack` then tries to actually sign with the demoted backend credential and requires a policy denial.
 
 ## Prerequisites
 
@@ -130,20 +130,23 @@ X_LOOKUP_MODE=manual pnpm preassociate -- turnkey:16088008
 
 ## Run the demo
 
-`pnpm demo` resolves the targets and delegates to `pnpm preassociate`; use `demo` unless you want pre-association alone.
+`pnpm demo` resolves the targets and delegates to `pnpm preassociate`; use `demo` unless you want pre-association alone. Keep the `pnpm dev` terminal visible throughout: the server log narrates every Turnkey call, and it is where the diagnostics live.
 
-**1. Allocate.** Substitute your own claimant's handle and numeric ID:
+**1. Allocate two sub-orgs — one for you, one you cannot claim.**
 
 ```bash
-pnpm demo -- turnkey:16088008
+pnpm demo -- <your_handle>:<your_numeric_id>   # yours; see "Finding a numeric X ID"
+pnpm demo -- turnkey:16088008                  # someone else's, for the rejection test
 ```
+
+Each prints a claim URL and a Solana address:
 
 ```text
-CREATED @turnkey 16088008: http://127.0.0.1:3456/claim/08ecd397-...
-SOLANA ADDRESS (DO NOT FUND BEFORE CLAIM GATES PASS): 2C6fhniK6Ft...
+CREATED @LewellenMichael 1270562298: http://127.0.0.1:3456/claim/0447450a-…
+SOLANA ADDRESS (DO NOT FUND BEFORE CLAIM GATES PASS): 4D6TnEMr8mk9…
 ```
 
-Re-running prints `SKIP … (unclaimed allocation exists)` instead of allocating again; after a claim it prints `CLAIMED … (pass --reallocate to allocate again)`.
+Re-running prints `SKIP … (unclaimed allocation exists)`; after a claim it prints `CLAIMED … (pass --reallocate to allocate again)`.
 
 **2. Start the app.**
 
@@ -151,9 +154,30 @@ Re-running prints `SKIP … (unclaimed allocation exists)` instead of allocating
 pnpm dev
 ```
 
-**3. Prove the gate rejects the wrong account.** Allocate for a numeric ID you do *not* control — `pnpm demo -- turnkey:16088008` — and open *that* claim URL signed in as yourself. Expect HTTP 403 and `this allocation belongs to a different X account`, and `pnpm demo:verify` on it should still report `verified X claimant is not attached` afterwards: a rejection mutates nothing. Do this before the successful claim — it is the check the whole design rests on, and it is far more convincing before you know the happy path works.
+Always enter through a `/claim/<subOrgId>` URL. The welcome page at `/` has no allocation to bind to, and says so.
 
-**4. Claim.** Sign out of X, sign in as the assigned account, and open the claim URL again. The dashboard opens once handoff completes.
+**3. Prove the gate rejects the wrong account.** Open the `turnkey:16088008` claim URL and authorize as yourself. Expect **Claim rejected — this allocation belongs to a different X account** (HTTP 403). The server log says why, and shows that nothing else happened:
+
+```text
+claim gate: sub="1270562298" allocation="allocation:claim:x:16088008:@turnkey" …
+claim gate refused: X ID mismatch: token 1270562298 vs allocation 16088008
+```
+
+`pnpm demo:verify -- <foreignSubOrgId>` still reports `verified X claimant is not attached`: a rejection mutates nothing. Do this before the successful claim — it is the check the whole design rests on, and it is far more convincing before you have watched the happy path work.
+
+**4. Claim yours.** Open your own claim URL and authorize. Finish the X consent screen within ten minutes; the PKCE cookies expire after that. The dashboard opens once handoff completes, and the log narrates it:
+
+```text
+claim step ok: oauth2Authenticate
+claim gate: sub="1270562298" allocation="allocation:claim:x:1270562298:@LewellenMichael" …
+claim step ok: createUsers
+claim: created claimant 3f1bbb55-…
+claim step ok: createPolicy(claimant allow)
+claim step ok: updateRootQuorum        ← custody moves on this line
+claim step ok: oauthLogin
+```
+
+The **User ID** on the dashboard is that claimant ID, and the wallet address is the one printed at allocation.
 
 **5. Verify the handoff.**
 
@@ -162,10 +186,10 @@ pnpm demo:verify -- <subOrgId>
 ```
 
 ```text
-VERIFIED CLAIM: 08ecd397-... -> X 16088008 -> ce551a22-...
+VERIFIED CLAIM: <subOrgId> -> X 1270562298 -> 3f1bbb55-…
 ```
 
-Before a claim this correctly fails with `verified X claimant is not attached`.
+Read back from Turnkey independently of the app: the X provider is attached to a user, root quorum is exactly that user, and the signing deny and allow are both present. Before a claim this correctly fails with `verified X claimant is not attached`.
 
 **6. Run the adversarial gate.**
 
@@ -174,18 +198,26 @@ pnpm attack -- <subOrgId>
 ```
 
 ```text
-DENIED AS EXPECTED (explicit deny policy fired): Turnkey error 7: You don't have sufficient permissions to take this action. ...
+DENIED AS EXPECTED (explicit deny policy fired): Turnkey error 7: You don't have sufficient permissions to take this action. …
 ```
 
-The parenthetical matters. Turnkey's details list every policy's outcome; the gate passes on any `PolicyEnginePermissionError` but reports whether the backend deny evaluated to `OUTCOME_DENY_EXPLICIT` (as above) or the request was only implicitly denied — which would mean the deny policy is missing.
+This uses the *same API key that was root of this sub-org one step ago* and asks Turnkey to sign with the wallet. The parenthetical matters: Turnkey's details list every policy's outcome, and the gate reports whether the backend deny reached `OUTCOME_DENY_EXPLICIT` (as above) or the request was only implicitly denied, which would mean the deny policy is missing. The gate passes only when it prints `DENIED AS EXPECTED` and exits 0; a successful signature is a security failure and exits 1.
 
-The gate passes only when it prints `DENIED AS EXPECTED` and exits 0. A successful signature is a security failure and exits 1.
-
-**Before claim, this command prints `SECURITY FAILURE` and that is the expected result.** The backend is still sole root, and root quorum bypasses the policy engine, so the latent deny cannot yet be enforced. A pre-claim run tells you nothing except that the boundary described below is real — which is precisely why funds must wait.
+**Before claim, this command prints `SECURITY FAILURE`, and that is the expected result.** The backend is still sole root, and root quorum bypasses the policy engine, so the latent deny cannot yet be enforced. A pre-claim run tells you nothing except that the boundary described below is real — which is precisely why funds must wait.
 
 **7. Only now move value**, if you are going that far.
 
 Each allocation creates a Turnkey sub-organization that cannot be deleted, so repeated runs accumulate them in your organization. Unclaimed allocations are reused automatically; use `--reallocate` only when you deliberately want a fresh one after a claim.
+
+### Presenting this in five minutes
+
+If you are showing this rather than testing it, the order above is the talk track. Keep the server log on screen.
+
+1. *"An address exists for this X account before they have ever logged in."* Show the allocation output and the address.
+2. *"Nobody else can take it."* The foreign allocation's rejection, with `X ID mismatch` in the log.
+3. *"The owner claims it with an ordinary X login."* The consent screen, then the seven log lines. Pause on `updateRootQuorum`: that line is custody moving.
+4. *"And we, the operator, are now locked out."* `pnpm attack`. The key that created the wallet cannot sign with it.
+5. Close on the funding rule: value moves only after step 4 passes, because until root rotates, Turnkey's own root-bypass rule means no policy can bind the operator. That is not a limitation of the demo; it is the property that makes the handoff trustworthy.
 
 ## Security model and an important boundary
 
@@ -233,7 +265,9 @@ Note that ed25519 requires `HASH_FUNCTION_NOT_APPLICABLE`. Ed25519 hashes during
 | No client secret shown in the X portal | App was created as a Native or Single Page App | Recreate it as a Web App, Automated App or Bot |
 | `Invalid client ID provided` from `credential-upload` | `X_CLIENT_ID` is still the placeholder | Set it in `.env.local` before uploading the secret |
 | `Missing OAUTH2_CREDENTIAL_ID` or authentication fails | X client secret was not uploaded | Run `pnpm credential-upload -- '<secret>'` and copy its output to `.env.local` |
-| HTTP 403 with the allocation message | Authenticated numeric X ID differs from the allocation ID | Sign in as the assigned account; never edit IDs to match a handle |
+| HTTP 403 with the allocation message | Authenticated numeric X ID differs from the allocation ID (step 3 does this on purpose) | Open *your* allocation's URL; never edit IDs to match a handle |
+| `Missing claim allocation` | Flow started from `/` or `/dashboard`, not a claim URL, or the cookie expired | Open the `/claim/<subOrgId>` URL and start again |
+| `Missing PKCE verifier` | More than ten minutes on the X consent screen; the PKCE cookies expired | Reopen the claim URL and authorize promptly |
 | `verified X claimant is not attached` | Allocation has not been claimed yet | Complete the browser claim first |
 | `user missing valid credential: <id>` from `createUsers` | A user was created with no credential; the X provider must be attached in the same call | Already fixed in this example; if you fork the route, keep `oauthProviders` inline |
 | `oauth_login` denied with `OUTCOME_DENY_IMPLICIT` after handoff | Sub-org pre-dates the backend `oauth_login` allow policy; the demoted backend cannot add it | Allocate afresh — the claimant now holds root and the old allocation is otherwise intact |
