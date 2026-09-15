@@ -1,3 +1,5 @@
 # Manual mode: immutable allocation input is handle:numeric_id (one per argument/line).
 # Confirm the numeric ID with X before allocating; handles are display-only.
-turnkey:2244994945
+# Look one up: curl -H "Authorization: Bearer $X_BEARER_TOKEN" \
+#   "https://api.x.com/2/users/by/username/<handle>"
+turnkey:16088008

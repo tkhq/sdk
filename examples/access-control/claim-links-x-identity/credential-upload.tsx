@@ -11,8 +11,9 @@ import dotenv from "dotenv";
 dotenv.config({ path: "./.env.local" });
 
 (async () => {
-  // obtain the args to this script and ensure there is exactly 1
-  const args = process.argv.slice(2);
+  // obtain the args to this script and ensure there is exactly 1.
+  // pnpm forwards the `--` separator, so strip it before counting.
+  const args = process.argv.slice(2).filter((arg) => arg !== "--");
   if (args.length !== 1) {
     console.log(
       "Invalid client secret provided. To input a client secret run: pnpm run credential-upload -- <client_secret>",

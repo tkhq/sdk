@@ -6,10 +6,10 @@ function token(subject: string): string {
   return `header.${payload}.signature`;
 }
 
-assert.equal(assertClaimMatches(token("x:2244994945"), "allocation:claim:x:2244994945:@turnkey"), "2244994945");
+assert.equal(assertClaimMatches(token("x:16088008"), "allocation:claim:x:16088008:@turnkey"), "16088008");
 assert.throws(
-  () => assertClaimMatches(token("x:999"), "allocation:claim:x:2244994945:@turnkey"),
+  () => assertClaimMatches(token("x:999"), "allocation:claim:x:16088008:@turnkey"),
   (error: unknown) => error instanceof ClaimGateError && error.message === CLAIM_MISMATCH_MESSAGE,
 );
-assert.throws(() => assertClaimMatches(token("@mutable_handle"), "allocation:claim:x:2244994945"), ClaimGateError);
+assert.throws(() => assertClaimMatches(token("@mutable_handle"), "allocation:claim:x:16088008"), ClaimGateError);
 console.log("PASS: forged OIDC sub cannot cross the numeric-X-ID claim gate");
