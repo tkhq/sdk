@@ -1,5 +1,17 @@
 # @turnkey/core
 
+## 2.9.1
+
+### Patch Changes
+
+- [#1514](https://github.com/tkhq/sdk/pull/1514) [`304d4a8`](https://github.com/tkhq/sdk/commit/304d4a83e4ba8fe6e8bed8fcd7e57505e7c25b52) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `ethSendTransaction` to respect the per-call `stampWith` instead of falling back to the client default stamper
+
+- Updated dependencies [[`66f2acd`](https://github.com/tkhq/sdk/commit/66f2acda2fc99534316eba8a1e6e9aff674fb621), [`a68b73a`](https://github.com/tkhq/sdk/commit/a68b73a6c2b3d76ef94f9447ec3a9f3794eda857)]:
+  - @turnkey/crypto@2.13.0
+  - @turnkey/api-key-stamper@0.6.15
+  - @turnkey/http@6.4.1
+  - @turnkey/react-native-passkey-stamper@1.2.24
+
 ## 2.9.0
 
 ### Minor Changes

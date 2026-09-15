@@ -1,5 +1,12 @@
 # @turnkey/react-wallet-kit
 
+## 2.4.5
+
+### Patch Changes
+
+- Updated dependencies [[`304d4a8`](https://github.com/tkhq/sdk/commit/304d4a83e4ba8fe6e8bed8fcd7e57505e7c25b52)]:
+  - @turnkey/core@2.9.1
+
 ## 2.4.4
 
 ### Patch Changes
