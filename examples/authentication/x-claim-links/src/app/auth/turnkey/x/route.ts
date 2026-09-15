@@ -1,183 +1,91 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import {
-  DEFAULT_SOLANA_ACCOUNTS,
-  Turnkey as TurnkeySDKClient,
-} from "@turnkey/sdk-server";
 import { generateP256KeyPair } from "@turnkey/crypto";
-// import { decryptCredentialBundle } from "@turnkey/crypto"; // needed if you want to decrypt the bearer token (see commented-out code starting at line 86)
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
+import {
+  assertClaimMatches,
+  ClaimGateError,
+  CLAIM_MISMATCH_MESSAGE,
+  numericXIdFromSubject,
+  decodeOidcSubject,
+} from "@/lib/claim-gate";
+import { claimantSignAllowPolicy } from "@/lib/policies";
+import { getAllocation, turnkeyClient } from "@/lib/turnkey-server";
+
+interface ClaimRequest {
+  auth_code?: unknown;
+  state?: unknown;
+  public_key?: unknown;
+}
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  if (!body?.auth_code) {
-    return NextResponse.json({ error: "Missing auth_code" }, { status: 400 });
-  }
-
-  if (!body?.state) {
-    return NextResponse.json({ error: "Missing state" }, { status: 400 });
-  }
-
-  if (!body?.public_key) {
-    return NextResponse.json({ error: "Missing public_key" }, { status: 400 });
-  }
-
-  // ensure the X_CLIENT_ID environment variable has been set
-  if (!process.env.X_CLIENT_ID) {
-    return NextResponse.json(
-      {
-        error:
-          "Missing X_CLIENT_ID environment variable, please set it in .env.local",
-      },
-      { status: 400 },
-    );
-  }
-
-  // ensure the X_REDIRECT_URI environment variable has been set
-  if (!process.env.X_REDIRECT_URI) {
-    return NextResponse.json(
-      {
-        error:
-          "Missing X_REDIRECT_URI environment variable, please set it in .env.local",
-      },
-      { status: 400 },
-    );
-  }
+  const body: ClaimRequest = await req.json();
+  if (typeof body.auth_code !== "string") return NextResponse.json({ error: "Missing auth_code" }, { status: 400 });
+  if (typeof body.state !== "string") return NextResponse.json({ error: "Missing state" }, { status: 400 });
+  if (typeof body.public_key !== "string") return NextResponse.json({ error: "Missing public_key" }, { status: 400 });
+  if (!process.env.X_CLIENT_ID) return NextResponse.json({ error: "Missing X_CLIENT_ID environment variable, please set it in .env.local" }, { status: 400 });
+  if (!process.env.X_REDIRECT_URI) return NextResponse.json({ error: "Missing X_REDIRECT_URI environment variable, please set it in .env.local" }, { status: 400 });
 
   const cookieStore = await cookies();
   const codeVerifier = cookieStore.get("pkce_verifier")?.value;
   const expectedState = cookieStore.get("pkce_state")?.value;
-  if (!codeVerifier || !expectedState) {
-    return NextResponse.json(
-      { error: "Missing PKCE verifier" },
-      { status: 400 },
-    );
-  }
-  if (body.state !== expectedState) {
-    return NextResponse.json({ error: "Invalid state" }, { status: 400 });
-  }
-  const sessionPublicKey = body.public_key;
+  const subOrgId = cookieStore.get("claim_allocation")?.value;
+  if (!codeVerifier || !expectedState) return NextResponse.json({ error: "Missing PKCE verifier" }, { status: 400 });
+  if (body.state !== expectedState) return NextResponse.json({ error: "Invalid state" }, { status: 400 });
+  if (!subOrgId) return NextResponse.json({ error: "Missing claim allocation" }, { status: 400 });
 
   try {
-    // construct a TurnkeyClient with the parent organization api key saved in .env.local
-    // this is a server component and is never exposed to the client
-    const turnkeyClient = new TurnkeySDKClient({
-      apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-      defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-    });
-
-    // perform an Oauth2Authenticate activity with the parameters passed by the client that will respond with an OIDC token issued by Turnkey to be used with a future LoginWithOAuth or CreateSubOrganization activity
-    // NOTE: P256 keypair is only required if you would like the encrypted bearer token to be returned in the response
+    const parent = turnkeyClient();
     const keypair = generateP256KeyPair();
-
-    const oauth2AuthenticateResponse = await turnkeyClient
-      .apiClient()
-      .oauth2Authenticate({
-        oauth2CredentialId: process.env.OAUTH2_CREDENTIAL_ID!,
-        authCode: body.auth_code,
-        redirectUri: process.env.X_REDIRECT_URI!,
-        codeVerifier,
-        bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
-        nonce: bytesToHex(sha256(sessionPublicKey)),
-      });
-
-    // you can now decrypt and store the bearer token as shown below (code commented out for security reasons)
-    // const encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(oauth2AuthenticateResponse.oidcToken);
-    // if (encryptedBearerToken !== undefined) {
-    //   const decryptedBearerToken = await decryptCredentialBundle(
-    //     encryptedBearerToken,
-    //     keypair.privateKey,
-    //   );
-    // }
-
-    // check if there are any existing users with that OIDC token
-    const getSubOrgIdsResponse = await turnkeyClient.apiClient().getSubOrgIds({
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-      filterType: "OIDC_TOKEN",
-      filterValue: oauth2AuthenticateResponse.oidcToken,
+    const authenticated = await parent.oauth2Authenticate({
+      oauth2CredentialId: process.env.OAUTH2_CREDENTIAL_ID!,
+      authCode: body.auth_code,
+      redirectUri: process.env.X_REDIRECT_URI,
+      codeVerifier,
+      bearerTokenTargetPublicKey: keypair.publicKeyUncompressed,
+      nonce: bytesToHex(sha256(body.public_key)),
     });
+    const allocation = await getAllocation(subOrgId);
+    const numericXId = assertClaimMatches(authenticated.oidcToken, allocation.name ?? "");
+    const subject = decodeOidcSubject(authenticated.oidcToken);
+    const subOrg = turnkeyClient(subOrgId);
 
-    let subOrgId: string;
-
-    if (getSubOrgIdsResponse.organizationIds.length == 0) {
-      // if no user was found with that OIDC Token create a new sub-organization
-      const subOrgName = "X sub-organization " + Date.now();
-      const createSubOrgResponse = await turnkeyClient
-        .apiClient()
-        .createSubOrganization({
-          subOrganizationName: subOrgName,
-          rootQuorumThreshold: 1,
-          rootUsers: [
-            {
-              userName: subOrgName,
-              apiKeys: [],
-              authenticators: [],
-              oauthProviders: [
-                {
-                  providerName: "X",
-                  oidcToken: oauth2AuthenticateResponse.oidcToken,
-                },
-              ],
-            },
-          ],
-          wallet: {
-            walletName: subOrgName + " wallet",
-            accounts: [...DEFAULT_SOLANA_ACCOUNTS],
-          },
-        });
-
-      subOrgId =
-        createSubOrgResponse.activity.result.createSubOrganizationResultV8!
-          .subOrganizationId;
-    } else if (getSubOrgIdsResponse.organizationIds.length > 1) {
-      // multiple sub orgs with the same OIDC token, shouldn't be possible
-      return NextResponse.json(
-        { error: `Error performing OAuth 2.0 authentication` },
-        { status: 400 },
-      );
-    } else {
-      subOrgId = getSubOrgIdsResponse.organizationIds[0]!;
+    const claimant = allocation.users?.find((user) =>
+      user.oauthProviders.some((provider) => provider.subject === subject),
+    );
+    if (!claimant) {
+      const created = await subOrg.createUsers({ users: [{
+        userName: `X claimant ${numericXId}`,
+        apiKeys: [], authenticators: [], oauthProviders: [], userTags: [],
+      }] });
+      const claimantUserId = created.userIds[0];
+      if (!claimantUserId) throw new Error("createUsers returned no claimant user ID");
+      await subOrg.createOauthProviders({
+        userId: claimantUserId,
+        oauthProviders: [{ providerName: "X", oidcToken: authenticated.oidcToken }],
+      });
+      await subOrg.createPolicy(claimantSignAllowPolicy(claimantUserId));
+      await subOrg.updateRootQuorum({ threshold: 1, userIds: [claimantUserId] });
     }
 
-    // a user was found with that OIDC token, try logging them in
-    const loginWithOAuthResponse = await turnkeyClient.apiClient().oauthLogin({
+    // oauth_login both proves the attached provider and creates the claimant's session.
+    numericXIdFromSubject(subject);
+    const login = await parent.oauthLogin({
       organizationId: subOrgId,
-      oidcToken: oauth2AuthenticateResponse.oidcToken,
-      publicKey: sessionPublicKey,
+      oidcToken: authenticated.oidcToken,
+      publicKey: body.public_key,
     });
-
-    const response = NextResponse.json({
-      ok: true,
-      session: loginWithOAuthResponse.session,
-    });
+    const response = NextResponse.json({ ok: true, session: login.session });
     response.cookies.delete("pkce_verifier");
     response.cookies.delete("pkce_state");
+    response.cookies.delete("claim_allocation");
     return response;
-  } catch (e) {
-    return NextResponse.json(
-      { error: `Error performing OAuth 2.0 authentication: ${e}` },
-      { status: 400 },
-    );
+  } catch (error: unknown) {
+    if (error instanceof ClaimGateError) {
+      return new NextResponse(CLAIM_MISMATCH_MESSAGE, { status: 403 });
+    }
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: `Error performing OAuth 2.0 authentication: ${message}` }, { status: 400 });
   }
 }
-
-// // Gets the encrypted bearer token from the b64-encoded OIDC ID Token
-// function getEncryptedBearerTokenFromOidcToken(
-//   token: string,
-// ): string | undefined {
-//   const payloadSeg = token.split(".")[1];
-//   if (!payloadSeg) throw new Error("Invalid JWT");
-
-//   // base64url -> base64 (and pad)
-//   const b64 = payloadSeg.replace(/-/g, "+").replace(/_/g, "/");
-//   const padded = b64 + "===".slice((b64.length + 3) % 4);
-
-//   const json = Buffer.from(padded, "base64").toString("utf8");
-//   const claims = JSON.parse(json) as Record<string, unknown>;
-
-//   // Your example token actually has "encrypted_bearer_token".
-//   return claims["encrypted_bearer_token"] as string | undefined;
-// }

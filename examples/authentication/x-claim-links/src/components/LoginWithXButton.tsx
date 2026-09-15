@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-export function LoginWithXButton() {
+export function LoginWithXButton({ subOrgId }: { subOrgId?: string }) {
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -13,7 +13,9 @@ export function LoginWithXButton() {
     setIsRedirecting(true);
     const state = crypto.randomUUID();
     localStorage.setItem("oauth_state", state); // satisfies the kit's internal state check on redirect
-    router.push(`/auth/x?state=${state}`);
+    const params = new URLSearchParams({ state });
+    if (subOrgId) params.set("allocation", subOrgId);
+    router.push(`/auth/x?${params.toString()}`);
   }
 
   return (

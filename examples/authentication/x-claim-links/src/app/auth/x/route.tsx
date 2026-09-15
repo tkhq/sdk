@@ -3,6 +3,7 @@ import crypto from "crypto";
 
 export async function GET(req: NextRequest) {
   const state = req.nextUrl.searchParams.get("state");
+  const allocation = req.nextUrl.searchParams.get("allocation");
   if (!state) {
     return NextResponse.json(
       { error: "Missing state parameter" },
@@ -38,5 +39,6 @@ export async function GET(req: NextRequest) {
   };
   response.cookies.set("pkce_verifier", codeVerifier, cookieOptions);
   response.cookies.set("pkce_state", state, cookieOptions);
+  if (allocation) response.cookies.set("claim_allocation", allocation, cookieOptions);
   return response;
 }
