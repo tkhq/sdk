@@ -48,10 +48,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@cosmjs/amino": "^0.33.0",
-    "@cosmjs/crypto": "^0.33.0",
-    "@cosmjs/encoding": "^0.33.0",
-    "@cosmjs/proto-signing": "^0.33.0",
+    "@cosmjs/amino": "^0.34.1",
+    "@cosmjs/crypto": "^0.34.1",
+    "@cosmjs/encoding": "^0.34.1",
+    "@cosmjs/proto-signing": "^0.34.1",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
