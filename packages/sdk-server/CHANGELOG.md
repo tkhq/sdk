@@ -554,6 +554,7 @@
   `ACTIVITY_TYPE_CREATE_USERS_V3` → `ACTIVITY_TYPE_CREATE_USERS_V4`
 
   **What changed:** `users` items updated from `v1UserParamsV3` → `v1UserParamsV4`, which updates `oauthProviders` from `v1OauthProviderParams` → `v1OauthProviderParamsV2`.
+  - **Credential requirement:** V4 rejects creating users with no credentials. Each user needs at least one of: an API key, an authenticator, an OAuth provider, or an email/phone with a login method enabled on the organization. Unused credential arrays can still be `[]`.
 
   ```ts
   // before — v1UserParamsV3
