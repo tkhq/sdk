@@ -77,10 +77,11 @@ export function OtpVerification(props: OtpVerificationProps) {
       const niceError =
         (error as TurnkeyError).code === TurnkeyErrorCodes.INVALID_OTP_CODE
           ? "Invalid OTP code"
-          : "An error has occurred";
+          : error instanceof Error
+            ? error.message
+            : "An error has occurred";
       setError(niceError);
       shakeInput();
-      throw new Error(`Error completing OTP: ${error}`);
     } finally {
       setSubmitting(false);
     }
@@ -104,7 +105,9 @@ export function OtpVerification(props: OtpVerificationProps) {
       setOtpEncryptionTargetBundle(otpEncryptionTargetBundle);
       setResent(true);
     } catch (error) {
-      throw new Error(`Error resending OTP: ${error}`);
+      setError(
+        error instanceof Error ? error.message : "An error has occurred",
+      );
     } finally {
       setResending(false);
     }

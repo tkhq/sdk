@@ -43,6 +43,10 @@ import {
   StamperType,
 } from "./__types__";
 import { bs58, base64UrlToBase64, atob } from "@turnkey/encoding";
+import {
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
+} from "@turnkey/http";
 
 // Import all defaultAccountAtIndex functions for each address format
 import {
@@ -1111,7 +1115,12 @@ export async function withTurnkeyErrorHandling<T>(
           ? (error as any).message
           : JSON.stringify(error);
 
-    if (error instanceof TurnkeyError) {
+    if (
+      error instanceof TurnkeyActivityError ||
+      error instanceof TurnkeyActivityConsensusNeededError
+    ) {
+      throw error;
+    } else if (error instanceof TurnkeyError) {
       const customCodeMessage = customErrorsByCodes?.[error.code!];
       if (customCodeMessage) {
         throw new TurnkeyError(

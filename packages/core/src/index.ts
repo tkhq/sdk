@@ -15,6 +15,10 @@ export {
 
 export { TurnkeyClient, type TurnkeyClientMethods } from "./__clients__/core";
 export { type TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
+export {
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
+} from "@turnkey/http";
 
 // Export all types and values from __types__/
 export * from "./__types__/auth";
