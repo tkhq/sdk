@@ -25,15 +25,29 @@ jest.mock(
 
 import { TurnkeyClient } from "../__clients__/core";
 import { StamperType } from "../__types__";
+import {
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
+} from "@turnkey/http";
 
 function createClient() {
   const client = new TurnkeyClient({
     organizationId: "org-id",
   });
+  const activity = {
+    id: "activity-id",
+    status: "ACTIVITY_STATUS_COMPLETED",
+    type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+  };
   const solSendTransaction = jest.fn(async () => ({
+    activity,
     sendTransactionStatusId: "v1-status-id",
   }));
   const solSendTransactionV2 = jest.fn(async () => ({
+    activity: {
+      ...activity,
+      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+    },
     sendTransactionStatusId: "v2-status-id",
   }));
 
@@ -103,5 +117,76 @@ describe("solSendTransaction helper", () => {
       StamperType.Passkey,
     );
     expect(solSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("surfaces failed activity details", async () => {
+    const { client, solSendTransaction } = createClient();
+    solSendTransaction.mockResolvedValueOnce({
+      activity: {
+        id: "failed-activity-id",
+        status: "ACTIVITY_STATUS_FAILED",
+        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+        failure: { message: "Transaction denied by policy" },
+      },
+      sendTransactionStatusId: "",
+    } as any);
+
+    let error: unknown;
+    try {
+      await client.solSendTransaction({
+        organizationId: "org-id",
+        stampWith: StamperType.Passkey,
+        transaction: {
+          unsignedTransaction: "AA==",
+          signWith: "signer-a",
+          caip2: "solana:devnet",
+        },
+      });
+    } catch (caught) {
+      error = caught;
+    }
+
+    expect(error).toBeInstanceOf(TurnkeyActivityError);
+    expect(error).toMatchObject({
+      message: "Transaction denied by policy",
+      activityId: "failed-activity-id",
+      activityStatus: "ACTIVITY_STATUS_FAILED",
+      activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+    });
+  });
+
+  it("surfaces consensus-needed activity details", async () => {
+    const { client, solSendTransaction } = createClient();
+    solSendTransaction.mockResolvedValueOnce({
+      activity: {
+        id: "consensus-activity-id",
+        status: "ACTIVITY_STATUS_CONSENSUS_NEEDED",
+        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+      },
+      sendTransactionStatusId: "",
+    } as any);
+
+    let error: unknown;
+    try {
+      await client.solSendTransaction({
+        organizationId: "org-id",
+        stampWith: StamperType.Passkey,
+        transaction: {
+          unsignedTransaction: "AA==",
+          signWith: "signer-a",
+          caip2: "solana:devnet",
+        },
+      });
+    } catch (caught) {
+      error = caught;
+    }
+
+    expect(error).toBeInstanceOf(TurnkeyActivityConsensusNeededError);
+    expect(error).toMatchObject({
+      message: "Send transaction activity requires consensus",
+      activityId: "consensus-activity-id",
+      activityStatus: "ACTIVITY_STATUS_CONSENSUS_NEEDED",
+      activityType: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+    });
   });
 });
