@@ -1,5 +1,21 @@
 # @turnkey/react-wallet-kit
 
+## 2.5.0
+
+### Minor Changes
+
+- [#1532](https://github.com/tkhq/sdk/pull/1532) [`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312) Thanks [@t-vila](https://github.com/t-vila)! - `createKeyPair` now raises `API_KEY_STORAGE_UNAVAILABLE` when the device refuses to persist a generated key pair, instead of a generic failure
+
+### Patch Changes
+
+- [#1533](https://github.com/tkhq/sdk/pull/1533) [`dd45068`](https://github.com/tkhq/sdk/commit/dd45068934e148fc17d96857dc049ac697477c77) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `sessionExpirationSeconds` from the auth proxy config being ignored in the OTP and OAuth `signUp`/`complete` flows. These now auto-populate `expirationSeconds` from the config
+
+  Added an optional `expirationSeconds` param to `completeOtp`, `signUpWithOtp`, `completeOauth`, and `signUpWithOauth`
+
+- Updated dependencies [[`dd45068`](https://github.com/tkhq/sdk/commit/dd45068934e148fc17d96857dc049ac697477c77), [`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312)]:
+  - @turnkey/core@2.11.0
+  - @turnkey/sdk-types@1.9.0
+
 ## 2.4.5
 
 ### Patch Changes

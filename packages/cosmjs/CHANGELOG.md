@@ -1,5 +1,18 @@
 # @turnkey/cosmjs
 
+## 0.8.43
+
+### Patch Changes
+
+- [#1528](https://github.com/tkhq/sdk/pull/1528) [`083f9ea`](https://github.com/tkhq/sdk/commit/083f9ea5bbf2ada89282c95fa8466976245ba02f) Author [@ethankonk](https://github.com/ethankonk) - Upgrade CosmJS to 0.34 so `@cosmjs/crypto` uses `@noble/curves` instead of the unmaintained `elliptic` package.
+
+- Updated dependencies [[`dd45068`](https://github.com/tkhq/sdk/commit/dd45068934e148fc17d96857dc049ac697477c77), [`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312)]:
+  - @turnkey/core@2.11.0
+  - @turnkey/sdk-browser@8.5.1
+  - @turnkey/sdk-server@8.5.1
+  - @turnkey/api-key-stamper@0.6.16
+  - @turnkey/http@6.5.1
+
 ## 0.8.42
 
 ### Patch Changes

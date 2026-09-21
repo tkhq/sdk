@@ -1,5 +1,13 @@
 # @turnkey/spark
 
+## 0.3.11
+
+### Patch Changes
+
+- Updated dependencies [[`dd45068`](https://github.com/tkhq/sdk/commit/dd45068934e148fc17d96857dc049ac697477c77), [`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312)]:
+  - @turnkey/core@2.11.0
+  - @turnkey/sdk-server@8.5.1
+
 ## 0.3.10
 
 ### Patch Changes
