@@ -174,6 +174,7 @@ export type SignUpWithOtpParams = {
   createSubOrgParams?: CreateSubOrgParams;
   invalidateExisting?: boolean;
   sessionKey?: string;
+  expirationSeconds?: string;
   sessionProfileId?: string;
   captchaToken?: string;
 };
@@ -187,6 +188,7 @@ export type CompleteOtpParams = {
   publicKey?: string;
   invalidateExisting?: boolean;
   sessionKey?: string;
+  expirationSeconds?: string;
   createSubOrgParams?: CreateSubOrgParams;
   sessionProfileId?: string;
   captchaToken?: string;
@@ -197,6 +199,7 @@ export type CompleteOauthParams = {
   publicKey: string;
   providerName?: string;
   sessionKey?: string;
+  expirationSeconds?: string;
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
   sessionProfileId?: string;
@@ -220,6 +223,7 @@ export type SignUpWithOauthParams = {
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
+  expirationSeconds?: string;
   sessionProfileId?: string;
   captchaToken?: string;
 };
