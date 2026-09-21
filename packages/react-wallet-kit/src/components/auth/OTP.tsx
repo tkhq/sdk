@@ -80,7 +80,7 @@ export function OtpVerification(props: OtpVerificationProps) {
           : "An error has occurred";
       setError(niceError);
       shakeInput();
-      throw new Error(`Error completing OTP: ${error}`);
+      throw error;
     } finally {
       setSubmitting(false);
     }
@@ -104,7 +104,7 @@ export function OtpVerification(props: OtpVerificationProps) {
       setOtpEncryptionTargetBundle(otpEncryptionTargetBundle);
       setResent(true);
     } catch (error) {
-      throw new Error(`Error resending OTP: ${error}`);
+      throw error;
     } finally {
       setResending(false);
     }
