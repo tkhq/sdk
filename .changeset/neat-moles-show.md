@@ -4,4 +4,4 @@
 "@turnkey/core": minor
 ---
 
-createKeyPair now raises API_KEY_STORAGE_UNAVAILABLE when the device refuses to persist a generated key pair, instead of a generic failure
+`createKeyPair` now raises `API_KEY_STORAGE_UNAVAILABLE` when the device refuses to persist a generated key pair, instead of a generic failure
