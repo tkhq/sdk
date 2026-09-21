@@ -1076,8 +1076,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           ? { ...params, createSubOrgParams }
           : { ...params };
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
       const res = await withTurnkeyErrorHandling(
-        () => client.signUpWithOtp(params),
+        () => client.signUpWithOtp({ ...params, expirationSeconds }),
         () => logout(),
         callbacks,
         "Failed to sign up with OTP",
@@ -1128,8 +1133,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           ? { ...params, createSubOrgParams }
           : { ...params };
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
       const res = await withTurnkeyErrorHandling(
-        () => client.completeOtp(params),
+        () => client.completeOtp({ ...params, expirationSeconds }),
         () => logout(),
         callbacks,
         "Failed to complete OTP",
@@ -1200,8 +1210,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           ? { ...params, createSubOrgParams }
           : { ...params };
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
       const res = await withTurnkeyErrorHandling(
-        () => client.signUpWithOauth(params),
+        () => client.signUpWithOauth({ ...params, expirationSeconds }),
         () => logout(),
         callbacks,
         "Failed to sign up with OAuth",
@@ -1245,8 +1260,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           ? { ...params, createSubOrgParams }
           : { ...params };
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
       const res = await withTurnkeyErrorHandling(
-        () => client.completeOauth(params),
+        () => client.completeOauth({ ...params, expirationSeconds }),
         () => logout(),
         callbacks,
         "Failed to complete OAuth",

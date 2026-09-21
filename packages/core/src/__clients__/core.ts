@@ -1670,6 +1670,7 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
+   * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.captchaToken - optional captcha token for bot prevention during OTP initialization (must be enabled in the auth proxy config to take effect).
    * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
@@ -1685,6 +1686,7 @@ export class TurnkeyClient {
       createSubOrgParams,
       invalidateExisting,
       sessionKey,
+      expirationSeconds,
       sessionProfileId,
       captchaToken,
     } = params;
@@ -1763,6 +1765,7 @@ export class TurnkeyClient {
           organizationId: subOrganizationId,
           ...(invalidateExisting && { invalidateExisting }),
           ...(sessionKey && { sessionKey }),
+          ...(expirationSeconds && { expirationSeconds }),
           ...(sessionProfileId && { sessionProfileId }),
         });
 
@@ -1796,6 +1799,7 @@ export class TurnkeyClient {
    * @param params.publicKey - public key to bind to the verification token via `verifyOtp`. If not provided, a new key pair will be generated. This key becomes the session public key.
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
+   * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
    * @param params.captchaToken - optional captcha token for bot prevention during OTP initialization (must be enabled in the auth proxy config to take effect).
    * @returns A promise that resolves to an object containing:
@@ -1817,6 +1821,7 @@ export class TurnkeyClient {
       otpType,
       invalidateExisting = false,
       sessionKey,
+      expirationSeconds,
       createSubOrgParams,
       sessionProfileId,
       captchaToken,
@@ -1870,6 +1875,7 @@ export class TurnkeyClient {
             ...(createSubOrgParams && { createSubOrgParams }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(expirationSeconds && { expirationSeconds }),
             ...(sessionProfileId && { sessionProfileId }),
             ...(captchaToken && { captchaToken }),
           });
@@ -1885,6 +1891,7 @@ export class TurnkeyClient {
             organizationId: subOrganizationId,
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(expirationSeconds && { expirationSeconds }),
             ...(sessionProfileId && { sessionProfileId }),
           });
 
@@ -1930,6 +1937,7 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
+   * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.captchaToken - optional captcha token for bot prevention during OAuth completion (must be enabled in the auth proxy config to take effect).
    *
    * @returns A promise that resolves to an object containing:
@@ -1947,6 +1955,7 @@ export class TurnkeyClient {
       createSubOrgParams,
       invalidateExisting,
       sessionKey,
+      expirationSeconds,
       sessionProfileId,
       captchaToken,
     } = params;
@@ -1972,6 +1981,7 @@ export class TurnkeyClient {
             organizationId: subOrganizationId,
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(expirationSeconds && { expirationSeconds }),
             ...(sessionProfileId && { sessionProfileId }),
           });
 
@@ -1991,6 +2001,7 @@ export class TurnkeyClient {
             }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(expirationSeconds && { expirationSeconds }),
             ...(sessionProfileId && { sessionProfileId }),
             ...(captchaToken && { captchaToken }),
           });
@@ -2128,6 +2139,7 @@ export class TurnkeyClient {
    * @param params.providerName - name of the OAuth provider (e.g., "Google", "Apple").
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
+   * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.captchaToken - optional captcha token for bot prevention during OTP initialization (must be enabled in the auth proxy config to take effect).
    * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
@@ -2142,6 +2154,7 @@ export class TurnkeyClient {
       providerName = "OpenID Connect Provider" + " " + Date.now(),
       createSubOrgParams,
       sessionKey,
+      expirationSeconds,
       sessionProfileId,
       captchaToken,
     } = params;
@@ -2186,6 +2199,7 @@ export class TurnkeyClient {
           publicKey: publicKey!,
           organizationId: subOrganizationId,
           ...(sessionKey && { sessionKey }),
+          ...(expirationSeconds && { expirationSeconds }),
           ...(sessionProfileId && { sessionProfileId }),
         });
 
