@@ -34,7 +34,7 @@ export function ActionPage(props: ActionPageProps) {
           await action();
         } catch (error) {
           popPage();
-          throw new Error(`${error}`);
+          throw error;
         }
         if (closeOnComplete) {
           closeModal();

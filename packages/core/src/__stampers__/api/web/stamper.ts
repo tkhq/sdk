@@ -4,6 +4,7 @@ import {
   pointEncode,
 } from "@turnkey/encoding";
 import type { ApiKeyStamperBase } from "../../../__types__";
+import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import type { TStamp } from "@turnkey/sdk-types";
 import { assertValidP256ECDSAKeyPair } from "@utils";
 import { SignatureFormat } from "@turnkey/api-key-stamper";
@@ -174,7 +175,19 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
     );
     const compressedPubKey = pointEncode(rawPubKey);
     const compressedHex = uint8ArrayToHexString(compressedPubKey);
-    await this.storeKeyPair(compressedHex, privateKey);
+
+    try {
+      await this.storeKeyPair(compressedHex, privateKey);
+    } catch (error) {
+      // Any refusal to persist, not a specific DOMException name — browsers
+      // disagree on what they throw and new names will appear.
+      throw new TurnkeyError(
+        "Generated an API key pair but could not store it on this device",
+        TurnkeyErrorCodes.API_KEY_STORAGE_UNAVAILABLE,
+        error,
+      );
+    }
+
     return compressedHex;
   }
 
