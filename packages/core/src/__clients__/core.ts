@@ -547,13 +547,13 @@ export class TurnkeyClient {
           const session = await this.storageManager.getSession(
             params.sessionKey,
           );
-          this.storageManager.clearSession(params.sessionKey);
+          await this.storageManager.clearSession(params.sessionKey);
           await this.deleteApiKeyPair({ publicKey: session?.publicKey! });
         } else {
           const sessionKey = await this.storageManager.getActiveSessionKey();
           const session = await this.storageManager.getActiveSession();
           if (sessionKey) {
-            this.storageManager.clearSession(sessionKey);
+            await this.storageManager.clearSession(sessionKey);
             await this.deleteApiKeyPair({ publicKey: session?.publicKey! });
           } else {
             throw new TurnkeyError(
