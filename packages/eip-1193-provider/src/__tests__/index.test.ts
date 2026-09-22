@@ -5,12 +5,11 @@ import {
   type Index,
   type Quantity,
   type TransactionRequestEIP1559,
-  getAddress,
   numberToHex,
   parseEther,
   parseGwei,
-  recoverAddress,
   stringToHex,
+  verifyMessage,
   verifyTypedData,
   type EIP1474Methods,
   ProviderDisconnectedError,
@@ -267,39 +266,61 @@ describe("Test Turnkey EIP-1193 Provider", () => {
           });
         });
         describe("eth_sign", () => {
-          it("should sign a message", async () => {
-            const messageDigest = stringToHex("A man, a plan, a canal, Panama");
+          it("should sign the EIP-191 hash of the message", async () => {
+            const message = stringToHex("A man, a plan, a canal, Panama");
             const signerAddress = expectedWalletAddress;
             const signature = await eip1193Provider?.request({
               method: "eth_sign",
-              params: [signerAddress, messageDigest],
+              params: [signerAddress, message],
             });
             expect(signature).not.toBeUndefined();
             expect(signature).not.toBe("");
-            const address = await recoverAddress({
-              hash: messageDigest,
-              signature: signature!,
-            });
-            expect(getAddress(address)).toBe(getAddress(signerAddress));
+            await expect(
+              verifyMessage({
+                address: signerAddress,
+                message: { raw: message },
+                signature: signature!,
+              }),
+            ).resolves.toBe(true);
             expect(signature).toMatch(/^0x.*$/);
           });
         });
         describe("personal_sign", () => {
-          it("should sign a message", async () => {
-            const messageDigest = stringToHex("A man, a plan, a canal, Panama");
+          it("should sign the EIP-191 hash of the message", async () => {
+            const message = stringToHex("A man, a plan, a canal, Panama");
             const signerAddress = expectedWalletAddress;
             const signature = await eip1193Provider?.request({
               method: "personal_sign",
-              params: [messageDigest, signerAddress],
+              params: [message, signerAddress],
             });
             expect(signature).not.toBeUndefined();
             expect(signature).not.toBe("");
-            const address = await recoverAddress({
-              hash: messageDigest,
-              signature: signature!,
-            });
-            expect(getAddress(address)).toBe(getAddress(signerAddress));
+            await expect(
+              verifyMessage({
+                address: signerAddress,
+                message: { raw: message },
+                signature: signature!,
+              }),
+            ).resolves.toBe(true);
             expect(signature).toMatch(/^0x.*$/);
+          });
+
+          it("should sign a message longer than 32 bytes", async () => {
+            const message = stringToHex(
+              "This message is definitely longer than thirty-two bytes.",
+            );
+            const signerAddress = expectedWalletAddress;
+            const signature = await eip1193Provider?.request({
+              method: "personal_sign",
+              params: [message, signerAddress],
+            });
+            await expect(
+              verifyMessage({
+                address: signerAddress,
+                message: { raw: message },
+                signature: signature!,
+              }),
+            ).resolves.toBe(true);
           });
         });
         describe("eth_signTypedData_v4", () => {
