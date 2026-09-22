@@ -5435,8 +5435,6 @@ export class TurnkeyClient {
   signWithApiKey = async (params: SignWithApiKeyParams): Promise<string> => {
     const { message, publicKey } = params;
 
-    let previousTemporaryKey: string | undefined;
-
     return withTurnkeyErrorHandling(
       async () => {
         if (!this.apiKeyStamper) {
@@ -5446,19 +5444,20 @@ export class TurnkeyClient {
           );
         }
 
-        previousTemporaryKey = this.apiKeyStamper.getTemporaryPublicKey();
-        this.apiKeyStamper.setTemporaryPublicKey(publicKey);
-
-        return await this.apiKeyStamper.sign(message, SignatureFormat.Raw);
+        // Pass the key through the call rather than mutating the stamper's
+        // shared `temporaryPublicKey`. That field is a single value on the
+        // one stamper shared by every request, so the previous save/set/restore
+        // approach let a concurrent signature pick up this call's key (and
+        // could leave the stamper pinned to it if two calls interleaved).
+        return await this.apiKeyStamper.sign(
+          message,
+          SignatureFormat.Raw,
+          publicKey,
+        );
       },
       {
         errorMessage: "Failed to sign with API key",
         errorCode: TurnkeyErrorCodes.INTERNAL_ERROR,
-      },
-      {
-        finallyFn: async () => {
-          this.apiKeyStamper?.setTemporaryPublicKey(previousTemporaryKey);
-        },
       },
     );
   };
