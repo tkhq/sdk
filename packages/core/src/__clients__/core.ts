@@ -5073,8 +5073,14 @@ export class TurnkeyClient {
       async () => {
         const sessionKeys = await this.storageManager.listSessionKeys();
         if (sessionKeys.length === 0) return;
+        // Clear sessions one at a time. `clearSession` reads, filters and
+        // rewrites the shared session-key index, so running the clears
+        // concurrently would race that read-modify-write and leave stale
+        // entries behind. Awaiting also means this method only resolves once
+        // every session is actually gone, and surfaces any failure instead of
+        // dropping it as an unhandled rejection.
         for (const sessionKey of sessionKeys) {
-          this.clearSession({ sessionKey });
+          await this.clearSession({ sessionKey });
         }
       },
       {
