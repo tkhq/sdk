@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 1.9.0
+
+### Minor Changes
+
+- [#1532](https://github.com/tkhq/sdk/pull/1532) [`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312) Thanks [@t-vila](https://github.com/t-vila)! - `createKeyPair` now raises `API_KEY_STORAGE_UNAVAILABLE` when the device refuses to persist a generated key pair, instead of a generic failure
+
 ## 1.8.0
 
 ### Minor Changes
