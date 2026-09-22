@@ -9,6 +9,7 @@ import {
   clearAllOAuthData,
   consumeOAuthCaptchaToken,
   consumeOAuthState,
+  storeOAuthState,
   isExpectedOAuthRedirectUrl,
   parseStateParam,
   parseOAuthResponse,
@@ -330,6 +331,26 @@ describe("parseOAuthRedirect", () => {
 
 describe("OAuth utils", () => {
   describe("consumeOAuthState", () => {
+    it("validates each concurrent flow against its own state", () => {
+      // Two tabs (or two attempts) each start a flow before either finishes.
+      storeOAuthState("state_from_tab_a");
+      storeOAuthState("state_from_tab_b");
+
+      // Whichever one comes back first must still validate.
+      expect(() => consumeOAuthState("state_from_tab_a")).not.toThrow();
+      expect(() => consumeOAuthState("state_from_tab_b")).not.toThrow();
+    });
+
+    it("rejects a state that was never issued", () => {
+      storeOAuthState("issued_state");
+
+      expect(() => consumeOAuthState("never_issued")).toThrow(
+        expect.objectContaining({
+          code: TurnkeyErrorCodes.INVALID_OAUTH_STATE,
+        }),
+      );
+    });
+
     it("clears stored state even when validation throws", () => {
       setStoredOAuthState("expected_state");
 
