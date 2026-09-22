@@ -375,9 +375,14 @@ export class WalletConnectWallet implements WalletConnectInterface {
         throw new Error("no Ethereum account to sign with");
       }
 
+      // EVM chains are requested as optional namespaces, so the wallet may
+      // approve only a subset. Target the chain the connected account is
+      // actually on rather than the first chain we asked for.
+      const ethChain = getConnectedEthereumChain(session) ?? this.ethChain;
+
       switch (intent) {
         case SignIntent.SignMessage:
-          return (await this.client.request(this.ethChain, "personal_sign", [
+          return (await this.client.request(ethChain, "personal_sign", [
             payload as Hex,
             address,
           ])) as string;
@@ -428,11 +433,9 @@ export class WalletConnectWallet implements WalletConnectInterface {
             };
           }
 
-          return (await this.client.request(
-            this.ethChain,
-            "eth_sendTransaction",
-            [txParams],
-          )) as string;
+          return (await this.client.request(ethChain, "eth_sendTransaction", [
+            txParams,
+          ])) as string;
         default:
           throw new Error(`Unsupported Ethereum intent: ${intent}`);
       }
@@ -750,6 +753,25 @@ function getConnectedEthereum(
 ): string | undefined {
   const acc = session?.namespaces.eip155?.accounts?.[0];
   return acc ? acc.split(":")[2] : undefined;
+}
+
+/**
+ * Retrieves the CAIP-2 chain of the first connected EVM account.
+ *
+ * - Safe to call with `null` (returns `undefined`).
+ * - Returns the `eip155:<id>` prefix of the account, e.g. `"eip155:137"`.
+ *
+ * @param session - The current WalletConnect session, or `null`.
+ * @returns The connected EVM chain, or `undefined` if none.
+ */
+function getConnectedEthereumChain(
+  session: SessionTypes.Struct | null,
+): string | undefined {
+  const acc = session?.namespaces.eip155?.accounts?.[0];
+  if (!acc) return undefined;
+
+  const [namespace, reference] = acc.split(":");
+  return namespace && reference ? `${namespace}:${reference}` : undefined;
 }
 
 /**
