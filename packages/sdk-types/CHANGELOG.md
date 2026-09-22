@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 1.10.0
+
+### Minor Changes
+
+- [`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2) Author [@ericvelazquez](https://github.com/ericvelazquez) - Add Earn rewards: listEarnRewards, earnClaimRewards, getEarnClaimRewardsStatus
+
 ## 1.9.0
 
 ### Minor Changes

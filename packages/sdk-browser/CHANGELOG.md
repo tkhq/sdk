@@ -1,5 +1,21 @@
 # @turnkey/sdk-browser
 
+## 8.6.0
+
+### Minor Changes
+
+- [`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2) Author [@ericvelazquez](https://github.com/ericvelazquez) - Add Earn rewards: listEarnRewards, earnClaimRewards, getEarnClaimRewardsStatus
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-types@1.10.0
+  - @turnkey/http@6.6.0
+  - @turnkey/crypto@2.13.2
+  - @turnkey/indexed-db-stamper@1.3.11
+  - @turnkey/wallet-stamper@1.1.29
+  - @turnkey/api-key-stamper@0.6.17
+
 ## 8.5.1
 
 ### Patch Changes

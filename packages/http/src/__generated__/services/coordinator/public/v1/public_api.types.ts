@@ -40,6 +40,10 @@ export type paths = {
     /** Poll the status of a fee claim by its claim_request_id. */
     post: operations["PublicApiService_GetClaimEarnFeesStatus"];
   };
+  "/public/v1/query/get_earn_claim_rewards_status": {
+    /** Poll the status of a rewards claim by its claim_request_id. */
+    post: operations["PublicApiService_GetEarnClaimRewardsStatus"];
+  };
   "/public/v1/query/get_earn_deploy_status": {
     /** Poll the status of a wrapper deployment by its deploy_request_id. */
     post: operations["PublicApiService_GetEarnDeployStatus"];
@@ -188,6 +192,10 @@ export type paths = {
     /** Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees. */
     post: operations["PublicApiService_ListEarnPositions"];
   };
+  "/public/v1/query/list_earn_rewards": {
+    /** List the protocol rewards (e.g. MORPHO and third-party campaign tokens, distributed off-chain via Merkl) attributed to a wallet: claimable, lifetime claimed, and pending amounts per reward token. */
+    post: operations["PublicApiService_ListEarnRewards"];
+  };
   "/public/v1/query/list_earn_vaults": {
     /** Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled. */
     post: operations["PublicApiService_ListEarnVaults"];
@@ -247,6 +255,14 @@ export type paths = {
   "/public/v1/query/list_tvc_apps": {
     /** List all TVC Apps within an organization. */
     post: operations["PublicApiService_GetTvcApps"];
+  };
+  "/public/v1/query/list_tvc_operators": {
+    /** List all TVC operators within an organization, newest first. */
+    post: operations["PublicApiService_GetTvcOperators"];
+  };
+  "/public/v1/query/list_tvc_quorum_keys": {
+    /** List all hosted TVC quorum keys within an organization, newest first. */
+    post: operations["PublicApiService_GetTvcQuorumKeys"];
   };
   "/public/v1/query/list_user_tags": {
     /** List all user tags within an organization. */
@@ -499,6 +515,10 @@ export type paths = {
   "/public/v1/submit/delete_webhook_endpoint": {
     /** Delete a webhook endpoint for an organization. */
     post: operations["PublicApiService_DeleteWebhookEndpoint"];
+  };
+  "/public/v1/submit/earn_claim_rewards": {
+    /** Claim the Merkl protocol rewards attributed to a wallet's Earn positions. The claim is signed by the wallet itself and every reward token is transferred to it; see ListEarnRewards for what is claimable. */
+    post: operations["PublicApiService_EarnClaimRewards"];
   };
   "/public/v1/submit/earn_deploy_wrapper": {
     /** Enable a yield vault for an organization by deploying its fee wrapper. Must be called before any deposits into the vault. */
@@ -1156,7 +1176,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_UPDATE_PAYMENT_METHOD"
     | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2"
     | "ACTIVITY_TYPE_EXECUTE_SWAP_V3"
-    | "ACTIVITY_TYPE_DELETE_SECRETS";
+    | "ACTIVITY_TYPE_DELETE_SECRETS"
+    | "ACTIVITY_TYPE_EARN_CLAIM_REWARDS";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1285,6 +1306,8 @@ export type definitions = {
     display?: definitions["v1AssetBalanceDisplay"];
     /** @description The asset name */
     name?: string;
+    /** @description Solana token program address that owns this mint, inferred from getTokenAccountsByOwner. TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA for classic SPL Token, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb for Token-2022. Empty for native SOL and non-Solana assets. */
+    tokenProgram?: string;
   };
   v1AssetBalanceDisplay: {
     /** @description USD value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
@@ -2236,6 +2259,16 @@ export type definitions = {
      * @description Optional desired replica count for this deployment.
      */
     replicas?: number;
+    /**
+     * Format: int64
+     * @description Optional desired instance cpu count.
+     */
+    instanceSizeCpus?: number;
+    /**
+     * Format: int64
+     * @description Optional desired instance memory size in GiB.
+     */
+    instanceSizeRam?: number;
   };
   v1CreateTvcDeploymentRequest: {
     /** @enum {string} */
@@ -2945,6 +2978,28 @@ export type definitions = {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
   };
+  v1EarnClaimRewardsIntent: {
+    /** @description A Turnkey-managed wallet address the rewards are attributed to. The claim transaction is signed by this wallet and the Merkl Distributor transfers every reward token to it. */
+    signWith: string;
+    /** @description CAIP-2 chain to claim rewards on (e.g. 'eip155:8453'). Rewards accrue per chain; see ListEarnRewards. */
+    chainCaip2: string;
+    /** @description Whether to sponsor this transaction via Gas Station. */
+    sponsor?: boolean;
+  };
+  v1EarnClaimRewardsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_EARN_CLAIM_REWARDS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1EarnClaimRewardsIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1EarnClaimRewardsResult: {
+    /** @description Identifier to poll claim status and tx hash via GetEarnClaimRewardsStatus. */
+    claimRequestId: string;
+  };
   v1EarnDeployWrapperIntent: {
     /** @description Address of the underlying yield vault to wrap (from the ListEarnVaults catalog). */
     vaultAddress: string;
@@ -3101,6 +3156,41 @@ export type definitions = {
   };
   /** @enum {string} */
   v1EarnProvider: "EARN_PROVIDER_MORPHO" | "EARN_PROVIDER_AAVE";
+  v1EarnReward: {
+    /** @description CAIP-2 chain the reward is claimable on (e.g. 'eip155:8453'). */
+    caip2?: string;
+    /** @description CAIP-19 asset ID of the reward token (e.g. 'eip155:8453/erc20:0xBAa5...'). Reward tokens are campaign-specific and unrelated to the position's underlying asset. */
+    caip19?: string;
+    /** @description Symbol of the reward token (e.g. 'MORPHO'), as reported by Merkl. */
+    symbol?: string;
+    /**
+     * Format: int32
+     * @description Decimals of the reward token.
+     */
+    decimals?: number;
+    /** @description Amount claimable now, in raw on-chain units of the reward token. */
+    claimable?: string;
+    /** @description Lifetime amount already claimed, in raw on-chain units of the reward token. */
+    claimed?: string;
+    /** @description Amount accrued but not yet claimable (not yet in a live on-chain merkle root; roots update roughly every 8 hours), in raw on-chain units of the reward token. */
+    pending?: string;
+    /** @description USD + crypto renderings for display only. Do not do arithmetic with these. */
+    display?: definitions["v1EarnRewardDisplay"];
+  };
+  v1EarnRewardDisplay: {
+    /** @description Claimable amount in USD, for display only. Empty when the token is unpriced. */
+    claimableUsd?: string;
+    /** @description Claimable amount in the reward token's own units, for display only. */
+    claimableCrypto?: string;
+    /** @description Lifetime claimed amount in USD, for display only. Empty when the token is unpriced. */
+    claimedUsd?: string;
+    /** @description Lifetime claimed amount in the reward token's own units, for display only. */
+    claimedCrypto?: string;
+    /** @description Pending amount in USD, for display only. Empty when the token is unpriced. */
+    pendingUsd?: string;
+    /** @description Pending amount in the reward token's own units, for display only. */
+    pendingCrypto?: string;
+  };
   v1EarnSetWrapperStateIntent: {
     /** @description Address of the deployed Earn wrapper to update, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers. */
     wrapperAddress: string;
@@ -4007,6 +4097,23 @@ export type definitions = {
     /** @description Reason the fee claim transaction failed, when status is FAILED. */
     error?: string;
   };
+  v1GetEarnClaimRewardsStatusRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The claim_request_id returned by EarnClaimRewards. */
+    claimRequestId: string;
+  };
+  v1GetEarnClaimRewardsStatusResponse: {
+    /**
+     * @description Status of the rewards claim.
+     * @enum {string}
+     */
+    status: "PENDING" | "COMPLETED" | "FAILED";
+    /** @description Transaction hash of the rewards claim, once available. */
+    claimTxHash?: string;
+    /** @description Reason the rewards claim transaction failed, when status is FAILED. */
+    error?: string;
+  };
   v1GetEarnDeployStatusRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -4441,6 +4548,13 @@ export type definitions = {
     /** @description Details about a single TVC Deployment */
     tvcDeployment: definitions["v1TvcDeployment"];
   };
+  v1GetTvcOperatorsRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+  };
+  v1GetTvcOperatorsResponse: {
+    tvcOperators: definitions["v1TvcOperator"][];
+  };
   v1GetTvcQosVersionsRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -4450,6 +4564,13 @@ export type definitions = {
     availableVersions: string[];
     /** @description Latest recommended QOS version for new TVC deployments. */
     latestVersion: string;
+  };
+  v1GetTvcQuorumKeysRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+  };
+  v1GetTvcQuorumKeysResponse: {
+    tvcQuorumKeys: definitions["v1TvcQuorumKey"][];
   };
   v1GetUserRequest: {
     /** @description Unique identifier for a given organization. */
@@ -5186,6 +5307,7 @@ export type definitions = {
     createSwapQuoteIntentV2?: definitions["v1CreateSwapQuoteIntentV2"];
     executeSwapIntentV3?: definitions["v1ExecuteSwapIntentV3"];
     deleteSecretsIntent?: definitions["v1DeleteSecretsIntent"];
+    earnClaimRewardsIntent?: definitions["v1EarnClaimRewardsIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -5275,6 +5397,18 @@ export type definitions = {
   v1ListEarnPositionsResponse: {
     /** @description The wallet's active Earn positions. */
     positions?: definitions["v1EarnPosition"][];
+  };
+  v1ListEarnRewardsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The wallet address to return rewards for. */
+    walletAddress: string;
+    /** @description Optional filter: only return rewards on this chain (e.g. 'eip155:8453'). When unset, every chain the organization has deployed Earn wrappers on is queried. */
+    caip2?: string;
+  };
+  v1ListEarnRewardsResponse: {
+    /** @description The wallet's rewards, one entry per (chain, reward token), sorted by chain then token. Entries where every amount is zero are omitted. */
+    rewards?: definitions["v1EarnReward"][];
   };
   v1ListEarnVaultsRequest: {
     /** @description Unique identifier for a given Organization. Annotates which vaults the organization has already enabled. */
@@ -6150,6 +6284,7 @@ export type definitions = {
     deleteVelocityControlResult?: definitions["v1DeleteVelocityControlResult"];
     updatePaymentMethodResult?: definitions["billingUpdatePaymentMethodResult"];
     deleteSecretsResult?: definitions["v1DeleteSecretsResult"];
+    earnClaimRewardsResult?: definitions["v1EarnClaimRewardsResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -6426,7 +6561,7 @@ export type definitions = {
     template?: string;
   };
   v1SolSendTransactionIntent: {
-    /** @description Base64-encoded serialized unsigned Solana transaction */
+    /** @description Hex-encoded serialized unsigned Solana transaction in full wire format. Legacy/V0 transactions allow 1232 bytes. V1 allows 4096 bytes with up to 12 trailing 64-byte signature slots, including the paymaster for sponsored transactions. Fill unsigned slots with zeroes. */
     unsignedTransaction: string;
     /** @description A wallet or private key address to sign with. This does not support private key IDs. */
     signWith: string;
@@ -6447,9 +6582,9 @@ export type definitions = {
     recentBlockhash?: string;
   };
   v1SolSendTransactionIntentV2: {
-    /** @description Hex-encoded serialized unsigned Solana transaction (full wire format with zeroed signature placeholders) */
+    /** @description Hex-encoded serialized unsigned Solana transaction in full wire format. Legacy/V0 transactions allow 1232 bytes. V1 allows 4096 bytes with up to 12 trailing 64-byte signature slots, including the paymaster for sponsored transactions. Fill unsigned slots with zeroes. */
     unsignedTransaction: string;
-    /** @description Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers. For sponsored transactions this must list every required signer of the transaction in transaction order. */
+    /** @description Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers for legacy/V0, or up to 12 for V1 (11 when sponsored). For sponsored transactions this must list every required signer of the transaction in transaction order. */
     signWiths: string[];
     /** @description Whether to sponsor this transaction via Gas Station. */
     sponsor?: boolean;
@@ -6985,6 +7120,16 @@ export type definitions = {
     delete: boolean;
     /** @description Whether this deployment is running in debug mode. Debug-mode deployments expose enclave logs and cannot be remotely attested. */
     debugMode: boolean;
+    /**
+     * Format: int64
+     * @description The instance cpu count for this enclave.
+     */
+    instanceSizeCpus?: number;
+    /**
+     * Format: int64
+     * @description The instance memory size in GiB for this enclave.
+     */
+    instanceSizeRam?: number;
   };
   v1TvcDeploymentDebugLogEntry: {
     /** @description Application log line with its platform timestamp. */
@@ -7022,6 +7167,12 @@ export type definitions = {
     publicKey: string;
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description Encryption public key for this TVC Operator. */
+    encryptPublicKey: string;
+    /** @description Signing public key for this TVC Operator. */
+    signPublicKey: string;
+    /** @description Source of the operator keys: EXTERNAL_KEY or ORG_WALLET_ACCOUNT. Absent for legacy operators whose source was not recorded. */
+    keySource?: string;
   };
   v1TvcOperatorApproval: {
     /** @description Unique ID for this approval */
@@ -7073,6 +7224,15 @@ export type definitions = {
      * @description The threshold of operators needed to reach consensus in this new Operator Set
      */
     threshold: number;
+  };
+  v1TvcQuorumKey: {
+    id: string;
+    publicKey: string;
+    /** Format: int64 */
+    threshold: number;
+    operatorIds: string[];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
   };
   v1TxError: {
     /** @description Human-readable error message describing what went wrong. */
@@ -8103,6 +8263,24 @@ export type operations = {
       };
     };
   };
+  /** Poll the status of a rewards claim by its claim_request_id. */
+  PublicApiService_GetEarnClaimRewardsStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetEarnClaimRewardsStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetEarnClaimRewardsStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Poll the status of a wrapper deployment by its deploy_request_id. */
   PublicApiService_GetEarnDeployStatus: {
     parameters: {
@@ -8769,6 +8947,24 @@ export type operations = {
       };
     };
   };
+  /** List the protocol rewards (e.g. MORPHO and third-party campaign tokens, distributed off-chain via Merkl) attributed to a wallet: claimable, lifetime claimed, and pending amounts per reward token. */
+  PublicApiService_ListEarnRewards: {
+    parameters: {
+      body: {
+        body: definitions["v1ListEarnRewardsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListEarnRewardsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled. */
   PublicApiService_ListEarnVaults: {
     parameters: {
@@ -9032,6 +9228,42 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetTvcAppsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all TVC operators within an organization, newest first. */
+  PublicApiService_GetTvcOperators: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcOperatorsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcOperatorsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all hosted TVC quorum keys within an organization, newest first. */
+  PublicApiService_GetTvcQuorumKeys: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcQuorumKeysRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcQuorumKeysResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -10160,6 +10392,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1DeleteWebhookEndpointRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Claim the Merkl protocol rewards attributed to a wallet's Earn positions. The claim is signed by the wallet itself and every reward token is transferred to it; see ListEarnRewards for what is claimable. */
+  PublicApiService_EarnClaimRewards: {
+    parameters: {
+      body: {
+        body: definitions["v1EarnClaimRewardsRequest"];
       };
     };
     responses: {

@@ -108,6 +108,19 @@ export type TGetClaimEarnFeesStatusBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetEarnClaimRewardsStatusResponse =
+  operations["PublicApiService_GetEarnClaimRewardsStatus"]["responses"]["200"]["schema"];
+
+export type TGetEarnClaimRewardsStatusInput = {
+  body: TGetEarnClaimRewardsStatusBody;
+};
+
+export type TGetEarnClaimRewardsStatusBody = Omit<
+  operations["PublicApiService_GetEarnClaimRewardsStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetEarnDeployStatusResponse =
   operations["PublicApiService_GetEarnDeployStatus"]["responses"]["200"]["schema"];
 
@@ -393,6 +406,19 @@ export type TGetTvcDeploymentDebugLogsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetTvcDeploymentProvisioningDetailsResponse =
+  operations["PublicApiService_GetTvcDeploymentProvisioningDetails"]["responses"]["200"]["schema"];
+
+export type TGetTvcDeploymentProvisioningDetailsInput = {
+  body: TGetTvcDeploymentProvisioningDetailsBody;
+};
+
+export type TGetTvcDeploymentProvisioningDetailsBody = Omit<
+  operations["PublicApiService_GetTvcDeploymentProvisioningDetails"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetTvcQosVersionsResponse =
   operations["PublicApiService_GetTvcQosVersions"]["responses"]["200"]["schema"];
 
@@ -490,6 +516,17 @@ export type TListEarnPositionsInput = { body: TListEarnPositionsBody };
 
 export type TListEarnPositionsBody = Omit<
   operations["PublicApiService_ListEarnPositions"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListEarnRewardsResponse =
+  operations["PublicApiService_ListEarnRewards"]["responses"]["200"]["schema"];
+
+export type TListEarnRewardsInput = { body: TListEarnRewardsBody };
+
+export type TListEarnRewardsBody = Omit<
+  operations["PublicApiService_ListEarnRewards"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -663,6 +700,28 @@ export type TGetTvcAppsInput = { body: TGetTvcAppsBody };
 
 export type TGetTvcAppsBody = Omit<
   operations["PublicApiService_GetTvcApps"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetTvcOperatorsResponse =
+  operations["PublicApiService_GetTvcOperators"]["responses"]["200"]["schema"];
+
+export type TGetTvcOperatorsInput = { body: TGetTvcOperatorsBody };
+
+export type TGetTvcOperatorsBody = Omit<
+  operations["PublicApiService_GetTvcOperators"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetTvcQuorumKeysResponse =
+  operations["PublicApiService_GetTvcQuorumKeys"]["responses"]["200"]["schema"];
+
+export type TGetTvcQuorumKeysInput = { body: TGetTvcQuorumKeysBody };
+
+export type TGetTvcQuorumKeysBody = Omit<
+  operations["PublicApiService_GetTvcQuorumKeys"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -994,6 +1053,26 @@ export type TCreateTvcManifestApprovalsBody =
   operations["PublicApiService_CreateTvcManifestApprovals"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateTvcOperatorResponse =
+  operations["PublicApiService_CreateTvcOperator"]["responses"]["200"]["schema"]["activity"]["result"]["createTvcOperatorResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateTvcOperatorInput = { body: TCreateTvcOperatorBody };
+
+export type TCreateTvcOperatorBody =
+  operations["PublicApiService_CreateTvcOperator"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateTvcQuorumKeyResponse =
+  operations["PublicApiService_CreateTvcQuorumKey"]["responses"]["200"]["schema"]["activity"]["result"]["createTvcQuorumKeyResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateTvcQuorumKeyInput = { body: TCreateTvcQuorumKeyBody };
+
+export type TCreateTvcQuorumKeyBody =
+  operations["PublicApiService_CreateTvcQuorumKey"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateUserTagResponse =
   operations["PublicApiService_CreateUserTag"]["responses"]["200"]["schema"]["activity"]["result"]["createUserTagResult"] &
     definitions["v1ActivityResponse"];
@@ -1260,6 +1339,16 @@ export type TDeleteWebhookEndpointInput = { body: TDeleteWebhookEndpointBody };
 
 export type TDeleteWebhookEndpointBody =
   operations["PublicApiService_DeleteWebhookEndpoint"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEarnClaimRewardsResponse =
+  operations["PublicApiService_EarnClaimRewards"]["responses"]["200"]["schema"]["activity"]["result"]["earnClaimRewardsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEarnClaimRewardsInput = { body: TEarnClaimRewardsBody };
+
+export type TEarnClaimRewardsBody =
+  operations["PublicApiService_EarnClaimRewards"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TEarnDeployWrapperResponse =
@@ -1529,6 +1618,28 @@ export type TOtpLoginInput = { body: TOtpLoginBody };
 
 export type TOtpLoginBody =
   operations["PublicApiService_OtpLogin"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TPostTvcQuorumKeyShareResponse =
+  operations["PublicApiService_PostTvcQuorumKeyShare"]["responses"]["200"]["schema"]["activity"]["result"]["postTvcQuorumKeyShareResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TPostTvcQuorumKeyShareInput = { body: TPostTvcQuorumKeyShareBody };
+
+export type TPostTvcQuorumKeyShareBody =
+  operations["PublicApiService_PostTvcQuorumKeyShare"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TReEncryptTvcQuorumKeyShareResponse =
+  operations["PublicApiService_ReEncryptTvcQuorumKeyShare"]["responses"]["200"]["schema"]["activity"]["result"]["reEncryptTvcQuorumKeyShareResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TReEncryptTvcQuorumKeyShareInput = {
+  body: TReEncryptTvcQuorumKeyShareBody;
+};
+
+export type TReEncryptTvcQuorumKeyShareBody =
+  operations["PublicApiService_ReEncryptTvcQuorumKeyShare"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TRecoverUserResponse =
