@@ -19,7 +19,15 @@ export class MobileStorageManager implements StorageBase {
 
   getStorageValue = async (sessionKey: string): Promise<any> => {
     const item = await AsyncStorage.getItem(sessionKey);
-    return item ? JSON.parse(item) : undefined;
+    if (!item) return undefined;
+
+    try {
+      return JSON.parse(item);
+    } catch {
+      // See WebStorageManager.getStorageValue: an unparseable value is
+      // treated as absent rather than throwing out of every read.
+      return undefined;
+    }
   };
 
   setStorageValue = async (

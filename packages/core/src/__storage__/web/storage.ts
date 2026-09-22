@@ -15,7 +15,17 @@ export class WebStorageManager implements StorageBase {
 
   getStorageValue = async (sessionKey: string): Promise<any> => {
     const item = browserStorage.getItem(sessionKey);
-    return item ? JSON.parse(item) : undefined;
+    if (!item) return undefined;
+
+    try {
+      return JSON.parse(item);
+    } catch {
+      // A value we cannot parse is no more usable than a missing one, and
+      // this method is documented to return undefined when there is nothing
+      // to read. Throwing here would make every read of the key fail until
+      // something else removed it.
+      return undefined;
+    }
   };
 
   setStorageValue = async (
