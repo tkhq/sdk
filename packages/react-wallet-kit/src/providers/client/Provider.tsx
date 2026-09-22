@@ -6396,8 +6396,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }
 
         setMasterConfig(buildConfig(proxyAuthConfig, clientParams));
-      } catch {
+      } catch (error) {
         setClientState(ClientState.Error);
+        // Without this the failure is silent: the provider goes to Error, every
+        // guarded method then throws "Config is not ready yet!", and the cause
+        // never reaches the integrator.
+        if (
+          error instanceof TurnkeyError ||
+          error instanceof TurnkeyNetworkError
+        ) {
+          callbacks?.onError?.(error);
+        } else {
+          callbacks?.onError?.(
+            new TurnkeyError(
+              `Failed to fetch the wallet kit configuration`,
+              TurnkeyErrorCodes.INITIALIZE_CLIENT_ERROR,
+              error,
+            ),
+          );
+        }
       }
     };
 
