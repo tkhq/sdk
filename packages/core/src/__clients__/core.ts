@@ -3317,10 +3317,21 @@ export class TurnkeyClient {
           const timeoutMs = 60_000; // 1 minute
 
           const ref = setInterval(async () => {
-            const resp = await this.httpClient.getSendTransactionStatus({
-              organizationId,
-              sendTransactionStatusId,
-            });
+            let resp;
+            try {
+              resp = await this.httpClient.getSendTransactionStatus({
+                organizationId,
+                sendTransactionStatusId,
+              });
+            } catch (error) {
+              // Without this the rejection is unhandled on every tick and the
+              // caller only ever sees the generic timeout a minute later,
+              // with the real error discarded.
+              clearInterval(ref);
+              clearTimeout(timeoutRef);
+              reject(error);
+              return;
+            }
 
             const txStatus = resp?.txStatus;
 
