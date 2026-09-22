@@ -195,6 +195,19 @@ export class WalletStamper {
     let signature: string;
     let publicKey: string;
 
+    // Solana public keys are read from the wallet rather than recovered from
+    // the signature, so read it before signing. Reading it afterwards spans
+    // the user's approval, and an account switch in that window would pair a
+    // signature with the public key of a different account.
+    let solanaPublicKey: string | undefined;
+    if (isSolanaProvider(provider)) {
+      try {
+        solanaPublicKey = await this.wallet.getPublicKey(provider);
+      } catch (error) {
+        throw new Error(`Failed to recover public key: ${error}`);
+      }
+    }
+
     try {
       signature = await this.wallet.sign(
         payload,
@@ -229,7 +242,7 @@ export class WalletStamper {
         publicKey = uint8ArrayToHexString(publicKeyBytesCompressed);
         signature = toDerSignature(signature.replace("0x", ""));
       } else if (isSolanaProvider(provider)) {
-        publicKey = await this.wallet.getPublicKey(provider);
+        publicKey = solanaPublicKey!;
       } else {
         // we should never hit this case
         // if we do then it means we added support for a new chain but missed updating the stamper
