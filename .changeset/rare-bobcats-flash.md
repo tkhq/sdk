@@ -3,4 +3,4 @@
 "@turnkey/react-wallet-kit": patch
 ---
 
-Surface config fetch failures through onError
+Surface config fetch failures through `onError`
