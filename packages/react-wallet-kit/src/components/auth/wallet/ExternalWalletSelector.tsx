@@ -142,7 +142,12 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
               .find((a) => a.address === address);
 
             await disconnectWalletAccount(provider);
-            onSuccess?.("disconnect", matchedAccount!);
+            // `onSuccess` declares a non-optional `WalletAccount`, so only
+            // call it when the lookup actually found one; the account list
+            // can be stale relative to the provider.
+            if (matchedAccount) {
+              onSuccess?.("disconnect", matchedAccount);
+            }
 
             if (successPageDuration && successPageDuration > 0) {
               pushPage({
