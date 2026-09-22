@@ -43,6 +43,10 @@ import type {
   TGetClaimEarnFeesStatusResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetEarnClaimRewardsStatusBody,
+  TGetEarnClaimRewardsStatusResponse,
+} from "./public_api.fetcher";
+import type {
   TGetEarnDeployStatusBody,
   TGetEarnDeployStatusResponse,
 } from "./public_api.fetcher";
@@ -176,6 +180,10 @@ import type {
   TListEarnPositionsResponse,
 } from "./public_api.fetcher";
 import type {
+  TListEarnRewardsBody,
+  TListEarnRewardsResponse,
+} from "./public_api.fetcher";
+import type {
   TListEarnVaultsBody,
   TListEarnVaultsResponse,
 } from "./public_api.fetcher";
@@ -234,6 +242,14 @@ import type {
 import type {
   TGetTvcAppsBody,
   TGetTvcAppsResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetTvcOperatorsBody,
+  TGetTvcOperatorsResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetTvcQuorumKeysBody,
+  TGetTvcQuorumKeysResponse,
 } from "./public_api.fetcher";
 import type {
   TListUserTagsBody,
@@ -480,6 +496,10 @@ import type {
 import type {
   TDeleteWebhookEndpointBody,
   TDeleteWebhookEndpointResponse,
+} from "./public_api.fetcher";
+import type {
+  TEarnClaimRewardsBody,
+  TEarnClaimRewardsResponse,
 } from "./public_api.fetcher";
 import type {
   TEarnDeployWrapperBody,
@@ -1035,6 +1055,41 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/get_claim_earn_fees_status";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Poll the status of a rewards claim by its claim_request_id.
+   *
+   * Sign the provided `TGetEarnClaimRewardsStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_earn_claim_rewards_status).
+   *
+   * See also {@link stampGetEarnClaimRewardsStatus}.
+   */
+  getEarnClaimRewardsStatus = async (
+    input: TGetEarnClaimRewardsStatusBody,
+  ): Promise<TGetEarnClaimRewardsStatusResponse> => {
+    return this.request(
+      "/public/v1/query/get_earn_claim_rewards_status",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetEarnClaimRewardsStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetEarnClaimRewardsStatus}.
+   */
+  stampGetEarnClaimRewardsStatus = async (
+    input: TGetEarnClaimRewardsStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_earn_claim_rewards_status";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2202,6 +2257,37 @@ export class TurnkeyClient {
   };
 
   /**
+   * List the protocol rewards (e.g. MORPHO and third-party campaign tokens, distributed off-chain via Merkl) attributed to a wallet: claimable, lifetime claimed, and pending amounts per reward token.
+   *
+   * Sign the provided `TListEarnRewardsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_earn_rewards).
+   *
+   * See also {@link stampListEarnRewards}.
+   */
+  listEarnRewards = async (
+    input: TListEarnRewardsBody,
+  ): Promise<TListEarnRewardsResponse> => {
+    return this.request("/public/v1/query/list_earn_rewards", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListEarnRewardsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListEarnRewards}.
+   */
+  stampListEarnRewards = async (
+    input: TListEarnRewardsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/list_earn_rewards";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled.
    *
    * Sign the provided `TListEarnVaultsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_earn_vaults).
@@ -2667,6 +2753,69 @@ export class TurnkeyClient {
    */
   stampGetTvcApps = async (input: TGetTvcAppsBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_tvc_apps";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List all TVC operators within an organization, newest first.
+   *
+   * Sign the provided `TGetTvcOperatorsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_tvc_operators).
+   *
+   * See also {@link stampGetTvcOperators}.
+   */
+  getTvcOperators = async (
+    input: TGetTvcOperatorsBody,
+  ): Promise<TGetTvcOperatorsResponse> => {
+    return this.request("/public/v1/query/list_tvc_operators", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetTvcOperatorsBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetTvcOperators}.
+   */
+  stampGetTvcOperators = async (
+    input: TGetTvcOperatorsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/list_tvc_operators";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List all hosted TVC quorum keys within an organization, newest first.
+   *
+   * Sign the provided `TGetTvcQuorumKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_tvc_quorum_keys).
+   *
+   * See also {@link stampGetTvcQuorumKeys}.
+   */
+  getTvcQuorumKeys = async (
+    input: TGetTvcQuorumKeysBody,
+  ): Promise<TGetTvcQuorumKeysResponse> => {
+    return this.request("/public/v1/query/list_tvc_quorum_keys", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetTvcQuorumKeysBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetTvcQuorumKeys}.
+   */
+  stampGetTvcQuorumKeys = async (
+    input: TGetTvcQuorumKeysBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_tvc_quorum_keys";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -4663,6 +4812,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_webhook_endpoint";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Claim the Merkl protocol rewards attributed to a wallet's Earn positions. The claim is signed by the wallet itself and every reward token is transferred to it; see ListEarnRewards for what is claimable.
+   *
+   * Sign the provided `TEarnClaimRewardsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/earn_claim_rewards).
+   *
+   * See also {@link stampEarnClaimRewards}.
+   */
+  earnClaimRewards = async (
+    input: TEarnClaimRewardsBody,
+  ): Promise<TEarnClaimRewardsResponse> => {
+    return this.request("/public/v1/submit/earn_claim_rewards", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TEarnClaimRewardsBody` by using the client's `stamp` function.
+   *
+   * See also {@link EarnClaimRewards}.
+   */
+  stampEarnClaimRewards = async (
+    input: TEarnClaimRewardsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/earn_claim_rewards";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

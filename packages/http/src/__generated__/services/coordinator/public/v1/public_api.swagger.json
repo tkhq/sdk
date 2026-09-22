@@ -360,6 +360,38 @@
         "tags": ["Earn"]
       }
     },
+    "/public/v1/query/get_earn_claim_rewards_status": {
+      "post": {
+        "summary": "Get Earn claim rewards status",
+        "description": "Poll the status of a rewards claim by its claim_request_id.",
+        "operationId": "PublicApiService_GetEarnClaimRewardsStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetEarnClaimRewardsStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetEarnClaimRewardsStatusRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
     "/public/v1/query/get_earn_deploy_status": {
       "post": {
         "summary": "Get Earn deploy status",
@@ -1544,6 +1576,38 @@
         "tags": ["Earn"]
       }
     },
+    "/public/v1/query/list_earn_rewards": {
+      "post": {
+        "summary": "List Earn rewards",
+        "description": "List the protocol rewards (e.g. MORPHO and third-party campaign tokens, distributed off-chain via Merkl) attributed to a wallet: claimable, lifetime claimed, and pending amounts per reward token.",
+        "operationId": "PublicApiService_ListEarnRewards",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListEarnRewardsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListEarnRewardsRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
+      }
+    },
     "/public/v1/query/list_earn_vaults": {
       "post": {
         "summary": "Get Earn vault catalog",
@@ -2018,6 +2082,70 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1GetTvcAppsRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/query/list_tvc_operators": {
+      "post": {
+        "summary": "List TVC operators",
+        "description": "List all TVC operators within an organization, newest first.",
+        "operationId": "PublicApiService_GetTvcOperators",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcOperatorsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcOperatorsRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/query/list_tvc_quorum_keys": {
+      "post": {
+        "summary": "List TVC quorum keys",
+        "description": "List all hosted TVC quorum keys within an organization, newest first.",
+        "operationId": "PublicApiService_GetTvcQuorumKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcQuorumKeysResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcQuorumKeysRequest"
             }
           }
         ],
@@ -4038,6 +4166,38 @@
           }
         ],
         "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/submit/earn_claim_rewards": {
+      "post": {
+        "summary": "Claim Earn rewards",
+        "description": "Claim the Merkl protocol rewards attributed to a wallet's Earn positions. The claim is signed by the wallet itself and every reward token is transferred to it; see ListEarnRewards for what is claimable.",
+        "operationId": "PublicApiService_EarnClaimRewards",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EarnClaimRewardsRequest"
+            }
+          }
+        ],
+        "tags": ["Earn"]
       }
     },
     "/public/v1/submit/earn_deploy_wrapper": {
@@ -6872,7 +7032,8 @@
         "ACTIVITY_TYPE_UPDATE_PAYMENT_METHOD",
         "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2",
         "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
-        "ACTIVITY_TYPE_DELETE_SECRETS"
+        "ACTIVITY_TYPE_DELETE_SECRETS",
+        "ACTIVITY_TYPE_EARN_CLAIM_REWARDS"
       ]
     },
     "v1AddressFormat": {
@@ -7117,6 +7278,10 @@
         "name": {
           "type": "string",
           "description": "The asset name"
+        },
+        "tokenProgram": {
+          "type": "string",
+          "description": "Solana token program address that owns this mint, inferred from getTokenAccountsByOwner. TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA for classic SPL Token, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb for Token-2022. Empty for native SOL and non-Solana assets."
         }
       }
     },
@@ -9455,6 +9620,16 @@
           "type": "integer",
           "format": "int64",
           "description": "Optional desired replica count for this deployment."
+        },
+        "instanceSizeCpus": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Optional desired instance cpu count."
+        },
+        "instanceSizeRam": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Optional desired instance memory size in GiB."
         }
       },
       "required": [
@@ -11268,6 +11443,58 @@
       },
       "required": ["privateKeyId"]
     },
+    "v1EarnClaimRewardsIntent": {
+      "type": "object",
+      "properties": {
+        "signWith": {
+          "type": "string",
+          "description": "A Turnkey-managed wallet address the rewards are attributed to. The claim transaction is signed by this wallet and the Merkl Distributor transfers every reward token to it."
+        },
+        "chainCaip2": {
+          "type": "string",
+          "description": "CAIP-2 chain to claim rewards on (e.g. 'eip155:8453'). Rewards accrue per chain; see ListEarnRewards."
+        },
+        "sponsor": {
+          "type": "boolean",
+          "description": "Whether to sponsor this transaction via Gas Station."
+        }
+      },
+      "required": ["signWith", "chainCaip2"]
+    },
+    "v1EarnClaimRewardsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_EARN_CLAIM_REWARDS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1EarnClaimRewardsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1EarnClaimRewardsResult": {
+      "type": "object",
+      "properties": {
+        "claimRequestId": {
+          "type": "string",
+          "description": "Identifier to poll claim status and tx hash via GetEarnClaimRewardsStatus."
+        }
+      },
+      "required": ["claimRequestId"]
+    },
     "v1EarnDeployWrapperIntent": {
       "type": "object",
       "properties": {
@@ -11587,6 +11814,73 @@
     "v1EarnProvider": {
       "type": "string",
       "enum": ["EARN_PROVIDER_MORPHO", "EARN_PROVIDER_AAVE"]
+    },
+    "v1EarnReward": {
+      "type": "object",
+      "properties": {
+        "caip2": {
+          "type": "string",
+          "description": "CAIP-2 chain the reward is claimable on (e.g. 'eip155:8453')."
+        },
+        "caip19": {
+          "type": "string",
+          "description": "CAIP-19 asset ID of the reward token (e.g. 'eip155:8453/erc20:0xBAa5...'). Reward tokens are campaign-specific and unrelated to the position's underlying asset."
+        },
+        "symbol": {
+          "type": "string",
+          "description": "Symbol of the reward token (e.g. 'MORPHO'), as reported by Merkl."
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Decimals of the reward token."
+        },
+        "claimable": {
+          "type": "string",
+          "description": "Amount claimable now, in raw on-chain units of the reward token."
+        },
+        "claimed": {
+          "type": "string",
+          "description": "Lifetime amount already claimed, in raw on-chain units of the reward token."
+        },
+        "pending": {
+          "type": "string",
+          "description": "Amount accrued but not yet claimable (not yet in a live on-chain merkle root; roots update roughly every 8 hours), in raw on-chain units of the reward token."
+        },
+        "display": {
+          "$ref": "#/definitions/v1EarnRewardDisplay",
+          "description": "USD + crypto renderings for display only. Do not do arithmetic with these."
+        }
+      }
+    },
+    "v1EarnRewardDisplay": {
+      "type": "object",
+      "properties": {
+        "claimableUsd": {
+          "type": "string",
+          "description": "Claimable amount in USD, for display only. Empty when the token is unpriced."
+        },
+        "claimableCrypto": {
+          "type": "string",
+          "description": "Claimable amount in the reward token's own units, for display only."
+        },
+        "claimedUsd": {
+          "type": "string",
+          "description": "Lifetime claimed amount in USD, for display only. Empty when the token is unpriced."
+        },
+        "claimedCrypto": {
+          "type": "string",
+          "description": "Lifetime claimed amount in the reward token's own units, for display only."
+        },
+        "pendingUsd": {
+          "type": "string",
+          "description": "Pending amount in USD, for display only. Empty when the token is unpriced."
+        },
+        "pendingCrypto": {
+          "type": "string",
+          "description": "Pending amount in the reward token's own units, for display only."
+        }
+      }
     },
     "v1EarnSetWrapperStateIntent": {
       "type": "object",
@@ -13479,6 +13773,39 @@
       },
       "required": ["status"]
     },
+    "v1GetEarnClaimRewardsStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "claimRequestId": {
+          "type": "string",
+          "description": "The claim_request_id returned by EarnClaimRewards."
+        }
+      },
+      "required": ["organizationId", "claimRequestId"]
+    },
+    "v1GetEarnClaimRewardsStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "COMPLETED", "FAILED"],
+          "description": "Status of the rewards claim."
+        },
+        "claimTxHash": {
+          "type": "string",
+          "description": "Transaction hash of the rewards claim, once available."
+        },
+        "error": {
+          "type": "string",
+          "description": "Reason the rewards claim transaction failed, when status is FAILED."
+        }
+      },
+      "required": ["status"]
+    },
     "v1GetEarnDeployStatusRequest": {
       "type": "object",
       "properties": {
@@ -14462,6 +14789,29 @@
       },
       "required": ["tvcDeployment"]
     },
+    "v1GetTvcOperatorsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetTvcOperatorsResponse": {
+      "type": "object",
+      "properties": {
+        "tvcOperators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcOperator"
+          }
+        }
+      },
+      "required": ["tvcOperators"]
+    },
     "v1GetTvcQosVersionsRequest": {
       "type": "object",
       "properties": {
@@ -14488,6 +14838,29 @@
         }
       },
       "required": ["availableVersions", "latestVersion"]
+    },
+    "v1GetTvcQuorumKeysRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetTvcQuorumKeysResponse": {
+      "type": "object",
+      "properties": {
+        "tvcQuorumKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcQuorumKey"
+          }
+        }
+      },
+      "required": ["tvcQuorumKeys"]
     },
     "v1GetUserRequest": {
       "type": "object",
@@ -16262,6 +16635,9 @@
         },
         "deleteSecretsIntent": {
           "$ref": "#/definitions/v1DeleteSecretsIntent"
+        },
+        "earnClaimRewardsIntent": {
+          "$ref": "#/definitions/v1EarnClaimRewardsIntent"
         }
       }
     },
@@ -16493,6 +16869,37 @@
             "$ref": "#/definitions/v1EarnPosition"
           },
           "description": "The wallet's active Earn positions."
+        }
+      }
+    },
+    "v1ListEarnRewardsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "walletAddress": {
+          "type": "string",
+          "description": "The wallet address to return rewards for."
+        },
+        "caip2": {
+          "type": "string",
+          "description": "Optional filter: only return rewards on this chain (e.g. 'eip155:8453'). When unset, every chain the organization has deployed Earn wrappers on is queried."
+        }
+      },
+      "required": ["organizationId", "walletAddress"]
+    },
+    "v1ListEarnRewardsResponse": {
+      "type": "object",
+      "properties": {
+        "rewards": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EarnReward"
+          },
+          "description": "The wallet's rewards, one entry per (chain, reward token), sorted by chain then token. Entries where every amount is zero are omitted."
         }
       }
     },
@@ -18712,6 +19119,9 @@
         },
         "deleteSecretsResult": {
           "$ref": "#/definitions/v1DeleteSecretsResult"
+        },
+        "earnClaimRewardsResult": {
+          "$ref": "#/definitions/v1EarnClaimRewardsResult"
         }
       }
     },
@@ -19461,7 +19871,7 @@
       "properties": {
         "unsignedTransaction": {
           "type": "string",
-          "description": "Base64-encoded serialized unsigned Solana transaction"
+          "description": "Hex-encoded serialized unsigned Solana transaction in full wire format. Legacy/V0 transactions allow 1232 bytes. V1 allows 4096 bytes with up to 12 trailing 64-byte signature slots, including the paymaster for sponsored transactions. Fill unsigned slots with zeroes."
         },
         "signWith": {
           "type": "string",
@@ -19495,14 +19905,14 @@
       "properties": {
         "unsignedTransaction": {
           "type": "string",
-          "description": "Hex-encoded serialized unsigned Solana transaction (full wire format with zeroed signature placeholders)"
+          "description": "Hex-encoded serialized unsigned Solana transaction in full wire format. Legacy/V0 transactions allow 1232 bytes. V1 allows 4096 bytes with up to 12 trailing 64-byte signature slots, including the paymaster for sponsored transactions. Fill unsigned slots with zeroes."
         },
         "signWiths": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers. For sponsored transactions this must list every required signer of the transaction in transaction order."
+          "description": "Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers for legacy/V0, or up to 12 for V1 (11 when sponsored). For sponsored transactions this must list every required signer of the transaction in transaction order."
         },
         "sponsor": {
           "type": "boolean",
@@ -20735,6 +21145,16 @@
         "debugMode": {
           "type": "boolean",
           "description": "Whether this deployment is running in debug mode. Debug-mode deployments expose enclave logs and cannot be remotely attested."
+        },
+        "instanceSizeCpus": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The instance cpu count for this enclave."
+        },
+        "instanceSizeRam": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The instance memory size in GiB for this enclave."
         }
       },
       "required": [
@@ -20826,9 +21246,29 @@
         },
         "updatedAt": {
           "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "encryptPublicKey": {
+          "type": "string",
+          "description": "Encryption public key for this TVC Operator."
+        },
+        "signPublicKey": {
+          "type": "string",
+          "description": "Signing public key for this TVC Operator."
+        },
+        "keySource": {
+          "type": "string",
+          "description": "Source of the operator keys: EXTERNAL_KEY or ORG_WALLET_ACCOUNT. Absent for legacy operators whose source was not recorded."
         }
       },
-      "required": ["id", "name", "publicKey", "createdAt", "updatedAt"]
+      "required": [
+        "id",
+        "name",
+        "publicKey",
+        "createdAt",
+        "updatedAt",
+        "encryptPublicKey",
+        "signPublicKey"
+      ]
     },
     "v1TvcOperatorApproval": {
       "type": "object",
@@ -20954,6 +21394,41 @@
         }
       },
       "required": ["name", "threshold"]
+    },
+    "v1TvcQuorumKey": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "publicKey": {
+          "type": "string"
+        },
+        "threshold": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "operatorIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "publicKey",
+        "threshold",
+        "operatorIds",
+        "createdAt",
+        "updatedAt"
+      ]
     },
     "v1TxError": {
       "type": "object",

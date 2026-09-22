@@ -1,5 +1,15 @@
 # @turnkey/solana
 
+## 1.1.43
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-browser@8.6.0
+  - @turnkey/sdk-server@8.6.0
+  - @turnkey/core@2.12.0
+  - @turnkey/http@6.6.0
+
 ## 1.1.42
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @turnkey/sdk-react-native
 
+## 1.5.33
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/http@6.6.0
+  - @turnkey/crypto@2.13.2
+  - @turnkey/react-native-passkey-stamper@1.2.26
+  - @turnkey/api-key-stamper@0.6.17
+
 ## 1.5.32
 
 ### Patch Changes

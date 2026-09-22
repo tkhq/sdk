@@ -1,5 +1,15 @@
 # @turnkey/react-wallet-kit
 
+## 2.5.1
+
+### Patch Changes
+
+- [#1535](https://github.com/tkhq/sdk/pull/1535) [`e72c314`](https://github.com/tkhq/sdk/commit/e72c3145aa46f55d493a0a13123108a68576b416) Thanks [@t-vila](https://github.com/t-vila)! - Surface config fetch failures through `onError`
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-types@1.10.0
+  - @turnkey/core@2.12.0
+
 ## 2.5.0
 
 ### Minor Changes
