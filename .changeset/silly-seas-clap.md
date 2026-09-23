@@ -2,4 +2,4 @@
 "@turnkey/react-wallet-kit": patch
 ---
 
-Don't pass `undefined` to `onSuccess` when a disconnected account isn't found
+Return a discriminated wallet action result and allow a disconnect result without a matched account, so successful disconnects always resolve the caller's promise.
