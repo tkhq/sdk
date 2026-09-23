@@ -22,10 +22,10 @@ const ADDRESS = "0x1111111111111111111111111111111111111111";
 // The wallet approves Polygon, not the first chain we asked for.
 const APPROVED_CHAIN = "eip155:137";
 
-function createClient() {
+function createClient(accounts = [`${APPROVED_CHAIN}:${ADDRESS}`]) {
   // An already-established pairing, as after an app reload.
   let session: any = {
-    namespaces: { eip155: { accounts: [`${APPROVED_CHAIN}:${ADDRESS}`] } },
+    namespaces: { eip155: { accounts } },
   };
   const requests: { chain: string; method: string }[] = [];
 
@@ -38,7 +38,7 @@ function createClient() {
     getSession: () => session,
     approve: async () => {
       session = {
-        namespaces: { eip155: { accounts: [`${APPROVED_CHAIN}:${ADDRESS}`] } },
+        namespaces: { eip155: { accounts } },
       };
       return session;
     },
@@ -70,5 +70,24 @@ describe("WalletConnectWallet chain selection", () => {
       chain: APPROVED_CHAIN,
       method: "personal_sign",
     });
+  });
+
+  it("signs on the selected chain when multiple session chains are approved", async () => {
+    const client = createClient([
+      `eip155:1:${ADDRESS}`,
+      `${APPROVED_CHAIN}:${ADDRESS}`,
+    ]);
+    const wallet = new (WalletConnectWallet as any)(client, undefined, {
+      ethereumNamespaces: ["eip155:1", APPROVED_CHAIN],
+      solanaNamespaces: [],
+    });
+
+    await wallet.switchChain(provider, "0x89");
+    await wallet.sign("0xdeadbeef", provider, SignIntent.SignMessage);
+
+    expect(client.requests).toEqual([
+      { chain: "eip155:1", method: "wallet_switchEthereumChain" },
+      { chain: APPROVED_CHAIN, method: "personal_sign" },
+    ]);
   });
 });
