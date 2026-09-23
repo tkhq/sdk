@@ -1,5 +1,6 @@
 ---
 "@turnkey/core": patch
+"@turnkey/encoding": patch
 ---
 
-Decode JWT payloads with base64url instead of standard base64
+Decode JWT payloads as UTF-8 base64url text
