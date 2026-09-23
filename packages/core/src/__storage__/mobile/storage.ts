@@ -1,5 +1,6 @@
 import { type StorageBase, SessionKey } from "../../__types__";
 import { parseSession } from "@utils";
+import { parseStorageValue } from "../utils";
 import type { Session } from "@turnkey/sdk-types";
 
 let AsyncStorage: (typeof import("@react-native-async-storage/async-storage"))["default"];
@@ -19,15 +20,7 @@ export class MobileStorageManager implements StorageBase {
 
   getStorageValue = async (sessionKey: string): Promise<any> => {
     const item = await AsyncStorage.getItem(sessionKey);
-    if (!item) return undefined;
-
-    try {
-      return JSON.parse(item);
-    } catch {
-      // See WebStorageManager.getStorageValue: an unparseable value is
-      // treated as absent rather than throwing out of every read.
-      return undefined;
-    }
+    return parseStorageValue(item);
   };
 
   setStorageValue = async (

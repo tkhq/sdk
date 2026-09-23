@@ -1,6 +1,7 @@
 import WindowWrapper from "@polyfills/window";
 import { type StorageBase, type Wallet, SessionKey } from "../../__types__";
 import { parseSession } from "@utils";
+import { parseStorageValue } from "../utils";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
@@ -15,17 +16,7 @@ export class WebStorageManager implements StorageBase {
 
   getStorageValue = async (sessionKey: string): Promise<any> => {
     const item = browserStorage.getItem(sessionKey);
-    if (!item) return undefined;
-
-    try {
-      return JSON.parse(item);
-    } catch {
-      // A value we cannot parse is no more usable than a missing one, and
-      // this method is documented to return undefined when there is nothing
-      // to read. Throwing here would make every read of the key fail until
-      // something else removed it.
-      return undefined;
-    }
+    return parseStorageValue(item);
   };
 
   setStorageValue = async (
