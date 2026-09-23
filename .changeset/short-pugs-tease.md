@@ -2,4 +2,4 @@
 "@turnkey/core": patch
 ---
 
-Read the Solana public key before signing so the stamp stays self-consistent
+Return the Solana signature and signing account public key together so stamps remain consistent and WalletConnect can approve new sessions
