@@ -375,10 +375,9 @@ export class WalletConnectWallet implements WalletConnectInterface {
         throw new Error("no Ethereum account to sign with");
       }
 
-      // EVM chains are requested as optional namespaces, so the wallet may
-      // approve only a subset. Target the chain the connected account is
-      // actually on rather than the first chain we asked for.
-      const ethChain = getConnectedEthereumChain(session) ?? this.ethChain;
+      // Keep the selected chain when approved by the session. If the wallet
+      // granted only a subset of the requested chains, use an approved chain.
+      const ethChain = getConnectedEthereumChain(session, this.ethChain);
 
       switch (intent) {
         case SignIntent.SignMessage:
@@ -756,22 +755,30 @@ function getConnectedEthereum(
 }
 
 /**
- * Retrieves the CAIP-2 chain of the first connected EVM account.
+ * Resolves an approved EVM chain, preferring the currently selected chain.
  *
- * - Safe to call with `null` (returns `undefined`).
- * - Returns the `eip155:<id>` prefix of the account, e.g. `"eip155:137"`.
+ * - Returns the selected chain if it has an approved account.
+ * - Otherwise returns the chain of the first connected EVM account.
  *
- * @param session - The current WalletConnect session, or `null`.
- * @returns The connected EVM chain, or `undefined` if none.
+ * @param session - The current WalletConnect session, or null.
+ * @param preferredChain - The currently selected EVM chain.
+ * @returns An approved EVM chain, or the configured chain if none is connected.
  */
 function getConnectedEthereumChain(
   session: SessionTypes.Struct | null,
-): string | undefined {
-  const acc = session?.namespaces.eip155?.accounts?.[0];
-  if (!acc) return undefined;
+  preferredChain: string,
+): string {
+  const chains = session?.namespaces.eip155?.accounts
+    ?.map((account) => {
+      const [namespace, reference] = account.split(":");
+      return namespace === "eip155" && reference
+        ? `${namespace}:${reference}`
+        : undefined;
+    })
+    .filter((chain): chain is string => chain !== undefined);
 
-  const [namespace, reference] = acc.split(":");
-  return namespace && reference ? `${namespace}:${reference}` : undefined;
+  if (chains?.includes(preferredChain)) return preferredChain;
+  return chains?.[0] ?? preferredChain;
 }
 
 /**
