@@ -72,6 +72,7 @@ export function useTurnstile(options?: UseTurnstileOptions) {
         }
       },
       turnstileRef,
+      turnstileConfigured,
     );
     // Timed out with no token — ensure gated actions stay disabled.
     if (turnstileConfigured && !("captchaToken" in result)) {
