@@ -7,7 +7,7 @@ import {
   capitalizeProviderName,
   cleanupOAuthUrl,
   cleanupOAuthUrlPreserveSearch,
-  clearAllOAuthData,
+  clearOAuthState,
   completeOAuthFlow,
   completeOAuthPopup,
   exchangeFacebookCodeForToken,
@@ -313,9 +313,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const { isMobile, pushPage, popPage, closeModal } = useModal();
 
   const completeRedirectOauth = async () => {
-    // Since we use localStorage (see storage.ts), we always clean up OAuth data
-    // when this runs — even if there are no OAuth params in the URL (e.g. the
-    // user canceled at the provider and came back manually)
+    let oauthState: string | null | undefined;
     try {
       // Check for either hash or search parameters that could indicate an OAuth redirect
       if (!window.location.hash && !window.location.search) {
@@ -408,6 +406,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       ) {
         // Parse the URL using our unified helper
         const result = parseOAuthResponse(window.location.href);
+        oauthState = result?.state;
 
         if (!result || !result.authCode || !result.publicKey) {
           return;
@@ -633,6 +632,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       if (window.location.hash) {
         // Parse the URL using our unified helper
         const result = parseOAuthResponse(window.location.href);
+        oauthState = result?.state;
 
         if (
           !result ||
@@ -730,7 +730,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         cleanupOAuthUrlPreserveSearch();
       }
     } finally {
-      clearAllOAuthData();
+      if (oauthState) {
+        clearOAuthState(oauthState);
+      }
     }
   };
 

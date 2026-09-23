@@ -136,6 +136,17 @@ export function storeOAuthState(state: string) {
   localStorage.setItem(getOAuthStateKey(state), state);
 }
 
+/** Clears the stored state for one OAuth attempt without affecting others. */
+export function clearOAuthState(state: string): void {
+  localStorage.removeItem(getOAuthStateKey(state));
+
+  // Also clean up this attempt if it was stored by a version that used the
+  // legacy, unscoped key. Preserve it when it belongs to another attempt.
+  if (localStorage.getItem(OAUTH_STATE_KEY) === state) {
+    localStorage.removeItem(OAUTH_STATE_KEY);
+  }
+}
+
 /**
  * Consumes the OAuth state string from local storage for validation
  * @param returnedState - The OAuth state string returned from the provider

@@ -7,6 +7,7 @@ import {
   buildOAuthState,
   buildOAuthUrl,
   clearAllOAuthData,
+  clearOAuthState,
   consumeOAuthCaptchaToken,
   consumeOAuthState,
   storeOAuthState,
@@ -206,6 +207,7 @@ describe("parseOAuthRedirect", () => {
       const out = parseOAuthResponse(url);
 
       expect(out).toEqual({
+        state: storedState,
         idToken: "apple.id.token",
         authCode: null,
         provider: "apple",
@@ -257,6 +259,7 @@ describe("parseOAuthRedirect", () => {
       const out = parseOAuthResponse(url);
 
       expect(out).toEqual({
+        state: rawState,
         idToken: "google.id.token",
         authCode: null,
         provider: "google",
@@ -361,6 +364,26 @@ describe("OAuth utils", () => {
         }),
       );
       expect(localStorage.getItem(OAUTH_STATE_KEY)).toBeNull();
+    });
+  });
+
+  describe("redirect state cleanup", () => {
+    it("clears only the completed redirect attempt state", () => {
+      const stateA = "provider=google&flow=redirect&publicKey=pk_a";
+      const stateB = "provider=apple&flow=redirect&publicKey=pk_b";
+      storeOAuthState(stateA);
+      storeOAuthState(stateB);
+
+      // parseOAuthResponse is the path used by redirect completion. It
+      // consumes the returned attempt; the completion finally block then
+      // performs the same targeted cleanup once more.
+      const url = `https://example.com/callback#id_token=token&state=${encodeURIComponent(stateA)}`;
+      const result = parseOAuthResponse(url);
+      clearOAuthState(result!.state!);
+
+      expect(localStorage.getItem(`oauth_state:${stateA}`)).toBeNull();
+      expect(localStorage.getItem(`oauth_state:${stateB}`)).toBe(stateB);
+      expect(() => consumeOAuthState(stateB)).not.toThrow();
     });
   });
 
@@ -497,6 +520,7 @@ describe("OAuth utils", () => {
 
       const result = parseOAuthResponse(url, OAuthProviders.GOOGLE);
       expect(result).toEqual({
+        state: rawState,
         idToken: "tok123",
         authCode: null,
         sessionKey: "sess1",
@@ -519,6 +543,7 @@ describe("OAuth utils", () => {
 
       const result = parseOAuthResponse(url, OAuthProviders.DISCORD);
       expect(result).toEqual({
+        state: rawState,
         idToken: null,
         authCode: "code123",
         sessionKey: "sess2",
