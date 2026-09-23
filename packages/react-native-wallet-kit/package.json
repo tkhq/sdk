@@ -61,7 +61,7 @@
   "peerDependencies": {
     "@types/react": ">=16.8.0 <20",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
-    "react-native": ">=0.70.0",
+    "react-native": "^0.81.0",
     "react-native-gesture-handler": ">=2.0.0",
     "react-native-inappbrowser-reborn": ">=3.7.0",
     "react-native-safe-area-context": ">=4.0.0",
