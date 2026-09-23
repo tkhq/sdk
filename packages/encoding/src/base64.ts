@@ -65,7 +65,7 @@ export function base64UrlToBase64(input: string): string {
  * Decodes a base64url-encoded string into a plain UTF-8 string.
  *
  * - Converts the input from base64url to base64.
- * - Decodes the base64 string into a plain string using a pure JS `atob` implementation.
+ * - Decodes the base64 bytes as UTF-8 text.
  *
  * @param {string} input - The base64url-encoded string to decode.
  * @returns {string} - The decoded plain string.
@@ -73,7 +73,9 @@ export function base64UrlToBase64(input: string): string {
  */
 export function decodeBase64urlToString(input: string): string {
   const b64 = base64UrlToBase64(input);
-  return atob(b64);
+  const binary = atob(b64);
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
 }
 
 // Pure JS implementation of btoa. This is adapted from the following:
