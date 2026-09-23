@@ -3,20 +3,24 @@ import { stringToBase64urlString } from "@turnkey/encoding";
 
 import { parseSession, decodeVerificationToken } from "../utils";
 
-/** Build a JWT-shaped token whose payload is base64url encoded. */
+/** Encode JSON as UTF-8 bytes before applying base64url, as JWTs require. */
+function encodeSegment(payload: object): string {
+  const bytes = new TextEncoder().encode(JSON.stringify(payload));
+  return stringToBase64urlString(String.fromCharCode(...bytes));
+}
+
+/** Build a JWT-shaped token with UTF-8 JSON segments. */
 function makeToken(payload: object): string {
   return [
-    stringToBase64urlString(JSON.stringify({ alg: "ES256", typ: "JWT" })),
-    stringToBase64urlString(JSON.stringify(payload)),
+    encodeSegment({ alg: "ES256", typ: "JWT" }),
+    encodeSegment(payload),
     "signature",
   ].join(".");
 }
 
 describe("JWT payload decoding", () => {
-  // This contact makes the payload's base64url form contain "_", which only
-  // a base64url decoder handles: standard base64 `atob` rejects or corrupts
-  // it even though the token itself is perfectly valid.
-  const contact = "üuser@example.com";
+  // The multibyte character also produces a URL-safe base64 character.
+  const contact = "🚀user@example.com";
 
   it("parseSession decodes a payload containing base64url characters", () => {
     const token = makeToken({
@@ -28,12 +32,17 @@ describe("JWT payload decoding", () => {
       scope: contact,
     });
 
-    expect(parseSession(token).organizationId).toBe("organization-id");
+    expect(token.split(".")[1]).toMatch(/[-_]/);
+    expect(parseSession(token)).toMatchObject({
+      organizationId: "organization-id",
+      scope: contact,
+    });
   });
 
   it("decodeVerificationToken decodes a payload containing base64url characters", () => {
     const token = makeToken({ contact, otp_id: "otp-id" });
 
+    expect(token.split(".")[1]).toMatch(/[-_]/);
     expect(decodeVerificationToken(token)).toMatchObject({ contact });
   });
 });
