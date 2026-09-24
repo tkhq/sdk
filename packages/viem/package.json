@@ -63,7 +63,9 @@
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/core": "workspace:*",
-    "cross-fetch": "^4.0.0"
+    "cross-fetch": "^4.0.0",
+    "@zerodev/ecdsa-validator": "^5.4.8",
+    "@zerodev/sdk": "^5.4.32"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
