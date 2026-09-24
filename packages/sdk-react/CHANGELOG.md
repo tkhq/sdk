@@ -1,5 +1,40 @@
 # @turnkey/sdk-react
 
+## 6.0.12
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-browser@8.6.0
+  - @turnkey/sdk-server@8.6.0
+  - @turnkey/sdk-types@1.10.0
+  - @turnkey/crypto@2.13.2
+  - @turnkey/wallet-stamper@1.1.29
+
+## 6.0.11
+
+### Patch Changes
+
+- Updated dependencies [[`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312)]:
+  - @turnkey/sdk-types@1.9.0
+  - @turnkey/crypto@2.13.1
+  - @turnkey/sdk-browser@8.5.1
+  - @turnkey/sdk-server@8.5.1
+  - @turnkey/wallet-stamper@1.1.28
+
+## 6.0.10
+
+### Patch Changes
+
+- [#1518](https://github.com/tkhq/sdk/pull/1518) [`ef05f11`](https://github.com/tkhq/sdk/commit/ef05f1172adbaaa5b5ea1c52c0b3b385f626b9b6) Author [@arawal](https://github.com/arawal) - Bumped `next` to 15.5.24 to pick up the fixes for GHSA-2xp9-vwfh-vxw4 and GHSA-p293-qw3h-jr36
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434), [`66f2acd`](https://github.com/tkhq/sdk/commit/66f2acda2fc99534316eba8a1e6e9aff674fb621), [`a68b73a`](https://github.com/tkhq/sdk/commit/a68b73a6c2b3d76ef94f9447ec3a9f3794eda857)]:
+  - @turnkey/sdk-browser@8.5.0
+  - @turnkey/sdk-server@8.5.0
+  - @turnkey/sdk-types@1.8.0
+  - @turnkey/crypto@2.13.0
+  - @turnkey/wallet-stamper@1.1.27
+
 ## 6.0.9
 
 ### Patch Changes

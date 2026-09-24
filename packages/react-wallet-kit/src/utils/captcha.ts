@@ -32,14 +32,17 @@ export const waitForCaptchaToken = (
 
 /**
  * Waits for a captcha token, then consumes it (clears state and resets the widget for a fresh token).
- * Returns `{ captchaToken }` if a token was available, or `{}` if timed out.
+ * Returns `{ captchaToken }` if a token was available, or `{}` if CAPTCHA is disabled or timed out.
  * Callers that require CAPTCHA should treat `{}` as failure and surface a user-facing message.
  */
 export const consumeCaptchaToken = async (
   getTurnstileToken: () => string | null,
   setTurnstileToken: (token: string | null) => void,
   turnstileRef?: RefObject<TurnstileInstance | null>,
+  captchaEnabled = false,
 ): Promise<{ captchaToken: string } | Record<string, never>> => {
+  if (!captchaEnabled) return {};
+
   const token = await waitForCaptchaToken(getTurnstileToken);
   if (token) {
     setTurnstileToken(null);

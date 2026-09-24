@@ -1,5 +1,41 @@
 # @turnkey/react-native-wallet-kit
 
+## 2.3.7
+
+### Patch Changes
+
+- [#1535](https://github.com/tkhq/sdk/pull/1535) [`e72c314`](https://github.com/tkhq/sdk/commit/e72c3145aa46f55d493a0a13123108a68576b416) Thanks [@t-vila](https://github.com/t-vila)! - Surface config fetch failures through `onError`
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-types@1.10.0
+  - @turnkey/core@2.12.0
+  - @turnkey/crypto@2.13.2
+  - @turnkey/react-native-passkey-stamper@1.2.26
+
+## 2.3.6
+
+### Patch Changes
+
+- [#1533](https://github.com/tkhq/sdk/pull/1533) [`dd45068`](https://github.com/tkhq/sdk/commit/dd45068934e148fc17d96857dc049ac697477c77) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `sessionExpirationSeconds` from the auth proxy config being ignored in the OTP and OAuth `signUp`/`complete` flows. These now auto-populate `expirationSeconds` from the config
+
+  Added an optional `expirationSeconds` param to `completeOtp`, `signUpWithOtp`, `completeOauth`, and `signUpWithOauth`
+
+- Updated dependencies [[`dd45068`](https://github.com/tkhq/sdk/commit/dd45068934e148fc17d96857dc049ac697477c77), [`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312)]:
+  - @turnkey/core@2.11.0
+  - @turnkey/sdk-types@1.9.0
+  - @turnkey/crypto@2.13.1
+  - @turnkey/react-native-passkey-stamper@1.2.25
+
+## 2.3.5
+
+### Patch Changes
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434), [`304d4a8`](https://github.com/tkhq/sdk/commit/304d4a83e4ba8fe6e8bed8fcd7e57505e7c25b52), [`66f2acd`](https://github.com/tkhq/sdk/commit/66f2acda2fc99534316eba8a1e6e9aff674fb621), [`a68b73a`](https://github.com/tkhq/sdk/commit/a68b73a6c2b3d76ef94f9447ec3a9f3794eda857)]:
+  - @turnkey/core@2.10.0
+  - @turnkey/sdk-types@1.8.0
+  - @turnkey/crypto@2.13.0
+  - @turnkey/react-native-passkey-stamper@1.2.24
+
 ## 2.3.4
 
 ### Patch Changes

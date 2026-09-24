@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/spark",
-  "version": "0.3.9",
+  "version": "0.3.12",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {

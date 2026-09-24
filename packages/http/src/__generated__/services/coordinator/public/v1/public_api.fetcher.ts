@@ -448,6 +448,62 @@ export const signGetClaimEarnFeesStatus = (
   });
 
 /**
+ * `POST /public/v1/query/get_earn_claim_rewards_status`
+ */
+export type TGetEarnClaimRewardsStatusResponse =
+  operations["PublicApiService_GetEarnClaimRewardsStatus"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_earn_claim_rewards_status`
+ */
+export type TGetEarnClaimRewardsStatusInput = {
+  body: TGetEarnClaimRewardsStatusBody;
+};
+
+/**
+ * `POST /public/v1/query/get_earn_claim_rewards_status`
+ */
+export type TGetEarnClaimRewardsStatusBody =
+  operations["PublicApiService_GetEarnClaimRewardsStatus"]["parameters"]["body"]["body"];
+
+/**
+ * Get Earn claim rewards status
+ *
+ * Poll the status of a rewards claim by its claim_request_id.
+ *
+ * `POST /public/v1/query/get_earn_claim_rewards_status`
+ */
+export const getEarnClaimRewardsStatus = (
+  input: TGetEarnClaimRewardsStatusInput,
+) =>
+  request<
+    TGetEarnClaimRewardsStatusResponse,
+    TGetEarnClaimRewardsStatusBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_earn_claim_rewards_status",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetEarnClaimRewardsStatus` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetEarnClaimRewardsStatus}
+ */
+export const signGetEarnClaimRewardsStatus = (
+  input: TGetEarnClaimRewardsStatusInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetEarnClaimRewardsStatusBody, never, never>({
+    uri: "/public/v1/query/get_earn_claim_rewards_status",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_earn_deploy_status`
  */
 export type TGetEarnDeployStatusResponse =
@@ -2308,6 +2364,52 @@ export const signListEarnPositions = (
   });
 
 /**
+ * `POST /public/v1/query/list_earn_rewards`
+ */
+export type TListEarnRewardsResponse =
+  operations["PublicApiService_ListEarnRewards"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_earn_rewards`
+ */
+export type TListEarnRewardsInput = { body: TListEarnRewardsBody };
+
+/**
+ * `POST /public/v1/query/list_earn_rewards`
+ */
+export type TListEarnRewardsBody =
+  operations["PublicApiService_ListEarnRewards"]["parameters"]["body"]["body"];
+
+/**
+ * List Earn rewards
+ *
+ * List the protocol rewards (e.g. MORPHO and third-party campaign tokens, distributed off-chain via Merkl) attributed to a wallet: claimable, lifetime claimed, and pending amounts per reward token.
+ *
+ * `POST /public/v1/query/list_earn_rewards`
+ */
+export const listEarnRewards = (input: TListEarnRewardsInput) =>
+  request<TListEarnRewardsResponse, TListEarnRewardsBody, never, never, never>({
+    uri: "/public/v1/query/list_earn_rewards",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListEarnRewards` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListEarnRewards}
+ */
+export const signListEarnRewards = (
+  input: TListEarnRewardsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListEarnRewardsBody, never, never>({
+    uri: "/public/v1/query/list_earn_rewards",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_earn_vaults`
  */
 export type TListEarnVaultsResponse =
@@ -3057,6 +3159,104 @@ export const signGetTvcApps = (
 ) =>
   signedRequest<TGetTvcAppsBody, never, never>({
     uri: "/public/v1/query/list_tvc_apps",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_tvc_operators`
+ */
+export type TGetTvcOperatorsResponse =
+  operations["PublicApiService_GetTvcOperators"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_tvc_operators`
+ */
+export type TGetTvcOperatorsInput = { body: TGetTvcOperatorsBody };
+
+/**
+ * `POST /public/v1/query/list_tvc_operators`
+ */
+export type TGetTvcOperatorsBody =
+  operations["PublicApiService_GetTvcOperators"]["parameters"]["body"]["body"];
+
+/**
+ * List TVC operators
+ *
+ * List all TVC operators within an organization, newest first.
+ *
+ * `POST /public/v1/query/list_tvc_operators`
+ */
+export const getTvcOperators = (input: TGetTvcOperatorsInput) =>
+  request<TGetTvcOperatorsResponse, TGetTvcOperatorsBody, never, never, never>({
+    uri: "/public/v1/query/list_tvc_operators",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetTvcOperators` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetTvcOperators}
+ */
+export const signGetTvcOperators = (
+  input: TGetTvcOperatorsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetTvcOperatorsBody, never, never>({
+    uri: "/public/v1/query/list_tvc_operators",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_tvc_quorum_keys`
+ */
+export type TGetTvcQuorumKeysResponse =
+  operations["PublicApiService_GetTvcQuorumKeys"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_tvc_quorum_keys`
+ */
+export type TGetTvcQuorumKeysInput = { body: TGetTvcQuorumKeysBody };
+
+/**
+ * `POST /public/v1/query/list_tvc_quorum_keys`
+ */
+export type TGetTvcQuorumKeysBody =
+  operations["PublicApiService_GetTvcQuorumKeys"]["parameters"]["body"]["body"];
+
+/**
+ * List TVC quorum keys
+ *
+ * List all hosted TVC quorum keys within an organization, newest first.
+ *
+ * `POST /public/v1/query/list_tvc_quorum_keys`
+ */
+export const getTvcQuorumKeys = (input: TGetTvcQuorumKeysInput) =>
+  request<
+    TGetTvcQuorumKeysResponse,
+    TGetTvcQuorumKeysBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_tvc_quorum_keys",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetTvcQuorumKeys` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetTvcQuorumKeys}
+ */
+export const signGetTvcQuorumKeys = (
+  input: TGetTvcQuorumKeysInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetTvcQuorumKeysBody, never, never>({
+    uri: "/public/v1/query/list_tvc_quorum_keys",
     body: input.body,
     options,
   });
@@ -5668,6 +5868,52 @@ export const signDeletePrivateKeys = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_secrets`
+ */
+export type TDeleteSecretsResponse =
+  operations["PublicApiService_DeleteSecrets"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_secrets`
+ */
+export type TDeleteSecretsInput = { body: TDeleteSecretsBody };
+
+/**
+ * `POST /public/v1/submit/delete_secrets`
+ */
+export type TDeleteSecretsBody =
+  operations["PublicApiService_DeleteSecrets"]["parameters"]["body"]["body"];
+
+/**
+ * Delete secrets
+ *
+ * Delete secrets by their unique identifiers. All secrets must belong to the organization.
+ *
+ * `POST /public/v1/submit/delete_secrets`
+ */
+export const deleteSecrets = (input: TDeleteSecretsInput) =>
+  request<TDeleteSecretsResponse, TDeleteSecretsBody, never, never, never>({
+    uri: "/public/v1/submit/delete_secrets",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteSecrets` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteSecrets}
+ */
+export const signDeleteSecrets = (
+  input: TDeleteSecretsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteSecretsBody, never, never>({
+    uri: "/public/v1/submit/delete_secrets",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/delete_smart_contract_interface`
  */
 export type TDeleteSmartContractInterfaceResponse =
@@ -6173,6 +6419,58 @@ export const signDeleteWebhookEndpoint = (
 ) =>
   signedRequest<TDeleteWebhookEndpointBody, never, never>({
     uri: "/public/v1/submit/delete_webhook_endpoint",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/earn_claim_rewards`
+ */
+export type TEarnClaimRewardsResponse =
+  operations["PublicApiService_EarnClaimRewards"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/earn_claim_rewards`
+ */
+export type TEarnClaimRewardsInput = { body: TEarnClaimRewardsBody };
+
+/**
+ * `POST /public/v1/submit/earn_claim_rewards`
+ */
+export type TEarnClaimRewardsBody =
+  operations["PublicApiService_EarnClaimRewards"]["parameters"]["body"]["body"];
+
+/**
+ * Claim Earn rewards
+ *
+ * Claim the Merkl protocol rewards attributed to a wallet's Earn positions. The claim is signed by the wallet itself and every reward token is transferred to it; see ListEarnRewards for what is claimable.
+ *
+ * `POST /public/v1/submit/earn_claim_rewards`
+ */
+export const earnClaimRewards = (input: TEarnClaimRewardsInput) =>
+  request<
+    TEarnClaimRewardsResponse,
+    TEarnClaimRewardsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/earn_claim_rewards",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `EarnClaimRewards` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link EarnClaimRewards}
+ */
+export const signEarnClaimRewards = (
+  input: TEarnClaimRewardsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TEarnClaimRewardsBody, never, never>({
+    uri: "/public/v1/submit/earn_claim_rewards",
     body: input.body,
     options,
   });

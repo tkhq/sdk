@@ -1,5 +1,34 @@
 # @turnkey/http
 
+## 6.6.0
+
+### Minor Changes
+
+- [`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2) Author [@ericvelazquez](https://github.com/ericvelazquez) - Add Earn rewards: listEarnRewards, earnClaimRewards, getEarnClaimRewardsStatus
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.17
+
+## 6.5.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.16
+
+## 6.5.0
+
+### Minor Changes
+
+- [#1525](https://github.com/tkhq/sdk/pull/1525) [`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434) Thanks [@moe-dev](https://github.com/moe-dev)! - Update as per mono v2026.9.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.15
+
 ## 6.4.0
 
 ### Minor Changes

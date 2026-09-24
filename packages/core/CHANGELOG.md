@@ -1,5 +1,56 @@
 # @turnkey/core
 
+## 2.12.0
+
+### Minor Changes
+
+- [`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2) Author [@ericvelazquez](https://github.com/ericvelazquez) - Add Earn rewards: listEarnRewards, earnClaimRewards, getEarnClaimRewardsStatus
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-types@1.10.0
+  - @turnkey/http@6.6.0
+  - @turnkey/crypto@2.13.2
+  - @turnkey/react-native-passkey-stamper@1.2.26
+  - @turnkey/api-key-stamper@0.6.17
+
+## 2.11.0
+
+### Minor Changes
+
+- [#1532](https://github.com/tkhq/sdk/pull/1532) [`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312) Thanks [@t-vila](https://github.com/t-vila)! - `createKeyPair` now raises `API_KEY_STORAGE_UNAVAILABLE` when the device refuses to persist a generated key pair, instead of a generic failure
+
+### Patch Changes
+
+- [#1533](https://github.com/tkhq/sdk/pull/1533) [`dd45068`](https://github.com/tkhq/sdk/commit/dd45068934e148fc17d96857dc049ac697477c77) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `sessionExpirationSeconds` from the auth proxy config being ignored in the OTP and OAuth `signUp`/`complete` flows. These now auto-populate `expirationSeconds` from the config
+
+  Added an optional `expirationSeconds` param to `completeOtp`, `signUpWithOtp`, `completeOauth`, and `signUpWithOauth`
+
+- Updated dependencies [[`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312)]:
+  - @turnkey/sdk-types@1.9.0
+  - @turnkey/crypto@2.13.1
+  - @turnkey/api-key-stamper@0.6.16
+  - @turnkey/http@6.5.1
+  - @turnkey/react-native-passkey-stamper@1.2.25
+
+## 2.10.0
+
+### Minor Changes
+
+- [#1525](https://github.com/tkhq/sdk/pull/1525) [`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434) Thanks [@moe-dev](https://github.com/moe-dev)! - Update as per mono v2026.9.4
+
+### Patch Changes
+
+- [#1514](https://github.com/tkhq/sdk/pull/1514) [`304d4a8`](https://github.com/tkhq/sdk/commit/304d4a83e4ba8fe6e8bed8fcd7e57505e7c25b52) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `ethSendTransaction` to respect the per-call `stampWith` instead of falling back to the client default stamper
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434), [`66f2acd`](https://github.com/tkhq/sdk/commit/66f2acda2fc99534316eba8a1e6e9aff674fb621), [`a68b73a`](https://github.com/tkhq/sdk/commit/a68b73a6c2b3d76ef94f9447ec3a9f3794eda857)]:
+  - @turnkey/http@6.5.0
+  - @turnkey/sdk-types@1.8.0
+  - @turnkey/crypto@2.13.0
+  - @turnkey/react-native-passkey-stamper@1.2.24
+  - @turnkey/api-key-stamper@0.6.15
+
 ## 2.9.0
 
 ### Minor Changes

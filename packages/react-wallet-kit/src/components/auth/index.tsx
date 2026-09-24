@@ -99,7 +99,7 @@ export function AuthComponent({
         showTitle: false,
       });
     } catch (error) {
-      throw new Error(`Error initializing OTP: ${error}`);
+      throw error;
     }
   };
 
@@ -132,7 +132,7 @@ export function AuthComponent({
         showTitle: false,
       });
     } catch (error) {
-      throw new Error(`Error initializing OTP: ${error}`);
+      throw error;
     }
   };
 
@@ -295,7 +295,7 @@ export function AuthComponent({
         ),
       });
     } catch (error) {
-      throw new Error(`Error fetching wallet providers: ${error}`);
+      throw error;
     }
   };
 

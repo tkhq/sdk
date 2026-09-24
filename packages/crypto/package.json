@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/crypto",
-  "version": "2.12.1",
+  "version": "2.13.2",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
