@@ -3424,9 +3424,6 @@ importers:
       '@tailwindcss/postcss':
         specifier: 4.1.13
         version: 4.1.13
-      '@turnkey/iframe-stamper':
-        specifier: workspace:*
-        version: link:../../../packages/iframe-stamper
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
         version: link:../../../packages/react-wallet-kit
