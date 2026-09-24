@@ -40,10 +40,16 @@ import {
   WalletSource,
 } from "../__types__";
 
-// mock the bs58 library
-jest.mock("bs58", () => ({
-  encode: jest.fn(() => "base58-encoded"),
-}));
+// mock bs58 via @turnkey/encoding, since core doesn't depend on bs58 directly
+jest.mock("@turnkey/encoding", () => {
+  const actual = jest.requireActual(
+    "@turnkey/encoding",
+  ) as typeof import("@turnkey/encoding");
+  return {
+    ...actual,
+    bs58: { ...actual.bs58, encode: jest.fn(() => "base58-encoded") },
+  };
+});
 import { bs58 } from "@turnkey/encoding";
 
 // For deterministic ETH behavior, mock the heavy crypto/EC parts.
