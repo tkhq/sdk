@@ -1,13 +1,14 @@
 /**
  * Shared constants for the setup script and the browser app: chain, contract
- * addresses, the ABI fragments Turnkey needs to decode calls, and the session
- * profile scope.
+ * addresses, the ABI fragments the app uses to encode calls and read balances,
+ * and the session profile scope.
  *
  * Everything the policy engine compares addresses against is lowercased.
  * `eth.tx.to` is normalised to lowercase by the engine, and the example keeps
  * every literal in the same form so a reader never has to wonder which case
  * a clause expects.
  */
+import { toFunctionSelector } from "viem";
 
 export const CAIP2_BASE_SEPOLIA = "eip155:84532" as const;
 export const BASESCAN = "https://sepolia.basescan.org";
@@ -31,9 +32,10 @@ export const MINIBANK_ADDRESS = (
 
 /**
  * The ERC-20 surface the example touches. `approve` is what the scope allows;
- * `transfer` is uploaded too so the denial slice can show a call that Turnkey
- * decodes correctly and still rejects, as opposed to calldata it cannot
- * decode at all. `balanceOf` is for reads.
+ * `transfer` is here so the denial slice can send a well-formed call to the
+ * right contract with the wrong selector. `balanceOf` and `allowance` are for
+ * reads. Nothing here is uploaded to Turnkey: the scope matches on raw
+ * calldata, so no smart contract interface is needed.
  */
 export const ERC20_ABI = [
   {
@@ -141,100 +143,89 @@ export const MINIBANK_ABI = [
 ] as const;
 
 /**
- * Ceiling for sessions issued with either profile, in seconds. A login may
- * ask for less, never more. Fifteen minutes keeps the cap visible in the demo.
+ * Ceiling for sessions issued with the profile, in seconds. A login may ask
+ * for less, never more. Fifteen minutes keeps the cap visible in the demo.
  */
 export const PROFILE_EXPIRATION_SECONDS = "900";
 
 /**
- * Two session profiles, one action each. Same language as policy conditions.
+ * Four-byte function selectors, derived from the ABIs above so they cannot
+ * drift from the calldata the app encodes. `eth.tx.data[0..10]` is the "0x"
+ * plus the first eight hex characters of the calldata, which is exactly this.
+ */
+const abiFn = (abi: readonly { type: string; name?: string }[], name: string) =>
+  abi.find((f) => f.type === "function" && f.name === name) as Parameters<
+    typeof toFunctionSelector
+  >[0];
+export const SELECTORS = {
+  /** approve(address,uint256) = 0x095ea7b3 */
+  approve: toFunctionSelector(abiFn(ERC20_ABI, "approve")),
+  /** transfer(address,uint256) = 0xa9059cbb */
+  transfer: toFunctionSelector(abiFn(ERC20_ABI, "transfer")),
+  /** deposit(uint256) = 0xb6b55f25 */
+  deposit: toFunctionSelector(abiFn(MINIBANK_ABI, "deposit")),
+  /** withdraw(uint256) = 0x2e1a7d4d */
+  withdraw: toFunctionSelector(abiFn(MINIBANK_ABI, "withdraw")),
+} as const;
+
+/**
+ * The session profile. One scope, two allowed calls, same language as
+ * policy conditions.
  *
- * - `activity.kind` is version-agnostic, so a profile keeps working if
+ * - `activity.kind` is version-agnostic, so the profile keeps working if
  *   ETH_SEND_TRANSACTION gets a V3. Profiles are immutable, which makes that
  *   matter.
- * - Each scope pins a contract AND a decoded function name; the approve scope
- *   also pins the spender argument. `function_name` and `contract_call_args`
- *   are only populated when this sub-organization has a smart contract
- *   interface for `eth.tx.to`; without one they are empty and the scope is
- *   false.
- * - Why two profiles rather than one with `||`: the policy engine evaluates
- *   every clause on every request (it does not short circuit; see the
- *   Appendix of the policy language docs), so a clause that reads an
- *   argument the call does not have, `contract_call_args['spender']` on a
- *   `deposit`, cannot be evaluated. One policy or profile per action is the
- *   standard pattern for exactly this reason: every clause is then evaluable
- *   on the one call its session sends. The client holds a session per
- *   profile and composes them.
+ * - Every call must carry no native value and go to one of two contracts
+ *   with one specific selector. The approve branch also pins the spender by
+ *   reading it straight out of the calldata: `approve(address,uint256)` is
+ *   `0x` + 8 selector chars + 24 chars of padding + 40 address chars, so the
+ *   address sits at `[34..74]`.
+ * - Raw calldata instead of `function_name` / `contract_call_args`: those
+ *   fields are only populated when the sub-organization sending the
+ *   transaction holds a smart contract interface for `eth.tx.to`, and the
+ *   parent's interfaces do not count. Uploading interfaces into every new
+ *   sub-organization needs a credential that may do so, which is exactly the
+ *   unscoped session this example refuses to hold. Raw calldata needs nothing
+ *   uploaded, so the very first session a user gets is already scoped.
+ * - Both branches in one scope: the engine evaluates every clause on every
+ *   call (no short circuit). That works here because nothing in either
+ *   branch can be missing on the other branch's call: `deposit(uint256)`
+ *   calldata is exactly 74 characters, so the approve branch's `[34..74]`
+ *   is in range on a deposit. With `contract_call_args['spender']` it was
+ *   not, and the scope had to be split into one profile per action.
  */
+export const PROFILE_NAME = "approve-and-deposit";
 
-/** approve-only: `USDC.approve(spender)` where spender is MiniBank. */
-export function buildApproveOnlyScope(
+export function buildScope(
   usdc: `0x${string}` = USDC_ADDRESS,
   minibank: `0x${string}` = MINIBANK_ADDRESS,
 ): string {
   const u = usdc.toLowerCase();
   const m = minibank.toLowerCase();
-  return `activity.kind == 'ETH_SEND_TRANSACTION' && eth.tx.to == '${u}' && eth.tx.function_name == 'approve' && eth.tx.contract_call_args['spender'] == '${m}'`;
+  const spender = m.slice(2);
+  const approve = `eth.tx.to == '${u}' && eth.tx.data[0..10] == '${SELECTORS.approve}' && eth.tx.data[34..74] == '${spender}'`;
+  const deposit = `eth.tx.to == '${m}' && eth.tx.data[0..10] == '${SELECTORS.deposit}'`;
+  return `activity.kind == 'ETH_SEND_TRANSACTION' && eth.tx.value == 0 && ((${approve}) || (${deposit}))`;
 }
 
-/** deposit-only: `MiniBank.deposit(amount)`, any amount. */
-export function buildDepositOnlyScope(
-  minibank: `0x${string}` = MINIBANK_ADDRESS,
-): string {
-  const m = minibank.toLowerCase();
-  return `activity.kind == 'ETH_SEND_TRANSACTION' && eth.tx.to == '${m}' && eth.tx.function_name == 'deposit'`;
-}
+export const PROFILE_NOTES =
+  "with-scoped-deposit-session example: USDC.approve with MiniBank as " +
+  "spender, or MiniBank.deposit, matched on raw calldata. Withdrawals need " +
+  "a passkey stamp.";
 
-export const SCOPE_VARIANTS = {
-  "approve-only": {
-    name: "approve-only",
-    build: buildApproveOnlyScope,
-    notes:
-      "with-scoped-deposit-session example: USDC.approve with MiniBank as " +
-      "spender, nothing else.",
-  },
-  "deposit-only": {
-    name: "deposit-only",
-    build: buildDepositOnlyScope,
-    notes:
-      "with-scoped-deposit-session example: MiniBank.deposit, nothing else. " +
-      "Withdrawals need a passkey stamp.",
-  },
-} as const;
-export type ScopeVariant = keyof typeof SCOPE_VARIANTS;
-
-/** Env var that carries each variant's session profile id. */
-export const PROFILE_ENV: Record<ScopeVariant, string> = {
-  "approve-only": "NEXT_PUBLIC_SESSION_PROFILE_ID_APPROVE_ONLY",
-  "deposit-only": "NEXT_PUBLIC_SESSION_PROFILE_ID_DEPOSIT_ONLY",
-};
+/** Env var that carries the session profile id. */
+export const PROFILE_ENV = "NEXT_PUBLIC_SESSION_PROFILE_ID";
 
 /**
- * Profile ids by variant. Next.js inlines `process.env.NEXT_PUBLIC_*` only
- * when the name is written out literally, hence no loop over PROFILE_ENV.
- * A variant with no id is simply not offered by the app.
+ * The profile id, inlined by Next.js at build time. Written out literally
+ * because `process.env[name]` is not inlined.
  */
-export const PROFILE_IDS: Record<ScopeVariant, string | undefined> = {
-  "approve-only": process.env.NEXT_PUBLIC_SESSION_PROFILE_ID_APPROVE_ONLY,
-  "deposit-only": process.env.NEXT_PUBLIC_SESSION_PROFILE_ID_DEPOSIT_ONLY,
-};
+export const PROFILE_ID: string | undefined =
+  process.env.NEXT_PUBLIC_SESSION_PROFILE_ID;
 
-export const CONFIGURED_VARIANTS = (
-  Object.keys(SCOPE_VARIANTS) as ScopeVariant[]
-).filter((v) => !!PROFILE_IDS[v]);
-
-/** Which variant a session profile id belongs to, if any. */
-export function variantForProfileId(id: string | undefined) {
-  if (!id) return undefined;
-  return CONFIGURED_VARIANTS.find((v) => PROFILE_IDS[v] === id);
-}
-
-/** Which known scope a JWT's scope claim matches, if any. */
-export function identifyScope(scope: string): ScopeVariant | undefined {
-  const n = normalizeScope(scope);
-  return (Object.keys(SCOPE_VARIANTS) as ScopeVariant[]).find(
-    (k) => normalizeScope(SCOPE_VARIANTS[k].build()) === n,
-  );
+/** Whether a JWT's scope claim is the scope this app expects. */
+export function isExpectedScope(scope: string): boolean {
+  return normalizeScope(scope) === normalizeScope(buildScope());
 }
 
 /** Collapse whitespace so two renderings of the same scope compare equal. */
@@ -242,10 +233,36 @@ export function normalizeScope(scope: string): string {
   return scope.replace(/\s+/g, " ").trim();
 }
 
-/** Multi-line rendering of a scope for logs and UI. */
+/**
+ * Multi-line rendering of a scope for logs and UI. Top-level `&&` clauses
+ * go one per line; the parenthesised `||` group gets its branches on their
+ * own lines. Address literals contain no parentheses, so depth is tracked
+ * by counting them.
+ */
 export function formatScope(scope: string): string {
-  return normalizeScope(scope)
-    .replace(" && (", " && (\n  ")
-    .replace(" || ", "\n  ||\n  ")
-    .replace(/\)$/, "\n)");
+  const s = normalizeScope(scope);
+  let out = "";
+  let depth = 0;
+  for (let i = 0; i < s.length; i++) {
+    if (depth === 0 && s.startsWith(" && ((", i)) {
+      out += "\n  && (\n    (";
+      depth += 2;
+      i += 5;
+    } else if (depth === 0 && s.startsWith(" && ", i)) {
+      out += "\n  && ";
+      i += 3;
+    } else if (depth === 1 && s.startsWith(" || ", i)) {
+      out += "\n    ||\n    ";
+      i += 3;
+    } else if (s[i] === "(") {
+      depth++;
+      out += "(";
+    } else if (s[i] === ")") {
+      depth--;
+      out += depth === 0 ? "\n  )" : ")";
+    } else {
+      out += s[i];
+    }
+  }
+  return out;
 }

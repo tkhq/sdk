@@ -8,6 +8,10 @@ const ERROR_HINTS: { match: string; hint: string }[] = [
     hint: "Denied. With a scoped session this is the session scope saying no, even though the message talks about policies: a scope denial and a policy denial read the same from here.",
   },
   {
+    match: "internal server error",
+    hint: "If this came from a session-stamped call, the scope could not be evaluated on it, for example a calldata slice that runs past the end of a short call. The call was refused; Turnkey reports the evaluation error as a 500 rather than a denial.",
+  },
+  {
     match: "timed out or was not allowed",
     hint: "The passkey prompt was cancelled or timed out.",
   },
@@ -206,31 +210,5 @@ export function DangerButton({
     >
       {children}
     </button>
-  );
-}
-
-export function Checklist({
-  items,
-}: {
-  items: { label: string; done: boolean; detail?: string }[];
-}) {
-  return (
-    <ul className="flex w-full flex-col gap-2 rounded border border-gray-200 bg-gray-50 p-3">
-      {items.map((item) => (
-        <li key={item.label} className="flex gap-2 text-xs">
-          <span className={item.done ? "text-green-700" : "text-gray-400"}>
-            {item.done ? "✓" : "○"}
-          </span>
-          <span className="min-w-0 flex-1">
-            {item.label}
-            {item.detail && (
-              <span className="mt-0.5 block break-all font-mono text-gray-600">
-                {item.detail}
-              </span>
-            )}
-          </span>
-        </li>
-      ))}
-    </ul>
   );
 }

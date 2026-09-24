@@ -37,10 +37,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       createSuborgParams: {
         passkeyAuth: suborgParams,
       },
-      // The kit would otherwise extend any session a minute before it
-      // expires. That would prolong the short-lived unscoped session and
-      // hide the 15-minute cap the profiles impose. Sessions here are minted
-      // and dropped deliberately; when they expire, the user logs in again.
+      // The kit would otherwise extend the session a minute before it
+      // expires, which would hide the 15-minute cap the profile imposes.
+      // The session here is minted deliberately and allowed to lapse; when
+      // it expires, the user logs in again with one prompt.
       autoRefreshSession: false,
     },
   };

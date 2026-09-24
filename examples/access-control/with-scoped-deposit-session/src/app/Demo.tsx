@@ -2,22 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTurnkey, StamperType } from "@turnkey/react-wallet-kit";
+import type { Hex } from "viem";
 import {
   BASESCAN,
   CAIP2_BASE_SEPOLIA,
-  CONFIGURED_VARIANTS,
-  PROFILE_EXPIRATION_SECONDS,
-  ERC20_ABI,
-  MINIBANK_ABI,
   MINIBANK_ADDRESS,
   PROFILE_ENV,
-  PROFILE_IDS,
-  SCOPE_VARIANTS,
-  USDC_ADDRESS,
+  PROFILE_EXPIRATION_SECONDS,
+  PROFILE_ID,
+  SELECTORS,
+  buildScope,
   formatScope,
-  identifyScope,
-  variantForProfileId,
-  type ScopeVariant,
+  isExpectedScope,
 } from "@/lib/config";
 import {
   approveCall,
@@ -33,7 +29,6 @@ import {
 } from "@/lib/minibank";
 import {
   Card,
-  Checklist,
   DangerButton,
   Header,
   KeyValue,
@@ -48,35 +43,19 @@ import {
 /**
  * Sessions and keys.
  *
- * `bootstrap` is the unscoped root session that a passkey sign-up or login
- * hands back. It lives for a few seconds: long enough to upload the smart
- * contract interfaces into a new sub-organization, and to mint one scoped
- * session per configured profile. Then it is logged out. Minting from it
- * costs no prompts: a session may STAMP_LOGIN as long as its own scope
- * allows it, and an unscoped session allows everything. The scoped sessions
- * cannot mint a session, since STAMP_LOGIN is not included in the scoped sessions.
- *
- * Each scoped session is stored under `scoped:<variant>`, and the app
- * switches between them by re-storing the chosen token (see `activate`).
- * One passkey prompt total.
+ * The only session this app ever holds is scoped. Sign-up and login both
+ * take a `sessionProfileId`, so the session Turnkey hands back is already
+ * limited to approve-for-MiniBank and deposit. There is no unscoped session
+ * at any point: nothing to steal that could withdraw, and nothing for an XSS
+ * to borrow for a few seconds. One passkey prompt, one session.
  */
-const BOOTSTRAP_SESSION_KEY = "bootstrap";
-const scopedKey = (v: ScopeVariant) => `scoped:${v}`;
+const SESSION_KEY = "scoped";
 
 /**
- * The unscoped session only needs to live long enough to upload interfaces
- * and mint the scoped sessions. Ask for one minute rather than the SDK's
- * 15-minute default, so that if the logout below ever failed, the window
- * in which a fully privileged session exists stays short.
- */
-const BOOTSTRAP_EXPIRATION_SECONDS = "60";
-
-/**
- * What this app asks for when it mints a scoped session. Deliberately far
- * above the profile's cap: the final expiry is the minimum of the request and
- * the profile's `expirationSeconds`, so asking for a day and receiving
- * fifteen minutes demonstrates that the profile is a ceiling the client
- * cannot raise.
+ * What this app asks for when it logs in. Deliberately far above the
+ * profile's cap: the final expiry is the minimum of the request and the
+ * profile's `expirationSeconds`, so asking for a day and receiving fifteen
+ * minutes demonstrates that the profile is a ceiling the client cannot raise.
  */
 const REQUESTED_EXPIRATION_SECONDS = "86400";
 
@@ -128,30 +107,44 @@ function Countdown({ exp }: { exp: number | undefined }) {
 }
 
 /**
- * Calls the deposit-only session must refuse. Each is a real request to
- * Turnkey; the assertion is that it never gets past the scope.
+ * Calls the session must refuse. Each is a real request to Turnkey; the
+ * assertion is that it never gets past the scope. The approve probe is the
+ * one an attacker holding the session would try: right contract, right
+ * selector, a spender that is not MiniBank. Only the calldata pin at
+ * data[34..74] stands in the way.
  */
-const DENIAL_PROBES = [
+type Probe = {
+  key: string;
+  label: string;
+  why: string;
+  call: (self: Hex) => Call;
+};
+const DENIAL_PROBES: Probe[] = [
   {
     key: "withdraw",
     label: "MiniBank.withdraw(1)",
-    why: "Decodes against the uploaded ABI, but the function is not the one the scope allows.",
+    why: `Right contract, wrong selector: ${SELECTORS.withdraw} is not ${SELECTORS.deposit}.`,
     call: () => withdrawCall(1n),
   },
   {
     key: "transfer",
     label: "USDC.transfer(self, 1)",
-    why: "Decodes fine too, and targets a contract the scope never names.",
-    call: (self: `0x${string}`) => transferCall(self, 1n),
+    why: "Right contract for the approve branch, but a selector no branch allows.",
+    call: (self) => transferCall(self, 1n),
+  },
+  {
+    key: "approve-elsewhere",
+    label: "USDC.approve(self, 1)",
+    why: "Right contract and right selector, but the spender bytes at data[34..74] are not MiniBank.",
+    call: (self) => approveCall(self, 1n),
   },
   {
     key: "unrecognized",
     label: "USDC with calldata 0xdeadbeef",
-    why: "Matches no function in the uploaded ABI, so function_name is empty and nothing in the scope can be true.",
+    why: "Not a selector the scope allows, so refused. Ten characters of calldata, so the approve branch's data[34..74] reads past the end and the refusal comes back as an evaluation error (a 500) rather than a denial. Nothing moves either way.",
     call: () => unrecognizedCall(),
   },
-] as const;
-type DenialKey = (typeof DENIAL_PROBES)[number]["key"];
+];
 type DenialOutcome =
   | { status: "denied"; message: string }
   | { status: "allowed"; txHash: string }
@@ -172,61 +165,46 @@ function turnkeyLine(error: unknown): string {
   return lines.find((l) => l.startsWith("Turnkey error")) ?? lines[0] ?? "";
 }
 
-/** The two interfaces the scopes depend on, keyed by lowercase address. */
-const REQUIRED_INTERFACES = [
-  {
-    label: "USDC (Base Sepolia)",
-    address: USDC_ADDRESS,
-    abi: ERC20_ABI,
-    notes: "ERC-20 approve/transfer/balanceOf for the scoped deposit example.",
-  },
-  {
-    label: "MiniBank (Base Sepolia)",
-    address: MINIBANK_ADDRESS,
-    abi: MINIBANK_ABI,
-    notes: "deposit/withdraw for the scoped deposit example.",
-  },
-] as const;
-
 export function Demo() {
   const {
     signUpWithPasskey,
     loginWithPasskey,
     logout,
-    setActiveSession,
-    storeSession,
-    createApiKeyPair,
     allSessions,
     session,
     wallets,
-    httpClient,
     ethSendTransaction,
     pollTransactionStatus,
   } = useTurnkey();
 
   // The active session decides everything below. It is "scoped" when its
-  // profile id is one of the configured variants.
-  const activeVariant = variantForProfileId(session?.sessionProfileId);
-  const inScopedSession = !!session && !!activeVariant;
+  // profile id is the configured one.
+  const inScopedSession =
+    !!session && !!PROFILE_ID && session.sessionProfileId === PROFILE_ID;
+
+  // A stored session minted under a different profile. Sessions outlive
+  // `.env.local` edits and dev-server restarts, so after changing the profile
+  // id a session from the previous login can still sit in storage. Using it
+  // would evaluate the old scope, and the failure would look like a scope bug.
+  const stale = allSessions?.[SESSION_KEY];
+  const staleProfileId =
+    PROFILE_ID && stale && stale.sessionProfileId !== PROFILE_ID
+      ? (stale.sessionProfileId ?? "(none)")
+      : undefined;
 
   const ethAccount = wallets
     .flatMap((w) => w.accounts ?? [])
     .find((a) => a.addressFormat === "ADDRESS_FORMAT_ETHEREUM");
-  const depositor = ethAccount?.address as `0x${string}` | undefined;
+  const depositor = ethAccount?.address as Hex | undefined;
 
   const [balances, setBalances] = useState<Balances | null>(null);
   const [amount, setAmount] = useState("1");
   const [withdrawAmount, setWithdrawAmount] = useState("1");
   const [lastTxs, setLastTxs] = useState<string[]>([]);
-  const [denials, setDenials] = useState<
-    Partial<Record<DenialKey, DenialOutcome>>
-  >({});
+  const [denials, setDenials] = useState<Record<string, DenialOutcome>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [interfaces, setInterfaces] = useState<Record<string, string> | null>(
-    null,
-  );
 
   const refreshBalances = useCallback(async () => {
     if (!depositor) return;
@@ -253,9 +231,9 @@ export function Demo() {
   /**
    * Submit one ETH_SEND_TRANSACTION_V2 with `sponsor: true` and wait for the
    * hash. Gas Station constructs, broadcasts and pays for it; the wallet
-   * never holds ETH. Stamped by the active session unless `stampWith` says
-   * otherwise. Every call in this example goes out on its own, since each
-   * scoped session allows exactly one function (see `approveThenDeposit`).
+   * never holds ETH. Stamped by the session unless `stampWith` says
+   * otherwise. The scope is evaluated against every call in `calls`, so a
+   * batch goes through only if each call is allowed on its own.
    */
   const sendSponsored = async (
     calls: Call[],
@@ -291,64 +269,73 @@ export function Demo() {
   };
 
   /**
-   * One action, two sessions, two sponsored transactions, no prompt.
-   *
-   * Each scoped session allows one function: approve-only allows
-   * `USDC.approve(minibank, *)`, deposit-only allows `MiniBank.deposit(*)`.
-   * The client sends the approve on the first, switches session (a local
-   * change of which stored key stamps), and sends the deposit on the second.
-   * If the allowance already covers the amount the approve is skipped.
-   * Without an approve-only session the approve falls back to a passkey
-   * stamp, the one case that prompts.
-   *
-   * Not atomic: two transactions. A failure after the approve leaves an
-   * allowance behind, which is harmless here.
+   * Name the step in any error, so a denial says which call the scope
+   * refused rather than leaving the reader to work it out.
+   */
+  const step = async <T,>(name: string, fn: () => Promise<T>): Promise<T> => {
+    try {
+      return await fn();
+    } catch (e) {
+      throw new Error(`${name}: ${formatError(e)}`);
+    }
+  };
+
+  /**
+   * Approve and deposit as one ETH_SEND_TRANSACTION_V2 with two calls, so
+   * the deposit cannot land without its approve. Both calls are allowed by
+   * the scope, so the batch goes through. One sponsored transaction, no
+   * prompt. The headline action of this example.
+   */
+  const approveAndDepositBatch = async () => {
+    const units = parseAmount();
+    const txHash = await step("approve + deposit batch", () =>
+      sendSponsored([approveCall(MINIBANK_ADDRESS, units), depositCall(units)]),
+    );
+    setLastTxs([txHash]);
+    await refreshBalances();
+    setNotice(
+      `Deposited ${amount} USDC with approve and deposit in one atomic sponsored transaction. No passkey prompt.`,
+    );
+  };
+
+  /**
+   * The same two calls as two transactions, to show that each is allowed on
+   * its own. If the allowance already covers the amount the approve is
+   * skipped. Not atomic: a failure after the approve leaves an allowance
+   * behind, which is harmless here.
    */
   const approveThenDeposit = async () => {
     const units = parseAmount();
     const txs: string[] = [];
-    const current = await readBalances(depositor!);
+    const before = await readBalances(depositor!);
 
-    if (current.allowance < units) {
-      if (allSessions?.[scopedKey("approve-only")]) {
-        await activate("approve-only");
-        try {
-          txs.push(await sendSponsored([approveCall(MINIBANK_ADDRESS, units)]));
-        } finally {
-          await activate("deposit-only");
-        }
-      } else {
-        txs.push(
-          await sendSponsored(
-            [approveCall(MINIBANK_ADDRESS, units)],
-            StamperType.Passkey,
-          ),
-        );
-      }
+    if (before.allowance < units) {
+      txs.push(
+        await step("approve", () =>
+          sendSponsored([approveCall(MINIBANK_ADDRESS, units)]),
+        ),
+      );
     }
-
-    txs.push(await sendSponsored([depositCall(units)]));
+    txs.push(await step("deposit", () => sendSponsored([depositCall(units)])));
     setLastTxs(txs);
     await refreshBalances();
     setNotice(
       txs.length === 2
-        ? `Deposited ${amount} USDC: approve on the approve-only session, deposit on this one. Two sponsored transactions, no passkey prompt.`
-        : `Deposited ${amount} USDC on this session; the existing allowance covered it. No passkey prompt.`,
+        ? `Deposited ${amount} USDC: approve, then deposit. Two sponsored transactions, no passkey prompt.`
+        : `Deposited ${amount} USDC; the existing allowance covered it. No passkey prompt.`,
     );
   };
 
   /**
    * The assertion the ticket asks for. Send each out-of-scope call on the
-   * deposit-only session and record what Turnkey did. "denied" is the pass
-   * condition; a transaction hash is the failure, since it would mean the
-   * scope let money move. Any other error is reported as such rather than
-   * counted as a pass.
+   * session and record what Turnkey did. A refusal is the pass condition,
+   * whether it arrives as a denial or as an evaluation error; a transaction
+   * hash is the failure, since it would mean the scope let money move.
    */
   const runDenialProbes = async () => {
     if (!depositor) throw new Error("No Ethereum account in this wallet.");
-    if (activeVariant !== "deposit-only") await activate("deposit-only");
 
-    const results: Partial<Record<DenialKey, DenialOutcome>> = {};
+    const results: Record<string, DenialOutcome> = {};
     for (const probe of DENIAL_PROBES) {
       try {
         const txHash = await sendSponsored([probe.call(depositor)]);
@@ -374,13 +361,13 @@ export function Demo() {
     );
     setNotice(
       errored.length === 0
-        ? "All three refused by the scope. The session can deposit and nothing else."
-        : `Refused, but ${errored.length} came back as something other than a clean denial; see below.`,
+        ? `All ${DENIAL_PROBES.length} refused by the scope. The session can approve MiniBank and deposit, and nothing else.`
+        : `All ${DENIAL_PROBES.length} refused. ${errored.length} came back as an evaluation error rather than a denial; see below for why. Nothing moved.`,
     );
   };
 
   /**
-   * Withdrawing is outside every scope, so it is stamped with the passkey.
+   * Withdrawing is outside the scope, so it is stamped with the passkey.
    * One prompt, and the same wallet that could only deposit a moment ago
    * moves USDC back out.
    */
@@ -403,195 +390,62 @@ export function Demo() {
     );
   };
 
-  /**
-   * Make sure the sub-organization has an interface for each contract the
-   * scopes name. `function_name` and `contract_call_args` are only decoded
-   * when an interface for `eth.tx.to` exists in the organization evaluating
-   * the transaction; the parent's interfaces are never consulted. Without
-   * them every clause of a scope is false and even a deposit is denied.
-   *
-   * Uploads with whatever stamper is passed: the bootstrap session at
-   * sign-up, or the passkey later, since a scoped session cannot create
-   * interfaces. The preceding read is never gated by a scope, so it always
-   * goes out on the active session and never prompts.
-   */
-  const ensureInterfaces = useCallback(
-    async (
-      organizationId: string,
-      stampWith?: StamperType,
-    ): Promise<Record<string, string>> => {
-      if (!httpClient) throw new Error("Client not ready.");
-
-      const { smartContractInterfaces } =
-        await httpClient.getSmartContractInterfaces({ organizationId });
-      const found: Record<string, string> = {};
-      for (const i of smartContractInterfaces) {
-        if (i.type === "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM") {
-          found[i.smartContractAddress.toLowerCase()] =
-            i.smartContractInterfaceId;
-        }
-      }
-
-      for (const w of REQUIRED_INTERFACES) {
-        if (found[w.address]) continue;
-        const res = await httpClient.createSmartContractInterface(
-          {
-            organizationId,
-            label: w.label,
-            notes: w.notes,
-            type: "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM",
-            smartContractAddress: w.address,
-            smartContractInterface: JSON.stringify(w.abi),
-          },
-          stampWith,
-        );
-        if (!res.smartContractInterfaceId) {
-          throw new Error(
-            `Interface upload for ${w.label} did not complete (activity ${res.activity?.status}).`,
-          );
-        }
-        found[w.address] = res.smartContractInterfaceId;
-      }
-
-      setInterfaces(found);
-      return found;
-    },
-    [httpClient],
-  );
-
-  /**
-   * Mint one scoped session per configured profile, stamped by the unscoped
-   * `bootstrap` session. No prompts.
-   *
-   * Two SDK behaviours dictate the order:
-   * - `storeSession` makes the stored session active, and a scoped session
-   *   may not STAMP_LOGIN. So the unscoped session is re-activated before
-   *   each mint.
-   * - `storeSession` also deletes every key pair not referenced by a stored
-   *   session. So each key is created, used, and stored before the next one
-   *   is created; minting all keys up front would lose all but the first.
-   */
-  const mintScopedSessions = async (organizationId: string) => {
-    if (!httpClient) throw new Error("Client not ready.");
-    if (CONFIGURED_VARIANTS.length === 0) {
+  const requireProfile = (): string => {
+    if (!PROFILE_ID) {
       throw new Error(
-        `No session profile ids configured. Run \`pnpm create-profile\` and set ${Object.values(PROFILE_ENV).join(" and/or ")} in .env.local.`,
+        `No session profile id configured. Run \`pnpm create-profile\` and set ${PROFILE_ENV} in .env.local.`,
       );
     }
-
-    const tokens: Partial<Record<ScopeVariant, string>> = {};
-    for (const variant of CONFIGURED_VARIANTS) {
-      await setActiveSession({ sessionKey: BOOTSTRAP_SESSION_KEY });
-      const publicKey = await createApiKeyPair();
-      const { session: token } = await httpClient.stampLogin({
-        organizationId,
-        publicKey,
-        expirationSeconds: REQUESTED_EXPIRATION_SECONDS,
-        sessionProfileId: PROFILE_IDS[variant]!,
-      });
-      await storeSession({
-        sessionToken: token,
-        sessionKey: scopedKey(variant),
-      });
-      tokens[variant] = token;
-    }
-
-    // The unscoped session has done its job. Logging it out also clears the
-    // provider's session state, so the activation below comes after it.
-    await logout({ sessionKey: BOOTSTRAP_SESSION_KEY });
-
-    // Land on deposit-only, where the deposit action lives.
-    const first = CONFIGURED_VARIANTS.includes("deposit-only")
-      ? "deposit-only"
-      : CONFIGURED_VARIANTS[0]!;
-    await activate(first, tokens[first]!);
+    return PROFILE_ID;
   };
 
   /**
-   * Make a stored scoped session the active one and sync the provider's
-   * state to it. Re-storing an existing token under its own key is the one
-   * hook that reliably does both: it sets the active key, re-reads the
-   * session, and refreshes user and wallets. The scoped key stays
-   * referenced, so nothing is cleaned up. No prompt.
-   */
-  const activate = async (variant: ScopeVariant, token?: string) => {
-    const sessionToken = token ?? allSessions?.[scopedKey(variant)]?.token;
-    if (!sessionToken) throw new Error(`No "${variant}" session to switch to.`);
-    await storeSession({ sessionToken, sessionKey: scopedKey(variant) });
-    setInterfaces(null);
-  };
-
-  /**
-   * New user. One passkey prompt creates the passkey and the sub-organization
-   * and returns an unscoped session. That session uploads the interfaces and
-   * mints the scoped sessions, then is logged out.
+   * New user. The passkey creation ceremony also produces the scoped
+   * session: sign-up takes a `sessionProfileId`, and the SDK's STAMP_LOGIN
+   * for the new sub-organization carries it. One prompt. At no point does an
+   * unscoped session exist.
    */
   const signUp = async () => {
-    const { sessionToken } = await signUpWithPasskey({
-      sessionKey: BOOTSTRAP_SESSION_KEY,
-      expirationSeconds: BOOTSTRAP_EXPIRATION_SECONDS,
+    const sessionProfileId = requireProfile();
+    await signUpWithPasskey({
+      sessionKey: SESSION_KEY,
+      sessionProfileId,
+      expirationSeconds: REQUESTED_EXPIRATION_SECONDS,
       passkeyDisplayName: `MiniBank depositor ${new Date().toISOString().slice(0, 16)}`,
     });
-    const organizationId = decodeClaims(sessionToken).organization_id;
-    if (!organizationId) throw new Error("Sign-up returned no organization.");
-
-    await ensureInterfaces(organizationId);
-    await mintScopedSessions(organizationId);
     setNotice(
-      `Signed up. The unscoped session uploaded the interfaces, minted ${CONFIGURED_VARIANTS.length} scoped session(s), and was logged out.`,
+      "Signed up. One passkey prompt, one scoped session, no unscoped session.",
     );
   };
 
   /**
-   * Returning user. One passkey prompt yields an unscoped session; Turnkey
-   * finds the sub-organization from the passkey. Same minting as sign-up.
+   * Returning user. One passkey-stamped STAMP_LOGIN carrying the profile id;
+   * Turnkey finds the sub-organization from the passkey.
    */
   const logIn = async () => {
-    const { sessionToken } = await loginWithPasskey({
-      sessionKey: BOOTSTRAP_SESSION_KEY,
-      expirationSeconds: BOOTSTRAP_EXPIRATION_SECONDS,
+    const sessionProfileId = requireProfile();
+    await loginWithPasskey({
+      sessionKey: SESSION_KEY,
+      sessionProfileId,
+      expirationSeconds: REQUESTED_EXPIRATION_SECONDS,
     });
-    const organizationId = decodeClaims(sessionToken).organization_id;
-    if (!organizationId) throw new Error("Login returned no organization.");
-
-    await mintScopedSessions(organizationId);
     setNotice(
-      `Logged in. Minted ${CONFIGURED_VARIANTS.length} scoped session(s) from the unscoped one, which was then logged out.`,
+      "Logged in. One passkey prompt, one scoped session, no unscoped session.",
     );
   };
 
-  /** Every stored session, not only the configured ones, so nothing lingers. */
+  /** Every stored session, not only ours, so nothing lingers. */
   const logOutAll = async () => {
     for (const key of Object.keys(allSessions ?? {})) {
       await logout({ sessionKey: key });
     }
-    setInterfaces(null);
   };
-
-  // Once in a scoped session, check the interfaces are there. Reads are not
-  // gated by the scope, so this works even though uploads would not.
-  useEffect(() => {
-    if (!inScopedSession || !httpClient || interfaces) return;
-    const organizationId = session.organizationId;
-    httpClient
-      .getSmartContractInterfaces({ organizationId })
-      .then(({ smartContractInterfaces }) => {
-        const found: Record<string, string> = {};
-        for (const i of smartContractInterfaces) {
-          found[i.smartContractAddress.toLowerCase()] =
-            i.smartContractInterfaceId;
-        }
-        setInterfaces(found);
-      })
-      .catch((e) => setError(formatError(e)));
-  }, [inScopedSession, httpClient, interfaces, session]);
 
   const activeToken = session?.token;
   const claims = useMemo<SessionClaims>(
     () => (activeToken ? decodeClaims(activeToken) : {}),
     [activeToken],
   );
-  const claimedVariant = claims.scope ? identifyScope(claims.scope) : undefined;
 
   // ---------------------------------------------------------------------------
 
@@ -600,57 +454,52 @@ export function Demo() {
       <Card>
         <Header
           title="Deposit-only session"
-          subtitle="Browser sessions that can approve and deposit USDC into MiniBank, and nothing else. Withdrawing needs the passkey. If a session leaks, the attacker can only put money in."
+          subtitle="A browser session that can approve and deposit USDC into MiniBank, and nothing else. Withdrawing needs the passkey. If the session leaks, the attacker can only put money in."
         />
 
-        {CONFIGURED_VARIANTS.length === 0 && (
+        {!PROFILE_ID && (
           <Notice tone="error">
-            No session profile ids are configured. Run `pnpm create-profile`
-            (and `--variant deposit-only`) and set{" "}
-            {Object.values(PROFILE_ENV).join(" and/or ")} in .env.local.
+            No session profile id is configured. Run `pnpm create-profile` and
+            set {PROFILE_ENV} in .env.local.
+          </Notice>
+        )}
+
+        {staleProfileId && (
+          <Notice tone="error">
+            A stored session was minted under profile {staleProfileId}, not the
+            one .env.local now names. It is left over from a login before the
+            profile changed. Log in below to replace it.
           </Notice>
         )}
 
         <Panel
-          title="Scopes this app can log into"
-          hint="Same language as policy conditions. One passkey prompt yields an unscoped session, which mints one scoped session per profile below and is then logged out."
+          title="The scope this app logs into"
+          hint="Same language as policy conditions, matched on raw calldata so nothing has to be uploaded first. Sign-up and login pass the profile id, so the session is scoped from its first request; there is never an unscoped one. One passkey prompt."
         >
-          {(Object.keys(SCOPE_VARIANTS) as ScopeVariant[]).map((key) => (
-            <div key={key} className="flex flex-col gap-1">
-              <p className="text-xs font-semibold">
-                {key}
-                {!PROFILE_IDS[key] && (
-                  <span className="ml-2 font-normal text-gray-500">
-                    (not configured: {PROFILE_ENV[key]})
-                  </span>
-                )}
-              </p>
-              <Pre>{formatScope(SCOPE_VARIANTS[key].build())}</Pre>
-            </div>
-          ))}
+          <Pre>{formatScope(buildScope())}</Pre>
         </Panel>
 
-        {session && (
+        {session && !staleProfileId && (
           <Notice>
-            You hold a session that is not one of the scoped ones (key{" "}
+            You hold a session that is not the scoped one (key{" "}
             <span className="font-mono">
               {Object.entries(allSessions ?? {}).find(
                 ([, s]) => s.token === session.token,
               )?.[0] ?? "?"}
             </span>
-            ). Log in below to mint the scoped sessions.
+            ). Log in below to mint the scoped session.
           </Notice>
         )}
 
         <div className="flex flex-col gap-2">
           <PrimaryButton
-            disabled={busy || CONFIGURED_VARIANTS.length === 0}
+            disabled={busy || !PROFILE_ID}
             onClick={() => run(signUp)}
           >
             Sign up with a passkey
           </PrimaryButton>
           <SecondaryButton
-            disabled={busy || CONFIGURED_VARIANTS.length === 0}
+            disabled={busy || !PROFILE_ID}
             onClick={() => run(logIn)}
           >
             Log in with an existing passkey
@@ -663,61 +512,12 @@ export function Demo() {
     );
   }
 
-  const interfaceItems = REQUIRED_INTERFACES.map((w) => ({
-    label: w.label,
-    done: !!interfaces?.[w.address],
-    detail: interfaces?.[w.address] ?? w.address,
-  }));
-  const interfacesReady = interfaceItems.every((i) => i.done);
-
-  const amountInput = (
-    <input
-      value={amount}
-      onChange={(e) => setAmount(e.target.value)}
-      inputMode="decimal"
-      className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-sm"
-      placeholder="USDC amount"
-    />
-  );
-
   return (
     <Card>
       <Header
         title="Deposit-only session"
         subtitle="You are in a scoped session. Every activity it submits is checked against its scope before any policy is consulted."
       />
-
-      {CONFIGURED_VARIANTS.length > 1 && (
-        <Panel
-          title="Active scoped session"
-          hint="Both were minted from one passkey login. Switching is a local change of which stored session stamps requests; no prompt."
-        >
-          <div className="flex gap-2">
-            {CONFIGURED_VARIANTS.map((v) => {
-              const s = allSessions?.[scopedKey(v)];
-              const isActive = v === activeVariant;
-              return (
-                <button
-                  key={v}
-                  type="button"
-                  disabled={busy || !s || isActive}
-                  onClick={() => run(() => activate(v))}
-                  className={`flex-1 rounded border px-3 py-2 text-xs ${
-                    isActive
-                      ? "border-blue-300 bg-blue-50 font-semibold"
-                      : "border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40"
-                  }`}
-                >
-                  {v}
-                  <span className="block font-mono text-gray-500">
-                    {s ? <Countdown exp={s.expiry} /> : "no session"}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </Panel>
-      )}
 
       <Panel
         title="What Turnkey issued"
@@ -748,40 +548,16 @@ export function Demo() {
         <Pre>
           {claims.scope ? formatScope(claims.scope) : "(no scope claim)"}
         </Pre>
-        {claimedVariant === activeVariant ? (
+        {claims.scope && isExpectedScope(claims.scope) ? (
           <Notice tone="success">
-            The scope in the JWT is the &quot;{activeVariant}&quot; scope, as
-            the profile id says it should be.
+            The scope in the JWT is the one this app expects for the profile.
           </Notice>
         ) : (
           <Notice tone="error">
-            The JWT&apos;s scope does not match the &quot;{activeVariant}&quot;
-            scope this app expects for profile {session.sessionProfileId}. Check
-            the profile ids and contract addresses in .env.local.
+            The JWT&apos;s scope does not match the scope this app expects for
+            profile {session.sessionProfileId}. Check the profile id and
+            contract addresses in .env.local.
           </Notice>
-        )}
-      </Panel>
-
-      <Panel
-        title="Smart contract interfaces in this sub-organization"
-        hint="The scope compares decoded function names and arguments. Those only exist when this sub-organization has an interface for the contract; the parent's do not count. Without these uploads every clause is false and even a deposit is denied."
-      >
-        <Checklist items={interfaceItems} />
-        {!interfacesReady && (
-          <SecondaryButton
-            disabled={busy}
-            onClick={() =>
-              run(async () => {
-                await ensureInterfaces(
-                  session.organizationId,
-                  StamperType.Passkey,
-                );
-                setNotice("Interfaces uploaded with the passkey.");
-              })
-            }
-          >
-            Upload missing interfaces with the passkey
-          </SecondaryButton>
         )}
       </Panel>
 
@@ -824,30 +600,36 @@ export function Demo() {
         </SecondaryButton>
       </Panel>
 
-      {activeVariant && (
-        <Panel
-          title="2. Deposit (no prompt)"
-          hint={
-            allSessions?.[scopedKey("approve-only")]
-              ? "One action, two sessions: the client sends the approve on the approve-only session, switches to the deposit-only session, and sends the deposit. Two sponsored transactions, neither prompts. The approve is skipped when the allowance already covers the amount."
-              : "No approve-only session is configured, so the approve falls back to the passkey (one prompt) before the deposit-only session deposits."
-          }
+      <Panel
+        title="2. Deposit (no prompt)"
+        hint="The scope allows approve(minibank, *) and deposit(*), and it is checked against every call in a transaction. The batch sends both calls in one sponsored transaction, so the deposit cannot land without its approve. The two-transaction button sends them one after the other, skipping the approve when the allowance already covers the amount. Neither prompts."
+      >
+        <div className="flex gap-2">
+          <input
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            inputMode="decimal"
+            className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-sm"
+            placeholder="USDC amount"
+          />
+          <PrimaryButton
+            disabled={busy || !depositor}
+            onClick={() => run(approveAndDepositBatch)}
+          >
+            Approve + deposit, one atomic batch
+          </PrimaryButton>
+        </div>
+        <SecondaryButton
+          disabled={busy || !depositor}
+          onClick={() => run(approveThenDeposit)}
         >
-          <div className="flex gap-2">
-            {amountInput}
-            <PrimaryButton
-              disabled={busy || !depositor}
-              onClick={() => run(approveThenDeposit)}
-            >
-              Approve + deposit
-            </PrimaryButton>
-          </div>
-        </Panel>
-      )}
+          Approve + deposit, two transactions
+        </SecondaryButton>
+      </Panel>
 
       <Panel
-        title="3. Try to take money out with the session (must be denied)"
-        hint="Three calls the deposit-only session should never be able to make, sent for real. A denial is the pass. If any of them returned a transaction hash, the scope would have failed and this panel would say so in red."
+        title="3. Try to take money out with the session (must be refused)"
+        hint="Calls the session should never be able to make, sent for real. A refusal is the pass, whether Turnkey reports it as a denial or as an evaluation error. If any of them returned a transaction hash, the scope would have failed and this panel would say so in red."
       >
         <ul className="flex w-full flex-col gap-2 rounded border border-gray-200 bg-gray-50 p-3">
           {DENIAL_PROBES.map((p) => {
@@ -882,7 +664,7 @@ export function Demo() {
                       {r.status === "allowed" &&
                         `ALLOWED, tx ${r.txHash}. This must not happen.`}
                       {r.status === "error" &&
-                        `not a clean denial: ${r.message}`}
+                        `refused with an evaluation error, not a denial: ${r.message}`}
                     </span>
                   )}
                 </span>
@@ -894,13 +676,13 @@ export function Demo() {
           disabled={busy || !depositor}
           onClick={() => run(runDenialProbes)}
         >
-          Send all three with the deposit-only session
+          Send all {DENIAL_PROBES.length} with the session
         </PrimaryButton>
       </Panel>
 
       <Panel
         title="4. Withdraw with the passkey (one prompt)"
-        hint="Withdrawing is outside every scope, so it needs the passkey. Same wallet, same contract, different credential: this is the step a stolen session cannot take."
+        hint="Withdrawing is outside the scope, so it needs the passkey. Same wallet, same contract, different credential: this is the step a stolen session cannot take."
       >
         <div className="flex gap-2">
           <input
@@ -939,7 +721,7 @@ export function Demo() {
       {error && <Notice tone="error">{error}</Notice>}
 
       <DangerButton disabled={busy} onClick={() => run(logOutAll)}>
-        Log out of all scoped sessions
+        Log out
       </DangerButton>
     </Card>
   );

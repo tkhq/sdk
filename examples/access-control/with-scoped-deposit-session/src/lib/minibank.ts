@@ -69,7 +69,7 @@ export const toUsdc = (human: string): bigint =>
 export const fmtUsdc = (units: bigint): string =>
   formatUnits(units, USDC_DECIMALS);
 
-/** USDC.approve(spender, amount). Allowed by the scope only when spender is MiniBank. */
+/** USDC.approve(spender, amount). Allowed by the scope when spender is MiniBank. */
 export function approveCall(spender: Hex, amount: bigint): Call {
   return {
     to: USDC_ADDRESS,
@@ -93,7 +93,7 @@ export function depositCall(amount: bigint): Call {
   };
 }
 
-/** MiniBank.withdraw(amount). Decoded fine, not in the scope: denied. */
+/** MiniBank.withdraw(amount). Right contract, wrong selector: denied. */
 export function withdrawCall(amount: bigint): Call {
   return {
     to: MINIBANK_ADDRESS,
@@ -105,7 +105,7 @@ export function withdrawCall(amount: bigint): Call {
   };
 }
 
-/** USDC.transfer(to, amount). Decoded fine, not in the scope: denied. */
+/** USDC.transfer(to, amount). Right contract for the approve branch, wrong selector: denied. */
 export function transferCall(to: Hex, amount: bigint): Call {
   return {
     to: USDC_ADDRESS,
@@ -118,8 +118,9 @@ export function transferCall(to: Hex, amount: bigint): Call {
 }
 
 /**
- * Four bytes that match no function in the uploaded ABI. The engine cannot
- * decode it, so `function_name` is empty and every clause is false: denied.
+ * Four bytes that match no allowed selector. Refused. Ten characters of
+ * calldata, so the scope's `data[34..74]` slice also runs past the end and
+ * the refusal arrives as an evaluation error rather than a denial.
  */
 export function unrecognizedCall(): Call {
   return { to: USDC_ADDRESS, data: "0xdeadbeef" };

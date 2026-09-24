@@ -1,23 +1,23 @@
 /**
  * Parent-org setup for the scoped deposit session example.
  *
- * Creates the two session profiles the app composes: `approve-only`
- * (`USDC.approve` with MiniBank as spender) and `deposit-only`
- * (`MiniBank.deposit`). Session profiles are parent-org resources, immutable
- * once created, so this script is idempotent: it reuses a profile whose name
- * and scope already match instead of creating another.
+ * Creates the one session profile the app logs into: `approve-and-deposit`,
+ * whose scope allows `USDC.approve` with MiniBank as spender and
+ * `MiniBank.deposit`, matched on raw calldata. Session profiles are
+ * parent-org resources, immutable once created, so this script is
+ * idempotent: it reuses a profile whose name and scope already match instead
+ * of creating another.
  *
- * Smart contract interfaces are NOT created here. The policy engine only
- * consults the interfaces of the organization whose transaction it is
- * evaluating, never the parent's, so the browser app uploads them into each
- * sub-organization at sign-up.
+ * No smart contract interfaces are involved. The scope matches on raw
+ * calldata (function selector, and the spender's bytes for approve), so
+ * nothing has to be uploaded to the parent or to any sub-organization.
  *
- * If the org's root quorum is above 1, each create sits in CONSENSUS_NEEDED
+ * If the org's root quorum is above 1, the create sits in CONSENSUS_NEEDED
  * until another root user approves it in the dashboard. The script prints the
  * activity id and polls until it completes.
  *
  * Reads `.env.local`: API_PUBLIC_KEY, API_PRIVATE_KEY, BASE_URL,
- * ORGANIZATION_ID. Prints the NEXT_PUBLIC_* lines to add for the app.
+ * ORGANIZATION_ID. Prints the NEXT_PUBLIC_* line to add for the app.
  */
 import * as path from "path";
 import * as dotenv from "dotenv";
@@ -27,10 +27,12 @@ import {
   MINIBANK_ADDRESS,
   PROFILE_ENV,
   PROFILE_EXPIRATION_SECONDS,
-  SCOPE_VARIANTS,
+  PROFILE_NAME,
+  PROFILE_NOTES,
   USDC_ADDRESS,
+  buildScope,
+  formatScope,
   normalizeScope,
-  type ScopeVariant,
 } from "../lib/config";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -98,10 +100,8 @@ async function awaitResult<T>(
 async function ensureSessionProfile(
   client: ApiClient,
   organizationId: string,
-  variant: ScopeVariant,
 ): Promise<string> {
-  const { name, build, notes } = SCOPE_VARIANTS[variant];
-  const scope = build();
+  const scope = buildScope();
 
   const { sessionProfiles } = await client.getSessionProfiles({
     organizationId,
@@ -109,34 +109,34 @@ async function ensureSessionProfile(
   const sameScope = sessionProfiles.filter(
     (p) => normalizeScope(p.scope) === normalizeScope(scope),
   );
-  const existing = sameScope.find((p) => p.sessionProfileName === name);
+  const existing = sameScope.find((p) => p.sessionProfileName === PROFILE_NAME);
   if (existing) {
     console.log(
-      `session profile "${name}": reusing ${existing.sessionProfileId}`,
+      `session profile "${PROFILE_NAME}": reusing ${existing.sessionProfileId}`,
     );
     if (existing.expirationSeconds !== PROFILE_EXPIRATION_SECONDS) {
       console.log(
         `  note: its expirationSeconds is ${existing.expirationSeconds ?? "unset"}, ` +
           `not ${PROFILE_EXPIRATION_SECONDS}. Profiles are immutable; ` +
-          `rename the variant if you need a fresh one.`,
+          `change PROFILE_NAME in src/lib/config.ts if you need a fresh one.`,
       );
     }
     return existing.sessionProfileId;
   }
   for (const p of sameScope) {
     console.log(
-      `session profile "${name}": same scope exists under another name, ` +
+      `session profile "${PROFILE_NAME}": same scope exists under another name, ` +
         `${p.sessionProfileId} ("${p.sessionProfileName}"); creating a new one`,
     );
   }
 
-  console.log(`session profile "${name}": creating`);
+  console.log(`session profile "${PROFILE_NAME}": creating`);
   const res = await client.createSessionProfile({
     organizationId,
-    sessionProfileName: name,
+    sessionProfileName: PROFILE_NAME,
     scope,
     expirationSeconds: PROFILE_EXPIRATION_SECONDS,
-    notes,
+    notes: PROFILE_NOTES,
   });
 
   const sessionProfileId =
@@ -148,7 +148,7 @@ async function ensureSessionProfile(
       (r) => r.createSessionProfileResult?.sessionProfileId,
     ));
 
-  console.log(`session profile "${name}": created ${sessionProfileId}`);
+  console.log(`session profile "${PROFILE_NAME}": created ${sessionProfileId}`);
   return sessionProfileId;
 }
 
@@ -161,54 +161,34 @@ async function main() {
     defaultOrganizationId: organizationId,
   }).apiClient();
 
-  // Both profiles by default; `--variant <name>` creates just one.
-  const allVariants = Object.keys(SCOPE_VARIANTS) as ScopeVariant[];
-  const variantIdx = process.argv.indexOf("--variant");
-  let variants = allVariants;
-  if (variantIdx !== -1) {
-    const picked = process.argv[variantIdx + 1] as ScopeVariant;
-    if (!(picked in SCOPE_VARIANTS)) {
-      throw new Error(
-        `Unknown --variant "${picked}". Known: ${allVariants.join(", ")}`,
-      );
-    }
-    variants = [picked];
-  }
-
   console.log(`parent org: ${organizationId}`);
   console.log(`USDC:       ${USDC_ADDRESS}`);
   console.log(`MiniBank:   ${MINIBANK_ADDRESS}`);
-  console.log(`expiration: ${PROFILE_EXPIRATION_SECONDS}s`);
-  console.log(`profiles:   ${variants.join(", ")}\n`);
+  console.log(`expiration: ${PROFILE_EXPIRATION_SECONDS}s\n`);
 
-  const envLines: string[] = [];
-  for (const variant of variants) {
-    const sessionProfileId = await ensureSessionProfile(
-      client,
-      organizationId,
-      variant,
-    );
+  const sessionProfileId = await ensureSessionProfile(client, organizationId);
 
-    // Read it back so the output shows what Turnkey stored, not what we sent.
-    const { sessionProfile } = await client.getSessionProfile({
-      organizationId,
-      sessionProfileId,
-    });
+  // Read it back so the output shows what Turnkey stored, not what we sent.
+  const { sessionProfile } = await client.getSessionProfile({
+    organizationId,
+    sessionProfileId,
+  });
 
-    console.log(
-      [
-        `  id:         ${sessionProfile.sessionProfileId}`,
-        `  expiration: ${sessionProfile.expirationSeconds ?? "(login decides)"}s`,
-        `  scope:      ${normalizeScope(sessionProfile.scope)}`,
-        ``,
-      ].join("\n"),
-    );
-    envLines.push(
-      `${PROFILE_ENV[variant]}="${sessionProfile.sessionProfileId}"`,
-    );
-  }
-
-  console.log(["Add to .env.local:", ...envLines, ""].join("\n"));
+  console.log(
+    [
+      `  id:         ${sessionProfile.sessionProfileId}`,
+      `  expiration: ${sessionProfile.expirationSeconds ?? "(login decides)"}s`,
+      `  scope:`,
+      formatScope(sessionProfile.scope)
+        .split("\n")
+        .map((l) => `    ${l}`)
+        .join("\n"),
+      ``,
+      `Add to .env.local:`,
+      `${PROFILE_ENV}="${sessionProfile.sessionProfileId}"`,
+      ``,
+    ].join("\n"),
+  );
 }
 
 main().catch((e) => {
