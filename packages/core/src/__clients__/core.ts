@@ -1965,6 +1965,7 @@ export class TurnkeyClient {
         const accountRes = await this.httpClient.proxyGetAccount({
           filterType: "OIDC_TOKEN",
           filterValue: oidcToken,
+          includeLinkingInfo: true,
         });
 
         if (!accountRes) {
@@ -1975,6 +1976,36 @@ export class TurnkeyClient {
         }
         const subOrganizationId = accountRes.organizationId;
         if (subOrganizationId) {
+          if (accountRes.requiresSocialLinking) {
+            // The account was matched by verified email, but this OIDC identity is not
+            // yet registered on it, so stampLogin would fail. The auth proxy's
+            // oauth_login performs the social linking server-side and returns a session.
+            // organizationId is deliberately omitted: providing it makes oauth_login
+            // skip the social-linking flow.
+            const proxyRes = await this.httpClient.proxyOAuthLogin({
+              oidcToken,
+              publicKey,
+              ...(invalidateExisting && { invalidateExisting }),
+            });
+
+            if (!proxyRes?.session) {
+              throw new TurnkeyError(
+                "No session returned from OAuth login",
+                TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+              );
+            }
+
+            await this.storeSession({
+              sessionToken: proxyRes.session,
+              ...(sessionKey && { sessionKey }),
+            });
+
+            return {
+              sessionToken: proxyRes.session,
+              action: AuthAction.LOGIN,
+            };
+          }
+
           const loginRes = await this.loginWithOauth({
             oidcToken,
             publicKey,
