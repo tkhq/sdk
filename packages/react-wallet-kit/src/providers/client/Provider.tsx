@@ -12,7 +12,7 @@ import {
   completeOAuthPopup,
   exchangeFacebookCodeForToken,
   generateChallengePair,
-  getOAuthAddProviderMetadata,
+  consumeOAuthAddProviderMetadata,
   getProviderIcon,
   completePKCEFlow,
   hasPKCEVerifier,
@@ -329,7 +329,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const withModalWrapper = async (params: {
         provider: string;
         isAddProvider: boolean;
-        metadata: ReturnType<typeof getOAuthAddProviderMetadata>;
+        metadata: ReturnType<typeof consumeOAuthAddProviderMetadata>;
         openModal?: string | null | undefined;
         action: () => Promise<void>;
       }) => {
@@ -429,7 +429,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         } = result;
 
         const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
-        const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
+        const metadata = isAddProvider
+          ? consumeOAuthAddProviderMetadata()
+          : null;
 
         /**
          * Helper to complete PKCE redirect flow with optional modal wrapper.
@@ -655,7 +657,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         } = result;
 
         const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
-        const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
+        const metadata = isAddProvider
+          ? consumeOAuthAddProviderMetadata()
+          : null;
         const resolvedProvider = provider || OAuthProviders.GOOGLE;
 
         // Grab Google/Apple secondary client IDs from config for use in completion

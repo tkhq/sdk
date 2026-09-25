@@ -54,6 +54,17 @@ export function getOAuthAddProviderMetadata(): OAuthAddProviderMetadata | null {
 }
 
 /**
+ * Retrieves and removes the OAuth add provider metadata, so it is used by
+ * exactly the one flow that completes with it, the way the PKCE verifier and
+ * captcha token are consumed.
+ */
+export function consumeOAuthAddProviderMetadata(): OAuthAddProviderMetadata | null {
+  const metadata = getOAuthAddProviderMetadata();
+  localStorage.removeItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
+  return metadata;
+}
+
+/**
  * Gets the verifier key name for a PKCE provider
  */
 export function getPKCEVerifierKey(provider: PKCEProvider): string {

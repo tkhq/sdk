@@ -8,9 +8,11 @@ import {
   buildOAuthUrl,
   clearAllOAuthData,
   clearOAuthState,
+  consumeOAuthAddProviderMetadata,
   consumeOAuthCaptchaToken,
   consumeOAuthState,
   storeOAuthState,
+  storeOAuthAddProviderMetadata,
   isExpectedOAuthRedirectUrl,
   parseStateParam,
   parseOAuthResponse,
@@ -384,6 +386,16 @@ describe("OAuth utils", () => {
       expect(localStorage.getItem(`oauth_state:${stateA}`)).toBeNull();
       expect(localStorage.getItem(`oauth_state:${stateB}`)).toBe(stateB);
       expect(() => consumeOAuthState(stateB)).not.toThrow();
+    });
+  });
+
+  describe("OAuth add provider metadata storage", () => {
+    it("is consumed by the flow that completes with it", () => {
+      const metadata = { organizationId: "org_1", userId: "user_1" };
+      storeOAuthAddProviderMetadata(metadata);
+
+      expect(consumeOAuthAddProviderMetadata()).toEqual(metadata);
+      expect(consumeOAuthAddProviderMetadata()).toBeNull();
     });
   });
 
