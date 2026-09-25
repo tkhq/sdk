@@ -464,7 +464,7 @@ export function parseSession(token: string | Session): Session {
     throw new Error("Invalid JWT: Missing payload");
   }
 
-  const decoded = JSON.parse(atob(payload));
+  const decoded = JSON.parse(decodeBase64urlToString(payload));
   const {
     exp,
     public_key: publicKey,
@@ -1386,7 +1386,7 @@ export function decodeVerificationToken(
   if (!payloadB64) {
     throw new Error("Invalid token: missing payload");
   }
-  const json = atob(payloadB64);
+  const json = decodeBase64urlToString(payloadB64);
   return JSON.parse(json) as VerificationToken;
 }
 
