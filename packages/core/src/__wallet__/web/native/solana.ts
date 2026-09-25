@@ -156,44 +156,60 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
  * @throws {Error} If the provider lacks required features or intent is unsupported.
  */
 export class SolanaWallet extends BaseSolanaWallet {
+  signWithPublicKey = async (
+    payload: string,
+    provider: WalletProvider,
+  ): Promise<{ signature: string; publicKey: string }> => {
+    const wallet = asSolana(provider);
+    await connectAccount(wallet);
+    const account = wallet.accounts[0];
+    if (!account) throw new Error("No account available");
+
+    // Capture the key from the same account passed to the signing feature.
+    const publicKey = uint8ArrayToHexString(bs58.decode(account.address));
+    const signFeature = wallet.features["solana:signMessage"] as
+      | {
+          signMessage: (args: {
+            account: typeof account;
+            message: Uint8Array;
+          }) => Promise<
+            readonly { signedMessage: Uint8Array; signature: Uint8Array }[]
+          >;
+        }
+      | undefined;
+
+    if (!signFeature)
+      throw new Error("Provider does not support solana:signMessage");
+
+    const results = await signFeature.signMessage({
+      account,
+      message: new TextEncoder().encode(payload),
+    });
+    if (!results?.length || !results[0]?.signature) {
+      throw new Error("No signature returned from signMessage");
+    }
+
+    return {
+      signature: uint8ArrayToHexString(results[0].signature),
+      publicKey,
+    };
+  };
+
   sign = async (
     payload: string,
     provider: WalletProvider,
     intent: SignIntent,
   ): Promise<string> => {
+    if (intent === SignIntent.SignMessage) {
+      return (await this.signWithPublicKey(payload, provider)).signature;
+    }
+
     const wallet = asSolana(provider);
     await connectAccount(wallet);
     const account = wallet.accounts[0];
     if (!account) throw new Error("No account available");
 
     switch (intent) {
-      case SignIntent.SignMessage: {
-        const signFeature = wallet.features["solana:signMessage"] as
-          | {
-              signMessage: (args: {
-                account: typeof account;
-                message: Uint8Array;
-              }) => Promise<
-                readonly { signedMessage: Uint8Array; signature: Uint8Array }[]
-              >;
-            }
-          | undefined;
-
-        if (!signFeature)
-          throw new Error("Provider does not support solana:signMessage");
-
-        const data = new TextEncoder().encode(payload);
-        const results = await signFeature.signMessage({
-          account,
-          message: data,
-        });
-        if (!results?.length || !results[0]?.signature) {
-          throw new Error("No signature returned from signMessage");
-        }
-
-        return uint8ArrayToHexString(results[0].signature);
-      }
-
       case SignIntent.SignTransaction: {
         const signFeature = wallet.features["solana:signTransaction"] as
           | {

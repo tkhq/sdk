@@ -363,6 +363,13 @@ export class WalletConnectWallet implements WalletConnectInterface {
     provider: WalletProvider,
     intent: SignIntent,
   ): Promise<string> {
+    if (
+      provider.chainInfo.namespace === Chain.Solana &&
+      intent === SignIntent.SignMessage
+    ) {
+      return (await this.signWithPublicKey(payload, provider)).signature;
+    }
+
     const session = await this.ensureSession();
 
     if (!hasConnectedAccounts(session)) {
@@ -445,19 +452,6 @@ export class WalletConnectWallet implements WalletConnectInterface {
       }
 
       switch (intent) {
-        case SignIntent.SignMessage: {
-          const msgBytes = new TextEncoder().encode(payload);
-          const msgB58 = bs58.encode(msgBytes);
-          const { signature: sigB58 } = await this.client.request(
-            this.solChain,
-            "solana_signMessage",
-            {
-              pubkey: address,
-              message: msgB58,
-            },
-          );
-          return uint8ArrayToHexString(bs58.decode(sigB58));
-        }
         case SignIntent.SignTransaction: {
           const txBytes = uint8ArrayFromHexString(payload);
           const txBase64 = stringToBase64urlString(
@@ -495,6 +489,39 @@ export class WalletConnectWallet implements WalletConnectInterface {
     }
 
     throw new Error("No supported namespace available for signing");
+  }
+
+  async signWithPublicKey(
+    payload: string,
+    provider: WalletProvider,
+  ): Promise<{ signature: string; publicKey: string }> {
+    if (provider.chainInfo.namespace !== Chain.Solana) {
+      throw new Error("Signing with a public key requires a Solana provider");
+    }
+
+    let session = await this.ensureSession();
+    let address = getConnectedSolana(session);
+    if (!address) {
+      await this.connectWalletAccount(provider);
+      session = await this.ensureSession();
+      address = getConnectedSolana(session);
+    }
+    if (!address) throw new Error("no Solana account to sign with");
+
+    // The RPC request and returned key use the same captured account, even if
+    // the active WalletConnect account changes while approval is pending.
+    const { signature: sigB58 } = await this.client.request(
+      this.solChain,
+      "solana_signMessage",
+      {
+        pubkey: address,
+        message: bs58.encode(new TextEncoder().encode(payload)),
+      },
+    );
+    return {
+      signature: uint8ArrayToHexString(bs58.decode(sigB58)),
+      publicKey: uint8ArrayToHexString(bs58.decode(address)),
+    };
   }
 
   /**
