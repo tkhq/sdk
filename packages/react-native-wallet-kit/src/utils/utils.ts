@@ -1,5 +1,6 @@
 import { Session, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
+import type { Wallet, WalletProvider } from "@turnkey/core";
 
 export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
 
@@ -57,7 +58,7 @@ export const isValidSession = (session?: Session | undefined): boolean => {
 
 export async function withTurnkeyErrorHandling<T>(
   fn: () => Promise<T>,
-  sessionExpireFn: () => Promise<void>,
+  sessionExpireFn?: () => Promise<void>,
   callbacks?: { onError?: (error: TurnkeyError) => void },
   fallbackMessage = "An unknown error occurred",
   fallbackCode = TurnkeyErrorCodes.UNKNOWN,
@@ -71,7 +72,7 @@ export async function withTurnkeyErrorHandling<T>(
       tkError = error;
 
       if (tkError.code === TurnkeyErrorCodes.SESSION_EXPIRED) {
-        await sessionExpireFn();
+        await sessionExpireFn?.();
       }
 
       // skip onError for WalletConnect expired errors
@@ -87,4 +88,56 @@ export async function withTurnkeyErrorHandling<T>(
     callbacks?.onError?.(tkError);
     throw tkError;
   }
+}
+
+export function mergeWalletsWithoutDuplicates(
+  existingWallets: Wallet[],
+  newWallets: Wallet[],
+): Wallet[] {
+  const existingWalletIds = new Set(existingWallets.map((w) => w.walletId));
+  const uniqueNewWallets = newWallets.filter(
+    (w) => !existingWalletIds.has(w.walletId),
+  );
+  return [...existingWallets, ...uniqueNewWallets];
+}
+
+export function useWalletProviderState(initialState: WalletProvider[] = []) {
+  const [walletProviders, setWalletProviders] =
+    useState<WalletProvider[]>(initialState);
+  const prevProvidersRef = useRef<WalletProvider[]>(initialState);
+
+  function isSameWalletProvider(a: WalletProvider[], b: WalletProvider[]) {
+    if (a.length !== b.length) return false;
+
+    const key = (provider: WalletProvider) => {
+      const name = provider.info.name;
+      const namespace = provider.chainInfo.namespace;
+      const interfaceType = provider.interfaceType;
+      const connectedAddresses = [...provider.connectedAddresses]
+        .map((x) => x.toLowerCase())
+        .sort()
+        .join(",");
+      const uri = provider.uri || "";
+      const isLoading = provider.isLoading ? "1" : "0";
+      return `${namespace}|${interfaceType}|${name}|${connectedAddresses}|${uri}|${isLoading}`;
+    };
+
+    const A = a.map(key).sort();
+    const B = b.map(key).sort();
+    for (let i = 0; i < A.length; i++) if (A[i] !== B[i]) return false;
+    return true;
+  }
+
+  const updateWalletProviders = useCallback(
+    (newProviders: WalletProvider[]) => {
+      if (!isSameWalletProvider(prevProvidersRef.current, newProviders)) {
+        prevProvidersRef.current = newProviders;
+        setWalletProviders(newProviders);
+      }
+      // we do nothing if the wallet providers are the same
+    },
+    [],
+  );
+
+  return [walletProviders, updateWalletProviders] as const;
 }

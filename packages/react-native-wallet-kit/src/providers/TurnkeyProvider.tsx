@@ -16,6 +16,9 @@ import {
   setCappedTimeoutInMap,
   setTimeoutInMap,
   clearKeys,
+  mergeWalletsWithoutDuplicates,
+  useWalletProviderState,
+  useDebouncedCallback,
 } from "../utils";
 
 import {
@@ -47,6 +50,17 @@ import {
   type GetSessionParams,
   type InitOtpParams,
   type InitOtpResult,
+  type WalletProvider,
+  type LoginWithWalletParams,
+  type SignUpWithWalletParams,
+  type LoginOrSignupWithWalletParams,
+  type BuildWalletLoginRequestParams,
+  type BuildWalletLoginRequestResult,
+  type SwitchWalletAccountChainParams,
+  type ConnectedWallet,
+  WalletSource,
+  WalletInterfaceType,
+  Chain,
   type LoginWithOauthParams,
   type LoginWithOtpParams,
   type LoginWithPasskeyParams,
@@ -115,6 +129,7 @@ import {
   type BaseAuthResult,
   AuthAction,
   type PasskeyAuthResult,
+  type WalletAuthResult,
   v1BootProof,
   TGetSendTransactionStatusResponse,
   OAuthProviders,
@@ -195,6 +210,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     TurnkeyProviderConfig | undefined
   >(undefined);
   const [wallets, setWallets] = useState<Wallet[]>([]);
+  // we use this custom hook to only update the state if the value is different
+  // this is so the WalletConnect listener effect only re-runs when it needs to
+  const [walletProviders, setWalletProviders] = useWalletProviderState();
   const [user, setUser] = useState<v1User | undefined>(undefined);
   const [clientState, setClientState] = useState<ClientState>();
   const [authState, setAuthState] = useState<AuthState>(
@@ -1283,6 +1301,221 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       );
     },
     [client, callbacks],
+  );
+
+  const fetchWalletProviders = useCallback(
+    async (chain?: Chain): Promise<WalletProvider[]> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        async () => {
+          const newProviders = await client.fetchWalletProviders(chain);
+          setWalletProviders(newProviders);
+          return newProviders;
+        },
+        undefined,
+        callbacks,
+        "Failed to fetch wallet providers",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const disconnectWalletAccount = useCallback(
+    async (walletProvider: WalletProvider): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      await withTurnkeyErrorHandling(
+        async () => {
+          await client.disconnectWalletAccount(walletProvider);
+        },
+        undefined,
+        callbacks,
+        "Failed to disconnect wallet account",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const switchWalletAccountChain = useCallback(
+    async (params: SwitchWalletAccountChainParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      await withTurnkeyErrorHandling(
+        async () => {
+          await client.switchWalletAccountChain({
+            ...params,
+            walletProviders,
+          });
+        },
+        undefined,
+        callbacks,
+        "Failed to switch wallet account chain",
+      );
+    },
+    [client, walletProviders, callbacks],
+  );
+
+  const buildWalletLoginRequest = useCallback(
+    async (
+      params: BuildWalletLoginRequestParams,
+    ): Promise<BuildWalletLoginRequestResult> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+      return await withTurnkeyErrorHandling(
+        () => client.buildWalletLoginRequest({ ...params, expirationSeconds }),
+        undefined,
+        callbacks,
+        "Failed to build wallet login request",
+      );
+    },
+    [client, callbacks, masterConfig],
+  );
+
+  const loginWithWallet = useCallback(
+    async (params: LoginWithWalletParams): Promise<WalletAuthResult> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+      const res = await withTurnkeyErrorHandling(
+        () => client.loginWithWallet({ ...params, expirationSeconds }),
+        undefined,
+        callbacks,
+        "Failed to login with wallet",
+      );
+      if (res) {
+        await handlePostAuth({
+          method: AuthMethod.Wallet,
+          action: AuthAction.LOGIN,
+          identifier: res.address,
+        });
+      }
+      return res;
+    },
+    [client, callbacks, handlePostAuth, masterConfig],
+  );
+
+  const signUpWithWallet = useCallback(
+    async (params: SignUpWithWalletParams): Promise<WalletAuthResult> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+
+      let createSubOrgParams =
+        params.createSubOrgParams ??
+        masterConfig.auth?.createSuborgParams?.walletAuth;
+      params =
+        createSubOrgParams !== undefined
+          ? { ...params, createSubOrgParams }
+          : { ...params };
+
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+      const res = await withTurnkeyErrorHandling(
+        () => client.signUpWithWallet({ ...params, expirationSeconds }),
+        undefined,
+        callbacks,
+        "Failed to sign up with wallet",
+      );
+      if (res) {
+        await handlePostAuth({
+          method: AuthMethod.Wallet,
+          action: AuthAction.SIGNUP,
+          identifier: res.address,
+        });
+      }
+      return res;
+    },
+    [client, callbacks, handlePostAuth, masterConfig],
+  );
+
+  const loginOrSignupWithWallet = useCallback(
+    async (
+      params: LoginOrSignupWithWalletParams,
+    ): Promise<WalletAuthResult & { action: AuthAction }> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+
+      let createSubOrgParams =
+        params.createSubOrgParams ??
+        masterConfig.auth?.createSuborgParams?.walletAuth;
+      params =
+        createSubOrgParams !== undefined
+          ? { ...params, createSubOrgParams }
+          : { ...params };
+
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+      const res = await withTurnkeyErrorHandling(
+        () => client.loginOrSignupWithWallet({ ...params, expirationSeconds }),
+        undefined,
+        callbacks,
+        "Failed to login or sign up with wallet",
+      );
+      if (res) {
+        await handlePostAuth({
+          method: AuthMethod.Wallet,
+          action: res.action,
+          identifier: res.address,
+        });
+      }
+      return res;
+    },
+    [client, callbacks, handlePostAuth, masterConfig],
   );
 
   const fetchWalletAccounts = useCallback(
@@ -2618,10 +2851,24 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
 
+      // we refresh the wallet providers first so that the walletProviders state
+      // stays in sync (e.g. a fresh WalletConnect uri after a disconnect)
+      const walletProviders =
+        masterConfig?.walletConfig?.features?.auth ||
+        masterConfig?.walletConfig?.features?.connecting
+          ? await withTurnkeyErrorHandling(
+              () => fetchWalletProviders(),
+              undefined,
+              callbacks,
+              "Failed to refresh wallets",
+            )
+          : undefined;
+
       const wallets = await withTurnkeyErrorHandling(
         () =>
           fetchWallets({
             stampWith,
+            ...(walletProviders && { walletProviders }),
             ...(organizationId && { organizationId }),
             ...(userId && { userId }),
           }),
@@ -2635,7 +2882,15 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
       return wallets;
     },
-    [client, callbacks, fetchWallets, session, user],
+    [
+      client,
+      callbacks,
+      fetchWallets,
+      session,
+      user,
+      fetchWalletProviders,
+      masterConfig,
+    ],
   );
 
   /**
@@ -2653,6 +2908,53 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       return refreshWallets(params);
     },
     [masterConfig, refreshWallets],
+  );
+
+  const connectWalletAccount = useCallback(
+    async (walletProvider: WalletProvider): Promise<WalletAccount> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      return withTurnkeyErrorHandling(
+        async () => {
+          const address = await client.connectWalletAccount(walletProvider);
+
+          let connectedWallets: Wallet[];
+
+          const s = await getSession();
+          if (s) {
+            connectedWallets = await maybeRefreshWallets();
+          } else {
+            connectedWallets = await fetchWallets({ connectedOnly: true });
+          }
+
+          const connected = connectedWallets.filter(
+            (w): w is ConnectedWallet => w.source === WalletSource.Connected,
+          );
+
+          const matchedAccount = connected
+            .flatMap((w) => w.accounts)
+            .find((a) => a.address === address);
+
+          if (!matchedAccount) {
+            throw new TurnkeyError(
+              `No connected wallet account found for address: ${address}`,
+              TurnkeyErrorCodes.NO_WALLET_FOUND,
+            );
+          }
+
+          return matchedAccount;
+        },
+        () => logout(),
+        callbacks,
+        "Failed to connect wallet account",
+      );
+    },
+    [client, callbacks, getSession, logout, maybeRefreshWallets, fetchWallets],
   );
 
   const setMfaHandler = useCallback(
@@ -3684,6 +3986,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
     clearSessionTimeouts();
 
+    if (
+      masterConfig.walletConfig?.features?.auth ||
+      masterConfig.walletConfig?.features?.connecting
+    ) {
+      fetchWalletProviders();
+    }
+
     initializeSessions().finally(() => {
       setClientState(ClientState.Ready);
     });
@@ -3700,6 +4009,103 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       clearSessionTimeouts();
     };
   }, [client]);
+
+  // WalletConnect can emit several events in quick succession, so we debounce
+  // the refreshes triggered by the listener below
+  const debouncedRefreshWallets = useDebouncedCallback(
+    maybeRefreshWallets,
+    100,
+  );
+  const debouncedFetchWalletProviders = useDebouncedCallback(
+    fetchWalletProviders,
+    100,
+  );
+
+  useEffect(() => {
+    if (walletProviders.length === 0) return;
+
+    const cleanups: Array<() => void> = [];
+
+    // Find the WalletConnect provider from our discovered providers
+    const wcProvider = walletProviders.find(
+      (p) => p.interfaceType === WalletInterfaceType.WalletConnect,
+    );
+
+    if (wcProvider) {
+      const standardEvents = (wcProvider.provider as any)?.features?.[
+        "standard:events"
+      ];
+      if (standardEvents?.on) {
+        const unsubscribe = standardEvents.on("change", async (evt: any) => {
+          // Deep link / QR expired — refresh to get new URI
+          if (evt?.type === "proposalExpired") {
+            debouncedFetchWalletProviders();
+            return;
+          }
+
+          if (evt?.type === "failed") {
+            debouncedFetchWalletProviders();
+            callbacks?.onError?.(
+              new TurnkeyError(
+                `WalletConnect initialization failed: ${evt.error || "Unknown error"}`,
+                TurnkeyErrorCodes.WALLET_CONNECT_INITIALIZATION_ERROR,
+              ),
+            );
+            return;
+          }
+
+          if (evt?.type === "initialized") {
+            // this updates our walletProvider state
+            const providers = await fetchWalletProviders();
+
+            // if we have an active session, we need to restore any possibly connected
+            // WalletConnect wallets since its now initialized
+            const currentSession = await getSession();
+            if (currentSession) {
+              const wcProviders = providers?.filter(
+                (p) => p.interfaceType === WalletInterfaceType.WalletConnect,
+              );
+
+              const wcWallets = await fetchWallets({
+                walletProviders: wcProviders,
+                connectedOnly: true,
+              });
+
+              if (wcWallets.length > 0) {
+                setWallets((prev) =>
+                  mergeWalletsWithoutDuplicates(prev, wcWallets),
+                );
+              }
+            }
+
+            return;
+          }
+
+          // any other event (disconnect, chain switch, accounts changed)
+          // logged in → refresh wallets (this also refreshes walletProviders)
+          // logged out → only refresh walletProviders
+          const currentSession = await getSession();
+          if (currentSession) {
+            debouncedRefreshWallets();
+          } else {
+            debouncedFetchWalletProviders();
+          }
+        });
+        cleanups.push(unsubscribe);
+      }
+    }
+
+    return () => {
+      cleanups.forEach((remove) => remove());
+    };
+  }, [
+    walletProviders,
+    getSession,
+    fetchWalletProviders,
+    fetchWallets,
+    debouncedRefreshWallets,
+    debouncedFetchWalletProviders,
+  ]);
 
   return (
     <ClientContext.Provider
@@ -3728,6 +4134,15 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         loginWithOauth,
         signUpWithOauth,
         completeOauth,
+        walletProviders,
+        fetchWalletProviders,
+        connectWalletAccount,
+        disconnectWalletAccount,
+        switchWalletAccountChain,
+        buildWalletLoginRequest,
+        loginWithWallet,
+        signUpWithWallet,
+        loginOrSignupWithWallet,
         fetchWallets,
         fetchWalletAccounts,
         fetchPrivateKeys,

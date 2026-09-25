@@ -11,6 +11,7 @@ export {
   isSolanaProvider,
   buildSecondaryOidcClaims,
   buildSecondaryOauthProviders,
+  fetchWalletConnectApps,
 } from "@turnkey/core";
 
 // Re-export all types from @turnkey/core
