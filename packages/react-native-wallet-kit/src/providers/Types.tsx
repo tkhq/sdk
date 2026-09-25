@@ -3,6 +3,8 @@ import type {
   TurnkeyClientMethods,
   MfaContext,
   Wallet,
+  WalletAccount,
+  WalletProvider,
   StamperType,
   ExportBundle,
 } from "@turnkey/core";
@@ -42,20 +44,28 @@ import type {
 export interface ClientContextType
   extends Omit<
     TurnkeyClientMethods,
-    | "connectWalletAccount"
-    | "fetchWalletProviders"
-    | "disconnectWalletAccount"
-    | "switchWalletAccountChain"
-    | "loginWithWallet"
-    | "signUpWithWallet"
-    | "loginOrSignupWithWallet"
     | "exportWallet"
     | "exportPrivateKey"
     | "exportWalletAccount"
     | "importWallet"
     | "importPrivateKey"
-    | "buildWalletLoginRequest"
+    | "connectWalletAccount"
   > {
+  /** @internal */
+  walletProviders: WalletProvider[];
+
+  /**
+   * Connects the specified wallet account.
+   *
+   * - Requires the wallet manager and its connector to be initialized.
+   * - Refreshes the wallets state so the newly connected wallet is included.
+   *
+   * @param provider - wallet provider to connect.
+   * @returns A promise that resolves with the connected wallet account.
+   * @throws {TurnkeyError} If the wallet manager is uninitialized or the connection fails.
+   */
+  connectWalletAccount(provider: WalletProvider): Promise<WalletAccount>;
+
   /** @internal */
   httpClient: TurnkeySDKClientBase | undefined;
   /** @internal */
