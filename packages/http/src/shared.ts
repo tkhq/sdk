@@ -199,5 +199,7 @@ export function getSignedTransactionFromActivity(
 
   const { signedTransaction } = activity.result?.signTransactionResult!;
 
-  return assertNonNull(`0x${signedTransaction}`);
+  // Assert on the value itself: `0x${undefined}` is the truthy string
+  // "0xundefined", which assertNonNull would happily let through.
+  return `0x${assertNonNull(signedTransaction)}`;
 }
