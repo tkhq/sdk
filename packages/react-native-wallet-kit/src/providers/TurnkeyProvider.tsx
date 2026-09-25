@@ -405,6 +405,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
               },
             }
           : {}),
+
+        ...(masterConfig.walletConfig
+          ? { walletConfig: masterConfig.walletConfig }
+          : {}),
       });
 
       await turnkeyClient.init();
