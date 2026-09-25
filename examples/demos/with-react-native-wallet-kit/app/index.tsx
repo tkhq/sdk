@@ -15,8 +15,13 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { EmailInput, validateEmail } from "@/components/auth/email-input";
 import { SecondaryButton } from "@/components/ui/secondary-button";
-import { useTurnkey } from "@turnkey/react-native-wallet-kit";
+import {
+  useTurnkey,
+  ClientState,
+  type WalletProvider,
+} from "@turnkey/react-native-wallet-kit";
 import { OtpType } from "@/types/types";
+import { WalletPicker } from "@/components/auth/wallet-picker";
 
 const customWallet = {
   walletName: "Default Wallet",
@@ -41,7 +46,11 @@ export default function LoginScreen() {
     handleDiscordOauth,
     handleFacebookOauth,
     handleAppleOauth,
+    loginOrSignupWithWallet,
+    clientState,
   } = useTurnkey();
+  const isClientReady = clientState === ClientState.Ready;
+  const [walletPickerVisible, setWalletPickerVisible] = useState(false);
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
 
@@ -180,6 +189,10 @@ export default function LoginScreen() {
     }
   };
 
+  const handleWalletSign = async (walletProvider: WalletProvider) => {
+    await loginOrSignupWithWallet({ walletProvider });
+  };
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -305,6 +318,24 @@ export default function LoginScreen() {
               </View>
             </TouchableOpacity>
 
+            {/* Wallet Button */}
+            <TouchableOpacity
+              style={[
+                styles.walletButton,
+                (!isClientReady || loading) && styles.buttonDisabled,
+              ]}
+              onPress={() => setWalletPickerVisible(true)}
+              activeOpacity={0.8}
+              disabled={!isClientReady || loading}
+            >
+              <View style={styles.walletButtonContent}>
+                <Text style={styles.walletIcon}>W</Text>
+                <Text style={styles.walletButtonText}>
+                  Continue with Wallet
+                </Text>
+              </View>
+            </TouchableOpacity>
+
             {/* Email Button */}
             <SecondaryButton
               onPress={handleEmailSubmit}
@@ -316,6 +347,11 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <WalletPicker
+        visible={walletPickerVisible}
+        onClose={() => setWalletPickerVisible(false)}
+        onSign={handleWalletSign}
+      />
     </SafeAreaView>
   );
 }
@@ -510,5 +546,32 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
+  },
+  walletButton: {
+    width: "100%",
+    paddingVertical: 16,
+    borderRadius: 8,
+    backgroundColor: "#8B5CF6",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  walletButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  walletIcon: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+  },
+  walletButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  buttonDisabled: {
+    opacity: 0.5,
   },
 });
