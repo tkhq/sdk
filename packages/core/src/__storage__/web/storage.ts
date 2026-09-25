@@ -1,6 +1,7 @@
 import WindowWrapper from "@polyfills/window";
 import { type StorageBase, type Wallet, SessionKey } from "../../__types__";
 import { parseSession } from "@utils";
+import { parseStorageValue } from "../utils";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
@@ -15,7 +16,7 @@ export class WebStorageManager implements StorageBase {
 
   getStorageValue = async (sessionKey: string): Promise<any> => {
     const item = browserStorage.getItem(sessionKey);
-    return item ? JSON.parse(item) : undefined;
+    return parseStorageValue(item);
   };
 
   setStorageValue = async (
