@@ -325,7 +325,10 @@ export default function Scenario4() {
             disabled={loading}
             onClick={() =>
               run(async () => {
-                await handleAddPasskey();
+                await handleAddPasskey({
+                  name: `Scenario 4 ${Date.now()}`,
+                  displayName: "Scenario 4",
+                });
                 setNotice(
                   "New passkey enrolled. Log out and sign in with it to get a full session.",
                 );

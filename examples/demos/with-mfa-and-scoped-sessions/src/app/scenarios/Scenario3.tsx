@@ -2,8 +2,7 @@
 
 import { useTurnkey, ClientState, OtpType } from "@turnkey/react-wallet-kit";
 import type { v1CreateMfaPolicyIntent } from "@turnkey/sdk-types";
-import { IframeStamper } from "@turnkey/iframe-stamper";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   Checklist,
   DangerButton,
@@ -31,14 +30,12 @@ import {
 import { DeleteSubOrg } from "./DeleteSubOrg";
 
 export const SESSION_KEY = "scenario-3";
-const EXPORT_IFRAME_CONTAINER_ID = "scenario-3-export-iframe-container";
-const EXPORT_IFRAME_ELEMENT_ID = "scenario-3-export-iframe";
 
 export default function Scenario3() {
   const {
     handleLogin,
     handleAddPasskey,
-    exportWallet,
+    handleExportWallet,
     initOtp,
     verifyOtp,
     storeSession,
@@ -72,22 +69,8 @@ export default function Scenario3() {
     "idle",
   );
   const [exportCompleted, setExportCompleted] = useState(false);
-  const [exportModalOpen, setExportModalOpen] = useState(false);
-  const [exportIframeReady, setExportIframeReady] = useState(false);
-  const [exportIframeVisible, setExportIframeVisible] = useState(false);
-  const [exportModalError, setExportModalError] = useState<string | null>(null);
-  const exportIframeClientRef = useRef<IframeStamper | null>(null);
   const normalizedEmail = email.trim();
   const emailHasWhitespace = /\s/.test(email);
-
-  const closeExportModal = () => {
-    exportIframeClientRef.current?.clear();
-    exportIframeClientRef.current = null;
-    setExportModalOpen(false);
-    setExportIframeReady(false);
-    setExportIframeVisible(false);
-    setExportModalError(null);
-  };
 
   const authMfaPolicy: v1CreateMfaPolicyIntent = {
     userId: user?.userId ?? "",
@@ -121,48 +104,6 @@ export default function Scenario3() {
     order: 2,
   };
 
-  // Export decrypts the wallet inside a sandboxed iframe hosted by Turnkey so the
-  // key material never touches this app. Spin the iframe up when the modal opens,
-  // its public key becomes the export target the enclave encrypts to.
-  useEffect(() => {
-    if (!exportModalOpen || exportIframeClientRef.current) return;
-
-    const initExportIframe = async () => {
-      try {
-        const iframeUrl =
-          config?.exportIframeUrl ?? "https://export.turnkey.com";
-        const iframeContainer = document.getElementById(
-          EXPORT_IFRAME_CONTAINER_ID,
-        );
-
-        if (!iframeContainer) {
-          throw new Error("Export iframe container not found.");
-        }
-
-        const iframeClient = new IframeStamper({
-          iframeUrl,
-          iframeElementId: EXPORT_IFRAME_ELEMENT_ID,
-          iframeContainer,
-        });
-        await iframeClient.init();
-        iframeClient.iframe.className =
-          "block w-full min-h-64 border-0 bg-white";
-
-        exportIframeClientRef.current = iframeClient;
-        setExportIframeReady(true);
-      } catch (e) {
-        setExportModalError(formatError(e));
-      }
-    };
-
-    initExportIframe();
-
-    return () => {
-      exportIframeClientRef.current?.clear();
-      exportIframeClientRef.current = null;
-    };
-  }, [config?.exportIframeUrl, exportModalOpen]);
-
   const run = async (fn: () => Promise<void>) => {
     setError(null);
     setNotice(null);
@@ -171,20 +112,6 @@ export default function Scenario3() {
       await fn();
     } catch (e) {
       setError(formatError(e));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Errors raised while the export modal is open have to land inside the modal. The card's
-  // own notices sit behind the overlay, so reporting there means reporting nowhere.
-  const runInExportModal = async (fn: () => Promise<void>) => {
-    setExportModalError(null);
-    setLoading(true);
-    try {
-      await fn();
-    } catch (e) {
-      setExportModalError(formatError(e));
     } finally {
       setLoading(false);
     }
@@ -272,36 +199,25 @@ export default function Scenario3() {
     setNotice(`Deleted ${deleted} MFA polic${deleted === 1 ? "y" : "ies"}.`);
   };
 
-  const injectExportBundleIntoModal = async () => {
+  const exportWalletWithMfa = async () => {
     if (!wallet?.walletId) {
       throw new Error("No wallet on this user to export.");
-    }
-
-    const iframeClient = exportIframeClientRef.current;
-    if (!iframeClient?.iframePublicKey) {
-      throw new Error("Export iframe is not ready yet.");
     }
 
     setMfaStatus("idle");
     setExportCompleted(false);
 
-    // exportWallet trips the EXPORT policy; runWithPasskeyMfa (wrapping this call)
-    // handles the passkey approval. The returned bundle is encrypted to the
-    // iframe's public key, so only the iframe can decrypt and display it.
-    const bundle = await exportWallet({
+    // handleExportWallet opens the kit's export modal, which owns the iframe and
+    // decrypts the bundle inside it, so the key material never touches this app.
+    // The export trips the EXPORT policy, and the passkey handler installed by
+    // runWithPasskeyMfa approves it mid-flight.
+    await handleExportWallet({
       walletId: wallet.walletId,
-      targetPublicKey: iframeClient.iframePublicKey,
       ...(session?.organizationId && {
         organizationId: session.organizationId,
       }),
     });
 
-    await iframeClient.injectWalletExportBundle(
-      bundle,
-      session!.organizationId,
-    );
-
-    setExportIframeVisible(true);
     setExportCompleted(true);
   };
 
@@ -325,7 +241,14 @@ export default function Scenario3() {
 
           <PrimaryButton
             disabled={loading}
-            onClick={() => run(() => handleAddPasskey().then(() => {}))}
+            onClick={() =>
+              run(() =>
+                handleAddPasskey({
+                  name: `Scenario 3 ${Date.now()}`,
+                  displayName: "Scenario 3",
+                }).then(() => {}),
+              )
+            }
           >
             1. Add Passkey
           </PrimaryButton>
@@ -344,7 +267,7 @@ export default function Scenario3() {
 
           <PrimaryButton
             disabled={loading || !wallet?.walletId}
-            onClick={() => setExportModalOpen(true)}
+            onClick={() => run(() => runWithPasskeyMfa(exportWalletWithMfa))}
           >
             3. Export Wallet (triggers passkey MFA)
           </PrimaryButton>
@@ -354,63 +277,6 @@ export default function Scenario3() {
               This user has no wallet yet. Sign-up creates one automatically, so
               this usually means setup did not finish.
             </Notice>
-          )}
-
-          {exportModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/50 p-4">
-              <div className="w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-xl">
-                <div className="flex items-center justify-between gap-4 border-b border-gray-100 px-5 py-4">
-                  <div>
-                    <h3 className="text-sm font-semibold text-black">
-                      Export Wallet
-                    </h3>
-                    <p className="text-xs text-black">
-                      Requires your active session and passkey approval.
-                    </p>
-                  </div>
-                  <button
-                    onClick={closeExportModal}
-                    className="rounded border border-gray-200 px-2 py-1 text-xs text-black hover:bg-gray-50"
-                  >
-                    Close
-                  </button>
-                </div>
-
-                <div className="flex flex-col gap-4 bg-white p-5">
-                  {!exportIframeVisible && (
-                    <PrimaryButton
-                      disabled={loading || !exportIframeReady}
-                      onClick={() =>
-                        runInExportModal(() =>
-                          runWithPasskeyMfa(injectExportBundleIntoModal),
-                        )
-                      }
-                    >
-                      {exportIframeReady
-                        ? "Confirm Export"
-                        : "Preparing Export"}
-                    </PrimaryButton>
-                  )}
-
-                  <div
-                    id={EXPORT_IFRAME_CONTAINER_ID}
-                    className={
-                      exportIframeVisible
-                        ? "min-h-64 overflow-hidden rounded border border-gray-200 bg-white"
-                        : "h-0 overflow-hidden"
-                    }
-                  />
-
-                  {exportIframeVisible && (
-                    <Notice>Wallet export is displayed above.</Notice>
-                  )}
-
-                  {exportModalError && (
-                    <Notice tone="error">{exportModalError}</Notice>
-                  )}
-                </div>
-              </div>
-            </div>
           )}
 
           <SecondaryButton
