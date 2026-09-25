@@ -375,9 +375,13 @@ export class WalletConnectWallet implements WalletConnectInterface {
         throw new Error("no Ethereum account to sign with");
       }
 
+      // Keep the selected chain when approved by the session. If the wallet
+      // granted only a subset of the requested chains, use an approved chain.
+      const ethChain = getConnectedEthereumChain(session, this.ethChain);
+
       switch (intent) {
         case SignIntent.SignMessage:
-          return (await this.client.request(this.ethChain, "personal_sign", [
+          return (await this.client.request(ethChain, "personal_sign", [
             payload as Hex,
             address,
           ])) as string;
@@ -428,11 +432,9 @@ export class WalletConnectWallet implements WalletConnectInterface {
             };
           }
 
-          return (await this.client.request(
-            this.ethChain,
-            "eth_sendTransaction",
-            [txParams],
-          )) as string;
+          return (await this.client.request(ethChain, "eth_sendTransaction", [
+            txParams,
+          ])) as string;
         default:
           throw new Error(`Unsupported Ethereum intent: ${intent}`);
       }
@@ -750,6 +752,33 @@ function getConnectedEthereum(
 ): string | undefined {
   const acc = session?.namespaces.eip155?.accounts?.[0];
   return acc ? acc.split(":")[2] : undefined;
+}
+
+/**
+ * Resolves an approved EVM chain, preferring the currently selected chain.
+ *
+ * - Returns the selected chain if it has an approved account.
+ * - Otherwise returns the chain of the first connected EVM account.
+ *
+ * @param session - The current WalletConnect session, or null.
+ * @param preferredChain - The currently selected EVM chain.
+ * @returns An approved EVM chain, or the configured chain if none is connected.
+ */
+function getConnectedEthereumChain(
+  session: SessionTypes.Struct | null,
+  preferredChain: string,
+): string {
+  const chains = session?.namespaces.eip155?.accounts
+    ?.map((account) => {
+      const [namespace, reference] = account.split(":");
+      return namespace === "eip155" && reference
+        ? `${namespace}:${reference}`
+        : undefined;
+    })
+    .filter((chain): chain is string => chain !== undefined);
+
+  if (chains?.includes(preferredChain)) return preferredChain;
+  return chains?.[0] ?? preferredChain;
 }
 
 /**
