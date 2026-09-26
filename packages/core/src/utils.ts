@@ -1498,10 +1498,14 @@ export const withTimeoutFallback = <T>(
   timeoutMs?: number,
 ): Promise<T> => {
   const timeout = timeoutMs ?? 1000;
+  let timer: ReturnType<typeof setTimeout>;
+
   return Promise.race([
     promise,
-    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), timeout)),
-  ]);
+    new Promise<T>((resolve) => {
+      timer = setTimeout(() => resolve(fallback), timeout);
+    }),
+  ]).finally(() => clearTimeout(timer!));
 };
 
 export const AUTHENTICATOR_TRANSPORT_MAP: Record<
