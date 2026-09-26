@@ -3411,7 +3411,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to set active session",
       );
-      setSession(session);
+      // Expose the session we just switched to (`s`), not the previous
+      // `session` captured by this callback's closure.
+      setSession(s);
       await withTurnkeyErrorHandling(
         async () => {
           const nextUser = await maybeRefreshUser();
