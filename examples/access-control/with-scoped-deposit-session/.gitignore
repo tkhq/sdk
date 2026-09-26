@@ -1,0 +1,12 @@
+# Local Foundry project and plan, never committed
+contracts/
+
+# Next.js
+/node_modules
+/.next/
+/out/
+*.tsbuildinfo
+next-env.d.ts
+
+# local env files
+.env*.local
