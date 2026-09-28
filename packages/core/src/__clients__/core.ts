@@ -20,6 +20,7 @@ import {
   type TGetUserResponse,
   type v1ClientSignature,
   type v1OauthProviderParamsV2,
+  type v1Activity,
   TurnkeyError,
   TurnkeyErrorCodes,
   AuthAction,
@@ -116,6 +117,10 @@ import {
   type DeleteApiKeyPairParams,
 } from "../__types__";
 import {
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
+} from "@turnkey/http";
+import {
   buildSignUpBody,
   generateWalletAccountsFromAddressFormat,
   getEncodedMessage,
@@ -172,6 +177,30 @@ import { AttestedScheme, AttestedStamper } from "../__stampers__/attested/base";
 type PublicMethods<T> = {
   [K in keyof T as T[K] extends Function ? K : never]: T[K];
 };
+
+function assertSendTransactionActivitySucceeded(activity: v1Activity): void {
+  if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
+    return;
+  }
+
+  if (activity.status === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+    throw new TurnkeyActivityConsensusNeededError({
+      message: "Send transaction activity requires consensus",
+      activityId: activity.id,
+      activityStatus: activity.status,
+      activityType: activity.type,
+    });
+  }
+
+  throw new TurnkeyActivityError({
+    message:
+      activity.failure?.message ??
+      `Expected COMPLETED status, got ${activity.status}`,
+    activityId: activity.id,
+    activityStatus: activity.status,
+    activityType: activity.type,
+  });
+}
 
 export type TurnkeyClientMethods = Omit<
   PublicMethods<TurnkeyClient>,
@@ -3110,7 +3139,9 @@ export class TurnkeyClient {
    * @returns A promise resolving to the `sendTransactionStatusId`.
    *          This ID must be passed to `pollTransactionStatus`.
    *
-   * @throws {TurnkeyError} If the transaction is invalid or Turnkey rejects it.
+   * @throws {TurnkeyActivityConsensusNeededError} If the activity requires consensus.
+   * @throws {TurnkeyActivityError} If the activity does not complete successfully.
+   * @throws {TurnkeyError} If the transaction is invalid or submission fails.
    */
   ethSendTransaction = async (
     params: EthSendTransactionParams,
@@ -3155,6 +3186,8 @@ export class TurnkeyClient {
                 stampWith,
               );
 
+        assertSendTransactionActivitySucceeded(resp.activity);
+
         const id = resp.sendTransactionStatusId;
         if (!id) {
           throw new TurnkeyError(
@@ -3197,7 +3230,9 @@ export class TurnkeyClient {
    * @param params.transaction - The Solana transaction details.
    * @returns A promise resolving to the `sendTransactionStatusId`.
    *          This ID must be passed to `pollTransactionStatus`.
-   * @throws {TurnkeyError} If the transaction is invalid or Turnkey rejects it.
+   * @throws {TurnkeyActivityConsensusNeededError} If the activity requires consensus.
+   * @throws {TurnkeyActivityError} If the activity does not complete successfully.
+   * @throws {TurnkeyError} If the transaction is invalid or submission fails.
    */
   solSendTransaction = async (
     params: SolSendTransactionParams,
@@ -3241,6 +3276,8 @@ export class TurnkeyClient {
                 },
                 stampWith,
               );
+
+        assertSendTransactionActivitySucceeded(resp.activity);
 
         const id = resp.sendTransactionStatusId;
         if (!id) {

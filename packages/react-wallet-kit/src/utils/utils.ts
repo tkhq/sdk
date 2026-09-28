@@ -5,6 +5,8 @@ import {
   WalletProvider,
   WalletInterfaceType,
   Chain,
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
 } from "@turnkey/core";
 
 export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
@@ -79,6 +81,13 @@ export async function withTurnkeyErrorHandling<T>(
     return await fn();
   } catch (error) {
     let tkError: TurnkeyError;
+
+    if (
+      error instanceof TurnkeyActivityError ||
+      error instanceof TurnkeyActivityConsensusNeededError
+    ) {
+      throw error;
+    }
 
     if (error instanceof TurnkeyError) {
       tkError = error;

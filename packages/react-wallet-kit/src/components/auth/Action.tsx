@@ -32,16 +32,16 @@ export function ActionPage(props: ActionPageProps) {
       if (action) {
         try {
           await action();
-        } catch (error) {
+        } catch {
           popPage();
-          throw error;
+          return;
         }
         if (closeOnComplete) {
           closeModal();
         }
       }
     };
-    runAction();
+    void runAction();
   }, []);
 
   return (
