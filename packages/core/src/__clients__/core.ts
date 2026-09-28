@@ -15,7 +15,7 @@ import {
   type v1CreatePolicyIntentV3,
   type v1BootProof,
   type TGetSendTransactionStatusResponse,
-  type ProxyTSignupResponse,
+  type ProxyTSignupV3Response,
   type TGetWalletsResponse,
   type TGetUserResponse,
   type v1ClientSignature,
@@ -61,6 +61,8 @@ import {
   type InitOtpResult,
   type VerifyOtpParams,
   type VerifyOtpResult,
+  type VerifyWalletAuthenticatorParams,
+  type VerifyWalletAuthenticatorResult,
   type LoginWithOtpParams,
   type SignUpWithOtpParams,
   type CompleteOtpParams,
@@ -141,11 +143,22 @@ import {
   mapAccountsToWallet,
   getActiveSessionOrThrowIfRequired,
   fetchAllWalletAccountsWithCursor,
-  decodeVerificationToken,
+  decodeAuthVerificationToken,
+  decodeWalletAuthVerificationToken,
+  getVerificationSessionPublicKey,
+  walletApiKeyPublicKeyFromAuthToken,
   getClientSignatureMessageForSignup,
   ERC20_TRANSFER_ABI,
 } from "../utils";
 import { encryptOtpCodeToBundle } from "@turnkey/crypto";
+import {
+  buildWalletLoginMessage,
+  defaultSiwxDomain,
+  defaultSiwxUri,
+  defaultWalletLoginChainId,
+  normalizeWalletSignature,
+  walletLoginChainFromProvider,
+} from "../__wallet__/wallet-login-message";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
 import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
@@ -177,6 +190,11 @@ export type TurnkeyClientMethods = Omit<
   PublicMethods<TurnkeyClient>,
   "init" | "config" | "httpClient" | "constructor"
 >;
+
+type WalletLoginAccount =
+  | { kind: "wallet-authenticator"; organizationId: string }
+  | { kind: "api-key"; organizationId: string }
+  | { kind: "none" };
 
 export class TurnkeyClient {
   config: TurnkeySDKClientConfig;
@@ -330,20 +348,21 @@ export class TurnkeyClient {
   };
 
   /**
-   * Overrides the attested stamper with a verification token or OIDC token.
+   * Overrides the attested stamper with a verification token, wallet auth token, or OIDC token.
    *
    * - This function updates the attested stamper's identity and automatically sets the correct scheme.
    * - Pass `verificationToken` to set the attestation identity and scheme to STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN.
+   * - Pass `walletAuthVerificationToken` to set the attestation identity and scheme to STAMP_ATTESTED_SCHEME_P256_WALLET_VERIFICATION_TOKEN.
    * - Pass `oidcToken` to set the attestation identity and scheme to STAMP_ATTESTED_SCHEME_P256_OIDC.
-   * - Only one of `verificationToken` or `oidcToken` can be provided at a time.
-   * - If neither token is provided, the attestation identity is cleared.
-   * - Useful for dynamically changing the attested identity and scheme used for signing requests.
+   * - Only one identity can be provided at a time.
+   * - If none is provided, the attestation identity is cleared.
    *
-   * @param params.verificationToken - verification token to use as the attested identity with STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN scheme.
-   * @param params.oidcToken - OIDC token to use as the attested identity with STAMP_ATTESTED_SCHEME_P256_OIDC scheme.
+   * @param params.verificationToken - OTP verification token. Uses STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN.
+   * @param params.walletAuthVerificationToken - wallet authenticator verification token. Uses STAMP_ATTESTED_SCHEME_P256_WALLET_VERIFICATION_TOKEN.
+   * @param params.oidcToken - OIDC token. Uses STAMP_ATTESTED_SCHEME_P256_OIDC.
    * @param params.publicKey - public key that signs the attested stamp. Must match the key bound to the token.
    * @returns A promise that resolves when the stamper has been updated.
-   * @throws {TurnkeyError} If the attested stamper is not initialized, if both tokens are provided, or if there is an error updating it.
+   * @throws {TurnkeyError} If the attested stamper is not initialized, if more than one identity is provided, or if there is an error updating it.
    */
   overrideAttestedStamper = async (
     params: OverrideAttestedStamperParams,
@@ -357,20 +376,28 @@ export class TurnkeyClient {
           );
         }
 
-        const { verificationToken, oidcToken, publicKey } = params;
+        const {
+          verificationToken,
+          walletAuthVerificationToken,
+          oidcToken,
+          publicKey,
+        } = params;
 
-        // we enforce that you cannot set both a verificationToken and an oidcToken
-        if (verificationToken && oidcToken) {
+        const identities = [
+          verificationToken,
+          walletAuthVerificationToken,
+          oidcToken,
+        ].filter(Boolean);
+        if (identities.length > 1) {
           throw new TurnkeyError(
-            "Cannot set both verificationToken and oidcToken. Please provide only one.",
+            "Cannot set more than one of verificationToken, walletAuthVerificationToken, or oidcToken.",
             TurnkeyErrorCodes.INVALID_REQUEST,
           );
         }
 
-        // we require a publicKey if either a verificationToken or an oidcToken is provided
-        if ((verificationToken || oidcToken) && !publicKey) {
+        if (identities.length === 1 && !publicKey) {
           throw new TurnkeyError(
-            "A publicKey must be provided when setting a verificationToken or oidcToken.",
+            "A publicKey must be provided when setting an attested identity.",
             TurnkeyErrorCodes.INVALID_REQUEST,
           );
         }
@@ -380,6 +407,12 @@ export class TurnkeyClient {
             attestedIdentity: verificationToken,
             publicKey: publicKey!,
             scheme: AttestedScheme.P256_VERIFICATION_TOKEN,
+          });
+        } else if (walletAuthVerificationToken) {
+          this.attestedStamper.configure({
+            attestedIdentity: walletAuthVerificationToken,
+            publicKey: publicKey!,
+            scheme: AttestedScheme.P256_WALLET_VERIFICATION_TOKEN,
           });
         } else if (oidcToken) {
           this.attestedStamper.configure({
@@ -791,7 +824,7 @@ export class TurnkeyClient {
           },
         });
 
-        const res = await this.httpClient.proxySignupV2(
+        const res = await this.httpClient.proxySignupV3(
           signUpBody,
           captchaToken,
         );
@@ -1147,65 +1180,186 @@ export class TurnkeyClient {
     );
   };
 
+  private lookupWalletLoginAccount = async (
+    verificationToken: string,
+  ): Promise<WalletLoginAccount> => {
+    const walletAuthRes = await this.httpClient.proxyGetAccount({
+      filterType: FilterType.WalletAuthToken,
+      filterValue: verificationToken,
+    });
+
+    if (!walletAuthRes) {
+      throw new TurnkeyError(
+        `Account fetch failed`,
+        TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
+      );
+    }
+
+    if (walletAuthRes.organizationId) {
+      return {
+        kind: "wallet-authenticator",
+        organizationId: walletAuthRes.organizationId,
+      };
+    }
+
+    const decoded = decodeWalletAuthVerificationToken(verificationToken);
+    if (!decoded.publicKey) {
+      return { kind: "none" };
+    }
+
+    const publicKeyRes = await this.httpClient.proxyGetAccount({
+      filterType: FilterType.PublicKey,
+      filterValue: walletApiKeyPublicKeyFromAuthToken(decoded.publicKey),
+    });
+
+    if (!publicKeyRes) {
+      throw new TurnkeyError(
+        `Account fetch failed`,
+        TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
+      );
+    }
+
+    if (publicKeyRes.organizationId) {
+      return {
+        kind: "api-key",
+        organizationId: publicKeyRes.organizationId,
+      };
+    }
+
+    return { kind: "none" };
+  };
+
   /**
-   * Logs in a user using the specified wallet provider.
+   * Logs in a user using a connected Ethereum or Solana wallet.
    *
-   * - This function logs in a user by authenticating with the provided wallet provider via a wallet-based signature.
-   * - If a public key is not provided, a new one will be generated for authentication.
-   * - Optionally accepts a custom session key and session expiration time.
-   * - Stores the resulting session token under the specified session key, or the default session key if not provided.
-   * - Throws an error if a public key cannot be found or generated, or if the login process fails.
+   * - Prefers a wallet authenticator: the wallet signs SIWE / SIWS
+   *   (`verifyWalletAuthenticator`), then an attested `stampLogin` starts the session.
+   * - If no wallet authenticator exists but the EOA is still registered as an API key,
+   *   uses that sub-org with the same attested `stampLogin` and SIWx session key.
+   * - If `verificationToken` and `organizationId` are already provided, verification
+   *   and account lookup are skipped (used after `loginOrSignupWithWallet`).
    *
    * @param params.walletProvider - wallet provider to use for authentication.
-   * @param params.publicKey - optional public key to associate with the session (generated if not provided).
+   * @param params.publicKey - optional stored P-256 session public key (generated if not provided).
+   * @param params.verificationToken - optional wallet verification token from a prior `verifyWalletAuthenticator` call.
    * @param params.sessionKey - optional key to store the session under (defaults to the default session key).
    * @param params.expirationSeconds - optional session expiration time in seconds (defaults to the configured default).
-   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.organizationId - organization ID to target (defaults to the verified sub-org linked to the wallet).
    * @returns A promise that resolves to a {@link WalletAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    *          - `address`: the authenticated wallet address.
-   * @throws {TurnkeyError} If the wallet stamper is uninitialized, a public key cannot be found or generated, or login fails.
+   * @throws {TurnkeyError} If the wallet stamper is uninitialized, a public key cannot be found or generated, the verification token is invalid, or login fails.
    */
   loginWithWallet = async (
     params: LoginWithWalletParams,
   ): Promise<WalletAuthResult> => {
-    const { walletProvider, sessionKey = SessionKey.DefaultSessionkey } =
-      params;
+    const {
+      walletProvider,
+      sessionKey = SessionKey.DefaultSessionkey,
+      organizationId,
+      sessionProfileId,
+      verificationToken: providedVerificationToken,
+    } = params;
+    const expirationSeconds =
+      params.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+    const generatedSessionKey = !params.publicKey && !providedVerificationToken;
+    const sessionPublicKey =
+      params.publicKey ??
+      (providedVerificationToken
+        ? getVerificationSessionPublicKey(
+            decodeWalletAuthVerificationToken(providedVerificationToken),
+          )
+        : await this.createApiKeyPair());
+
+    if (!sessionPublicKey) {
+      throw new TurnkeyError(
+        "No public key available. Either pass a publicKey or ensure apiKeyStamper is configured.",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
+
+    const attestedLogin = async (
+      verificationToken: string,
+      subOrganizationId?: string,
+    ): Promise<WalletAuthResult> => {
+      const decoded = decodeWalletAuthVerificationToken(verificationToken);
+      const verificationPublicKey = getVerificationSessionPublicKey(decoded);
+
+      await this.overrideAttestedStamper({
+        walletAuthVerificationToken: verificationToken,
+        publicKey: verificationPublicKey,
+      });
+
+      const loginRes = await this.httpClient.stampLogin(
+        {
+          publicKey: verificationPublicKey,
+          expirationSeconds,
+          ...(subOrganizationId && { organizationId: subOrganizationId }),
+          ...(sessionProfileId && { sessionProfileId }),
+        },
+        StamperType.Attested,
+      );
+
+      if (!loginRes?.session) {
+        throw new TurnkeyError(
+          "No session returned from wallet login",
+          TurnkeyErrorCodes.WALLET_LOGIN_AUTH_ERROR,
+        );
+      }
+
+      await this.storeSession({
+        sessionToken: loginRes.session,
+        sessionKey,
+      });
+
+      return {
+        sessionToken: loginRes.session,
+        address: decoded.wallet.address,
+      };
+    };
 
     return withTurnkeyErrorHandling(
       async () => {
-        const { signedRequest, publicKey } =
-          await this.buildWalletLoginRequest(params);
+        const verificationToken =
+          providedVerificationToken ??
+          (
+            await this.verifyWalletAuthenticator({
+              walletProvider,
+              publicKey: sessionPublicKey,
+            })
+          ).verificationToken;
 
-        const sessionResponse =
-          await this.httpClient.sendSignedRequest<TStampLoginResponse>(
-            signedRequest,
-          );
+        if (providedVerificationToken && organizationId) {
+          return attestedLogin(verificationToken, organizationId);
+        }
 
-        const sessionToken = sessionResponse.session;
-        if (!sessionToken) {
+        const account = await this.lookupWalletLoginAccount(verificationToken);
+
+        if (account.kind === "none") {
           throw new TurnkeyError(
-            "Session token not found in the response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            "No wallet authenticator or matching API key found for this wallet",
+            TurnkeyErrorCodes.WALLET_LOGIN_AUTH_ERROR,
           );
         }
 
-        await this.storeSession({
-          sessionToken: sessionResponse.session,
-          sessionKey,
-        });
-
-        return {
-          sessionToken: sessionResponse.session,
-          address: addressFromPublicKey(
-            walletProvider.chainInfo.namespace,
-            publicKey,
-          ),
-        };
+        return attestedLogin(verificationToken, account.organizationId);
       },
       {
         errorMessage: "Unable to log in with the provided wallet",
         errorCode: TurnkeyErrorCodes.WALLET_LOGIN_AUTH_ERROR,
+        catchFn: async () => {
+          if (generatedSessionKey) {
+            try {
+              await this.deleteApiKeyPair({ publicKey: sessionPublicKey });
+            } catch (cleanupError) {
+              throw new TurnkeyError(
+                `Failed to clean up generated key pair`,
+                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
+                cleanupError,
+              );
+            }
+          }
+        },
       },
     );
   };
@@ -1258,7 +1412,7 @@ export class TurnkeyClient {
           },
         });
 
-        const res = await this.httpClient.proxySignupV2(
+        const res = await this.httpClient.proxySignupV3(
           signUpBody,
           captchaToken,
         );
@@ -1305,22 +1459,21 @@ export class TurnkeyClient {
   };
 
   /**
-   * Logs in an existing user or signs up a new user using a wallet, creating a new sub-organization if needed.
+   * Logs in an existing user or signs up a new user using a wallet.
    *
-   * - This function attempts to log in the user by stamping a login request with the provided wallet.
-   * - If the wallet’s public key is not associated with an existing sub-organization, a new one is created.
-   * - Handles both wallet authentication and sub-organization creation in a single flow.
-   * - For Ethereum wallets, derives the public key from the signed request header; for Solana wallets, retrieves it directly from the wallet.
-   * - Optionally accepts additional sub-organization parameters, a custom session key, and a custom session expiration.
-   * - Stores the resulting session token under the specified session key, or the default session key if not provided.
+   * - Verifies the wallet with SIWE / SIWS (`verifyWalletAuthenticator`).
+   * - Looks up an existing sub-organization by wallet authenticator first.
+   * - If none exists, looks up a legacy API-key account for the same EOA.
+   * - Either existing account logs in with attested `stampLogin` using the SIWx session key.
+   * - If neither exists, creates a sub-organization bound to the wallet authenticator
+   *   and starts a session with attested `stampLogin`.
    *
    * @param params.walletProvider - wallet provider to use for authentication.
-   * @param params.publicKey - optional public key to associate with the session (generated if not provided).
+   * @param params.publicKey - optional stored P-256 session public key (generated if not provided).
    * @param params.createSubOrgParams - optional parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
-   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
-   * @param params.captchaToken - optional captcha token for bot prevention during OTP initialization (must be enabled in the auth proxy config to take effect).
+   * @param params.captchaToken - optional captcha token for bot prevention during sign up.
    * @returns A promise that resolves to an object containing:
    *          - `sessionToken`: the signed JWT session token.
    *          - `address`: the authenticated wallet address.
@@ -1335,92 +1488,102 @@ export class TurnkeyClient {
       createSubOrgParams,
       sessionKey = SessionKey.DefaultSessionkey,
       captchaToken,
+      sessionProfileId,
     } = params;
+    const expirationSeconds =
+      params.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+    const generatedSessionKey = !params.publicKey;
+    const sessionPublicKey =
+      params.publicKey ?? (await this.createApiKeyPair());
+
+    if (!sessionPublicKey) {
+      throw new TurnkeyError(
+        "No public key available. Either pass a publicKey or ensure apiKeyStamper is configured.",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
 
     return withTurnkeyErrorHandling(
       async () => {
-        const { signedRequest, publicKey } =
-          await this.buildWalletLoginRequest(params);
-
-        // here we check if the subOrg exists and create one
-        // then we send off the stamped request to Turnkey
-
-        const accountRes = await this.httpClient.proxyGetAccount({
-          filterType: FilterType.PublicKey,
-          filterValue: publicKey,
+        const { verificationToken } = await this.verifyWalletAuthenticator({
+          walletProvider,
+          publicKey: sessionPublicKey,
         });
 
-        if (!accountRes) {
-          throw new TurnkeyError(
-            `Account fetch failed`,
-            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
-          );
-        }
+        const decoded = decodeWalletAuthVerificationToken(verificationToken);
+        const address = decoded.wallet.address;
+        const account = await this.lookupWalletLoginAccount(verificationToken);
 
-        const subOrganizationId = accountRes.organizationId;
+        const walletAuthenticators = [
+          {
+            type: decoded.wallet.type,
+            address: decoded.wallet.address,
+            domain: decoded.wallet.domain,
+            verificationToken,
+          },
+        ];
 
-        // if there is no subOrganizationId, we create one
-        let signupRes: ProxyTSignupResponse | undefined;
-        if (!subOrganizationId) {
+        let signupRes: ProxyTSignupV3Response | undefined;
+        let organizationId =
+          account.kind === "none" ? undefined : account.organizationId;
+
+        if (!organizationId) {
           const signUpBody = buildSignUpBody({
             createSubOrgParams: {
               ...createSubOrgParams,
-              apiKeys: [
-                {
-                  apiKeyName: `wallet-auth:${publicKey}`,
-                  publicKey: publicKey,
-                  curveType: getCurveTypeFromProvider(walletProvider),
-                },
-              ],
+              walletAuthenticators,
             },
           });
 
-          signupRes = await this.httpClient.proxySignupV2(
+          signupRes = await this.httpClient.proxySignupV3(
             signUpBody,
             captchaToken,
           );
 
-          if (!signupRes) {
+          if (!signupRes?.organizationId) {
             throw new TurnkeyError(
               `Sign up failed`,
               TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR,
             );
           }
+
+          organizationId = signupRes.organizationId;
         }
 
-        // now we can send the stamped request to Turnkey
-        const sessionResponse =
-          await this.httpClient.sendSignedRequest<TStampLoginResponse>(
-            signedRequest,
-          );
-        const sessionToken = sessionResponse.session;
-        if (!sessionToken) {
-          throw new TurnkeyError(
-            "Session token not found in the response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
-          );
-        }
-
-        await this.storeSession({
-          sessionToken: sessionToken,
+        const loginRes = await this.loginWithWallet({
+          walletProvider,
+          publicKey: sessionPublicKey,
+          verificationToken,
+          organizationId,
           sessionKey,
+          expirationSeconds,
+          ...(sessionProfileId && { sessionProfileId }),
         });
 
         return {
-          sessionToken: sessionToken,
+          sessionToken: loginRes.sessionToken,
           appProofs: signupRes?.appProofs,
-          address: addressFromPublicKey(
-            walletProvider.chainInfo.namespace,
-            publicKey,
-          ),
-
-          // if the subOrganizationId exists, it means the user is logging in
-          action: subOrganizationId ? AuthAction.LOGIN : AuthAction.SIGNUP,
+          address,
+          action:
+            account.kind === "none" ? AuthAction.SIGNUP : AuthAction.LOGIN,
         };
       },
       {
         errorCode: TurnkeyErrorCodes.WALLET_LOGIN_OR_SIGNUP_ERROR,
         errorMessage: "Failed to log in or sign up with wallet",
+        catchFn: async () => {
+          if (generatedSessionKey) {
+            try {
+              await this.deleteApiKeyPair({ publicKey: sessionPublicKey });
+            } catch (cleanupError) {
+              throw new TurnkeyError(
+                `Failed to clean up generated key pair`,
+                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
+                cleanupError,
+              );
+            }
+          }
+        },
       },
     );
   };
@@ -1567,6 +1730,144 @@ export class TurnkeyClient {
   };
 
   /**
+   * Verifies a connected Ethereum or Solana wallet via SIWE / SIWS.
+   *
+   * - Generates an ephemeral P-256 key, builds the Turnkey login message, and asks
+   *   the wallet to sign it. The wallet signature is used to sign the message, **not**
+   *   to stamp the activity.
+   * - Always submitted through the auth proxy as `{ message, signature }`. Token
+   *   lifetime comes from the proxy's `verificationTokenExpirationSeconds`.
+   * - Later attested requests (`stampLogin`) sign with the stored key; the private
+   *   key never leaves the key store.
+   *
+   * @param params.walletProvider - connected Ethereum or Solana wallet used to sign the login message.
+   * @param params.publicKey - optional stored compressed P-256 session key. Generated and stored if omitted.
+   * @param params.domain - host only (normalized). Defaults to `window.location.host` on web, or WalletConnect `appMetadata.url` on mobile.
+   * @param params.uri - absolute URI whose host must match `domain`. Defaults to origin + pathname on web, or WalletConnect `appMetadata.url` on mobile.
+   * @param params.chainId - non-empty display string. Defaults to the wallet's chain id.
+   * @param params.issuedAt - UTC RFC3339 issued-at. Defaults to now.
+   * @param params.expirationTime - UTC RFC3339 message expiry. Defaults to issued-at + 3600 seconds.
+   * @returns A promise that resolves to:
+   *   - `verificationToken`: opaque enclave-signed JWT.
+   *   - `publicKey`: the stored session public key bound into that JWT.
+   * @throws {TurnkeyError} If the wallet cannot sign, the message is invalid, or verification fails.
+   */
+  verifyWalletAuthenticator = async (
+    params: VerifyWalletAuthenticatorParams,
+  ): Promise<VerifyWalletAuthenticatorResult> => {
+    if (!this.config.authProxyConfigId) {
+      throw new TurnkeyError(
+        "Auth proxy is required to verify a wallet authenticator",
+        TurnkeyErrorCodes.INVALID_CONFIGURATION,
+      );
+    }
+
+    const connector = this.walletManager?.connector;
+    if (!connector) {
+      throw new TurnkeyError(
+        "Wallet manager is not initialized",
+        TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+      );
+    }
+
+    const publicKey = params.publicKey ?? (await this.createApiKeyPair());
+
+    if (!publicKey) {
+      throw new TurnkeyError(
+        "No public key available. Either pass a publicKey or ensure apiKeyStamper is configured.",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        const { walletProvider } = params;
+        const chain = walletLoginChainFromProvider(walletProvider);
+
+        let walletAddress = walletProvider.connectedAddresses[0];
+        if (!walletAddress) {
+          walletAddress = await connector.connectWalletAccount(walletProvider);
+        }
+
+        const metadataUrl =
+          this.config.walletConfig?.walletConnect?.appMetadata.url;
+        const domain = params.domain ?? defaultSiwxDomain(metadataUrl);
+        const uri = params.uri ?? defaultSiwxUri(metadataUrl);
+
+        if (!domain || !uri) {
+          throw new TurnkeyError(
+            "domain and uri are required when they cannot be inferred from window.location or WalletConnect appMetadata.url",
+            TurnkeyErrorCodes.MISSING_PARAMS,
+          );
+        }
+
+        const sessionPublicKey = publicKey.toLowerCase();
+        const message = buildWalletLoginMessage({
+          chain,
+          domain,
+          uri,
+          walletAddress,
+          sessionPublicKey,
+          chainId: params.chainId ?? defaultWalletLoginChainId(walletProvider),
+          ...(params.issuedAt !== undefined
+            ? { issuedAt: params.issuedAt }
+            : {}),
+          ...(params.expirationTime !== undefined
+            ? { expirationTime: params.expirationTime }
+            : {}),
+        });
+
+        const rawSignature = await connector.sign(
+          message,
+          walletProvider,
+          SignIntent.SignMessage,
+        );
+        const signature = normalizeWalletSignature(rawSignature, chain);
+
+        const response = await this.httpClient.proxyVerifyWalletAuthenticator({
+          message,
+          signature,
+        });
+
+        if (!response?.verificationToken) {
+          throw new TurnkeyError(
+            "No verification token returned from wallet authenticator verification",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+
+        return {
+          verificationToken: response.verificationToken,
+          publicKey,
+        };
+      },
+      {
+        errorMessage: "Failed to verify wallet authenticator",
+        errorCode: TurnkeyErrorCodes.VERIFY_WALLET_AUTHENTICATOR_ERROR,
+        customErrorsByMessages: {
+          "Failed to sign the message": {
+            message: "Wallet auth was cancelled by the user.",
+            code: TurnkeyErrorCodes.CONNECT_WALLET_CANCELLED,
+          },
+        },
+        catchFn: async () => {
+          if (!params.publicKey) {
+            try {
+              await this.deleteApiKeyPair({ publicKey });
+            } catch (cleanupError) {
+              throw new TurnkeyError(
+                `Failed to clean up generated key pair`,
+                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
+                cleanupError,
+              );
+            }
+          }
+        },
+      },
+    );
+  };
+
+  /**
    * Logs in a user using an OTP verification token.
    *
    * - This function logs in a user using the verification token received after OTP verification (from email or SMS).
@@ -1597,15 +1898,9 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const { public_key: verificationPublicKey } =
-          decodeVerificationToken(verificationToken);
-
-        if (!verificationPublicKey) {
-          throw new TurnkeyError(
-            "Invalid verification token: missing publicKey",
-            TurnkeyErrorCodes.INVALID_REQUEST,
-          );
-        }
+        const verificationPublicKey = getVerificationSessionPublicKey(
+          decodeAuthVerificationToken(verificationToken),
+        );
 
         // We override the attested stamper with the verification token so the stampLogin request can be stamped with it.
         await this.overrideAttestedStamper({
@@ -1735,7 +2030,7 @@ export class TurnkeyClient {
           signature: signature,
         };
 
-        const signupRes = await this.httpClient.proxySignupV2(
+        const signupRes = await this.httpClient.proxySignupV3(
           {
             ...signUpBody,
             clientSignature,
@@ -2161,7 +2456,7 @@ export class TurnkeyClient {
           },
         });
 
-        const signupRes = await this.httpClient.proxySignupV2(
+        const signupRes = await this.httpClient.proxySignupV3(
           signUpBody,
           captchaToken,
         );

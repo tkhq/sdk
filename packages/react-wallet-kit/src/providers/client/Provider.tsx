@@ -110,6 +110,8 @@ import {
   type UpdateUserNameParams,
   type UpdateUserPhoneNumberParams,
   type VerifyOtpParams,
+  type VerifyWalletAuthenticatorParams,
+  type VerifyWalletAuthenticatorResult,
   type Wallet,
   type WalletAccount,
   type VerifyOtpResult,
@@ -2319,6 +2321,26 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       return res;
     },
     [client, callbacks, handlePostAuth, masterConfig],
+  );
+
+  const verifyWalletAuthenticator = useCallback(
+    async (
+      params: VerifyWalletAuthenticatorParams,
+    ): Promise<VerifyWalletAuthenticatorResult> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        () => client.verifyWalletAuthenticator(params),
+        undefined,
+        callbacks,
+        "Failed to verify wallet authenticator",
+      );
+    },
+    [client, callbacks],
   );
 
   const initOtp = useCallback(
@@ -6553,6 +6575,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         loginWithWallet,
         signUpWithWallet,
         loginOrSignupWithWallet,
+        verifyWalletAuthenticator,
         initOtp,
         verifyOtp,
         loginWithOtp,

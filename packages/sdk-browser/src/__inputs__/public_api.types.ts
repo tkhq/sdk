@@ -21,7 +21,7 @@ export type paths = {
     post: operations["PublicApiService_GetApiKeys"];
   };
   "/public/v1/query/get_app_status": {
-    /** Get live runtime status for a TVC App from the cluster. */
+    /** Get live runtime status for a TVC app from the cluster. */
     post: operations["PublicApiService_GetAppStatus"];
   };
   "/public/v1/query/get_authenticator": {
@@ -33,12 +33,16 @@ export type paths = {
     post: operations["PublicApiService_GetAuthenticators"];
   };
   "/public/v1/query/get_boot_proof": {
-    /** Get the boot proof for a given ephemeral key. */
+    /** Get the Boot Proof for a given ephemeral key. */
     post: operations["PublicApiService_GetBootProof"];
   };
   "/public/v1/query/get_claim_earn_fees_status": {
     /** Poll the status of a fee claim by its claim_request_id. */
     post: operations["PublicApiService_GetClaimEarnFeesStatus"];
+  };
+  "/public/v1/query/get_earn_claim_rewards_status": {
+    /** Poll the status of a rewards claim by its claim_request_id. */
+    post: operations["PublicApiService_GetEarnClaimRewardsStatus"];
   };
   "/public/v1/query/get_earn_deploy_status": {
     /** Poll the status of a wrapper deployment by its deploy_request_id. */
@@ -61,7 +65,7 @@ export type paths = {
     post: operations["PublicApiService_GetIpAllowlist"];
   };
   "/public/v1/query/get_latest_boot_proof": {
-    /** Get the latest boot proof for a given enclave app name. */
+    /** Get the latest Boot Proof for a given enclave app name. */
     post: operations["PublicApiService_GetLatestBootProof"];
   };
   "/public/v1/query/get_mfa_policies": {
@@ -133,11 +137,11 @@ export type paths = {
     post: operations["PublicApiService_GetSwapStatus"];
   };
   "/public/v1/query/get_tvc_app": {
-    /** Get details about a single TVC App */
+    /** Get details about a single TVC app. */
     post: operations["PublicApiService_GetTvcApp"];
   };
   "/public/v1/query/get_tvc_deployment": {
-    /** Get details about a single TVC Deployment */
+    /** Get details about a single TVC deployment. */
     post: operations["PublicApiService_GetTvcDeployment"];
   };
   "/public/v1/query/get_tvc_deployment_debug_logs": {
@@ -145,7 +149,7 @@ export type paths = {
     post: operations["PublicApiService_GetTvcDeploymentDebugLogs"];
   };
   "/public/v1/query/get_tvc_deployment_provisioning_details": {
-    /** Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment */
+    /** Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment. */
     post: operations["PublicApiService_GetTvcDeploymentProvisioningDetails"];
   };
   "/public/v1/query/get_tvc_qos_versions": {
@@ -172,6 +176,10 @@ export type paths = {
     /** Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. */
     post: operations["PublicApiService_GetWalletAddressBalances"];
   };
+  "/public/v1/query/get_wallet_authenticators": {
+    /** Get wallet authenticators for a user. */
+    post: operations["PublicApiService_GetWalletAuthenticators"];
+  };
   "/public/v1/query/list_activities": {
     /** List all activities within an organization. */
     post: operations["PublicApiService_GetActivities"];
@@ -187,6 +195,10 @@ export type paths = {
   "/public/v1/query/list_earn_positions": {
     /** Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees. */
     post: operations["PublicApiService_ListEarnPositions"];
+  };
+  "/public/v1/query/list_earn_rewards": {
+    /** List the protocol rewards (e.g. MORPHO and third-party campaign tokens, distributed off-chain via Merkl) attributed to a wallet: claimable, lifetime claimed, and pending amounts per reward token. */
+    post: operations["PublicApiService_ListEarnRewards"];
   };
   "/public/v1/query/list_earn_vaults": {
     /** Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled. */
@@ -233,7 +245,7 @@ export type paths = {
     post: operations["PublicApiService_ListSolTransactionHistory"];
   };
   "/public/v1/query/list_suborgs": {
-    /** Get all suborg IDs associated given a parent org ID and an optional filter. */
+    /** Get all suborg IDs (verified and unverified) associated with a given parent organization ID and an optional filter. */
     post: operations["PublicApiService_GetSubOrgIds"];
   };
   "/public/v1/query/list_supported_assets": {
@@ -241,12 +253,20 @@ export type paths = {
     post: operations["PublicApiService_ListSupportedAssets"];
   };
   "/public/v1/query/list_tvc_app_deployments": {
-    /** List all deployments for a given TVC App */
+    /** List all deployments for a given TVC app. */
     post: operations["PublicApiService_GetTvcAppDeployments"];
   };
   "/public/v1/query/list_tvc_apps": {
-    /** List all TVC Apps within an organization. */
+    /** List all TVC apps within an organization. */
     post: operations["PublicApiService_GetTvcApps"];
+  };
+  "/public/v1/query/list_tvc_operators": {
+    /** List all TVC operators within an organization, newest first. */
+    post: operations["PublicApiService_GetTvcOperators"];
+  };
+  "/public/v1/query/list_tvc_quorum_keys": {
+    /** List all hosted TVC Quorum Keys within an organization, newest first. */
+    post: operations["PublicApiService_GetTvcQuorumKeys"];
   };
   "/public/v1/query/list_user_tags": {
     /** List all user tags within an organization. */
@@ -261,7 +281,7 @@ export type paths = {
     post: operations["PublicApiService_ListVelocityControls"];
   };
   "/public/v1/query/list_verified_suborgs": {
-    /** Get all email or phone verified suborg IDs associated given a parent org ID. */
+    /** Get all verified suborg IDs associated with a given parent organization ID and an optional filter. */
     post: operations["PublicApiService_GetVerifiedSubOrgIds"];
   };
   "/public/v1/query/list_wallet_accounts": {
@@ -277,11 +297,11 @@ export type paths = {
     post: operations["PublicApiService_ListWebhookEndpoints"];
   };
   "/public/v1/query/validate_tvc_image": {
-    /** Validate a container image URL and pull secret for TVC deployment */
+    /** Validate a container image URL and pull secret for TVC deployment. */
     post: operations["PublicApiService_ValidateTvcImage"];
   };
   "/public/v1/query/whoami": {
-    /** Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users. */
+    /** Get basic information about your current API or WebAuthn user and their organization. Affords sub-organization lookups via parent organization for WebAuthn or API key users. */
     post: operations["PublicApiService_GetWhoami"];
   };
   "/public/v1/submit/approve_activity": {
@@ -309,7 +329,7 @@ export type paths = {
     post: operations["PublicApiService_CreateAuthenticators"];
   };
   "/public/v1/submit/create_fiat_on_ramp_credential": {
-    /** Create a fiat on ramp provider credential */
+    /** Create a fiat on ramp provider credential. */
     post: operations["PublicApiService_CreateFiatOnRampCredential"];
   };
   "/public/v1/submit/create_invitations": {
@@ -321,7 +341,7 @@ export type paths = {
     post: operations["PublicApiService_CreateMfaPolicy"];
   };
   "/public/v1/submit/create_oauth2_credential": {
-    /** Enable authentication for end users with an OAuth 2.0 provider */
+    /** Enable authentication for end users with an OAuth 2.0 provider. */
     post: operations["PublicApiService_CreateOauth2Credential"];
   };
   "/public/v1/submit/create_oauth_providers": {
@@ -361,31 +381,31 @@ export type paths = {
     post: operations["PublicApiService_CreateSmartContractInterface"];
   };
   "/public/v1/submit/create_sub_organization": {
-    /** Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS). */
+    /** Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, a wallet authenticator, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS). */
     post: operations["PublicApiService_CreateSubOrganization"];
   };
   "/public/v1/submit/create_swap_quote": {
-    /** Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
+    /** Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
     post: operations["PublicApiService_CreateSwapQuote"];
   };
   "/public/v1/submit/create_tvc_app": {
-    /** Create a new TVC application */
+    /** Create a new TVC application. */
     post: operations["PublicApiService_CreateTvcApp"];
   };
   "/public/v1/submit/create_tvc_deployment": {
-    /** Create a new TVC Deployment */
+    /** Create a new TVC deployment. */
     post: operations["PublicApiService_CreateTvcDeployment"];
   };
   "/public/v1/submit/create_tvc_manifest_approvals": {
-    /** Post one or more manifest approvals for a TVC Manifest */
+    /** Post one or more manifest approvals for a TVC manifest. */
     post: operations["PublicApiService_CreateTvcManifestApprovals"];
   };
   "/public/v1/submit/create_tvc_operator": {
-    /** Create a TVC Operator backed by uncompressed P-256 Turnkey wallet accounts */
+    /** Create a TVC operator backed by uncompressed P-256 Turnkey wallet accounts. */
     post: operations["PublicApiService_CreateTvcOperator"];
   };
   "/public/v1/submit/create_tvc_quorum_key": {
-    /** Create a hosted TVC quorum key and encrypted shares. */
+    /** Create a hosted TVC Quorum Key and encrypted shares. */
     post: operations["PublicApiService_CreateTvcQuorumKey"];
   };
   "/public/v1/submit/create_user_tag": {
@@ -408,12 +428,16 @@ export type paths = {
     /** Derive additional addresses using an existing wallet. */
     post: operations["PublicApiService_CreateWalletAccounts"];
   };
+  "/public/v1/submit/create_wallet_authenticators": {
+    /** Add wallet authenticators to an existing user. Omit verification_token to attach unverified. */
+    post: operations["PublicApiService_CreateWalletAuthenticators"];
+  };
   "/public/v1/submit/create_webhook_endpoint": {
     /** Create a webhook endpoint for an organization. */
     post: operations["PublicApiService_CreateWebhookEndpoint"];
   };
   "/public/v1/submit/delete_api_keys": {
-    /** Remove api keys from a user. */
+    /** Remove API keys from a user. */
     post: operations["PublicApiService_DeleteApiKeys"];
   };
   "/public/v1/submit/delete_authenticators": {
@@ -421,7 +445,7 @@ export type paths = {
     post: operations["PublicApiService_DeleteAuthenticators"];
   };
   "/public/v1/submit/delete_fiat_on_ramp_credential": {
-    /** Delete a fiat on ramp provider credential */
+    /** Delete a fiat on ramp provider credential. */
     post: operations["PublicApiService_DeleteFiatOnRampCredential"];
   };
   "/public/v1/submit/delete_invitation": {
@@ -433,7 +457,7 @@ export type paths = {
     post: operations["PublicApiService_DeleteMfaPolicy"];
   };
   "/public/v1/submit/delete_oauth2_credential": {
-    /** Disable authentication for end users with an OAuth 2.0 provider */
+    /** Disable authentication for end users with an OAuth 2.0 provider. */
     post: operations["PublicApiService_DeleteOauth2Credential"];
   };
   "/public/v1/submit/delete_oauth_providers": {
@@ -469,11 +493,11 @@ export type paths = {
     post: operations["PublicApiService_DeleteSubOrganization"];
   };
   "/public/v1/submit/delete_tvc_app_and_deployments": {
-    /** Delete a TVC App and all of its deployments */
+    /** Delete a TVC app and all of its deployments. */
     post: operations["PublicApiService_DeleteTvcAppAndDeployments"];
   };
   "/public/v1/submit/delete_tvc_deployment": {
-    /** Delete a TVC Deployment */
+    /** Delete a TVC deployment. */
     post: operations["PublicApiService_DeleteTvcDeployment"];
   };
   "/public/v1/submit/delete_user_tags": {
@@ -492,6 +516,10 @@ export type paths = {
     /** Delete wallet accounts for an organization. */
     post: operations["PublicApiService_DeleteWalletAccounts"];
   };
+  "/public/v1/submit/delete_wallet_authenticators": {
+    /** Remove wallet authenticators from a user. */
+    post: operations["PublicApiService_DeleteWalletAuthenticators"];
+  };
   "/public/v1/submit/delete_wallets": {
     /** Delete wallets for an organization. */
     post: operations["PublicApiService_DeleteWallets"];
@@ -499,6 +527,10 @@ export type paths = {
   "/public/v1/submit/delete_webhook_endpoint": {
     /** Delete a webhook endpoint for an organization. */
     post: operations["PublicApiService_DeleteWebhookEndpoint"];
+  };
+  "/public/v1/submit/earn_claim_rewards": {
+    /** Claim the Merkl protocol rewards attributed to a wallet's Earn positions. The claim is signed by the wallet itself and every reward token is transferred to it; see ListEarnRewards for what is claimable. */
+    post: operations["PublicApiService_EarnClaimRewards"];
   };
   "/public/v1/submit/earn_deploy_wrapper": {
     /** Enable a yield vault for an organization by deploying its fee wrapper. Must be called before any deposits into the vault. */
@@ -597,7 +629,7 @@ export type paths = {
     post: operations["PublicApiService_Oauth"];
   };
   "/public/v1/submit/oauth2_authenticate": {
-    /** Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities */
+    /** Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities. */
     post: operations["PublicApiService_Oauth2Authenticate"];
   };
   "/public/v1/submit/oauth_login": {
@@ -613,11 +645,11 @@ export type paths = {
     post: operations["PublicApiService_OtpLogin"];
   };
   "/public/v1/submit/post_tvc_quorum_key_share": {
-    /** Post re-encrypted quorum key share for a TVC deployment. */
+    /** Post re-encrypted Quorum Key share for a TVC deployment. */
     post: operations["PublicApiService_PostTvcQuorumKeyShare"];
   };
   "/public/v1/submit/re_encrypt_tvc_quorum_key_share": {
-    /** Re-encrypt a hosted TVC quorum key share for a deployment. */
+    /** Re-encrypt a hosted TVC Quorum Key share for a deployment. */
     post: operations["PublicApiService_ReEncryptTvcQuorumKeyShare"];
   };
   "/public/v1/submit/recover_user": {
@@ -637,7 +669,7 @@ export type paths = {
     post: operations["PublicApiService_RemoveOrganizationFeature"];
   };
   "/public/v1/submit/restore_tvc_deployment": {
-    /** Restore a deleted TVC Deployment */
+    /** Restore a deleted TVC deployment. */
     post: operations["PublicApiService_RestoreTvcDeployment"];
   };
   "/public/v1/submit/set_ip_allowlist": {
@@ -649,7 +681,7 @@ export type paths = {
     post: operations["PublicApiService_SetOrganizationFeature"];
   };
   "/public/v1/submit/set_tvc_app_live_deployment": {
-    /** Set the live deployment for a TVC App */
+    /** Set the live deployment for a TVC app. */
     post: operations["PublicApiService_UpdateTvcAppLiveDeployment"];
   };
   "/public/v1/submit/sign_raw_payload": {
@@ -689,7 +721,7 @@ export type paths = {
     post: operations["PublicApiService_StampLogin"];
   };
   "/public/v1/submit/update_fiat_on_ramp_credential": {
-    /** Update a fiat on ramp provider credential */
+    /** Update a fiat on ramp provider credential. */
     post: operations["PublicApiService_UpdateFiatOnRampCredential"];
   };
   "/public/v1/submit/update_mfa_policy": {
@@ -697,7 +729,7 @@ export type paths = {
     post: operations["PublicApiService_UpdateMfaPolicy"];
   };
   "/public/v1/submit/update_oauth2_credential": {
-    /** Update an OAuth 2.0 provider credential */
+    /** Update an OAuth 2.0 provider credential. */
     post: operations["PublicApiService_UpdateOauth2Credential"];
   };
   "/public/v1/submit/update_organization_name": {
@@ -752,7 +784,12 @@ export type paths = {
     /** Verify a generic OTP. */
     post: operations["PublicApiService_VerifyOtp"];
   };
+  "/public/v1/submit/verify_wallet_authenticator": {
+    /** Verify a SIWE or SIWS login and return an enclave-signed wallet verification token. */
+    post: operations["PublicApiService_VerifyWalletAuthenticator"];
+  };
   "/tkhq/api/v1/noop-codegen-anchor": {
+    /** Internal no-op endpoint used to force generation of types not otherwise referenced by a public request or response. Not intended for use. */
     post: operations["PublicApiService_NOOPCodegenAnchor"];
   };
   "/tkhq/api/v1/refresh_feature_flags": {
@@ -1156,7 +1193,13 @@ export type definitions = {
     | "ACTIVITY_TYPE_UPDATE_PAYMENT_METHOD"
     | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2"
     | "ACTIVITY_TYPE_EXECUTE_SWAP_V3"
-    | "ACTIVITY_TYPE_DELETE_SECRETS";
+    | "ACTIVITY_TYPE_DELETE_SECRETS"
+    | "ACTIVITY_TYPE_EARN_CLAIM_REWARDS"
+    | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3"
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V9"
+    | "ACTIVITY_TYPE_VERIFY_WALLET_AUTHENTICATOR"
+    | "ACTIVITY_TYPE_CREATE_WALLET_AUTHENTICATORS"
+    | "ACTIVITY_TYPE_DELETE_WALLET_AUTHENTICATORS";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1285,6 +1328,8 @@ export type definitions = {
     display?: definitions["v1AssetBalanceDisplay"];
     /** @description The asset name */
     name?: string;
+    /** @description Solana token program address that owns this mint, inferred from getTokenAccountsByOwner. TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA for classic SPL Token, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb for Token-2022. Empty for native SOL and non-Solana assets. */
+    tokenProgram?: string;
   };
   v1AssetBalanceDisplay: {
     /** @description USD value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
@@ -1340,7 +1385,8 @@ export type definitions = {
     | "AUTHENTICATION_TYPE_PASSKEY"
     | "AUTHENTICATION_TYPE_API_KEY"
     | "AUTHENTICATION_TYPE_OAUTH"
-    | "AUTHENTICATION_TYPE_SESSION";
+    | "AUTHENTICATION_TYPE_SESSION"
+    | "AUTHENTICATION_TYPE_WALLET";
   v1Authenticator: {
     /** @description Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
     transports: definitions["v1AuthenticatorTransport"][];
@@ -2063,14 +2109,39 @@ export type definitions = {
     /** @description Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
     clientSignature?: definitions["v1ClientSignature"];
   };
+  v1CreateSubOrganizationIntentV9: {
+    /** @description Name for this sub-organization */
+    subOrganizationName: string;
+    /** @description Root users to create within this sub-organization */
+    rootUsers: definitions["v1RootUserParamsV6"][];
+    /**
+     * Format: int32
+     * @description The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users
+     */
+    rootQuorumThreshold: number;
+    /** @description The wallet to create for the sub-organization */
+    wallet?: definitions["v1WalletParams"];
+    /** @description Disable email recovery for the sub-organization */
+    disableEmailRecovery?: boolean;
+    /** @description Disable email auth for the sub-organization */
+    disableEmailAuth?: boolean;
+    /** @description Disable OTP SMS auth for the sub-organization */
+    disableSmsAuth?: boolean;
+    /** @description Disable OTP email auth for the sub-organization */
+    disableOtpEmailAuth?: boolean;
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    verificationToken?: string;
+    /** @description Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
+    clientSignature?: definitions["v1ClientSignature"];
+  };
   v1CreateSubOrganizationRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8";
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V9";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreateSubOrganizationIntentV8"];
+    parameters: definitions["v1CreateSubOrganizationIntentV9"];
     generateAppProofs?: boolean;
   };
   v1CreateSubOrganizationResult: {
@@ -2108,6 +2179,11 @@ export type definitions = {
     wallet?: definitions["v1WalletResult"];
     rootUserIds?: string[];
   };
+  v1CreateSubOrganizationResultV9: {
+    subOrganizationId: string;
+    wallet?: definitions["v1WalletResult"];
+    rootUserIds?: string[];
+  };
   v1CreateSwapQuoteIntent: {
     /** @description Wallet account or Private Key address used to price the executable provider quote. Private Key identifiers are not supported. */
     signWith: string;
@@ -2134,6 +2210,22 @@ export type definitions = {
     /** @description Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported. */
     destinationAddress?: string;
   };
+  v1CreateSwapQuoteIntentV3: {
+    /** @description Wallet account address used to price the executable provider quote. Private Key identifiers are not supported. */
+    signWith: string;
+    /** @description CAIP-19 asset ID for the input asset. The chain is derived from this value. */
+    inputToken: string;
+    /** @description CAIP-19 asset ID for the output asset. */
+    outputToken: string;
+    /** @description Base-unit amount of the input asset. */
+    inputAmount: string;
+    /** @description Provider-neutral maximum allowed slippage in basis points. Turnkey converts this value to each provider's request format. When omitted, each provider applies its default slippage behavior. */
+    slippageBps?: string;
+    /** @description Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported. */
+    destinationAddress?: string;
+    feeSponsorship?: boolean;
+    fixedRate?: boolean;
+  };
   v1CreateSwapQuoteRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE";
@@ -2147,6 +2239,9 @@ export type definitions = {
   v1CreateSwapQuoteResult: {
     /** @description One or more provider quotes for this request. Today this contains a single Relay quote; pass quotes[i].quoteId to execute_swap_v2 to bind execution. */
     quotes: definitions["v1SwapQuote"][];
+  };
+  v1CreateSwapQuoteResultV2: {
+    quotes?: definitions["v1SwapQuoteV2"][];
   };
   v1CreateTvcAppIntent: {
     /** @description The name of the new TVC application */
@@ -2236,6 +2331,16 @@ export type definitions = {
      * @description Optional desired replica count for this deployment.
      */
     replicas?: number;
+    /**
+     * Format: int64
+     * @description Optional desired instance cpu count.
+     */
+    instanceSizeCpus?: number;
+    /**
+     * Format: int64
+     * @description Optional desired instance memory size in GiB.
+     */
+    instanceSizeRam?: number;
   };
   v1CreateTvcDeploymentRequest: {
     /** @enum {string} */
@@ -2424,6 +2529,26 @@ export type definitions = {
   v1CreateWalletAccountsResult: {
     /** @description A list of derived addresses. */
     addresses: string[];
+  };
+  v1CreateWalletAuthenticatorsIntent: {
+    /** @description The ID of the User to add wallet authenticators to. */
+    userId: string;
+    /** @description Wallet authenticators to add. Each entry is a type, address, and domain. verification_token is optional. */
+    walletAuthenticators: definitions["v1WalletAuthenticatorParams"][];
+  };
+  v1CreateWalletAuthenticatorsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_WALLET_AUTHENTICATORS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateWalletAuthenticatorsIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1CreateWalletAuthenticatorsResult: {
+    /** @description IDs of the wallet authenticators created. */
+    walletAuthenticatorIds: string[];
   };
   v1CreateWalletIntent: {
     /** @description Human-readable name for a Wallet. */
@@ -2879,6 +3004,26 @@ export type definitions = {
     /** @description A list of wallet account unique identifiers that were removed */
     walletAccountIds: string[];
   };
+  v1DeleteWalletAuthenticatorsIntent: {
+    /** @description The ID of the User to remove wallet authenticators from. */
+    userId: string;
+    /** @description IDs of the wallet authenticators to delete. */
+    walletAuthenticatorIds: string[];
+  };
+  v1DeleteWalletAuthenticatorsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_WALLET_AUTHENTICATORS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteWalletAuthenticatorsIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1DeleteWalletAuthenticatorsResult: {
+    /** @description IDs of the wallet authenticators deleted. */
+    walletAuthenticatorIds: string[];
+  };
   v1DeleteWalletsIntent: {
     /** @description List of unique identifiers for wallets within an organization */
     walletIds: string[];
@@ -2933,7 +3078,7 @@ export type definitions = {
     /** @description Last time this deployment was updated */
     lastUpdatedTime: definitions["externaldatav1Timestamp"];
     /** @description Current quorum-key provisioning state for this deployment */
-    provisioningState?: definitions["v1ProvisioningState"];
+    provisioningState: definitions["v1ProvisioningState"];
   };
   v1DisableAuthProxyIntent: { [key: string]: unknown };
   v1DisableAuthProxyResult: { [key: string]: unknown };
@@ -2945,6 +3090,28 @@ export type definitions = {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
   };
+  v1EarnClaimRewardsIntent: {
+    /** @description A Turnkey-managed wallet address the rewards are attributed to. The claim transaction is signed by this wallet and the Merkl Distributor transfers every reward token to it. */
+    signWith: string;
+    /** @description CAIP-2 chain to claim rewards on (e.g. 'eip155:8453'). Rewards accrue per chain; see ListEarnRewards. */
+    caip2: string;
+    /** @description Whether to sponsor this transaction via Gas Station. */
+    sponsor?: boolean;
+  };
+  v1EarnClaimRewardsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_EARN_CLAIM_REWARDS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1EarnClaimRewardsIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1EarnClaimRewardsResult: {
+    /** @description Identifier to poll claim status and tx hash via GetEarnClaimRewardsStatus. */
+    claimRequestId: string;
+  };
   v1EarnDeployWrapperIntent: {
     /** @description Address of the underlying yield vault to wrap (from the ListEarnVaults catalog). */
     vaultAddress: string;
@@ -2952,13 +3119,17 @@ export type definitions = {
      * @description CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base).
      * @enum {string}
      */
-    chainCaip2:
+    caip2:
       | "eip155:1"
       | "eip155:8453"
       | "eip155:42161"
       | "eip155:137"
       | "eip155:56"
-      | "eip155:4217";
+      | "eip155:4217"
+      | "solana:mainnet"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      | "solana:devnet"
+      | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
     /** @description Your fee on gross yield, in basis points (e.g., '2000' for 20%). Maximum is 4000 (40%). */
     clientFeeBps: string;
     /** @description The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
@@ -2993,13 +3164,17 @@ export type definitions = {
      * @description CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base).
      * @enum {string}
      */
-    chainCaip2:
+    caip2:
       | "eip155:1"
       | "eip155:8453"
       | "eip155:42161"
       | "eip155:137"
       | "eip155:56"
-      | "eip155:4217";
+      | "eip155:4217"
+      | "solana:mainnet"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      | "solana:devnet"
+      | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
     /** @description Whether to sponsor this transaction via Gas Station. */
     sponsor?: boolean;
   };
@@ -3100,7 +3275,45 @@ export type definitions = {
     totalWithdrawnCrypto?: string;
   };
   /** @enum {string} */
-  v1EarnProvider: "EARN_PROVIDER_MORPHO" | "EARN_PROVIDER_AAVE";
+  v1EarnProvider:
+    | "EARN_PROVIDER_MORPHO"
+    | "EARN_PROVIDER_AAVE"
+    | "EARN_PROVIDER_KAMINO";
+  v1EarnReward: {
+    /** @description CAIP-2 chain the reward is claimable on (e.g. 'eip155:8453'). */
+    caip2?: string;
+    /** @description CAIP-19 asset ID of the reward token (e.g. 'eip155:8453/erc20:0xBAa5...'). Reward tokens are campaign-specific and unrelated to the position's underlying asset. */
+    caip19?: string;
+    /** @description Symbol of the reward token (e.g. 'MORPHO'), as reported by Merkl. */
+    symbol?: string;
+    /**
+     * Format: int32
+     * @description Decimals of the reward token.
+     */
+    decimals?: number;
+    /** @description Amount claimable now, in raw on-chain units of the reward token. */
+    claimable?: string;
+    /** @description Lifetime amount already claimed, in raw on-chain units of the reward token. */
+    claimed?: string;
+    /** @description Amount accrued but not yet claimable (not yet in a live on-chain merkle root; roots update roughly every 8 hours), in raw on-chain units of the reward token. */
+    pending?: string;
+    /** @description USD + crypto renderings for display only. Do not do arithmetic with these. */
+    display?: definitions["v1EarnRewardDisplay"];
+  };
+  v1EarnRewardDisplay: {
+    /** @description Claimable amount in USD, for display only. Empty when the token is unpriced. */
+    claimableUsd?: string;
+    /** @description Claimable amount in the reward token's own units, for display only. */
+    claimableCrypto?: string;
+    /** @description Lifetime claimed amount in USD, for display only. Empty when the token is unpriced. */
+    claimedUsd?: string;
+    /** @description Lifetime claimed amount in the reward token's own units, for display only. */
+    claimedCrypto?: string;
+    /** @description Pending amount in USD, for display only. Empty when the token is unpriced. */
+    pendingUsd?: string;
+    /** @description Pending amount in the reward token's own units, for display only. */
+    pendingCrypto?: string;
+  };
   v1EarnSetWrapperStateIntent: {
     /** @description Address of the deployed Earn wrapper to update, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers. */
     wrapperAddress: string;
@@ -3182,13 +3395,17 @@ export type definitions = {
      * @description CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base).
      * @enum {string}
      */
-    chainCaip2:
+    caip2:
       | "eip155:1"
       | "eip155:8453"
       | "eip155:42161"
       | "eip155:137"
       | "eip155:56"
-      | "eip155:4217";
+      | "eip155:4217"
+      | "solana:mainnet"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      | "solana:devnet"
+      | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
     /** @description Whether to sponsor this transaction via Gas Station. */
     sponsor?: boolean;
     /** @description The amount of the underlying asset to withdraw, in raw on-chain units. Pass 'MAX' to withdraw the entire position. */
@@ -3804,7 +4021,9 @@ export type definitions = {
     | "FEATURE_NAME_AUTH_PROXY"
     | "FEATURE_NAME_SOLANA_RENT_PREFUND_ENABLED"
     | "FEATURE_NAME_SWAP_CONFIG"
-    | "FEATURE_NAME_EARN_CONFIG";
+    | "FEATURE_NAME_EARN_CONFIG"
+    | "FEATURE_NAME_SWAP_FEE_SPONSORSHIP"
+    | "FEATURE_NAME_SWAP_FIXED_RATE";
   /** @enum {string} */
   v1FiatOnRampBlockchainNetwork:
     | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
@@ -4005,6 +4224,23 @@ export type definitions = {
     /** @description Transaction hash of the fee claim, once available. */
     claimTxHash?: string;
     /** @description Reason the fee claim transaction failed, when status is FAILED. */
+    error?: string;
+  };
+  v1GetEarnClaimRewardsStatusRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The claim_request_id returned by EarnClaimRewards. */
+    claimRequestId: string;
+  };
+  v1GetEarnClaimRewardsStatusResponse: {
+    /**
+     * @description Status of the rewards claim.
+     * @enum {string}
+     */
+    status: "PENDING" | "COMPLETED" | "FAILED";
+    /** @description Transaction hash of the rewards claim, once available. */
+    claimTxHash?: string;
+    /** @description Reason the rewards claim transaction failed, when status is FAILED. */
     error?: string;
   };
   v1GetEarnDeployStatusRequest: {
@@ -4318,7 +4554,7 @@ export type definitions = {
   v1GetSubOrgIdsRequest: {
     /** @description Unique identifier for the parent organization. This is used to find sub-organizations within it. */
     organizationId: string;
-    /** @description Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'WALLET_ACCOUNT_ADDRESS' or 'PUBLIC_KEY' */
+    /** @description Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'OAUTH_CLAIM', 'WALLET_ACCOUNT_ADDRESS', 'WALLET_AUTH_TOKEN', 'WALLET_AUTH_CLAIM', or 'PUBLIC_KEY' */
     filterType?: string;
     /** @description The value of the filter to apply for the specified type. For example, a specific email or name string. */
     filterValue?: string;
@@ -4386,6 +4622,8 @@ export type definitions = {
   v1GetTvcAppsRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
+    /** @description Filter TVC Apps by whether they have a live deployment. If omitted, all TVC Apps are returned. */
+    isLive?: boolean;
   };
   v1GetTvcAppsResponse: {
     /** @description A list of TVC Apps. */
@@ -4429,7 +4667,7 @@ export type definitions = {
      */
     manifestEnvelope?: string;
     /** @description Current provisioning state. */
-    provisioningState?: definitions["v1ProvisioningState"];
+    provisioningState: definitions["v1ProvisioningState"];
   };
   v1GetTvcDeploymentRequest: {
     /** @description Unique identifier for a given organization. */
@@ -4441,6 +4679,13 @@ export type definitions = {
     /** @description Details about a single TVC Deployment */
     tvcDeployment: definitions["v1TvcDeployment"];
   };
+  v1GetTvcOperatorsRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+  };
+  v1GetTvcOperatorsResponse: {
+    tvcOperators: definitions["v1TvcOperator"][];
+  };
   v1GetTvcQosVersionsRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -4450,6 +4695,13 @@ export type definitions = {
     availableVersions: string[];
     /** @description Latest recommended QOS version for new TVC deployments. */
     latestVersion: string;
+  };
+  v1GetTvcQuorumKeysRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+  };
+  v1GetTvcQuorumKeysResponse: {
+    tvcQuorumKeys: definitions["v1TvcQuorumKey"][];
   };
   v1GetUserRequest: {
     /** @description Unique identifier for a given organization. */
@@ -4479,7 +4731,7 @@ export type definitions = {
   v1GetVerifiedSubOrgIdsRequest: {
     /** @description Unique identifier for the parent organization. This is used to find sub-organizations within it. */
     organizationId: string;
-    /** @description Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER'. */
+    /** @description Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'OAUTH_CLAIM', 'PUBLIC_KEY', 'WALLET_AUTH_TOKEN', or 'WALLET_AUTH_CLAIM'. */
     filterType?: string;
     /** @description The value of the filter to apply for the specified type. For example, a specific email or phone number string. */
     filterValue?: string;
@@ -4554,6 +4806,16 @@ export type definitions = {
   v1GetWalletAddressBalancesResponse: {
     /** @description List of asset balances */
     balances?: definitions["v1AssetBalance"][];
+  };
+  v1GetWalletAuthenticatorsRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given user. */
+    userId: string;
+  };
+  v1GetWalletAuthenticatorsResponse: {
+    /** @description A list of wallet authenticators. */
+    walletAuthenticators: definitions["v1WalletAuthenticator"][];
   };
   v1GetWalletRequest: {
     /** @description Unique identifier for a given organization. */
@@ -5186,6 +5448,12 @@ export type definitions = {
     createSwapQuoteIntentV2?: definitions["v1CreateSwapQuoteIntentV2"];
     executeSwapIntentV3?: definitions["v1ExecuteSwapIntentV3"];
     deleteSecretsIntent?: definitions["v1DeleteSecretsIntent"];
+    earnClaimRewardsIntent?: definitions["v1EarnClaimRewardsIntent"];
+    createSwapQuoteIntentV3?: definitions["v1CreateSwapQuoteIntentV3"];
+    createSubOrganizationIntentV9?: definitions["v1CreateSubOrganizationIntentV9"];
+    verifyWalletAuthenticatorIntent?: definitions["v1VerifyWalletAuthenticatorIntent"];
+    createWalletAuthenticatorsIntent?: definitions["v1CreateWalletAuthenticatorsIntent"];
+    deleteWalletAuthenticatorsIntent?: definitions["v1DeleteWalletAuthenticatorsIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -5275,6 +5543,18 @@ export type definitions = {
   v1ListEarnPositionsResponse: {
     /** @description The wallet's active Earn positions. */
     positions?: definitions["v1EarnPosition"][];
+  };
+  v1ListEarnRewardsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The wallet address to return rewards for. */
+    walletAddress: string;
+    /** @description Optional filter: only return rewards on this chain (e.g. 'eip155:8453'). When unset, every chain the organization has deployed Earn wrappers on is queried. */
+    caip2?: string;
+  };
+  v1ListEarnRewardsResponse: {
+    /** @description The wallet's rewards, one entry per (chain, reward token), sorted by chain then token. Entries where every amount is zero are omitted. */
+    rewards?: definitions["v1EarnReward"][];
   };
   v1ListEarnVaultsRequest: {
     /** @description Unique identifier for a given Organization. Annotates which vaults the organization has already enabled. */
@@ -6150,6 +6430,12 @@ export type definitions = {
     deleteVelocityControlResult?: definitions["v1DeleteVelocityControlResult"];
     updatePaymentMethodResult?: definitions["billingUpdatePaymentMethodResult"];
     deleteSecretsResult?: definitions["v1DeleteSecretsResult"];
+    earnClaimRewardsResult?: definitions["v1EarnClaimRewardsResult"];
+    createSwapQuoteResultV2?: definitions["v1CreateSwapQuoteResultV2"];
+    createSubOrganizationResultV9?: definitions["v1CreateSubOrganizationResultV9"];
+    verifyWalletAuthenticatorResult?: definitions["v1VerifyWalletAuthenticatorResult"];
+    createWalletAuthenticatorsResult?: definitions["v1CreateWalletAuthenticatorsResult"];
+    deleteWalletAuthenticatorsResult?: definitions["v1DeleteWalletAuthenticatorsResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -6226,6 +6512,22 @@ export type definitions = {
     authenticators: definitions["v1AuthenticatorParamsV2"][];
     /** @description A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
     oauthProviders: definitions["v1OauthProviderParamsV2"][];
+  };
+  v1RootUserParamsV6: {
+    /** @description Human-readable name for a User. */
+    userName: string;
+    /** @description The user's email address. */
+    userEmail?: string;
+    /** @description The user's phone number in E.164 format e.g. +13214567890 */
+    userPhoneNumber?: string;
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
+    apiKeys: definitions["v1ApiKeyParamsV2"][];
+    /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
+    authenticators: definitions["v1AuthenticatorParamsV2"][];
+    /** @description A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
+    oauthProviders: definitions["v1OauthProviderParamsV2"][];
+    /** @description A list of wallet authenticators. This field, if not needed, should be an empty array in your request body. */
+    walletAuthenticators: definitions["v1WalletAuthenticatorParams"][];
   };
   v1SecretMetadata: {
     /** @description Unique identifier for the secret. */
@@ -6336,11 +6638,11 @@ export type definitions = {
     generateAppProofs?: boolean;
   };
   v1SignRawPayloadResult: {
-    /** @description Component of an ECSDA signature. */
+    /** @description Component of a cryptographic signature, meaning varies based on signing scheme. */
     r: string;
-    /** @description Component of an ECSDA signature. */
+    /** @description Component of a cryptographic signature, meaning varies based on signing scheme. */
     s: string;
-    /** @description Component of an ECSDA signature. */
+    /** @description Recovery ID for ECDSA signatures, "00" otherwise. */
     v: string;
   };
   v1SignRawPayloadsIntent: {
@@ -6407,6 +6709,14 @@ export type definitions = {
     authenticators?: definitions["v1AuthenticatorParamsV2"][];
     oauthProviders?: definitions["v1OauthProviderParamsV2"][];
   };
+  v1SignupUsageV3: {
+    email?: string;
+    phoneNumber?: string;
+    apiKeys?: definitions["v1ApiKeyParamsV2"][];
+    authenticators?: definitions["v1AuthenticatorParamsV2"][];
+    oauthProviders?: definitions["v1OauthProviderParamsV2"][];
+    walletAuthenticators?: definitions["v1WalletAuthenticatorParams"][];
+  };
   v1SimpleClientExtensionResults: {
     appid?: boolean;
     appidExclude?: boolean;
@@ -6426,7 +6736,7 @@ export type definitions = {
     template?: string;
   };
   v1SolSendTransactionIntent: {
-    /** @description Base64-encoded serialized unsigned Solana transaction */
+    /** @description Hex-encoded serialized unsigned Solana transaction in full wire format. Legacy/V0 transactions allow 1232 bytes. V1 allows 4096 bytes with up to 12 trailing 64-byte signature slots, including the paymaster for sponsored transactions. Fill unsigned slots with zeroes. */
     unsignedTransaction: string;
     /** @description A wallet or private key address to sign with. This does not support private key IDs. */
     signWith: string;
@@ -6447,9 +6757,9 @@ export type definitions = {
     recentBlockhash?: string;
   };
   v1SolSendTransactionIntentV2: {
-    /** @description Hex-encoded serialized unsigned Solana transaction (full wire format with zeroed signature placeholders) */
+    /** @description Hex-encoded serialized unsigned Solana transaction in full wire format. Legacy/V0 transactions allow 1232 bytes. V1 allows 4096 bytes with up to 12 trailing 64-byte signature slots, including the paymaster for sponsored transactions. Fill unsigned slots with zeroes. */
     unsignedTransaction: string;
-    /** @description Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers. For sponsored transactions this must list every required signer of the transaction in transaction order. */
+    /** @description Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers for legacy/V0, or up to 12 for V1 (11 when sponsored). For sponsored transactions this must list every required signer of the transaction in transaction order. */
     signWiths: string[];
     /** @description Whether to sponsor this transaction via Gas Station. */
     sponsor?: boolean;
@@ -6815,6 +7125,29 @@ export type definitions = {
     /** @description Provider-estimated completion time in seconds, when available. */
     estimatedTimeSeconds?: string;
   };
+  v1SwapQuoteV2: {
+    /** @description Identifier for this provider quote. Pass this value to execute_swap_v2 to bind execution to this exact quote. The signer is derived from the quote; clients do not resupply sign_with on execute. */
+    quoteId: string;
+    /** @description Swap provider that produced this quote. */
+    provider: string;
+    /** @description Estimated base-unit amount of the output asset. */
+    outputAmount: string;
+    /** @description Minimum acceptable base-unit amount of the output asset after slippage. */
+    minOutputAmount: string;
+    /** @description Quote expiration as a millisecond epoch string. */
+    expiresAt: string;
+    /** @description Effective total slippage tolerance in basis points for this quote, taken from the provider response when present. When the request omits input slippage_bps, the provider may calculate this value. */
+    slippageBps?: string;
+    /** @description Client fee in basis points applied for this pair. Informational only; already reflected in output_amount and min_output_amount. */
+    clientFeeBps: string;
+    /** @description Provider-estimated completion time in seconds, when available. */
+    estimatedTimeSeconds?: string;
+    feeSponsorship?: boolean;
+    fixedRate?: boolean;
+    turnkeyFeeCollection?: string;
+    sponsoredFeeComponents?: string[];
+    remainingFeeComponents?: string[];
+  };
   v1SwapRefund: {
     /** @description CAIP-19 asset returned by the swap provider after a failed cross-chain fill. */
     asset: string;
@@ -6845,6 +7178,7 @@ export type definitions = {
     signup?: definitions["v1SignupUsage"];
     login?: definitions["v1LoginUsage"];
     signupV2?: definitions["v1SignupUsageV2"];
+    signupV3?: definitions["v1SignupUsageV3"];
   };
   v1TransactionHistoryAsset: {
     /** @description The CAIP-19 asset identifier. */
@@ -6985,6 +7319,16 @@ export type definitions = {
     delete: boolean;
     /** @description Whether this deployment is running in debug mode. Debug-mode deployments expose enclave logs and cannot be remotely attested. */
     debugMode: boolean;
+    /**
+     * Format: int64
+     * @description The instance cpu count for this enclave.
+     */
+    instanceSizeCpus?: number;
+    /**
+     * Format: int64
+     * @description The instance memory size in GiB for this enclave.
+     */
+    instanceSizeRam?: number;
   };
   v1TvcDeploymentDebugLogEntry: {
     /** @description Application log line with its platform timestamp. */
@@ -7022,6 +7366,12 @@ export type definitions = {
     publicKey: string;
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description Encryption public key for this TVC Operator. */
+    encryptPublicKey: string;
+    /** @description Signing public key for this TVC Operator. */
+    signPublicKey: string;
+    /** @description Source of the operator keys: EXTERNAL_KEY or ORG_WALLET_ACCOUNT. Absent for legacy operators whose source was not recorded. */
+    keySource?: string;
   };
   v1TvcOperatorApproval: {
     /** @description Unique ID for this approval */
@@ -7074,6 +7424,15 @@ export type definitions = {
      */
     threshold: number;
   };
+  v1TvcQuorumKey: {
+    id: string;
+    publicKey: string;
+    /** Format: int64 */
+    threshold: number;
+    operatorIds: string[];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
   v1TxError: {
     /** @description Human-readable error message describing what went wrong. */
     message?: string;
@@ -7124,6 +7483,11 @@ export type definitions = {
      * @description Verification-token lifetime in seconds.
      */
     verificationTokenExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description Wallet-auth verification-token lifetime in seconds. Defaults to 3600. Maximum is 86400.
+     */
+    walletAuthVerificationTokenExpirationSeconds?: number;
     /**
      * Format: int32
      * @description Session lifetime in seconds.
@@ -7591,6 +7955,8 @@ export type definitions = {
     updatedAt: definitions["externaldatav1Timestamp"];
     /** @description A list of MFA Policies that define multi-factor authentication requirements for this user. */
     mfaPolicies: definitions["v1MfaPolicy"][];
+    /** @description A list of wallet authenticators (externally-owned Ethereum or Solana accounts used to authenticate). If not needed, this should be an empty array. */
+    walletAuthenticators: definitions["v1WalletAuthenticator"][];
   };
   v1UserParams: {
     /** @description Human-readable name for a User. */
@@ -7721,8 +8087,11 @@ export type definitions = {
   };
   v1VelocityControlAggregationWindowInfinite: { [key: string]: unknown };
   v1VelocityControlAggregationWindowRolling: {
-    /** @description Duration of the rolling window, in seconds, as a base-10 integer string. */
-    duration: string;
+    /**
+     * Format: int64
+     * @description Duration of the rolling window, in seconds.
+     */
+    duration: number;
   };
   v1VelocityControlDataSource: {
     /** @description Uses transfers of the listed on-chain assets as input data. */
@@ -7749,8 +8118,11 @@ export type definitions = {
   v1VelocityControlDataSourceChainAssetTransferDefinition: {
     /** @description CAIP-19 identifier for the asset. */
     caip19: string;
-    /** @description Base-10 integer string from 0 through 255 that specifies the number of decimal places for the asset. */
-    decimals: string;
+    /**
+     * Format: int64
+     * @description Integer between 0 and 255 (inclusive) that specifies the number of decimal places for the asset.
+     */
+    decimals: number;
   };
   v1VelocityControlDataSourceChainAssetTransferFilter: {
     /** @description Activity types whose asset transfers are included. */
@@ -7798,6 +8170,28 @@ export type definitions = {
   };
   v1VerifyOtpResult: {
     /** @description Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
+    verificationToken: string;
+  };
+  v1VerifyWalletAuthenticatorIntent: {
+    /** @description SIWE or SIWS message. Ump accepts only the Turnkey supported login template. */
+    message: string;
+    /** @description Wallet signature over the message. Ethereum: 65-byte hex personal_sign (r || s || v). Solana: 64-byte hex ed25519 signature. */
+    signature: string;
+    /** @description How long the verification token is valid, in seconds. Defaults to 3600. Maximum is 86400 (24 hours). The token also cannot outlive the message Expiration Time. */
+    expirationSeconds?: string;
+  };
+  v1VerifyWalletAuthenticatorRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_VERIFY_WALLET_AUTHENTICATOR";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1VerifyWalletAuthenticatorIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1VerifyWalletAuthenticatorResult: {
+    /** @description Enclave-signed JWT binding the wallet, the recovered wallet public key, and the ephemeral P-256 session key. */
     verificationToken: string;
   };
   v1Vote: {
@@ -7873,6 +8267,32 @@ export type definitions = {
     /** @description Optional human-readable name for the account. */
     name?: string;
   };
+  v1WalletAuthenticator: {
+    /** @description Unique identifier for a wallet authenticator. */
+    walletAuthenticatorId: string;
+    /** @description Network this authenticator belongs to. */
+    type: definitions["v1WalletAuthenticatorType"];
+    /** @description Normalized account address. */
+    address: string;
+    /** @description SIWE/SIWS domain this authenticator is bound to. */
+    domain: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1WalletAuthenticatorParams: {
+    /** @description Network this authenticator belongs to. */
+    type: definitions["v1WalletAuthenticatorType"];
+    /** @description Account address. Ethereum addresses are stored lowercase with a 0x prefix. Solana addresses are canonical base58. */
+    address: string;
+    /** @description SIWE/SIWS domain this authenticator is bound to. Host only, lowercased. */
+    domain: string;
+    /** @description Wallet verification JWT for this claim. Omit to attach the authenticator unverified. */
+    verificationToken?: string;
+  };
+  /** @enum {string} */
+  v1WalletAuthenticatorType:
+    | "WALLET_AUTHENTICATOR_TYPE_ETHEREUM"
+    | "WALLET_AUTHENTICATOR_TYPE_SOLANA";
   v1WalletKitSettingsParams: {
     /**
      * Enabled Social Providers
@@ -8013,7 +8433,7 @@ export type operations = {
       };
     };
   };
-  /** Get live runtime status for a TVC App from the cluster. */
+  /** Get live runtime status for a TVC app from the cluster. */
   PublicApiService_GetAppStatus: {
     parameters: {
       body: {
@@ -8067,7 +8487,7 @@ export type operations = {
       };
     };
   };
-  /** Get the boot proof for a given ephemeral key. */
+  /** Get the Boot Proof for a given ephemeral key. */
   PublicApiService_GetBootProof: {
     parameters: {
       body: {
@@ -8096,6 +8516,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetClaimEarnFeesStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Poll the status of a rewards claim by its claim_request_id. */
+  PublicApiService_GetEarnClaimRewardsStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetEarnClaimRewardsStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetEarnClaimRewardsStatusResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -8193,7 +8631,7 @@ export type operations = {
       };
     };
   };
-  /** Get the latest boot proof for a given enclave app name. */
+  /** Get the latest Boot Proof for a given enclave app name. */
   PublicApiService_GetLatestBootProof: {
     parameters: {
       body: {
@@ -8517,7 +8955,7 @@ export type operations = {
       };
     };
   };
-  /** Get details about a single TVC App */
+  /** Get details about a single TVC app. */
   PublicApiService_GetTvcApp: {
     parameters: {
       body: {
@@ -8535,7 +8973,7 @@ export type operations = {
       };
     };
   };
-  /** Get details about a single TVC Deployment */
+  /** Get details about a single TVC deployment. */
   PublicApiService_GetTvcDeployment: {
     parameters: {
       body: {
@@ -8571,7 +9009,7 @@ export type operations = {
       };
     };
   };
-  /** Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment */
+  /** Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment. */
   PublicApiService_GetTvcDeploymentProvisioningDetails: {
     parameters: {
       body: {
@@ -8697,6 +9135,24 @@ export type operations = {
       };
     };
   };
+  /** Get wallet authenticators for a user. */
+  PublicApiService_GetWalletAuthenticators: {
+    parameters: {
+      body: {
+        body: definitions["v1GetWalletAuthenticatorsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetWalletAuthenticatorsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** List all activities within an organization. */
   PublicApiService_GetActivities: {
     parameters: {
@@ -8762,6 +9218,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ListEarnPositionsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List the protocol rewards (e.g. MORPHO and third-party campaign tokens, distributed off-chain via Merkl) attributed to a wallet: claimable, lifetime claimed, and pending amounts per reward token. */
+  PublicApiService_ListEarnRewards: {
+    parameters: {
+      body: {
+        body: definitions["v1ListEarnRewardsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListEarnRewardsResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -8967,7 +9441,7 @@ export type operations = {
       };
     };
   };
-  /** Get all suborg IDs associated given a parent org ID and an optional filter. */
+  /** Get all suborg IDs (verified and unverified) associated with a given parent organization ID and an optional filter. */
   PublicApiService_GetSubOrgIds: {
     parameters: {
       body: {
@@ -9003,7 +9477,7 @@ export type operations = {
       };
     };
   };
-  /** List all deployments for a given TVC App */
+  /** List all deployments for a given TVC app. */
   PublicApiService_GetTvcAppDeployments: {
     parameters: {
       body: {
@@ -9021,7 +9495,7 @@ export type operations = {
       };
     };
   };
-  /** List all TVC Apps within an organization. */
+  /** List all TVC apps within an organization. */
   PublicApiService_GetTvcApps: {
     parameters: {
       body: {
@@ -9032,6 +9506,42 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetTvcAppsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all TVC operators within an organization, newest first. */
+  PublicApiService_GetTvcOperators: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcOperatorsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcOperatorsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all hosted TVC Quorum Keys within an organization, newest first. */
+  PublicApiService_GetTvcQuorumKeys: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcQuorumKeysRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcQuorumKeysResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -9093,7 +9603,7 @@ export type operations = {
       };
     };
   };
-  /** Get all email or phone verified suborg IDs associated given a parent org ID. */
+  /** Get all verified suborg IDs associated with a given parent organization ID and an optional filter. */
   PublicApiService_GetVerifiedSubOrgIds: {
     parameters: {
       body: {
@@ -9165,7 +9675,7 @@ export type operations = {
       };
     };
   };
-  /** Validate a container image URL and pull secret for TVC deployment */
+  /** Validate a container image URL and pull secret for TVC deployment. */
   PublicApiService_ValidateTvcImage: {
     parameters: {
       body: {
@@ -9183,7 +9693,7 @@ export type operations = {
       };
     };
   };
-  /** Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users. */
+  /** Get basic information about your current API or WebAuthn user and their organization. Affords sub-organization lookups via parent organization for WebAuthn or API key users. */
   PublicApiService_GetWhoami: {
     parameters: {
       body: {
@@ -9309,7 +9819,7 @@ export type operations = {
       };
     };
   };
-  /** Create a fiat on ramp provider credential */
+  /** Create a fiat on ramp provider credential. */
   PublicApiService_CreateFiatOnRampCredential: {
     parameters: {
       body: {
@@ -9363,7 +9873,7 @@ export type operations = {
       };
     };
   };
-  /** Enable authentication for end users with an OAuth 2.0 provider */
+  /** Enable authentication for end users with an OAuth 2.0 provider. */
   PublicApiService_CreateOauth2Credential: {
     parameters: {
       body: {
@@ -9543,7 +10053,7 @@ export type operations = {
       };
     };
   };
-  /** Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS). */
+  /** Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, a wallet authenticator, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS). */
   PublicApiService_CreateSubOrganization: {
     parameters: {
       body: {
@@ -9561,7 +10071,7 @@ export type operations = {
       };
     };
   };
-  /** Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
+  /** Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. */
   PublicApiService_CreateSwapQuote: {
     parameters: {
       body: {
@@ -9579,7 +10089,7 @@ export type operations = {
       };
     };
   };
-  /** Create a new TVC application */
+  /** Create a new TVC application. */
   PublicApiService_CreateTvcApp: {
     parameters: {
       body: {
@@ -9597,7 +10107,7 @@ export type operations = {
       };
     };
   };
-  /** Create a new TVC Deployment */
+  /** Create a new TVC deployment. */
   PublicApiService_CreateTvcDeployment: {
     parameters: {
       body: {
@@ -9615,7 +10125,7 @@ export type operations = {
       };
     };
   };
-  /** Post one or more manifest approvals for a TVC Manifest */
+  /** Post one or more manifest approvals for a TVC manifest. */
   PublicApiService_CreateTvcManifestApprovals: {
     parameters: {
       body: {
@@ -9633,7 +10143,7 @@ export type operations = {
       };
     };
   };
-  /** Create a TVC Operator backed by uncompressed P-256 Turnkey wallet accounts */
+  /** Create a TVC operator backed by uncompressed P-256 Turnkey wallet accounts. */
   PublicApiService_CreateTvcOperator: {
     parameters: {
       body: {
@@ -9651,7 +10161,7 @@ export type operations = {
       };
     };
   };
-  /** Create a hosted TVC quorum key and encrypted shares. */
+  /** Create a hosted TVC Quorum Key and encrypted shares. */
   PublicApiService_CreateTvcQuorumKey: {
     parameters: {
       body: {
@@ -9759,6 +10269,24 @@ export type operations = {
       };
     };
   };
+  /** Add wallet authenticators to an existing user. Omit verification_token to attach unverified. */
+  PublicApiService_CreateWalletAuthenticators: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateWalletAuthenticatorsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create a webhook endpoint for an organization. */
   PublicApiService_CreateWebhookEndpoint: {
     parameters: {
@@ -9777,7 +10305,7 @@ export type operations = {
       };
     };
   };
-  /** Remove api keys from a user. */
+  /** Remove API keys from a user. */
   PublicApiService_DeleteApiKeys: {
     parameters: {
       body: {
@@ -9813,7 +10341,7 @@ export type operations = {
       };
     };
   };
-  /** Delete a fiat on ramp provider credential */
+  /** Delete a fiat on ramp provider credential. */
   PublicApiService_DeleteFiatOnRampCredential: {
     parameters: {
       body: {
@@ -9867,7 +10395,7 @@ export type operations = {
       };
     };
   };
-  /** Disable authentication for end users with an OAuth 2.0 provider */
+  /** Disable authentication for end users with an OAuth 2.0 provider. */
   PublicApiService_DeleteOauth2Credential: {
     parameters: {
       body: {
@@ -10029,7 +10557,7 @@ export type operations = {
       };
     };
   };
-  /** Delete a TVC App and all of its deployments */
+  /** Delete a TVC app and all of its deployments. */
   PublicApiService_DeleteTvcAppAndDeployments: {
     parameters: {
       body: {
@@ -10047,7 +10575,7 @@ export type operations = {
       };
     };
   };
-  /** Delete a TVC Deployment */
+  /** Delete a TVC deployment. */
   PublicApiService_DeleteTvcDeployment: {
     parameters: {
       body: {
@@ -10137,6 +10665,24 @@ export type operations = {
       };
     };
   };
+  /** Remove wallet authenticators from a user. */
+  PublicApiService_DeleteWalletAuthenticators: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteWalletAuthenticatorsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Delete wallets for an organization. */
   PublicApiService_DeleteWallets: {
     parameters: {
@@ -10160,6 +10706,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1DeleteWebhookEndpointRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Claim the Merkl protocol rewards attributed to a wallet's Earn positions. The claim is signed by the wallet itself and every reward token is transferred to it; see ListEarnRewards for what is claimable. */
+  PublicApiService_EarnClaimRewards: {
+    parameters: {
+      body: {
+        body: definitions["v1EarnClaimRewardsRequest"];
       };
     };
     responses: {
@@ -10605,7 +11169,7 @@ export type operations = {
       };
     };
   };
-  /** Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities */
+  /** Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities. */
   PublicApiService_Oauth2Authenticate: {
     parameters: {
       body: {
@@ -10677,7 +11241,7 @@ export type operations = {
       };
     };
   };
-  /** Post re-encrypted quorum key share for a TVC deployment. */
+  /** Post re-encrypted Quorum Key share for a TVC deployment. */
   PublicApiService_PostTvcQuorumKeyShare: {
     parameters: {
       body: {
@@ -10695,7 +11259,7 @@ export type operations = {
       };
     };
   };
-  /** Re-encrypt a hosted TVC quorum key share for a deployment. */
+  /** Re-encrypt a hosted TVC Quorum Key share for a deployment. */
   PublicApiService_ReEncryptTvcQuorumKeyShare: {
     parameters: {
       body: {
@@ -10785,7 +11349,7 @@ export type operations = {
       };
     };
   };
-  /** Restore a deleted TVC Deployment */
+  /** Restore a deleted TVC deployment. */
   PublicApiService_RestoreTvcDeployment: {
     parameters: {
       body: {
@@ -10839,7 +11403,7 @@ export type operations = {
       };
     };
   };
-  /** Set the live deployment for a TVC App */
+  /** Set the live deployment for a TVC app. */
   PublicApiService_UpdateTvcAppLiveDeployment: {
     parameters: {
       body: {
@@ -11019,7 +11583,7 @@ export type operations = {
       };
     };
   };
-  /** Update a fiat on ramp provider credential */
+  /** Update a fiat on ramp provider credential. */
   PublicApiService_UpdateFiatOnRampCredential: {
     parameters: {
       body: {
@@ -11055,7 +11619,7 @@ export type operations = {
       };
     };
   };
-  /** Update an OAuth 2.0 provider credential */
+  /** Update an OAuth 2.0 provider credential. */
   PublicApiService_UpdateOauth2Credential: {
     parameters: {
       body: {
@@ -11307,6 +11871,25 @@ export type operations = {
       };
     };
   };
+  /** Verify a SIWE or SIWS login and return an enclave-signed wallet verification token. */
+  PublicApiService_VerifyWalletAuthenticator: {
+    parameters: {
+      body: {
+        body: definitions["v1VerifyWalletAuthenticatorRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Internal no-op endpoint used to force generation of types not otherwise referenced by a public request or response. Not intended for use. */
   PublicApiService_NOOPCodegenAnchor: {
     responses: {
       /** A successful response. */

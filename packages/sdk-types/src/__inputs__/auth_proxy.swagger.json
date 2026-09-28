@@ -15,7 +15,7 @@
     "/v1/account": {
       "post": {
         "summary": "Get Account",
-        "description": "Return organization id associated with a given phone number, email, public key, credential ID or OIDC token.",
+        "description": "Return organization id associated with a given phone number, email, public key, credential ID, OIDC token, or wallet authenticator.",
         "operationId": "AuthProxyService_GetAccount",
         "responses": {
           "200": {
@@ -364,6 +364,70 @@
         "tags": ["Auth"]
       }
     },
+    "/v1/signup_v3": {
+      "post": {
+        "summary": "Signup",
+        "description": "Onboard a new user.",
+        "operationId": "AuthProxyService_SignupV3",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SignupV3Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SignupV3Request"
+            }
+          }
+        ],
+        "tags": ["Auth"]
+      }
+    },
+    "/v1/verify_wallet_authenticator": {
+      "post": {
+        "summary": "Verify wallet authenticator",
+        "description": "Verify a SIWE or SIWS login and return an enclave-signed wallet verification token.",
+        "operationId": "AuthProxyService_VerifyWalletAuthenticator",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1VerifyWalletAuthenticatorResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1VerifyWalletAuthenticatorRequest"
+            }
+          }
+        ],
+        "tags": ["Auth"]
+      }
+    },
     "/v1/wallet_kit_client_params": {
       "post": {
         "summary": "Get WalletKit Client Params",
@@ -650,7 +714,7 @@
       "properties": {
         "filterType": {
           "type": "string",
-          "description": "Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN' or 'PUBLIC_KEY'"
+          "description": "Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'OAUTH_CLAIM', 'PUBLIC_KEY', 'WALLET_AUTH_TOKEN', or 'WALLET_AUTH_CLAIM'"
         },
         "filterValue": {
           "type": "string",
@@ -663,6 +727,14 @@
         "oidcToken": {
           "type": "string",
           "description": "OIDC token to verify access to PII (email/phone number) when filter_type is 'EMAIL' or 'PHONE_NUMBER'. Needed for social linking when verification_token is not available."
+        },
+        "includeRequiresSocialLinking": {
+          "type": "boolean",
+          "description": "Whether to include requires_social_linking in the response. Only applies when filter_type is 'OIDC_TOKEN'."
+        },
+        "walletAuthVerificationToken": {
+          "type": "string",
+          "description": "Wallet verification JWT minted by VERIFY_WALLET_AUTHENTICATOR. Required when filter_type is 'WALLET_AUTH_CLAIM' and verification tokens are required for GetAccount. The token's wallet claims must match filter_value."
         }
       },
       "required": ["filterType", "filterValue"]
@@ -672,6 +744,10 @@
       "properties": {
         "organizationId": {
           "type": "string"
+        },
+        "requiresSocialLinking": {
+          "type": "boolean",
+          "description": "True when the organization was matched by verified email and the OIDC token is not yet a registered identity on it."
         }
       }
     },
@@ -1182,6 +1258,102 @@
       },
       "required": ["organizationId", "userId"]
     },
+    "v1SignupV3Request": {
+      "type": "object",
+      "properties": {
+        "userEmail": {
+          "type": "string"
+        },
+        "userPhoneNumber": {
+          "type": "string"
+        },
+        "userTag": {
+          "type": "string"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "organizationName": {
+          "type": "string"
+        },
+        "verificationToken": {
+          "type": "string"
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ApiKeyParamsV2"
+          },
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          },
+          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
+        },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProviderParamsV2"
+          },
+          "description": "A list of Oauth providers. This field, if not needed, should be an empty array in your request body."
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletParams",
+          "description": "The wallet to create for the sub-organization"
+        },
+        "clientSignature": {
+          "$ref": "#/definitions/v1ClientSignature",
+          "description": "Optional signature proving authorization for this signup. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step."
+        },
+        "walletAuthenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WalletAuthenticatorParams"
+          },
+          "description": "A list of wallet authenticators. This field, if not needed, should be an empty array in your request body."
+        }
+      },
+      "required": [
+        "apiKeys",
+        "authenticators",
+        "oauthProviders",
+        "walletAuthenticators"
+      ]
+    },
+    "v1SignupV3Response": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletResult",
+          "description": "Wallet created for the sub-organization, if provided in the request",
+          "title": "Wallet"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Root user ID created for this sub-organization",
+          "title": "User ID"
+        },
+        "appProofs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AppProof"
+          },
+          "description": "A list of App Proofs generated by enclaves during activity execution, providing verifiable attestations of performed operations."
+        }
+      },
+      "required": ["organizationId", "userId"]
+    },
     "v1VerifyOtpRequest": {
       "type": "object",
       "properties": {
@@ -1234,6 +1406,30 @@
       },
       "required": ["verificationToken"]
     },
+    "v1VerifyWalletAuthenticatorRequest": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "SIWE or SIWS message. Ump accepts only the Turnkey supported login template."
+        },
+        "signature": {
+          "type": "string",
+          "description": "Wallet signature over the message. Ethereum: 65-byte hex personal_sign (r || s || v). Solana: 64-byte hex ed25519 signature."
+        }
+      },
+      "required": ["message", "signature"]
+    },
+    "v1VerifyWalletAuthenticatorResponse": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string",
+          "description": "Enclave-signed JWT binding the wallet, the recovered wallet public key, and the ephemeral P-256 session key."
+        }
+      },
+      "required": ["verificationToken"]
+    },
     "v1WalletAccountParams": {
       "type": "object",
       "properties": {
@@ -1259,6 +1455,35 @@
         }
       },
       "required": ["curve", "pathFormat", "path", "addressFormat"]
+    },
+    "v1WalletAuthenticatorParams": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1WalletAuthenticatorType",
+          "description": "Network this authenticator belongs to."
+        },
+        "address": {
+          "type": "string",
+          "description": "Account address. Ethereum addresses are stored lowercase with a 0x prefix. Solana addresses are canonical base58."
+        },
+        "domain": {
+          "type": "string",
+          "description": "SIWE/SIWS domain this authenticator is bound to. Host only, lowercased."
+        },
+        "verificationToken": {
+          "type": "string",
+          "description": "Wallet verification JWT for this claim. Omit to attach the authenticator unverified."
+        }
+      },
+      "required": ["type", "address", "domain"]
+    },
+    "v1WalletAuthenticatorType": {
+      "type": "string",
+      "enum": [
+        "WALLET_AUTHENTICATOR_TYPE_ETHEREUM",
+        "WALLET_AUTHENTICATOR_TYPE_SOLANA"
+      ]
     },
     "v1WalletParams": {
       "type": "object",

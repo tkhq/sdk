@@ -28,6 +28,8 @@ export enum FilterType {
   OidcToken = "OIDC_TOKEN",
   OidcClaims = "OIDC_CLAIMS",
   PublicKey = "PUBLIC_KEY",
+  WalletAuthToken = "WALLET_AUTH_TOKEN",
+  WalletAuthClaims = "WALLET_AUTH_CLAIMS",
 }
 
 /** @internal */

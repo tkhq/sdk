@@ -18,6 +18,7 @@ import {
   Wallet,
   WalletAccount,
   WalletSource,
+  decodeWalletAuthVerificationToken,
 } from "@turnkey/react-wallet-kit";
 import { createAccount } from "@turnkey/viem";
 import { createWalletClient, http, type Account } from "viem";
@@ -2006,6 +2007,36 @@ export default function AuthPage() {
           </button>
 
           <button
+            data-testid="verify-wallet-authenticator"
+            onClick={async () => {
+              const providers = await turnkey.fetchWalletProviders();
+              const walletProvider =
+                providers.find((p) => p.connectedAddresses.length > 0) ??
+                providers[0];
+              if (!walletProvider) {
+                console.error("No wallet providers available");
+                return;
+              }
+              console.log(
+                "Verifying wallet authenticator with:",
+                walletProvider,
+              );
+              const result = await turnkey.verifyWalletAuthenticator({
+                walletProvider,
+              });
+              console.log("Verify wallet authenticator result:", result);
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Verify Wallet Authenticator
+          </button>
+
+          <button
             data-testid="connect-or-disconnect-wallet"
             onClick={async () => await turnkey.handleConnectExternalWallet()}
             style={{
@@ -2904,6 +2935,111 @@ export default function AuthPage() {
             }}
           >
             Create Private Keys
+          </button>
+          <button
+            data-testid="create-wallet-authenticators"
+            onClick={async () => {
+              const userId = user?.userId;
+              if (!userId) {
+                console.error("No authenticated user");
+                return;
+              }
+
+              const providers = await turnkey.fetchWalletProviders();
+              const walletProvider =
+                providers.find((p) => p.connectedAddresses.length > 0) ??
+                providers[0];
+              if (!walletProvider) {
+                console.error("No wallet providers available");
+                return;
+              }
+
+              const { verificationToken } =
+                await turnkey.verifyWalletAuthenticator({
+                  walletProvider,
+                });
+              const decoded =
+                decodeWalletAuthVerificationToken(verificationToken);
+
+              const res = await turnkey.httpClient?.createWalletAuthenticators({
+                userId,
+                walletAuthenticators: [
+                  {
+                    type: decoded.wallet.type,
+                    address: decoded.wallet.address,
+                    domain: decoded.wallet.domain,
+                    verificationToken,
+                  },
+                ],
+              });
+              console.log("Create wallet authenticators result:", res);
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Create Wallet Authenticators
+          </button>
+          <button
+            data-testid="get-wallet-authenticators"
+            onClick={async () => {
+              const userId = user?.userId;
+              if (!userId) {
+                console.error("No authenticated user");
+                return;
+              }
+
+              const res = await turnkey.httpClient?.getWalletAuthenticators({
+                userId,
+              });
+              console.log("Get wallet authenticators result:", res);
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Get Wallet Authenticators
+          </button>
+          <button
+            data-testid="delete-wallet-authenticators"
+            onClick={async () => {
+              const userId = user?.userId;
+              if (!userId) {
+                console.error("No authenticated user");
+                return;
+              }
+
+              const listed = await turnkey.httpClient?.getWalletAuthenticators({
+                userId,
+              });
+              const walletAuthenticatorIds = (
+                listed?.walletAuthenticators ?? []
+              ).map((authenticator) => authenticator.walletAuthenticatorId);
+              if (walletAuthenticatorIds.length === 0) {
+                console.log("No wallet authenticators to delete");
+                return;
+              }
+
+              const res = await turnkey.httpClient?.deleteWalletAuthenticators({
+                userId,
+                walletAuthenticatorIds: [walletAuthenticatorIds[0]!],
+              });
+              console.log("Delete wallet authenticators result:", res);
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Delete Wallet Authenticators
           </button>
         </div>
       </div>

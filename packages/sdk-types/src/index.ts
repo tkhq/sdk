@@ -2,6 +2,7 @@ import type {
   v1ActivityResponse,
   v1ActivityStatus,
   v1AppProof,
+  v1WalletAuthenticatorType,
 } from "./__generated__/types";
 
 export enum SessionType {
@@ -68,6 +69,7 @@ export enum TurnkeyErrorCodes {
   WALLET_LOGIN_OR_SIGNUP_ERROR = "WALLET_LOGIN_OR_SIGNUP_ERROR",
   INIT_OTP_ERROR = "INIT_OTP_ERROR",
   VERIFY_OTP_ERROR = "VERIFY_OTP_ERROR",
+  VERIFY_WALLET_AUTHENTICATOR_ERROR = "VERIFY_WALLET_AUTHENTICATOR_ERROR",
   OTP_LOGIN_ERROR = "OTP_LOGIN_ERROR",
   OTP_SIGNUP_ERROR = "OTP_SIGNUP_ERROR",
   OTP_COMPLETION_ERROR = "OTP_COMPLETION_ERROR",
@@ -281,12 +283,27 @@ export enum OAuthProviders {
 }
 
 export type VerificationToken = {
-  contact: string;
-  exp: number;
   id: string;
-  public_key: string;
-  verification_type: string;
-  organization_id: string;
+  exp: number | string;
+  contact?: string;
+  public_key?: string;
+  verification_type?: string;
+  organization_id?: string;
+};
+
+export type WalletAuthVerificationToken = {
+  id: string;
+  exp: number | string;
+  organizationId: string;
+  /** Recovered wallet public key (uncompressed secp256k1 or ed25519 hex). */
+  publicKey: string;
+  /** Compressed P-256 session key bound into the SIWx message. */
+  sessionPublicKey: string;
+  wallet: {
+    type: v1WalletAuthenticatorType;
+    address: string;
+    domain: string;
+  };
 };
 
 export enum ActivityStatus {

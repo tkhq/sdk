@@ -50,6 +50,7 @@ export type OverridePasskeyStamperParams = {
 
 export type OverrideAttestedStamperParams = {
   verificationToken?: string | undefined;
+  walletAuthVerificationToken?: string | undefined;
   oidcToken?: string | undefined;
   publicKey?: string | undefined;
 };
@@ -114,6 +115,7 @@ export type LoginWithWalletParams = {
   expirationSeconds?: string;
   organizationId?: string;
   sessionProfileId?: string;
+  verificationToken?: string;
 };
 
 export type SignUpWithWalletParams = {
@@ -154,6 +156,27 @@ export type VerifyOtpParams = {
 };
 
 export type VerifyOtpResult = {
+  verificationToken: string;
+  publicKey: string;
+};
+
+export type VerifyWalletAuthenticatorParams = {
+  walletProvider: WalletProvider;
+  /** Stored compressed P-256 session key. If omitted, a new key pair is generated. */
+  publicKey?: string;
+  /** Host only. Normalized (lowercased; `:80` / `:443` dropped). Defaults to `window.location.host` on web, or WalletConnect `appMetadata.url` on mobile. */
+  domain?: string;
+  /** Absolute URI whose host must match `domain`. Defaults to origin + pathname on web, or WalletConnect `appMetadata.url` on mobile. */
+  uri?: string;
+  /** Non-empty display string. Defaults to the wallet's chain id (decimal for Ethereum). */
+  chainId?: string;
+  /** UTC RFC3339. Defaults to now. Emitted as `YYYY-MM-DDTHH:mm:ssZ`. */
+  issuedAt?: Date | string;
+  /** UTC RFC3339, strictly after now. Defaults to issued-at + 3600 seconds. */
+  expirationTime?: Date | string;
+};
+
+export type VerifyWalletAuthenticatorResult = {
   verificationToken: string;
   publicKey: string;
 };

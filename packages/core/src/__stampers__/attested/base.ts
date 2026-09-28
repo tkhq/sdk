@@ -7,6 +7,7 @@ import { stringToBase64urlString } from "@turnkey/encoding";
 export enum AttestedScheme {
   P256_OIDC = "STAMP_ATTESTED_SCHEME_P256_OIDC",
   P256_VERIFICATION_TOKEN = "STAMP_ATTESTED_SCHEME_P256_VERIFICATION_TOKEN",
+  P256_WALLET_VERIFICATION_TOKEN = "STAMP_ATTESTED_SCHEME_P256_WALLET_VERIFICATION_TOKEN",
 }
 
 export interface AttestedConfig {

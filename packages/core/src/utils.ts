@@ -4,7 +4,7 @@ import {
   type v1PayloadEncoding,
   type Session,
   type externaldatav1Timestamp,
-  type ProxyTSignupV2Body,
+  type ProxyTSignupV3Body,
   type v1ApiKeyParamsV2,
   type v1ApiKeyCurve,
   type v1AuthenticatorParamsV2,
@@ -15,6 +15,8 @@ import {
   type v1TokenUsage,
   type v1OauthProviderParamsV2,
   type v1SignupUsageV2,
+  type v1SignupUsageV3,
+  type v1WalletAuthenticatorParams,
   type v1SignRawPayloadResult,
   type v1TransactionType,
   type ProxyTGetWalletKitConfigResponse,
@@ -22,6 +24,7 @@ import {
   type v1User,
   type v1CreatePolicyIntentV3,
   type VerificationToken,
+  type WalletAuthVerificationToken,
   TurnkeyError,
   TurnkeyErrorCodes,
   v1OidcClaims,
@@ -82,7 +85,11 @@ import {
   DEFAULT_SPARK_MAINNET_ACCOUNTS,
   DEFAULT_SPARK_REGTEST_ACCOUNTS,
 } from "./turnkey-helpers";
-import { fromDerSignature, uncompressRawPublicKey } from "@turnkey/crypto";
+import {
+  compressRawPublicKey,
+  fromDerSignature,
+  uncompressRawPublicKey,
+} from "@turnkey/crypto";
 import {
   decodeBase64urlToString,
   uint8ArrayFromHexString,
@@ -752,7 +759,7 @@ export function generateWalletAccountsFromAddressFormat(params: {
 
 export function buildSignUpBody(params: {
   createSubOrgParams: CreateSubOrgParams | undefined;
-}): ProxyTSignupV2Body {
+}): ProxyTSignupV3Body {
   const { createSubOrgParams } = params;
   const authenticatorName = isWeb()
     ? `${window.location.hostname}-${Date.now()}`
@@ -816,6 +823,7 @@ export function buildSignUpBody(params: {
           oauthProviders: createSubOrgParams.oauthProviders,
         }
       : { oauthProviders: [] }),
+    walletAuthenticators: createSubOrgParams?.walletAuthenticators ?? [],
     ...(createSubOrgParams?.customWallet && {
       wallet: {
         walletName: createSubOrgParams.customWallet.walletName,
@@ -1378,16 +1386,91 @@ export async function fetchAllWalletAccountsWithCursor(
   return accounts;
 }
 
-export function decodeVerificationToken(
+function parseVerificationJwtPayload(
   verificationToken: string,
-): VerificationToken {
+): Record<string, unknown> {
   const [, payloadB64] = verificationToken.split(".");
 
   if (!payloadB64) {
     throw new Error("Invalid token: missing payload");
   }
   const json = atob(payloadB64);
-  return JSON.parse(json) as VerificationToken;
+  return JSON.parse(json) as Record<string, unknown>;
+}
+
+export function isWalletAuthVerificationToken(
+  decoded: unknown,
+): decoded is WalletAuthVerificationToken {
+  if (typeof decoded !== "object" || decoded === null) {
+    return false;
+  }
+  const wallet = (decoded as { wallet?: unknown }).wallet;
+  return typeof wallet === "object" && wallet !== null;
+}
+
+export function decodeVerificationToken(
+  verificationToken: string,
+): VerificationToken {
+  return parseVerificationJwtPayload(verificationToken) as VerificationToken;
+}
+
+export function decodeWalletAuthVerificationToken(
+  verificationToken: string,
+): WalletAuthVerificationToken {
+  const decoded = parseVerificationJwtPayload(verificationToken);
+  if (
+    !isWalletAuthVerificationToken(decoded) ||
+    !decoded.wallet.address ||
+    !decoded.sessionPublicKey
+  ) {
+    throw new TurnkeyError(
+      "Invalid wallet authenticator verification token",
+      TurnkeyErrorCodes.BAD_RESPONSE,
+    );
+  }
+  return decoded;
+}
+
+export function decodeAuthVerificationToken(
+  verificationToken: string,
+): VerificationToken | WalletAuthVerificationToken {
+  const decoded = parseVerificationJwtPayload(verificationToken);
+  if (isWalletAuthVerificationToken(decoded)) {
+    return decoded;
+  }
+  return decoded as VerificationToken;
+}
+
+/** Session P-256 key bound into the token. Wallet JWTs use `sessionPublicKey`; OTP uses `public_key`. */
+export function getVerificationSessionPublicKey(
+  decoded: VerificationToken | WalletAuthVerificationToken,
+): string {
+  const sessionPublicKey = isWalletAuthVerificationToken(decoded)
+    ? decoded.sessionPublicKey
+    : decoded.public_key;
+  if (!sessionPublicKey) {
+    throw new TurnkeyError(
+      "Invalid verification token: missing session public key",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+  return sessionPublicKey;
+}
+
+/**
+ * EOA public key in the form stored as a Turnkey API key.
+ *
+ * Wallet authenticator JWTs carry uncompressed secp256k1 (`04 || x || y`).
+ * Legacy wallet login registered the compressed key from the wallet stamper.
+ */
+export function walletApiKeyPublicKeyFromAuthToken(publicKey: string): string {
+  const hex = publicKey.trim().replace(/^0x/i, "").toLowerCase();
+  if (hex.length === 130 && hex.startsWith("04")) {
+    return uint8ArrayToHexString(
+      compressRawPublicKey(uint8ArrayFromHexString(hex)),
+    );
+  }
+  return hex;
 }
 
 export function getClientSignatureMessageForLogin({
@@ -1398,16 +1481,9 @@ export function getClientSignatureMessageForLogin({
   sessionPublicKey?: string;
 }) {
   try {
-    const decoded: VerificationToken =
-      decodeVerificationToken(verificationToken);
+    const decoded = decodeAuthVerificationToken(verificationToken);
 
-    if (!decoded.public_key)
-      throw new TurnkeyError(
-        "Invalid verification token: missing publicKey",
-        TurnkeyErrorCodes.INVALID_REQUEST,
-      );
-
-    const verificationPublicKey = decoded.public_key;
+    const verificationPublicKey = getVerificationSessionPublicKey(decoded);
 
     // if a session public key is provided, we use it instead
     const resolvedSessionPublicKey = sessionPublicKey || verificationPublicKey;
@@ -1438,6 +1514,7 @@ export function getClientSignatureMessageForSignup({
   apiKeys,
   authenticators,
   oauthProviders,
+  walletAuthenticators,
 }: {
   verificationToken: string;
   email?: string;
@@ -1445,31 +1522,33 @@ export function getClientSignatureMessageForSignup({
   apiKeys?: v1ApiKeyParamsV2[];
   authenticators?: v1AuthenticatorParamsV2[];
   oauthProviders?: v1OauthProviderParamsV2[];
+  walletAuthenticators?: v1WalletAuthenticatorParams[];
 }) {
   try {
-    const decoded = decodeVerificationToken(verificationToken);
+    const decoded = decodeAuthVerificationToken(verificationToken);
 
-    if (!decoded.public_key)
-      throw new TurnkeyError(
-        "Invalid verification token: missing publicKey",
-        TurnkeyErrorCodes.INVALID_REQUEST,
-      );
+    const verificationPublicKey = getVerificationSessionPublicKey(decoded);
 
-    const verificationPublicKey = decoded.public_key as string;
-
-    const usage: v1SignupUsageV2 = {
+    const usage: v1SignupUsageV2 & v1SignupUsageV3 = {
       ...(apiKeys ? { apiKeys } : {}),
       ...(authenticators ? { authenticators } : {}),
       ...(oauthProviders ? { oauthProviders } : {}),
+      ...(walletAuthenticators ? { walletAuthenticators } : {}),
       ...(email ? { email } : {}),
       ...(phoneNumber ? { phoneNumber } : {}),
     };
 
-    const payload: v1TokenUsage = {
-      signupV2: usage,
-      tokenId: decoded.id as string,
-      type: "USAGE_TYPE_SIGNUP",
-    };
+    const payload: v1TokenUsage = walletAuthenticators?.length
+      ? {
+          signupV3: usage,
+          tokenId: decoded.id as string,
+          type: "USAGE_TYPE_SIGNUP",
+        }
+      : {
+          signupV2: usage,
+          tokenId: decoded.id as string,
+          type: "USAGE_TYPE_SIGNUP",
+        };
 
     const json = JSON.stringify(payload);
 

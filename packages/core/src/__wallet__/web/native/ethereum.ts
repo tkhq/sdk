@@ -5,6 +5,8 @@ import {
   Address,
   EIP1193Provider,
   toHex,
+  stringToHex,
+  isHex,
 } from "viem";
 import { Transaction } from "ethers";
 import { compressRawPublicKey } from "@turnkey/crypto";
@@ -312,7 +314,7 @@ export class EthereumWallet extends BaseEthereumWallet {
       case SignIntent.SignMessage:
         return await selectedProvider.request({
           method: "personal_sign",
-          params: [payload as Hex, account],
+          params: [isHex(payload) ? payload : stringToHex(payload), account],
         });
 
       case SignIntent.SignAndSendTransaction: {

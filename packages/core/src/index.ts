@@ -34,6 +34,7 @@ export {
   getAuthProxyConfig,
   getClientParams,
   decodeVerificationToken,
+  decodeWalletAuthVerificationToken,
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,
   buildSecondaryOidcClaims,
@@ -47,5 +48,13 @@ export {
   applyPasskeyScope,
   resetPasskeyScope,
 } from "./utils";
+
+export {
+  buildWalletLoginMessage,
+  normalizeSiwxDomain,
+  normalizeWalletSignature,
+  type WalletLoginChain,
+  type BuildWalletLoginMessageParams,
+} from "./__wallet__/wallet-login-message";
 
 export * from "@turnkey/sdk-types";
