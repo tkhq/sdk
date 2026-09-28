@@ -11,6 +11,13 @@ export {
   isSolanaProvider,
   buildSecondaryOidcClaims,
   buildSecondaryOauthProviders,
+  buildWalletLoginMessage,
+  normalizeSiwxDomain,
+  normalizeWalletSignature,
+  recoverWalletPublicKey,
+  type WalletLoginChain,
+  type BuildWalletLoginMessageParams,
+  type RecoverWalletPublicKeyParams,
 } from "@turnkey/core";
 
 // Re-export all types from @turnkey/core

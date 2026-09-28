@@ -276,6 +276,7 @@ const CAPTCHA_PROTECTED_METHODS = [
   "proxySignup",
   "proxyInitOtpV2",
   "proxySignupV2",
+  "proxySignupV3",
 ];
 
 /**

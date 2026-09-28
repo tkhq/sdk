@@ -27,9 +27,15 @@ import {
   assertValidP256ECDSAKeyPair,
   isValidPasskeyName,
   mapAccountsToWallet,
+  buildSignUpBody,
+  getClientSignatureMessageForSignup,
+  walletApiKeyPublicKeyFromAuthToken,
 } from "../utils";
 import * as utils from "../utils";
-import { stringToBase64urlString } from "@turnkey/encoding";
+import {
+  hexStringToBase64url,
+  stringToBase64urlString,
+} from "@turnkey/encoding";
 import {
   Chain,
   EmbeddedWallet,
@@ -65,11 +71,15 @@ jest.mock("@turnkey/crypto", () => {
   const { uint8ArrayFromHexString } = jest.requireActual(
     "@turnkey/encoding",
   ) as typeof import("@turnkey/encoding");
+  const actual = jest.requireActual(
+    "@turnkey/crypto",
+  ) as typeof import("@turnkey/crypto");
 
   return {
     uncompressRawPublicKey: jest.fn(() =>
       uint8ArrayFromHexString("04" + "aa".repeat(64)),
     ),
+    compressRawPublicKey: actual.compressRawPublicKey,
   };
 });
 import { uncompressRawPublicKey } from "@turnkey/crypto";
@@ -247,6 +257,18 @@ const makeStamp = (
   };
   return { ...base, ...overrides };
 };
+
+describe("walletApiKeyPublicKeyFromAuthToken", () => {
+  it("compresses uncompressed secp256k1 keys and lowercases the rest", () => {
+    const uncompressed = "04" + "ab".repeat(64);
+    expect(walletApiKeyPublicKeyFromAuthToken(uncompressed)).toBe(
+      "03" + "ab".repeat(32),
+    );
+    expect(walletApiKeyPublicKeyFromAuthToken("CD".repeat(32))).toBe(
+      "cd".repeat(32),
+    );
+  });
+});
 
 describe("getPublicKeyFromStampHeader", () => {
   it("extracts publicKey from a valid base64url-encoded JSON stamp", () => {
@@ -1229,5 +1251,93 @@ describe("mapAccountsToWallet", () => {
     expect(out).toHaveLength(1);
     // Keeps push order within that wallet (a2 then a1) since accounts are appended as seen
     expect(out[0]!.accounts.map((a) => a.address)).toEqual(["0xM2", "0xM1"]);
+  });
+});
+
+describe("wallet authenticator signup helpers", () => {
+  const xHex = "aa".repeat(32);
+  const yHex = "aa".repeat(32);
+  const ephemeralPublicKey = "02" + xHex;
+  const verificationToken = [
+    "eyJhbGciOiJFUzI1NiJ9",
+    Buffer.from(
+      JSON.stringify({
+        jti: "verification-event-id",
+        iss: "https://id.turnkey.com/t/parent-org",
+        aud: "urn:turnkey:org:parent-org",
+        cnf: {
+          jwk: {
+            kty: "EC",
+            crv: "P-256",
+            x: hexStringToBase64url(xHex),
+            y: hexStringToBase64url(yHex),
+          },
+        },
+        nonce: "bb".repeat(32),
+        auth_method: "wallet",
+        sub_id: {
+          format: "wallet",
+          type: "WALLET_AUTHENTICATOR_TYPE_ETHEREUM",
+          address: "0xabc0000000000000000000000000000000000000",
+          domain: "app.example.com",
+        },
+        scope: "session_profile:00000000-0000-0000-0000-000000000000",
+        iat: "0",
+        exp: "9999999999",
+      }),
+    ).toString("base64"),
+    "sig",
+  ].join(".");
+
+  it("always includes walletAuthenticators on the v3 signup body", () => {
+    const body = buildSignUpBody({ createSubOrgParams: undefined });
+    expect(body.walletAuthenticators).toEqual([]);
+  });
+
+  it("includes walletAuthenticators on the signup body", () => {
+    const body = buildSignUpBody({
+      createSubOrgParams: {
+        verificationToken,
+        walletAuthenticators: [
+          {
+            type: "WALLET_AUTHENTICATOR_TYPE_ETHEREUM",
+            address: "0xabc0000000000000000000000000000000000000",
+            domain: "app.example.com",
+          },
+        ],
+      },
+    });
+
+    expect(body.verificationToken).toBe(verificationToken);
+    expect(body.walletAuthenticators).toEqual([
+      {
+        type: "WALLET_AUTHENTICATOR_TYPE_ETHEREUM",
+        address: "0xabc0000000000000000000000000000000000000",
+        domain: "app.example.com",
+      },
+    ]);
+    expect(body.apiKeys).toEqual([]);
+  });
+
+  it("builds a signupV3 client signature when wallet authenticators are present", () => {
+    const walletAuthenticators = [
+      {
+        type: "WALLET_AUTHENTICATOR_TYPE_ETHEREUM" as const,
+        address: "0xabc0000000000000000000000000000000000000",
+        domain: "app.example.com",
+      },
+    ];
+
+    const { message, publicKey } = getClientSignatureMessageForSignup({
+      verificationToken,
+      walletAuthenticators,
+    });
+
+    expect(publicKey).toBe(ephemeralPublicKey);
+    expect(JSON.parse(message)).toEqual({
+      type: "USAGE_TYPE_SIGNUP",
+      tokenId: "verification-event-id",
+      signupV3: { walletAuthenticators },
+    });
   });
 });

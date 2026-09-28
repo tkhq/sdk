@@ -5,6 +5,7 @@ import type {
   v1Attestation,
   v1OauthProviderParamsV2,
   v1WalletAccountParams,
+  v1WalletAuthenticatorParams,
 } from "@turnkey/sdk-types";
 
 /** @internal */
@@ -95,6 +96,8 @@ export type CreateSubOrgParams = {
   customWallet?: CustomWallet | undefined;
   /** list of oauth providers */
   oauthProviders?: v1OauthProviderParamsV2[] | undefined;
+  /** list of wallet authenticators (EOA SIWE / SIWS bindings) */
+  walletAuthenticators?: v1WalletAuthenticatorParams[] | undefined;
 };
 
 /** @expand */

@@ -4,7 +4,14 @@ import {
   stringToBase64urlString,
 } from "@turnkey/encoding";
 import { bs58 } from "@turnkey/encoding";
-import { recoverPublicKey, hashMessage, type Hex, toHex } from "viem";
+import {
+  recoverPublicKey,
+  hashMessage,
+  type Hex,
+  toHex,
+  stringToHex,
+  isHex,
+} from "viem";
 import { compressRawPublicKey } from "@turnkey/crypto";
 import {
   Chain,
@@ -378,7 +385,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
       switch (intent) {
         case SignIntent.SignMessage:
           return (await this.client.request(this.ethChain, "personal_sign", [
-            payload as Hex,
+            isHex(payload) ? payload : stringToHex(payload),
             address,
           ])) as string;
         case SignIntent.SignAndSendTransaction:

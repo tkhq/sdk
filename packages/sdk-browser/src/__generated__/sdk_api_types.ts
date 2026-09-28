@@ -108,6 +108,19 @@ export type TGetClaimEarnFeesStatusBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetEarnClaimRewardsStatusResponse =
+  operations["PublicApiService_GetEarnClaimRewardsStatus"]["responses"]["200"]["schema"];
+
+export type TGetEarnClaimRewardsStatusInput = {
+  body: TGetEarnClaimRewardsStatusBody;
+};
+
+export type TGetEarnClaimRewardsStatusBody = Omit<
+  operations["PublicApiService_GetEarnClaimRewardsStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetEarnDeployStatusResponse =
   operations["PublicApiService_GetEarnDeployStatus"]["responses"]["200"]["schema"];
 
@@ -347,6 +360,19 @@ export type TGetSmartContractInterfaceBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetSwapSponsorshipUsageResponse =
+  operations["PublicApiService_GetSwapSponsorshipUsage"]["responses"]["200"]["schema"];
+
+export type TGetSwapSponsorshipUsageInput = {
+  body: TGetSwapSponsorshipUsageBody;
+};
+
+export type TGetSwapSponsorshipUsageBody = Omit<
+  operations["PublicApiService_GetSwapSponsorshipUsage"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetSwapStatusResponse =
   operations["PublicApiService_GetSwapStatus"]["responses"]["200"]["schema"];
 
@@ -389,6 +415,32 @@ export type TGetTvcDeploymentDebugLogsInput = {
 
 export type TGetTvcDeploymentDebugLogsBody = Omit<
   operations["PublicApiService_GetTvcDeploymentDebugLogs"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetTvcDeploymentProvisioningDetailsResponse =
+  operations["PublicApiService_GetTvcDeploymentProvisioningDetails"]["responses"]["200"]["schema"];
+
+export type TGetTvcDeploymentProvisioningDetailsInput = {
+  body: TGetTvcDeploymentProvisioningDetailsBody;
+};
+
+export type TGetTvcDeploymentProvisioningDetailsBody = Omit<
+  operations["PublicApiService_GetTvcDeploymentProvisioningDetails"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetTvcManifestGenerationInfoResponse =
+  operations["PublicApiService_GetTvcManifestGenerationInfo"]["responses"]["200"]["schema"];
+
+export type TGetTvcManifestGenerationInfoInput = {
+  body: TGetTvcManifestGenerationInfoBody;
+};
+
+export type TGetTvcManifestGenerationInfoBody = Omit<
+  operations["PublicApiService_GetTvcManifestGenerationInfo"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -450,6 +502,19 @@ export type TGetWalletAddressBalancesBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetWalletAuthenticatorsResponse =
+  operations["PublicApiService_GetWalletAuthenticators"]["responses"]["200"]["schema"];
+
+export type TGetWalletAuthenticatorsInput = {
+  body: TGetWalletAuthenticatorsBody;
+};
+
+export type TGetWalletAuthenticatorsBody = Omit<
+  operations["PublicApiService_GetWalletAuthenticators"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetActivitiesResponse =
   operations["PublicApiService_GetActivities"]["responses"]["200"]["schema"];
 
@@ -490,6 +555,17 @@ export type TListEarnPositionsInput = { body: TListEarnPositionsBody };
 
 export type TListEarnPositionsBody = Omit<
   operations["PublicApiService_ListEarnPositions"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListEarnRewardsResponse =
+  operations["PublicApiService_ListEarnRewards"]["responses"]["200"]["schema"];
+
+export type TListEarnRewardsInput = { body: TListEarnRewardsBody };
+
+export type TListEarnRewardsBody = Omit<
+  operations["PublicApiService_ListEarnRewards"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -667,6 +743,28 @@ export type TGetTvcAppsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetTvcOperatorsResponse =
+  operations["PublicApiService_GetTvcOperators"]["responses"]["200"]["schema"];
+
+export type TGetTvcOperatorsInput = { body: TGetTvcOperatorsBody };
+
+export type TGetTvcOperatorsBody = Omit<
+  operations["PublicApiService_GetTvcOperators"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetTvcQuorumKeysResponse =
+  operations["PublicApiService_GetTvcQuorumKeys"]["responses"]["200"]["schema"];
+
+export type TGetTvcQuorumKeysInput = { body: TGetTvcQuorumKeysBody };
+
+export type TGetTvcQuorumKeysBody = Omit<
+  operations["PublicApiService_GetTvcQuorumKeys"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TListUserTagsResponse =
   operations["PublicApiService_ListUserTags"]["responses"]["200"]["schema"];
 
@@ -805,6 +903,16 @@ export type TCreateAuthenticatorsBody =
   operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateExternalSignerResponse =
+  operations["PublicApiService_CreateExternalSigner"]["responses"]["200"]["schema"]["activity"]["result"]["createExternalSignerResultV1"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateExternalSignerInput = { body: TCreateExternalSignerBody };
+
+export type TCreateExternalSignerBody =
+  operations["PublicApiService_CreateExternalSigner"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateFiatOnRampCredentialResponse =
   operations["PublicApiService_CreateFiatOnRampCredential"]["responses"]["200"]["schema"]["activity"]["result"]["createFiatOnRampCredentialResult"] &
     definitions["v1ActivityResponse"];
@@ -815,6 +923,18 @@ export type TCreateFiatOnRampCredentialInput = {
 
 export type TCreateFiatOnRampCredentialBody =
   operations["PublicApiService_CreateFiatOnRampCredential"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateFiatRampCredentialResponse =
+  operations["PublicApiService_CreateFiatRampCredential"]["responses"]["200"]["schema"]["activity"]["result"]["createFiatRampCredentialResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateFiatRampCredentialInput = {
+  body: TCreateFiatRampCredentialBody;
+};
+
+export type TCreateFiatRampCredentialBody =
+  operations["PublicApiService_CreateFiatRampCredential"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateInvitationsResponse =
@@ -944,7 +1064,7 @@ export type TCreateSmartContractInterfaceBody =
     commandOverrideParams;
 
 export type TCreateSubOrganizationResponse =
-  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV8"] &
+  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV9"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
@@ -954,7 +1074,7 @@ export type TCreateSubOrganizationBody =
     commandOverrideParams;
 
 export type TCreateSwapQuoteResponse =
-  operations["PublicApiService_CreateSwapQuote"]["responses"]["200"]["schema"]["activity"]["result"]["createSwapQuoteResult"] &
+  operations["PublicApiService_CreateSwapQuote"]["responses"]["200"]["schema"]["activity"]["result"]["createSwapQuoteResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateSwapQuoteInput = { body: TCreateSwapQuoteBody };
@@ -992,6 +1112,26 @@ export type TCreateTvcManifestApprovalsInput = {
 
 export type TCreateTvcManifestApprovalsBody =
   operations["PublicApiService_CreateTvcManifestApprovals"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateTvcOperatorResponse =
+  operations["PublicApiService_CreateTvcOperator"]["responses"]["200"]["schema"]["activity"]["result"]["createTvcOperatorResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateTvcOperatorInput = { body: TCreateTvcOperatorBody };
+
+export type TCreateTvcOperatorBody =
+  operations["PublicApiService_CreateTvcOperator"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateTvcQuorumKeyResponse =
+  operations["PublicApiService_CreateTvcQuorumKey"]["responses"]["200"]["schema"]["activity"]["result"]["createTvcQuorumKeyResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateTvcQuorumKeyInput = { body: TCreateTvcQuorumKeyBody };
+
+export type TCreateTvcQuorumKeyBody =
+  operations["PublicApiService_CreateTvcQuorumKey"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateUserTagResponse =
@@ -1034,6 +1174,18 @@ export type TCreateWalletAccountsBody =
   operations["PublicApiService_CreateWalletAccounts"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateWalletAuthenticatorsResponse =
+  operations["PublicApiService_CreateWalletAuthenticators"]["responses"]["200"]["schema"]["activity"]["result"]["createWalletAuthenticatorsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateWalletAuthenticatorsInput = {
+  body: TCreateWalletAuthenticatorsBody;
+};
+
+export type TCreateWalletAuthenticatorsBody =
+  operations["PublicApiService_CreateWalletAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateWebhookEndpointResponse =
   operations["PublicApiService_CreateWebhookEndpoint"]["responses"]["200"]["schema"]["activity"]["result"]["createWebhookEndpointResult"] &
     definitions["v1ActivityResponse"];
@@ -1062,6 +1214,16 @@ export type TDeleteAuthenticatorsInput = { body: TDeleteAuthenticatorsBody };
 
 export type TDeleteAuthenticatorsBody =
   operations["PublicApiService_DeleteAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TDeleteExternalSignerResponse =
+  operations["PublicApiService_DeleteExternalSigner"]["responses"]["200"]["schema"]["activity"]["result"]["deleteExternalSignerResultV1"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteExternalSignerInput = { body: TDeleteExternalSignerBody };
+
+export type TDeleteExternalSignerBody =
+  operations["PublicApiService_DeleteExternalSigner"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TDeleteFiatOnRampCredentialResponse =
@@ -1242,6 +1404,18 @@ export type TDeleteWalletAccountsBody =
   operations["PublicApiService_DeleteWalletAccounts"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TDeleteWalletAuthenticatorsResponse =
+  operations["PublicApiService_DeleteWalletAuthenticators"]["responses"]["200"]["schema"]["activity"]["result"]["deleteWalletAuthenticatorsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteWalletAuthenticatorsInput = {
+  body: TDeleteWalletAuthenticatorsBody;
+};
+
+export type TDeleteWalletAuthenticatorsBody =
+  operations["PublicApiService_DeleteWalletAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TDeleteWalletsResponse =
   operations["PublicApiService_DeleteWallets"]["responses"]["200"]["schema"]["activity"]["result"]["deleteWalletsResult"] &
     definitions["v1ActivityResponse"];
@@ -1260,6 +1434,16 @@ export type TDeleteWebhookEndpointInput = { body: TDeleteWebhookEndpointBody };
 
 export type TDeleteWebhookEndpointBody =
   operations["PublicApiService_DeleteWebhookEndpoint"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEarnClaimRewardsResponse =
+  operations["PublicApiService_EarnClaimRewards"]["responses"]["200"]["schema"]["activity"]["result"]["earnClaimRewardsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEarnClaimRewardsInput = { body: TEarnClaimRewardsBody };
+
+export type TEarnClaimRewardsBody =
+  operations["PublicApiService_EarnClaimRewards"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TEarnDeployWrapperResponse =
@@ -1531,6 +1715,28 @@ export type TOtpLoginBody =
   operations["PublicApiService_OtpLogin"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TPostTvcQuorumKeyShareResponse =
+  operations["PublicApiService_PostTvcQuorumKeyShare"]["responses"]["200"]["schema"]["activity"]["result"]["postTvcQuorumKeyShareResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TPostTvcQuorumKeyShareInput = { body: TPostTvcQuorumKeyShareBody };
+
+export type TPostTvcQuorumKeyShareBody =
+  operations["PublicApiService_PostTvcQuorumKeyShare"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TReEncryptTvcQuorumKeyShareResponse =
+  operations["PublicApiService_ReEncryptTvcQuorumKeyShare"]["responses"]["200"]["schema"]["activity"]["result"]["reEncryptTvcQuorumKeyShareResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TReEncryptTvcQuorumKeyShareInput = {
+  body: TReEncryptTvcQuorumKeyShareBody;
+};
+
+export type TReEncryptTvcQuorumKeyShareBody =
+  operations["PublicApiService_ReEncryptTvcQuorumKeyShare"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TRecoverUserResponse =
   operations["PublicApiService_RecoverUser"]["responses"]["200"]["schema"]["activity"]["result"]["recoverUserResult"] &
     definitions["v1ActivityResponse"];
@@ -1721,6 +1927,18 @@ export type TUpdateFiatOnRampCredentialBody =
   operations["PublicApiService_UpdateFiatOnRampCredential"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TUpdateFiatRampCredentialResponse =
+  operations["PublicApiService_UpdateFiatRampCredential"]["responses"]["200"]["schema"]["activity"]["result"]["updateFiatRampCredentialResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateFiatRampCredentialInput = {
+  body: TUpdateFiatRampCredentialBody;
+};
+
+export type TUpdateFiatRampCredentialBody =
+  operations["PublicApiService_UpdateFiatRampCredential"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TUpdateMfaPolicyResponse =
   operations["PublicApiService_UpdateMfaPolicy"]["responses"]["200"]["schema"]["activity"]["result"]["updateMfaPolicyResult"] &
     definitions["v1ActivityResponse"];
@@ -1865,6 +2083,30 @@ export type TUpsertSwapConfigBody =
   operations["PublicApiService_UpsertSwapConfig"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TUpsertSwapFeeSponsorshipLimitConfigResponse =
+  operations["PublicApiService_UpsertSwapFeeSponsorshipLimitConfig"]["responses"]["200"]["schema"]["activity"]["result"]["upsertSwapFeeSponsorshipLimitConfigResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpsertSwapFeeSponsorshipLimitConfigInput = {
+  body: TUpsertSwapFeeSponsorshipLimitConfigBody;
+};
+
+export type TUpsertSwapFeeSponsorshipLimitConfigBody =
+  operations["PublicApiService_UpsertSwapFeeSponsorshipLimitConfig"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpsertSwapFixedRateLimitConfigResponse =
+  operations["PublicApiService_UpsertSwapFixedRateLimitConfig"]["responses"]["200"]["schema"]["activity"]["result"]["upsertSwapFixedRateLimitConfigResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpsertSwapFixedRateLimitConfigInput = {
+  body: TUpsertSwapFixedRateLimitConfigBody;
+};
+
+export type TUpsertSwapFixedRateLimitConfigBody =
+  operations["PublicApiService_UpsertSwapFixedRateLimitConfig"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TVerifyOtpResponse =
   operations["PublicApiService_VerifyOtp"]["responses"]["200"]["schema"]["activity"]["result"]["verifyOtpResult"] &
     definitions["v1ActivityResponse"];
@@ -1873,6 +2115,18 @@ export type TVerifyOtpInput = { body: TVerifyOtpBody };
 
 export type TVerifyOtpBody =
   operations["PublicApiService_VerifyOtp"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TVerifyWalletAuthenticatorResponse =
+  operations["PublicApiService_VerifyWalletAuthenticator"]["responses"]["200"]["schema"]["activity"]["result"]["verifyWalletAuthenticatorResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TVerifyWalletAuthenticatorInput = {
+  body: TVerifyWalletAuthenticatorBody;
+};
+
+export type TVerifyWalletAuthenticatorBody =
+  operations["PublicApiService_VerifyWalletAuthenticator"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TNOOPCodegenAnchorResponse =
