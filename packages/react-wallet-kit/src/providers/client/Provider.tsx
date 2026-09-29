@@ -4402,6 +4402,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             logo={logo}
             logoClassName={params?.logoClassName}
             title={params?.title}
+            hidePasskeySignup={params?.hidePasskeySignup}
           />
         ),
         showTitle: logo ? false : true,
