@@ -2,4 +2,4 @@
 "@turnkey/core": patch
 ---
 
-Link the OAuth identity when an account is matched by verified email: completeOauth now logs in through the auth proxy's social-linking flow instead of failing with an unregistered identity
+Fix a bug where signing in with Google failed for an account that had signed up with email OTP. `completeOauth` now completes the social-linking flow through the auth proxy instead of attempting a stamped login with an identity that was never registered on the sub-organization.
