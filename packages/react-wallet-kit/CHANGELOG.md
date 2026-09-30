@@ -1,5 +1,18 @@
 # @turnkey/react-wallet-kit
 
+## 2.5.2
+
+### Patch Changes
+
+- [#1573](https://github.com/tkhq/sdk/pull/1573) [`6cccc60`](https://github.com/tkhq/sdk/commit/6cccc606d459b103fb5b09b0b61c6565fed02073) Author [@hadrelandon](https://github.com/hadrelandon) - Fixed issue with turnstile captchas failing with `X-Captcha-Token header is required` on UpdateEmail and UpdatePhoneNumber
+
+- [#1559](https://github.com/tkhq/sdk/pull/1559) [`ed0541b`](https://github.com/tkhq/sdk/commit/ed0541ba338c173779a3b3943d92f202cd03dd9a) Author [@justinformentin](https://github.com/justinformentin) - Skip the CAPTCHA token wait (and its timeout warning) when CAPTCHA is not enabled
+
+- [#1531](https://github.com/tkhq/sdk/pull/1531) [`6e0e723`](https://github.com/tkhq/sdk/commit/6e0e72323d08b1577895082ac5ff6bfd8cbb7623) Author [@actype](https://github.com/actype) - Preserve failed and consensus-needed send activities as rich activity errors, and prevent duplicate unhandled rejections.
+
+- Updated dependencies [[`6a255dd`](https://github.com/tkhq/sdk/commit/6a255dd81c97fc894f9458436d2cc4497fe1e43d), [`6e0e723`](https://github.com/tkhq/sdk/commit/6e0e72323d08b1577895082ac5ff6bfd8cbb7623)]:
+  - @turnkey/core@2.12.1
+
 ## 2.5.1
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @turnkey/core
 
+## 2.12.1
+
+### Patch Changes
+
+- [#1564](https://github.com/tkhq/sdk/pull/1564) [`6a255dd`](https://github.com/tkhq/sdk/commit/6a255dd81c97fc894f9458436d2cc4497fe1e43d) Author [@truham](https://github.com/truham) - Fix a bug where signing in with Google failed for an account that had signed up with email OTP. `completeOauth` now completes the social-linking flow through the auth proxy instead of attempting a stamped login with an identity that was never registered on the sub-organization.
+
+- [#1531](https://github.com/tkhq/sdk/pull/1531) [`6e0e723`](https://github.com/tkhq/sdk/commit/6e0e72323d08b1577895082ac5ff6bfd8cbb7623) Author [@actype](https://github.com/actype) - Preserve failed and consensus-needed send activities as rich activity errors, and prevent duplicate unhandled rejections.
+
 ## 2.12.0
 
 ### Minor Changes
