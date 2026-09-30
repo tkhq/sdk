@@ -773,8 +773,22 @@ export class TurnkeyClient {
         [stamp.stampHeaderName]: stamp.stampHeaderValue,
       },
       body: stringifiedBody,
-      redirect: "error",
+      // "manual", not "error": edge runtimes such as Cloudflare Workers
+      // reject "error". Redirects are still refused below, so the stamped
+      // body is never sent to a redirect target.
+      redirect: "manual",
     });
+
+    if (
+      response.type === "opaqueredirect" ||
+      (response.status >= 300 && response.status < 400)
+    ) {
+      throw new Error(
+        "Turnkey API request was redirected (" +
+          response.status +
+          "); redirects are not followed for stamped requests",
+      );
+    }
 
     if (!response.ok) {
       let res: GrpcStatus;
