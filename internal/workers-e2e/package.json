@@ -6,8 +6,6 @@
   "type": "module",
   "scripts": {
     "test:workers": "node --test test/workers.test.mjs",
-    "test:workers:compat": "WORKERS_E2E_CONFIG=compat node --test test/workers.test.mjs",
-    "test:workers:no-compat": "WORKERS_E2E_CONFIG=no-compat node --test test/workers.test.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

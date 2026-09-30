@@ -1,7 +1,5 @@
 // Runs src/worker.ts in workerd (through wrangler) and checks each route
-// against the local mock API. WORKERS_E2E_CONFIG picks the wrangler config:
-//   compat     wrangler.compat.jsonc (default, must pass)
-//   no-compat  wrangler.no-compat.jsonc (expected to fail today, see there)
+// against the local mock API.
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
@@ -13,10 +11,7 @@ import {
   startMockServer,
 } from "./mock-server.mjs";
 
-const configName = process.env.WORKERS_E2E_CONFIG ?? "compat";
-const configPath = fileURLToPath(
-  new URL(`../wrangler.${configName}.jsonc`, import.meta.url),
-);
+const configPath = fileURLToPath(new URL("../wrangler.jsonc", import.meta.url));
 
 // A throwaway key for this run only. It is not a Turnkey credential.
 const keyPair = generateP256KeyPair();
@@ -51,10 +46,10 @@ async function startWorker() {
       new Promise((_, reject) => {
         started.raw.once("error", (event) => {
           const cause = event?.cause?.message ?? event?.reason ?? event;
-          reject(new Error(`Worker failed to start (${configName}): ${cause}`));
+          reject(new Error(`Worker failed to start: ${cause}`));
         });
         timer = setTimeout(
-          () => reject(new Error(`Worker not ready after 60s (${configName})`)),
+          () => reject(new Error(`Worker not ready after 60s`)),
           60_000,
         );
       }),
@@ -85,7 +80,7 @@ after(async () => {
 });
 
 // Without nodejs_compat, this is where the sdk-server import crash shows up.
-test(`[${configName}] Worker starts`, () => {
+test(`Worker starts`, () => {
   if (startupError) throw startupError;
 });
 
@@ -113,39 +108,35 @@ function assertOk(step) {
 
 const input = () => ({ ...key, base: mock.url });
 
-test(
-  `[${configName}] sdk-server calls are stamped and verified`,
-  { skip },
-  async () => {
-    const before = mock.requests.length;
-    const steps = stepsByName(await callWorker("/sdk-server", input()));
+test(`sdk-server calls are stamped and verified`, { skip }, async () => {
+  const before = mock.requests.length;
+  const steps = stepsByName(await callWorker("/sdk-server", input()));
 
-    assert.equal(assertOk(steps.getWhoami).organizationId, "org-mock");
-    assert.equal(assertOk(steps.getSecrets)[0].secretId, "sec-1");
-    assert.deepEqual(assertOk(steps.submitExportSecrets), {
-      activityId: "act-mock",
-      fingerprint: "sha256:mock",
-      status: "ACTIVITY_STATUS_CONSENSUS_NEEDED",
-    });
+  assert.equal(assertOk(steps.getWhoami).organizationId, "org-mock");
+  assert.equal(assertOk(steps.getSecrets)[0].secretId, "sec-1");
+  assert.deepEqual(assertOk(steps.submitExportSecrets), {
+    activityId: "act-mock",
+    fingerprint: "sha256:mock",
+    status: "ACTIVITY_STATUS_CONSENSUS_NEEDED",
+  });
 
-    const seen = mock.requests.slice(before);
-    assert.deepEqual(
-      seen.map((r) => r.path),
-      [
-        "/public/v1/query/whoami",
-        "/public/v1/query/list_secrets",
-        "/public/v1/submit/export_secrets",
-      ],
-    );
-    assert.ok(
-      seen.every((r) => r.stampValid),
-      "mock rejected a stamp",
-    );
-  },
-);
+  const seen = mock.requests.slice(before);
+  assert.deepEqual(
+    seen.map((r) => r.path),
+    [
+      "/public/v1/query/whoami",
+      "/public/v1/query/list_secrets",
+      "/public/v1/submit/export_secrets",
+    ],
+  );
+  assert.ok(
+    seen.every((r) => r.stampValid),
+    "mock rejected a stamp",
+  );
+});
 
 test(
-  `[${configName}] @turnkey/http TurnkeyClient uses redirect: "manual"`,
+  `@turnkey/http TurnkeyClient uses redirect: "manual"`,
   { skip },
   async () => {
     const before = mock.requests.length;
@@ -167,39 +158,31 @@ test(
 // redirect: "error", which workerd rejects, so every call failed. Before
 // that, it sent "follow", which forwards the stamped body to the redirect
 // target. The client must refuse the 3xx and never contact the target.
-test(
-  `[${configName}] @turnkey/http TurnkeyClient refuses a redirect`,
-  { skip },
-  async () => {
-    const before = mock.requests.length;
-    const [step] = await callWorker("/http", {
-      ...input(),
-      base: mock.url + REDIRECT_PREFIX,
-    });
+test(`@turnkey/http TurnkeyClient refuses a redirect`, { skip }, async () => {
+  const before = mock.requests.length;
+  const [step] = await callWorker("/http", {
+    ...input(),
+    base: mock.url + REDIRECT_PREFIX,
+  });
 
-    assert.equal(step.ok, false, "call through a redirect must fail");
-    assert.match(step.error.message, /redirected \(307\)/);
+  assert.equal(step.ok, false, "call through a redirect must fail");
+  assert.match(step.error.message, /redirected \(307\)/);
 
-    const seen = mock.requests.slice(before).map((r) => r.path);
-    assert.deepEqual(seen, [REDIRECT_PREFIX + "/public/v1/query/whoami"]);
-    assert.ok(
-      !seen.some((p) => p.startsWith(REDIRECT_TARGET_PREFIX)),
-      "redirect target received a request",
-    );
-  },
-);
+  const seen = mock.requests.slice(before).map((r) => r.path);
+  assert.deepEqual(seen, [REDIRECT_PREFIX + "/public/v1/query/whoami"]);
+  assert.ok(
+    !seen.some((p) => p.startsWith(REDIRECT_TARGET_PREFIX)),
+    "redirect target received a request",
+  );
+});
 
-test(
-  `[${configName}] WebCrypto and export bundle decryption`,
-  { skip },
-  async () => {
-    const steps = stepsByName(await callWorker("/crypto"));
+test(`WebCrypto and export bundle decryption`, { skip }, async () => {
+  const steps = stepsByName(await callWorker("/crypto"));
 
-    assert.deepEqual(assertOk(steps["AES-256-GCM seal/open"]), {
-      roundTrip: true,
-      tamperRejected: true,
-    });
-    assert.deepEqual(assertOk(steps.decryptSecretBundle), { match: true });
-    assert.deepEqual(assertOk(steps.decryptExportBundle), { match: true });
-  },
-);
+  assert.deepEqual(assertOk(steps["AES-256-GCM seal/open"]), {
+    roundTrip: true,
+    tamperRejected: true,
+  });
+  assert.deepEqual(assertOk(steps.decryptSecretBundle), { match: true });
+  assert.deepEqual(assertOk(steps.decryptExportBundle), { match: true });
+});

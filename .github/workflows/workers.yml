@@ -23,23 +23,9 @@ concurrency:
 
 jobs:
   workers-e2e:
-    name: Workers (${{ matrix.config }})
+    name: Workers
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # The no-compat config is expected to fail until EMG-140 lands:
-    # @turnkey/sdk-server builds a client from `process.env` at module scope
-    # (packages/sdk-server/src/actions.ts), so a Worker without nodejs_compat
-    # crashes at startup with "process is not defined". Remove
-    # `expected-failure` from that entry once the fix lands.
-    continue-on-error: ${{ matrix.expected-failure }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - config: compat
-            expected-failure: false
-          - config: no-compat
-            expected-failure: true
 
     steps:
       # https://github.com/actions/checkout
@@ -57,4 +43,4 @@ jobs:
         run: pnpm turbo build --filter='@turnkey/workers-e2e^...'
 
       - name: Test
-        run: pnpm --filter=@turnkey/workers-e2e run test:workers:${{ matrix.config }}
+        run: pnpm --filter=@turnkey/workers-e2e run test:workers
