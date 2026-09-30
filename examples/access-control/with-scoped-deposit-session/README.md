@@ -83,17 +83,15 @@ property the example is about.
 The policy engine evaluates every clause of a scope on every request; it
 does not short circuit (see the Appendix of the
 [policy language](https://docs.turnkey.com/features/policies/language#policy-evaluation)
-docs). A clause that reads something the call does not have is an
-evaluation error, not `false`. That rules out a combined ABI-based scope:
-`contract_call_args['spender']` has no value on a `deposit` call, so the
-approve branch errors on every deposit and the deposit can never be allowed.
-The usual way around it is one policy or profile per action.
-
-With raw calldata the combined scope is total for both calls it allows.
+docs). So on a `deposit` call the approve branch is evaluated too, slice
+included. A scope clause that cannot be evaluated on a call, because it
+reads a field, a named argument or a slice the call does not have, counts as
+not met rather than failing the request, so a combined scope works in either
+form. With raw calldata nothing can be missing in the first place:
 `deposit(uint256)` calldata is exactly 74 characters, so `eth.tx.data[34..74]`
-from the approve branch is in range on a deposit, and nothing else in either
-branch can be missing. One profile, one session, one passkey prompt, and
-approve plus deposit can go out as a single atomic sponsored transaction.
+from the approve branch is in range on a deposit. One profile, one session,
+one passkey prompt, and approve plus deposit can go out as a single atomic
+sponsored transaction.
 
 Profiles are immutable: a new vault or a changed clause means a new profile,
 and the old one stays.
@@ -101,23 +99,17 @@ and the old one stays.
 ### Slicing past the end of the calldata
 
 A scope is an allow list. A call goes through only when the whole
-expression evaluates to `true`; `false` and "could not evaluate" are both
-refusals. Unknown calldata is refused because no selector clause matches
-it. What differs is how the refusal is reported.
+expression evaluates to `true`; anything else is a refusal. Unknown calldata
+is refused because no selector clause matches it, and a clause the engine
+cannot evaluate on a call counts as not met. The fourth refusal probe shows
+this: it sends `0xdeadbeef`, ten characters, to USDC. The approve branch's
+`eth.tx.data[34..74]` is out of range on it, and the call still comes back
+with the same permissions error as the other three. Nothing reaches the
+chain.
 
-`eth.tx.data[34..74]` on calldata shorter than 74 characters is an
-evaluation error, not `false`. Turnkey returns it as
-`Turnkey error 13: internal server error` rather than the permissions error a
-`false` produces. The call is still refused and nothing reaches the chain,
-but the response is a 500, not a clean "no". This is what the fourth
-refusal probe shows: it sends `0xdeadbeef`, ten characters, to USDC.
-
-For the two calls the session is meant to send it never matters, since both
-are 74 characters or longer. It matters for how refusals look: a client that
-treats only the permissions error as "denied" should treat this error as a
-refusal too. Putting `eth.tx.to` or a selector check ahead of the slice does
-not change this, because the engine evaluates every clause regardless of the
-others.
+The demo keeps a third outcome, "unexpected error", for any failure that is
+neither a denial nor a transaction hash. It should stay empty; it exists so
+that an unexpected response is never mistaken for a pass.
 
 ## How it works
 
@@ -145,7 +137,7 @@ sequenceDiagram
     B->>T: USDC.approve(self, 1) (session stamp)
     T-->>B: denied by scope, spender bytes differ
     B->>T: 0xdeadbeef to USDC (session stamp)
-    T-->>B: refused, evaluation error (slice past end of calldata)
+    T-->>B: denied by scope, no selector matches
 
     Note over B,C: Withdraw: one passkey prompt
     B->>T: ETH_SEND_TRANSACTION_V2 withdraw(n) (passkey stamp)
@@ -154,10 +146,8 @@ sequenceDiagram
 
 Scope denials arrive as `Turnkey error 7` with the detail
 `No policies evaluated to outcome: Allow`. The message talks about policies
-even when the session scope is what said no. A scope that cannot be
-evaluated on a call, such as a slice past the end of its calldata, arrives
-as `Turnkey error 13: internal server error` instead; that is also a
-refusal.
+even when the session scope is what said no, and it is the same message
+whether a clause evaluated to `false` or could not be evaluated on the call.
 
 ## Getting started
 
@@ -240,10 +230,9 @@ Open [http://localhost:3000](http://localhost:3000).
    appears, the wallet balance drops and the MiniBank balance rises. The
    second button does the same as two transactions, skipping the approve
    when the allowance already covers the amount.
-4. **Send all four.** Three green ticks with Turnkey's denial line, and for
-   `0xdeadbeef` an amber mark with `Turnkey error 13`, the evaluation error
-   described above. Nothing moved. The approve to a different spender was
-   stopped by the spender bytes alone.
+4. **Send all four.** Four green ticks with Turnkey's denial line. Nothing
+   moved. The approve to a different spender was stopped by the spender
+   bytes alone, and `0xdeadbeef` by matching no selector.
 5. **Withdraw (passkey).** One prompt. The MiniBank balance drops and the
    wallet balance rises.
 

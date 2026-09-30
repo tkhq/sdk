@@ -119,8 +119,9 @@ export function transferCall(to: Hex, amount: bigint): Call {
 
 /**
  * Four bytes that match no allowed selector. Refused. Ten characters of
- * calldata, so the scope's `data[34..74]` slice also runs past the end and
- * the refusal arrives as an evaluation error rather than a denial.
+ * calldata, so the scope's `data[34..74]` slice is also out of range; a
+ * clause that cannot be evaluated counts as not met, so this is a plain
+ * denial like the others.
  */
 export function unrecognizedCall(): Call {
   return { to: USDC_ADDRESS, data: "0xdeadbeef" };

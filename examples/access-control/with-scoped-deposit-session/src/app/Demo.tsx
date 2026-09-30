@@ -141,7 +141,7 @@ const DENIAL_PROBES: Probe[] = [
   {
     key: "unrecognized",
     label: "USDC with calldata 0xdeadbeef",
-    why: "Not a selector the scope allows, so refused. Ten characters of calldata, so the approve branch's data[34..74] reads past the end and the refusal comes back as an evaluation error (a 500) rather than a denial. Nothing moves either way.",
+    why: "Not a selector the scope allows, so refused. Ten characters of calldata, so the approve branch's data[34..74] is out of range too; a clause that cannot be evaluated counts as not met, and the refusal is the same denial as the others.",
     call: () => unrecognizedCall(),
   },
 ];
@@ -328,9 +328,10 @@ export function Demo() {
 
   /**
    * The assertion the ticket asks for. Send each out-of-scope call on the
-   * session and record what Turnkey did. A refusal is the pass condition,
-   * whether it arrives as a denial or as an evaluation error; a transaction
-   * hash is the failure, since it would mean the scope let money move.
+   * session and record what Turnkey did. A denial is the pass condition; a
+   * transaction hash is the failure, since it would mean the scope let money
+   * move. Any other error is reported separately so it is never mistaken
+   * for either.
    */
   const runDenialProbes = async () => {
     if (!depositor) throw new Error("No Ethereum account in this wallet.");
@@ -362,7 +363,7 @@ export function Demo() {
     setNotice(
       errored.length === 0
         ? `All ${DENIAL_PROBES.length} refused by the scope. The session can approve MiniBank and deposit, and nothing else.`
-        : `All ${DENIAL_PROBES.length} refused. ${errored.length} came back as an evaluation error rather than a denial; see below for why. Nothing moved.`,
+        : `Nothing moved, but ${errored.length} came back with an unexpected error rather than a denial. Check the message below.`,
     );
   };
 
@@ -629,7 +630,7 @@ export function Demo() {
 
       <Panel
         title="3. Try to take money out with the session (must be refused)"
-        hint="Calls the session should never be able to make, sent for real. A refusal is the pass, whether Turnkey reports it as a denial or as an evaluation error. If any of them returned a transaction hash, the scope would have failed and this panel would say so in red."
+        hint="Calls the session should never be able to make, sent for real. A denial is the pass. If any of them returned a transaction hash, the scope would have failed and this panel would say so in red."
       >
         <ul className="flex w-full flex-col gap-2 rounded border border-gray-200 bg-gray-50 p-3">
           {DENIAL_PROBES.map((p) => {
@@ -664,7 +665,7 @@ export function Demo() {
                       {r.status === "allowed" &&
                         `ALLOWED, tx ${r.txHash}. This must not happen.`}
                       {r.status === "error" &&
-                        `refused with an evaluation error, not a denial: ${r.message}`}
+                        `unexpected error, not a denial: ${r.message}`}
                     </span>
                   )}
                 </span>

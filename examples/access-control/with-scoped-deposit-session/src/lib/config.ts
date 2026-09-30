@@ -188,11 +188,10 @@ export const SELECTORS = {
  *   unscoped session this example refuses to hold. Raw calldata needs nothing
  *   uploaded, so the very first session a user gets is already scoped.
  * - Both branches in one scope: the engine evaluates every clause on every
- *   call (no short circuit). That works here because nothing in either
- *   branch can be missing on the other branch's call: `deposit(uint256)`
- *   calldata is exactly 74 characters, so the approve branch's `[34..74]`
- *   is in range on a deposit. With `contract_call_args['spender']` it was
- *   not, and the scope had to be split into one profile per action.
+ *   call (no short circuit), and a clause that cannot be evaluated on a
+ *   call counts as not met rather than erroring. Here nothing can be
+ *   missing anyway: `deposit(uint256)` calldata is exactly 74 characters,
+ *   so the approve branch's `[34..74]` is in range on a deposit.
  */
 export const PROFILE_NAME = "approve-and-deposit";
 
