@@ -60,6 +60,14 @@ app encodes. `approve` calldata is `0x`, 8 selector characters, 24 of zero
 padding, then the 40 characters of the address, which is why the spender
 sits at `[34..74]`.
 
+The scope pins the spender but not the amount. That is safe here, since
+`withdraw` needs a passkey and a stolen session can only move USDC into a
+vault the same user controls. Consider capping the amount if you adapt this
+to a vault where deposits are harder to get back. A raw slice is a string, so
+with this form you can only pin an exact amount; a numeric cap such as
+`contract_call_args['amount'] <= 1000000` needs the ABI form and an
+interface in the sub-organization (see the next section).
+
 ### Why raw calldata and not ABIs
 
 The policy language also offers `eth.tx.function_name` and
