@@ -1,5 +1,12 @@
 # @turnkey/cosmjs
 
+## 0.8.45
+
+### Patch Changes
+
+- Updated dependencies [[`6a255dd`](https://github.com/tkhq/sdk/commit/6a255dd81c97fc894f9458436d2cc4497fe1e43d), [`6e0e723`](https://github.com/tkhq/sdk/commit/6e0e72323d08b1577895082ac5ff6bfd8cbb7623)]:
+  - @turnkey/core@2.12.1
+
 ## 0.8.44
 
 ### Patch Changes
