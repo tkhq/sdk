@@ -133,10 +133,14 @@ export type v1GetAccountRequest = {
   verificationToken?: string;
   /** OIDC token to verify access to PII (email/phone number) when filter_type is 'EMAIL' or 'PHONE_NUMBER'. Needed for social linking when verification_token is not available. */
   oidcToken?: string;
+  /** Whether to include requires_social_linking in the response. Only applies when filter_type is 'OIDC_TOKEN'. */
+  includeRequiresSocialLinking?: boolean;
 };
 
 export type v1GetAccountResponse = {
   organizationId?: string;
+  /** True when the organization was matched by verified email and the OIDC token is not yet a registered identity on it. */
+  requiresSocialLinking?: boolean;
 };
 
 export type v1GetWalletKitClientParamsRequest = {};
@@ -4133,6 +4137,8 @@ export type v1GetTvcAppResponse = {
 export type v1GetTvcAppsRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
+  /** Filter TVC Apps by whether they have a live deployment. If omitted, all TVC Apps are returned. */
+  isLive?: boolean;
 };
 
 export type v1GetTvcAppsResponse = {
@@ -7523,8 +7529,8 @@ export type v1VelocityControlAggregationWindow = {
 
 export type v1VelocityControlAggregationWindowInfinite = {};
 export type v1VelocityControlAggregationWindowRolling = {
-  /** Duration of the rolling window, in seconds, as a base-10 integer string. */
-  duration: string;
+  /** Duration of the rolling window, in seconds. */
+  duration: number;
 };
 
 export type v1VelocityControlDataSource = {
@@ -7556,8 +7562,8 @@ export type v1VelocityControlDataSourceChainAssetTransfer = {
 export type v1VelocityControlDataSourceChainAssetTransferDefinition = {
   /** CAIP-19 identifier for the asset. */
   caip19: string;
-  /** Base-10 integer string from 0 through 255 that specifies the number of decimal places for the asset. */
-  decimals: string;
+  /** Integer between 0 and 255 (inclusive) that specifies the number of decimal places for the asset. */
+  decimals: number;
 };
 
 export type v1VelocityControlDataSourceChainAssetTransferFilter = {
@@ -8701,6 +8707,8 @@ export type TGetTvcAppsResponse = {
 
 export type TGetTvcAppsBody = {
   organizationId?: string;
+  /** Filter TVC Apps by whether they have a live deployment. If omitted, all TVC Apps are returned. */
+  isLive?: boolean;
 };
 
 export type TGetTvcAppsInput = { body: TGetTvcAppsBody };
@@ -11481,6 +11489,8 @@ export type TSolSendTransactionV2Input = { body: TSolSendTransactionV2Body };
 
 export type ProxyTGetAccountResponse = {
   organizationId?: string;
+  /** True when the organization was matched by verified email and the OIDC token is not yet a registered identity on it. */
+  requiresSocialLinking?: boolean;
 };
 
 export type ProxyTGetAccountBody = {
@@ -11492,6 +11502,8 @@ export type ProxyTGetAccountBody = {
   verificationToken?: string;
   /** OIDC token to verify access to PII (email/phone number) when filter_type is 'EMAIL' or 'PHONE_NUMBER'. Needed for social linking when verification_token is not available. */
   oidcToken?: string;
+  /** Whether to include requires_social_linking in the response. Only applies when filter_type is 'OIDC_TOKEN'. */
+  includeRequiresSocialLinking?: boolean;
 };
 
 export type ProxyTGetAccountInput = { body: ProxyTGetAccountBody };

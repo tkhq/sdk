@@ -14676,6 +14676,10 @@
         "organizationId": {
           "type": "string",
           "description": "Unique identifier for a given organization."
+        },
+        "isLive": {
+          "type": "boolean",
+          "description": "Filter TVC Apps by whether they have a live deployment. If omitted, all TVC Apps are returned."
         }
       },
       "required": ["organizationId"]
@@ -23023,8 +23027,9 @@
       "type": "object",
       "properties": {
         "duration": {
-          "type": "string",
-          "description": "Duration of the rolling window, in seconds, as a base-10 integer string."
+          "type": "integer",
+          "format": "int64",
+          "description": "Duration of the rolling window, in seconds."
         }
       },
       "required": ["duration"]
@@ -23094,8 +23099,9 @@
           "description": "CAIP-19 identifier for the asset."
         },
         "decimals": {
-          "type": "string",
-          "description": "Base-10 integer string from 0 through 255 that specifies the number of decimal places for the asset."
+          "type": "integer",
+          "format": "int64",
+          "description": "Integer between 0 and 255 (inclusive) that specifies the number of decimal places for the asset."
         }
       },
       "required": ["caip19", "decimals"]

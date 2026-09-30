@@ -1994,6 +1994,7 @@ export class TurnkeyClient {
         const accountRes = await this.httpClient.proxyGetAccount({
           filterType: "OIDC_TOKEN",
           filterValue: oidcToken,
+          includeRequiresSocialLinking: true,
         });
 
         if (!accountRes) {
@@ -2002,12 +2003,14 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
           );
         }
-        const subOrganizationId = accountRes.organizationId;
+        const { organizationId: subOrganizationId, requiresSocialLinking } =
+          accountRes;
         if (subOrganizationId) {
           const loginRes = await this.loginWithOauth({
             oidcToken,
             publicKey,
             organizationId: subOrganizationId,
+            ...(requiresSocialLinking && { requiresSocialLinking }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
             ...(expirationSeconds && { expirationSeconds }),
@@ -2074,6 +2077,7 @@ export class TurnkeyClient {
       oidcToken,
       publicKey,
       organizationId,
+      requiresSocialLinking = false,
       invalidateExisting = false,
       sessionKey = SessionKey.DefaultSessionkey,
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -2087,6 +2091,33 @@ export class TurnkeyClient {
             "Public key must be provided to log in with OAuth. Please create a key pair first.",
             TurnkeyErrorCodes.MISSING_PARAMS,
           );
+        }
+
+        if (requiresSocialLinking) {
+          // The account was matched by verified email, so this OIDC identity is not yet
+          // registered on it and stampLogin cannot authenticate with it. The auth proxy's
+          // oauth_login registers the identity and returns a session in one call.
+          // organizationId is deliberately omitted: providing it makes oauth_login skip
+          // the social-linking flow.
+          const proxyRes = await this.httpClient.proxyOAuthLogin({
+            oidcToken,
+            publicKey,
+            invalidateExisting,
+          });
+
+          if (!proxyRes?.session) {
+            throw new TurnkeyError(
+              "No session returned from OAuth login",
+              TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+            );
+          }
+
+          await this.storeSession({
+            sessionToken: proxyRes.session,
+            sessionKey,
+          });
+
+          return { sessionToken: proxyRes.session };
         }
 
         // We override the attested stamper with the oidcToken so the stampLogin request can be stamped with it.

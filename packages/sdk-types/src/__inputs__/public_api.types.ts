@@ -4493,6 +4493,8 @@ export type definitions = {
   v1GetTvcAppsRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
+    /** @description Filter TVC Apps by whether they have a live deployment. If omitted, all TVC Apps are returned. */
+    isLive?: boolean;
   };
   v1GetTvcAppsResponse: {
     /** @description A list of TVC Apps. */
@@ -7881,8 +7883,11 @@ export type definitions = {
   };
   v1VelocityControlAggregationWindowInfinite: { [key: string]: unknown };
   v1VelocityControlAggregationWindowRolling: {
-    /** @description Duration of the rolling window, in seconds, as a base-10 integer string. */
-    duration: string;
+    /**
+     * Format: int64
+     * @description Duration of the rolling window, in seconds.
+     */
+    duration: number;
   };
   v1VelocityControlDataSource: {
     /** @description Uses transfers of the listed on-chain assets as input data. */
@@ -7909,8 +7914,11 @@ export type definitions = {
   v1VelocityControlDataSourceChainAssetTransferDefinition: {
     /** @description CAIP-19 identifier for the asset. */
     caip19: string;
-    /** @description Base-10 integer string from 0 through 255 that specifies the number of decimal places for the asset. */
-    decimals: string;
+    /**
+     * Format: int64
+     * @description Integer between 0 and 255 (inclusive) that specifies the number of decimal places for the asset.
+     */
+    decimals: number;
   };
   v1VelocityControlDataSourceChainAssetTransferFilter: {
     /** @description Activity types whose asset transfers are included. */
