@@ -1,0 +1,60 @@
+name: workers
+
+# Runs the SDK packages inside Cloudflare's workerd runtime (see
+# internal/workers-e2e). This catches runtime-specific breaks that Node tests
+# miss, such as @turnkey/http sending `redirect: "error"`, which workerd
+# rejects. Everything runs against a local mock API with a throwaway key: no
+# secrets and no calls to the Turnkey API.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch: # Allows manual invocation
+
+permissions:
+  contents: read
+
+concurrency:
+  # We only want to cancel previous runs on PRs and let the pushes to main complete
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+
+jobs:
+  workers-e2e:
+    name: Workers (${{ matrix.config }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The no-compat config is expected to fail until EMG-140 lands:
+    # @turnkey/sdk-server builds a client from `process.env` at module scope
+    # (packages/sdk-server/src/actions.ts), so a Worker without nodejs_compat
+    # crashes at startup with "process is not defined". Remove
+    # `expected-failure` from that entry once the fix lands.
+    continue-on-error: ${{ matrix.expected-failure }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - config: compat
+            expected-failure: false
+          - config: no-compat
+            expected-failure: true
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      # Install and cache JS toolchain and dependencies (node_modules)
+      - name: Setup JS
+        uses: ./.github/actions/js-setup
+
+      # Builds the workspace packages that the test Worker imports
+      - name: Build
+        run: pnpm turbo build --filter='@turnkey/workers-e2e^...'
+
+      - name: Test
+        run: pnpm --filter=@turnkey/workers-e2e run test:workers:${{ matrix.config }}

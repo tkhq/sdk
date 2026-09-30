@@ -1,0 +1,9 @@
+// Current compatibility date with nodejs_compat. This is how most Workers
+// that use the Turnkey SDK run today. All checks must pass here.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "workers-e2e-compat",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-09-21",
+  "compatibility_flags": ["nodejs_compat"],
+}

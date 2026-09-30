@@ -1,0 +1,26 @@
+{
+  "name": "@turnkey/workers-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Runs the Turnkey SDK packages inside Cloudflare's workerd runtime against a local mock API",
+  "type": "module",
+  "scripts": {
+    "test:workers": "node --test test/workers.test.mjs",
+    "test:workers:compat": "WORKERS_E2E_CONFIG=compat node --test test/workers.test.mjs",
+    "test:workers:no-compat": "WORKERS_E2E_CONFIG=no-compat node --test test/workers.test.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@noble/curves": "1.9.0",
+    "@noble/hashes": "1.8.0",
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/crypto": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260921.1",
+    "wrangler": "4.136.1"
+  }
+}

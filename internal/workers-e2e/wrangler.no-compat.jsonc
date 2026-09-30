@@ -1,0 +1,13 @@
+// An old compatibility date with no flags: no nodejs_compat and no `process`
+// global. A current date with `no_nodejs_compat` is not the same: wrangler
+// still polyfills `process` for current dates, which hides the crash below.
+//
+// Expected to fail today: @turnkey/sdk-server builds a client from
+// `process.env` at module scope (packages/sdk-server/src/actions.ts), so the
+// Worker fails at startup with "process is not defined". Tracked in EMG-140.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "workers-e2e-no-compat",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-07-01",
+}
