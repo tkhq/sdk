@@ -9,6 +9,7 @@ import clsx from "clsx";
 import { OtpVerification } from "../auth/OTP";
 import { SuccessPage } from "../design/Success";
 import { OtpType, StamperType } from "@turnkey/core";
+import { useTurnstile } from "../auth/TurnstileWidget";
 
 export function UpdateEmail(params: {
   onSuccess: (userId: string) => void;
@@ -38,13 +39,22 @@ export function UpdateEmail(params: {
     return e.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) && e !== email;
   };
 
+  const { turnstile, consumeToken, turnstileConfigured } = useTurnstile({
+    visible: !isLoading,
+  });
+
   const handleContinue = async () => {
     if (isValidEmail(emailInput)) {
       try {
+        const captchaParams = await consumeToken();
+        if (turnstileConfigured && !("captchaToken" in captchaParams)) {
+          return;
+        }
         setIsLoading(true);
         const { otpId, otpEncryptionTargetBundle } = await initOtp({
           otpType: OtpType.Email,
           contact: emailInput,
+          ...captchaParams,
         });
         pushPage({
           key: "Verify OTP",
@@ -118,7 +128,7 @@ export function UpdateEmail(params: {
   };
 
   return (
-    <div className={clsx("mt-8", isMobile ? "w-full" : "w-72")}>
+    <div className={clsx("mt-8", isMobile ? "w-full" : "w-80")}>
       <div className="my-6 flex flex-col items-center">
         <FontAwesomeIcon icon={faEnvelope} size={"2xl"} />
         <div className="text-2xl font-bold py-2 text-center">
@@ -131,6 +141,7 @@ export function UpdateEmail(params: {
         )}
       </div>
       <div className="flex flex-col gap-4 my-3">
+        {turnstile}
         <Input
           type="email"
           placeholder={email ? email : "your@email.com"}

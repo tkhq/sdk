@@ -117,6 +117,7 @@ export function useTurnstile(options?: UseTurnstileOptions) {
     setAuthEnabled(true);
     setTurnstileErrorMessage(null);
     settlePendingToken(token);
+    setShowTurnstilePrompt(false);
   };
 
   const onError = () => {
