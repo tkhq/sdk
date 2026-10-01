@@ -1,9 +1,11 @@
 /**
- * Strict destination-binding parsing (EMG-123, plus `sbm:frame-origin` from
- * EMG-66). A malformed part never falls back to a looser binding: a bad
- * `sbm:fields` must not turn a card secret into an origin-only one.
+ * Destination-binding parsing (EMG-123, plus `sbm:frame-origin` from EMG-66).
+ * It accepts the same secrets as secure-browser-mcp's `parseBinding`
+ * (`src/broker/mock-secrets.ts`), so existing secrets keep working. A
+ * malformed part never falls back to a looser binding: a bad `sbm:fields`
+ * must not turn a card secret into an origin-only one.
  */
-import { compileUrlPattern, isExactHttpOrigin } from "./matcher";
+import { compileUrlPattern, isExactHttpOrigin, isExactOrigin } from "./matcher";
 import {
   BINDING_KEY_PREFIX,
   BINDING_KEYS,
@@ -14,10 +16,6 @@ import {
   type StaticProperties,
 } from "./types";
 
-const KNOWN_BINDING_KEYS: ReadonlySet<string> = new Set(
-  Object.values(BINDING_KEYS),
-);
-
 const hasOwn = (object: object, key: string): boolean =>
   Object.prototype.hasOwnProperty.call(object, key);
 
@@ -27,14 +25,15 @@ const invalid = (error: BindingErrorCode): ParsedBinding =>
 /**
  * Parses the destination binding from a secret's static properties.
  *
- * - No `sbm:` keys: `unbound`. Unbound secrets are never fillable.
- * - Any `sbm:` key that this package does not know, a non-string value for
- *   an `sbm:` key, or an `sbm:` key without `sbm:origin`: `invalid`.
+ * - A non-string value for any `sbm:` key: `invalid`.
+ * - No `sbm:origin`: `unbound`, even when other `sbm:` keys are present.
+ *   Unbound secrets are never fillable. This matches secure-browser-mcp.
  * - Otherwise each declared part must be well formed, or the result is
  *   `invalid`.
  *
- * Keys outside the `sbm:` namespace, such as relay `demo:*` keys, are
- * ignored here and kept on the `SecretRef`.
+ * Unknown `sbm:` keys and keys outside the `sbm:` namespace, such as relay
+ * `demo:*` keys, are ignored here and kept on the `SecretRef`, as in
+ * secure-browser-mcp.
  */
 export function parseBinding(staticProperties: unknown): ParsedBinding {
   if (
@@ -48,10 +47,8 @@ export function parseBinding(staticProperties: unknown): ParsedBinding {
   const bindingKeys = Object.keys(props).filter((key) =>
     key.startsWith(BINDING_KEY_PREFIX),
   );
-  if (bindingKeys.length === 0) return Object.freeze({ status: "unbound" });
-  if (bindingKeys.some((key) => !KNOWN_BINDING_KEYS.has(key))) {
-    return invalid("unknown_binding_key");
-  }
+  // Turnkey static properties are always strings, so this check does not
+  // change which existing secrets parse.
   if (bindingKeys.some((key) => typeof props[key] !== "string")) {
     return invalid("invalid_property_value");
   }
@@ -59,8 +56,8 @@ export function parseBinding(staticProperties: unknown): ParsedBinding {
     hasOwn(props, key) ? (props[key] as string) : undefined;
 
   const origin = read(BINDING_KEYS.origin);
-  if (origin === undefined) return invalid("missing_origin");
-  if (!isExactHttpOrigin(origin)) return invalid("invalid_origin");
+  if (origin === undefined) return Object.freeze({ status: "unbound" });
+  if (!isExactOrigin(origin)) return invalid("invalid_origin");
   const binding: {
     origin: string;
     frameOrigin?: string;
@@ -69,6 +66,7 @@ export function parseBinding(staticProperties: unknown): ParsedBinding {
     fields?: Readonly<Record<string, string>>;
   } = { origin };
 
+  // EMG-66 requires an HTTP(S) frame origin.
   const frameOrigin = read(BINDING_KEYS.frameOrigin);
   if (frameOrigin !== undefined) {
     if (!isExactHttpOrigin(frameOrigin)) return invalid("invalid_frame_origin");
@@ -77,7 +75,8 @@ export function parseBinding(staticProperties: unknown): ParsedBinding {
 
   const urlPattern = read(BINDING_KEYS.urlPattern);
   if (urlPattern !== undefined) {
-    if (!urlPattern.trim()) return invalid("invalid_url_pattern");
+    // Like secure-browser-mcp, any pattern that compiles is valid, including
+    // a blank one. `matchesUrl` treats "" as no pattern, as SBM does.
     try {
       compileUrlPattern(origin, urlPattern);
     } catch {

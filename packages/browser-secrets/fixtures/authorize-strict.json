@@ -1,5 +1,5 @@
 {
-  "description": "Stricter M1 rules and observation checks that SBM does not have yet.",
+  "description": "M1 rules and observation checks that SBM main does not have. None of them refuses a secret or request that SBM main fills.",
   "cases": [
     {
       "kind": "authorize",
@@ -47,59 +47,8 @@
     },
     {
       "kind": "authorize",
-      "name": "refuses one element named twice with different keys",
-      "source": "browser-secrets M1 strict rule: one element receives at most one value (SBM deduplicates key+element only)",
-      "secret": {
-        "secretId": "card-2",
-        "staticProperties": {
-          "sbm:origin": "https://shop.example",
-          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
-        }
-      },
-      "request": {
-        "targets": [
-          {
-            "key": "number",
-            "elementId": "cardNumber"
-          },
-          {
-            "key": "cvc",
-            "elementId": "cardNumber"
-          }
-        ]
-      },
-      "observation": {
-        "browserSessionId": "session-1",
-        "tabId": "tab-1",
-        "topLevelUrl": "https://shop.example/checkout",
-        "targets": [
-          {
-            "elementId": "cardNumber",
-            "frames": [
-              {
-                "frameId": "main",
-                "documentId": "doc-main-64",
-                "url": "https://shop.example/checkout",
-                "origin": "https://shop.example"
-              }
-            ],
-            "selectorMatches": {
-              "input[name=cardNumber]": true,
-              "input[name=cardCvc]": true
-            }
-          }
-        ]
-      },
-      "expect": {
-        "allowed": false,
-        "reason": "duplicate_target",
-        "targetIndex": 1
-      }
-    },
-    {
-      "kind": "authorize",
       "name": "refuses an inherited Object property as a field key",
-      "source": "browser-secrets M1 strict rule: field keys are own properties only (SBM looked up fields[key] on a plain object)",
+      "source": "browser-secrets M1 rule: field keys are own properties only. SBM main (src/tools/fill-common.ts validateTargets) reads fields[key] on a plain object, gets a function for \"constructor\", and the fill throws, so no existing secret fills this way",
       "secret": {
         "secretId": "card-2",
         "staticProperties": {

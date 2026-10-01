@@ -25,6 +25,19 @@ describe("createSecretRef", () => {
     expect(ref.staticProperties["sbm:origin"]).toBe("https://shop.example");
   });
 
+  test("keeps an unknown sbm: key and ignores it, as secure-browser-mcp does", () => {
+    const ref = createSecretRef({
+      secretId: "s1",
+      staticProperties: {
+        "sbm:origin": "https://shop.example",
+        "sbm:selecter": "input",
+      },
+    });
+    expect(ref.staticProperties["sbm:selecter"]).toBe("input");
+    expect(ref.binding).toEqual({ origin: "https://shop.example" });
+    expect(ref.bindingError).toBeUndefined();
+  });
+
   test("reports a malformed binding as a code, not a message", () => {
     const ref = createSecretRef({
       secretId: "s1",

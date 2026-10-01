@@ -14,7 +14,10 @@
  * visible to Turnkey policies.
  */
 export const BINDING_KEYS = {
-  /** Required. Exact top-level page origin, for example `https://github.com`. */
+  /**
+   * Required. Exact top-level page origin, for example `https://github.com`.
+   * Without it the secret is unbound, whatever other `sbm:` keys it has.
+   */
   origin: "sbm:origin",
   /**
    * Optional. Exact origin of the iframe that receives the secret. When set,
@@ -22,7 +25,10 @@ export const BINDING_KEYS = {
    * and a same-origin iframe needs it too.
    */
   frameOrigin: "sbm:frame-origin",
-  /** Optional. Top-level pathname pattern in `URLPattern` syntax, for example `/login*`. */
+  /**
+   * Optional. Top-level pathname pattern in `URLPattern` syntax, for example
+   * `/login*`. An empty value constrains nothing.
+   */
   urlPattern: "sbm:url-pattern",
   /** Optional. CSS selector that the target element must match. */
   selector: "sbm:selector",
@@ -54,8 +60,6 @@ export type SecretBinding = {
 /** Why a declared binding cannot be used. A secret with one never fills. */
 export type BindingErrorCode =
   | "invalid_property_value"
-  | "unknown_binding_key"
-  | "missing_origin"
   | "invalid_origin"
   | "invalid_frame_origin"
   | "invalid_url_pattern"

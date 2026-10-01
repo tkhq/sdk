@@ -5,6 +5,7 @@ import {
   getURLPattern,
   getURLPatternSource,
   isExactHttpOrigin,
+  isExactOrigin,
   matchesOrigin,
   matchesUrl,
 } from "../index";
@@ -55,6 +56,29 @@ describe("matcher", () => {
     }
   });
 
+  test("exact origins of any scheme, as secure-browser-mcp parses sbm:origin", () => {
+    for (const value of [
+      "https://shop.example",
+      "http://localhost:4173",
+      "ftp://shop.example",
+      "wss://shop.example:8443",
+    ]) {
+      expect(isExactOrigin(value)).toBe(true);
+    }
+    for (const value of [
+      "https://shop.example/",
+      "https://Shop.example",
+      "https://shop.example:443",
+      "https://u:p@shop.example",
+      "file:///tmp/x",
+      "blob:https://shop.example/x",
+      "null",
+      "",
+    ]) {
+      expect(isExactOrigin(value)).toBe(false);
+    }
+  });
+
   test("matchesOrigin compares the parsed origin exactly", () => {
     expect(
       matchesOrigin("https://shop.example/a?b#c", "https://shop.example"),
@@ -95,6 +119,13 @@ describe("matcher", () => {
     // Credentials do not change the origin; both implementations ignore them.
     ["/login*", "https://u:p@shop.example/login", true],
     ["/caf%C3%A9*", "https://shop.example/café", true],
+    // An empty pattern is no pattern, as in secure-browser-mcp.
+    ["", "https://shop.example/any/path", true],
+    ["", "https://evil.example/", false],
+    // A blank pattern is a real pattern, not "no pattern". What " " matches
+    // differs between URLPattern implementations (Node 24 and 26 disagree on
+    // "/%20"), so only a plain path is checked here.
+    [" ", "https://shop.example/login", false],
   ];
 
   test.each(cases)(

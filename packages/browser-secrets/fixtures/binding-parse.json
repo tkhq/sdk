@@ -343,27 +343,28 @@
     },
     {
       "kind": "parse",
-      "name": "an unknown sbm: key is rejected",
-      "source": "browser-secrets M1 strict rule: a misspelled sbm: key must not drop a restriction",
+      "name": "an unknown sbm: key is ignored",
+      "source": "secure-browser-mcp@cf13c4e src/broker/mock-secrets.ts parseBinding (reads only the keys it knows)",
       "staticProperties": {
         "sbm:origin": "https://shop.example",
         "sbm:selecter": "input"
       },
       "expect": {
-        "status": "invalid",
-        "error": "unknown_binding_key"
+        "status": "bound",
+        "binding": {
+          "origin": "https://shop.example"
+        }
       }
     },
     {
       "kind": "parse",
-      "name": "sbm: keys without sbm:origin are rejected",
-      "source": "browser-secrets M1 strict rule: a partial binding is malformed, not unbound",
+      "name": "sbm: keys without sbm:origin mean no binding",
+      "source": "secure-browser-mcp@cf13c4e src/broker/mock-secrets.ts parseBinding (if (origin === undefined) return {})",
       "staticProperties": {
         "sbm:selector": "input[type=password]"
       },
       "expect": {
-        "status": "invalid",
-        "error": "missing_origin"
+        "status": "unbound"
       }
     },
     {
@@ -381,27 +382,48 @@
     },
     {
       "kind": "parse",
-      "name": "a non-HTTP(S) origin is rejected",
-      "source": "browser-secrets M1 strict rule: sbm:origin must be HTTP(S), like sbm:frame-origin",
+      "name": "a non-HTTP(S) origin with a serialized origin is accepted",
+      "source": "secure-browser-mcp@cf13c4e src/broker/mock-secrets.ts parseBinding (new URL(origin).origin === origin, not \"null\")",
       "staticProperties": {
         "sbm:origin": "ftp://shop.example"
       },
       "expect": {
-        "status": "invalid",
-        "error": "invalid_origin"
+        "status": "bound",
+        "binding": {
+          "origin": "ftp://shop.example"
+        }
       }
     },
     {
       "kind": "parse",
-      "name": "a blank url pattern is rejected",
-      "source": "browser-secrets M1 strict rule: a blank sbm:url-pattern is malformed",
+      "name": "a blank url pattern is accepted",
+      "source": "secure-browser-mcp@cf13c4e src/broker/mock-secrets.ts parseBinding (new URLPattern({ pathname, baseURL: origin }) succeeds)",
       "staticProperties": {
         "sbm:origin": "https://shop.example",
         "sbm:url-pattern": " "
       },
       "expect": {
-        "status": "invalid",
-        "error": "invalid_url_pattern"
+        "status": "bound",
+        "binding": {
+          "origin": "https://shop.example",
+          "urlPattern": " "
+        }
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "an empty url pattern is accepted",
+      "source": "secure-browser-mcp@cf13c4e src/broker/mock-secrets.ts parseBinding (new URLPattern({ pathname, baseURL: origin }) succeeds)",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:url-pattern": ""
+      },
+      "expect": {
+        "status": "bound",
+        "binding": {
+          "origin": "https://shop.example",
+          "urlPattern": ""
+        }
       }
     }
   ]

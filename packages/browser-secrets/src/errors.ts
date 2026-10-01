@@ -25,7 +25,8 @@ export const DENY_REASON_MESSAGES: Readonly<Record<DenyReason, string>> = {
   request_invalid: "The fill request is malformed.",
   no_targets: "The fill request has no targets.",
   mixed_keyed_targets: "The fill request mixes keyed and unkeyed targets.",
-  duplicate_target: "The fill request names the same element more than once.",
+  duplicate_target:
+    "The fill request names the same element more than once for one key.",
   binding_invalid:
     "The secret's destination binding is invalid, so it cannot be filled.",
   unbound_secret:

@@ -1,10 +1,8 @@
 # @turnkey/browser-secrets
 
-[![npm](https://img.shields.io/npm/v/@turnkey/browser-secrets?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/browser-secrets)
-
 Destination binding, target authorization, and output redaction for browser agents that fill Turnkey secrets into web pages.
 
-> Status: early. This release has the binding, decision, and redaction core only. It does not call Turnkey yet. The API can change before the first stable release.
+> Status: early and unpublished (`private` in `package.json`). This version has the binding, decision, and redaction core only. It does not call Turnkey yet. The API can change before the first stable release.
 
 ## Scope
 
@@ -13,7 +11,7 @@ The package decides whether a secret may be written into a specific element on a
 This release contains:
 
 - Types for secret references, destination bindings, fill requests, and trusted target observations.
-- Strict parsing of `sbm:*` static properties into a binding (`parseBinding`, `createSecretRef`).
+- Parsing of `sbm:*` static properties into a binding (`parseBinding`, `createSecretRef`). It accepts the same secrets as Secure Browser MCP.
 - One origin and URL-pattern matcher (`matchesOrigin`, `matchesUrl`) with a `URLPattern` loader. The loader uses the global `URLPattern` when it exists (Node 24+, workerd, browsers) and `urlpattern-polyfill` otherwise (Node 20 and 22). It never falls back to a weaker wildcard.
 - A pure authorization decision (`authorize`) that returns `allowed` or a typed deny reason.
 - A redaction registry (`RedactionRegistry`) for values and document-scoped target identities.
@@ -24,15 +22,24 @@ This release contains:
 
 A secret's binding comes from its static properties, which are fixed at import:
 
-| Property           | Meaning                                                                                        |
-| ------------------ | ---------------------------------------------------------------------------------------------- |
-| `sbm:origin`       | Required. Exact top-level page origin, for example `https://shop.example`.                     |
-| `sbm:url-pattern`  | Optional. Top-level pathname pattern in `URLPattern` syntax, for example `/checkout*`.         |
-| `sbm:frame-origin` | Optional. Exact iframe origin. The secret then fills only into an iframe, never the top level. |
-| `sbm:selector`     | Optional. CSS selector the target element must match.                                          |
-| `sbm:fields`       | Optional. JSON map from payload key to CSS selector, for a JSON secret with several parts.     |
+| Property           | Meaning                                                                                                                   |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `sbm:origin`       | Required. Exact top-level page origin, for example `https://shop.example`.                                                |
+| `sbm:url-pattern`  | Optional. Top-level pathname pattern in `URLPattern` syntax, for example `/checkout*`. An empty value constrains nothing. |
+| `sbm:frame-origin` | Optional. Exact iframe origin. The secret then fills only into an iframe, never the top level.                            |
+| `sbm:selector`     | Optional. CSS selector the target element must match.                                                                     |
+| `sbm:fields`       | Optional. JSON map from payload key to CSS selector, for a JSON secret with several parts.                                |
 
-Parsing fails closed. A malformed value, an unknown `sbm:` key, or `sbm:` keys without `sbm:origin` make the binding invalid, and the secret never fills. Keys outside the `sbm:` namespace, such as relay `demo:*` keys, are kept on the `SecretRef` and ignored by the decision.
+Parsing follows Secure Browser MCP, so existing secrets keep working:
+
+- Without `sbm:origin`, the secret is unbound, even if it has other `sbm:` keys. An unbound secret never fills.
+- `sbm:origin` must be an exact, serialized origin: `new URL(value).origin` equals the value and is not `"null"`. Only HTTP(S) pages can match it.
+- `sbm:url-pattern` is valid when `new URLPattern({ pathname, baseURL: origin })` succeeds.
+- Unknown `sbm:` keys and keys outside the `sbm:` namespace, such as relay `demo:*` keys, are kept on the `SecretRef` and ignored by the decision.
+
+A malformed declared part makes the binding invalid, and the secret never fills. A malformed part never falls back to a looser binding.
+
+A request may name one element under two different keys. The same key and element twice is a duplicate.
 
 ## Usage
 

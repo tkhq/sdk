@@ -101,8 +101,6 @@ describe("fixture coverage", () => {
         "invalid_property_value",
         "invalid_selector",
         "invalid_url_pattern",
-        "missing_origin",
-        "unknown_binding_key",
       ].sort(),
     );
   });

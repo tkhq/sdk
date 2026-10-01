@@ -31,6 +31,18 @@ export function isExactHttpOrigin(value: string): boolean {
   );
 }
 
+/**
+ * Returns true when `value` is an exact, serialized, non-opaque origin of any
+ * scheme: `new URL(value).origin === value` and the origin is not `"null"`.
+ * This is the `sbm:origin` rule in secure-browser-mcp's `parseBinding`
+ * (`src/broker/mock-secrets.ts`). A non-HTTP(S) origin parses but never
+ * matches a page, because `matchesOrigin` accepts HTTP(S) URLs only.
+ */
+export function isExactOrigin(value: string): boolean {
+  const url = parseUrl(value);
+  return url !== undefined && url.origin !== "null" && url.origin === value;
+}
+
 /** Returns true when `url` parses and uses `http:` or `https:`. */
 export function isHttpUrl(url: string): boolean {
   const parsed = parseUrl(url);
@@ -73,7 +85,9 @@ export type UrlRule = {
 
 /**
  * Returns true when `url` matches the rule's origin exactly and, if the rule
- * has one, its pathname pattern. An invalid pattern never matches.
+ * has one, its pathname pattern. An empty pattern counts as no pattern, as
+ * in secure-browser-mcp's `BindingPolicy` (`if (binding.urlPattern)`). An
+ * invalid pattern never matches.
  */
 export function matchesUrl(
   url: string,
@@ -81,7 +95,7 @@ export function matchesUrl(
   URLPatternImpl: URLPatternConstructor = getURLPattern(),
 ): boolean {
   if (!matchesOrigin(url, rule.origin)) return false;
-  if (rule.urlPattern === undefined) return true;
+  if (!rule.urlPattern) return true;
   let pattern: URLPatternLike;
   try {
     pattern = compileUrlPattern(rule.origin, rule.urlPattern, URLPatternImpl);

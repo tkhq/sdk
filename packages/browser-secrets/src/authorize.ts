@@ -138,11 +138,14 @@ export function validateRequest(
   if (keyed !== 0 && keyed !== targets.length) {
     return deny("mixed_keyed_targets");
   }
-  // One element receives at most one value, whatever the keys.
+  // The same key and element twice is a duplicate. One element under two
+  // keys is allowed, as in secure-browser-mcp's validateTargets
+  // (src/tools/fill-common.ts), which deduplicates on key plus element.
   const seen = new Set<string>();
   for (const [index, target] of targets.entries()) {
-    if (seen.has(target.elementId)) return deny("duplicate_target", index);
-    seen.add(target.elementId);
+    const tag = `${target.key ?? ""}\u0000${target.elementId}`;
+    if (seen.has(tag)) return deny("duplicate_target", index);
+    seen.add(tag);
   }
 
   const parsed = parseBinding(ref?.staticProperties);
@@ -159,7 +162,10 @@ export function validateRequest(
         return deny("unkeyed_target_for_field_binding", index);
       }
     } else if (!binding.fields || !hasOwn(binding.fields, target.key)) {
-      // The agent cannot invent destinations for payload parts.
+      // The agent cannot invent destinations for payload parts. Only own
+      // keys count: an inherited property such as `constructor` is not a
+      // field. SBM reads `fields[key]` on a plain object, gets a function,
+      // and the fill throws, so refusing it here breaks no existing secret.
       return deny("unknown_field_key", index);
     }
   }
