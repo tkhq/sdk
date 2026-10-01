@@ -103,15 +103,9 @@ async function main() {
   }
   console.log(`Exported secret plaintext matches the imported credential ✅`);
 
-  // 5/ Retrieve several credentials in one call. Each secret carries its own
-  // request context, bound into the signed request for audit; claims are
-  // never merged across secrets. Exports run as activities of at most 32
-  // secrets, and authorization is all-or-nothing per activity: if any
-  // activity fails, no plaintext is returned, even though earlier activities
-  // already completed. The decryption keys live only in this call's memory,
-  // so plaintext cannot be recovered after an error. Use
-  // createExportSecretsProposal / submitExportSecrets / awaitExportedSecrets
-  // when you need approvals or a recoverable flow.
+  // 5/ Retrieve several credentials in one call. Each secret's request
+  // context is bound into the signed request for audit; see the
+  // exportSecretsAndDecrypt docs for chunking and failure semantics.
   const backupJwt = `demo-ems-backup-jwt-${suffix}`;
   const backupSecretId = await apiClient.importSecret({
     plaintext: backupJwt,
