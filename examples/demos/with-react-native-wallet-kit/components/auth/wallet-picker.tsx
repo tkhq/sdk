@@ -209,7 +209,15 @@ export function WalletPicker({ visible, onClose, onSign }: WalletPickerProps) {
         if (attempt !== attemptRef.current) return;
         handleConnected(connectingEntry);
       } catch {
-        // noop
+        // the connection was cancelled or failed in the wallet app, so we go back
+        // to the wallet list (core has already generated a fresh pairing URI)
+        if (attempt !== attemptRef.current) return;
+        startedForRef.current = undefined;
+        setStep({ type: "wallets" });
+        Alert.alert(
+          `Couldn't connect to ${connectingEntry.name}`,
+          "Please try again.",
+        );
       }
     })();
     // should only re-run when the selected wallet or its provider state changes
