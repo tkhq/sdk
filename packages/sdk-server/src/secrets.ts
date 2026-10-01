@@ -45,8 +45,22 @@ export type SecretMetadata = {
   createdAtUnixMs: string;
 };
 
+/** Server-enforced limit on items in one `export_secrets` activity. */
+export const MAX_SECRETS_PER_EXPORT_ACTIVITY = 32;
+
+export type ExportSecretItem = {
+  secretId: string;
+  /**
+   * Claims bound into the signed request for this secret only, for policy and
+   * audit. Never merged across items.
+   */
+  requestContext?: Record<string, string>;
+};
+
 export type ExportSecretParams = {
   secretId: string;
+  /** Claims bound into the signed request for this secret, for policy and audit. */
+  requestContext?: Record<string, string>;
   organizationId?: string;
   timestampMs?: string;
   /** How long to wait for the activity to reach a terminal status. Defaults to 60s. */
@@ -57,8 +71,22 @@ export type ExportSecretParams = {
   dangerouslyOverrideSignerPublicKey?: string;
 };
 
+export type ExportSecretsAndDecryptParams = {
+  /** Any length; split into sequential activities of at most 32. IDs must be distinct across the whole call. */
+  secrets: ExportSecretItem[];
+  organizationId?: string;
+  /** Reused for every chunk when set, so long calls may outlive its validity window. Defaults to each chunk's creation time. */
+  timestampMs?: string;
+  /** Completion wait per chunk, not an overall deadline. Defaults to 60s. */
+  timeoutMs?: number;
+  /** Defaults to 500ms. */
+  pollingIntervalMs?: number;
+  /** Override the signer public key used to verify enclave bundles. Testing only. */
+  dangerouslyOverrideSignerPublicKey?: string;
+};
+
 export type CreateExportSecretsProposalParams = {
-  secrets: { secretId: string }[];
+  secrets: ExportSecretItem[];
   /** Recipient's ephemeral P-256 public key (65-byte uncompressed hex, e.g. `generateP256KeyPair().publicKeyUncompressed`). Only the holder of the private half can decrypt the export. */
   targetPublicKey: string;
   organizationId?: string;

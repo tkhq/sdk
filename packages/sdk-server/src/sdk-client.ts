@@ -19,10 +19,13 @@ import {
 import { fetch } from "./universal";
 import { VERSION } from "./__generated__/version";
 import {
+  MAX_SECRETS_PER_EXPORT_ACTIVITY,
   TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1,
   type AwaitExportedSecretsParams,
   type CreateExportSecretsProposalParams,
+  type ExportSecretItem,
   type ExportSecretParams,
+  type ExportSecretsAndDecryptParams,
   type ExportSecretsProposal,
   type GetSecretsParams,
   type ImportSecretParams,
@@ -45,6 +48,54 @@ import type {
   NextApiResponse,
   NextApiHandler,
 } from "./__types__/base";
+
+function consensusNeededError(label: string, cause: unknown): TurnkeyError {
+  return new TurnkeyError(
+    `Secret export requires consensus (${label}). Use createExportSecretsProposal/submitExportSecrets ` +
+      `so co-signers can approve and the recipient retains the decryption key.`,
+    TurnkeyErrorCodes.EXPORT_SECRET_CONSENSUS_NEEDED,
+    cause,
+  );
+}
+
+/** Validates export input and copies it so later caller mutation is invisible. */
+function snapshotExportSecrets(secrets: unknown): ExportSecretItem[] {
+  const fail = (message: string): never => {
+    throw new TurnkeyError(message, TurnkeyErrorCodes.EXPORT_SECRET_ERROR);
+  };
+  if (!Array.isArray(secrets) || secrets.length === 0) {
+    return fail("At least one secret must be provided");
+  }
+  const seen = new Set<string>();
+  return secrets.map((item, index): ExportSecretItem => {
+    const { secretId, requestContext } = (item ?? {}) as Record<
+      string,
+      unknown
+    >;
+    if (typeof secretId !== "string" || secretId === "") {
+      return fail(`secrets[${index}].secretId must be a non-empty string`);
+    }
+    if (seen.has(secretId)) {
+      return fail(`Duplicate secretId ${secretId} at secrets[${index}]`);
+    }
+    seen.add(secretId);
+    if (requestContext === undefined) return { secretId };
+    if (
+      requestContext === null ||
+      typeof requestContext !== "object" ||
+      Array.isArray(requestContext)
+    ) {
+      return fail(`secrets[${index}].requestContext must be an object`);
+    }
+    const entries = Object.entries(requestContext);
+    for (const [key, value] of entries) {
+      if (typeof value !== "string") {
+        fail(`secrets[${index}].requestContext.${key} must be a string`);
+      }
+    }
+    return { secretId, requestContext: Object.fromEntries(entries) };
+  });
+}
 
 const DEFAULT_API_PROXY_ALLOWED_METHODS = [
   "oauth",
@@ -338,61 +389,115 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
   /**
    * Exports a secret and returns its plaintext — the unilateral path.
    *
-   * Generates a single-use P-256 target key internally, submits the export
-   * activity, polls it to completion, and decrypts the payload. If the export
+   * Delegates to `exportSecretsAndDecrypt` with a single item. If the export
    * requires additional approvals this throws with
    * `EXPORT_SECRET_CONSENSUS_NEEDED`; use `createExportSecretsProposal` /
    * `submitExportSecrets` for multi-party flows instead.
    */
   exportSecret = async (params: ExportSecretParams): Promise<string> => {
+    const { secretId, requestContext, ...options } = params;
+    const [plaintext] = await this.exportSecretsAndDecrypt({
+      ...options,
+      secrets: [{ secretId, ...(requestContext ? { requestContext } : {}) }],
+    });
+    // The shared await path guarantees one plaintext per requested secret.
+    return plaintext!;
+  };
+
+  /**
+   * Exports and decrypts secrets, returning plaintexts in input order — the
+   * unilateral path for any number of secrets.
+   *
+   * Runs sequential activities of at most 32 secrets, each encrypted to its
+   * own in-memory recipient key. Each item's `requestContext` is bound into
+   * the signed request for that secret only. Authorization is all-or-nothing
+   * per activity, not across the call: if a later chunk fails, earlier chunks
+   * have already completed (and are audited), but no plaintext is returned.
+   * Recipient keys never leave this call, so plaintext cannot be recovered
+   * after an error or process loss.
+   *
+   * Throws `EXPORT_SECRET_CONSENSUS_NEEDED` if any chunk requires approvals;
+   * use `createExportSecretsProposal` / `submitExportSecrets` /
+   * `awaitExportedSecrets` for multi-party or recoverable flows.
+   */
+  exportSecretsAndDecrypt = async (
+    params: ExportSecretsAndDecryptParams,
+  ): Promise<string[]> => {
+    // Everything is read from params before the first await, so callers
+    // mutating their input mid-call cannot change later chunks.
     const organizationId = params.organizationId ?? this.config.organizationId;
-    // The export activity requires a 65-byte uncompressed target key.
-    const { privateKey, publicKeyUncompressed } = generateP256KeyPair();
-
-    const proposal = this.createExportSecretsProposal({
-      secrets: [{ secretId: params.secretId }],
-      targetPublicKey: publicKeyUncompressed,
-      organizationId,
-      timestampMs: params.timestampMs ?? String(Date.now()),
-    });
-
-    const submitted = await this.submitExportSecrets(proposal);
-    // Fail fast rather than wait on approvals: they belong to the multi-party
-    // flow, where the recipient retains the decryption key across signers.
-    if (submitted.status === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
-      throw new TurnkeyError(
-        `Secret export requires consensus. Use createExportSecretsProposal/submitExportSecrets ` +
-          `so co-signers can approve and the recipient retains the decryption key.`,
-        TurnkeyErrorCodes.EXPORT_SECRET_CONSENSUS_NEEDED,
-        submitted,
-      );
+    const secrets = snapshotExportSecrets(params.secrets);
+    const {
+      timestampMs,
+      timeoutMs = 60_000,
+      pollingIntervalMs = 500,
+      dangerouslyOverrideSignerPublicKey,
+    } = params;
+    for (const [name, value] of [
+      ["timeoutMs", timeoutMs],
+      ["pollingIntervalMs", pollingIntervalMs],
+    ] as const) {
+      if (!Number.isFinite(value) || value <= 0) {
+        throw new TurnkeyError(
+          `${name} must be a positive finite number`,
+          TurnkeyErrorCodes.EXPORT_SECRET_ERROR,
+        );
+      }
     }
 
-    const [plaintext] = await this.awaitExportedSecrets({
-      proposal,
-      activityId: submitted.activityId,
-      embeddedPrivateKey: privateKey,
-      ...(params.timeoutMs !== undefined
-        ? { timeoutMs: params.timeoutMs }
-        : {}),
-      ...(params.pollingIntervalMs !== undefined
-        ? { pollingIntervalMs: params.pollingIntervalMs }
-        : {}),
-      ...(params.dangerouslyOverrideSignerPublicKey
-        ? {
-            dangerouslyOverrideSignerPublicKey:
-              params.dangerouslyOverrideSignerPublicKey,
-          }
-        : {}),
-    });
+    const chunkCount = Math.ceil(
+      secrets.length / MAX_SECRETS_PER_EXPORT_ACTIVITY,
+    );
+    const plaintexts: string[] = [];
+    for (let chunk = 0; chunk < chunkCount; chunk++) {
+      // The export activity requires a 65-byte uncompressed target key.
+      const { privateKey, publicKeyUncompressed } = generateP256KeyPair();
+      const proposal = this.createExportSecretsProposal({
+        secrets: secrets.slice(
+          chunk * MAX_SECRETS_PER_EXPORT_ACTIVITY,
+          (chunk + 1) * MAX_SECRETS_PER_EXPORT_ACTIVITY,
+        ),
+        targetPublicKey: publicKeyUncompressed,
+        organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+      });
+      const label = `chunk ${chunk + 1}/${chunkCount}, organization ${organizationId}, fingerprint ${proposal.fingerprint}`;
 
-    if (plaintext === undefined) {
-      throw new TurnkeyError(
-        "No secret payload found in the export secrets response",
-        TurnkeyErrorCodes.EXPORT_SECRET_ERROR,
+      let submitted: SubmitExportSecretsResult;
+      try {
+        submitted = await this.submitExportSecrets(proposal);
+      } catch (error) {
+        if (error instanceof TurnkeyRequestError) throw error;
+        // The POST may have landed; resubmitting could create a second export.
+        throw new TurnkeyError(
+          `Export secrets submission failed before an activity ID was received (${label}); ` +
+            `the outcome is unknown. Look the activity up by fingerprint before retrying.`,
+          TurnkeyErrorCodes.EXPORT_SECRET_ERROR,
+          error,
+        );
+      }
+      // Fail fast rather than wait on approvals: they belong to the multi-party
+      // flow, where the recipient retains the decryption key across signers.
+      if (submitted.status === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+        throw consensusNeededError(label, submitted);
+      }
+
+      plaintexts.push(
+        ...(await this.awaitAndDecryptExport({
+          proposal,
+          activityId: submitted.activityId,
+          embeddedPrivateKey: privateKey,
+          timeoutMs,
+          pollingIntervalMs,
+          failOnConsensusNeeded: true,
+          label,
+          ...(dangerouslyOverrideSignerPublicKey
+            ? { dangerouslyOverrideSignerPublicKey }
+            : {}),
+        })),
       );
     }
-    return plaintext;
+    return plaintexts;
   };
 
   /**
@@ -413,10 +518,19 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
       timestampMs: params.timestampMs,
       organizationId,
       parameters: {
-        secrets: params.secrets.map((secret) => ({
-          secretId: secret.secretId,
+        secrets: params.secrets.map(({ secretId, requestContext }) => ({
+          secretId,
           targetPublicKey: params.targetPublicKey,
           encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1,
+          // Omitted when empty so context-free bodies keep their prior bytes,
+          // and co-signers on older SDK versions keep voting on one activity.
+          ...(requestContext && Object.keys(requestContext).length > 0
+            ? {
+                requestContext: Object.entries(requestContext).map(
+                  ([key, value]) => ({ key, value }),
+                ),
+              }
+            : {}),
         })),
       },
     };
@@ -487,6 +601,19 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
    */
   awaitExportedSecrets = async (
     params: AwaitExportedSecretsParams,
+  ): Promise<string[]> =>
+    this.awaitAndDecryptExport({
+      ...params,
+      // Multi-party recipients keep their key, so they wait through approvals.
+      failOnConsensusNeeded: false,
+      label: `fingerprint ${params.proposal.fingerprint}`,
+    });
+
+  private awaitAndDecryptExport = async (
+    params: AwaitExportedSecretsParams & {
+      failOnConsensusNeeded: boolean;
+      label: string;
+    },
   ): Promise<string[]> => {
     const {
       proposal,
@@ -512,7 +639,7 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
     }
     if (!activityId) {
       throw new TurnkeyError(
-        `Timed out after ${timeoutMs}ms waiting for export secrets activity ${proposal.fingerprint}`,
+        `Timed out after ${timeoutMs}ms waiting for export secrets activity (${params.label})`,
         TurnkeyErrorCodes.EXPORT_SECRET_ERROR,
       );
     }
@@ -522,31 +649,52 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
       activityId,
       deadline,
       pollingIntervalMs,
+      failOnConsensusNeeded: params.failOnConsensusNeeded,
+      label: params.label,
     });
 
     if (result.status !== "ACTIVITY_STATUS_COMPLETED") {
       throw new TurnkeyError(
-        `Secret export activity reached terminal status ${result.status}`,
+        `Secret export activity ${result.activityId} reached terminal status ${result.status} (${params.label})`,
         TurnkeyErrorCodes.EXPORT_SECRET_ERROR,
         result,
       );
     }
 
-    const plaintexts: string[] = [];
-    for (const secretPayload of result.secretPayloads ?? []) {
-      plaintexts.push(
-        await decryptSecretBundle({
-          secretPayload,
-          embeddedPrivateKey,
-          organizationId: proposal.organizationId,
-          ...(params.dangerouslyOverrideSignerPublicKey
-            ? {
-                dangerouslyOverrideSignerPublicKey:
-                  params.dangerouslyOverrideSignerPublicKey,
-              }
-            : {}),
-        }),
+    const requested = (JSON.parse(proposal.body) as v1ExportSecretsRequest)
+      .parameters.secrets.length;
+    const payloads = result.secretPayloads ?? [];
+    if (payloads.length !== requested || payloads.some((p) => !p)) {
+      throw new TurnkeyError(
+        `Secret export activity ${result.activityId} returned ${payloads.length} payload(s) for ` +
+          `${requested} requested secret(s), or an empty payload (${params.label})`,
+        TurnkeyErrorCodes.EXPORT_SECRET_ERROR,
       );
+    }
+
+    const plaintexts: string[] = [];
+    for (const secretPayload of payloads) {
+      try {
+        plaintexts.push(
+          await decryptSecretBundle({
+            secretPayload,
+            embeddedPrivateKey,
+            organizationId: proposal.organizationId,
+            ...(params.dangerouslyOverrideSignerPublicKey
+              ? {
+                  dangerouslyOverrideSignerPublicKey:
+                    params.dangerouslyOverrideSignerPublicKey,
+                }
+              : {}),
+          }),
+        );
+      } catch (error) {
+        throw new TurnkeyError(
+          `Failed to verify or decrypt a payload from secret export activity ${result.activityId} (${params.label})`,
+          TurnkeyErrorCodes.EXPORT_SECRET_ERROR,
+          error,
+        );
+      }
     }
     return plaintexts;
   };
@@ -590,6 +738,8 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
     activityId: string;
     deadline: number;
     pollingIntervalMs: number;
+    failOnConsensusNeeded: boolean;
+    label: string;
   }): Promise<SubmitExportSecretsResult> => {
     for (;;) {
       const { activity } = await this.getActivity({
@@ -611,9 +761,20 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
         };
       }
 
+      if (
+        params.failOnConsensusNeeded &&
+        status === "ACTIVITY_STATUS_CONSENSUS_NEEDED"
+      ) {
+        throw consensusNeededError(params.label, {
+          activityId: activity.id,
+          fingerprint: activity.fingerprint,
+          status,
+        });
+      }
+
       if (Date.now() >= params.deadline) {
         throw new TurnkeyError(
-          `Timed out waiting for export secrets activity ${params.activityId} to reach a terminal status (last status: ${status})`,
+          `Timed out waiting for export secrets activity ${params.activityId} to reach a terminal status (last status: ${status}; ${params.label})`,
           TurnkeyErrorCodes.EXPORT_SECRET_ERROR,
         );
       }

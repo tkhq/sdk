@@ -7,6 +7,7 @@ This example demonstrates programmatic API key storage with Turnkey secrets, fol
 - Creating a policy that scopes retrieval of trade-only exchange keys to that service user
 - Listing the organization's secrets (metadata only)
 - Retrieving the plaintext at runtime with `exportSecret`, as the service user
+- Retrieving several plaintexts at once with `exportSecretsAndDecrypt`, attaching per-secret `requestContext` claims for audit. Exports run as activities of at most 32 secrets, and authorization is all-or-nothing per activity. If any activity fails, no plaintext is returned, even if earlier activities completed. Decryption keys exist only in memory, so plaintext cannot be recovered after an error.
 
 For a multi-party retrieval flow where two agents approve the same export in parallel, see the [`programmable-credential-access`](../programmable-credential-access/) example.
 
