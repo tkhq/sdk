@@ -12,6 +12,7 @@
     "@noble/curves": "1.9.0",
     "@noble/hashes": "1.8.0",
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/browser-secrets": "workspace:*",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
