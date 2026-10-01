@@ -1,0 +1,432 @@
+{
+  "description": "Stricter M1 rules and observation checks that SBM does not have yet.",
+  "cases": [
+    {
+      "kind": "authorize",
+      "name": "an explicit sbm:selector permits an unkeyed fill of a field-bound secret",
+      "source": "secure-browser-mcp@599e7d5 src/tools/fill-common.ts validateTargets (\"Without its own sbm:selector, an unkeyed fill ... is refused\")",
+      "secret": {
+        "secretId": "card-1",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}",
+          "sbm:selector": "textarea[name=card]"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "card"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "card",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-63",
+                "url": "https://shop.example/checkout",
+                "origin": "https://shop.example"
+              }
+            ],
+            "selectorMatches": {
+              "textarea[name=card]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": true
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses one element named twice with different keys",
+      "source": "browser-secrets M1 strict rule: one element receives at most one value (SBM deduplicates key+element only)",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          },
+          {
+            "key": "cvc",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-64",
+                "url": "https://shop.example/checkout",
+                "origin": "https://shop.example"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": true,
+              "input[name=cardCvc]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "duplicate_target",
+        "targetIndex": 1
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses an inherited Object property as a field key",
+      "source": "browser-secrets M1 strict rule: field keys are own properties only (SBM looked up fields[key] on a plain object)",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "constructor",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-65",
+                "url": "https://shop.example/checkout",
+                "origin": "https://shop.example"
+              }
+            ],
+            "selectorMatches": {}
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unknown_field_key",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a target without selector evidence",
+      "source": "browser-secrets M1 strict rule: missing selector evidence denies",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-66",
+                "url": "https://shop.example/checkout",
+                "origin": "https://shop.example"
+              }
+            ],
+            "selectorMatches": {}
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "selector_evidence_missing",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses an element in a closed shadow root",
+      "source": "browser-secrets M1 strict rule; secure-browser-mcp EMG-66 (staged on 599e7d5) docs/IFRAMES.md: closed shadow roots are not traversed",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-67",
+                "url": "https://shop.example/checkout",
+                "origin": "https://shop.example"
+              }
+            ],
+            "shadowRoot": "closed",
+            "selectorMatches": {
+              "input[name=cardNumber]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unsupported_shadow_root",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a request with an empty element ID",
+      "source": "browser-secrets M1 strict rule: request shape",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": ""
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": []
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "request_invalid",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a malformed observation",
+      "source": "browser-secrets M1 strict rule: observation shape",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": []
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "observation_invalid"
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a frame ancestry that does not start at the top-level URL",
+      "source": "browser-secrets M1 strict rule; secure-browser-mcp EMG-66 (staged on 599e7d5) src/broker/binding.ts (path[0].url !== pageUrl)",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-68",
+                "url": "https://shop.example/other",
+                "origin": "https://shop.example"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "observation_inconsistent",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses an HTTP page for an HTTPS binding",
+      "source": "secure-browser-mcp@599e7d5 src/broker/binding.ts BindingPolicy.assertAllowed (exact origin, scheme included)",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-69",
+                "url": "http://shop.example/checkout",
+                "origin": "http://shop.example"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "top_level_origin_mismatch"
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a sandboxed top-level document",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) src/broker/binding.ts (path[0].origin must equal the bound origin; effective origin checked)",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-70",
+                "url": "https://shop.example/checkout",
+                "origin": "null"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "opaque_origin",
+        "targetIndex": 0
+      }
+    }
+  ]
+}

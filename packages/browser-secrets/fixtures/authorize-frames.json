@@ -1,0 +1,1180 @@
+{
+  "description": "Frame, shadow-root, and revalidation decisions from the EMG-66 frames work.",
+  "cases": [
+    {
+      "kind": "authorize",
+      "name": "fills the main document",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: fills and redacts main",
+      "secret": {
+        "secretId": "mock-secret-1",
+        "name": "main",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "main"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "main",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-19",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": true
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "fills an open shadow root in the main document",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: fills and redacts shadow",
+      "secret": {
+        "secretId": "mock-secret-1",
+        "name": "main",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "shadow"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "shadow",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-20",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              }
+            ],
+            "shadowRoot": "open",
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": true
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "fills a same-origin iframe with an explicit frame binding",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: fills and redacts same",
+      "secret": {
+        "secretId": "mock-secret-2",
+        "name": "same",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://localhost:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "same"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "same",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-21",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "same",
+                "documentId": "doc-same-22",
+                "url": "http://localhost:5001/field?name=same",
+                "origin": "http://localhost:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": true
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "fills a cross-origin iframe with an explicit frame binding",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: fills and redacts cross; approval succeeds in a bound frame",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "cross"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "cross",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-23",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "cross",
+                "documentId": "doc-cross-24",
+                "url": "http://127.0.0.1:5001/field?name=cross",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": true
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a same-origin iframe without sbm:frame-origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in [\"same\",\"1\"]",
+      "secret": {
+        "secretId": "mock-secret-1",
+        "name": "main",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "same"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "same",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-25",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "same",
+                "documentId": "doc-same-26",
+                "url": "http://localhost:5001/field?name=same",
+                "origin": "http://localhost:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "frame_binding_required",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a cross-origin iframe without sbm:frame-origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in [\"cross\",\"1\"]",
+      "secret": {
+        "secretId": "mock-secret-1",
+        "name": "main",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "cross"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "cross",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-27",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "cross",
+                "documentId": "doc-cross-28",
+                "url": "http://127.0.0.1:5001/field?name=cross",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "frame_binding_required",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a frame whose origin is not the bound frame origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in [\"cross\",\"2\"]",
+      "secret": {
+        "secretId": "mock-secret-2",
+        "name": "same",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://localhost:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "cross"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "cross",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-29",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "cross",
+                "documentId": "doc-cross-30",
+                "url": "http://127.0.0.1:5001/field?name=cross",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "frame_origin_mismatch",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a frame-bound secret in the top-level document",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in [\"main\",\"3\"]",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "main"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "main",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-31",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "frame_bound_top_level_target",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a sandboxed frame with an opaque origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in [\"sandbox\",\"3\"]",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "sandbox"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "sandbox",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-32",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "sandbox",
+                "documentId": "doc-sandbox-33",
+                "url": "http://127.0.0.1:5001/field?name=sandbox",
+                "origin": "null"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "opaque_origin",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a srcdoc frame",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in [\"srcdoc\",\"2\"]",
+      "secret": {
+        "secretId": "mock-secret-2",
+        "name": "same",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://localhost:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "srcdoc"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "srcdoc",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-34",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "srcdoc",
+                "documentId": "doc-srcdoc-35",
+                "url": "about:srcdoc",
+                "origin": "http://localhost:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unsupported_document_scheme",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses the bound frame on another top-level origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in (navigate to fixture.other)",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "cross"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5002/checkout",
+        "targets": [
+          {
+            "elementId": "cross",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-36",
+                "url": "http://localhost:5002/checkout",
+                "origin": "http://localhost:5002"
+              },
+              {
+                "frameId": "cross",
+                "documentId": "doc-cross-37",
+                "url": "http://127.0.0.1:5001/field?name=cross",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "top_level_origin_mismatch"
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "allows nested frames whose every ancestor is bound",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: nested frames enforce every ancestor and allow only the bound pair (allowed path)",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "nested"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "nested",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-38",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "nested",
+                "documentId": "doc-nested-39",
+                "url": "http://127.0.0.1:5001/wrapper",
+                "origin": "http://127.0.0.1:5001"
+              },
+              {
+                "frameId": "nested-inner",
+                "documentId": "doc-nested-inner-40",
+                "url": "http://127.0.0.1:5001/field?name=nested",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": true
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses nested frames with an unbound intermediate origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: nested frames enforce every ancestor and allow only the bound pair (refused path)",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "nested"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "nested",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-41",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "unbound",
+                "documentId": "doc-unbound-42",
+                "url": "http://localhost:5002/wrapper",
+                "origin": "http://localhost:5002"
+              },
+              {
+                "frameId": "unbound-inner",
+                "documentId": "doc-unbound-inner-43",
+                "url": "http://127.0.0.1:5001/field?name=nested",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unbound_intermediate_frame",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "one JSON export fills targets in separate provider frames",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: one JSON export fills targets in separate provider frames",
+      "secret": {
+        "secretId": "mock-secret-5",
+        "name": "multi",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:frame-origin": "http://127.0.0.1:5001",
+          "sbm:fields": "{\"one\":\"input[name=cross]\",\"two\":\"input[name=nested]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "one",
+            "elementId": "cross"
+          },
+          {
+            "key": "two",
+            "elementId": "nested"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "cross",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-44",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "cross",
+                "documentId": "doc-cross-45",
+                "url": "http://127.0.0.1:5001/field?name=cross",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cross]": true
+            }
+          },
+          {
+            "elementId": "nested",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-46",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "nested",
+                "documentId": "doc-nested-47",
+                "url": "http://127.0.0.1:5001/wrapper",
+                "origin": "http://127.0.0.1:5001"
+              },
+              {
+                "frameId": "nested-inner",
+                "documentId": "doc-nested-inner-48",
+                "url": "http://127.0.0.1:5001/field?name=nested",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=nested]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": true
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "revalidation refuses a frame that navigated to another origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: navigation during export refuses a stale target (core decision on the fresh observation; EMG-66 also rejects the stale uid)",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "cross"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "cross",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-49",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "cross",
+                "documentId": "doc-cross-50",
+                "url": "http://localhost:5002/field?name=cross",
+                "origin": "http://localhost:5002"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "frame_origin_mismatch",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "revalidation refuses a changed top-level pathname",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: top-level pathname is rechecked after export",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "cross"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/unapproved",
+        "targets": [
+          {
+            "elementId": "cross",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-51",
+                "url": "http://localhost:5001/unapproved",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "cross",
+                "documentId": "doc-cross-52",
+                "url": "http://127.0.0.1:5001/field?name=cross",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "url_pattern_mismatch",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "revalidation refuses an element whose selector no longer matches",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: a changed selector after export refuses the field",
+      "secret": {
+        "secretId": "mock-secret-5",
+        "name": "multi",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:frame-origin": "http://127.0.0.1:5001",
+          "sbm:fields": "{\"one\":\"input[name=cross]\",\"two\":\"input[name=nested]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "one",
+            "elementId": "cross"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "cross",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-53",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "cross",
+                "documentId": "doc-cross-54",
+                "url": "http://127.0.0.1:5001/field?name=cross",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cross]": false
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "selector_mismatch",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "page code cannot spoof an opaque frame's effective origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: page code cannot spoof an opaque frame's effective origin (the isolated world still reports \"null\")",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "sandbox"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "sandbox",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-55",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "sandbox",
+                "documentId": "doc-sandbox-56",
+                "url": "http://127.0.0.1:5001/field?name=sandbox",
+                "origin": "null"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "opaque_origin",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a detached target",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: detached targets are invalid and sibling navigation preserves redaction",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "cross"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": []
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "target_not_observed",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a blob: document",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) docs/IFRAMES.md: opaque and non-HTTP(S) documents are refused (blob:)",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "blob"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "blob",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-57",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "blob",
+                "documentId": "doc-blob-58",
+                "url": "blob:http://127.0.0.1:5001/0b6f2f8e-4f1c-4b43-9d0e-6a3c7c9b2a11",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unsupported_document_scheme",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a data: document",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) docs/IFRAMES.md: opaque and non-HTTP(S) documents are refused (data:)",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "data"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "data",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-59",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "data",
+                "documentId": "doc-data-60",
+                "url": "data:text/html,<input>",
+                "origin": "null"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unsupported_document_scheme",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses an about:blank document that inherits the bound origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) docs/IFRAMES.md: opaque and non-HTTP(S) documents are refused (about:blank)",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "blank"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "blank",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-61",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "blank",
+                "documentId": "doc-blank-62",
+                "url": "about:blank",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unsupported_document_scheme",
+        "targetIndex": 0
+      }
+    }
+  ]
+}
