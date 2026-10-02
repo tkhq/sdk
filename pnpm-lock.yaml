@@ -37,8 +37,11 @@ overrides:
   bn.js@<4.12.3: '>=4.12.3'
   qs@<6.16.0: '>=6.16.0'
   postcss@<8.5.18: '>=8.5.18'
-  next@>=12.0.0 <15.5.24: 15.5.24
-  ip-address@<=10.3.0: '>=10.3.1'
+  next@>=12.0.0 <15.5.27: 15.5.27
+  ip-address@<10.7.1: ^10.7.1
+  handlebars@<4.7.10: ^4.7.10
+  pbkdf2@<3.1.7: ^3.1.7
+  fast-copy@>=3.0.0 <3.1.0: ^3.1.0
   socket.io-parser: '>=4.2.7'
   cookie@<0.7.0: '>=0.7.0'
   esbuild@>=0.17.0 <0.28.1: ^0.28.1
@@ -50,7 +53,7 @@ overrides:
   nanoid@<3.3.18: ^3.3.18
   '@xmldom/xmldom@>=0.7.0 <0.8.15': ~0.8.15
   '@xmldom/xmldom@>=0.9.0 <0.9.12': ~0.9.12
-  hono@<4.13.5: ^4.13.5
+  hono@<4.13.7: ^4.13.7
   browserslist@<4.28.7: ^4.28.7
   fflate@>=0.6.0 <0.6.11: ~0.6.11
   fflate@>=0.8.0 <0.8.3: ~0.8.3
@@ -164,8 +167,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/sdk-server
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.17.6)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.17.6)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       qrcode:
         specifier: 1.5.4
         version: 1.5.4
@@ -228,8 +231,8 @@ importers:
         specifier: ^16.0.3
         version: 16.6.1
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -279,8 +282,8 @@ importers:
         specifier: ^16.0.3
         version: 16.6.1
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -321,8 +324,8 @@ importers:
         specifier: 16.0.3
         version: 16.0.3
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -379,8 +382,8 @@ importers:
         specifier: ^16.0.3
         version: 16.6.1
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -609,8 +612,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -660,8 +663,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -721,8 +724,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -761,8 +764,8 @@ importers:
         specifier: 16.0.3
         version: 16.0.3
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -816,8 +819,8 @@ importers:
         specifier: 3.2.25
         version: 3.2.25
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -962,8 +965,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../packages/sdk-server
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: 19.1.0
         version: 19.1.0
@@ -1023,8 +1026,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../packages/sdk-types
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1075,8 +1078,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../packages/sdk-server
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1130,8 +1133,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../packages/sdk-types
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1191,8 +1194,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1257,8 +1260,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -1299,8 +1302,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -1366,8 +1369,8 @@ importers:
         specifier: 15.5.18
         version: 15.5.18(eslint@8.56.0)(typescript@5.1.3)
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1426,8 +1429,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -1475,8 +1478,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/sdk-server
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1593,8 +1596,8 @@ importers:
         specifier: ^0.426.0
         version: 0.426.0(react@18.3.1)
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1678,8 +1681,8 @@ importers:
         specifier: ^0.542.0
         version: 0.542.0(react@19.2.4)
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react:
         specifier: 19.2.4
         version: 19.2.4
@@ -2114,8 +2117,8 @@ importers:
         specifier: ^0.363.0
         version: 0.363.0(react@18.3.1)
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next-themes:
         specifier: ^0.3.0
         version: 0.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2393,8 +2396,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/sdk-types
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       postcss:
         specifier: '>=8.5.18'
         version: 8.5.23
@@ -2752,8 +2755,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/viem
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: 19.1.0
         version: 19.1.0
@@ -2895,8 +2898,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.9.4
         version: 9.9.4
@@ -3002,8 +3005,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.9.4
         version: 9.9.4
@@ -3066,8 +3069,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/viem
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: 19.1.0
         version: 19.1.0
@@ -3323,8 +3326,8 @@ importers:
         specifier: workspace:^
         version: link:../../../packages/viem
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -3474,8 +3477,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -3580,8 +3583,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -3671,8 +3674,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -3716,8 +3719,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3918,8 +3921,8 @@ importers:
         specifier: ^0.10.8
         version: 0.10.8(@types/three@0.178.1)(three@0.160.1)
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -4135,8 +4138,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -4175,8 +4178,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/sdk-types
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -4279,8 +4282,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -4322,8 +4325,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/sdk-types
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react:
         specifier: 19.2.4
         version: 19.2.4
@@ -4634,8 +4637,8 @@ importers:
         specifier: ^16.0.3
         version: 16.6.1
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -5304,8 +5307,8 @@ importers:
         specifier: ^1.11.14
         version: 1.12.15
       next:
-        specifier: 15.5.24
-        version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@18.19.124)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@18.3.1))(react@18.3.1)
+        specifier: 15.5.27
+        version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@18.19.124)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@18.3.1))(react@18.3.1)
       react-apple-login:
         specifier: ^1.1.6
         version: 1.1.6(prop-types@15.8.1)(react-dom@19.2.4(react@18.3.1))(react@18.3.1)
@@ -8442,8 +8445,8 @@ packages:
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
 
-  '@next/env@15.5.24':
-    resolution: {integrity: sha512-mBDF7T0XKZjs9SpUAl0buizVO+O02ULjOvWX8o/AZo/5AGw/UAS1Zzcylmd4pqbftzmKQi+L/nB4jgBYKEAl5Q==}
+  '@next/env@15.5.27':
+    resolution: {integrity: sha512-WC5hvVqiuFOcRyz6gKPeJkiVvSMf3scNeAV49CdWtVqxmUlzh8UKR6YHt9yiNkh8LngtzqSlVz07/Ma3ZAzchA==}
 
   '@next/eslint-plugin-next@15.0.3':
     resolution: {integrity: sha512-3Ln/nHq2V+v8uIaxCR6YfYo7ceRgZNXfTd3yW1ukTaFbO+/I8jNakrjYWODvG9BuR2v5kgVtH/C8r0i11quOgw==}
@@ -8451,54 +8454,54 @@ packages:
   '@next/eslint-plugin-next@15.5.18':
     resolution: {integrity: sha512-w4MYq8M26a8PNrfto0JosLf5/3ssln1rsyP96g2DkC8uFVymStM5DLSz5ElxxrPRg2XnTMnFo3kREFlhYvxhWw==}
 
-  '@next/swc-darwin-arm64@15.5.24':
-    resolution: {integrity: sha512-AGdNLvxZNY6eR2iSnV+6wUa8CiHTMr4F7g3uHH7fT4ICIJBE00R9u4tzN/Vuwsw0cOi8MTD2HJcTCb6siMH88Q==}
+  '@next/swc-darwin-arm64@15.5.27':
+    resolution: {integrity: sha512-fBA9QurmK4+uj4wNhmRTuO5zMVRaBHCvp6H93zTG/5i6Yi6TewbvbesXB8YQNj8T99Cwrow87hHiFV6wL/hyMA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
 
-  '@next/swc-darwin-x64@15.5.24':
-    resolution: {integrity: sha512-9HrQajBMmGcrrrvDfRimiCrbAPh3E6uHJmwBovYr6Yrmi9p9PZqI876BrXX280wICh3o2XwUlp4blkB0NNBqFg==}
+  '@next/swc-darwin-x64@15.5.27':
+    resolution: {integrity: sha512-FGZwJwry8qZNHxD/nfwrCwCHHrqx6epqItkkxbYcBQEQ2uw5S43bY83fQB5zbAsZE7TELMjoYkbhsQ4oKM7wwg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
 
-  '@next/swc-linux-arm64-gnu@15.5.24':
-    resolution: {integrity: sha512-rl9LSfE75si0WT3cDgdUC1XYCKS+TgxC+/IjitmeycrAG18X/plIP1/vy8dd/HPycYcIvE688PD7FuvEAiEAew==}
+  '@next/swc-linux-arm64-gnu@15.5.27':
+    resolution: {integrity: sha512-GQulAaJYNF1RYuatlsw9/uzbKz4if2V7Ic9nVO+P0ljYPm4yBRTFIl6g5YkKTw40lMLbpy9edLoH44g3jSHMYA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@next/swc-linux-arm64-musl@15.5.24':
-    resolution: {integrity: sha512-TlNAnpsjxSF3aAUtqnfmtXXf8m9sIDBlmF3c7bTAlnshUYu2U0OxN2uf5d0gcFwqHVEdivJNBcCaqNOwPGNimw==}
+  '@next/swc-linux-arm64-musl@15.5.27':
+    resolution: {integrity: sha512-URFFsUmu8Pi0/1qdnUI7tx7keZw1Mt5zHfrIX1RfDG9Nih8DYxK54WZsDJUX2ZTlii1jgotL7qcbwKnSAES6xQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@next/swc-linux-x64-gnu@15.5.24':
-    resolution: {integrity: sha512-7dwtlhr0SLndqTG1z9ncRkbJswDZiKWlxzFyXDvJ2RDZRDRHp8zyMJ4D9UH/FgnQeXxxB6gZy2pMcIUoNKQ4pA==}
+  '@next/swc-linux-x64-gnu@15.5.27':
+    resolution: {integrity: sha512-aJp74z7uvU5jQhyH7lyk+4qSRcTdKbKT9NQE3jiO9kWYkoHZjKi0zzHDbCoZ+v2sJDEiJ/z58R0UlWMGWNF3HA==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@next/swc-linux-x64-musl@15.5.24':
-    resolution: {integrity: sha512-kGZxM+WhkYs0276lFrMkj7PRtXT3Btp6cwvfSO/cCVLxJJttB5Ccnl2niaCgUja8HgSbEVnMHpg3FJWoOJ9e/g==}
+  '@next/swc-linux-x64-musl@15.5.27':
+    resolution: {integrity: sha512-ILl2bQ8MbpvyMpY8AXljb3BXs0MJSC8HXZ6QV5AWpVS7ZELqNPtrHvhUk+SNarvjvICXX8bCS287TCi+gUFVYg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@next/swc-win32-arm64-msvc@15.5.24':
-    resolution: {integrity: sha512-jBDDkZ/qKAqkWivWDMkJSXUzbzV0QKRBKJjEHUAvSB97Hzw7NLzJ6yV56Lts/wjir7s4P31GYgpbS6ZL+hasAA==}
+  '@next/swc-win32-arm64-msvc@15.5.27':
+    resolution: {integrity: sha512-1MB9Rh5y8TOPN2x7naNTJNkCZQav9c70AI7EBYXxsEewwOffC4DjjwBwKf20NBvcA+u+5jDv7nVmHxunlP2d7Q==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
 
-  '@next/swc-win32-x64-msvc@15.5.24':
-    resolution: {integrity: sha512-JqtwjvvorjacQ0spgjmUJoxySoYgPwdT1sFdQ0/zmW4iMlP2hjYlCoJIyS7o6Epb4Fug8eco3HXFoBDUCDeH7Q==}
+  '@next/swc-win32-x64-msvc@15.5.27':
+    resolution: {integrity: sha512-XtYgpGOswgnyBWXzOEG6q9RhvnSw0CEZ0MbWqCsl5PISgt9EzvJvNW5mU5n1PsphX/lnamzxjgQXH2GUJL8nqg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
@@ -13269,9 +13272,6 @@ packages:
   create-ecdh@4.0.4:
     resolution: {integrity: sha512-mf+TCx8wWc9VpuxfP2ht0iSISLZnt0JgWlrOKZiNqyUZWnjIaCIVNQArMHnCZKfEYRg6IM7A+NeJoN8gf/Ws0A==}
 
-  create-hash@1.1.3:
-    resolution: {integrity: sha512-snRpch/kwQhcdlnZKYanNF1m0RDlrCdSKQaH87w1FCFPVPNCQ/Il9QJKAX2jVBZddRdaHBMC+zXa9Gw9tmkNUA==}
-
   create-hash@1.2.0:
     resolution: {integrity: sha512-z00bCGNHDG8mHAkP7CtT1qVu+bFQUPjYq/4Iv3C3kWjTFV10zIjfSoeqXo9Asws8gwSHDGj/hl2u4OGIjapeCg==}
 
@@ -14417,8 +14417,8 @@ packages:
   fast-base64-decode@1.0.0:
     resolution: {integrity: sha512-qwaScUgUGBYeDNRnbc/KyllVU88Jk1pRHPStuF/lO7B0/RTRLj7U0lkdTAutlBblY08rwZDff6tNU9cjv6j//Q==}
 
-  fast-copy@3.0.2:
-    resolution: {integrity: sha512-dl0O9Vhju8IrcLndv2eU4ldt1ftXMqqfgN4H1cpmGV7P6jeB9FwpN9a2c8DPGE1Ys88rNUJVYDHq73CGAGOPfQ==}
+  fast-copy@3.1.0:
+    resolution: {integrity: sha512-IuCOCDFM1F/s4LtG7Bjr3yUUwPHybyhqN74xk2cMYoP51vVeErMy8+6HGFchi/+45lW8uzhs6lBeEqks2GWt6A==}
 
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
@@ -14785,8 +14785,8 @@ packages:
   h3@1.15.11:
     resolution: {integrity: sha512-L3THSe2MPeBwgIZVSH5zLdBBU90TOxarvhK9d04IDY2AmVS8j2Jz2LIWtwsGOU3lu2I5jCN7FNvVfY2+XyF+mg==}
 
-  handlebars@4.7.9:
-    resolution: {integrity: sha512-4E71E0rpOaQuJR2A3xDZ+GM1HyWYv1clR58tC8emQNeQe3RH7MAzSbat+V0wG78LQBo6m6bzSG/L4pBuCsgnUQ==}
+  handlebars@4.7.10:
+    resolution: {integrity: sha512-P5VJMVM7qgBn6vjXMw8WG9uVI+ncf2pi72j4de4yz5ZULLj2RGqLYaKOYGsgyrViQ0tePOVlN1tDCCXXtFqXKg==}
     engines: {node: '>=0.4.7'}
     hasBin: true
 
@@ -14843,9 +14843,6 @@ packages:
     resolution: {integrity: sha512-NqADB8VjPFLM2V0VvHUewwwsw0ZWBaIdgo+ieHtK3hasLz4qeCRjYcqfB6AQrBggRKppKF8L52/VqdVsO47Dlw==}
     engines: {node: '>= 0.4'}
 
-  hash-base@2.0.2:
-    resolution: {integrity: sha512-0TROgQ1/SxE6KmxWSvXHvRj90/Xo1JvZShofnYF+f6ZsGtR4eES7WfrQzPalmyagfKZCXpVnitiRebZulWsbiw==}
-
   hash-base@3.0.5:
     resolution: {integrity: sha512-vXm0l45VbcHEVlTCzs8M+s0VeYsB2lnlAaThoLKGXr3bE/VWDOelNUnycUPEhKEaXARL2TEFjBOyUiM6+55KBg==}
     engines: {node: '>= 0.10'}
@@ -14853,6 +14850,10 @@ packages:
   hash-base@3.1.0:
     resolution: {integrity: sha512-1nmYp/rhMDiE7AYkDw+lLwlAzz0AntGIe51F3RfFfEqyQ3feY2eI/NcwC6umIQVOASPMsWJLJScWKSSvzL9IVA==}
     engines: {node: '>=4'}
+
+  hash-base@3.1.2:
+    resolution: {integrity: sha512-Bb33KbowVTIj5s7Ked1OsqHUeCpz//tPwR+E2zJgJKo9Z5XolZ9b6bdUgjmYlwnWhoOQKoTd1TYToZGn5mAYOg==}
+    engines: {node: '>= 0.8'}
 
   hash.js@1.1.7:
     resolution: {integrity: sha512-taOaskGt4z4SOANNseOviYDvjEJinIkRgmp7LbKP2YTTmVxWBl87s/uzK9r+44BclBSp2X7K1hqeNfz9JbBeXA==}
@@ -14899,8 +14900,8 @@ packages:
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
-  hono@4.13.5:
-    resolution: {integrity: sha512-O6+/eCYRkzzzy0rPWwKLiGBR1nFuUPZynnwjxN1MBA62NNqbT0wQEzQyK2gSO5yDIDB336sXQleAhOHrzlYyKw==}
+  hono@4.13.13:
+    resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
     engines: {node: '>=16.9.0'}
 
   hosted-git-info@7.0.2:
@@ -15080,8 +15081,8 @@ packages:
   io-ts@1.10.4:
     resolution: {integrity: sha512-b23PteSnYXSONJ6JQXRAlvJhuw8KOtkqa87W4wDtvMrud/DTJd5X+NpOOI+O/zZwVq6v0VLAaJ+1EDViKEuN9g==}
 
-  ip-address@10.4.0:
-    resolution: {integrity: sha512-oSK96Grm3aP6OrS263xVxbNDGVL7rzBtYdpGqlDG8iQdoenDoTs/nkki+DflYbAEE8Xl6o5YxhxlrKvI3nqKXQ==}
+  ip-address@10.7.3:
+    resolution: {integrity: sha512-A1kdq/tSb5QjvKvAMgIoEvDBIgL7qaqVP/jkvSwYYRZ9iEzvPpopxp2wQfu3SuZRHtpHNxMn8Fs0bS+gf5Xmwg==}
     engines: {node: '>= 12'}
 
   ipaddr.js@1.9.1:
@@ -16388,8 +16389,8 @@ packages:
   next-tick@1.1.0:
     resolution: {integrity: sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==}
 
-  next@15.5.24:
-    resolution: {integrity: sha512-Y+xn8EQCoC3ZbsFPyzE+tE8XOdrWeUdUF7NeXbmg9DsgAxl5UYxlsrvgVESHTyTGigoTa1bCUrxn70F5bqt0Gw==}
+  next@15.5.27:
+    resolution: {integrity: sha512-F82CrlPZ8GRxBH9RIIoR3qU1t5RT3dv1K8moe8SjlDEquiFipvEI13R1Om90TaUOEwShkWCMlg8+gvTNzfMhvg==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
     hasBin: true
     peerDependencies:
@@ -16920,9 +16921,9 @@ packages:
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
-  pbkdf2@3.1.3:
-    resolution: {integrity: sha512-wfRLBZ0feWRhCIkoMB6ete7czJcnNnqRpcoWQBLqatqXXmelSRqfdDK4F3u9T2s2cXas/hQJcryI/4lAL+XTlA==}
-    engines: {node: '>=0.12'}
+  pbkdf2@3.1.7:
+    resolution: {integrity: sha512-nS4mvFgVwUrecPTRdpdseM2fwpdfnX0/HibA8DgBRQtihUAzHQYJFU2l+OlEtiXtpqkrMvCPDwyXMUnASDt6Qw==}
+    engines: {node: '>= 0.10'}
 
   performance-now@2.1.0:
     resolution: {integrity: sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==}
@@ -17988,11 +17989,12 @@ packages:
     deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
-  ripemd160@2.0.1:
-    resolution: {integrity: sha512-J7f4wutN8mdbV08MJnXibYpCOPHR+yzy+iQ/AsjMv2j8cLavQ8VGagDFUwwTAdF8FmRKVeNpbTTEwNHCW1g94w==}
-
   ripemd160@2.0.2:
     resolution: {integrity: sha512-ii4iagi25WusVoiC4B4lq7pbXfAp3D9v5CwfkY33vffw2+pkDjY1D8GaN7spsxvCSx8dkPqOZCEZyfxcmJG2IA==}
+
+  ripemd160@2.0.3:
+    resolution: {integrity: sha512-5Di9UC0+8h1L6ZD2d7awM7E/T4uA1fJRlx6zk/NvdCCVEoAnFqvHmCuNeIKoCeIixBX/q8uM+6ycDvF8woqosA==}
+    engines: {node: '>= 0.8'}
 
   ripple-address-codec@5.0.0:
     resolution: {integrity: sha512-de7osLRH/pt5HX2xw2TRJtbdLLWHu0RXirpQaEeCnWKY5DYHykh3ETSkofvm0aX0LJiV7kwkegJxQkmbO94gWw==}
@@ -22245,7 +22247,7 @@ snapshots:
       '@foxglove/crc': 0.0.3
       '@scure/base': 1.2.6
       fraction.js: 4.0.1
-      ip-address: 10.4.0
+      ip-address: 10.7.3
       lodash: 4.18.1
       ts-custom-error: 3.3.1
       ts-log: 2.2.7
@@ -22269,7 +22271,7 @@ snapshots:
       '@foxglove/crc': 0.0.3
       '@scure/base': 1.2.6
       fraction.js: 4.0.1
-      ip-address: 10.4.0
+      ip-address: 10.7.3
       lodash: 4.18.1
       ts-custom-error: 3.3.1
       ts-log: 2.2.7
@@ -22287,7 +22289,7 @@ snapshots:
       i: 0.3.7
       libsodium-wrappers-sumo: 0.7.10
       lodash: 4.18.1
-      pbkdf2: 3.1.3
+      pbkdf2: 3.1.7
       ts-custom-error: 3.3.1
       ts-log: 2.2.7
     transitivePeerDependencies:
@@ -22300,7 +22302,7 @@ snapshots:
       i: 0.3.7
       libsodium-wrappers-sumo: 0.8.4
       lodash: 4.18.1
-      pbkdf2: 3.1.3
+      pbkdf2: 3.1.7
       ts-custom-error: 3.3.1
       ts-log: 2.2.7
     transitivePeerDependencies:
@@ -22349,7 +22351,7 @@ snapshots:
       chacha: 2.1.0
       get-random-values: 2.1.0
       lodash: 4.18.1
-      pbkdf2: 3.1.3
+      pbkdf2: 3.1.7
       rxjs: 7.8.2
       ts-custom-error: 3.3.1
       ts-log: 2.2.7
@@ -25982,7 +25984,7 @@ snapshots:
       '@tybys/wasm-util': 0.10.0
     optional: true
 
-  '@next/env@15.5.24': {}
+  '@next/env@15.5.27': {}
 
   '@next/eslint-plugin-next@15.0.3':
     dependencies:
@@ -25992,28 +25994,28 @@ snapshots:
     dependencies:
       fast-glob: 3.3.1
 
-  '@next/swc-darwin-arm64@15.5.24':
+  '@next/swc-darwin-arm64@15.5.27':
     optional: true
 
-  '@next/swc-darwin-x64@15.5.24':
+  '@next/swc-darwin-x64@15.5.27':
     optional: true
 
-  '@next/swc-linux-arm64-gnu@15.5.24':
+  '@next/swc-linux-arm64-gnu@15.5.27':
     optional: true
 
-  '@next/swc-linux-arm64-musl@15.5.24':
+  '@next/swc-linux-arm64-musl@15.5.27':
     optional: true
 
-  '@next/swc-linux-x64-gnu@15.5.24':
+  '@next/swc-linux-x64-gnu@15.5.27':
     optional: true
 
-  '@next/swc-linux-x64-musl@15.5.24':
+  '@next/swc-linux-x64-musl@15.5.27':
     optional: true
 
-  '@next/swc-win32-arm64-msvc@15.5.24':
+  '@next/swc-win32-arm64-msvc@15.5.27':
     optional: true
 
-  '@next/swc-win32-x64-msvc@15.5.24':
+  '@next/swc-win32-x64-msvc@15.5.27':
     optional: true
 
   '@ngraveio/bc-ur@1.1.13':
@@ -37655,13 +37657,6 @@ snapshots:
       bn.js: 5.2.5
       elliptic: 6.6.1
 
-  create-hash@1.1.3:
-    dependencies:
-      cipher-base: 1.0.6
-      inherits: 2.0.4
-      ripemd160: 2.0.2
-      sha.js: 2.4.12
-
   create-hash@1.2.0:
     dependencies:
       cipher-base: 1.0.6
@@ -37798,7 +37793,7 @@ snapshots:
       diffie-hellman: 5.0.3
       hash-base: 3.0.5
       inherits: 2.0.4
-      pbkdf2: 3.1.3
+      pbkdf2: 3.1.7
       public-encrypt: 4.0.3
       randombytes: 2.1.0
       randomfill: 1.0.4
@@ -39248,7 +39243,7 @@ snapshots:
       create-hmac: 1.1.7
       hash.js: 1.1.7
       keccak: 3.0.4
-      pbkdf2: 3.1.3
+      pbkdf2: 3.1.7
       randombytes: 2.1.0
       safe-buffer: 5.2.1
       scrypt-js: 3.0.1
@@ -40061,7 +40056,7 @@ snapshots:
 
   fast-base64-decode@1.0.0: {}
 
-  fast-copy@3.0.2: {}
+  fast-copy@3.1.0: {}
 
   fast-deep-equal@3.1.3: {}
 
@@ -40483,7 +40478,7 @@ snapshots:
       ufo: 1.6.3
       uncrypto: 0.1.3
 
-  handlebars@4.7.9:
+  handlebars@4.7.10:
     dependencies:
       minimist: 1.2.8
       neo-async: 2.6.2
@@ -40676,10 +40671,6 @@ snapshots:
     dependencies:
       has-symbols: 1.1.0
 
-  hash-base@2.0.2:
-    dependencies:
-      inherits: 2.0.4
-
   hash-base@3.0.5:
     dependencies:
       inherits: 2.0.4
@@ -40690,6 +40681,13 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
       safe-buffer: 5.2.1
+
+  hash-base@3.1.2:
+    dependencies:
+      inherits: 2.0.4
+      readable-stream: 2.3.8
+      safe-buffer: 5.2.1
+      to-buffer: 1.2.2
 
   hash.js@1.1.7:
     dependencies:
@@ -40736,7 +40734,7 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  hono@4.13.5: {}
+  hono@4.13.13: {}
 
   hosted-git-info@7.0.2:
     dependencies:
@@ -40926,7 +40924,7 @@ snapshots:
     dependencies:
       fp-ts: 1.19.3
 
-  ip-address@10.4.0: {}
+  ip-address@10.7.3: {}
 
   ipaddr.js@1.9.1: {}
 
@@ -42981,9 +42979,9 @@ snapshots:
 
   next-tick@1.1.0: {}
 
-  next@15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@18.19.124)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@18.3.1))(react@18.3.1):
+  next@15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@18.19.124)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@next/env': 15.5.24
+      '@next/env': 15.5.27
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001810
       postcss: 8.5.23
@@ -42991,14 +42989,14 @@ snapshots:
       react-dom: 19.2.4(react@18.3.1)
       styled-jsx: 5.1.6(@babel/core@7.29.7)(babel-plugin-macros@3.1.0)(react@18.3.1)
     optionalDependencies:
-      '@next/swc-darwin-arm64': 15.5.24
-      '@next/swc-darwin-x64': 15.5.24
-      '@next/swc-linux-arm64-gnu': 15.5.24
-      '@next/swc-linux-arm64-musl': 15.5.24
-      '@next/swc-linux-x64-gnu': 15.5.24
-      '@next/swc-linux-x64-musl': 15.5.24
-      '@next/swc-win32-arm64-msvc': 15.5.24
-      '@next/swc-win32-x64-msvc': 15.5.24
+      '@next/swc-darwin-arm64': 15.5.27
+      '@next/swc-darwin-x64': 15.5.27
+      '@next/swc-linux-arm64-gnu': 15.5.27
+      '@next/swc-linux-arm64-musl': 15.5.27
+      '@next/swc-linux-x64-gnu': 15.5.27
+      '@next/swc-linux-x64-musl': 15.5.27
+      '@next/swc-win32-arm64-msvc': 15.5.27
+      '@next/swc-win32-x64-msvc': 15.5.27
       '@opentelemetry/api': 1.9.1
       '@playwright/test': 1.56.1
       babel-plugin-react-compiler: 1.0.0
@@ -43008,9 +43006,9 @@ snapshots:
       - '@types/node'
       - babel-plugin-macros
 
-  next@15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.17.6)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next@15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.17.6)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@next/env': 15.5.24
+      '@next/env': 15.5.27
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001810
       postcss: 8.5.23
@@ -43018,14 +43016,14 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       styled-jsx: 5.1.6(@babel/core@7.29.7)(babel-plugin-macros@3.1.0)(react@18.3.1)
     optionalDependencies:
-      '@next/swc-darwin-arm64': 15.5.24
-      '@next/swc-darwin-x64': 15.5.24
-      '@next/swc-linux-arm64-gnu': 15.5.24
-      '@next/swc-linux-arm64-musl': 15.5.24
-      '@next/swc-linux-x64-gnu': 15.5.24
-      '@next/swc-linux-x64-musl': 15.5.24
-      '@next/swc-win32-arm64-msvc': 15.5.24
-      '@next/swc-win32-x64-msvc': 15.5.24
+      '@next/swc-darwin-arm64': 15.5.27
+      '@next/swc-darwin-x64': 15.5.27
+      '@next/swc-linux-arm64-gnu': 15.5.27
+      '@next/swc-linux-arm64-musl': 15.5.27
+      '@next/swc-linux-x64-gnu': 15.5.27
+      '@next/swc-linux-x64-musl': 15.5.27
+      '@next/swc-win32-arm64-msvc': 15.5.27
+      '@next/swc-win32-x64-msvc': 15.5.27
       '@opentelemetry/api': 1.9.1
       '@playwright/test': 1.56.1
       babel-plugin-react-compiler: 1.0.0
@@ -43035,9 +43033,9 @@ snapshots:
       - '@types/node'
       - babel-plugin-macros
 
-  next@15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+  next@15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
-      '@next/env': 15.5.24
+      '@next/env': 15.5.27
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001810
       postcss: 8.5.23
@@ -43045,14 +43043,14 @@ snapshots:
       react-dom: 18.2.0(react@18.2.0)
       styled-jsx: 5.1.6(@babel/core@7.29.7)(babel-plugin-macros@3.1.0)(react@18.2.0)
     optionalDependencies:
-      '@next/swc-darwin-arm64': 15.5.24
-      '@next/swc-darwin-x64': 15.5.24
-      '@next/swc-linux-arm64-gnu': 15.5.24
-      '@next/swc-linux-arm64-musl': 15.5.24
-      '@next/swc-linux-x64-gnu': 15.5.24
-      '@next/swc-linux-x64-musl': 15.5.24
-      '@next/swc-win32-arm64-msvc': 15.5.24
-      '@next/swc-win32-x64-msvc': 15.5.24
+      '@next/swc-darwin-arm64': 15.5.27
+      '@next/swc-darwin-x64': 15.5.27
+      '@next/swc-linux-arm64-gnu': 15.5.27
+      '@next/swc-linux-arm64-musl': 15.5.27
+      '@next/swc-linux-x64-gnu': 15.5.27
+      '@next/swc-linux-x64-musl': 15.5.27
+      '@next/swc-win32-arm64-msvc': 15.5.27
+      '@next/swc-win32-x64-msvc': 15.5.27
       '@opentelemetry/api': 1.9.1
       '@playwright/test': 1.56.1
       babel-plugin-react-compiler: 1.0.0
@@ -43062,9 +43060,9 @@ snapshots:
       - '@types/node'
       - babel-plugin-macros
 
-  next@15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next@15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@next/env': 15.5.24
+      '@next/env': 15.5.27
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001810
       postcss: 8.5.23
@@ -43072,14 +43070,14 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       styled-jsx: 5.1.6(@babel/core@7.29.7)(babel-plugin-macros@3.1.0)(react@18.3.1)
     optionalDependencies:
-      '@next/swc-darwin-arm64': 15.5.24
-      '@next/swc-darwin-x64': 15.5.24
-      '@next/swc-linux-arm64-gnu': 15.5.24
-      '@next/swc-linux-arm64-musl': 15.5.24
-      '@next/swc-linux-x64-gnu': 15.5.24
-      '@next/swc-linux-x64-musl': 15.5.24
-      '@next/swc-win32-arm64-msvc': 15.5.24
-      '@next/swc-win32-x64-msvc': 15.5.24
+      '@next/swc-darwin-arm64': 15.5.27
+      '@next/swc-darwin-x64': 15.5.27
+      '@next/swc-linux-arm64-gnu': 15.5.27
+      '@next/swc-linux-arm64-musl': 15.5.27
+      '@next/swc-linux-x64-gnu': 15.5.27
+      '@next/swc-linux-x64-musl': 15.5.27
+      '@next/swc-win32-arm64-msvc': 15.5.27
+      '@next/swc-win32-x64-msvc': 15.5.27
       '@opentelemetry/api': 1.9.1
       '@playwright/test': 1.56.1
       babel-plugin-react-compiler: 1.0.0
@@ -43089,9 +43087,9 @@ snapshots:
       - '@types/node'
       - babel-plugin-macros
 
-  next@15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  next@15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
-      '@next/env': 15.5.24
+      '@next/env': 15.5.27
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001810
       postcss: 8.5.23
@@ -43099,14 +43097,14 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
       styled-jsx: 5.1.6(@babel/core@7.29.7)(babel-plugin-macros@3.1.0)(react@19.1.0)
     optionalDependencies:
-      '@next/swc-darwin-arm64': 15.5.24
-      '@next/swc-darwin-x64': 15.5.24
-      '@next/swc-linux-arm64-gnu': 15.5.24
-      '@next/swc-linux-arm64-musl': 15.5.24
-      '@next/swc-linux-x64-gnu': 15.5.24
-      '@next/swc-linux-x64-musl': 15.5.24
-      '@next/swc-win32-arm64-msvc': 15.5.24
-      '@next/swc-win32-x64-msvc': 15.5.24
+      '@next/swc-darwin-arm64': 15.5.27
+      '@next/swc-darwin-x64': 15.5.27
+      '@next/swc-linux-arm64-gnu': 15.5.27
+      '@next/swc-linux-arm64-musl': 15.5.27
+      '@next/swc-linux-x64-gnu': 15.5.27
+      '@next/swc-linux-x64-musl': 15.5.27
+      '@next/swc-win32-arm64-msvc': 15.5.27
+      '@next/swc-win32-x64-msvc': 15.5.27
       '@opentelemetry/api': 1.9.1
       '@playwright/test': 1.56.1
       babel-plugin-react-compiler: 1.0.0
@@ -43116,9 +43114,9 @@ snapshots:
       - '@types/node'
       - babel-plugin-macros
 
-  next@15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  next@15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
-      '@next/env': 15.5.24
+      '@next/env': 15.5.27
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001810
       postcss: 8.5.23
@@ -43126,14 +43124,14 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
       styled-jsx: 5.1.6(@babel/core@7.29.7)(babel-plugin-macros@3.1.0)(react@19.2.4)
     optionalDependencies:
-      '@next/swc-darwin-arm64': 15.5.24
-      '@next/swc-darwin-x64': 15.5.24
-      '@next/swc-linux-arm64-gnu': 15.5.24
-      '@next/swc-linux-arm64-musl': 15.5.24
-      '@next/swc-linux-x64-gnu': 15.5.24
-      '@next/swc-linux-x64-musl': 15.5.24
-      '@next/swc-win32-arm64-msvc': 15.5.24
-      '@next/swc-win32-x64-msvc': 15.5.24
+      '@next/swc-darwin-arm64': 15.5.27
+      '@next/swc-darwin-x64': 15.5.27
+      '@next/swc-linux-arm64-gnu': 15.5.27
+      '@next/swc-linux-arm64-musl': 15.5.27
+      '@next/swc-linux-x64-gnu': 15.5.27
+      '@next/swc-linux-x64-musl': 15.5.27
+      '@next/swc-win32-arm64-msvc': 15.5.27
+      '@next/swc-win32-x64-msvc': 15.5.27
       '@opentelemetry/api': 1.9.1
       '@playwright/test': 1.56.1
       babel-plugin-react-compiler: 1.0.0
@@ -43760,7 +43758,7 @@ snapshots:
       browserify-aes: 1.2.0
       evp_bytestokey: 1.0.3
       hash-base: 3.0.5
-      pbkdf2: 3.1.3
+      pbkdf2: 3.1.7
       safe-buffer: 5.2.1
 
   parse-headers@2.0.6: {}
@@ -43812,11 +43810,11 @@ snapshots:
 
   pathe@2.0.3: {}
 
-  pbkdf2@3.1.3:
+  pbkdf2@3.1.7:
     dependencies:
-      create-hash: 1.1.3
+      create-hash: 1.2.0
       create-hmac: 1.1.7
-      ripemd160: 2.0.1
+      ripemd160: 2.0.3
       safe-buffer: 5.2.1
       sha.js: 2.4.12
       to-buffer: 1.2.2
@@ -43852,7 +43850,7 @@ snapshots:
     dependencies:
       colorette: 2.0.20
       dateformat: 4.6.3
-      fast-copy: 3.0.2
+      fast-copy: 3.1.0
       fast-safe-stringify: 2.1.1
       help-me: 5.0.0
       joycon: 3.1.1
@@ -43928,7 +43926,7 @@ snapshots:
   porto@0.2.19(@tanstack/react-query@5.90.2(react@18.2.0))(@types/react@18.2.14)(@wagmi/core@2.21.2(@tanstack/query-core@5.90.2)(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)))(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(wagmi@2.17.5(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@18.2.0))(@types/react@18.2.14)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.2.0)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(zod@4.1.11)):
     dependencies:
       '@wagmi/core': 2.21.2(@tanstack/query-core@5.90.2)(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
-      hono: 4.13.5
+      hono: 4.13.13
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
@@ -43948,7 +43946,7 @@ snapshots:
   porto@0.2.19(@tanstack/react-query@5.90.2(react@18.2.0))(@types/react@18.2.14)(@wagmi/core@2.21.2(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)))(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(wagmi@2.17.5(@tanstack/react-query@5.90.2(react@18.2.0))(@types/react@18.2.14)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.2.0)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)):
     dependencies:
       '@wagmi/core': 2.21.2(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      hono: 4.13.5
+      hono: 4.13.13
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
@@ -43968,7 +43966,7 @@ snapshots:
   porto@0.2.19(@tanstack/react-query@5.90.2(react@19.1.0))(@types/react@19.1.17)(@wagmi/core@2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.1.17)(react@19.1.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@19.1.0))(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)))(react@19.1.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@19.1.0))(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(wagmi@2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.1.0))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(zod@4.1.11)):
     dependencies:
       '@wagmi/core': 2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.1.17)(react@19.1.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@19.1.0))(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
-      hono: 4.13.5
+      hono: 4.13.13
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
@@ -43988,7 +43986,7 @@ snapshots:
   porto@0.2.19(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(@wagmi/core@2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.2.4)(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)))(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(wagmi@2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(zod@4.1.11)):
     dependencies:
       '@wagmi/core': 2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.2.4)(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
-      hono: 4.13.5
+      hono: 4.13.13
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
@@ -44009,7 +44007,7 @@ snapshots:
   porto@0.2.19(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(@wagmi/core@2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.2.4)(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)))(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(wagmi@2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(zod@4.1.11)):
     dependencies:
       '@wagmi/core': 2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.2.4)(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
-      hono: 4.13.5
+      hono: 4.13.13
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
@@ -44029,7 +44027,7 @@ snapshots:
   porto@0.2.19(@wagmi/core@2.21.2(typescript@5.4.3)(use-sync-external-store@1.4.0)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)))(typescript@5.4.3)(use-sync-external-store@1.4.0)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(wagmi@2.17.5(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)):
     dependencies:
       '@wagmi/core': 2.21.2(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      hono: 4.13.5
+      hono: 4.13.13
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
@@ -45601,14 +45599,14 @@ snapshots:
     dependencies:
       glob: 13.0.0
 
-  ripemd160@2.0.1:
-    dependencies:
-      hash-base: 2.0.2
-      inherits: 2.0.4
-
   ripemd160@2.0.2:
     dependencies:
       hash-base: 3.1.0
+      inherits: 2.0.4
+
+  ripemd160@2.0.3:
+    dependencies:
+      hash-base: 3.1.2
       inherits: 2.0.4
 
   ripple-address-codec@5.0.0(bufferutil@4.0.9)(utf-8-validate@5.0.10):
@@ -46118,7 +46116,7 @@ snapshots:
 
   socks@2.8.7:
     dependencies:
-      ip-address: 10.4.0
+      ip-address: 10.7.3
       smart-buffer: 4.2.0
 
   sodium-native@4.3.3:
@@ -46777,7 +46775,7 @@ snapshots:
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      handlebars: 4.7.9
+      handlebars: 4.7.10
       jest: 29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
       json5: 2.2.3
       lodash.memoize: 4.1.2
