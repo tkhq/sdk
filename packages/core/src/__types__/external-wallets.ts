@@ -99,12 +99,21 @@ export interface BaseWalletInterface {
   ) => Promise<string>;
 
   /**
+   * Sign a Solana message and return the public key of the account used for
+   * that signature. Both values must come from the same account selection.
+   */
+  signWithPublicKey?: (
+    payload: string,
+    provider: WalletProvider,
+  ) => Promise<{ signature: string; publicKey: string }>;
+
+  /**
    * Derive or fetch the public key from the given provider
    *
-   * This method is only called in the stamp function for Solana wallets.
    * Ed25519 (used by Solana) does not support public key recovery from a signature,
-   * so we must explicitly request the public key from the wallet.
-   * In the Solana Wallet Standard, this does not require any user action
+   * so the public key must be obtained from the wallet. Stamping uses
+   * signWithPublicKey instead to keep the key bound to the signed account.
+   * In the Solana Wallet Standard, this does not require any user action.
    *
    * For Ethereum wallets, we recover the public key from the signature during stamping,
    * so this method is never called, it's only implemented to satisfy the interface
