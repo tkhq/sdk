@@ -64,6 +64,7 @@ export function getClientSignatureMessageForLogin({
   }
 }
 
+// Keep this local helper aligned with the canonical implementation in @turnkey/core.
 export function getClientSignatureMessageForLoginV2({
   verificationToken,
   organizationId,
