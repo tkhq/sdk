@@ -67,7 +67,11 @@ Once logged in, access a dashboard with two panels:
 5. **Complete the login**
    Build a `clientSignature` on the client to prove possession of the session key:
    ```ts
-   const message = getClientSignatureMessageForLogin({ verificationToken });
+   const { message } = getClientSignatureMessageForLoginV2({
+     verificationToken,
+     organizationId: suborgID,
+     publicKey,
+   });
    const clientSignature = await signWithApiKey({ message, publicKey });
    ```
    Then call `otpLogin` in the backend with the `verificationToken`, `suborgID`, `publicKey`, and `clientSignature`.

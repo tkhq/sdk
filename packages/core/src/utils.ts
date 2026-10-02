@@ -12,9 +12,11 @@ import {
   type v1WalletAccountParams,
   type v1WalletAccount,
   type v1LoginUsage,
+  type v1LoginUsageV2,
   type v1TokenUsage,
   type v1OauthProviderParamsV2,
   type v1SignupUsageV2,
+  type v1SignupUsageV3,
   type v1SignRawPayloadResult,
   type v1TransactionType,
   type ProxyTGetWalletKitConfigResponse,
@@ -754,9 +756,14 @@ export function generateWalletAccountsFromAddressFormat(params: {
   });
 }
 
+export type FinalizedSignUpBody = ProxyTSignupV2Body & {
+  userName: string;
+  organizationName: string;
+};
+
 export function buildSignUpBody(params: {
   createSubOrgParams: CreateSubOrgParams | undefined;
-}): ProxyTSignupV2Body {
+}): FinalizedSignUpBody {
   const { createSubOrgParams } = params;
   const authenticatorName = isWeb()
     ? `${window.location.hostname}-${Date.now()}`
@@ -1440,6 +1447,56 @@ export function getClientSignatureMessageForLogin({
   }
 }
 
+export function getClientSignatureMessageForLoginV2({
+  verificationToken,
+  organizationId,
+  publicKey,
+  invalidateExisting,
+  expirationSeconds,
+  sessionProfileId,
+}: {
+  verificationToken: string;
+  organizationId: string;
+  publicKey: string;
+  invalidateExisting?: boolean;
+  expirationSeconds?: string;
+  sessionProfileId?: string;
+}) {
+  try {
+    const decoded = decodeVerificationToken(verificationToken);
+
+    if (!decoded.public_key)
+      throw new TurnkeyError(
+        "Invalid verification token: missing publicKey",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+
+    const usage: v1LoginUsageV2 = {
+      organizationId,
+      publicKey,
+      ...(invalidateExisting !== undefined && { invalidateExisting }),
+      ...(expirationSeconds !== undefined && { expirationSeconds }),
+      ...(sessionProfileId !== undefined && { sessionProfileId }),
+    };
+    const payload: v1TokenUsage = {
+      loginV2: usage,
+      tokenId: decoded.id,
+      type: "USAGE_TYPE_LOGIN",
+    };
+
+    return {
+      message: JSON.stringify(payload),
+      publicKey: decoded.public_key,
+    };
+  } catch (error) {
+    throw new TurnkeyError(
+      "Failed to create strict client signature bundle for login",
+      TurnkeyErrorCodes.UNKNOWN,
+      error,
+    );
+  }
+}
+
 export function getClientSignatureMessageForSignup({
   verificationToken,
   email,
@@ -1486,6 +1543,63 @@ export function getClientSignatureMessageForSignup({
   } catch (error) {
     throw new TurnkeyError(
       "Failed to create client signature bundle for signup",
+      TurnkeyErrorCodes.UNKNOWN,
+      error,
+    );
+  }
+}
+
+export function getClientSignatureMessageForSignupV3({
+  verificationToken,
+  parentOrganizationId,
+  signUpBody,
+}: {
+  verificationToken: string;
+  parentOrganizationId: string;
+  signUpBody: FinalizedSignUpBody;
+}) {
+  try {
+    const decoded = decodeVerificationToken(verificationToken);
+
+    if (!decoded.public_key)
+      throw new TurnkeyError(
+        "Invalid verification token: missing publicKey",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+
+    const usage: v1SignupUsageV3 = {
+      parentOrganizationId,
+      subOrganizationName: signUpBody.organizationName,
+      rootUsers: [
+        {
+          userName: signUpBody.userName,
+          ...(signUpBody.userEmail !== undefined && {
+            userEmail: signUpBody.userEmail,
+          }),
+          ...(signUpBody.userPhoneNumber !== undefined && {
+            userPhoneNumber: signUpBody.userPhoneNumber,
+          }),
+          apiKeys: signUpBody.apiKeys,
+          authenticators: signUpBody.authenticators,
+          oauthProviders: signUpBody.oauthProviders,
+        },
+      ],
+      rootQuorumThreshold: 1,
+      ...(signUpBody.wallet !== undefined && { wallet: signUpBody.wallet }),
+    };
+    const payload: v1TokenUsage = {
+      signupV3: usage,
+      tokenId: decoded.id,
+      type: "USAGE_TYPE_SIGNUP",
+    };
+
+    return {
+      message: JSON.stringify(payload),
+      publicKey: decoded.public_key,
+    };
+  } catch (error) {
+    throw new TurnkeyError(
+      "Failed to create strict client signature bundle for signup",
       TurnkeyErrorCodes.UNKNOWN,
       error,
     );

@@ -3,7 +3,8 @@
 import React, { useRef, useState } from "react";
 import OtpInput from "./otp";
 import styles from "./OtpVerification.module.css";
-import { formatPhoneNumber, getClientSignatureMessageForLogin } from "./utils";
+import { formatPhoneNumber } from "./utils";
+import { getClientSignatureMessageForLoginV2 } from "@turnkey/core";
 import EmailIcon from "@mui/icons-material/Email";
 import SmsIcon from "@mui/icons-material/Sms";
 import { CircularProgress } from "@mui/material";
@@ -102,9 +103,13 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
       // Build the client signature proving we hold the session private key
       const { message, publicKey: signingPublicKey } =
-        getClientSignatureMessageForLogin({
+        getClientSignatureMessageForLoginV2({
           verificationToken: verifyResponse!.verificationToken,
-          sessionPublicKey: publicKey,
+          organizationId: suborgID,
+          publicKey,
+          ...(sessionLengthSeconds !== undefined && {
+            expirationSeconds: sessionLengthSeconds.toString(),
+          }),
         });
       const compactSignature = await indexedDbClient!.sign(
         message,

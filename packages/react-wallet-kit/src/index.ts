@@ -15,7 +15,9 @@ export {
   isSolanaProvider,
   decodeVerificationToken,
   getClientSignatureMessageForLogin,
+  getClientSignatureMessageForLoginV2,
   getClientSignatureMessageForSignup,
+  getClientSignatureMessageForSignupV3,
   buildSecondaryOidcClaims,
   buildSecondaryOauthProviders,
 } from "@turnkey/core";

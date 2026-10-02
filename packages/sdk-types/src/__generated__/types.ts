@@ -817,7 +817,8 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2"
   | "ACTIVITY_TYPE_EXECUTE_SWAP_V3"
   | "ACTIVITY_TYPE_DELETE_SECRETS"
-  | "ACTIVITY_TYPE_EARN_CLAIM_REWARDS";
+  | "ACTIVITY_TYPE_EARN_CLAIM_REWARDS"
+  | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3";
 
 export type v1ApiKey = {
   /** A User credential that can be used to authenticate to Turnkey. */
@@ -1728,6 +1729,23 @@ export type v1CreateSwapQuoteIntentV2 = {
   destinationAddress?: string;
 };
 
+export type v1CreateSwapQuoteIntentV3 = {
+  /** Wallet account address used to price the executable provider quote. Private Key identifiers are not supported. */
+  signWith: string;
+  /** CAIP-19 asset ID for the input asset. The chain is derived from this value. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Provider-neutral maximum allowed slippage in basis points. Turnkey converts this value to each provider's request format. When omitted, each provider applies its default slippage behavior. */
+  slippageBps?: string;
+  /** Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported. */
+  destinationAddress?: string;
+  feeSponsorship?: boolean;
+  fixedRate?: boolean;
+};
+
 export type v1CreateSwapQuoteRequest = {
   type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
@@ -1741,6 +1759,10 @@ export type v1CreateSwapQuoteRequest = {
 export type v1CreateSwapQuoteResult = {
   /** One or more provider quotes for this request. Today this contains a single Relay quote; pass quotes[i].quoteId to execute_swap_v2 to bind execution. */
   quotes: v1SwapQuote[];
+};
+
+export type v1CreateSwapQuoteResultV2 = {
+  quotes?: v1SwapQuoteV2[];
 };
 
 export type v1CreateTvcAppIntent = {
@@ -2553,7 +2575,7 @@ export type v1DeploymentStatus = {
   /** Last time this deployment was updated */
   lastUpdatedTime: externaldatav1Timestamp;
   /** Current quorum-key provisioning state for this deployment */
-  provisioningState?: v1ProvisioningState;
+  provisioningState: v1ProvisioningState;
 };
 
 export type v1DisableAuthProxyIntent = {};
@@ -2572,7 +2594,7 @@ export type v1EarnClaimRewardsIntent = {
   /** A Turnkey-managed wallet address the rewards are attributed to. The claim transaction is signed by this wallet and the Merkl Distributor transfers every reward token to it. */
   signWith: string;
   /** CAIP-2 chain to claim rewards on (e.g. 'eip155:8453'). Rewards accrue per chain; see ListEarnRewards. */
-  chainCaip2: string;
+  caip2: string;
   /** Whether to sponsor this transaction via Gas Station. */
   sponsor?: boolean;
 };
@@ -2596,13 +2618,17 @@ export type v1EarnDeployWrapperIntent = {
   /** Address of the underlying yield vault to wrap (from the ListEarnVaults catalog). */
   vaultAddress: string;
   /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
-  chainCaip2:
+  caip2:
     | "eip155:1"
     | "eip155:8453"
     | "eip155:42161"
     | "eip155:137"
     | "eip155:56"
-    | "eip155:4217";
+    | "eip155:4217"
+    | "solana:mainnet"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:devnet"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   /** Your fee on gross yield, in basis points (e.g., '2000' for 20%). Maximum is 4000 (40%). */
   clientFeeBps: string;
   /** The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
@@ -2636,13 +2662,17 @@ export type v1EarnDepositIntent = {
   /** Amount of the underlying asset to deposit, in raw on-chain units (e.g., '1000000' for 1 USDC at 6 decimals). */
   assets: string;
   /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
-  chainCaip2:
+  caip2:
     | "eip155:1"
     | "eip155:8453"
     | "eip155:42161"
     | "eip155:137"
     | "eip155:56"
-    | "eip155:4217";
+    | "eip155:4217"
+    | "solana:mainnet"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:devnet"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   /** Whether to sponsor this transaction via Gas Station. */
   sponsor?: boolean;
 };
@@ -2747,7 +2777,10 @@ export type v1EarnPositionDisplay = {
   totalWithdrawnCrypto?: string;
 };
 
-export type v1EarnProvider = "EARN_PROVIDER_MORPHO" | "EARN_PROVIDER_AAVE";
+export type v1EarnProvider =
+  | "EARN_PROVIDER_MORPHO"
+  | "EARN_PROVIDER_AAVE"
+  | "EARN_PROVIDER_KAMINO";
 
 export type v1EarnReward = {
   /** CAIP-2 chain the reward is claimable on (e.g. 'eip155:8453'). */
@@ -2866,13 +2899,17 @@ export type v1EarnWithdrawIntent = {
   /** A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
   signWith: string;
   /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
-  chainCaip2:
+  caip2:
     | "eip155:1"
     | "eip155:8453"
     | "eip155:42161"
     | "eip155:137"
     | "eip155:56"
-    | "eip155:4217";
+    | "eip155:4217"
+    | "solana:mainnet"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:devnet"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   /** Whether to sponsor this transaction via Gas Station. */
   sponsor?: boolean;
   /** The amount of the underlying asset to withdraw, in raw on-chain units. Pass 'MAX' to withdraw the entire position. */
@@ -3497,7 +3534,9 @@ export type v1FeatureName =
   | "FEATURE_NAME_AUTH_PROXY"
   | "FEATURE_NAME_SOLANA_RENT_PREFUND_ENABLED"
   | "FEATURE_NAME_SWAP_CONFIG"
-  | "FEATURE_NAME_EARN_CONFIG";
+  | "FEATURE_NAME_EARN_CONFIG"
+  | "FEATURE_NAME_SWAP_FEE_SPONSORSHIP"
+  | "FEATURE_NAME_SWAP_FIXED_RATE";
 
 export type v1FiatOnRampBlockchainNetwork =
   | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
@@ -4175,7 +4214,7 @@ export type v1GetTvcDeploymentProvisioningDetailsResponse = {
   /** The manifest envelope containing the TVC deployment's manifest and signatures. Present only when a deployment is awaiting provisioning. */
   manifestEnvelope?: string;
   /** Current provisioning state. */
-  provisioningState?: v1ProvisioningState;
+  provisioningState: v1ProvisioningState;
 };
 
 export type v1GetTvcDeploymentRequest = {
@@ -4245,7 +4284,7 @@ export type v1GetUsersResponse = {
 export type v1GetVerifiedSubOrgIdsRequest = {
   /** Unique identifier for the parent organization. This is used to find sub-organizations within it. */
   organizationId: string;
-  /** Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER'. */
+  /** Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'OAUTH_CLAIM', or 'PUBLIC_KEY' */
   filterType?: string;
   /** The value of the filter to apply for the specified type. For example, a specific email or phone number string. */
   filterValue?: string;
@@ -4964,6 +5003,7 @@ export type v1Intent = {
   executeSwapIntentV3?: v1ExecuteSwapIntentV3;
   deleteSecretsIntent?: v1DeleteSecretsIntent;
   earnClaimRewardsIntent?: v1EarnClaimRewardsIntent;
+  createSwapQuoteIntentV3?: v1CreateSwapQuoteIntentV3;
 };
 
 export type v1InvitationParams = {
@@ -5246,6 +5286,14 @@ export type v1LogLine = {
 export type v1LoginUsage = {
   /** Public key for authentication */
   publicKey: string;
+};
+
+export type v1LoginUsageV2 = {
+  organizationId: string;
+  publicKey: string;
+  invalidateExisting?: boolean;
+  expirationSeconds?: string;
+  sessionProfileId?: string;
 };
 
 export type v1MfaPolicy = {
@@ -5917,6 +5965,7 @@ export type v1Result = {
   updatePaymentMethodResult?: billingUpdatePaymentMethodResult;
   deleteSecretsResult?: v1DeleteSecretsResult;
   earnClaimRewardsResult?: v1EarnClaimRewardsResult;
+  createSwapQuoteResultV2?: v1CreateSwapQuoteResultV2;
 };
 
 export type v1RevertChainEntry = {
@@ -6116,11 +6165,11 @@ export type v1SignRawPayloadRequest = {
 };
 
 export type v1SignRawPayloadResult = {
-  /** Component of an ECSDA signature. */
+  /** Component of a cryptographic signature, meaning varies based on signing scheme. */
   r: string;
-  /** Component of an ECSDA signature. */
+  /** Component of a cryptographic signature, meaning varies based on signing scheme. */
   s: string;
-  /** Component of an ECSDA signature. */
+  /** Recovery ID for ECDSA signatures, "00" otherwise. */
   v: string;
 };
 
@@ -6193,6 +6242,18 @@ export type v1SignupUsageV2 = {
   apiKeys?: v1ApiKeyParamsV2[];
   authenticators?: v1AuthenticatorParamsV2[];
   oauthProviders?: v1OauthProviderParamsV2[];
+};
+
+export type v1SignupUsageV3 = {
+  parentOrganizationId: string;
+  subOrganizationName: string;
+  rootUsers: v1RootUserParamsV5[];
+  rootQuorumThreshold: number;
+  wallet?: v1WalletParams;
+  disableEmailRecovery?: boolean;
+  disableEmailAuth?: boolean;
+  disableSmsAuth?: boolean;
+  disableOtpEmailAuth?: boolean;
 };
 
 export type v1SimpleClientExtensionResults = {
@@ -6608,6 +6669,30 @@ export type v1SwapQuote = {
   estimatedTimeSeconds?: string;
 };
 
+export type v1SwapQuoteV2 = {
+  /** Identifier for this provider quote. Pass this value to execute_swap_v2 to bind execution to this exact quote. The signer is derived from the quote; clients do not resupply sign_with on execute. */
+  quoteId: string;
+  /** Swap provider that produced this quote. */
+  provider: string;
+  /** Estimated base-unit amount of the output asset. */
+  outputAmount: string;
+  /** Minimum acceptable base-unit amount of the output asset after slippage. */
+  minOutputAmount: string;
+  /** Quote expiration as a millisecond epoch string. */
+  expiresAt: string;
+  /** Effective total slippage tolerance in basis points for this quote, taken from the provider response when present. When the request omits input slippage_bps, the provider may calculate this value. */
+  slippageBps?: string;
+  /** Client fee in basis points applied for this pair. Informational only; already reflected in output_amount and min_output_amount. */
+  clientFeeBps: string;
+  /** Provider-estimated completion time in seconds, when available. */
+  estimatedTimeSeconds?: string;
+  feeSponsorship?: boolean;
+  fixedRate?: boolean;
+  turnkeyFeeCollection?: string;
+  sponsoredFeeComponents?: string[];
+  remainingFeeComponents?: string[];
+};
+
 export type v1SwapRefund = {
   /** CAIP-19 asset returned by the swap provider after a failed cross-chain fill. */
   asset: string;
@@ -6627,6 +6712,8 @@ export type v1TokenUsage = {
   signup?: v1SignupUsage;
   login?: v1LoginUsage;
   signupV2?: v1SignupUsageV2;
+  loginV2?: v1LoginUsageV2;
+  signupV3?: v1SignupUsageV3;
 };
 
 export type v1TransactionHistoryAsset = {
@@ -8276,7 +8363,7 @@ export type TGetTvcDeploymentProvisioningDetailsResponse = {
   /** The manifest envelope containing the TVC deployment's manifest and signatures. Present only when a deployment is awaiting provisioning. */
   manifestEnvelope?: string;
   /** Current provisioning state. */
-  provisioningState?: v1ProvisioningState;
+  provisioningState: v1ProvisioningState;
 };
 
 export type TGetTvcDeploymentProvisioningDetailsBody = {
@@ -8762,7 +8849,7 @@ export type TGetVerifiedSubOrgIdsResponse = {
 
 export type TGetVerifiedSubOrgIdsBody = {
   organizationId?: string;
-  /** Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER'. */
+  /** Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'OAUTH_CLAIM', or 'PUBLIC_KEY' */
   filterType?: string;
   /** The value of the filter to apply for the specified type. For example, a specific email or phone number string. */
   filterValue?: string;
@@ -9903,7 +9990,7 @@ export type TEarnClaimRewardsBody = {
   /** A Turnkey-managed wallet address the rewards are attributed to. The claim transaction is signed by this wallet and the Merkl Distributor transfers every reward token to it. */
   signWith: string;
   /** CAIP-2 chain to claim rewards on (e.g. 'eip155:8453'). Rewards accrue per chain; see ListEarnRewards. */
-  chainCaip2: string;
+  caip2: string;
   /** Whether to sponsor this transaction via Gas Station. */
   sponsor?: boolean;
   generateAppProofs?: boolean;
@@ -9927,13 +10014,17 @@ export type TEarnDeployWrapperBody = {
   /** Address of the underlying yield vault to wrap (from the ListEarnVaults catalog). */
   vaultAddress: string;
   /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
-  chainCaip2:
+  caip2:
     | "eip155:1"
     | "eip155:8453"
     | "eip155:42161"
     | "eip155:137"
     | "eip155:56"
-    | "eip155:4217";
+    | "eip155:4217"
+    | "solana:mainnet"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:devnet"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   /** Your fee on gross yield, in basis points (e.g., '2000' for 20%). Maximum is 4000 (40%). */
   clientFeeBps: string;
   /** The wallet address that receives the client's fee payouts on-chain. Must be a Turnkey-managed wallet address. */
@@ -9959,13 +10050,17 @@ export type TEarnDepositBody = {
   /** Amount of the underlying asset to deposit, in raw on-chain units (e.g., '1000000' for 1 USDC at 6 decimals). */
   assets: string;
   /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
-  chainCaip2:
+  caip2:
     | "eip155:1"
     | "eip155:8453"
     | "eip155:42161"
     | "eip155:137"
     | "eip155:56"
-    | "eip155:4217";
+    | "eip155:4217"
+    | "solana:mainnet"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:devnet"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   /** Whether to sponsor this transaction via Gas Station. */
   sponsor?: boolean;
   generateAppProofs?: boolean;
@@ -10007,13 +10102,17 @@ export type TEarnWithdrawBody = {
   /** A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
   signWith: string;
   /** CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base). */
-  chainCaip2:
+  caip2:
     | "eip155:1"
     | "eip155:8453"
     | "eip155:42161"
     | "eip155:137"
     | "eip155:56"
-    | "eip155:4217";
+    | "eip155:4217"
+    | "solana:mainnet"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:devnet"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   /** Whether to sponsor this transaction via Gas Station. */
   sponsor?: boolean;
   /** The amount of the underlying asset to withdraw, in raw on-chain units. Pass 'MAX' to withdraw the entire position. */
@@ -10797,11 +10896,11 @@ export type TUpdateTvcAppLiveDeploymentInput = {
 
 export type TSignRawPayloadResponse = {
   activity: v1Activity;
-  /** Component of an ECSDA signature. */
+  /** Component of a cryptographic signature, meaning varies based on signing scheme. */
   r: string;
-  /** Component of an ECSDA signature. */
+  /** Component of a cryptographic signature, meaning varies based on signing scheme. */
   s: string;
-  /** Component of an ECSDA signature. */
+  /** Recovery ID for ECDSA signatures, "00" otherwise. */
   v: string;
 };
 

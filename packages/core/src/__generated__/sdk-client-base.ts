@@ -4872,7 +4872,7 @@ export class TurnkeySDKClientBase {
         generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2",
       },
-      "createSwapQuoteResult",
+      "createSwapQuoteResultV2",
       stampWith,
     );
   };
