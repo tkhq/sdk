@@ -3201,7 +3201,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2",
       },
-      "createSwapQuoteResultV2",
+      "createSwapQuoteResult",
     );
   };
 

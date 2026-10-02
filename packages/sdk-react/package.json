@@ -47,7 +47,8 @@
     "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run clean && pnpm run build"
+    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "test": "jest"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -57,7 +58,6 @@
     "@mui/material": "^6.1.5",
     "@noble/hashes": "1.4.0",
     "@react-oauth/google": "^0.12.1",
-    "@turnkey/core": "workspace:*",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",

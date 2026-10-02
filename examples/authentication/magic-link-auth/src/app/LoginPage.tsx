@@ -114,8 +114,7 @@ export default function LoginPage() {
         encryptedOtpBundle,
       });
 
-      // The token's publicKey is the canonical source — it was embedded inside
-      // the encrypted bundle by the enclave and equals the key we just created.
+      // Sign strict usage for the same session key sent in the login request.
       const { message, publicKey: tokenPublicKey } =
         getClientSignatureMessageForLoginV2({
           verificationToken,
@@ -136,7 +135,7 @@ export default function LoginPage() {
       const session = await completeAuth({
         verificationToken,
         subOrgId,
-        publicKey: tokenPublicKey,
+        publicKey,
         clientSignature,
       });
 
