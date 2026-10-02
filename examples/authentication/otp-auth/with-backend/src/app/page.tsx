@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   useTurnkey,
   AuthState,
-  getClientSignatureMessageForLogin,
+  getClientSignatureMessageForLoginV2,
 } from "@turnkey/react-wallet-kit";
 import { encryptOtpCodeToBundle } from "@turnkey/crypto";
 import type { v1ClientSignature } from "@turnkey/sdk-types";
@@ -109,8 +109,10 @@ export default function AuthPage() {
       }
 
       // 3) Build the client signature proving we hold the private key
-      const { message } = getClientSignatureMessageForLogin({
+      const { message } = getClientSignatureMessageForLoginV2({
         verificationToken,
+        organizationId: suborgId,
+        publicKey,
       });
 
       const signature = await signWithApiKey({ message, publicKey });

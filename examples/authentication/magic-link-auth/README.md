@@ -50,7 +50,7 @@ A step-by-step look under the hood:
    - This returns a `verificationToken` containing the user's email address and the session public key (extracted by the enclave from the encrypted bundle).
 
 6. **_Build a client signature_**
-   - The frontend calls `getClientSignatureMessageForLogin({ verificationToken })`, which returns the canonical `publicKey` decoded from the token. It signs the message with `signWithApiKey({ message, publicKey })`.
+   - The frontend calls `getClientSignatureMessageForLoginV2({ verificationToken, organizationId: subOrgId, publicKey })`, which returns the canonical `publicKey` decoded from the token. It signs the message with `signWithApiKey({ message, publicKey })`.
    - This proves to Turnkey that the caller holds the private key corresponding to `publicKey`, binding the session to the device.
 
 7. **_Get or create the sub-organization_**

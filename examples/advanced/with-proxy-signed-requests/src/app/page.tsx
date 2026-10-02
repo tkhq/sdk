@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   useTurnkey,
   AuthState,
-  getClientSignatureMessageForLogin,
+  getClientSignatureMessageForLoginV2,
 } from "@turnkey/react-wallet-kit";
 import { encryptOtpCodeToBundle } from "@turnkey/crypto";
 import type { v1ClientSignature } from "@turnkey/sdk-types";
@@ -96,8 +96,10 @@ export default function AuthPage() {
         suborgId = created.subOrganizationId;
       }
 
-      const { message } = getClientSignatureMessageForLogin({
+      const { message } = getClientSignatureMessageForLoginV2({
         verificationToken,
+        organizationId: suborgId,
+        publicKey: pubKeyRef.current,
       });
 
       const signature = await signWithApiKey({

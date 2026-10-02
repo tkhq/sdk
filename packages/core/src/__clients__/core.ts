@@ -147,7 +147,7 @@ import {
   getActiveSessionOrThrowIfRequired,
   fetchAllWalletAccountsWithCursor,
   decodeVerificationToken,
-  getClientSignatureMessageForSignup,
+  getClientSignatureMessageForSignupV3,
   ERC20_TRANSFER_ABI,
 } from "../utils";
 import { encryptOtpCodeToBundle } from "@turnkey/crypto";
@@ -1734,15 +1734,10 @@ export class TurnkeyClient {
     return withTurnkeyErrorHandling(
       async () => {
         const { message, publicKey: verificationPublicKey } =
-          getClientSignatureMessageForSignup({
+          getClientSignatureMessageForSignupV3({
             verificationToken,
-            ...(signUpBody.userEmail && { email: signUpBody.userEmail }),
-            ...(signUpBody.userPhoneNumber && {
-              phoneNumber: signUpBody.userPhoneNumber,
-            }),
-            apiKeys: signUpBody.apiKeys,
-            authenticators: signUpBody.authenticators,
-            oauthProviders: signUpBody.oauthProviders,
+            parentOrganizationId: this.config.organizationId,
+            signUpBody,
           });
 
         // we sign with the verification token key. This is the key bound during

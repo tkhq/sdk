@@ -1013,7 +1013,7 @@ export type TCreateSubOrganizationBody =
     commandOverrideParams;
 
 export type TCreateSwapQuoteResponse =
-  operations["PublicApiService_CreateSwapQuote"]["responses"]["200"]["schema"]["activity"]["result"]["createSwapQuoteResult"] &
+  operations["PublicApiService_CreateSwapQuote"]["responses"]["200"]["schema"]["activity"]["result"]["createSwapQuoteResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateSwapQuoteInput = { body: TCreateSwapQuoteBody };

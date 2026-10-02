@@ -6,7 +6,7 @@ import {
   AuthState,
   ClientState,
   useTurnkey,
-  getClientSignatureMessageForLogin,
+  getClientSignatureMessageForLoginV2,
 } from "@turnkey/react-wallet-kit";
 import { encryptOtpCodeToBundle } from "@turnkey/crypto";
 import type { v1ClientSignature } from "@turnkey/sdk-types";
@@ -117,7 +117,11 @@ export default function LoginPage() {
       // The token's publicKey is the canonical source — it was embedded inside
       // the encrypted bundle by the enclave and equals the key we just created.
       const { message, publicKey: tokenPublicKey } =
-        getClientSignatureMessageForLogin({ verificationToken });
+        getClientSignatureMessageForLoginV2({
+          verificationToken,
+          organizationId: subOrgId,
+          publicKey,
+        });
       const signature = await signWithApiKey({
         message,
         publicKey: tokenPublicKey,
