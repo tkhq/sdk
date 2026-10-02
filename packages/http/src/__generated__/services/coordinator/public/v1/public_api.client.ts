@@ -773,22 +773,8 @@ export class TurnkeyClient {
         [stamp.stampHeaderName]: stamp.stampHeaderValue,
       },
       body: stringifiedBody,
-      // "manual", not "error": edge runtimes such as Cloudflare Workers
-      // reject "error". Redirects are still refused below, so the stamped
-      // body is never sent to a redirect target.
-      redirect: "manual",
+      redirect: "error",
     });
-
-    if (
-      response.type === "opaqueredirect" ||
-      (response.status >= 300 && response.status < 400)
-    ) {
-      throw new Error(
-        "Turnkey API request was redirected (" +
-          response.status +
-          "); redirects are not followed for stamped requests",
-      );
-    }
 
     if (!response.ok) {
       let res: GrpcStatus;
@@ -923,7 +909,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get live runtime status for a TVC app from the cluster.
+   * Get live runtime status for a TVC App from the cluster.
    *
    * Sign the provided `TGetAppStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_app_status).
    *
@@ -1016,7 +1002,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get the Boot Proof for a given ephemeral key.
+   * Get the boot proof for a given ephemeral key.
    *
    * Sign the provided `TGetBootProofBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_boot_proof).
    *
@@ -1272,7 +1258,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get the latest Boot Proof for a given enclave app name.
+   * Get the latest boot proof for a given enclave app name.
    *
    * Sign the provided `TGetLatestBootProofBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_latest_boot_proof).
    *
@@ -1835,7 +1821,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get details about a single TVC app.
+   * Get details about a single TVC App
    *
    * Sign the provided `TGetTvcAppBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_tvc_app).
    *
@@ -1862,7 +1848,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get details about a single TVC deployment.
+   * Get details about a single TVC Deployment
    *
    * Sign the provided `TGetTvcDeploymentBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_tvc_deployment).
    *
@@ -1928,7 +1914,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment.
+   * Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment
    *
    * Sign the provided `TGetTvcDeploymentProvisioningDetailsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_tvc_deployment_provisioning_details).
    *
@@ -2655,7 +2641,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get all suborg IDs (verified and unverified) associated with a given parent organization ID and an optional filter.
+   * Get all suborg IDs associated given a parent org ID and an optional filter.
    *
    * Sign the provided `TGetSubOrgIdsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_suborgs).
    *
@@ -2718,7 +2704,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * List all deployments for a given TVC app.
+   * List all deployments for a given TVC App
    *
    * Sign the provided `TGetTvcAppDeploymentsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_tvc_app_deployments).
    *
@@ -2750,7 +2736,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * List all TVC apps within an organization.
+   * List all TVC Apps within an organization.
    *
    * Sign the provided `TGetTvcAppsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_tvc_apps).
    *
@@ -2808,7 +2794,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * List all hosted TVC Quorum Keys within an organization, newest first.
+   * List all hosted TVC quorum keys within an organization, newest first.
    *
    * Sign the provided `TGetTvcQuorumKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_tvc_quorum_keys).
    *
@@ -2930,7 +2916,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get all verified suborg IDs associated with a given parent organization ID and an optional filter.
+   * Get all email or phone verified suborg IDs associated given a parent org ID.
    *
    * Sign the provided `TGetVerifiedSubOrgIdsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_verified_suborgs).
    *
@@ -3053,7 +3039,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Validate a container image URL and pull secret for TVC deployment.
+   * Validate a container image URL and pull secret for TVC deployment
    *
    * Sign the provided `TValidateTvcImageBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/validate_tvc_image).
    *
@@ -3084,7 +3070,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get basic information about your current API or WebAuthn user and their organization. Affords sub-organization lookups via parent organization for WebAuthn or API key users.
+   * Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users.
    *
    * Sign the provided `TGetWhoamiBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/whoami).
    *
@@ -3299,7 +3285,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create a fiat on ramp provider credential.
+   * Create a fiat on ramp provider credential
    *
    * Sign the provided `TCreateFiatOnRampCredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_fiat_on_ramp_credential).
    *
@@ -3397,7 +3383,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Enable authentication for end users with an OAuth 2.0 provider.
+   * Enable authentication for end users with an OAuth 2.0 provider
    *
    * Sign the provided `TCreateOauth2CredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_oauth2_credential).
    *
@@ -3750,7 +3736,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
+   * Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
    *
    * Sign the provided `TCreateSwapQuoteBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_swap_quote).
    *
@@ -3781,7 +3767,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create a new TVC application.
+   * Create a new TVC application
    *
    * Sign the provided `TCreateTvcAppBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_tvc_app).
    *
@@ -3812,7 +3798,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create a new TVC deployment.
+   * Create a new TVC Deployment
    *
    * Sign the provided `TCreateTvcDeploymentBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_tvc_deployment).
    *
@@ -3844,7 +3830,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Post one or more manifest approvals for a TVC manifest.
+   * Post one or more manifest approvals for a TVC Manifest
    *
    * Sign the provided `TCreateTvcManifestApprovalsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_tvc_manifest_approvals).
    *
@@ -3879,7 +3865,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create a TVC operator backed by uncompressed P-256 Turnkey wallet accounts.
+   * Create a TVC Operator backed by uncompressed P-256 Turnkey wallet accounts
    *
    * Sign the provided `TCreateTvcOperatorBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_tvc_operator).
    *
@@ -3911,7 +3897,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create a hosted TVC Quorum Key and encrypted shares.
+   * Create a hosted TVC quorum key and encrypted shares.
    *
    * Sign the provided `TCreateTvcQuorumKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_tvc_quorum_key).
    *
@@ -4132,7 +4118,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Remove API keys from a user.
+   * Remove api keys from a user.
    *
    * Sign the provided `TDeleteApiKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_api_keys).
    *
@@ -4195,7 +4181,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Delete a fiat on ramp provider credential.
+   * Delete a fiat on ramp provider credential
    *
    * Sign the provided `TDeleteFiatOnRampCredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_fiat_on_ramp_credential).
    *
@@ -4292,7 +4278,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Disable authentication for end users with an OAuth 2.0 provider.
+   * Disable authentication for end users with an OAuth 2.0 provider
    *
    * Sign the provided `TDeleteOauth2CredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_oauth2_credential).
    *
@@ -4580,7 +4566,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Delete a TVC app and all of its deployments.
+   * Delete a TVC App and all of its deployments
    *
    * Sign the provided `TDeleteTvcAppAndDeploymentsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_tvc_app_and_deployments).
    *
@@ -4615,7 +4601,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Delete a TVC deployment.
+   * Delete a TVC Deployment
    *
    * Sign the provided `TDeleteTvcDeploymentBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_tvc_deployment).
    *
@@ -5612,7 +5598,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities.
+   * Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities
    *
    * Sign the provided `TOauth2AuthenticateBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/oauth2_authenticate).
    *
@@ -5725,7 +5711,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Post re-encrypted Quorum Key share for a TVC deployment.
+   * Post re-encrypted quorum key share for a TVC deployment.
    *
    * Sign the provided `TPostTvcQuorumKeyShareBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/post_tvc_quorum_key_share).
    *
@@ -5757,7 +5743,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Re-encrypt a hosted TVC Quorum Key share for a deployment.
+   * Re-encrypt a hosted TVC quorum key share for a deployment.
    *
    * Sign the provided `TReEncryptTvcQuorumKeyShareBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/re_encrypt_tvc_quorum_key_share).
    *
@@ -5918,7 +5904,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Restore a deleted TVC deployment.
+   * Restore a deleted TVC Deployment
    *
    * Sign the provided `TRestoreTvcDeploymentBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/restore_tvc_deployment).
    *
@@ -6013,7 +5999,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Set the live deployment for a TVC app.
+   * Set the live deployment for a TVC App
    *
    * Sign the provided `TUpdateTvcAppLiveDeploymentBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/set_tvc_app_live_deployment).
    *
@@ -6327,7 +6313,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Update a fiat on ramp provider credential.
+   * Update a fiat on ramp provider credential
    *
    * Sign the provided `TUpdateFiatOnRampCredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_fiat_on_ramp_credential).
    *
@@ -6393,7 +6379,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Update an OAuth 2.0 provider credential.
+   * Update an OAuth 2.0 provider credential
    *
    * Sign the provided `TUpdateOauth2CredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_oauth2_credential).
    *

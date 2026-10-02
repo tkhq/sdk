@@ -3,8 +3,7 @@
 import React, { useRef, useState } from "react";
 import OtpInput from "./otp";
 import styles from "./OtpVerification.module.css";
-import { formatPhoneNumber } from "./utils";
-import { getClientSignatureMessageForLoginV2 } from "@turnkey/core";
+import { buildOtpLoginRequest, formatPhoneNumber } from "./utils";
 import EmailIcon from "@mui/icons-material/Email";
 import SmsIcon from "@mui/icons-material/Sms";
 import { CircularProgress } from "@mui/material";
@@ -12,7 +11,7 @@ import { OtpType, FilterType } from "./constants";
 import { server } from "@turnkey/sdk-server";
 import { useTurnkey } from "../../hooks/use-turnkey";
 import type { WalletAccount } from "@turnkey/sdk-browser";
-import { type v1ClientSignature, SignatureFormat } from "@turnkey/sdk-types";
+import { SignatureFormat } from "@turnkey/sdk-types";
 import { encryptOtpCodeToBundle } from "@turnkey/crypto";
 
 const resendTimerMs = 15000;
@@ -101,34 +100,14 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         return;
       }
 
-      // Build the client signature proving we hold the session private key
-      const { message, publicKey: signingPublicKey } =
-        getClientSignatureMessageForLoginV2({
-          verificationToken: verifyResponse!.verificationToken,
-          organizationId: suborgID,
-          publicKey,
-          ...(sessionLengthSeconds !== undefined && {
-            expirationSeconds: sessionLengthSeconds.toString(),
-          }),
-        });
-      const compactSignature = await indexedDbClient!.sign(
-        message,
-        SignatureFormat.Raw,
-      );
-      const clientSignature: v1ClientSignature = {
-        scheme: "CLIENT_SIGNATURE_SCHEME_API_P256" as const,
-        publicKey: signingPublicKey,
-        message,
-        signature: compactSignature,
-      };
-
-      const sessionResponse = await server.otpLogin({
-        suborgID: suborgID,
+      const loginRequest = await buildOtpLoginRequest({
         verificationToken: verifyResponse!.verificationToken,
+        organizationId: suborgID,
         publicKey,
-        clientSignature,
-        sessionLengthSeconds,
+        ...(sessionLengthSeconds !== undefined && { sessionLengthSeconds }),
+        sign: (message) => indexedDbClient!.sign(message, SignatureFormat.Raw),
       });
+      const sessionResponse = await server.otpLogin(loginRequest);
 
       if (sessionResponse && sessionResponse.session) {
         await indexedDbClient!.loginWithSession(sessionResponse.session);

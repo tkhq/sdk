@@ -1582,6 +1582,7 @@ export function getClientSignatureMessageForSignupV3({
           apiKeys: signUpBody.apiKeys,
           authenticators: signUpBody.authenticators,
           oauthProviders: signUpBody.oauthProviders,
+          // userTag is request-only: SignupUsageV3 root users intentionally exclude userTagIds.
         },
       ],
       rootQuorumThreshold: 1,

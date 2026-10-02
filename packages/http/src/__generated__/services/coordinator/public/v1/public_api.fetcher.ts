@@ -215,9 +215,9 @@ export type TGetAppStatusBody =
   operations["PublicApiService_GetAppStatus"]["parameters"]["body"]["body"];
 
 /**
- * Get TVC app status
+ * Get TVC App status
  *
- * Get live runtime status for a TVC app from the cluster.
+ * Get live runtime status for a TVC App from the cluster.
  *
  * `POST /public/v1/query/get_app_status`
  */
@@ -365,9 +365,9 @@ export type TGetBootProofBody =
   operations["PublicApiService_GetBootProof"]["parameters"]["body"]["body"];
 
 /**
- * Get a specific Boot Proof
+ * Get a specific boot proof
  *
- * Get the Boot Proof for a given ephemeral key.
+ * Get the boot proof for a given ephemeral key.
  *
  * `POST /public/v1/query/get_boot_proof`
  */
@@ -769,9 +769,9 @@ export type TGetLatestBootProofBody =
   operations["PublicApiService_GetLatestBootProof"]["parameters"]["body"]["body"];
 
 /**
- * Get the latest Boot Proof for an app
+ * Get the latest boot proof for an app
  *
- * Get the latest Boot Proof for a given enclave app name.
+ * Get the latest boot proof for a given enclave app name.
  *
  * `POST /public/v1/query/get_latest_boot_proof`
  */
@@ -1057,7 +1057,7 @@ export type TGetOauthProvidersBody =
   operations["PublicApiService_GetOauthProviders"]["parameters"]["body"]["body"];
 
 /**
- * Get OAuth providers
+ * Get Oauth providers
  *
  * Get details about Oauth providers for a user.
  *
@@ -1625,7 +1625,7 @@ export type TGetSwapStatusBody =
   operations["PublicApiService_GetSwapStatus"]["parameters"]["body"]["body"];
 
 /**
- * Get Swap status
+ * Get swap status
  *
  * Poll the status of a swap by its swap_request_id. Covers same-chain and cross-chain swaps.
  *
@@ -1671,9 +1671,9 @@ export type TGetTvcAppBody =
   operations["PublicApiService_GetTvcApp"]["parameters"]["body"]["body"];
 
 /**
- * Get TVC app
+ * Get TVC App
  *
- * Get details about a single TVC app.
+ * Get details about a single TVC App
  *
  * `POST /public/v1/query/get_tvc_app`
  */
@@ -1717,9 +1717,9 @@ export type TGetTvcDeploymentBody =
   operations["PublicApiService_GetTvcDeployment"]["parameters"]["body"]["body"];
 
 /**
- * Get TVC deployment
+ * Get TVC Deployment
  *
- * Get details about a single TVC deployment.
+ * Get details about a single TVC Deployment
  *
  * `POST /public/v1/query/get_tvc_deployment`
  */
@@ -1771,7 +1771,7 @@ export type TGetTvcDeploymentDebugLogsBody =
   operations["PublicApiService_GetTvcDeploymentDebugLogs"]["parameters"]["body"]["body"];
 
 /**
- * Get TVC deployment debug logs
+ * Get TVC Deployment debug logs
  *
  * Get a bounded window of application logs from a debug-mode TVC deployment. Returned lines are collected from every running replica and sorted by platform timestamp.
  *
@@ -1827,9 +1827,9 @@ export type TGetTvcDeploymentProvisioningDetailsBody =
   operations["PublicApiService_GetTvcDeploymentProvisioningDetails"]["parameters"]["body"]["body"];
 
 /**
- * Get TVC deployment's provisioning details
+ * Get TVC Deployment's Provisioning Details
  *
- * Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment.
+ * Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment
  *
  * `POST /public/v1/query/get_tvc_deployment_provisioning_details`
  */
@@ -2577,7 +2577,7 @@ export type TListFiatOnRampCredentialsBody =
   operations["PublicApiService_ListFiatOnRampCredentials"]["parameters"]["body"]["body"];
 
 /**
- * List Fiat On Ramp credentials
+ * List Fiat On Ramp Credentials
  *
  * List all fiat on ramp provider credentials within an organization.
  *
@@ -2631,7 +2631,7 @@ export type TListOauth2CredentialsBody =
   operations["PublicApiService_ListOauth2Credentials"]["parameters"]["body"]["body"];
 
 /**
- * List OAuth 2.0 credentials
+ * List OAuth 2.0 Credentials
  *
  * List all OAuth 2.0 credentials within an organization.
  *
@@ -2987,7 +2987,7 @@ export type TGetSubOrgIdsBody =
 /**
  * Get sub-organizations
  *
- * Get all suborg IDs (verified and unverified) associated with a given parent organization ID and an optional filter.
+ * Get all suborg IDs associated given a parent org ID and an optional filter.
  *
  * `POST /public/v1/query/list_suborgs`
  */
@@ -3083,9 +3083,9 @@ export type TGetTvcAppDeploymentsBody =
   operations["PublicApiService_GetTvcAppDeployments"]["parameters"]["body"]["body"];
 
 /**
- * List TVC deployments
+ * List TVC Deployments
  *
- * List all deployments for a given TVC app.
+ * List all deployments for a given TVC App
  *
  * `POST /public/v1/query/list_tvc_app_deployments`
  */
@@ -3135,9 +3135,9 @@ export type TGetTvcAppsBody =
   operations["PublicApiService_GetTvcApps"]["parameters"]["body"]["body"];
 
 /**
- * List TVC apps
+ * List TVC Apps
  *
- * List all TVC apps within an organization.
+ * List all TVC Apps within an organization.
  *
  * `POST /public/v1/query/list_tvc_apps`
  */
@@ -3227,9 +3227,9 @@ export type TGetTvcQuorumKeysBody =
   operations["PublicApiService_GetTvcQuorumKeys"]["parameters"]["body"]["body"];
 
 /**
- * List TVC Quorum Keys
+ * List TVC quorum keys
  *
- * List all hosted TVC Quorum Keys within an organization, newest first.
+ * List all hosted TVC quorum keys within an organization, newest first.
  *
  * `POST /public/v1/query/list_tvc_quorum_keys`
  */
@@ -3425,7 +3425,7 @@ export type TGetVerifiedSubOrgIdsBody =
 /**
  * Get verified sub-organizations
  *
- * Get all verified suborg IDs associated with a given parent organization ID and an optional filter.
+ * Get all email or phone verified suborg IDs associated given a parent org ID.
  *
  * `POST /public/v1/query/list_verified_suborgs`
  */
@@ -3625,9 +3625,9 @@ export type TValidateTvcImageBody =
   operations["PublicApiService_ValidateTvcImage"]["parameters"]["body"]["body"];
 
 /**
- * Validate container image for TVC
+ * Validate Container Image for TVC
  *
- * Validate a container image URL and pull secret for TVC deployment.
+ * Validate a container image URL and pull secret for TVC deployment
  *
  * `POST /public/v1/query/validate_tvc_image`
  */
@@ -3679,7 +3679,7 @@ export type TGetWhoamiBody =
 /**
  * Who am I?
  *
- * Get basic information about your current API or WebAuthn user and their organization. Affords sub-organization lookups via parent organization for WebAuthn or API key users.
+ * Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users.
  *
  * `POST /public/v1/query/whoami`
  */
@@ -3769,7 +3769,7 @@ export type TClaimEarnFeesBody =
   operations["PublicApiService_ClaimEarnFees"]["parameters"]["body"]["body"];
 
 /**
- * Claim Earn fees
+ * Claim earn fees
  *
  * Claim earn fees through the activity pipeline.
  *
@@ -3815,7 +3815,7 @@ export type TClaimSwapFeesBody =
   operations["PublicApiService_ClaimSwapFees"]["parameters"]["body"]["body"];
 
 /**
- * Claim Swap fees
+ * Claim swap fees
  *
  * Claim swap fees through the activity pipeline.
  *
@@ -4013,9 +4013,9 @@ export type TCreateFiatOnRampCredentialBody =
   operations["PublicApiService_CreateFiatOnRampCredential"]["parameters"]["body"]["body"];
 
 /**
- * Create a Fiat On Ramp credential
+ * Create a Fiat On Ramp Credential
  *
- * Create a fiat on ramp provider credential.
+ * Create a fiat on ramp provider credential
  *
  * `POST /public/v1/submit/create_fiat_on_ramp_credential`
  */
@@ -4167,9 +4167,9 @@ export type TCreateOauth2CredentialBody =
   operations["PublicApiService_CreateOauth2Credential"]["parameters"]["body"]["body"];
 
 /**
- * Create an OAuth 2.0 credential
+ * Create an OAuth 2.0 Credential
  *
- * Enable authentication for end users with an OAuth 2.0 provider.
+ * Enable authentication for end users with an OAuth 2.0 provider
  *
  * `POST /public/v1/submit/create_oauth2_credential`
  */
@@ -4219,7 +4219,7 @@ export type TCreateOauthProvidersBody =
   operations["PublicApiService_CreateOauthProviders"]["parameters"]["body"]["body"];
 
 /**
- * Create OAuth providers
+ * Create Oauth providers
  *
  * Create Oauth providers for a specified user.
  *
@@ -4733,9 +4733,9 @@ export type TCreateSwapQuoteBody =
   operations["PublicApiService_CreateSwapQuote"]["parameters"]["body"]["body"];
 
 /**
- * Create Swap quote
+ * Get swap quote
  *
- * Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
+ * Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
  *
  * `POST /public/v1/submit/create_swap_quote`
  */
@@ -4779,9 +4779,9 @@ export type TCreateTvcAppBody =
   operations["PublicApiService_CreateTvcApp"]["parameters"]["body"]["body"];
 
 /**
- * Create a TVC app
+ * Create a TVC App
  *
- * Create a new TVC application.
+ * Create a new TVC application
  *
  * `POST /public/v1/submit/create_tvc_app`
  */
@@ -4825,9 +4825,9 @@ export type TCreateTvcDeploymentBody =
   operations["PublicApiService_CreateTvcDeployment"]["parameters"]["body"]["body"];
 
 /**
- * Create a TVC deployment
+ * Create a TVC Deployment
  *
- * Create a new TVC deployment.
+ * Create a new TVC Deployment
  *
  * `POST /public/v1/submit/create_tvc_deployment`
  */
@@ -4879,9 +4879,9 @@ export type TCreateTvcManifestApprovalsBody =
   operations["PublicApiService_CreateTvcManifestApprovals"]["parameters"]["body"]["body"];
 
 /**
- * Create TVC manifest approvals
+ * Create TVC Manifest Approvals
  *
- * Post one or more manifest approvals for a TVC manifest.
+ * Post one or more manifest approvals for a TVC Manifest
  *
  * `POST /public/v1/submit/create_tvc_manifest_approvals`
  */
@@ -4933,9 +4933,9 @@ export type TCreateTvcOperatorBody =
   operations["PublicApiService_CreateTvcOperator"]["parameters"]["body"]["body"];
 
 /**
- * Create TVC operator
+ * Create TVC Operator
  *
- * Create a TVC operator backed by uncompressed P-256 Turnkey wallet accounts.
+ * Create a TVC Operator backed by uncompressed P-256 Turnkey wallet accounts
  *
  * `POST /public/v1/submit/create_tvc_operator`
  */
@@ -4987,7 +4987,7 @@ export type TCreateTvcQuorumKeyBody =
 /**
  * Create TVC Quorum Key
  *
- * Create a hosted TVC Quorum Key and encrypted shares.
+ * Create a hosted TVC quorum key and encrypted shares.
  *
  * `POST /public/v1/submit/create_tvc_quorum_key`
  */
@@ -5333,7 +5333,7 @@ export type TDeleteApiKeysBody =
 /**
  * Delete API keys
  *
- * Remove API keys from a user.
+ * Remove api keys from a user.
  *
  * `POST /public/v1/submit/delete_api_keys`
  */
@@ -5431,9 +5431,9 @@ export type TDeleteFiatOnRampCredentialBody =
   operations["PublicApiService_DeleteFiatOnRampCredential"]["parameters"]["body"]["body"];
 
 /**
- * Delete a Fiat On Ramp credential
+ * Delete a Fiat On Ramp Credential
  *
- * Delete a fiat on ramp provider credential.
+ * Delete a fiat on ramp provider credential
  *
  * `POST /public/v1/submit/delete_fiat_on_ramp_credential`
  */
@@ -5585,9 +5585,9 @@ export type TDeleteOauth2CredentialBody =
   operations["PublicApiService_DeleteOauth2Credential"]["parameters"]["body"]["body"];
 
 /**
- * Delete an OAuth 2.0 credential
+ * Delete an OAuth 2.0 Credential
  *
- * Disable authentication for end users with an OAuth 2.0 provider.
+ * Disable authentication for end users with an OAuth 2.0 provider
  *
  * `POST /public/v1/submit/delete_oauth2_credential`
  */
@@ -5637,7 +5637,7 @@ export type TDeleteOauthProvidersBody =
   operations["PublicApiService_DeleteOauthProviders"]["parameters"]["body"]["body"];
 
 /**
- * Delete OAuth providers
+ * Delete Oauth providers
  *
  * Remove Oauth providers for a specified user.
  *
@@ -6041,9 +6041,9 @@ export type TDeleteTvcAppAndDeploymentsBody =
   operations["PublicApiService_DeleteTvcAppAndDeployments"]["parameters"]["body"]["body"];
 
 /**
- * Delete a TVC app and all of its deployments
+ * Delete a TVC App and all of its deployments
  *
- * Delete a TVC app and all of its deployments.
+ * Delete a TVC App and all of its deployments
  *
  * `POST /public/v1/submit/delete_tvc_app_and_deployments`
  */
@@ -6095,9 +6095,9 @@ export type TDeleteTvcDeploymentBody =
   operations["PublicApiService_DeleteTvcDeployment"]["parameters"]["body"]["body"];
 
 /**
- * Delete a TVC deployment
+ * Delete a TVC Deployment
  *
- * Delete a TVC deployment.
+ * Delete a TVC Deployment
  *
  * `POST /public/v1/submit/delete_tvc_deployment`
  */
@@ -6891,7 +6891,7 @@ export type TExecuteSwapBody =
   operations["PublicApiService_ExecuteSwap"]["parameters"]["body"]["body"];
 
 /**
- * Execute Swap
+ * Execute swap
  *
  * Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2.
  *
@@ -7277,7 +7277,7 @@ export type TInitFiatOnRampBody =
   operations["PublicApiService_InitFiatOnRamp"]["parameters"]["body"]["body"];
 
 /**
- * Init Fiat On Ramp
+ * Init fiat on ramp
  *
  * Initiate a fiat on ramp flow.
  *
@@ -7623,7 +7623,7 @@ export type TOauthBody =
   operations["PublicApiService_Oauth"]["parameters"]["body"]["body"];
 
 /**
- * OAuth
+ * Oauth
  *
  * Authenticate a user with an OIDC token (Oauth).
  *
@@ -7671,7 +7671,7 @@ export type TOauth2AuthenticateBody =
 /**
  * OAuth 2.0 authentication
  *
- * Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities.
+ * Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities
  *
  * `POST /public/v1/submit/oauth2_authenticate`
  */
@@ -7721,7 +7721,7 @@ export type TOauthLoginBody =
   operations["PublicApiService_OauthLogin"]["parameters"]["body"]["body"];
 
 /**
- * Login with OAuth
+ * Login with Oauth
  *
  * Create an Oauth session for a user.
  *
@@ -7859,9 +7859,9 @@ export type TPostTvcQuorumKeyShareBody =
   operations["PublicApiService_PostTvcQuorumKeyShare"]["parameters"]["body"]["body"];
 
 /**
- * Post TVC Quorum Key share
+ * Post TVC Quorum Key Share
  *
- * Post re-encrypted Quorum Key share for a TVC deployment.
+ * Post re-encrypted quorum key share for a TVC deployment.
  *
  * `POST /public/v1/submit/post_tvc_quorum_key_share`
  */
@@ -7913,9 +7913,9 @@ export type TReEncryptTvcQuorumKeyShareBody =
   operations["PublicApiService_ReEncryptTvcQuorumKeyShare"]["parameters"]["body"]["body"];
 
 /**
- * Re-encrypt TVC Quorum Key share
+ * Re-encrypt TVC Quorum Key Share
  *
- * Re-encrypt a hosted TVC Quorum Key share for a deployment.
+ * Re-encrypt a hosted TVC quorum key share for a deployment.
  *
  * `POST /public/v1/submit/re_encrypt_tvc_quorum_key_share`
  */
@@ -8167,9 +8167,9 @@ export type TRestoreTvcDeploymentBody =
   operations["PublicApiService_RestoreTvcDeployment"]["parameters"]["body"]["body"];
 
 /**
- * Restore a TVC deployment
+ * Restore a TVC Deployment
  *
- * Restore a deleted TVC deployment.
+ * Restore a deleted TVC Deployment
  *
  * `POST /public/v1/submit/restore_tvc_deployment`
  */
@@ -8321,9 +8321,9 @@ export type TUpdateTvcAppLiveDeploymentBody =
   operations["PublicApiService_UpdateTvcAppLiveDeployment"]["parameters"]["body"]["body"];
 
 /**
- * Set TVC app live deployment
+ * Set TVC App live deployment
  *
- * Set the live deployment for a TVC app.
+ * Set the live deployment for a TVC App
  *
  * `POST /public/v1/submit/set_tvc_app_live_deployment`
  */
@@ -8819,9 +8819,9 @@ export type TUpdateFiatOnRampCredentialBody =
   operations["PublicApiService_UpdateFiatOnRampCredential"]["parameters"]["body"]["body"];
 
 /**
- * Update a Fiat On Ramp credential
+ * Update a Fiat On Ramp Credential
  *
- * Update a fiat on ramp provider credential.
+ * Update a fiat on ramp provider credential
  *
  * `POST /public/v1/submit/update_fiat_on_ramp_credential`
  */
@@ -8921,9 +8921,9 @@ export type TUpdateOauth2CredentialBody =
   operations["PublicApiService_UpdateOauth2Credential"]["parameters"]["body"]["body"];
 
 /**
- * Update an OAuth 2.0 credential
+ * Update an OAuth 2.0 Credential
  *
- * Update an OAuth 2.0 provider credential.
+ * Update an OAuth 2.0 provider credential
  *
  * `POST /public/v1/submit/update_oauth2_credential`
  */
@@ -9511,7 +9511,7 @@ export type TUpsertSwapConfigBody =
   operations["PublicApiService_UpsertSwapConfig"]["parameters"]["body"]["body"];
 
 /**
- * Upsert Swap config
+ * Upsert swap config
  *
  * Enable or disable swap configuration for an organization.
  *
@@ -9598,10 +9598,6 @@ export type TNOOPCodegenAnchorResponse =
   operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
 
 /**
- * Internal codegen anchor (no-op)
- *
- * Internal no-op endpoint used to force generation of types not otherwise referenced by a public request or response. Not intended for use.
- *
  * `POST /tkhq/api/v1/noop-codegen-anchor`
  */
 export const nOOPCodegenAnchor = () =>

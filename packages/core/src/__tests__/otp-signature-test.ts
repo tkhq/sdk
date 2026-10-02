@@ -1,5 +1,28 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 import { stringToBase64urlString } from "@turnkey/encoding";
+
+jest.mock(
+  "@polyfills/window",
+  () => ({
+    __esModule: true,
+    default: {
+      localStorage: {
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      },
+    },
+  }),
+  { virtual: true },
+);
+jest.mock(
+  "@utils",
+  () => ({
+    __esModule: true,
+    parseSession: jest.fn(),
+  }),
+  { virtual: true },
+);
 import {
   buildSignUpBody,
   getClientSignatureMessageForLogin,
@@ -7,6 +30,8 @@ import {
   getClientSignatureMessageForSignup,
   getClientSignatureMessageForSignupV3,
 } from "../utils";
+import { TurnkeyClient } from "../__clients__/core";
+import { OtpType } from "../__types__";
 
 const verificationPublicKey = "verification-public-key";
 const verificationToken = `header.${stringToBase64urlString(
@@ -183,5 +208,72 @@ describe("OTP client signature messages", () => {
     expect(signedUsage.signupV3).not.toHaveProperty("disableEmailAuth");
     expect(signedUsage.signupV3).not.toHaveProperty("disableSmsAuth");
     expect(signedUsage.signupV3).not.toHaveProperty("disableOtpEmailAuth");
+  });
+
+  it("submits a proxySignupV2 request that matches the signed strict usage", async () => {
+    const client = new TurnkeyClient({
+      organizationId: "parent-organization-id",
+    });
+    const signWithApiKey = jest.fn(async () => "compact-signature");
+    const proxySignupV2 = jest.fn(async (_request: unknown) => ({
+      organizationId: "sub-organization-id",
+      userId: "user-id",
+    }));
+    const loginWithOtp = jest.fn(async () => ({
+      sessionToken: "session-token",
+    }));
+    (client as any).signWithApiKey = signWithApiKey;
+    (client as any).httpClient = { proxySignupV2 };
+    (client as any).loginWithOtp = loginWithOtp;
+
+    await client.signUpWithOtp({
+      verificationToken,
+      contact: "alice@example.com",
+      otpType: OtpType.Email,
+      createSubOrgParams: {
+        userName: "Alice",
+        subOrgName: "Alice's organization",
+        userTag: "request-only-tag",
+        apiKeys: [],
+        authenticators: [],
+        oauthProviders: [],
+      },
+    });
+
+    expect(proxySignupV2).toHaveBeenCalledTimes(1);
+    const request = proxySignupV2.mock.calls[0]![0] as any;
+    const signedUsage = JSON.parse(request.clientSignature.message);
+    expect(request).toMatchObject({
+      userName: "Alice",
+      userEmail: "alice@example.com",
+      userTag: "request-only-tag",
+      organizationName: "Alice's organization",
+      apiKeys: [],
+      authenticators: [],
+      oauthProviders: [],
+      verificationToken,
+    });
+    expect(request).not.toHaveProperty("wallet");
+    expect(signedUsage.signupV3).toEqual({
+      parentOrganizationId: "parent-organization-id",
+      subOrganizationName: request.organizationName,
+      rootUsers: [
+        {
+          userName: request.userName,
+          userEmail: request.userEmail,
+          apiKeys: request.apiKeys,
+          authenticators: request.authenticators,
+          oauthProviders: request.oauthProviders,
+        },
+      ],
+      rootQuorumThreshold: 1,
+    });
+    expect(signedUsage.signupV3).not.toHaveProperty("wallet");
+    expect(signedUsage.signupV3.rootUsers[0]).not.toHaveProperty("userTag");
+    expect(signedUsage.signupV3.rootUsers[0]).not.toHaveProperty("userTagIds");
+    expect(signWithApiKey).toHaveBeenCalledWith({
+      message: request.clientSignature.message,
+      publicKey: verificationPublicKey,
+    });
   });
 });
