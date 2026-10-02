@@ -224,7 +224,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
               sessionType: SessionType.READ_WRITE,
               userId: result.userId,
               organizationId: result.organizationId,
-              expiry: Date.now() + Number(expirationSeconds) * 1000,
+              expiry: Math.floor(Date.now() / 1000) + Number(expirationSeconds),
               token: result.credentialBundle,
             };
 
@@ -274,7 +274,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       sessionType: SessionType.READ_WRITE,
       userId: whoAmI.userId,
       organizationId: whoAmI.organizationId,
-      expiry: Date.now() + Number(expirationSeconds) * 1000,
+      expiry: Math.floor(Date.now() / 1000) + Number(expirationSeconds),
       token: bundle,
     };
 
