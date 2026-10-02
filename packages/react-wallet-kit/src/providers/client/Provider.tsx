@@ -7,12 +7,12 @@ import {
   capitalizeProviderName,
   cleanupOAuthUrl,
   cleanupOAuthUrlPreserveSearch,
-  clearAllOAuthData,
+  clearOAuthState,
   completeOAuthFlow,
   completeOAuthPopup,
   exchangeFacebookCodeForToken,
   generateChallengePair,
-  getOAuthAddProviderMetadata,
+  consumeOAuthAddProviderMetadata,
   getProviderIcon,
   completePKCEFlow,
   hasPKCEVerifier,
@@ -313,9 +313,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const { isMobile, pushPage, popPage, closeModal } = useModal();
 
   const completeRedirectOauth = async () => {
-    // Since we use localStorage (see storage.ts), we always clean up OAuth data
-    // when this runs — even if there are no OAuth params in the URL (e.g. the
-    // user canceled at the provider and came back manually)
+    let oauthState: string | null | undefined;
     try {
       // Check for either hash or search parameters that could indicate an OAuth redirect
       if (!window.location.hash && !window.location.search) {
@@ -331,7 +329,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const withModalWrapper = async (params: {
         provider: string;
         isAddProvider: boolean;
-        metadata: ReturnType<typeof getOAuthAddProviderMetadata>;
+        metadata: ReturnType<typeof consumeOAuthAddProviderMetadata>;
         openModal?: string | null | undefined;
         action: () => Promise<void>;
       }) => {
@@ -408,6 +406,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       ) {
         // Parse the URL using our unified helper
         const result = parseOAuthResponse(window.location.href);
+        oauthState = result?.state;
 
         if (!result || !result.authCode || !result.publicKey) {
           return;
@@ -430,7 +429,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         } = result;
 
         const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
-        const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
+        const metadata = isAddProvider
+          ? consumeOAuthAddProviderMetadata()
+          : null;
 
         /**
          * Helper to complete PKCE redirect flow with optional modal wrapper.
@@ -633,6 +634,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       if (window.location.hash) {
         // Parse the URL using our unified helper
         const result = parseOAuthResponse(window.location.href);
+        oauthState = result?.state;
 
         if (
           !result ||
@@ -655,7 +657,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         } = result;
 
         const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
-        const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
+        const metadata = isAddProvider
+          ? consumeOAuthAddProviderMetadata()
+          : null;
         const resolvedProvider = provider || OAuthProviders.GOOGLE;
 
         // Grab Google/Apple secondary client IDs from config for use in completion
@@ -730,7 +734,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         cleanupOAuthUrlPreserveSearch();
       }
     } finally {
-      clearAllOAuthData();
+      if (oauthState) {
+        clearOAuthState(oauthState);
+      }
     }
   };
 
