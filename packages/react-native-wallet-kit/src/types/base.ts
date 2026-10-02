@@ -88,8 +88,7 @@ export interface TurnkeyCallbacks {
  * @interface TurnkeyProviderConfig
  * @extends {TurnkeySDKClientConfig}
  */
-export interface TurnkeyProviderConfig
-  extends Omit<TurnkeySDKClientConfig, "walletConfig"> {
+export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   /** configuration for authentication methods. */
   auth?: {
     /** one-time password (OTP) settings and enablement */
@@ -128,6 +127,8 @@ export interface TurnkeyProviderConfig
       passkeyAuth?: CreateSubOrgParams & { passkeyName?: string };
       /** parameters for OAuth authentication. */
       oauth?: CreateSubOrgParams;
+      /** parameters for wallet authentication (external wallet login/signup). */
+      walletAuth?: CreateSubOrgParams;
     };
     /** whether to automatically refresh the session. */
     autoRefreshSession?: boolean;
