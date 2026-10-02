@@ -337,6 +337,14 @@ export const extractPrivateKeyFromPKCS8Bytes = (
 export const compressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
   const len = rawPublicKey.byteLength;
 
+  if (len !== 65) {
+    throw new Error("failed to compress raw public key: invalid length");
+  }
+
+  if (rawPublicKey[0] !== 0x04) {
+    throw new Error("failed to compress raw public key: invalid prefix");
+  }
+
   // Drop the y coordinate
   // Uncompressed key is in the form 0x04||x||y
   // `len >>> 1` is a more concise way to write `floor(len/2)`
