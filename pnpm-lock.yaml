@@ -17,7 +17,7 @@ overrides:
   js-yaml@>=4.0.0 <4.3.2: 4.3.2
   js-yaml@>=3.0.0 <3.15.2: 3.15.2
   uuid@<11.1.1: 11.1.1
-  axios: '>=1.18.0'
+  axios: ~1.20.0
   form-data: '>=4.0.6'
   fast-uri@>=3.0.0 <3.1.6: ~3.1.6
   glob: '>=10.5.0'
@@ -25,7 +25,7 @@ overrides:
   validator: '>=13.15.22'
   preact: '>=10.28.2'
   tar: '>=7.5.19'
-  undici: '>=8.9.0'
+  undici: ~8.11.2
   picomatch: '>=4.0.4'
   serialize-javascript: '>=7.0.5'
   socket.io-parser@>=4.0.0 <4.2.7: '>=4.2.7'
@@ -33,7 +33,7 @@ overrides:
   lodash@<=4.17.23: '>=4.18.0'
   bn.js@<4.12.3: '>=4.12.3'
   qs@<6.16.0: '>=6.16.0'
-  brace-expansion@<5.0.9: ~5.0.9
+  brace-expansion@<5.0.12: ~5.0.12
   postcss@<8.5.18: '>=8.5.18'
   next@>=12.0.0 <15.5.24: 15.5.24
   ip-address@<=10.3.0: '>=10.3.1'
@@ -639,8 +639,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -700,8 +700,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -1139,8 +1139,8 @@ importers:
         specifier: ^18.2.0
         version: 18.3.7(@types/react@18.3.24)
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -1187,8 +1187,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/sdk-types
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -1308,8 +1308,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/webauthn-stamper
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -1954,8 +1954,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/sdk-server
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       bitcoinjs-lib:
         specifier: 6.1.6
         version: 6.1.6
@@ -2771,8 +2771,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -2884,8 +2884,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/solana
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -3226,8 +3226,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/wallet-stamper
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -3332,8 +3332,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -3423,8 +3423,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -3555,8 +3555,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/sdk-types
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -3772,8 +3772,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/sdk-server
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       classnames:
         specifier: ^2.3.2
         version: 2.5.1
@@ -3916,8 +3916,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/sdk-server
       axios:
-        specifier: '>=1.18.0'
-        version: 1.18.1
+        specifier: ~1.20.0
+        version: 1.20.0
       classnames:
         specifier: ^2.3.2
         version: 2.5.1
@@ -11405,8 +11405,8 @@ packages:
     resolution: {integrity: sha512-Xm7bpRXnDSX2YE2YFfBk2FnF0ep6tmG7xPh8iHee8MIcrgq762Nkce856dYtJYLkuIoYZvGfTs/PbZhideTcEg==}
     engines: {node: '>=4'}
 
-  axios@1.18.1:
-    resolution: {integrity: sha512-3nTvFlvpn9Zu/RkHUqtc7/+al4UpRW5az71ap5zccp6e8RAYEzhMTecX8Dz1wWDYrPpUoB1HAQEGEAEvUr7S9g==}
+  axios@1.20.0:
+    resolution: {integrity: sha512-r8aOh8j9cGKpgQAqpzrUHnSIc6a59Y3Xf/cv8sy1DrHCkZHzQGEuoq1tARk6qSyDdtQGSDgpb9kFlruzPvrgwg==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -11782,8 +11782,8 @@ packages:
     resolution: {integrity: sha512-9gYgQKXx+1nP8mP7CzFyaUARhg7D3n1dF/FnErWmu9l6JvGpNUN278h0aSb+QjoiKSWG+iZ3uHrcqk0qrY9RQQ==}
     engines: {node: '>=10'}
 
-  brace-expansion@5.0.9:
-    resolution: {integrity: sha512-ScQ4IuvIEF1TMlP7Zt+vjJ//9zlPb2SDcxWxM3bk8s6t6GGdJ7KO1dCcTidOPJKePW30LE/2cT7wCyPho9/Wxg==}
+  brace-expansion@5.0.12:
+    resolution: {integrity: sha512-YovQ3rzhaLMIrDjNDMkNS01tea93qhEhG5xy8f6+R0l+dw3Ki+5sCoIoI942iuLZTHWogWktgwVDhU09iNEimQ==}
     engines: {node: 20 || >=22}
 
   braces@3.0.3:
@@ -17533,8 +17533,8 @@ packages:
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
-  undici@8.10.0:
-    resolution: {integrity: sha512-HvltHd7avK13QIw/oLe4qoOLyoVSoafqJ2jYOrtMRBkbYT31eiBQ8O0ehRKZiEZCMEyLFQNIADpgCWC5fALvYQ==}
+  undici@8.11.2:
+    resolution: {integrity: sha512-u4UB2/IrKdU6lFxumHmmo1a3fCQO5tzQllRorfoRS63txhrB7xTpSn1PftwC4qEHkOaqP95fCWW4lJzwErwzhQ==}
     engines: {node: '>=22.19.0'}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
@@ -18337,7 +18337,7 @@ snapshots:
   '@actions/http-client@4.0.1':
     dependencies:
       tunnel: 0.0.6
-      undici: 8.10.0
+      undici: 8.11.2
 
   '@actions/io@3.0.2': {}
 
@@ -18353,7 +18353,7 @@ snapshots:
 
   '@aptos-labs/aptos-client@0.1.1':
     dependencies:
-      axios: 1.18.1
+      axios: 1.20.0
       got: 11.8.6
     transitivePeerDependencies:
       - debug
@@ -20679,7 +20679,7 @@ snapshots:
     dependencies:
       '@bufbuild/protobuf': 2.12.0
       '@connectrpc/connect': 1.4.0(@bufbuild/protobuf@2.12.0)
-      undici: 8.10.0
+      undici: 8.11.2
 
   '@connectrpc/connect-web@1.4.0(@bufbuild/protobuf@2.12.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@2.12.0))':
     dependencies:
@@ -22624,7 +22624,7 @@ snapshots:
 
   '@mempool/mempool.js@3.0.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
-      axios: 1.18.1
+      axios: 1.20.0
       ws: 8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
@@ -22738,7 +22738,7 @@ snapshots:
       '@meshsdk/core-cst': 1.9.0-beta.100(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(bufferutil@4.0.9)(encoding@0.1.13)(rxjs@7.8.2)(utf-8-validate@5.0.10)
       '@utxorpc/sdk': 0.6.8(@bufbuild/protobuf@2.12.0)
       '@utxorpc/spec': 0.16.0
-      axios: 1.18.1
+      axios: 1.20.0
       cbor: 10.0.12
     transitivePeerDependencies:
       - '@bufbuild/protobuf'
@@ -27733,7 +27733,7 @@ snapshots:
   '@stellar/stellar-sdk@13.3.0':
     dependencies:
       '@stellar/stellar-base': 13.1.0
-      axios: 1.18.1
+      axios: 1.20.0
       bignumber.js: 9.3.1
       eventsource: 2.0.2
       feaxios: 0.0.23
@@ -28004,7 +28004,7 @@ snapshots:
     dependencies:
       '@ton/core': 0.59.1(@ton/crypto@3.3.0)
       '@ton/crypto': 3.3.0
-      axios: 1.18.1
+      axios: 1.20.0
       dataloader: 2.2.3
       symbol.inspect: 1.0.1
       teslabot: 1.5.0
@@ -32597,7 +32597,7 @@ snapshots:
 
   axe-core@4.10.3: {}
 
-  axios@1.18.1:
+  axios@1.20.0:
     dependencies:
       follow-redirects: 1.16.0(debug@4.4.3)
       form-data: 4.0.6
@@ -33177,7 +33177,7 @@ snapshots:
       widest-line: 3.1.0
       wrap-ansi: 7.0.0
 
-  brace-expansion@5.0.9:
+  brace-expansion@5.0.12:
     dependencies:
       balanced-match: 4.0.3
 
@@ -35833,7 +35833,7 @@ snapshots:
       stacktrace-parser: 0.1.11
       tinyglobby: 0.2.15
       tsort: 0.0.1
-      undici: 8.10.0
+      undici: 8.11.2
       uuid: 11.1.1
       ws: 8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     optionalDependencies:
@@ -35882,7 +35882,7 @@ snapshots:
       stacktrace-parser: 0.1.11
       tinyglobby: 0.2.15
       tsort: 0.0.1
-      undici: 8.10.0
+      undici: 8.11.2
       uuid: 11.1.1
       ws: 8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     optionalDependencies:
@@ -37774,23 +37774,23 @@ snapshots:
 
   minimatch@10.2.3:
     dependencies:
-      brace-expansion: 5.0.9
+      brace-expansion: 5.0.12
 
   minimatch@10.2.5:
     dependencies:
-      brace-expansion: 5.0.9
+      brace-expansion: 5.0.12
 
   minimatch@3.1.5:
     dependencies:
-      brace-expansion: 5.0.9
+      brace-expansion: 5.0.12
 
   minimatch@5.1.9:
     dependencies:
-      brace-expansion: 5.0.9
+      brace-expansion: 5.0.12
 
   minimatch@9.0.9:
     dependencies:
-      brace-expansion: 5.0.9
+      brace-expansion: 5.0.12
 
   minimist@1.2.8: {}
 
@@ -41145,7 +41145,7 @@ snapshots:
   tronweb@6.0.4(bufferutil@4.0.9)(utf-8-validate@5.0.10):
     dependencies:
       '@babel/runtime': 7.26.10
-      axios: 1.18.1
+      axios: 1.20.0
       bignumber.js: 9.1.2
       ethereum-cryptography: 2.2.1
       ethers: 6.13.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -41537,7 +41537,7 @@ snapshots:
 
   undici-types@7.18.2: {}
 
-  undici@8.10.0: {}
+  undici@8.11.2: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
