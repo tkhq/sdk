@@ -1762,7 +1762,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         if (client)
           await resetPasskeyScope(client, client.config.passkeyConfig);
       }
-      clearSessionTimeouts([sessionKey]);
+      // Clear the expiry timer and its warning timer, the way
+      // `handlePostLogout` does: a warning left armed re-schedules itself
+      // every 10s for a session that no longer exists.
+      clearSessionTimeouts([sessionKey, `${sessionKey}-warning`]);
       // clear only the cleared session from allSessions
       const newAllSessions = { ...allSessions };
       if (newAllSessions) {
