@@ -185,7 +185,22 @@ export const createEIP1193Provider = async (
         }
         case "eth_signTransaction": {
           const [transaction] = params as WalletRpcSchema[7]["Parameters"];
-          const unsignedTransaction = preprocessTransaction({ ...transaction });
+
+          // Bind the transaction to the chain the provider is connected to:
+          // default `chainId` when the request omits it, and reject a request
+          // that targets a different chain than the active one.
+          const chainId = transaction.chainId ?? activeChain.chainId;
+          if (parseInt(chainId, 16) !== parseInt(activeChain.chainId, 16)) {
+            throw new ChainIdMismatchError(
+              activeChain.chainId as Hex,
+              chainId as Hex,
+            );
+          }
+
+          const unsignedTransaction = preprocessTransaction({
+            ...transaction,
+            chainId,
+          });
           const signedTransaction = await signTransaction({
             organizationId,
             unsignedTransaction,
