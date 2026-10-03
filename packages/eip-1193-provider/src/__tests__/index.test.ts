@@ -9,7 +9,7 @@ import {
   numberToHex,
   parseEther,
   parseGwei,
-  recoverAddress,
+  recoverMessageAddress,
   stringToHex,
   verifyTypedData,
   type EIP1474Methods,
@@ -276,8 +276,8 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             });
             expect(signature).not.toBeUndefined();
             expect(signature).not.toBe("");
-            const address = await recoverAddress({
-              hash: messageDigest,
+            const address = await recoverMessageAddress({
+              message: { raw: messageDigest },
               signature: signature!,
             });
             expect(getAddress(address)).toBe(getAddress(signerAddress));
@@ -294,8 +294,8 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             });
             expect(signature).not.toBeUndefined();
             expect(signature).not.toBe("");
-            const address = await recoverAddress({
-              hash: messageDigest,
+            const address = await recoverMessageAddress({
+              message: { raw: messageDigest },
               signature: signature!,
             });
             expect(getAddress(address)).toBe(getAddress(signerAddress));
