@@ -25,6 +25,8 @@ import {
 
 import { StamperType } from "../__types__";
 
+import { assertRedirectErrorSupported } from "../redirects";
+
 export class TurnkeySDKClientBase {
   config: TurnkeyHttpClientConfig;
 
@@ -240,6 +242,7 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<TResponseType> {
     const fullUrl = this.config.apiBaseUrl + url;
+    assertRedirectErrorSupported(fullUrl);
     const stringifiedBody = JSON.stringify(body);
     var headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -258,7 +261,7 @@ export class TurnkeySDKClientBase {
       method: "POST",
       headers: headers,
       body: stringifiedBody,
-      redirect: "follow",
+      redirect: "error",
     });
 
     if (!response.ok) {
@@ -337,6 +340,7 @@ export class TurnkeySDKClientBase {
       );
     }
     const fullUrl = this.config.authProxyUrl + url;
+    assertRedirectErrorSupported(fullUrl);
     const stringifiedBody = JSON.stringify(body);
     var headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -351,6 +355,7 @@ export class TurnkeySDKClientBase {
       method: "POST",
       headers: headers,
       body: stringifiedBody,
+      redirect: "error",
     });
 
     if (!response.ok) {
@@ -387,6 +392,7 @@ export class TurnkeySDKClientBase {
     signedRequest: TSignedRequest,
     options?: { resultKey?: string },
   ): Promise<TResponseType> {
+    assertRedirectErrorSupported(signedRequest.url);
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       "X-Client-Version": VERSION,
@@ -398,6 +404,7 @@ export class TurnkeySDKClientBase {
       method: "POST",
       headers,
       body: signedRequest.body,
+      redirect: "error",
     });
 
     if (!response.ok) {

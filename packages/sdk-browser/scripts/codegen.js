@@ -351,7 +351,7 @@ export class TurnkeySDKClientBase {
       method: "POST",
       headers: headers,
       body: stringifiedBody,
-      redirect: "follow"
+      redirect: "error"
     });
 
     if (!response.ok) {
