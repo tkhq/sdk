@@ -7,7 +7,31 @@ packages:
   - "!examples/advanced/foundry/lib/**"
   - "!examples/authentication/oauth-cross-platform/mobile/**"
 
+allowBuilds:
+  '@tailwindcss/oxide': true
+  bigint-buffer: true
+  blake-hash: true
+  bufferutil: true
+  chacha-native: true
+  es5-ext: true
+  esbuild: true
+  keccak: true
+  react-native-inappbrowser-reborn: true
+  secp256k1: true
+  tiny-secp256k1: true
+  unrs-resolver: true
+  usb: true
+  utf-8-validate: true
+  web3: true
+  web3-bzz: true
+  web3-shh: true
+
+auditConfig:
+  ignoreCves:
+    - CVE-2025-3194
+
 minimumReleaseAge: 10080
+verifyDepsBeforeRun: false
 
 overrides:
   "@openzeppelin/contracts@<4.9.0": "4.9.6"
