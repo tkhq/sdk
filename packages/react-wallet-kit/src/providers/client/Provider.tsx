@@ -1763,21 +1763,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           await resetPasskeyScope(client, client.config.passkeyConfig);
       }
       clearSessionTimeouts([sessionKey]);
-      // clear only the cleared session from allSessions
-      const newAllSessions = { ...allSessions };
-      if (newAllSessions) {
-        delete newAllSessions[sessionKey];
-      }
-      setAllSessions(newAllSessions);
+      // Expiry timers can outlive the render that scheduled them. Remove only
+      // this session from the latest state, preserving newer sessions.
+      setAllSessions((previous) => {
+        if (!previous) return previous;
+        const next = { ...previous };
+        delete next[sessionKey];
+        return next;
+      });
       return;
     },
-    [
-      client,
-      callbacks,
-      getActiveSessionKey,
-      allSessions,
-      masterConfig?.passkeyConfig,
-    ],
+    [client, callbacks, getActiveSessionKey, masterConfig?.passkeyConfig],
   );
 
   /**
@@ -1858,8 +1854,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           // Remove timers for this session
           clearKey(expiryTimeoutsRef.current, sessionKey);
           clearKey(expiryTimeoutsRef.current, warnKey);
-
-          await logout();
         };
 
         // Already expired → expire immediately
@@ -1911,14 +1905,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     //
     // this is fine because `refreshSession()` reference is stable enough for this use case (session
     // expiration timers are long-lived and don't need to re-subscribe on every `refreshSession()` change)
-    [
-      callbacks,
-      masterConfig,
-      getSession,
-      getActiveSessionKey,
-      clearSession,
-      logout,
-    ],
+    [callbacks, masterConfig, getSession, getActiveSessionKey, clearSession],
   );
 
   const refreshSession = useCallback(
