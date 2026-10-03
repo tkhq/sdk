@@ -249,6 +249,15 @@ describe("OAuth utils", () => {
       });
     });
 
+    it("rejects non-PKCE popup hashes when provider state does not match", () => {
+      const state = encodeURIComponent(
+        "provider=apple&flow=popup&publicKey=pk1&sessionKey=sess1",
+      );
+      const url = `https://example.com/callback#id_token=tok123&state=${state}`;
+
+      expect(parseOAuthResponse(url, OAuthProviders.GOOGLE)).toBeNull();
+    });
+
     it("parses PKCE popup search params (Discord) with provider validation", () => {
       const state = encodeURIComponent(
         "provider=discord&flow=popup&publicKey=pk2&sessionKey=sess2",

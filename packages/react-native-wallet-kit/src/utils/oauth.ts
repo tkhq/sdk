@@ -247,8 +247,8 @@ export function parseOAuthResponse(
         return null;
       }
     } else {
-      // Non-PKCE providers must have idToken
-      if (!idToken) {
+      // Non-PKCE providers must have idToken and matching provider in state
+      if (!idToken || provider !== expectedProvider) {
         return null;
       }
     }
