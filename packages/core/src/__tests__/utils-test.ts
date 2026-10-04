@@ -27,6 +27,7 @@ import {
   assertValidP256ECDSAKeyPair,
   isValidPasskeyName,
   mapAccountsToWallet,
+  buildWalletConnectAppEntries,
 } from "../utils";
 import * as utils from "../utils";
 import { stringToBase64urlString } from "@turnkey/encoding";
@@ -1235,5 +1236,108 @@ describe("mapAccountsToWallet", () => {
     expect(out).toHaveLength(1);
     // Keeps push order within that wallet (a2 then a1) since accounts are appended as seen
     expect(out[0]!.accounts.map((a) => a.address)).toEqual(["0xM2", "0xM1"]);
+  });
+});
+
+describe("buildWalletConnectAppEntries", () => {
+  const ETH = "eip155:1";
+  const SOL = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
+
+  const app = (
+    id: string,
+    chains: string[],
+    sdks = ["sign_v1", "sign_v2"],
+  ) => ({
+    id,
+    name: id,
+    chains,
+    sdks,
+    image_url: { md: `${id}.png` },
+    mobile: { native: `${id}://`, universal: null },
+  });
+
+  // stands in for the WalletConnect explorer API that `fetchWalletConnectApps` calls
+  const mockDirectory = (apps: ReturnType<typeof app>[]) =>
+    jest.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          listings: Object.fromEntries(apps.map((a) => [a.id, a])),
+        }),
+      ),
+    );
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("returns an entry per supported chain for each app", async () => {
+    mockDirectory([
+      app("both", [ETH, SOL]),
+      app("eth-only", [ETH, "eip155:137"]),
+      app("sol-only", [SOL]),
+      app("neither", ["eip155:137", "cosmos:cosmoshub-4"]),
+    ]);
+
+    const entries = await buildWalletConnectAppEntries("project-id", [
+      ETH,
+      SOL,
+    ]);
+
+    expect(entries.map((e) => [e.id, e.chain])).toEqual([
+      ["both", Chain.Ethereum],
+      ["both", Chain.Solana],
+      ["eth-only", Chain.Ethereum],
+      ["sol-only", Chain.Solana],
+    ]);
+  });
+
+  it("only returns the configured chains", async () => {
+    mockDirectory([app("both", [ETH, SOL])]);
+
+    const entries = await buildWalletConnectAppEntries("project-id", [ETH]);
+
+    expect(entries.map((e) => e.chain)).toEqual([Chain.Ethereum]);
+  });
+
+  it("requires every namespace configured for a chain", async () => {
+    mockDirectory([
+      app("mainnet-only", [ETH]),
+      app("mainnet-and-base", [ETH, "eip155:8453"]),
+    ]);
+
+    const entries = await buildWalletConnectAppEntries("project-id", [
+      ETH,
+      "eip155:8453",
+    ]);
+
+    expect(entries.map((e) => e.id)).toEqual(["mainnet-and-base"]);
+  });
+
+  it("maps app metadata onto each entry", async () => {
+    mockDirectory([app("wallet", [ETH])]);
+
+    const [entry] = await buildWalletConnectAppEntries("project-id", [ETH]);
+
+    expect(entry).toEqual({
+      id: "wallet",
+      name: "wallet",
+      icon: "wallet.png",
+      uri: "wallet://",
+      chain: Chain.Ethereum,
+    });
+  });
+
+  it("excludes apps that don't support WalletConnect v2", async () => {
+    mockDirectory([
+      app("v1-only", [ETH, SOL], ["sign_v1"]),
+      app("v2", [ETH, SOL], ["sign_v2"]),
+    ]);
+
+    const entries = await buildWalletConnectAppEntries("project-id", [
+      ETH,
+      SOL,
+    ]);
+
+    expect(new Set(entries.map((e) => e.id))).toEqual(new Set(["v2"]));
   });
 });
