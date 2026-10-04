@@ -1,42 +1,22 @@
 import { useEffect, useState } from "react";
 import {
-  Chain,
-  fetchWalletConnectApps,
+  buildWalletConnectAppEntries,
   type WalletConnectAppEntry,
 } from "@turnkey/react-native-wallet-kit";
 import { TURNKEY_CONFIG } from "@/constants/turnkey";
 
 const walletConfig = TURNKEY_CONFIG.walletConfig;
-const CHAIN_NAMESPACES: [Chain, string[]][] = [
-  [
-    Chain.Ethereum,
-    walletConfig?.chains.ethereum?.walletConnectNamespaces ?? [],
-  ],
-  [Chain.Solana, walletConfig?.chains.solana?.walletConnectNamespaces ?? []],
+const namespaces = [
+  ...(walletConfig?.chains.ethereum?.walletConnectNamespaces ?? []),
+  ...(walletConfig?.chains.solana?.walletConnectNamespaces ?? []),
 ];
 
-// unlike buildWalletConnectAppEntries: one entry per supported chain, skip apps with no mobile link
+// apps without a mobile link are skipped since there's no QR fallback on mobile
 async function buildEntries(
   projectId: string,
 ): Promise<WalletConnectAppEntry[]> {
-  const apps = await fetchWalletConnectApps(projectId);
-
-  return apps.flatMap((app) => {
-    const uri = app.mobile?.native || app.mobile?.universal;
-    if (!uri) return [];
-
-    return CHAIN_NAMESPACES.filter(
-      ([, namespaces]) =>
-        namespaces.length > 0 &&
-        namespaces.every((ns) => app.chains.includes(ns)),
-    ).map(([chain]) => ({
-      id: app.id,
-      name: app.name,
-      icon: app.image_url?.md ?? "",
-      uri,
-      chain,
-    }));
-  });
+  const entries = await buildWalletConnectAppEntries(projectId, namespaces);
+  return entries.filter((entry) => entry.uri);
 }
 
 // cache so the directory is only fetched once
