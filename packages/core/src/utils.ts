@@ -1658,11 +1658,15 @@ export async function fetchWalletConnectApps(
  * Fetches WalletConnect apps and transforms them into simplified app entries
  * for display in the wallet selection UI.
  *
- * Only apps that support all of the provided namespaces are included
+ * An app gets an entry for each chain whose namespaces it supports, so apps
+ * that only support some of the provided chains (e.g. Ethereum-only wallets)
+ * are still included for those chains
+ *
+ * Apps that don't support WalletConnect v2 are excluded
  *
  * @param projectId - WalletConnect project ID
- * @param namespaces - CAIP-2 namespace strings to require (e.g. ["eip155:1", "solana:mainnet"])
- * @returns Array of WalletConnectAppEntry objects, one per app per unique chain
+ * @param namespaces - CAIP-2 namespace strings to filter by (e.g. ["eip155:1", "solana:mainnet"])
+ * @returns Array of WalletConnectAppEntry objects, one per app per supported chain
  */
 export async function buildWalletConnectAppEntries(
   projectId: string,
@@ -1671,35 +1675,43 @@ export async function buildWalletConnectAppEntries(
   const rawApps = await fetchWalletConnectApps(projectId);
   const entries: WalletConnectAppEntry[] = [];
 
-  // we derive a unique chains list from the namespaces
-  const chains = new Set<Chain>();
+  // we group the namespaces by chain so each chain can be checked on its own
+  const namespacesByChain = new Map<Chain, string[]>();
   for (const ns of namespaces) {
     const [chainPrefix] = ns.split(":");
 
+    let chain: Chain;
     switch (chainPrefix) {
       case "eip155":
-        chains.add(Chain.Ethereum);
+        chain = Chain.Ethereum;
         break;
       case "solana":
-        chains.add(Chain.Solana);
+        chain = Chain.Solana;
         break;
       default:
         // Unknown CAIP-2 namespace — WalletConnect surfaces many chains we don't
         // support; skip these.
         continue;
     }
+
+    namespacesByChain.set(chain, [...(namespacesByChain.get(chain) ?? []), ns]);
   }
 
   for (const app of rawApps) {
-    // we only include apps that support ALL namespaces
-    if (!namespaces.every((ns) => app.chains.includes(ns))) {
+    // we only support WalletConnect v2, so apps that only support the
+    // discontinued v1 protocol can't connect
+    if (!app.sdks?.includes("sign_v2")) {
       continue;
     }
 
-    // at this point, all remaining apps support all of the namespaces
-    // so it's safe to assume they support all of the corresponding chains that
-    // we derived from the namespaces as well
-    for (const chain of chains) {
+    for (const [chain, chainNamespaces] of namespacesByChain) {
+      // the namespaces are requested as optional when pairing, so a wallet can
+      // connect with only the chains it supports. we only offer a chain if the
+      // app supports all of its namespaces
+      if (!chainNamespaces.every((ns) => app.chains.includes(ns))) {
+        continue;
+      }
+
       entries.push({
         id: app.id,
         name: app.name,
