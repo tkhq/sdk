@@ -40,7 +40,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
   private solChain!: string;
 
   private uri?: string;
-  private isRegeneratingUri = false;
+  private regeneratingUri: Promise<void> | undefined;
   private isInitialized = false;
   private initAbortController: AbortController | undefined;
 
@@ -105,37 +105,81 @@ export class WalletConnectWallet implements WalletConnectInterface {
       }
     });
 
-    // session disconnected
-    this.client.onSessionDelete(() => {
+    // session disconnected (e.g. the user disconnected from the wallet app)
+    this.client.onSessionDelete(async () => {
+      // we regenerate the URI before notifying so listeners that refresh
+      // on disconnect pick up the fresh URI
+      try {
+        await this.regenerateUri();
+      } catch (error) {
+        console.error("failed to regenerate URI:", error);
+      }
+
       this.notifyChange({ type: "disconnect" });
     });
 
     // pairing expired without a session being established
     this.client.onPairingExpire(async () => {
-      // prevent multiple simultaneous regenerations
-      if (this.isRegeneratingUri) return;
-
-      this.isRegeneratingUri = true;
-
       try {
-        // we cancel the previous pairing, if any
-        // this is to avoid multiple pairings
-        // we also error if there is an active pairing
-        // and we try to create a new one
-        await this.client.cancelPairing();
-
-        const namespaces = this.buildNamespaces();
-
-        const newUri = await this.client.pair(namespaces);
-        this.uri = newUri;
-
+        await this.regenerateUri();
         this.notifyChange({ type: "proposalExpired" });
       } catch (error) {
         console.error("failed to regenerate URI:", error);
-      } finally {
-        this.isRegeneratingUri = false;
       }
     });
+  }
+
+  /**
+   * Replaces the current pairing URI with a fresh one.
+   *
+   * - A pairing URI can only be used once, so this is called whenever the current
+   *   one can no longer be approved (expired, rejected, or its session ended).
+   * - Cancels any in-progress pairing first, since `pair()` throws if one exists.
+   * - Skipped while a session with connected accounts is active, since pairing
+   *   would create a second session.
+   * - Concurrent calls share the same in-flight regeneration.
+   */
+  private regenerateUri(): Promise<void> {
+    if (this.regeneratingUri) return this.regeneratingUri;
+
+    this.regeneratingUri = (async () => {
+      try {
+        if (hasConnectedAccounts(this.client.getSession())) return;
+
+        await this.client.cancelPairing();
+        this.uri = await this.client.pair(this.buildNamespaces());
+      } finally {
+        this.regeneratingUri = undefined;
+      }
+    })();
+
+    return this.regeneratingUri;
+  }
+
+  /**
+   * Awaits wallet approval of the pending pairing.
+   *
+   * - If approval fails (rejected, expired, or errored), the pairing URI has been
+   *   used up, so a fresh one is generated before rethrowing. Without this, every
+   *   later attempt would fail with "call pair() before approve()".
+   *
+   * @returns The approved session.
+   * @throws The original approval error.
+   */
+  private async approveOrRegenerate(): Promise<SessionTypes.Struct> {
+    try {
+      return await this.client.approve();
+    } catch (error) {
+      try {
+        await this.regenerateUri();
+        // this lets listeners refresh the URI, same as when a proposal expires
+        this.notifyChange({ type: "proposalExpired" });
+      } catch (regenerateError) {
+        console.error("failed to regenerate URI:", regenerateError);
+      }
+
+      throw error;
+    }
   }
 
   /**
@@ -256,7 +300,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
       await this.ensureReady();
     }
 
-    const session = await this.client.approve();
+    const session = await this.approveOrRegenerate();
 
     let address: string | undefined;
     switch (provider.chainInfo.namespace) {
@@ -610,7 +654,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
   private async ensureSession(): Promise<SessionTypes.Struct> {
     let session = this.client.getSession();
     if (!session) {
-      await this.client.approve();
+      await this.approveOrRegenerate();
       session = this.client.getSession();
       if (!session) throw new Error("WalletConnect: approval failed");
     }

@@ -1,10 +1,16 @@
 import { StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { HelloWave } from "@/components/hello-wave";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { useTurnkey, ClientState } from "@turnkey/react-native-wallet-kit";
+import { WalletPicker } from "@/components/auth/wallet-picker";
+import {
+  useTurnkey,
+  ClientState,
+  WalletInterfaceType,
+  WalletSource,
+} from "@turnkey/react-native-wallet-kit";
 
 export default function HomeScreen() {
   const {
@@ -19,9 +25,17 @@ export default function HomeScreen() {
     exportWalletAccount,
     clientState,
     deleteSubOrganization,
+    walletProviders,
   } = useTurnkey();
 
   const isClientReady = clientState === ClientState.Ready;
+  const [walletPickerVisible, setWalletPickerVisible] = useState(false);
+  const [signingAccountId, setSigningAccountId] = useState<string>();
+  const isWalletConnected = walletProviders.some(
+    (p) =>
+      p.interfaceType === WalletInterfaceType.WalletConnect &&
+      p.connectedAddresses.length > 0,
+  );
 
   useEffect(() => {
     // Log client state transitions for debugging the provider readiness
@@ -69,11 +83,16 @@ export default function HomeScreen() {
   };
 
   const handleSignMessage = async (account: any) => {
+    setSigningAccountId(account.walletAccountId);
     try {
       const message = "Hello, Turnkey!";
       const signature = await signMessage({
         walletAccount: account,
         message,
+        // connected Ethereum wallets always prefix; core throws without this
+        ...(account.source === WalletSource.Connected && {
+          addEthereumPrefix: true,
+        }),
       });
       console.log("Message signed:", signature);
       Alert.alert(
@@ -82,8 +101,15 @@ export default function HomeScreen() {
         [{ text: "OK" }],
       );
     } catch (error) {
-      console.error("Error signing message:", error);
-      Alert.alert("Error", "Failed to sign message");
+      // wallet errors are wrapped, the actual reason is on `cause`
+      const cause = (error as { cause?: unknown })?.cause;
+      console.error("Error signing message:", error, cause);
+      Alert.alert(
+        "Error",
+        cause instanceof Error ? cause.message : "Failed to sign message",
+      );
+    } finally {
+      setSigningAccountId(undefined);
     }
   };
 
@@ -230,6 +256,18 @@ export default function HomeScreen() {
                 Create Account
               </ThemedText>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.createButton,
+                !isClientReady && styles.buttonDisabled,
+              ]}
+              disabled={!isClientReady}
+              onPress={() => setWalletPickerVisible(true)}
+            >
+              <ThemedText style={styles.createButtonText}>
+                {isWalletConnected ? "Manage Wallet" : "Connect Wallet"}
+              </ThemedText>
+            </TouchableOpacity>
           </ThemedView>
 
           {/* Wallets List */}
@@ -247,18 +285,20 @@ export default function HomeScreen() {
                         ID: {wallet.walletId}
                       </ThemedText>
                     </ThemedView>
-                    <TouchableOpacity
-                      style={[
-                        styles.walletExportButton,
-                        !isClientReady && styles.buttonDisabled,
-                      ]}
-                      disabled={!isClientReady}
-                      onPress={() => handleExportWallet(wallet.walletId)}
-                    >
-                      <ThemedText style={styles.exportButtonText}>
-                        Export
-                      </ThemedText>
-                    </TouchableOpacity>
+                    {wallet.source === WalletSource.Embedded && (
+                      <TouchableOpacity
+                        style={[
+                          styles.walletExportButton,
+                          !isClientReady && styles.buttonDisabled,
+                        ]}
+                        disabled={!isClientReady}
+                        onPress={() => handleExportWallet(wallet.walletId)}
+                      >
+                        <ThemedText style={styles.exportButtonText}>
+                          Export
+                        </ThemedText>
+                      </TouchableOpacity>
+                    )}
                   </ThemedView>
 
                   {/* Wallet Accounts */}
@@ -279,29 +319,41 @@ export default function HomeScreen() {
                               <TouchableOpacity
                                 style={[
                                   styles.signButton,
-                                  !isClientReady && styles.buttonDisabled,
+                                  (!isClientReady ||
+                                    signingAccountId ===
+                                      account.walletAccountId) &&
+                                    styles.buttonDisabled,
                                 ]}
-                                disabled={!isClientReady}
+                                disabled={
+                                  !isClientReady ||
+                                  signingAccountId === account.walletAccountId
+                                }
                                 onPress={() => handleSignMessage(account)}
                               >
                                 <ThemedText style={styles.signButtonText}>
-                                  Sign
+                                  {signingAccountId !== account.walletAccountId
+                                    ? "Sign"
+                                    : wallet.source === WalletSource.Connected
+                                      ? "Check your wallet app"
+                                      : "Signing..."}
                                 </ThemedText>
                               </TouchableOpacity>
-                              <TouchableOpacity
-                                style={[
-                                  styles.exportButton,
-                                  !isClientReady && styles.buttonDisabled,
-                                ]}
-                                disabled={!isClientReady}
-                                onPress={() =>
-                                  handleExportAccount(account.address)
-                                }
-                              >
-                                <ThemedText style={styles.exportButtonText}>
-                                  Export
-                                </ThemedText>
-                              </TouchableOpacity>
+                              {wallet.source === WalletSource.Embedded && (
+                                <TouchableOpacity
+                                  style={[
+                                    styles.exportButton,
+                                    !isClientReady && styles.buttonDisabled,
+                                  ]}
+                                  disabled={!isClientReady}
+                                  onPress={() =>
+                                    handleExportAccount(account.address)
+                                  }
+                                >
+                                  <ThemedText style={styles.exportButtonText}>
+                                    Export
+                                  </ThemedText>
+                                </TouchableOpacity>
+                              )}
                             </ThemedView>
                           </ThemedView>
                         );
@@ -318,6 +370,10 @@ export default function HomeScreen() {
           )}
         </ThemedView>
       </ThemedView>
+      <WalletPicker
+        visible={walletPickerVisible}
+        onClose={() => setWalletPickerVisible(false)}
+      />
     </ScrollView>
   );
 }
