@@ -102,6 +102,32 @@ async function main() {
     throw new Error("Exported plaintext does not match the imported value");
   }
   console.log(`Exported secret plaintext matches the imported credential ✅`);
+
+  // 5/ Retrieve several credentials in one call. Each secret's request
+  // context is bound into the signed request for audit; see the
+  // exportSecretsAndDecrypt docs for chunking and failure semantics.
+  const backupJwt = `demo-ems-backup-jwt-${suffix}`;
+  const backupSecretId = await apiClient.importSecret({
+    plaintext: backupJwt,
+    name: `ems-trading-backup-key-${suffix}`,
+    staticProperties: {
+      kind: "exchangeApiKey",
+      permissions: "trade",
+      environment: "production",
+    },
+  });
+  const [primary, backup] = await tradingService.exportSecretsAndDecrypt({
+    secrets: [
+      { secretId, requestContext: { purpose: "order-routing" } },
+      { secretId: backupSecretId, requestContext: { purpose: "failover" } },
+    ],
+  });
+  if (primary !== emsJwt || backup !== backupJwt) {
+    throw new Error(
+      "Batch-exported plaintexts do not match the imported values",
+    );
+  }
+  console.log(`Batch-exported plaintexts match the imported credentials ✅`);
 }
 
 main().catch((error) => {
