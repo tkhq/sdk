@@ -2,13 +2,12 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, test } from "@jest/globals";
 
+import { DENY_REASONS, getURLPatternSource } from "../index";
 import {
-  DENY_REASONS,
-  getURLPatternSource,
   runConformanceCase,
   type ConformanceCase,
   type ConformanceFixtureFile,
-} from "../index";
+} from "../testing";
 
 const dir = join(__dirname, "..", "..", "fixtures");
 const files = readdirSync(dir)

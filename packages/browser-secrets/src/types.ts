@@ -27,10 +27,18 @@ export const BINDING_KEYS = {
   frameOrigin: "sbm:frame-origin",
   /**
    * Optional. Top-level pathname pattern in `URLPattern` syntax, for example
-   * `/login*`. An empty value constrains nothing.
+   * `/login*`. An empty value constrains nothing. A pattern without a leading
+   * `/` resolves against the origin's root, so `login*` means `/login*`. It
+   * constrains the top-level page URL only, never the URL of the frame that
+   * holds the target.
    */
   urlPattern: "sbm:url-pattern",
-  /** Optional. CSS selector that the target element must match. */
+  /**
+   * Optional. CSS selector that the target element must match. Parsing only
+   * checks that it is not blank; this package has no CSS parser. A host must
+   * treat a selector the browser rejects (`Element.matches` throws) as a
+   * failed match.
+   */
   selector: "sbm:selector",
   /**
    * Optional. For a secret whose value is a JSON object, a JSON-encoded map
@@ -134,6 +142,10 @@ export type ObservedTarget = {
    * the live element matches it (`Element.matches` in its own document or
    * shadow root). Use `requiredSelectors` to find which selectors to check.
    * A missing selector counts as no evidence and denies the fill.
+   *
+   * `authorize` trusts these booleans as given. The host adapter is the
+   * trust boundary for them: it must evaluate each selector on the live
+   * element itself, and must record `false` when evaluation throws.
    */
   readonly selectorMatches: Readonly<Record<string, boolean>>;
 };

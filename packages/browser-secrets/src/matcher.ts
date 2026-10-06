@@ -77,6 +77,36 @@ export function compileUrlPattern(
   return new URLPatternImpl({ pathname: urlPattern, baseURL: origin });
 }
 
+/** Compiled patterns, per implementation, keyed by origin and pattern. */
+const patternCache = new WeakMap<
+  URLPatternConstructor,
+  Map<string, URLPatternLike | null>
+>();
+/** Bounds the cache; it is dropped and rebuilt when full. */
+const PATTERN_CACHE_LIMIT = 256;
+
+/** `compileUrlPattern`, cached. Returns null when the pattern does not compile. */
+function cachedUrlPattern(
+  origin: string,
+  urlPattern: string,
+  URLPatternImpl: URLPatternConstructor,
+): URLPatternLike | null {
+  let cache = patternCache.get(URLPatternImpl);
+  if (!cache) patternCache.set(URLPatternImpl, (cache = new Map()));
+  const key = `${origin}\u0000${urlPattern}`;
+  let pattern = cache.get(key);
+  if (pattern === undefined) {
+    try {
+      pattern = compileUrlPattern(origin, urlPattern, URLPatternImpl);
+    } catch {
+      pattern = null;
+    }
+    if (cache.size >= PATTERN_CACHE_LIMIT) cache.clear();
+    cache.set(key, pattern);
+  }
+  return pattern;
+}
+
 /** A top-level destination rule: an exact origin and an optional pathname pattern. */
 export type UrlRule = {
   readonly origin: string;
@@ -96,12 +126,12 @@ export function matchesUrl(
 ): boolean {
   if (!matchesOrigin(url, rule.origin)) return false;
   if (!rule.urlPattern) return true;
-  let pattern: URLPatternLike;
-  try {
-    pattern = compileUrlPattern(rule.origin, rule.urlPattern, URLPatternImpl);
-  } catch {
-    return false;
-  }
+  const pattern = cachedUrlPattern(
+    rule.origin,
+    rule.urlPattern,
+    URLPatternImpl,
+  );
+  if (!pattern) return false;
   try {
     return pattern.test(url);
   } catch {

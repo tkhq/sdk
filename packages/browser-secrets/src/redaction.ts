@@ -12,8 +12,14 @@
  *    structurally, without depending on spotting the value.
  *
  * Register both before injection. Text scanning does not cover screenshots,
- * live previews, or transformed copies of a secret. JS strings cannot be
- * zeroized: `releaseSecret` and `clear` drop references only.
+ * live previews, or transformed copies of a secret other than the encoded
+ * forms listed on `encodedVariants`. JS strings cannot be zeroized:
+ * `releaseSecret` and `clear` drop references only.
+ *
+ * Every marker in agent output tells the agent that the text there equaled
+ * a registered value. An agent that can get text of its choice rendered and
+ * read back can test guesses this way. `minValueLength` keeps very short
+ * values, which are cheap to guess, out of the text scan.
  */
 
 /** A document-scoped identity of an element that received a secret. */
@@ -27,10 +33,27 @@ export type RedactionTarget = {
 
 export type RedactionRegistryOptions = {
   /**
-   * Also register the JSON-string-escaped and URL-encoded forms of each value
-   * when they differ from it. Default: true.
+   * Also register the common encoded and reformatted forms of each value
+   * when they differ from it. Default: true. The forms are:
+   *  - JSON-string-escaped, URL-encoded, and form-encoded (`+` for space)
+   *  - HTML-escaped, as text-node and attribute serializers write it
+   *  - Base64 and base64url of the UTF-8 bytes, with and without padding.
+   *    Only the whole value is matched, not a value inside a longer
+   *    encoded string such as `user:password`.
+   *  - The NFC, NFD, lowercase, and uppercase forms of the value, and the
+   *    encodings above of each
+   *  - For a value of 12 to 19 digits (with or without spaces or dashes):
+   *    the bare digits, and groups of four (4-6-5 for 15 digits) separated
+   *    by spaces or dashes, as card-number input masks format them
    */
   encodedVariants?: boolean;
+  /**
+   * Values shorter than this (in UTF-16 code units) are not added to the
+   * text scan, because they match unrelated text and are easy to guess.
+   * Target tags still work for them. `registerValues` reports which secrets
+   * it skipped. Default: 4.
+   */
+  minValueLength?: number;
   /** Builds the replacement text. Default: `[REDACTED:<secretId>]`. */
   marker?: (secretIds: readonly string[]) => string;
 };
@@ -54,6 +77,8 @@ type Compiled = {
  * fastest. Above it, a single regex alternation scans the text once.
  */
 const REGEX_THRESHOLD = 8;
+
+const DEFAULT_MIN_VALUE_LENGTH = 4;
 
 const EMPTY: Compiled = { patterns: [], byValue: new Map(), regex: undefined };
 
@@ -89,16 +114,67 @@ const documentKey = (
 const targetKey = (t: RedactionTarget) =>
   [t.browserSessionId, t.tabId, t.frameId, t.documentId, t.elementId].join(SEP);
 
+const HTML_ESCAPES: readonly (readonly [RegExp, Record<string, string>])[] = [
+  // Text node: what innerHTML and outerHTML write for text.
+  [/[&<>]/g, { "&": "&amp;", "<": "&lt;", ">": "&gt;" }],
+  // Attribute value: what outerHTML writes for attributes.
+  [/[&<>"]/g, { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }],
+  // Full escaping, as most template engines write it.
+  [
+    /[&<>"']/g,
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" },
+  ],
+  [
+    /[&<>"']/g,
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#x27;" },
+  ],
+];
+
+function base64Forms(value: string): string[] {
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  const padded = btoa(binary);
+  const unpadded = padded.replace(/=+$/, "");
+  return [padded, unpadded, unpadded.replace(/\+/g, "-").replace(/\//g, "_")];
+}
+
+/** Card-number style groupings of a 12 to 19 digit value. */
+function digitGroupForms(value: string): string[] {
+  const digits = value.replace(/[ -]/g, "");
+  if (!/^\d{12,19}$/.test(digits)) return [];
+  const groups =
+    digits.length === 15
+      ? [digits.slice(0, 4), digits.slice(4, 10), digits.slice(10)]
+      : (digits.match(/\d{1,4}/g) ?? []);
+  return [digits, groups.join(" "), groups.join("-")];
+}
+
 function encodedForms(value: string): string[] {
   const forms = new Set<string>();
-  forms.add(JSON.stringify(value).slice(1, -1));
-  try {
-    const uri = encodeURIComponent(value);
-    forms.add(uri);
-    forms.add(uri.replace(/%20/g, "+"));
-  } catch {
-    // Lone surrogates cannot be URI-encoded; the raw value still registers.
+  const bases = new Set([
+    value,
+    value.normalize("NFC"),
+    value.normalize("NFD"),
+    value.toLowerCase(),
+    value.toUpperCase(),
+  ]);
+  for (const base of bases) {
+    forms.add(base);
+    forms.add(JSON.stringify(base).slice(1, -1));
+    try {
+      const uri = encodeURIComponent(base);
+      forms.add(uri);
+      forms.add(uri.replace(/%20/g, "+"));
+    } catch {
+      // Lone surrogates cannot be URI-encoded; the raw value still registers.
+    }
+    for (const [pattern, map] of HTML_ESCAPES) {
+      forms.add(base.replace(pattern, (c) => map[c]!));
+    }
+    for (const form of base64Forms(base)) forms.add(form);
   }
+  for (const form of digitGroupForms(value)) forms.add(form);
   forms.delete(value);
   forms.delete("");
   return [...forms];
@@ -106,13 +182,14 @@ function encodedForms(value: string): string[] {
 
 export class RedactionRegistry {
   #encodedVariants: boolean;
+  #minValueLength: number;
   #marker: (secretIds: readonly string[]) => string;
   /** value -> secret IDs that registered it (raw or encoded form). */
   #values = new Map<string, Set<string>>();
   /** secret ID -> values it registered, for release. */
   #valuesBySecret = new Map<string, Set<string>>();
-  /** target key -> secret ID. */
-  #targets = new Map<string, string>();
+  /** target key -> secret IDs written into that element. */
+  #targets = new Map<string, Set<string>>();
   /** document key -> target keys, for release on document replacement. */
   #targetsByDocument = new Map<string, Set<string>>();
   /** Compiled scan list, rebuilt lazily after a change. */
@@ -120,26 +197,42 @@ export class RedactionRegistry {
 
   constructor(options: RedactionRegistryOptions = {}) {
     this.#encodedVariants = options.encodedVariants ?? true;
+    this.#minValueLength = options.minValueLength ?? DEFAULT_MIN_VALUE_LENGTH;
     this.#marker = options.marker ?? defaultMarker;
   }
 
-  /** Registers a live plaintext. Call it as soon as the value exists in memory. */
-  registerValue(value: string, secretId: string): void {
-    this.registerValues([{ value, secretId }]);
+  /**
+   * Registers a live plaintext. Call it as soon as the value exists in
+   * memory. Returns false when the value is shorter than `minValueLength`
+   * and so is not text-scanned.
+   */
+  registerValue(value: string, secretId: string): boolean {
+    return this.registerValues([{ value, secretId }]).length === 0;
   }
 
-  /** Registers several plaintexts with one rebuild of the scan list. */
+  /**
+   * Registers several plaintexts with one rebuild of the scan list. Returns
+   * the IDs of secrets with a non-empty value shorter than `minValueLength`,
+   * which are not text-scanned. Hosts should keep such values out of
+   * agent-visible text paths by other means.
+   */
   registerValues(
     entries: readonly { readonly value: string; readonly secretId: string }[],
-  ): void {
+  ): string[] {
+    const skipped = new Set<string>();
     for (const { value, secretId } of entries) {
       if (typeof value !== "string" || value.length === 0) continue;
+      if (value.length < this.#minValueLength) {
+        skipped.add(secretId);
+        continue;
+      }
       const forms = this.#encodedVariants
         ? [value, ...encodedForms(value)]
         : [value];
       let owned = this.#valuesBySecret.get(secretId);
       if (!owned) this.#valuesBySecret.set(secretId, (owned = new Set()));
       for (const form of forms) {
+        if (form.length < this.#minValueLength) continue;
         let ids = this.#values.get(form);
         if (!ids) this.#values.set(form, (ids = new Set()));
         ids.add(secretId);
@@ -147,12 +240,19 @@ export class RedactionRegistry {
       }
     }
     this.#compiled = undefined;
+    return [...skipped];
   }
 
-  /** Registers an element that received (or is about to receive) a secret. */
+  /**
+   * Registers an element that received (or is about to receive) a secret.
+   * An element can hold parts of several secrets; each stays tagged until
+   * that secret or the document is released.
+   */
   registerTarget(target: RedactionTarget, secretId: string): void {
     const key = targetKey(target);
-    this.#targets.set(key, secretId);
+    let ids = this.#targets.get(key);
+    if (!ids) this.#targets.set(key, (ids = new Set()));
+    ids.add(secretId);
     const doc = documentKey(target);
     let keys = this.#targetsByDocument.get(doc);
     if (!keys) this.#targetsByDocument.set(doc, (keys = new Set()));
@@ -163,9 +263,9 @@ export class RedactionRegistry {
     return this.#targets.has(targetKey(target));
   }
 
-  /** The secret registered for a target, if any. */
-  secretIdForTarget(target: RedactionTarget): string | undefined {
-    return this.#targets.get(targetKey(target));
+  /** The secrets registered for a target, sorted. Empty when none are. */
+  secretIdsForTarget(target: RedactionTarget): string[] {
+    return [...(this.#targets.get(targetKey(target)) ?? [])].sort();
   }
 
   /**
@@ -190,8 +290,9 @@ export class RedactionRegistry {
       if (ids && ids.size === 0) this.#values.delete(form);
     }
     this.#valuesBySecret.delete(secretId);
-    for (const [key, id] of this.#targets) {
-      if (id === secretId) this.#targets.delete(key);
+    for (const [key, ids] of this.#targets) {
+      ids.delete(secretId);
+      if (ids.size === 0) this.#targets.delete(key);
     }
     for (const [doc, keys] of this.#targetsByDocument) {
       for (const key of keys) if (!this.#targets.has(key)) keys.delete(key);
@@ -248,9 +349,15 @@ export class RedactionRegistry {
   }
 
   /**
-   * Scrubs a JSON-like value: strings, and the keys and values of arrays and
-   * plain objects, recursively. Returns a new value; the input is not
-   * changed. Other objects are copied as plain objects of their own
+   * Scrubs a JSON-like value: strings, and the keys and values of arrays,
+   * plain objects, `Map`s, and `Set`s, recursively. Returns a new value; the
+   * input is not changed.
+   *
+   * Byte buffers (`ArrayBuffer`, `Uint8Array`, `Buffer`) are decoded as
+   * UTF-8 and scrubbed. When that changes them, the result is the UTF-8
+   * encoding of the scrubbed text, so non-text bytes in a changed buffer may
+   * not survive. Other typed arrays and `DataView`s are copied unchanged.
+   * Dates are copied. Other objects are copied as plain objects of their own
    * enumerable properties. Circular references become `"[Circular]"`.
    */
   scrub<T>(value: T): T {
@@ -261,10 +368,17 @@ export class RedactionRegistry {
     const walk = (input: unknown): unknown => {
       if (typeof input === "string") return text(input);
       if (input === null || typeof input !== "object") return input;
+      if (input instanceof Date) return new Date(input.getTime());
+      if (input instanceof ArrayBuffer) return scrubBytes(input, text);
+      if (ArrayBuffer.isView(input)) return scrubBytes(input, text);
       if (active.has(input)) return "[Circular]";
       active.add(input);
       try {
         if (Array.isArray(input)) return input.map(walk);
+        if (input instanceof Map) {
+          return new Map([...input].map(([k, v]) => [walk(k), walk(v)]));
+        }
+        if (input instanceof Set) return new Set([...input].map(walk));
         const out: Record<string, unknown> = {};
         for (const [key, inner] of Object.entries(input)) {
           Object.defineProperty(out, text(key), {
@@ -281,6 +395,43 @@ export class RedactionRegistry {
     };
     return walk(value) as T;
   }
+}
+
+const utf8Decoder = new TextDecoder();
+const utf8Encoder = new TextEncoder();
+
+/** Copies a byte buffer, scrubbing it when it holds UTF-8 text. */
+function scrubBytes(
+  input: ArrayBuffer | ArrayBufferView,
+  text: (s: string) => string,
+): unknown {
+  if (input instanceof ArrayBuffer) {
+    const before = utf8Decoder.decode(input);
+    const after = text(before);
+    return after === before
+      ? input.slice(0)
+      : utf8Encoder.encode(after).buffer.slice(0);
+  }
+  if (!(input instanceof Uint8Array)) {
+    // Other views are not text; copy them unchanged.
+    const bytes = new Uint8Array(
+      input.buffer.slice(input.byteOffset, input.byteOffset + input.byteLength),
+    );
+    return input instanceof DataView
+      ? new DataView(bytes.buffer)
+      : new (input.constructor as new (b: ArrayBufferLike) => unknown)(
+          bytes.buffer,
+        );
+  }
+  // `from` keeps the class: Uint8Array stays Uint8Array, Buffer stays Buffer.
+  const make = (input.constructor as { from?: (b: Uint8Array) => unknown })
+    .from;
+  const before = utf8Decoder.decode(input);
+  const after = text(before);
+  const bytes = after === before ? input : utf8Encoder.encode(after);
+  return typeof make === "function"
+    ? make.call(input.constructor, bytes)
+    : Uint8Array.from(bytes);
 }
 
 function scrubWith(

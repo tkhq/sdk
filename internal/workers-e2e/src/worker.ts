@@ -20,9 +20,11 @@ import {
   RedactionRegistry,
   authorize,
   getURLPatternSource,
+} from "@turnkey/browser-secrets";
+import {
   runConformanceFixture,
   type ConformanceFixtureFile,
-} from "@turnkey/browser-secrets";
+} from "@turnkey/browser-secrets/testing";
 import authorizeFrames from "@turnkey/browser-secrets/fixtures/authorize-frames.json";
 import authorizeSbm from "@turnkey/browser-secrets/fixtures/authorize-sbm.json";
 import authorizeStrict from "@turnkey/browser-secrets/fixtures/authorize-strict.json";

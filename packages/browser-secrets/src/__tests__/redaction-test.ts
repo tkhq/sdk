@@ -22,7 +22,7 @@ describe("RedactionRegistry.scrubText", () => {
       { value: "cdef", secretId: "s2" },
     ]);
     expect(r.scrubText("xxabcdefyy")).toBe("xx[REDACTED]yy");
-    const same = new RedactionRegistry();
+    const same = new RedactionRegistry({ minValueLength: 1 });
     same.registerValue("aa", "s1");
     expect(same.scrubText("baaab")).toBe("b[REDACTED:s1]b");
   });
@@ -54,9 +54,9 @@ describe("RedactionRegistry.scrubText", () => {
 
   test("encoded variants can be turned off", () => {
     const r = new RedactionRegistry({ encodedVariants: false });
-    r.registerValue("a b", "s1");
+    r.registerValue("a b c", "s1");
     expect(r.valueCount).toBe(1);
-    expect(r.scrubText("a%20b")).toBe("a%20b");
+    expect(r.scrubText("a%20b%20c")).toBe("a%20b%20c");
   });
 
   test("ignores empty values", () => {
@@ -64,6 +64,69 @@ describe("RedactionRegistry.scrubText", () => {
     r.registerValue("", "s1");
     expect(r.valueCount).toBe(0);
     expect(r.scrubText("abc")).toBe("abc");
+  });
+
+  test("values below minValueLength are not scanned and are reported", () => {
+    const r = new RedactionRegistry();
+    expect(r.registerValue("a", "s1")).toBe(false);
+    expect(
+      r.registerValues([
+        { value: "123", secretId: "cvc" },
+        { value: canary, secretId: "s2" },
+      ]),
+    ).toEqual(["cvc"]);
+    expect(r.scrubText("banana 123")).toBe("banana 123");
+    expect(r.registerValue(canary, "s3")).toBe(true);
+    const loose = new RedactionRegistry({ minValueLength: 1 });
+    expect(loose.registerValue("123", "cvc")).toBe(true);
+    expect(loose.scrubText("x123")).toBe("x[REDACTED:cvc]");
+  });
+
+  test("catches HTML-escaped copies", () => {
+    const r = new RedactionRegistry();
+    const value = `p&ss<w>rd"it's`;
+    r.registerValue(value, "s1");
+    for (const html of [
+      "p&amp;ss&lt;w&gt;rd\"it's",
+      "p&amp;ss&lt;w&gt;rd&quot;it's",
+      "p&amp;ss&lt;w&gt;rd&quot;it&#39;s",
+      "p&amp;ss&lt;w&gt;rd&quot;it&#x27;s",
+    ]) {
+      expect(r.scrubText(`<i>${html}</i>`)).toBe("<i>[REDACTED:s1]</i>");
+    }
+  });
+
+  test("catches base64 copies of the whole value", () => {
+    const r = new RedactionRegistry();
+    const value = "sk_live_?>?>é";
+    r.registerValue(value, "s1");
+    const b64 = Buffer.from(value).toString("base64");
+    expect(b64).toContain("=");
+    expect(r.scrubText(`a ${b64} b`)).toBe("a [REDACTED:s1] b");
+    expect(r.scrubText(b64.replace(/=+$/, ""))).toBe("[REDACTED:s1]");
+    expect(r.scrubText(Buffer.from(value).toString("base64url"))).toBe(
+      "[REDACTED:s1]",
+    );
+  });
+
+  test("catches card-number input-mask formatting", () => {
+    const r = new RedactionRegistry();
+    r.registerValue("4242424242424242", "card");
+    for (const shown of ["4242 4242 4242 4242", "4242-4242-4242-4242"]) {
+      expect(r.scrubText(shown)).toBe("[REDACTED:card]");
+    }
+    const amex = new RedactionRegistry();
+    amex.registerValue("3782 822463 10005", "amex");
+    expect(amex.scrubText("378282246310005")).toBe("[REDACTED:amex]");
+    expect(amex.scrubText("3782-822463-10005")).toBe("[REDACTED:amex]");
+  });
+
+  test("catches case and Unicode normalization variants", () => {
+    const r = new RedactionRegistry();
+    r.registerValue("Caf\u00e9Key", "s1");
+    expect(r.scrubText("CAF\u00c9KEY caf\u00e9key Cafe\u0301Key")).toBe(
+      "[REDACTED:s1] [REDACTED:s1] [REDACTED:s1]",
+    );
   });
 
   test("custom marker", () => {
@@ -103,6 +166,32 @@ describe("RedactionRegistry.scrub", () => {
     expect(JSON.stringify(scrubbed)).toBe('{"__proto__":"[REDACTED:s1]"}');
   });
 
+  test("scrubs byte buffers, Maps, and Sets", () => {
+    const r = new RedactionRegistry();
+    r.registerValue(canary, "s1");
+    const bytes = new TextEncoder().encode(`x ${canary}`);
+    const out = r.scrub({
+      bytes,
+      buffer: Buffer.from(canary),
+      raw: bytes.buffer,
+      clean: Buffer.from("fine"),
+      map: new Map([[canary, { v: canary }]]),
+      set: new Set([canary, 1]),
+      when: new Date(0),
+    });
+    expect(out.bytes).toBeInstanceOf(Uint8Array);
+    expect(new TextDecoder().decode(out.bytes)).toBe("x [REDACTED:s1]");
+    expect(Buffer.isBuffer(out.buffer)).toBe(true);
+    expect(out.buffer.toString()).toBe("[REDACTED:s1]");
+    expect(new TextDecoder().decode(out.raw)).toBe("x [REDACTED:s1]");
+    expect(out.clean.toString()).toBe("fine");
+    expect(out.clean).not.toBe(bytes);
+    expect([...out.map]).toEqual([["[REDACTED:s1]", { v: "[REDACTED:s1]" }]]);
+    expect([...out.set]).toEqual(["[REDACTED:s1]", 1]);
+    expect(out.when).toEqual(new Date(0));
+    expect(new TextDecoder().decode(bytes)).toBe(`x ${canary}`);
+  });
+
   test("scrubTexts batches strings", () => {
     const r = new RedactionRegistry();
     r.registerValue(canary, "s1");
@@ -123,13 +212,26 @@ describe("targets and release", () => {
     const r = new RedactionRegistry();
     r.registerTarget(target, "s1");
     expect(r.isRegisteredTarget(target)).toBe(true);
-    expect(r.secretIdForTarget(target)).toBe("s1");
+    expect(r.secretIdsForTarget(target)).toEqual(["s1"]);
     expect(r.isRegisteredTarget({ ...target, documentId: "d2" })).toBe(false);
     expect(r.isRegisteredTarget({ ...target, browserSessionId: "b2" })).toBe(
       false,
     );
     r.releaseDocument(target);
     expect(r.isRegisteredTarget(target)).toBe(false);
+  });
+
+  test("an element can hold several secrets", () => {
+    const r = new RedactionRegistry();
+    r.registerTarget(target, "a");
+    r.registerTarget(target, "b");
+    expect(r.secretIdsForTarget(target)).toEqual(["a", "b"]);
+    r.releaseSecret("b");
+    expect(r.isRegisteredTarget(target)).toBe(true);
+    expect(r.secretIdsForTarget(target)).toEqual(["a"]);
+    r.releaseSecret("a");
+    expect(r.isRegisteredTarget(target)).toBe(false);
+    expect(r.secretIdsForTarget(target)).toEqual([]);
   });
 
   test("releaseSecret drops that secret's values and targets only", () => {
@@ -154,7 +256,7 @@ describe("targets and release", () => {
   });
 
   test("the registry does not print its values", () => {
-    const r = new RedactionRegistry();
+    const r = new RedactionRegistry({ encodedVariants: false });
     r.registerValue(canary, "s1");
     expect(JSON.stringify(r)).not.toContain(canary);
     r.scrubText(canary);
@@ -173,7 +275,10 @@ describe("indexOf and regex scan paths agree", () => {
   // One registry scans with indexOf, the other with the regex.
   const withDecoys = (entries: { value: string; secretId: string }[]) =>
     [entries, [...entries, ...decoys]].map((list) => {
-      const registry = new RedactionRegistry({ encodedVariants: false });
+      const registry = new RedactionRegistry({
+        encodedVariants: false,
+        minValueLength: 1,
+      });
       registry.registerValues(list);
       return registry;
     });

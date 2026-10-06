@@ -11,6 +11,12 @@
       "require": "./dist/index.js",
       "default": "./dist/index.mjs"
     },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "import": "./dist/testing.mjs",
+      "require": "./dist/testing.js",
+      "default": "./dist/testing.mjs"
+    },
     "./fixtures/*.json": "./fixtures/*.json",
     "./package.json": "./package.json"
   },

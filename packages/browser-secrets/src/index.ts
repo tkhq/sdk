@@ -43,12 +43,3 @@ export {
   type BrowserSecretsErrorCode,
   type BrowserSecretsErrorJSON,
 } from "./errors";
-export {
-  runConformanceCase,
-  runConformanceFixture,
-  type AuthorizeFixtureCase,
-  type ConformanceCase,
-  type ConformanceFixtureFile,
-  type ConformanceResult,
-  type ParseFixtureCase,
-} from "./conformance";
