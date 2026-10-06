@@ -16,6 +16,20 @@ import {
   uint8ArrayFromHexString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
+import {
+  RedactionRegistry,
+  authorize,
+  getURLPatternSource,
+} from "@turnkey/browser-secrets";
+import {
+  runConformanceFixture,
+  type ConformanceFixtureFile,
+} from "@turnkey/browser-secrets/testing";
+import authorizeFrames from "@turnkey/browser-secrets/fixtures/authorize-frames.json";
+import authorizeSbm from "@turnkey/browser-secrets/fixtures/authorize-sbm.json";
+import authorizeStrict from "@turnkey/browser-secrets/fixtures/authorize-strict.json";
+import bindingParse from "@turnkey/browser-secrets/fixtures/binding-parse.json";
+import redactionFormatted from "@turnkey/browser-secrets/fixtures/redaction-formatted.json";
 import { p256 } from "@noble/curves/p256";
 import { sha256 } from "@noble/hashes/sha256";
 
@@ -212,11 +226,94 @@ async function cryptoChecks(): Promise<Step[]> {
   ];
 }
 
+const BROWSER_SECRETS_FIXTURES: Record<string, unknown> = {
+  "authorize-frames.json": authorizeFrames,
+  "authorize-sbm.json": authorizeSbm,
+  "authorize-strict.json": authorizeStrict,
+  "binding-parse.json": bindingParse,
+  "redaction-formatted.json": redactionFormatted,
+};
+
+// Runs the @turnkey/browser-secrets conformance fixtures and a redaction
+// round trip inside workerd. The canary is a fixed test string, not a secret.
+async function browserSecretsChecks(): Promise<Step[]> {
+  return [
+    await step("URLPattern source", async () => getURLPatternSource()),
+    await step("conformance fixtures", async () =>
+      Object.entries(BROWSER_SECRETS_FIXTURES).map(([file, fixture]) => {
+        const results = runConformanceFixture(
+          fixture as ConformanceFixtureFile,
+        );
+        return {
+          file,
+          total: results.length,
+          failed: results.filter((r) => !r.pass).map((r) => r.name),
+        };
+      }),
+    ),
+    await step("redaction round trip", async () => {
+      const canary = 'workers-e2e-canary-Pa55 "word"';
+      const registry = new RedactionRegistry();
+      registry.registerValue(canary, "sec-1");
+      const target = {
+        browserSessionId: "b1",
+        tabId: "t1",
+        frameId: "f1",
+        documentId: "d1",
+        elementId: "e1",
+      };
+      registry.registerTarget(target, "sec-1");
+      const output = registry.scrub({
+        text: `typed ${canary}`,
+        json: JSON.stringify({ password: canary }),
+        form: new URLSearchParams({ password: canary }).toString(),
+        [canary]: [canary],
+      });
+      const serialized = JSON.stringify(output);
+      const decision = authorize(
+        {
+          secretId: "sec-1",
+          staticProperties: { "sbm:origin": "https://shop.example" },
+        },
+        { targets: [{ elementId: "e1" }] },
+        {
+          browserSessionId: "b1",
+          tabId: "t1",
+          topLevelUrl: "https://shop.example/checkout",
+          targets: [
+            {
+              elementId: "e1",
+              frames: [
+                {
+                  frameId: "f1",
+                  documentId: "d1",
+                  url: "https://shop.example/checkout",
+                  origin: "https://shop.example",
+                },
+              ],
+              selectorMatches: {},
+            },
+          ],
+        },
+      );
+      return {
+        leaked: serialized.includes(canary) || serialized.includes("Pa55"),
+        redactions: serialized.split("[REDACTED:sec-1]").length - 1,
+        targetTagged: registry.isRegisteredTarget(target),
+        allowed: decision.allowed,
+      };
+    }),
+  ];
+}
+
 export default {
   async fetch(request: Request): Promise<Response> {
     const { pathname } = new URL(request.url);
     if (pathname === "/health") {
       return new Response("ok");
+    }
+    if (pathname === "/browser-secrets") {
+      return Response.json(await browserSecretsChecks());
     }
     if (pathname === "/crypto") {
       return Response.json(await cryptoChecks());

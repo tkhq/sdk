@@ -8,6 +8,7 @@
   "updateInternalDependencies": "patch",
   "bumpVersionsWithWorkspaceProtocolOnly": true,
   "ignore": [
+    "@turnkey/browser-secrets",
     "@turnkey/jest-config",
     "@turnkey/workers-e2e",
     "@turnkey/example-*",

@@ -2,6 +2,9 @@
 // against the local mock API.
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
+import { readdirSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateP256KeyPair } from "@turnkey/crypto";
 import { unstable_startWorker } from "wrangler";
@@ -185,4 +188,39 @@ test(`WebCrypto and export bundle decryption`, { skip }, async () => {
   });
   assert.deepEqual(assertOk(steps.decryptSecretBundle), { match: true });
   assert.deepEqual(assertOk(steps.decryptExportBundle), { match: true });
+});
+
+// The Worker imports every fixture file by name. If a fixture file is added
+// to the package, this test fails until the Worker imports it too.
+const fixtureDir = join(
+  dirname(
+    createRequire(import.meta.url).resolve(
+      "@turnkey/browser-secrets/package.json",
+    ),
+  ),
+  "fixtures",
+);
+const fixtureFiles = readdirSync(fixtureDir)
+  .filter((name) => name.endsWith(".json"))
+  .sort();
+
+test(`@turnkey/browser-secrets fixtures and redaction`, { skip }, async () => {
+  const steps = stepsByName(await callWorker("/browser-secrets"));
+
+  // workerd has a native URLPattern; the polyfill must not be needed.
+  assert.equal(assertOk(steps["URLPattern source"]), "native");
+
+  const fixtures = assertOk(steps["conformance fixtures"]);
+  assert.deepEqual(fixtures.map((f) => f.file).sort(), fixtureFiles);
+  for (const f of fixtures) {
+    assert.ok(f.total > 0, `${f.file} has no cases`);
+    assert.deepEqual(f.failed, [], `${f.file} failed cases`);
+  }
+
+  assert.deepEqual(assertOk(steps["redaction round trip"]), {
+    leaked: false,
+    redactions: 5,
+    targetTagged: true,
+    allowed: true,
+  });
 });

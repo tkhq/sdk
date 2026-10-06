@@ -1,0 +1,430 @@
+{
+  "description": "Strict parsing of sbm:* static properties into a destination binding (EMG-123, EMG-66).",
+  "cases": [
+    {
+      "kind": "parse",
+      "name": "no sbm:origin means no binding",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: no sbm:origin means no binding",
+      "staticProperties": {},
+      "expect": {
+        "status": "unbound"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "parses a full binding",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: parses a full binding",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:url-pattern": "/checkout*",
+        "sbm:fields": "{\"number\":\"input[name=cardNumber]\"}"
+      },
+      "expect": {
+        "status": "bound",
+        "binding": {
+          "origin": "https://shop.example",
+          "urlPattern": "/checkout*",
+          "fields": {
+            "number": "input[name=cardNumber]"
+          }
+        }
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "origin is not a URL",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: rejects a binding whose origin is not a URL",
+      "staticProperties": {
+        "sbm:origin": "shop.example"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "origin has a path",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: rejects a binding whose origin has a path",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example/login"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "origin has a trailing slash",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: rejects a binding whose origin has a trailing slash",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example/"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "fields is not JSON",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: rejects a binding whose fields is not JSON",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:fields": "{number:"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_fields"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "fields is an array",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: rejects a binding whose fields is an array",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:fields": "[]"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_fields"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "fields is empty",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: rejects a binding whose fields is empty",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:fields": "{}"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_fields"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "a field selector is not a string",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: rejects a binding whose a field selector is not a string",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:fields": "{\"cvc\":1}"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_fields"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "selector is blank",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: rejects a binding whose selector is blank",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:selector": " "
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_selector"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "a field selector is blank",
+      "source": "secure-browser-mcp@599e7d5 src/broker/mock-secrets.ts parseBinding (blank field selector)",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:fields": "{\"cvc\":\"  \"}"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_fields"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "a field key is empty",
+      "source": "secure-browser-mcp@599e7d5 src/broker/mock-secrets.ts parseBinding (empty field key)",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:fields": "{\"\":\"input\"}"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_fields"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "url pattern is not valid URLPattern syntax",
+      "source": "secure-browser-mcp@599e7d5 src/broker/mock-secrets.ts parseBinding (URLPattern throws)",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:url-pattern": "/login("
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_url_pattern"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "origin with an uppercase host is not exact",
+      "source": "secure-browser-mcp@599e7d5 src/broker/mock-secrets.ts parseBinding (origin must equal URL.origin)",
+      "staticProperties": {
+        "sbm:origin": "https://Shop.example"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "origin with a default port is not exact",
+      "source": "secure-browser-mcp@599e7d5 src/broker/mock-secrets.ts parseBinding (origin must equal URL.origin)",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example:443"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "opaque origin",
+      "source": "secure-browser-mcp@599e7d5 src/broker/mock-secrets.ts parseBinding (origin \"null\")",
+      "staticProperties": {
+        "sbm:origin": "file:///tmp/x"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "frame-origin is accepted",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/binding.test.ts: frame-origin parsing fails closed",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:frame-origin": "https://pay.example"
+      },
+      "expect": {
+        "status": "bound",
+        "binding": {
+          "origin": "https://shop.example",
+          "frameOrigin": "https://pay.example"
+        }
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "frame-origin \"\" is rejected",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/binding.test.ts: frame-origin parsing fails closed",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:frame-origin": ""
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_frame_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "frame-origin \"null\" is rejected",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/binding.test.ts: frame-origin parsing fails closed",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:frame-origin": "null"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_frame_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "frame-origin \"https://pay.example/\" is rejected",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/binding.test.ts: frame-origin parsing fails closed",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:frame-origin": "https://pay.example/"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_frame_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "frame-origin \"https://pay.example/fields\" is rejected",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/binding.test.ts: frame-origin parsing fails closed",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:frame-origin": "https://pay.example/fields"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_frame_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "frame-origin \"https://user:pass@pay.example\" is rejected",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/binding.test.ts: frame-origin parsing fails closed",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:frame-origin": "https://user:pass@pay.example"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_frame_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "frame-origin \"file:///tmp\" is rejected",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/binding.test.ts: frame-origin parsing fails closed",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:frame-origin": "file:///tmp"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_frame_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "frame-origin \"ftp://pay.example\" is rejected",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/binding.test.ts: frame-origin parsing fails closed",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:frame-origin": "ftp://pay.example"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_frame_origin"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "relay demo:* and other unknown keys are kept and ignored",
+      "source": "browser-secrets M1 strict rule: unknown non-sbm keys are kept (relay demo:* keys)",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "demo:label": "Checkout card",
+        "demo:kind": "card",
+        "consensus": "unilateral"
+      },
+      "expect": {
+        "status": "bound",
+        "binding": {
+          "origin": "https://shop.example"
+        }
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "only non-sbm keys means no binding",
+      "source": "browser-secrets M1 strict rule: unknown non-sbm keys are kept (relay demo:* keys)",
+      "staticProperties": {
+        "demo:label": "x"
+      },
+      "expect": {
+        "status": "unbound"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "an unknown sbm: key is ignored",
+      "source": "secure-browser-mcp@cf13c4e src/broker/mock-secrets.ts parseBinding (reads only the keys it knows)",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:selecter": "input"
+      },
+      "expect": {
+        "status": "bound",
+        "binding": {
+          "origin": "https://shop.example"
+        }
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "sbm: keys without sbm:origin mean no binding",
+      "source": "secure-browser-mcp@cf13c4e src/broker/mock-secrets.ts parseBinding (if (origin === undefined) return {})",
+      "staticProperties": {
+        "sbm:selector": "input[type=password]"
+      },
+      "expect": {
+        "status": "unbound"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "a non-string sbm: value is rejected",
+      "source": "browser-secrets M1 strict rule: static property values must be strings",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:selector": 1
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_property_value"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "a non-HTTP(S) origin with a serialized origin is accepted",
+      "source": "secure-browser-mcp@cf13c4e src/broker/mock-secrets.ts parseBinding (new URL(origin).origin === origin, not \"null\")",
+      "staticProperties": {
+        "sbm:origin": "ftp://shop.example"
+      },
+      "expect": {
+        "status": "bound",
+        "binding": {
+          "origin": "ftp://shop.example"
+        }
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "a blank url pattern is accepted",
+      "source": "secure-browser-mcp@cf13c4e src/broker/mock-secrets.ts parseBinding (new URLPattern({ pathname, baseURL: origin }) succeeds)",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:url-pattern": " "
+      },
+      "expect": {
+        "status": "bound",
+        "binding": {
+          "origin": "https://shop.example",
+          "urlPattern": " "
+        }
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "an empty url pattern is accepted",
+      "source": "secure-browser-mcp@cf13c4e src/broker/mock-secrets.ts parseBinding (new URLPattern({ pathname, baseURL: origin }) succeeds)",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:url-pattern": ""
+      },
+      "expect": {
+        "status": "bound",
+        "binding": {
+          "origin": "https://shop.example",
+          "urlPattern": ""
+        }
+      }
+    }
+  ]
+}
