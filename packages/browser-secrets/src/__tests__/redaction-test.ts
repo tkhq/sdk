@@ -109,6 +109,73 @@ describe("RedactionRegistry.scrubText", () => {
     );
   });
 
+  test("catches values reformatted with other separators or case", () => {
+    const r = new RedactionRegistry();
+    r.registerValue("4242424242424242", "card");
+    for (const shown of [
+      "4242\u00a04242\u00a04242\u00a04242",
+      "4242\u20094242\u20094242\u20094242",
+      "4242.4242.4242.4242",
+      "4242/4242/4242/4242",
+      "4242 \u2013 4242 \u2013 4242 \u2013 4242",
+      "42 42 42 42 42 42 42 42",
+    ]) {
+      expect(r.scrubText(`[${shown}]`)).toBe("[[REDACTED:card]]");
+    }
+    // The match ends at the value's last character, not at a separator.
+    expect(r.scrubText("4242 4242 4242 4242 exp")).toBe("[REDACTED:card] exp");
+  });
+
+  test("does not match short values loosely", () => {
+    const r = new RedactionRegistry();
+    r.registerValues([
+      { value: "1234567", secretId: "short" },
+      { value: "12-34", secretId: "tiny" },
+    ]);
+    expect(r.scrubText("1234 567 and 1234")).toBe("1234 567 and 1234");
+    expect(r.scrubText("1234567")).toBe("[REDACTED:short]");
+  });
+
+  test("encodedVariants: false turns loose matching off", () => {
+    const r = new RedactionRegistry({ encodedVariants: false });
+    r.registerValue("4242424242424242", "card");
+    expect(r.scrubText("4242 4242 4242 4242")).toBe("4242 4242 4242 4242");
+  });
+
+  test("releaseSecret and clear drop loose forms", () => {
+    const r = new RedactionRegistry();
+    r.registerValue("4242424242424242", "card");
+    r.releaseSecret("card");
+    expect(r.scrubText("4242 4242 4242 4242")).toBe("4242 4242 4242 4242");
+    r.registerValue("4242424242424242", "card");
+    r.clear();
+    expect(r.findSecretIds("4242 4242 4242 4242")).toEqual([]);
+  });
+
+  test("findSecretIds reports every secret in the text", () => {
+    const r = new RedactionRegistry();
+    r.registerValues([
+      { value: "4242424242424242", secretId: "card" },
+      { value: "hunter2-password", secretId: "pw" },
+      { value: "12", secretId: "skipped" },
+    ]);
+    expect(r.findSecretIds("Pay with 4242 4242 4242 4242")).toEqual(["card"]);
+    expect(
+      r.findSecretIds('{"a":"HUNTER2 PASSWORD","b":"4242-4242-4242-4242"}'),
+    ).toEqual(["card", "pw"]);
+    expect(r.findSecretIds("nothing here, 12")).toEqual([]);
+    expect(r.findSecretIds("")).toEqual([]);
+  });
+
+  test("loose matching stays linear on separator runs", () => {
+    const r = new RedactionRegistry();
+    r.registerValue("4242424242424242", "card");
+    const text = "4".repeat(1000) + " ".repeat(100_000) + "2";
+    const start = Date.now();
+    expect(r.scrubText(text)).toBe(text);
+    expect(Date.now() - start).toBeLessThan(1000);
+  });
+
   test("catches card-number input-mask formatting", () => {
     const r = new RedactionRegistry();
     r.registerValue("4242424242424242", "card");

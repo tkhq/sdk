@@ -1,0 +1,281 @@
+{
+  "description": "Text redaction of reformatted copies: values shown with separators added, removed, or changed, and in another letter case.",
+  "cases": [
+    {
+      "kind": "redact",
+      "name": "card grouped by spaces",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "4242424242424242",
+          "secretId": "card"
+        }
+      ],
+      "input": "Pay with 4242 4242 4242 4242",
+      "expect": {
+        "output": "Pay with [REDACTED:card]",
+        "secretIds": ["card"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "card grouped by dashes",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "4242424242424242",
+          "secretId": "card"
+        }
+      ],
+      "input": "4242-4242-4242-4242",
+      "expect": {
+        "output": "[REDACTED:card]",
+        "secretIds": ["card"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "card grouped by no-break spaces",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "4242424242424242",
+          "secretId": "card"
+        }
+      ],
+      "input": "card 4242 4242 4242 4242.",
+      "expect": {
+        "output": "card [REDACTED:card].",
+        "secretIds": ["card"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "card grouped by narrow no-break spaces",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "4242424242424242",
+          "secretId": "card"
+        }
+      ],
+      "input": "4242 4242 4242 4242",
+      "expect": {
+        "output": "[REDACTED:card]",
+        "secretIds": ["card"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "card grouped by dots",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "4242424242424242",
+          "secretId": "card"
+        }
+      ],
+      "input": "4242.4242.4242.4242",
+      "expect": {
+        "output": "[REDACTED:card]",
+        "secretIds": ["card"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "card with doubled separators",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "4242424242424242",
+          "secretId": "card"
+        }
+      ],
+      "input": "4242  4242 - 4242  4242",
+      "expect": {
+        "output": "[REDACTED:card]",
+        "secretIds": ["card"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "card in a JSON snapshot value",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "4242424242424242",
+          "secretId": "card"
+        }
+      ],
+      "input": "{\"name\":\"summary\",\"value\":\"4242 4242 4242 4242\"}",
+      "expect": {
+        "output": "{\"name\":\"summary\",\"value\":\"[REDACTED:card]\"}",
+        "secretIds": ["card"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "Diners 4-6-4 grouping",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "36227206271667",
+          "secretId": "diners"
+        }
+      ],
+      "input": "3622 720627 1667",
+      "expect": {
+        "output": "[REDACTED:diners]",
+        "secretIds": ["diners"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "UnionPay 6-13 grouping",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "6212345678901234567",
+          "secretId": "unionpay"
+        }
+      ],
+      "input": "621234 5678901234567",
+      "expect": {
+        "output": "[REDACTED:unionpay]",
+        "secretIds": ["unionpay"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "Amex registered grouped, shown bare",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "3782 822463 10005",
+          "secretId": "amex"
+        }
+      ],
+      "input": "378282246310005",
+      "expect": {
+        "output": "[REDACTED:amex]",
+        "secretIds": ["amex"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "IBAN grouped and uppercased",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "gb82west12345698765432",
+          "secretId": "iban"
+        }
+      ],
+      "input": "IBAN GB82 WEST 1234 5698 7654 32 ok",
+      "expect": {
+        "output": "IBAN [REDACTED:iban] ok",
+        "secretIds": ["iban"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "last four digits stay visible",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "4242424242424242",
+          "secretId": "card"
+        }
+      ],
+      "input": "Visa ending 4242",
+      "expect": {
+        "output": "Visa ending 4242",
+        "secretIds": []
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "short values match exactly only",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "1234",
+          "secretId": "pin"
+        }
+      ],
+      "input": "1234 and 1-2-3-4",
+      "expect": {
+        "output": "[REDACTED:pin] and 1-2-3-4",
+        "secretIds": ["pin"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "a 7-character value does not match loosely",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "abcdefg",
+          "secretId": "s"
+        }
+      ],
+      "input": "abc-defg",
+      "expect": {
+        "output": "abc-defg",
+        "secretIds": []
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "an 8-character value matches loosely",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "abcdefgh",
+          "secretId": "s"
+        }
+      ],
+      "input": "ABCD EFGH",
+      "expect": {
+        "output": "[REDACTED:s]",
+        "secretIds": ["s"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "separators in the value are optional in the text",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "ab-cd/ef.gh",
+          "secretId": "s"
+        }
+      ],
+      "input": "see abcdefgh",
+      "expect": {
+        "output": "see [REDACTED:s]",
+        "secretIds": ["s"]
+      }
+    },
+    {
+      "kind": "redact",
+      "name": "copies of two secrets side by side redact separately",
+      "source": "Input masks and formatters on payment and banking forms",
+      "values": [
+        {
+          "value": "4242424242424242",
+          "secretId": "a"
+        },
+        {
+          "value": "5555555555554444",
+          "secretId": "b"
+        }
+      ],
+      "input": "4242 4242 4242 4242 5555 5555 5555 4444",
+      "expect": {
+        "output": "[REDACTED:a] [REDACTED:b]",
+        "secretIds": ["a", "b"]
+      }
+    }
+  ]
+}

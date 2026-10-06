@@ -6,6 +6,7 @@
  */
 import { authorize, type DenyReason } from "./authorize";
 import { parseBinding } from "./binding";
+import { RedactionRegistry } from "./redaction";
 import type {
   BindingErrorCode,
   FillRequest,
@@ -41,7 +42,25 @@ export type AuthorizeFixtureCase = {
     | { allowed: false; reason: DenyReason; targetIndex?: number };
 };
 
-export type ConformanceCase = ParseFixtureCase | AuthorizeFixtureCase;
+export type RedactFixtureCase = {
+  kind: "redact";
+  name: string;
+  source: string;
+  /** Registered with a default `RedactionRegistry`, in order. */
+  values: { value: string; secretId: string }[];
+  input: string;
+  expect: {
+    /** `scrubText(input)`. */
+    output: string;
+    /** `findSecretIds(input)`. */
+    secretIds: string[];
+  };
+};
+
+export type ConformanceCase =
+  | ParseFixtureCase
+  | AuthorizeFixtureCase
+  | RedactFixtureCase;
 
 export type ConformanceFixtureFile = {
   description: string;
@@ -81,6 +100,20 @@ export function runConformanceCase(
     const parsed = parseBinding(testCase.staticProperties);
     // canonical() copies the prototype-free fields map into a plain object.
     const actual = canonical(parsed);
+    return {
+      name: testCase.name,
+      pass: same(actual, testCase.expect),
+      expected: testCase.expect,
+      actual,
+    };
+  }
+  if (testCase.kind === "redact") {
+    const registry = new RedactionRegistry();
+    registry.registerValues(testCase.values);
+    const actual = {
+      output: registry.scrubText(testCase.input),
+      secretIds: registry.findSecretIds(testCase.input),
+    };
     return {
       name: testCase.name,
       pass: same(actual, testCase.expect),

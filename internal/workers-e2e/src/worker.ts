@@ -29,6 +29,7 @@ import authorizeFrames from "@turnkey/browser-secrets/fixtures/authorize-frames.
 import authorizeSbm from "@turnkey/browser-secrets/fixtures/authorize-sbm.json";
 import authorizeStrict from "@turnkey/browser-secrets/fixtures/authorize-strict.json";
 import bindingParse from "@turnkey/browser-secrets/fixtures/binding-parse.json";
+import redactionFormatted from "@turnkey/browser-secrets/fixtures/redaction-formatted.json";
 import { p256 } from "@noble/curves/p256";
 import { sha256 } from "@noble/hashes/sha256";
 
@@ -230,6 +231,7 @@ const BROWSER_SECRETS_FIXTURES: Record<string, unknown> = {
   "authorize-sbm.json": authorizeSbm,
   "authorize-strict.json": authorizeStrict,
   "binding-parse.json": bindingParse,
+  "redaction-formatted.json": redactionFormatted,
 };
 
 // Runs the @turnkey/browser-secrets conformance fixtures and a redaction

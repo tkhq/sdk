@@ -31,6 +31,7 @@ export {
   type RequestValidation,
 } from "./authorize";
 export {
+  LOOSE_MATCH_MIN_LENGTH,
   RedactionRegistry,
   type RedactionRegistryOptions,
   type RedactionTarget,

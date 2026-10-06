@@ -64,6 +64,13 @@ if (!decision.allowed) throw BrowserSecretsError.fromDecision(decision);
 const registry = new RedactionRegistry(); // one per tenant and browser session
 registry.registerValue(plaintext, ref.secretId); // before injection
 registry.registerTarget({ ...identities, elementId: "e12" }, ref.secretId);
+
+// In the snapshot serializer: elide registered targets, and any element
+// whose value holds a copy of a secret (a re-rendered input, a summary).
+const elide =
+  registry.isRegisteredTarget(target) ||
+  registry.findSecretIds(value).length > 0;
+
 const safeOutput = registry.scrub(toolResult);
 ```
 
@@ -77,13 +84,14 @@ const safeOutput = registry.scrub(toolResult);
 - An allowed destination receives the plaintext by design. A compromised allowed site is outside the threat model.
 - The package does not protect secrets from its embedding host process. JS strings cannot be zeroized; `releaseSecret` drops references only.
 - `authorize` trusts the host's observation as given, including the `selectorMatches` booleans. The host adapter is the trust boundary: it must read URLs, origins, and selector matches from the live browser where page script cannot change them, and must record `false` when `Element.matches` throws.
-- Text redaction does not cover screenshots, live previews, or recordings. It catches the value and its common encodings (JSON, URL, HTML entities, base64 of the whole value, case and Unicode normalization, and card-number grouping), not other transformed copies. Hosts must restrict the other output paths separately.
+- Text redaction does not cover screenshots, live previews, or recordings. It catches the value and its common encodings (JSON, URL, HTML entities, base64 of the whole value, and case and Unicode normalization). For values of `LOOSE_MATCH_MIN_LENGTH` (8) or more characters, it also catches copies with separators added, removed, or changed, in any letter case. This covers input masks and formatters: card numbers in any grouping, IBANs, and reflowed keys. It does not catch other transformed copies. A destination page can always encode a value past the scan; that is the compromised-site case above. Hosts must restrict the other output paths separately.
+- Pages copy what they receive. A framework can re-render a filled input as a new element, and a page can show the value in a summary or a button. Target tags do not follow these copies. Snapshot serializers must also call `findSecretIds` on each element value and elide any element with a match.
 - Each redaction marker tells the agent that the text there equaled a registered value. An agent that can get chosen text rendered and read back can test guesses this way. Values shorter than `minValueLength` (default 4) are not text-scanned, because they are cheap to guess and match unrelated text. `registerValues` returns the IDs it skipped.
 - Errors carry fixed messages and codes. They never include a raw Turnkey response, a caught error's message, or secret material.
 
 ## Conformance fixtures
 
-`fixtures/*.json` hold binding-parse and authorization cases taken from Secure Browser MCP and its iframe work. Each case has an input (static properties, or secret, request, and observation), an expected result, and the test it came from. Host adapters and any future port must reproduce every result. In JavaScript, run them with `runConformanceFixture`:
+`fixtures/*.json` hold binding-parse and authorization cases taken from Secure Browser MCP and its iframe work, and text-redaction cases for reformatted values. Each case has an input (static properties, or secret, request, and observation), an expected result, and the test it came from. Host adapters and any future port must reproduce every result. In JavaScript, run them with `runConformanceFixture`:
 
 ```ts
 import fixture from "@turnkey/browser-secrets/fixtures/authorize-frames.json";

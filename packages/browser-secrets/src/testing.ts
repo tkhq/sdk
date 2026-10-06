@@ -11,4 +11,5 @@ export {
   type ConformanceFixtureFile,
   type ConformanceResult,
   type ParseFixtureCase,
+  type RedactFixtureCase,
 } from "./conformance";

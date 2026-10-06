@@ -13,8 +13,11 @@
  *
  * Register both before injection. Text scanning does not cover screenshots,
  * live previews, or transformed copies of a secret other than the encoded
- * forms listed on `encodedVariants`. JS strings cannot be zeroized:
- * `releaseSecret` and `clear` drop references only.
+ * and reformatted forms listed on `encodedVariants`. Pages reformat what
+ * they receive and copy it into other elements (a re-rendered input, an
+ * order summary), so snapshot serializers should also check each value
+ * with `findSecretIds` and elide any element that holds a copy. JS strings
+ * cannot be zeroized: `releaseSecret` and `clear` drop references only.
  *
  * Every marker in agent output tells the agent that the text there equaled
  * a registered value. An agent that can get text of its choice rendered and
@@ -42,9 +45,12 @@ export type RedactionRegistryOptions = {
    *    encoded string such as `user:password`.
    *  - The NFC, NFD, lowercase, and uppercase forms of the value, and the
    *    encodings above of each
-   *  - For a value of 12 to 19 digits (with or without spaces or dashes):
-   *    the bare digits, and groups of four (4-6-5 for 15 digits) separated
-   *    by spaces or dashes, as card-number input masks format them
+   *  - For a value with at least `LOOSE_MATCH_MIN_LENGTH` characters
+   *    other than separators: the value with any separators (whitespace,
+   *    including no-break and thin spaces, and `- . / _` and Unicode
+   *    dashes) inserted between or removed from its characters, in any
+   *    letter case. This catches input masks and formatters: card numbers
+   *    in any grouping, IBANs, and reflowed keys.
    */
   encodedVariants?: boolean;
   /**
@@ -58,6 +64,20 @@ export type RedactionRegistryOptions = {
   marker?: (secretIds: readonly string[]) => string;
 };
 
+/**
+ * Shortest value, counted without separators, that also matches loosely.
+ * Shorter values (a CVC, an expiry, a PIN) would match unrelated text.
+ */
+export const LOOSE_MATCH_MIN_LENGTH = 8;
+
+/** Characters formatters insert between groups. */
+const SEPARATOR_CLASS = "[\\s\\-./_\\u2010-\\u2015\\u2212]";
+const SEPARATORS = new RegExp(SEPARATOR_CLASS, "g");
+
+/** The loose form of a value: separators removed, letter case folded. */
+const looseForm = (value: string): string =>
+  value.replace(SEPARATORS, "").toLowerCase();
+
 type Pattern = {
   readonly value: string;
   readonly secretIds: readonly string[];
@@ -70,6 +90,13 @@ type Compiled = {
   readonly byValue: ReadonlyMap<string, Pattern>;
   /** One alternation over all patterns; used when there are many. */
   readonly regex: RegExp | undefined;
+  /**
+   * One alternation over the loose forms, each in its own capture group,
+   * with optional separators after every character. Case-insensitive.
+   */
+  readonly loose: RegExp | undefined;
+  /** Secret IDs for each capture group of `loose`, in order. */
+  readonly looseOwners: readonly (readonly string[])[];
 };
 
 /**
@@ -80,17 +107,45 @@ const REGEX_THRESHOLD = 8;
 
 const DEFAULT_MIN_VALUE_LENGTH = 4;
 
-const EMPTY: Compiled = { patterns: [], byValue: new Map(), regex: undefined };
+const EMPTY: Compiled = {
+  patterns: [],
+  byValue: new Map(),
+  regex: undefined,
+  loose: undefined,
+  looseOwners: [],
+};
 
 const escapeRegExp = (value: string): string =>
   value.replace(/[.*+?^${}()|[\]\\/-]/g, "\\$&");
 
-function compile(values: ReadonlyMap<string, ReadonlySet<string>>): Compiled {
+function compile(
+  values: ReadonlyMap<string, ReadonlySet<string>>,
+  looseValues: ReadonlyMap<string, ReadonlySet<string>>,
+): Compiled {
   if (values.size === 0) return EMPTY;
   const patterns = [...values.entries()]
     .map(([value, ids]) => ({ value, secretIds: [...ids].sort() }))
     .sort((a, b) => b.value.length - a.value.length);
+  // Longest first, as for `regex`. A loose form has no separators, so only
+  // the `*` after a character can consume a separator run, and a failed
+  // alternative backtracks over at most one run.
+  const loose = [...looseValues.entries()].sort(
+    (a, b) => b[0].length - a[0].length,
+  );
   return {
+    loose:
+      loose.length > 0
+        ? new RegExp(
+            loose
+              .map(
+                ([form]) =>
+                  `(${[...form].map(escapeRegExp).join(`${SEPARATOR_CLASS}*`)})`,
+              )
+              .join("|"),
+            "gi",
+          )
+        : undefined,
+    looseOwners: loose.map(([, ids]) => [...ids].sort()),
     patterns,
     byValue: new Map(patterns.map((p) => [p.value, p])),
     // Longest first, so at any position the alternation takes the longest
@@ -139,17 +194,6 @@ function base64Forms(value: string): string[] {
   return [padded, unpadded, unpadded.replace(/\+/g, "-").replace(/\//g, "_")];
 }
 
-/** Card-number style groupings of a 12 to 19 digit value. */
-function digitGroupForms(value: string): string[] {
-  const digits = value.replace(/[ -]/g, "");
-  if (!/^\d{12,19}$/.test(digits)) return [];
-  const groups =
-    digits.length === 15
-      ? [digits.slice(0, 4), digits.slice(4, 10), digits.slice(10)]
-      : (digits.match(/\d{1,4}/g) ?? []);
-  return [digits, groups.join(" "), groups.join("-")];
-}
-
 function encodedForms(value: string): string[] {
   const forms = new Set<string>();
   const bases = new Set([
@@ -174,7 +218,6 @@ function encodedForms(value: string): string[] {
     }
     for (const form of base64Forms(base)) forms.add(form);
   }
-  for (const form of digitGroupForms(value)) forms.add(form);
   forms.delete(value);
   forms.delete("");
   return [...forms];
@@ -188,6 +231,10 @@ export class RedactionRegistry {
   #values = new Map<string, Set<string>>();
   /** secret ID -> values it registered, for release. */
   #valuesBySecret = new Map<string, Set<string>>();
+  /** loose form -> secret IDs that registered it. */
+  #looseValues = new Map<string, Set<string>>();
+  /** secret ID -> loose forms it registered, for release. */
+  #looseBySecret = new Map<string, Set<string>>();
   /** target key -> secret IDs written into that element. */
   #targets = new Map<string, Set<string>>();
   /** document key -> target keys, for release on document replacement. */
@@ -238,9 +285,25 @@ export class RedactionRegistry {
         ids.add(secretId);
         owned.add(form);
       }
+      if (this.#encodedVariants) this.#registerLoose(value, secretId);
     }
     this.#compiled = undefined;
     return [...skipped];
+  }
+
+  #registerLoose(value: string, secretId: string): void {
+    const forms = new Set(
+      [value, value.normalize("NFC"), value.normalize("NFD")].map(looseForm),
+    );
+    for (const form of forms) {
+      if (form.length < LOOSE_MATCH_MIN_LENGTH) continue;
+      let ids = this.#looseValues.get(form);
+      if (!ids) this.#looseValues.set(form, (ids = new Set()));
+      ids.add(secretId);
+      let owned = this.#looseBySecret.get(secretId);
+      if (!owned) this.#looseBySecret.set(secretId, (owned = new Set()));
+      owned.add(form);
+    }
   }
 
   /**
@@ -290,6 +353,12 @@ export class RedactionRegistry {
       if (ids && ids.size === 0) this.#values.delete(form);
     }
     this.#valuesBySecret.delete(secretId);
+    for (const form of this.#looseBySecret.get(secretId) ?? []) {
+      const ids = this.#looseValues.get(form);
+      ids?.delete(secretId);
+      if (ids && ids.size === 0) this.#looseValues.delete(form);
+    }
+    this.#looseBySecret.delete(secretId);
     for (const [key, ids] of this.#targets) {
       ids.delete(secretId);
       if (ids.size === 0) this.#targets.delete(key);
@@ -315,12 +384,14 @@ export class RedactionRegistry {
   clear(): void {
     this.#values.clear();
     this.#valuesBySecret.clear();
+    this.#looseValues.clear();
+    this.#looseBySecret.clear();
     this.#targets.clear();
     this.#targetsByDocument.clear();
     this.#compiled = undefined;
   }
 
-  /** Number of distinct scan strings, including encoded forms. */
+  /** Number of distinct exact scan strings, including encoded forms. */
   get valueCount(): number {
     return this.#values.size;
   }
@@ -330,7 +401,18 @@ export class RedactionRegistry {
   }
 
   #patterns(): Compiled {
-    return (this.#compiled ??= compile(this.#values));
+    return (this.#compiled ??= compile(this.#values, this.#looseValues));
+  }
+
+  /**
+   * The secrets with a registered value (in any form `scrubText` matches)
+   * in `text`, sorted. Empty when there are none. Snapshot serializers use
+   * it to elide elements that hold a copy of a secret, such as a field the
+   * page re-rendered or an order summary, as they elide registered targets.
+   */
+  findSecretIds(text: string): string[] {
+    const matches = collectMatches(this.#patterns(), text);
+    return matches ? [...new Set(matches.owners.flat())].sort() : [];
   }
 
   /**
@@ -434,12 +516,16 @@ function scrubBytes(
     : Uint8Array.from(bytes);
 }
 
-function scrubWith(
-  compiled: Compiled,
-  marker: (secretIds: readonly string[]) => string,
-  text: string,
-): string {
-  if (compiled.patterns.length === 0 || text.length === 0) return text;
+type Matches = {
+  readonly starts: number[];
+  readonly ends: number[];
+  readonly owners: (readonly string[])[];
+  /** Whether `starts` is in ascending order. */
+  readonly sorted: boolean;
+};
+
+function collectMatches(compiled: Compiled, text: string): Matches | undefined {
+  if (compiled.patterns.length === 0 || text.length === 0) return undefined;
   // Collect match intervals. Every position where any registered value
   // starts is found, so overlapping matches (of one value or of several)
   // merge below instead of leaving a fragment.
@@ -472,10 +558,33 @@ function scrubWith(
       }
     }
   }
-  if (!starts) return text;
+  const { loose } = compiled;
+  if (loose) {
+    // As for `regex`: restart one position after each match start.
+    loose.lastIndex = 0;
+    for (let m = loose.exec(text); m !== null; m = loose.exec(text)) {
+      const group = m.findIndex((g, i) => i > 0 && g !== undefined);
+      (starts ??= []).push(m.index);
+      ends.push(m.index + m[0].length);
+      owners.push(compiled.looseOwners[group - 1]!);
+      sorted = false;
+      loose.lastIndex = m.index + 1;
+    }
+  }
+  return starts ? { starts, ends, owners, sorted } : undefined;
+}
+
+function scrubWith(
+  compiled: Compiled,
+  marker: (secretIds: readonly string[]) => string,
+  text: string,
+): string {
+  const matches = collectMatches(compiled, text);
+  if (!matches) return text;
+  const { starts, ends, owners, sorted } = matches;
 
   let order: number[] = starts.map((_, i) => i);
-  if (!sorted) order = order.sort((a, b) => starts![a]! - starts![b]!);
+  if (!sorted) order = order.sort((a, b) => starts[a]! - starts[b]!);
 
   const parts: string[] = [];
   let cursor = 0;
