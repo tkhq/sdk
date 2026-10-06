@@ -42,7 +42,7 @@ export class TurnkeySDKClientBase {
         "X-Client-Version": VERSION,
       },
       body: stringifiedBody,
-      redirect: "follow",
+      redirect: "error",
     });
 
     if (!response.ok) {
