@@ -37,11 +37,6 @@ export type HandleLoginParams = {
   logoDark?: string;
   logoClassName?: string;
   title?: string;
-  /**
-   * When true, the auth modal's passkey section renders only the log-in
-   * button — for apps that know the user already has a wallet, where
-   * sign-up would create a second, empty sub-organization.
-   */
   hidePasskeySignup?: boolean;
 };
 

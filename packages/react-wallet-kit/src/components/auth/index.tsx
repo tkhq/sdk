@@ -407,7 +407,7 @@ export function AuthComponent({
         onLogin={handlePasskeyLogin}
         onSignUp={handlePasskeySignUp}
         disabled={!authEnabled}
-        hideSignUp={hidePasskeySignup}
+        hideSignUp={hidePasskeySignup ?? false}
       />
     ) : null,
     wallet: methods.walletAuthEnabled ? (
