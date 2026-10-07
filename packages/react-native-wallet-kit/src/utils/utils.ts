@@ -1,4 +1,5 @@
 import { Session, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
+import { StamperType } from "@turnkey/core";
 import { useCallback, useRef } from "react";
 
 export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
@@ -54,6 +55,14 @@ export const useDebouncedCallback = <T extends (...args: any[]) => void>(
 export const isValidSession = (session?: Session | undefined): boolean => {
   return session?.expiry !== undefined && session.expiry * 1000 > Date.now();
 };
+
+// Use the session key for internal refreshes so they don't prompt the user.
+// Falls back to the caller's stamper when there's no session.
+export const resolveRefreshStamper = (
+  session: Session | undefined,
+  stampWith?: StamperType,
+): StamperType | undefined =>
+  isValidSession(session) ? StamperType.ApiKey : stampWith;
 
 export async function withTurnkeyErrorHandling<T>(
   fn: () => Promise<T>,

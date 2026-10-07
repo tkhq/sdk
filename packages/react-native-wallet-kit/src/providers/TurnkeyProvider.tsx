@@ -1,5 +1,6 @@
 import {
   isValidSession,
+  resolveRefreshStamper,
   SESSION_WARNING_THRESHOLD_MS,
   withTurnkeyErrorHandling,
   TURNKEY_OAUTH_REDIRECT_URL,
@@ -2613,15 +2614,22 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    *
    * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @param params.userId - user ID to fetch specific user details (defaults to the current session's userId).
-   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.stampWith - fallback stamper, only used when there is no valid session.
    * @returns A promise that resolves when the user is refreshed, or does nothing if auto-refresh is disabled
    */
   const maybeRefreshUser = useCallback(
     async (params?: RefreshUserParams): Promise<v1User | undefined> => {
       if (!masterConfig?.autoRefreshManagedState) return undefined;
-      return refreshUser(params);
+
+      const activeSession = await getSession();
+      const stampWith = resolveRefreshStamper(activeSession, params?.stampWith);
+
+      return refreshUser({
+        ...params,
+        stampWith,
+      });
     },
-    [masterConfig, refreshUser],
+    [masterConfig, refreshUser, getSession],
   );
 
   const refreshWallets = useCallback(
@@ -2660,15 +2668,22 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    *
    * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @param params.userId - user ID to fetch specific user details (defaults to the current session's userId).
-   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.stampWith - fallback stamper, only used when there is no valid session.
    * @returns A promise that resolves to an array of wallets, or an empty array if auto-refresh is disabled
    */
   const maybeRefreshWallets = useCallback(
     async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
       if (!masterConfig?.autoRefreshManagedState) return [];
-      return refreshWallets(params);
+
+      const activeSession = await getSession();
+      const stampWith = resolveRefreshStamper(activeSession, params?.stampWith);
+
+      return refreshWallets({
+        ...params,
+        stampWith,
+      });
     },
-    [masterConfig, refreshWallets],
+    [masterConfig, refreshWallets, getSession],
   );
 
   const setMfaHandler = useCallback(
