@@ -1685,7 +1685,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       return refreshUser({
         ...params,
-        ...(stampWith !== undefined && { stampWith }),
+        stampWith,
       });
     },
     [masterConfig, refreshUser, getSession],
@@ -1748,7 +1748,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       return refreshWallets({
         ...params,
-        ...(stampWith !== undefined && { stampWith }),
+        stampWith,
       });
     },
     [masterConfig, refreshWallets, getSession],
