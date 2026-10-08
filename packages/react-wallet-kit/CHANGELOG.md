@@ -1,5 +1,14 @@
 # @turnkey/react-wallet-kit
 
+## 2.5.3
+
+### Patch Changes
+
+- [#1584](https://github.com/tkhq/sdk/pull/1584) [`f77e273`](https://github.com/tkhq/sdk/commit/f77e273abb58f5af015c9b1a2023024fd01bf705) Author [@radusandor](https://github.com/radusandor) - Internal state refreshes no longer inherit the caller's `stampWith`. When a valid session exists, the refresh that follows a write is now stamped with the session's API key, so passing `stampWith: StamperType.Passkey` to methods like `addPasskey`, `updateUserName`, `createWallet` or `exportWallet` no longer costs an extra passkey prompt for each request the refresh makes. With no valid session the caller's stamper is still used, so setups without a session are unaffected.
+
+- Updated dependencies [[`f4d6892`](https://github.com/tkhq/sdk/commit/f4d6892970d30cf03df63f2d5aba72b2cbb4b397)]:
+  - @turnkey/core@2.12.2
+
 ## 2.5.2
 
 ### Patch Changes
