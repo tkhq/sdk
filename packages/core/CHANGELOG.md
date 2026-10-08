@@ -1,5 +1,11 @@
 # @turnkey/core
 
+## 2.12.2
+
+### Patch Changes
+
+- [#1581](https://github.com/tkhq/sdk/pull/1581) [`f4d6892`](https://github.com/tkhq/sdk/commit/f4d6892970d30cf03df63f2d5aba72b2cbb4b397) Author [@moeodeh3](https://github.com/moeodeh3) - `buildWalletConnectAppEntries` now checks each configured chain separately, so wallets that support only some of the configured chains are included for the chains they support. For example, MetaMask is now offered for Ethereum when both Ethereum and Solana are configured, instead of being hidden. Wallets that only support the discontinued WalletConnect v1 protocol are no longer included, since they can't connect.
+
 ## 2.12.1
 
 ### Patch Changes
