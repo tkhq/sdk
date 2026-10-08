@@ -132,6 +132,24 @@ describe("Turnkey Crypto Primitives", () => {
     ).toEqual(uint8ArrayFromHexString(publicKey));
   });
 
+  test("compressRawPublicKey - rejects a key that is not uncompressed", () => {
+    const { publicKey, publicKeyUncompressed } = generateP256KeyPair();
+
+    // An already-compressed key: wrong length and wrong prefix.
+    expect(() =>
+      compressRawPublicKey(uint8ArrayFromHexString(publicKey)),
+    ).toThrow("invalid length");
+
+    // Right length, wrong prefix.
+    const wrongPrefix = uint8ArrayFromHexString(publicKeyUncompressed);
+    wrongPrefix[0] = 0x02;
+    expect(() => compressRawPublicKey(wrongPrefix)).toThrow("invalid prefix");
+
+    expect(() => compressRawPublicKey(new Uint8Array())).toThrow(
+      "invalid length",
+    );
+  });
+
   test("decryptCredentialBundle - successfully decrypts a credential bundle", () => {
     const decryptedData = decryptCredentialBundle(
       mockCredentialBundle,
