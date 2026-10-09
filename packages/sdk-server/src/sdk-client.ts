@@ -105,6 +105,7 @@ export class TurnkeyServerSDK {
       const { methodName, params } = request.body;
       if (!methodName || !params) {
         response.status(400).send("methodName and params are required.");
+        return;
       }
 
       try {
@@ -137,6 +138,7 @@ export class TurnkeyServerSDK {
       const { methodName, params } = request.body;
       if (!methodName || !params) {
         response.status(400).send("methodName and params are required.");
+        return;
       }
 
       try {
