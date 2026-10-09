@@ -48,6 +48,41 @@ function createClientWithStatusResponse(
 }
 
 describe("pollTransactionStatus", () => {
+  it("rejects with the underlying error when the status request fails", async () => {
+    jest.useFakeTimers();
+
+    const client = new TurnkeyClient({ organizationId: "org-id" });
+    (client as any).storageManager = {
+      getActiveSession: async () => undefined,
+    };
+    const failure = new Error("network is down");
+    (client as any).httpClient = {
+      getSendTransactionStatus: async () => {
+        throw failure;
+      },
+    };
+
+    const promise = client.pollTransactionStatus({
+      sendTransactionStatusId: "status-id",
+      organizationId: "org-id",
+      stampWith: StamperType.Passkey,
+      pollingIntervalMs: 10,
+    });
+    const rejectedError = promise.catch((error) => error);
+
+    // A single tick is enough: the failure must surface immediately rather
+    // than being swallowed until the one minute timeout.
+    await jest.advanceTimersByTimeAsync(10);
+
+    const error = await rejectedError;
+
+    expect(error).toMatchObject({
+      name: "TurnkeyError",
+      code: TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
+      cause: failure,
+    });
+  });
+
   afterEach(() => {
     jest.useRealTimers();
   });
