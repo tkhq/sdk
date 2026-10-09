@@ -54,6 +54,47 @@ const DEFAULT_API_PROXY_ALLOWED_METHODS = [
   "initUserEmailRecovery",
 ];
 
+type ProxyHttpResponse = {
+  headersSent?: boolean;
+  status: (statusCode: number) => { send: (body: string) => void };
+  json: (body: unknown) => void;
+};
+
+async function handleProxyRequest(
+  apiProxy: (methodName: string, params: any[]) => Promise<any>,
+  config: TurnkeyProxyHandlerConfig,
+  body: { methodName?: string; params?: any[] } | null | undefined,
+  response: ProxyHttpResponse,
+): Promise<void> {
+  const allowedMethods =
+    config.allowedMethods ?? DEFAULT_API_PROXY_ALLOWED_METHODS;
+  const { methodName, params } = body ?? {};
+
+  if (!methodName || !params) {
+    response.status(400).send("methodName and params are required.");
+    return;
+  }
+
+  try {
+    if (allowedMethods.includes(methodName)) {
+      const result = await apiProxy(methodName, params);
+      response.json(result);
+    } else {
+      response.status(401).send("Unauthorized proxy method");
+    }
+  } catch (error) {
+    if (response.headersSent) {
+      return;
+    }
+
+    if (error instanceof Error) {
+      response.status(500).send(error.message);
+    } else {
+      response.status(500).send("An unexpected error occurred");
+    }
+  }
+}
+
 export type PollTransactionStatusParams = {
   organizationId?: string;
   sendTransactionStatusId: string;
@@ -98,63 +139,17 @@ export class TurnkeyServerSDK {
   };
 
   expressProxyHandler = (config: TurnkeyProxyHandlerConfig): RequestHandler => {
-    const allowedMethods =
-      config.allowedMethods ?? DEFAULT_API_PROXY_ALLOWED_METHODS;
-
     return async (request: Request, response: Response): Promise<void> => {
-      const { methodName, params } = request.body;
-      if (!methodName || !params) {
-        response.status(400).send("methodName and params are required.");
-      }
-
-      try {
-        if (allowedMethods.includes(methodName)) {
-          const result = await this.apiProxy(methodName, params);
-          response.json(result);
-        } else {
-          response.status(401).send("Unauthorized proxy method");
-        }
-        return;
-      } catch (error) {
-        if (error instanceof Error) {
-          response.status(500).send(error.message);
-        } else {
-          response.status(500).send("An unexpected error occurred");
-        }
-        return;
-      }
+      await handleProxyRequest(this.apiProxy, config, request.body, response);
     };
   };
 
   nextProxyHandler = (config: TurnkeyProxyHandlerConfig): NextApiHandler => {
-    const allowedMethods =
-      config.allowedMethods ?? DEFAULT_API_PROXY_ALLOWED_METHODS;
-
     return async (
       request: NextApiRequest,
       response: NextApiResponse,
     ): Promise<void> => {
-      const { methodName, params } = request.body;
-      if (!methodName || !params) {
-        response.status(400).send("methodName and params are required.");
-      }
-
-      try {
-        if (allowedMethods.includes(methodName)) {
-          const result = await this.apiProxy(methodName, params);
-          response.json(result);
-        } else {
-          response.status(401).send("Unauthorized proxy method");
-        }
-        return;
-      } catch (error) {
-        if (error instanceof Error) {
-          response.status(500).send(error.message);
-        } else {
-          response.status(500).send("An unexpected error occurred");
-        }
-        return;
-      }
+      await handleProxyRequest(this.apiProxy, config, request.body, response);
     };
   };
 }
