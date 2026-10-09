@@ -184,7 +184,7 @@ export class WalletStamper {
    *   - Converts the signature into DER format.
    * - For Solana:
    *   - Signs using Ed25519.
-   *   - Fetches the public key directly from the wallet.
+   *   - Receives the signature and public key from one wallet signing call.
    *
    * @param payload - The payload to sign.
    * @param provider - The wallet provider used for signing.
@@ -195,20 +195,37 @@ export class WalletStamper {
     let signature: string;
     let publicKey: string;
 
-    try {
-      signature = await this.wallet.sign(
-        payload,
-        provider,
-        SignIntent.SignMessage,
-      );
-    } catch (error) {
-      throw new Error(`Failed to sign the message: ${error}`);
-    }
+    if (isSolanaProvider(provider)) {
+      if (!this.wallet.signWithPublicKey) {
+        throw new Error(
+          "Solana wallet does not support signing with a public key",
+        );
+      }
+      try {
+        ({ signature, publicKey } = await this.wallet.signWithPublicKey(
+          payload,
+          provider,
+        ));
+      } catch (error) {
+        throw new Error(`Failed to sign the message: ${error}`);
+      }
+    } else {
+      try {
+        signature = await this.wallet.sign(
+          payload,
+          provider,
+          SignIntent.SignMessage,
+        );
+      } catch (error) {
+        throw new Error(`Failed to sign the message: ${error}`);
+      }
 
-    const scheme = getSignatureSchemeFromProvider(provider);
-
-    try {
-      if (isEthereumProvider(provider)) {
+      try {
+        if (!isEthereumProvider(provider)) {
+          throw new Error(
+            `Unsupported provider namespace: ${provider.chainInfo.namespace}. Expected Ethereum or Solana.`,
+          );
+        }
         const { recoverPublicKey, hashMessage } = await import("viem");
         const { compressRawPublicKey, toDerSignature } = await import(
           "@turnkey/crypto"
@@ -228,18 +245,12 @@ export class WalletStamper {
 
         publicKey = uint8ArrayToHexString(publicKeyBytesCompressed);
         signature = toDerSignature(signature.replace("0x", ""));
-      } else if (isSolanaProvider(provider)) {
-        publicKey = await this.wallet.getPublicKey(provider);
-      } else {
-        // we should never hit this case
-        // if we do then it means we added support for a new chain but missed updating the stamper
-        throw new Error(
-          `Unsupported provider namespace: ${provider.chainInfo.namespace}. Expected Ethereum or Solana.`,
-        );
+      } catch (error) {
+        throw new Error(`Failed to recover public key: ${error}`);
       }
-    } catch (error) {
-      throw new Error(`Failed to recover public key: ${error}`);
     }
+
+    const scheme = getSignatureSchemeFromProvider(provider);
 
     return {
       stampHeaderName: STAMP_HEADER_NAME,
