@@ -31,7 +31,7 @@ This demo app illustrates how to integrate Turnkey's embedded wallet kit into a 
 ## 📋 Prerequisites
 
 - **Node.js**: Version 18.0 or higher
-- **npm**: Version 9.0 or higher
+- **pnpm**: Version 10 or higher (this example is part of the SDK's pnpm workspace)
 - **Expo CLI**: Install globally with `npm install -g expo-cli`
 - **Development Environment**:
   - For iOS: Xcode and iOS Simulator (macOS only)
@@ -44,14 +44,20 @@ This demo app illustrates how to integrate Turnkey's embedded wallet kit into a 
 
 ```bash
 git clone https://github.com/tkhq/sdk.git
+cd sdk
+```
+
+### 2. Install and Build
+
+This example uses `@turnkey/react-native-wallet-kit` from the workspace (`workspace:*`), so it runs against your local copy of the kit and its Turnkey dependencies instead of a published version. Install from the repo root and build the kit before running the app:
+
+```bash
+pnpm install
+pnpm -F "@turnkey/react-native-wallet-kit..." build
 cd examples/demos/with-react-native-wallet-kit
 ```
 
-### 2. Install Dependencies
-
-```bash
-npm install
-```
+The app loads the kit's built `dist` output, so rerun the build after changing the kit or `@turnkey/core`, then reload the app.
 
 ### 3. Configure Environment Variables
 
@@ -163,16 +169,16 @@ EXPO_PUBLIC_DISCORD_CLIENT_ID="<your_discord_client_id>"
 >
 > ```bash
 > # First-time only
-> npm run prebuild   # or: npx expo prebuild
+> pnpm prebuild   # or: npx expo prebuild
 >
 > # Then build and run for iOS
-> npm run ios        # or: npx expo run:ios
+> pnpm ios        # or: npx expo run:ios
 > ```
 
 Start the Expo development server:
 
 ```bash
-npm run ios
+pnpm ios
 ```
 
 This will open the Expo Developer Tools. From here you can:
@@ -185,13 +191,13 @@ This will open the Expo Developer Tools. From here you can:
 
 ```bash
 # iOS Simulator
-npm run ios            # or: npx expo run:ios
+pnpm ios            # or: npx expo run:ios
 
 # Android Emulator
-npm run android        # or: npx expo run:android
+pnpm android        # or: npx expo run:android
 
 # Web Browser (Limited functionality)
-npm run web            # or: npx expo start --web
+pnpm web            # or: npx expo start --web
 ```
 
 ### Production Build
@@ -235,8 +241,7 @@ with-react-native-wallet-kit/
 1. **Build Errors**
    ```bash
    # Clear cache and reinstall
-   npm run clean
-   npm install
+   pnpm clean:deps
    npx expo start -c
    ```
 
