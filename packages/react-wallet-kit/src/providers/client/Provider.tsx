@@ -3092,7 +3092,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       if (res) {
         const updatedUser = await maybeRefreshUser({
-          stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
           }),
