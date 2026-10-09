@@ -7,8 +7,12 @@ import {
   buildOAuthState,
   buildOAuthUrl,
   clearAllOAuthData,
+  clearOAuthState,
+  consumeOAuthAddProviderMetadata,
   consumeOAuthCaptchaToken,
   consumeOAuthState,
+  storeOAuthState,
+  storeOAuthAddProviderMetadata,
   isExpectedOAuthRedirectUrl,
   parseStateParam,
   parseOAuthResponse,
@@ -205,6 +209,7 @@ describe("parseOAuthRedirect", () => {
       const out = parseOAuthResponse(url);
 
       expect(out).toEqual({
+        state: storedState,
         idToken: "apple.id.token",
         authCode: null,
         provider: "apple",
@@ -256,6 +261,7 @@ describe("parseOAuthRedirect", () => {
       const out = parseOAuthResponse(url);
 
       expect(out).toEqual({
+        state: rawState,
         idToken: "google.id.token",
         authCode: null,
         provider: "google",
@@ -330,6 +336,26 @@ describe("parseOAuthRedirect", () => {
 
 describe("OAuth utils", () => {
   describe("consumeOAuthState", () => {
+    it("validates each concurrent flow against its own state", () => {
+      // Two tabs (or two attempts) each start a flow before either finishes.
+      storeOAuthState("state_from_tab_a");
+      storeOAuthState("state_from_tab_b");
+
+      // Whichever one comes back first must still validate.
+      expect(() => consumeOAuthState("state_from_tab_a")).not.toThrow();
+      expect(() => consumeOAuthState("state_from_tab_b")).not.toThrow();
+    });
+
+    it("rejects a state that was never issued", () => {
+      storeOAuthState("issued_state");
+
+      expect(() => consumeOAuthState("never_issued")).toThrow(
+        expect.objectContaining({
+          code: TurnkeyErrorCodes.INVALID_OAUTH_STATE,
+        }),
+      );
+    });
+
     it("clears stored state even when validation throws", () => {
       setStoredOAuthState("expected_state");
 
@@ -340,6 +366,36 @@ describe("OAuth utils", () => {
         }),
       );
       expect(localStorage.getItem(OAUTH_STATE_KEY)).toBeNull();
+    });
+  });
+
+  describe("redirect state cleanup", () => {
+    it("clears only the completed redirect attempt state", () => {
+      const stateA = "provider=google&flow=redirect&publicKey=pk_a";
+      const stateB = "provider=apple&flow=redirect&publicKey=pk_b";
+      storeOAuthState(stateA);
+      storeOAuthState(stateB);
+
+      // parseOAuthResponse is the path used by redirect completion. It
+      // consumes the returned attempt; the completion finally block then
+      // performs the same targeted cleanup once more.
+      const url = `https://example.com/callback#id_token=token&state=${encodeURIComponent(stateA)}`;
+      const result = parseOAuthResponse(url);
+      clearOAuthState(result!.state!);
+
+      expect(localStorage.getItem(`oauth_state:${stateA}`)).toBeNull();
+      expect(localStorage.getItem(`oauth_state:${stateB}`)).toBe(stateB);
+      expect(() => consumeOAuthState(stateB)).not.toThrow();
+    });
+  });
+
+  describe("OAuth add provider metadata storage", () => {
+    it("is consumed by the flow that completes with it", () => {
+      const metadata = { organizationId: "org_1", userId: "user_1" };
+      storeOAuthAddProviderMetadata(metadata);
+
+      expect(consumeOAuthAddProviderMetadata()).toEqual(metadata);
+      expect(consumeOAuthAddProviderMetadata()).toBeNull();
     });
   });
 
@@ -476,6 +532,7 @@ describe("OAuth utils", () => {
 
       const result = parseOAuthResponse(url, OAuthProviders.GOOGLE);
       expect(result).toEqual({
+        state: rawState,
         idToken: "tok123",
         authCode: null,
         sessionKey: "sess1",
@@ -498,6 +555,7 @@ describe("OAuth utils", () => {
 
       const result = parseOAuthResponse(url, OAuthProviders.DISCORD);
       expect(result).toEqual({
+        state: rawState,
         idToken: null,
         authCode: "code123",
         sessionKey: "sess2",
