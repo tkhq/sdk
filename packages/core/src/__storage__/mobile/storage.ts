@@ -1,5 +1,6 @@
 import { type StorageBase, SessionKey } from "../../__types__";
 import { parseSession } from "@utils";
+import { parseStorageValue } from "../utils";
 import type { Session } from "@turnkey/sdk-types";
 
 let AsyncStorage: (typeof import("@react-native-async-storage/async-storage"))["default"];
@@ -19,7 +20,7 @@ export class MobileStorageManager implements StorageBase {
 
   getStorageValue = async (sessionKey: string): Promise<any> => {
     const item = await AsyncStorage.getItem(sessionKey);
-    return item ? JSON.parse(item) : undefined;
+    return parseStorageValue(item);
   };
 
   setStorageValue = async (
