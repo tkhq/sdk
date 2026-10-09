@@ -50,8 +50,16 @@ export class TurnkeySigner {
       (sig: TSignature) => `${sig?.r}${sig?.s}`,
     );
 
+    if (!signatures || signatures.length !== txs.length) {
+      throw new Error(
+        `Expected ${txs.length} signature(s) from Turnkey, got ${
+          signatures?.length ?? 0
+        }`,
+      );
+    }
+
     for (let i in txs) {
-      txs[i]?.addSignature(fromKey, Buffer.from(signatures![i]!, "hex"));
+      txs[i]?.addSignature(fromKey, Buffer.from(signatures[i]!, "hex"));
     }
 
     return txs;
