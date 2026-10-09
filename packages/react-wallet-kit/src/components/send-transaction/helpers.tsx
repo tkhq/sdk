@@ -1,13 +1,41 @@
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
 
+// CAIP-2 Solana references can be the 32-character reference, the full genesis
+// hash, or a human-readable alias. The 32-character form is a prefix of the
+// full hash, so a prefix match covers both.
+const SOLANA_CLUSTERS = [
+  {
+    cluster: undefined,
+    matches: ["solana:mainnet", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
+  },
+  {
+    cluster: "devnet",
+    matches: ["solana:devnet", "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"],
+  },
+  {
+    cluster: "testnet",
+    matches: ["solana:testnet", "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z"],
+  },
+] as const;
+
+function solanaExplorerUrl(txHash: string, caip2: string): string {
+  const match = SOLANA_CLUSTERS.find(({ matches }) =>
+    matches.some((id) => caip2 === id || caip2.startsWith(id)),
+  );
+
+  if (!match || !match.cluster) {
+    return `https://solscan.io/tx/${txHash}`;
+  }
+
+  return `https://solscan.io/tx/${txHash}?cluster=${match.cluster}`;
+}
+
 export function getExplorerUrl(txHash: string, caip2: string): string {
+  if (caip2.startsWith("solana:")) {
+    return solanaExplorerUrl(txHash, caip2);
+  }
+
   switch (caip2) {
-    case "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp":
-      return `https://solscan.io/tx/${txHash}`;
-    case "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG":
-      return `https://solscan.io/tx/${txHash}?cluster=devnet`;
-    case "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY":
-      return `https://solscan.io/tx/${txHash}?cluster=testnet`;
     case "eip155:8453":
       return `https://basescan.org/tx/${txHash}`;
     case "eip155:84532":
@@ -19,9 +47,7 @@ export function getExplorerUrl(txHash: string, caip2: string): string {
     case "eip155:137":
       return `https://polygonscan.com/tx/${txHash}`;
     default:
-      return caip2.startsWith("solana:")
-        ? `https://solscan.io/tx/${txHash}`
-        : `https://etherscan.io/tx/${txHash}`;
+      return `https://etherscan.io/tx/${txHash}`;
   }
 }
 
