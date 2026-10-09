@@ -37,6 +37,7 @@ export type HandleLoginParams = {
   logoDark?: string;
   logoClassName?: string;
   title?: string;
+  hidePasskeySignup?: boolean;
 };
 
 export type HandleDiscordOauthParams = {
