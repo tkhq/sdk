@@ -50,7 +50,7 @@ overrides:
   nanoid@<3.3.18: ^3.3.18
   '@xmldom/xmldom@>=0.7.0 <0.8.15': ~0.8.15
   '@xmldom/xmldom@>=0.9.0 <0.9.12': ~0.9.12
-  hono@<4.13.5: ^4.13.5
+  hono@<4.13.7: ^4.13.7
   browserslist@<4.28.7: ^4.28.7
   fflate@>=0.6.0 <0.6.11: ~0.6.11
   fflate@>=0.8.0 <0.8.3: ~0.8.3
@@ -13675,8 +13675,8 @@ packages:
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
-  hono@4.13.5:
-    resolution: {integrity: sha512-O6+/eCYRkzzzy0rPWwKLiGBR1nFuUPZynnwjxN1MBA62NNqbT0wQEzQyK2gSO5yDIDB336sXQleAhOHrzlYyKw==}
+  hono@4.13.9:
+    resolution: {integrity: sha512-7dMkQmZoC4E6F7AtaQSPhlWAdnBti+j7rreMZl8QB4jFiEhP9TWbGWUMi8WYzBCgmgulxuvLQupKqo+Co6Omyg==}
     engines: {node: '>=16.9.0'}
 
   hpke-js@1.6.5:
@@ -36401,7 +36401,7 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  hono@4.13.5: {}
+  hono@4.13.9: {}
 
   hpke-js@1.6.5:
     dependencies:
@@ -39329,7 +39329,7 @@ snapshots:
   porto@0.2.19(@tanstack/react-query@5.90.2(react@18.2.0))(@types/react@18.2.14)(@wagmi/core@2.21.2(@tanstack/query-core@5.90.2)(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)))(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(wagmi@2.17.5(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@18.2.0))(@types/react@18.2.14)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.2.0)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(zod@4.1.11)):
     dependencies:
       '@wagmi/core': 2.21.2(@tanstack/query-core@5.90.2)(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
-      hono: 4.13.5
+      hono: 4.13.9
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
@@ -39349,7 +39349,7 @@ snapshots:
   porto@0.2.19(@tanstack/react-query@5.90.2(react@18.2.0))(@types/react@18.2.14)(@wagmi/core@2.21.2(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)))(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(wagmi@2.17.5(@tanstack/react-query@5.90.2(react@18.2.0))(@types/react@18.2.14)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.2.0)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)):
     dependencies:
       '@wagmi/core': 2.21.2(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      hono: 4.13.5
+      hono: 4.13.9
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
@@ -39369,7 +39369,7 @@ snapshots:
   porto@0.2.19(@tanstack/react-query@5.90.2(react@19.1.0))(@types/react@19.1.17)(@wagmi/core@2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.1.17)(react@19.1.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@19.1.0))(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)))(react@19.1.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@19.1.0))(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(wagmi@2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.86.3(@babel/core@7.29.7)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.1.0))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)):
     dependencies:
       '@wagmi/core': 2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.1.17)(react@19.1.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@19.1.0))(viem@2.37.11(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      hono: 4.13.5
+      hono: 4.13.9
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
@@ -39389,7 +39389,7 @@ snapshots:
   porto@0.2.19(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(@wagmi/core@2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.2.4)(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)))(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(wagmi@2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.86.3(@babel/core@7.29.7)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(zod@4.1.11)):
     dependencies:
       '@wagmi/core': 2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.2.4)(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
-      hono: 4.13.5
+      hono: 4.13.9
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
@@ -39410,7 +39410,7 @@ snapshots:
   porto@0.2.19(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(@wagmi/core@2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.2.4)(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)))(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(wagmi@2.17.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.86.3(@babel/core@7.29.7)(@types/react@19.2.4)(bufferutil@4.0.9)(react@19.2.4)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.2)(@tanstack/react-query@5.90.2(react@19.2.4))(@types/react@19.2.4)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.2.4)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))(zod@4.1.11)):
     dependencies:
       '@wagmi/core': 2.21.2(@tanstack/query-core@5.90.2)(@types/react@19.2.4)(react@19.2.4)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@19.2.4))(viem@2.38.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
-      hono: 4.13.5
+      hono: 4.13.9
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
@@ -39430,7 +39430,7 @@ snapshots:
   porto@0.2.19(@wagmi/core@2.21.2(typescript@5.4.3)(use-sync-external-store@1.4.0)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)))(typescript@5.4.3)(use-sync-external-store@1.4.0)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(wagmi@2.17.5(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)):
     dependencies:
       '@wagmi/core': 2.21.2(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.4.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      hono: 4.13.5
+      hono: 4.13.9
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.4.3)
       ox: 0.9.8(typescript@5.4.3)(zod@4.1.11)
