@@ -34,7 +34,7 @@ This demo app illustrates how to integrate Turnkey's embedded wallet kit into a 
 - **pnpm**: Version 10 or higher (this example is part of the SDK's pnpm workspace)
 - **Expo CLI**: Install globally with `npm install -g expo-cli`
 - **Development Environment**:
-  - For iOS: Xcode and iOS Simulator (macOS only)
+  - For iOS: Xcode 26.4+ and iOS Simulator (macOS only). Expo SDK 57 requires Xcode 26.4 or newer.
   - For Android: Android Studio and Android Emulator
   - Or use Expo Go app on physical device
 
@@ -49,11 +49,11 @@ cd sdk
 
 ### 2. Install and Build
 
-This example uses `@turnkey/react-native-wallet-kit` from the workspace (`workspace:*`), so it runs against your local copy of the kit and its Turnkey dependencies instead of a published version. Install from the repo root and build the kit before running the app:
+This example uses `@turnkey/react-native-wallet-kit` from the workspace (`workspace:*`), so it runs against your local copy of the kit and its Turnkey dependencies instead of a published version. Install from the repo root and build the packages before running the app:
 
 ```bash
 pnpm install
-pnpm -F "@turnkey/react-native-wallet-kit..." build
+pnpm build-all
 cd examples/demos/with-react-native-wallet-kit
 ```
 
@@ -165,16 +165,6 @@ EXPO_PUBLIC_DISCORD_CLIENT_ID="<your_discord_client_id>"
 
 ### Development Mode
 
-> Note (first-time setup): We recommend generating native projects before your first run, then launching iOS.
->
-> ```bash
-> # First-time only
-> pnpm prebuild   # or: npx expo prebuild
->
-> # Then build and run for iOS
-> pnpm ios        # or: npx expo run:ios
-> ```
-
 Start the Expo development server:
 
 ```bash
@@ -240,8 +230,7 @@ with-react-native-wallet-kit/
 
 1. **Build Errors**
    ```bash
-   # Clear cache and reinstall
-   pnpm clean:deps
+   # Clear Metro's cache
    npx expo start -c
    ```
 
