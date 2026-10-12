@@ -1,6 +1,6 @@
 import { fetch } from "../universal";
 import { test, expect, jest } from "@jest/globals";
-import { TurnkeyApi, init } from "../index";
+import { TurnkeyApi, TurnkeyClient, init } from "../index";
 import { readFixture } from "../__fixtures__/shared";
 
 jest.mock("cross-fetch");
@@ -33,6 +33,26 @@ test("requests are stamped after initialization", async () => {
 
   const stamp = (mockedFetch.mock.lastCall![1]?.headers as any)?.["X-Stamp"];
   expect(stamp).toBeTruthy();
+  expect(mockedFetch.mock.lastCall![1]?.redirect).toBe("error");
+});
+
+test("client requests reject redirects", async () => {
+  const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
+  mockedFetch.mockResolvedValue({ ok: true, json: async () => ({}) } as any);
+
+  const client = new TurnkeyClient(
+    { baseUrl: "https://mocked.turnkey.com" },
+    {
+      stamp: async () => ({
+        stampHeaderName: "X-Stamp",
+        stampHeaderValue: "stamp",
+      }),
+    },
+  );
+
+  await client.getWhoami({ organizationId: "organization-id" });
+
+  expect(mockedFetch.mock.lastCall![1]?.redirect).toBe("error");
 });
 
 test("requests return grpc status details as part of their errors", async () => {
