@@ -34,6 +34,9 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [otpId, setOtpId] = useState<string | null>(null);
+  const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] = useState<
+    string | null
+  >(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"email" | "otp">("email");
 
@@ -44,12 +47,13 @@ export default function LoginScreen() {
     }
     try {
       setLoading(true);
-      const id = await initOtp({
+      const result = await initOtp({
         otpType: OtpType.Email,
         contact: email.trim(),
       });
-      if (id) {
-        setOtpId(id);
+      if (result) {
+        setOtpId(result.otpId);
+        setOtpEncryptionTargetBundle(result.otpEncryptionTargetBundle);
         setStep("otp");
       } else {
         Alert.alert("Error", "Failed to send verification code.");
@@ -63,11 +67,12 @@ export default function LoginScreen() {
   };
 
   const handleCompleteOtp = async () => {
-    if (!otpCode.trim() || !otpId) return;
+    if (!otpCode.trim() || !otpId || !otpEncryptionTargetBundle) return;
     try {
       setLoading(true);
       await completeOtp({
         otpId,
+        otpEncryptionTargetBundle,
         otpCode: otpCode.trim(),
         otpType: OtpType.Email,
         contact: email.trim(),
@@ -209,6 +214,7 @@ export default function LoginScreen() {
                   setStep("email");
                   setOtpCode("");
                   setOtpId(null);
+                  setOtpEncryptionTargetBundle(null);
                 }}
               >
                 <Text
