@@ -21,6 +21,7 @@
     "@turnkey/solana-usdc-swap",
     "@turnkey/wallet-auth-*",
     "magic-link-auth",
+    "oauth-cross-platform-mobile",
     "with-0x",
     "with-delegated-client-side",
     "with-export-and-sign-escrow",
