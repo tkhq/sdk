@@ -25,6 +25,7 @@
     "with-delegated-client-side",
     "with-export-and-sign-escrow",
     "with-lifi",
+    "with-react-native-wallet-kit",
     "with-x",
     "with-x402"
   ]
