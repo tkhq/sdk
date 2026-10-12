@@ -3,7 +3,6 @@ packages:
   - internal/*
   - examples/**
   - "!examples/advanced/foundry/lib/**"
-  - "!examples/authentication/oauth-cross-platform/mobile/**"
 
 minimumReleaseAge: 10080
 
