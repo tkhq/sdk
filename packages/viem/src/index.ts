@@ -7,6 +7,7 @@ import {
   hexToBytes,
   parseTransaction,
   serializeTypedData,
+  getTypesForEIP712Domain,
 } from "viem";
 import {
   SignAuthorizationReturnType,
@@ -494,9 +495,19 @@ export async function signTypedData(
   organizationId: string,
   signWith: string,
 ): Promise<Hex> {
+  const typedData = data as SignTypedDataParameters;
+  // Match Viem's wallet action when callers omit the domain type definition.
+  const normalizedTypedData: SignTypedDataParameters = {
+    ...typedData,
+    types: {
+      EIP712Domain: getTypesForEIP712Domain({ domain: typedData.domain }),
+      ...typedData.types,
+    },
+  };
+
   return (await signMessageWithErrorWrapping(
     client,
-    serializeTypedData(data as SignTypedDataParameters),
+    serializeTypedData(normalizedTypedData),
     organizationId,
     signWith,
     "PAYLOAD_ENCODING_EIP712",
