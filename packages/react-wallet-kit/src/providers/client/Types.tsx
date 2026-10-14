@@ -760,8 +760,8 @@ export interface ClientContextType
    * - Supports both sandbox and production modes.
    *
    * @param params.walletAccount - destination wallet account for the buy transaction.
-   * @param params.network - optional blockchain network, e.g., FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM, defaults to the network associated with the wallet address passed in.
-   * @param params.cryptoCurrencyCode - optional cryptocurrency to purchase, e.g., FIAT_ON_RAMP_CRYPTO_CURRENCY_BTC, defaults to the native currency associated with the network/wallet address passed in.
+   * @param params.lockedCaip2 - optional CAIP-2 chain. When set, the token selector only lists assets on that chain.
+   * @param params.lockedCaip19 - optional CAIP-19 asset to buy. When set, the token cannot be changed.
    * @param params.fiatCurrencyCode - optional fiat currency to use, e.g., FIAT_ON_RAMP_CURRENCY_ETH.
    * @param params.fiatCurrencyAmount - optional preset fiat amount, e.g., '100'.
    * @param params.onrampProvider - optional onramp provider, e.g., FIAT_ON_RAMP_PROVIDER_COINBASE or FIAT_ON_RAMP_PROVIDER_MOONPAY, defaults to FIAT_ON_RAMP_PROVIDER_MOONPAY.

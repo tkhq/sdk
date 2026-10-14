@@ -6,12 +6,10 @@ import type {
   StamperType,
   v1AddressFormat,
   v1AppProof,
+  OnRampCaip19,
+  OnRampCaip2,
   v1Curve,
-  v1FiatOnRampBlockchainNetwork,
-  v1FiatOnRampCryptoCurrency,
   v1FiatOnRampCurrency,
-  v1FiatOnRampPaymentMethod,
-  v1FiatOnRampProvider,
   v1HashFunction,
   v1PayloadEncoding,
   v1WalletAccountParams,
@@ -281,22 +279,19 @@ export type HandleVerifyAppProofsParams = {
 };
 
 export type HandleOnRampParams = {
-  walletAccount: WalletAccount; // Destination wallet account for the buy transaction
-  network?: v1FiatOnRampBlockchainNetwork; // Blockchain network to be used for the transaction
-  cryptoCurrencyCode?: v1FiatOnRampCryptoCurrency; // Cryptocurrency to be purchased, e.g FIAT_ON_RAMP_CRYPTO_CURRENCY_BTC
-  fiatCurrencyCode?: v1FiatOnRampCurrency; // Fiat currency to be used, e.g., FIAT_ON_RAMP_CURRENCY_USD
-  fiatCurrencyAmount?: string; // Preset fiat amount, e.g., '100'
-  onrampProvider?: v1FiatOnRampProvider; // On-ramp provider, e.g., MoonPay or Coinbase
-  paymentMethod?: v1FiatOnRampPaymentMethod; // Payment method, e.g., FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD
-  countryCode?: string; // ISO 3166-1 country code
-  countrySubdivisionCode?: string; // ISO 3166-2 subdivision code, e.g., NY
-  sandboxMode?: boolean; // Whether to use sandbox (test) mode
-  urlForSignature?: string; // MoonPay Widget URL to sign
-  organizationId?: string; // Organization context (Turnkey suborg)
-  userId?: string; // Optional end user ID
-  stampWith?: StamperType; // Stamper type (passkey, api key, wallet, etc.)
-  successPageDuration?: number; // Duration for success page in ms (0 disables it)
-  openInNewTab?: boolean; // Whether to open the onramp URL in a new browser tab or popup
+  walletAccount?: WalletAccount;
+  lockedCaip2?: OnRampCaip2;
+  lockedCaip19?: OnRampCaip19;
+  fiatCurrencyCode?: v1FiatOnRampCurrency;
+  defaultFiatCurrencyAmount?: string;
+  countryCode?: string;
+  countrySubdivisionCode?: string;
+  sandboxMode?: boolean;
+  organizationId?: string;
+  userId?: string;
+  stampWith?: StamperType;
+  successPageDuration?: number;
+  openInNewTab?: boolean;
 };
 
 export type HandleSendTransactionParams = {

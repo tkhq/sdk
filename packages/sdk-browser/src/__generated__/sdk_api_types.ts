@@ -154,6 +154,17 @@ export type TGetEarnWithdrawStatusBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetFiatOnRampQuoteResponse =
+  operations["PublicApiService_GetFiatOnRampQuote"]["responses"]["200"]["schema"];
+
+export type TGetFiatOnRampQuoteInput = { body: TGetFiatOnRampQuoteBody };
+
+export type TGetFiatOnRampQuoteBody = Omit<
+  operations["PublicApiService_GetFiatOnRampQuote"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetGasUsageResponse =
   operations["PublicApiService_GetGasUsage"]["responses"]["200"]["schema"];
 
@@ -356,6 +367,19 @@ export type TGetSmartContractInterfaceInput = {
 
 export type TGetSmartContractInterfaceBody = Omit<
   operations["PublicApiService_GetSmartContractInterface"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetSwapSponsorshipUsageResponse =
+  operations["PublicApiService_GetSwapSponsorshipUsage"]["responses"]["200"]["schema"];
+
+export type TGetSwapSponsorshipUsageInput = {
+  body: TGetSwapSponsorshipUsageBody;
+};
+
+export type TGetSwapSponsorshipUsageBody = Omit<
+  operations["PublicApiService_GetSwapSponsorshipUsage"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -876,6 +900,18 @@ export type TCreateFiatOnRampCredentialBody =
   operations["PublicApiService_CreateFiatOnRampCredential"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateFiatOnRampSessionResponse =
+  operations["PublicApiService_CreateFiatOnRampSession"]["responses"]["200"]["schema"]["activity"]["result"]["createFiatOnRampSessionResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateFiatOnRampSessionInput = {
+  body: TCreateFiatOnRampSessionBody;
+};
+
+export type TCreateFiatOnRampSessionBody =
+  operations["PublicApiService_CreateFiatOnRampSession"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateInvitationsResponse =
   operations["PublicApiService_CreateInvitations"]["responses"]["200"]["schema"]["activity"]["result"]["createInvitationsResult"] &
     definitions["v1ActivityResponse"];
@@ -1013,7 +1049,7 @@ export type TCreateSubOrganizationBody =
     commandOverrideParams;
 
 export type TCreateSwapQuoteResponse =
-  operations["PublicApiService_CreateSwapQuote"]["responses"]["200"]["schema"]["activity"]["result"]["createSwapQuoteResult"] &
+  operations["PublicApiService_CreateSwapQuote"]["responses"]["200"]["schema"]["activity"]["result"]["createSwapQuoteResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateSwapQuoteInput = { body: TCreateSwapQuoteBody };
@@ -1974,6 +2010,30 @@ export type TUpsertSwapConfigInput = { body: TUpsertSwapConfigBody };
 
 export type TUpsertSwapConfigBody =
   operations["PublicApiService_UpsertSwapConfig"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpsertSwapFeeSponsorshipLimitConfigResponse =
+  operations["PublicApiService_UpsertSwapFeeSponsorshipLimitConfig"]["responses"]["200"]["schema"]["activity"]["result"]["upsertSwapFeeSponsorshipLimitConfigResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpsertSwapFeeSponsorshipLimitConfigInput = {
+  body: TUpsertSwapFeeSponsorshipLimitConfigBody;
+};
+
+export type TUpsertSwapFeeSponsorshipLimitConfigBody =
+  operations["PublicApiService_UpsertSwapFeeSponsorshipLimitConfig"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpsertSwapFixedRateLimitConfigResponse =
+  operations["PublicApiService_UpsertSwapFixedRateLimitConfig"]["responses"]["200"]["schema"]["activity"]["result"]["upsertSwapFixedRateLimitConfigResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpsertSwapFixedRateLimitConfigInput = {
+  body: TUpsertSwapFixedRateLimitConfigBody;
+};
+
+export type TUpsertSwapFixedRateLimitConfigBody =
+  operations["PublicApiService_UpsertSwapFixedRateLimitConfig"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TVerifyOtpResponse =
