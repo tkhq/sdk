@@ -9,6 +9,7 @@
   "bumpVersionsWithWorkspaceProtocolOnly": true,
   "ignore": [
     "@turnkey/jest-config",
+    "@turnkey/workers-e2e",
     "@turnkey/example-*",
     "@turnkey/kitchen-sink",
     "@turnkey/with-*",
