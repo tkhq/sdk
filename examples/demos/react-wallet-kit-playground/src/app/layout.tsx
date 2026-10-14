@@ -53,6 +53,7 @@ function RootLayout({ children }: RootLayoutProps) {
                   discordOauthEnabled: true,
                 },
               },
+              darkMode: true,
             },
             walletConfig: {
               features: {

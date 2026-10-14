@@ -553,6 +553,38 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getFiatOnRampQuote = async (
+    input: SdkApiTypes.TGetFiatOnRampQuoteBody,
+  ): Promise<SdkApiTypes.TGetFiatOnRampQuoteResponse> => {
+    return this.request("/public/v1/query/get_fiat_on_ramp_quote", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetFiatOnRampQuote = async (
+    input: SdkApiTypes.TGetFiatOnRampQuoteBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_fiat_on_ramp_quote";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getGasUsage = async (
     input: SdkApiTypes.TGetGasUsageBody,
   ): Promise<SdkApiTypes.TGetGasUsageResponse> => {
@@ -2664,6 +2696,48 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createFiatOnRampSession = async (
+    input: SdkApiTypes.TCreateFiatOnRampSessionBody,
+  ): Promise<SdkApiTypes.TCreateFiatOnRampSessionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_fiat_on_ramp_session",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION",
+      },
+      "createFiatOnRampSessionResult",
+    );
+  };
+
+  stampCreateFiatOnRampSession = async (
+    input: SdkApiTypes.TCreateFiatOnRampSessionBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_fiat_on_ramp_session";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
