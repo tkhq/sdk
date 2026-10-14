@@ -42822,8 +42822,8 @@ snapshots:
   miniflare@5.20260921.0-alpha(@types/node@18.19.124)(bufferutil@4.0.9)(utf-8-validate@5.0.10):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
-      sharp: 0.35.4(@types/node@18.19.124)
-      undici: 8.10.0
+      sharp: 0.35.5(@types/node@18.19.124)
+      undici: 8.11.2
       workerd: 1.20260921.1
       ws: 8.21.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       youch: 4.1.0-beta.10
