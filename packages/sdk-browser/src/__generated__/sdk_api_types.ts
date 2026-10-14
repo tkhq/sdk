@@ -154,6 +154,17 @@ export type TGetEarnWithdrawStatusBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetFiatOnRampQuoteResponse =
+  operations["PublicApiService_GetFiatOnRampQuote"]["responses"]["200"]["schema"];
+
+export type TGetFiatOnRampQuoteInput = { body: TGetFiatOnRampQuoteBody };
+
+export type TGetFiatOnRampQuoteBody = Omit<
+  operations["PublicApiService_GetFiatOnRampQuote"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetGasUsageResponse =
   operations["PublicApiService_GetGasUsage"]["responses"]["200"]["schema"];
 
@@ -887,6 +898,18 @@ export type TCreateFiatOnRampCredentialInput = {
 
 export type TCreateFiatOnRampCredentialBody =
   operations["PublicApiService_CreateFiatOnRampCredential"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateFiatOnRampSessionResponse =
+  operations["PublicApiService_CreateFiatOnRampSession"]["responses"]["200"]["schema"]["activity"]["result"]["createFiatOnRampSessionResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateFiatOnRampSessionInput = {
+  body: TCreateFiatOnRampSessionBody;
+};
+
+export type TCreateFiatOnRampSessionBody =
+  operations["PublicApiService_CreateFiatOnRampSession"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateInvitationsResponse =

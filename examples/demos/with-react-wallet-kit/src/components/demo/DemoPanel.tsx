@@ -111,7 +111,6 @@ export default function DemoPanel() {
   const handleAddFunds = async () => {
     try {
       await handleOnRamp({
-        onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
         walletAccount: selectedWalletAccount!,
         sandboxMode: true,
       });

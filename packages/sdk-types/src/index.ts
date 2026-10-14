@@ -1,4 +1,5 @@
 import type {
+  TGetFiatOnRampQuoteBody,
   v1ActivityResponse,
   v1ActivityStatus,
   v1AppProof,
@@ -306,6 +307,12 @@ type _AssertExtends<A extends B, B> = A;
 export type _AssertActivityStatusInSync =
   | _AssertExtends<`${ActivityStatus}`, v1ActivityStatus>
   | _AssertExtends<v1ActivityStatus, `${ActivityStatus}`>;
+
+export type OnRampCaip19 = TGetFiatOnRampQuoteBody["caip19"];
+
+type ChainOf<T> = T extends `${infer Chain}/${string}` ? Chain : never;
+
+export type OnRampCaip2 = ChainOf<OnRampCaip19>;
 
 /** @internal */
 export type TActivityStatus = v1ActivityStatus;
