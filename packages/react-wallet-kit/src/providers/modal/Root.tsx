@@ -292,12 +292,12 @@ export function ModalRoot(props: ModalRootProps) {
                       >
                         <div
                           style={{ borderRadius: getBorderRadius() }}
-                          className="absolute left-0 top-0 z-40 bg-black/20 w-full h-full transition-all"
+                          className="absolute left-0 top-0 z-40 bg-black/30 backdrop-blur-sm w-full h-full transition-all"
                           onClick={(e) => {
                             e.stopPropagation();
                             closeSheet();
                           }}
-                        ></div>
+                        />
                       </TransitionChild>
                       <TransitionChild
                         as={Fragment}

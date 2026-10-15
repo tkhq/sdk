@@ -694,6 +694,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getFiatOnRampQuote = async (
+    input: SdkApiTypes.TGetFiatOnRampQuoteBody,
+  ): Promise<SdkApiTypes.TGetFiatOnRampQuoteResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/get_fiat_on_ramp_quote", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetFiatOnRampQuote = async (
+    input: SdkApiTypes.TGetFiatOnRampQuoteBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_fiat_on_ramp_quote";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getGasUsage = async (
     input: SdkApiTypes.TGetGasUsageBody,
   ): Promise<SdkApiTypes.TGetGasUsageResponse> => {
@@ -1427,6 +1469,48 @@ export class TurnkeySDKClientBase {
     const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getSwapSponsorshipUsage = async (
+    input: SdkApiTypes.TGetSwapSponsorshipUsageBody,
+  ): Promise<SdkApiTypes.TGetSwapSponsorshipUsageResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/get_swap_sponsorship_usage", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetSwapSponsorshipUsage = async (
+    input: SdkApiTypes.TGetSwapSponsorshipUsageBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_swap_sponsorship_usage";
     const body = {
       ...input,
       organizationId:
@@ -3422,6 +3506,58 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  createFiatOnRampSession = async (
+    input: SdkApiTypes.TCreateFiatOnRampSessionBody,
+  ): Promise<SdkApiTypes.TCreateFiatOnRampSessionResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_fiat_on_ramp_session",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION",
+      },
+      "createFiatOnRampSessionResult",
+    );
+  };
+
+  stampCreateFiatOnRampSession = async (
+    input: SdkApiTypes.TCreateFiatOnRampSessionBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_fiat_on_ramp_session";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   createInvitations = async (
     input: SdkApiTypes.TCreateInvitationsBody,
   ): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
@@ -4116,7 +4252,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2",
       },
-      "createSwapQuoteResult",
+      "createSwapQuoteResultV2",
     );
   };
 
@@ -8950,6 +9086,112 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPSERT_SWAP_CONFIG",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  upsertSwapFeeSponsorshipLimitConfig = async (
+    input: SdkApiTypes.TUpsertSwapFeeSponsorshipLimitConfigBody,
+  ): Promise<SdkApiTypes.TUpsertSwapFeeSponsorshipLimitConfigResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/upsert_swap_fee_sponsorship_limit_config",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPSERT_SWAP_FEE_SPONSORSHIP_LIMIT_CONFIG",
+      },
+      "upsertSwapFeeSponsorshipLimitConfigResult",
+    );
+  };
+
+  stampUpsertSwapFeeSponsorshipLimitConfig = async (
+    input: SdkApiTypes.TUpsertSwapFeeSponsorshipLimitConfigBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/upsert_swap_fee_sponsorship_limit_config";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPSERT_SWAP_FEE_SPONSORSHIP_LIMIT_CONFIG",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  upsertSwapFixedRateLimitConfig = async (
+    input: SdkApiTypes.TUpsertSwapFixedRateLimitConfigBody,
+  ): Promise<SdkApiTypes.TUpsertSwapFixedRateLimitConfigResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/upsert_swap_fixed_rate_limit_config",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPSERT_SWAP_FIXED_RATE_LIMIT_CONFIG",
+      },
+      "upsertSwapFixedRateLimitConfigResult",
+    );
+  };
+
+  stampUpsertSwapFixedRateLimitConfig = async (
+    input: SdkApiTypes.TUpsertSwapFixedRateLimitConfigBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/upsert_swap_fixed_rate_limit_config";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPSERT_SWAP_FIXED_RATE_LIMIT_CONFIG",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

@@ -1,81 +1,36 @@
-import { useModal } from "../../providers/modal/Hook";
+import { faCoins, faMoneyBills } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
-import { ActionPage } from "../auth/Action";
-import { SuccessPage } from "../design/Success";
+import { useModal } from "../../providers/modal/Hook";
+import { TabNav } from "../design/TabNav";
+import { OnRampCash } from "./OnRampCash";
+import { OnRampCrypto } from "./OnRampCrypto";
+import type { OnRampAmountProps } from "./OnRampAmount";
 
-type OnRampPageProps = {
-  icon: React.ReactNode;
-  onrampProvider: string;
-  action: () => Promise<void>;
-  completed: boolean;
-  successPageDuration?: number;
-  sandboxMode?: boolean;
-  onSuccess?: () => void;
-  onError?: (error: any) => void;
-};
-
-export function OnRampPage({
-  icon,
-  onrampProvider,
-  action,
-  completed,
-  successPageDuration = 2000,
-  sandboxMode = false,
-  onSuccess,
-  onError,
-}: OnRampPageProps) {
-  const { closeModal, isMobile } = useModal();
-
-  if (completed) {
-    return (
-      <div
-        className={clsx(
-          "flex flex-col items-center justify-center py-5 transition-all duration-300 text-center",
-          isMobile ? "w-full" : "w-72",
-        )}
-      >
-        <SuccessPage
-          text="On Ramp Transaction Complete!"
-          duration={successPageDuration}
-          onComplete={() => {
-            onSuccess?.();
-            closeModal();
-          }}
-        />
-      </div>
-    );
-  }
+export function OnRampPage(props: OnRampAmountProps) {
+  const { isMobile } = useModal();
 
   return (
     <div
-      className={clsx(
-        "flex flex-col items-center justify-center py-5 transition-all duration-300 text-center",
-        isMobile ? "w-full" : "w-72",
-      )}
+      className={clsx("flex flex-col pb-3 pt-9", isMobile ? "w-full" : "w-96")}
     >
-      <ActionPage
-        title="Initiating OnRamp"
-        icon={icon}
-        action={async () => {
-          try {
-            await action();
-          } catch (err) {
-            onError?.(err);
-            throw err;
-          }
-        }}
-        closeOnComplete={false}
+      <TabNav
+        defaultTab="cash"
+        tabs={[
+          {
+            id: "crypto",
+            label: "Use crypto",
+            icon: <FontAwesomeIcon icon={faCoins} className="size-3.5" />,
+            content: <OnRampCrypto />,
+          },
+          {
+            id: "cash",
+            label: "Use cash",
+            icon: <FontAwesomeIcon icon={faMoneyBills} className="size-3.5" />,
+            content: <OnRampCash {...props} />,
+          },
+        ]}
       />
-      <div className="text-icon-text-light text-sm dark:text-icon-text-dark text-center !p-0">
-        {onrampProvider === "FIAT_ON_RAMP_PROVIDER_COINBASE"
-          ? "Use the Coinbase popup to finish funding your account."
-          : "Use the MoonPay popup to finish funding your account."}
-      </div>
-      {sandboxMode && (
-        <div className="mt-2 text-xs text-primary-light dark:text-primary-dark">
-          Sandbox mode — no real funds will be used.
-        </div>
-      )}
     </div>
   );
 }
