@@ -25,6 +25,7 @@ export {
 } from "./urlpattern";
 export {
   authorize,
+  isSameDestination,
   validateRequest,
   requiredSelectors,
   DENY_REASONS,

@@ -360,3 +360,33 @@ export function authorize(
     targets: Object.freeze(authorized),
   });
 }
+
+/**
+ * Returns true when two allowed decisions name the same secret, browser
+ * session, tab, and targets, with every target in the same frame and
+ * document. `authorize` is stateless, so a later call allows any page the
+ * binding accepts, including one the tab navigated to after approval. A host
+ * compares the decision it showed for approval with the one it gets just
+ * before each write, and refuses the write when this returns false.
+ */
+export function isSameDestination(
+  approved: AuthorizationAllowed,
+  current: AuthorizationAllowed,
+): boolean {
+  return (
+    approved.secretId === current.secretId &&
+    approved.browserSessionId === current.browserSessionId &&
+    approved.tabId === current.tabId &&
+    approved.targets.length === current.targets.length &&
+    approved.targets.every((a, i) => {
+      const c = current.targets[i]!;
+      return (
+        a.elementId === c.elementId &&
+        a.key === c.key &&
+        a.selector === c.selector &&
+        a.frameId === c.frameId &&
+        a.documentId === c.documentId
+      );
+    })
+  );
+}

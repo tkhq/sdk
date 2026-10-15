@@ -36,6 +36,7 @@ import {
   authorize,
   BrowserSecretsError,
   createSecretRef,
+  isSameDestination,
   RedactionRegistry,
   redactionEntries,
   requiredSelectors,
@@ -49,6 +50,13 @@ const selectors = requiredSelectors(ref, request);
 
 const decision = authorize(ref, request, observation);
 if (!decision.allowed) throw BrowserSecretsError.fromDecision(decision);
+
+// Just before each write, authorize again with a fresh observation and
+// check that the tab still shows the documents that were approved.
+const current = authorize(ref, request, freshObservation);
+if (!current.allowed) throw BrowserSecretsError.fromDecision(current);
+if (!isSameDestination(decision, current))
+  throw new BrowserSecretsError("destination_denied");
 
 const registry = new RedactionRegistry(); // one per tenant and browser session
 // Before injection. For a secret bound with sbm:fields this also registers
@@ -73,7 +81,7 @@ const safeOutput = registry.scrub(toolResult);
 
 - The agent supplies secret IDs and host-owned element IDs only. An agent-supplied URL or page description is not a trusted observation.
 - `authorize` checks the full frame ancestry: every intermediate frame must have the top-level origin or the bound frame origin. Opaque origins and documents that are not HTTP(S) (`about:blank`, `srcdoc`, `data:`, `blob:`) are refused. Same-origin iframes need `sbm:frame-origin` too.
-- Hosts call `authorize` before export, after export or approval, and immediately before each write, each time with a fresh observation. This package does not make validation and injection atomic.
+- Hosts call `authorize` before export, after export or approval, and immediately before each write, each time with a fresh observation, and compare the decisions with `isSameDestination`. Each call is stateless, so without that comparison a tab that navigated to another bound page after approval still passes. This package does not make validation and injection atomic.
 - `authorize` trusts the host's observation as given, including the `selectorMatches` booleans. The host adapter must read URLs, origins, and selector matches from the live browser where page script cannot change them.
 - Text redaction catches the value and its common encodings (JSON, URL, HTML entities, base64 of the whole value, and case and Unicode normalization). Values of 8 or more letters and digits also match with any separators added, removed, or changed (at most 3 in a row), in any letter case and digit script, including percent-escaped copies. This covers input masks and formatters. It does not catch other transformed copies, screenshots, or live previews. An allowed destination receives the plaintext by design and can always encode it past the scan.
 - Pages copy what they receive. Target tags do not follow copies into new elements, so snapshot serializers should also check element values with `findSecretIds`, or `findMatches` for a value split over several inputs.
