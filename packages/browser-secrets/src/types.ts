@@ -9,9 +9,10 @@
  */
 
 /**
- * Static property keys that declare a secret's destination binding. Static
- * properties are set when the secret is imported, cannot change, and are
- * visible to Turnkey policies.
+ * Static property keys that declare a secret's destination binding. A source
+ * with fixed bindings (Turnkey) sets these when the secret is imported. They
+ * cannot change, and Turnkey policies can read them. Other sources supply
+ * them from their own configuration.
  */
 export const BINDING_KEYS = {
   /**
@@ -52,7 +53,10 @@ export const BINDING_KEYS = {
 /** The static property prefix reserved for destination bindings. */
 export const BINDING_KEY_PREFIX = "sbm:";
 
-/** Static properties as Turnkey returns them. Unknown keys are kept. */
+/**
+ * Static properties from the secret's source. For Turnkey, the secret's
+ * static properties. Unknown keys are kept.
+ */
 export type StaticProperties = Readonly<Record<string, string>>;
 
 /** A destination binding parsed from static properties. */
@@ -93,6 +97,9 @@ export type SecretRef = {
   readonly binding?: SecretBinding;
   /** Set instead of `binding` when the declared binding is malformed. */
   readonly bindingError?: BindingErrorCode;
+  // TODO(EMG-225): add optional `source` (for example "turnkey", "onepassword")
+  // and `bindingProvenance` ("fixed-at-source" | "operator-manifest"). Both are
+  // metadata and safe to show the agent. Adding them is not a breaking change.
 };
 
 /** One requested destination: a host-owned element ID and, for field-bound secrets, a payload key. */

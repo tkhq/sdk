@@ -131,7 +131,10 @@ function parseFields(
   return Object.freeze(out);
 }
 
-/** Input for `createSecretRef`, shaped like a Turnkey secret's metadata. */
+/**
+ * Input for `createSecretRef`: secret metadata from any source (a Turnkey
+ * secret, or a manifest entry from another source).
+ */
 export type SecretMetadata = {
   secretId: string;
   name?: string | undefined;
