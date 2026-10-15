@@ -69,6 +69,7 @@
     "@types/react-dom": "^18.2.7",
     "autoprefixer": "^10.0.1",
     "glob": "^8.0.3",
+    "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.38",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
