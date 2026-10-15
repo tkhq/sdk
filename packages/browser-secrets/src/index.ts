@@ -5,23 +5,11 @@ export {
   redactionEntries,
   type SecretMetadata,
 } from "./binding";
-export {
-  isExactHttpOrigin,
-  isExactOrigin,
-  isHttpUrl,
-  httpOriginOf,
-  matchesOrigin,
-  matchesUrl,
-  compileUrlPattern,
-  type UrlRule,
-} from "./matcher";
-export {
-  getURLPattern,
-  getURLPatternSource,
-  type URLPatternConstructor,
-  type URLPatternInitLike,
-  type URLPatternLike,
-  type URLPatternSource,
+export { matchesOrigin, matchesUrl, type UrlRule } from "./matcher";
+export type {
+  URLPatternConstructor,
+  URLPatternInitLike,
+  URLPatternLike,
 } from "./urlpattern";
 export {
   authorize,

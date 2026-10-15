@@ -4,10 +4,10 @@ import { afterAll, beforeAll, describe, expect, test } from "@jest/globals";
 
 import {
   DENY_REASONS,
-  getURLPatternSource,
   runConformanceCase,
   type ConformanceFixtureFile,
 } from "../index";
+import { getURLPattern, polyfillURLPattern } from "../urlpattern";
 
 const fixture = JSON.parse(
   readFileSync(
@@ -27,7 +27,10 @@ function runAll(): void {
   );
 }
 
-describe(`conformance (URLPattern: ${getURLPatternSource()})`, runAll);
+const source = () =>
+  getURLPattern() === polyfillURLPattern ? "polyfill" : "native";
+
+describe(`conformance (URLPattern: ${source()})`, runAll);
 
 // On runtimes with a native URLPattern, run the cases again with the
 // polyfill, so both implementations are held to the same decisions.
@@ -42,7 +45,7 @@ describe("conformance (URLPattern: polyfill forced)", () => {
     if (saved !== undefined) scope.URLPattern = saved;
   });
   test("the polyfill is in use", () => {
-    expect(getURLPatternSource()).toBe("polyfill");
+    expect(source()).toBe("polyfill");
   });
   runAll();
 });

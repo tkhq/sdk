@@ -43,12 +43,6 @@ export function isExactOrigin(value: string): boolean {
   return url !== undefined && url.origin !== "null" && url.origin === value;
 }
 
-/** Returns true when `url` parses and uses `http:` or `https:`. */
-export function isHttpUrl(url: string): boolean {
-  const parsed = parseUrl(url);
-  return parsed !== undefined && HTTP_SCHEMES.has(parsed.protocol);
-}
-
 /** Returns the origin of an HTTP(S) URL, or undefined for any other input. */
 export function httpOriginOf(url: string): string | undefined {
   const parsed = parseUrl(url);

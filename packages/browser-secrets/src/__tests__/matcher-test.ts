@@ -1,15 +1,12 @@
 import { describe, expect, test } from "@jest/globals";
 
+import { matchesOrigin, matchesUrl } from "../index";
 import {
   compileUrlPattern,
-  getURLPattern,
-  getURLPatternSource,
   isExactHttpOrigin,
   isExactOrigin,
-  matchesOrigin,
-  matchesUrl,
-} from "../index";
-import { polyfillURLPattern } from "../urlpattern";
+} from "../matcher";
+import { getURLPattern, polyfillURLPattern } from "../urlpattern";
 
 describe("URLPattern loader", () => {
   test("uses the native class when the runtime has one, else the polyfill", () => {
@@ -17,11 +14,9 @@ describe("URLPattern loader", () => {
     const major = Number(process.versions.node.split(".")[0]);
     if (typeof native === "function") {
       expect(major).toBeGreaterThanOrEqual(24);
-      expect(getURLPatternSource()).toBe("native");
       expect(getURLPattern()).toBe(native);
     } else {
       expect(major).toBeLessThan(24);
-      expect(getURLPatternSource()).toBe("polyfill");
       expect(getURLPattern()).toBe(polyfillURLPattern);
       // Loading the package does not install a global.
       expect(native).toBeUndefined();
