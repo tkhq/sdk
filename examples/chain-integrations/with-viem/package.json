@@ -8,6 +8,7 @@
     "start-hyperliquid": "tsx src/eip712/hyperliquid.ts",
     "start-erc2612-permit": "tsx src/eip712/erc2612_permit.ts",
     "start-erc3009-transfer": "tsx src/eip712/erc3009_transfer.ts",
+    "start-permit2": "tsx src/eip712/permit2.ts",
     "start-contracts": "tsx src/contracts.ts",
     "start-legacy": "tsx src/legacy/index.ts",
     "start-1559-sign-raw": "tsx src/eip1559/signRawTransaction.ts",
