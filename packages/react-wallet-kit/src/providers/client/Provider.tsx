@@ -6154,9 +6154,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           break;
 
         case walletAccount.addressFormat?.includes("ADDRESS_FORMAT_BITCOIN"):
-          cryptoCurrencyCode = FiatOnRampCryptoCurrency.BITCOIN;
-          network = FiatOnRampBlockchainNetwork.BITCOIN;
-          break;
+          throw new TurnkeyError(
+            "Fiat on-ramp does not support Bitcoin wallet accounts.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
 
         case walletAccount.addressFormat === "ADDRESS_FORMAT_SOLANA":
           cryptoCurrencyCode = FiatOnRampCryptoCurrency.SOLANA;

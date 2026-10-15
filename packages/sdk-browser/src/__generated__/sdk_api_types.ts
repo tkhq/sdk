@@ -360,6 +360,19 @@ export type TGetSmartContractInterfaceBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetSwapSponsorshipUsageResponse =
+  operations["PublicApiService_GetSwapSponsorshipUsage"]["responses"]["200"]["schema"];
+
+export type TGetSwapSponsorshipUsageInput = {
+  body: TGetSwapSponsorshipUsageBody;
+};
+
+export type TGetSwapSponsorshipUsageBody = Omit<
+  operations["PublicApiService_GetSwapSponsorshipUsage"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetSwapStatusResponse =
   operations["PublicApiService_GetSwapStatus"]["responses"]["200"]["schema"];
 
@@ -1013,12 +1026,12 @@ export type TCreateSubOrganizationBody =
     commandOverrideParams;
 
 export type TCreateSwapQuoteResponse =
-  operations["PublicApiService_CreateSwapQuote"]["responses"]["200"]["schema"]["activity"]["result"]["createSwapQuoteResult"] &
+  operations["PublicApiService_CreateSwapQuote"]["responses"]["200"]["schema"]["activity"]["result"]["createSwapQuoteResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateSwapQuoteInput = { body: TCreateSwapQuoteBody };
 
-export type TCreateSwapQuoteBody = definitions["v1CreateSwapQuoteIntentV2"] &
+export type TCreateSwapQuoteBody = definitions["v1CreateSwapQuoteIntentV3"] &
   commandOverrideParams;
 
 export type TCreateTvcAppResponse =
@@ -1974,6 +1987,30 @@ export type TUpsertSwapConfigInput = { body: TUpsertSwapConfigBody };
 
 export type TUpsertSwapConfigBody =
   operations["PublicApiService_UpsertSwapConfig"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpsertSwapFeeSponsorshipLimitConfigResponse =
+  operations["PublicApiService_UpsertSwapFeeSponsorshipLimitConfig"]["responses"]["200"]["schema"]["activity"]["result"]["upsertSwapFeeSponsorshipLimitConfigResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpsertSwapFeeSponsorshipLimitConfigInput = {
+  body: TUpsertSwapFeeSponsorshipLimitConfigBody;
+};
+
+export type TUpsertSwapFeeSponsorshipLimitConfigBody =
+  operations["PublicApiService_UpsertSwapFeeSponsorshipLimitConfig"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpsertSwapFixedRateLimitConfigResponse =
+  operations["PublicApiService_UpsertSwapFixedRateLimitConfig"]["responses"]["200"]["schema"]["activity"]["result"]["upsertSwapFixedRateLimitConfigResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpsertSwapFixedRateLimitConfigInput = {
+  body: TUpsertSwapFixedRateLimitConfigBody;
+};
+
+export type TUpsertSwapFixedRateLimitConfigBody =
+  operations["PublicApiService_UpsertSwapFixedRateLimitConfig"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TVerifyOtpResponse =
