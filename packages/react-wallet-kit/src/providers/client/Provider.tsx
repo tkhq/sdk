@@ -19,7 +19,7 @@ import {
   isExpectedOAuthRedirectUrl,
   OAUTH_PROVIDER_CONFIGS,
   OAUTH_INTENT_ADD_PROVIDER,
-  openOAuthPopup,
+  openOAuthPopupAndNavigate,
   parseOAuthResponse,
   type PKCEProvider,
   redirectToOAuthProvider,
@@ -3626,49 +3626,53 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const flow = openInPage ? "redirect" : "popup";
       const redirectUri = masterConfig.auth?.oauthConfig.oauthRedirectUri;
 
-      // Create key pair and generate nonce
-      const publicKey = await createApiKeyPair();
-      if (!publicKey) {
-        throw new Error("Failed to create public key for OAuth.");
-      }
-      const nonce = bytesToHex(sha256(publicKey));
+      let publicKey!: string;
+      let nonce!: string;
 
-      // Generate PKCE challenge pair and store verifier
-      const { verifier, codeChallenge } = await generateChallengePair();
-      storePKCEVerifier(provider, verifier);
+      const buildAuthUrl = async (): Promise<string> => {
+        // Create key pair and generate nonce
+        publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new Error("Failed to create public key for OAuth.");
+        }
+        nonce = bytesToHex(sha256(publicKey));
 
-      // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
-      if (openInPage && captchaToken) {
-        storeOAuthCaptchaToken(captchaToken);
-      }
+        // Generate PKCE challenge pair and store verifier
+        const { verifier, codeChallenge } = await generateChallengePair();
+        storePKCEVerifier(provider, verifier);
 
-      // Build OAuth URL
-      const authUrl = buildOAuthUrl({
-        provider,
-        clientId,
-        redirectUri,
-        publicKey,
-        nonce,
-        flow,
-        codeChallenge,
-        additionalState: {
-          ...additionalParameters,
-        },
-      });
+        // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
+        if (openInPage && captchaToken) {
+          storeOAuthCaptchaToken(captchaToken);
+        }
+
+        // Build OAuth URL
+        return buildOAuthUrl({
+          provider,
+          clientId,
+          redirectUri,
+          publicKey,
+          nonce,
+          flow,
+          codeChallenge,
+          additionalState: {
+            ...additionalParameters,
+          },
+        });
+      };
 
       if (openInPage) {
         // Remainder of logic will occur in completeRedirectOauth
-        return redirectToOAuthProvider(authUrl);
+        return redirectToOAuthProvider(await buildAuthUrl());
       }
 
-      // Popup flow
-      const authWindow = openOAuthPopup();
-      if (!authWindow) {
-        throw new Error(
-          `Failed to open ${capitalizeProviderName(provider)} login window.`,
-        );
-      }
-      authWindow.location.href = authUrl;
+      // Popup flow: open the popup synchronously (before any async work), so
+      // the click's user-activation window is preserved - Safari blocks
+      // window.open once it runs after an await.
+      const authWindow = await openOAuthPopupAndNavigate(
+        provider,
+        buildAuthUrl,
+      );
 
       return new Promise<void>((resolve, reject) => {
         const interval = setInterval(async () => {
@@ -3795,49 +3799,53 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const flow = openInPage ? "redirect" : "popup";
       const redirectUri = masterConfig.auth?.oauthConfig.oauthRedirectUri;
 
-      // Create key pair and generate nonce
-      const publicKey = await createApiKeyPair();
-      if (!publicKey) {
-        throw new Error("Failed to create public key for OAuth.");
-      }
-      const nonce = bytesToHex(sha256(publicKey));
+      let publicKey!: string;
+      let nonce!: string;
 
-      // Generate PKCE challenge pair and store verifier
-      const { verifier, codeChallenge } = await generateChallengePair();
-      storePKCEVerifier(provider, verifier);
+      const buildAuthUrl = async (): Promise<string> => {
+        // Create key pair and generate nonce
+        publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new Error("Failed to create public key for OAuth.");
+        }
+        nonce = bytesToHex(sha256(publicKey));
 
-      // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
-      if (openInPage && captchaToken) {
-        storeOAuthCaptchaToken(captchaToken);
-      }
+        // Generate PKCE challenge pair and store verifier
+        const { verifier, codeChallenge } = await generateChallengePair();
+        storePKCEVerifier(provider, verifier);
 
-      // Build OAuth URL
-      const authUrl = buildOAuthUrl({
-        provider,
-        clientId,
-        redirectUri,
-        publicKey,
-        nonce,
-        flow,
-        codeChallenge,
-        additionalState: {
-          ...additionalParameters,
-        },
-      });
+        // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
+        if (openInPage && captchaToken) {
+          storeOAuthCaptchaToken(captchaToken);
+        }
+
+        // Build OAuth URL
+        return buildOAuthUrl({
+          provider,
+          clientId,
+          redirectUri,
+          publicKey,
+          nonce,
+          flow,
+          codeChallenge,
+          additionalState: {
+            ...additionalParameters,
+          },
+        });
+      };
 
       if (openInPage) {
         // Remainder of logic will occur in completeRedirectOauth
-        return redirectToOAuthProvider(authUrl);
+        return redirectToOAuthProvider(await buildAuthUrl());
       }
 
-      // Popup flow
-      const authWindow = openOAuthPopup();
-      if (!authWindow) {
-        throw new Error(
-          `Failed to open ${capitalizeProviderName(provider)} login window.`,
-        );
-      }
-      authWindow.location.href = authUrl;
+      // Popup flow: open the popup synchronously (before any async work), so
+      // the click's user-activation window is preserved - Safari blocks
+      // window.open once it runs after an await.
+      const authWindow = await openOAuthPopupAndNavigate(
+        provider,
+        buildAuthUrl,
+      );
 
       return new Promise<void>((resolve, reject) => {
         const interval = setInterval(async () => {
@@ -3967,44 +3975,48 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const redirectUri =
         masterConfig.auth?.oauthConfig.oauthRedirectUri.replace(/\/$/, "");
 
-      // Create key pair and generate nonce
-      const publicKey = await createApiKeyPair();
-      if (!publicKey) {
-        throw new Error("Failed to create public key for OAuth.");
-      }
-      const nonce = bytesToHex(sha256(publicKey));
+      let publicKey!: string;
+      let nonce!: string;
 
-      // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
-      if (openInPage && captchaToken) {
-        storeOAuthCaptchaToken(captchaToken);
-      }
+      const buildAuthUrl = async (): Promise<string> => {
+        // Create key pair and generate nonce
+        publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new Error("Failed to create public key for OAuth.");
+        }
+        nonce = bytesToHex(sha256(publicKey));
 
-      // Build OAuth URL
-      const authUrl = buildOAuthUrl({
-        provider,
-        clientId,
-        redirectUri,
-        publicKey,
-        nonce,
-        flow,
-        additionalState: {
-          ...additionalParameters,
-        },
-      });
+        // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
+        if (openInPage && captchaToken) {
+          storeOAuthCaptchaToken(captchaToken);
+        }
+
+        // Build OAuth URL
+        return buildOAuthUrl({
+          provider,
+          clientId,
+          redirectUri,
+          publicKey,
+          nonce,
+          flow,
+          additionalState: {
+            ...additionalParameters,
+          },
+        });
+      };
 
       if (openInPage) {
         // Remainder of logic will occur in completeRedirectOauth
-        return redirectToOAuthProvider(authUrl);
+        return redirectToOAuthProvider(await buildAuthUrl());
       }
 
-      // Popup flow
-      const authWindow = openOAuthPopup();
-      if (!authWindow) {
-        throw new Error(
-          `Failed to open ${capitalizeProviderName(provider)} login window.`,
-        );
-      }
-      authWindow.location.href = authUrl;
+      // Popup flow: open the popup synchronously (before any async work), so
+      // the click's user-activation window is preserved - Safari blocks
+      // window.open once it runs after an await.
+      const authWindow = await openOAuthPopupAndNavigate(
+        provider,
+        buildAuthUrl,
+      );
 
       return new Promise<void>((resolve, reject) => {
         const interval = setInterval(async () => {
@@ -4121,44 +4133,48 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       // TODO (Amir): Apple needs the '/' at the end. Maybe we should add it if not there?
       const redirectUri = masterConfig.auth?.oauthConfig.oauthRedirectUri;
 
-      // Create key pair and generate nonce
-      const publicKey = await createApiKeyPair();
-      if (!publicKey) {
-        throw new Error("Failed to create public key for OAuth.");
-      }
-      const nonce = bytesToHex(sha256(publicKey));
+      let publicKey!: string;
+      let nonce!: string;
 
-      // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
-      if (openInPage && captchaToken) {
-        storeOAuthCaptchaToken(captchaToken);
-      }
+      const buildAuthUrl = async (): Promise<string> => {
+        // Create key pair and generate nonce
+        publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new Error("Failed to create public key for OAuth.");
+        }
+        nonce = bytesToHex(sha256(publicKey));
 
-      // Build OAuth URL
-      const authUrl = buildOAuthUrl({
-        provider,
-        clientId,
-        redirectUri,
-        publicKey,
-        nonce,
-        flow,
-        additionalState: {
-          ...additionalParameters,
-        },
-      });
+        // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
+        if (openInPage && captchaToken) {
+          storeOAuthCaptchaToken(captchaToken);
+        }
+
+        // Build OAuth URL
+        return buildOAuthUrl({
+          provider,
+          clientId,
+          redirectUri,
+          publicKey,
+          nonce,
+          flow,
+          additionalState: {
+            ...additionalParameters,
+          },
+        });
+      };
 
       if (openInPage) {
         // Remainder of logic will occur in completeRedirectOauth
-        return redirectToOAuthProvider(authUrl);
+        return redirectToOAuthProvider(await buildAuthUrl());
       }
 
-      // Popup flow
-      const authWindow = openOAuthPopup();
-      if (!authWindow) {
-        throw new Error(
-          `Failed to open ${capitalizeProviderName(provider)} login window.`,
-        );
-      }
-      authWindow.location.href = authUrl;
+      // Popup flow: open the popup synchronously (before any async work), so
+      // the click's user-activation window is preserved - Safari blocks
+      // window.open once it runs after an await.
+      const authWindow = await openOAuthPopupAndNavigate(
+        provider,
+        buildAuthUrl,
+      );
 
       return new Promise<void>((resolve, reject) => {
         const interval = setInterval(async () => {
@@ -4274,49 +4290,53 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const flow = openInPage ? "redirect" : "popup";
       const redirectUri = masterConfig.auth?.oauthConfig.oauthRedirectUri;
 
-      // Create key pair and generate nonce
-      const publicKey = await createApiKeyPair();
-      if (!publicKey) {
-        throw new Error("Failed to create public key for OAuth.");
-      }
-      const nonce = bytesToHex(sha256(publicKey));
+      let publicKey!: string;
+      let nonce!: string;
 
-      // Generate PKCE challenge pair and store verifier
-      const { verifier, codeChallenge } = await generateChallengePair();
-      storePKCEVerifier(provider, verifier);
+      const buildAuthUrl = async (): Promise<string> => {
+        // Create key pair and generate nonce
+        publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new Error("Failed to create public key for OAuth.");
+        }
+        nonce = bytesToHex(sha256(publicKey));
 
-      // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
-      if (openInPage && captchaToken) {
-        storeOAuthCaptchaToken(captchaToken);
-      }
+        // Generate PKCE challenge pair and store verifier
+        const { verifier, codeChallenge } = await generateChallengePair();
+        storePKCEVerifier(provider, verifier);
 
-      // Build OAuth URL
-      const authUrl = buildOAuthUrl({
-        provider,
-        clientId,
-        redirectUri,
-        publicKey,
-        nonce,
-        flow,
-        codeChallenge,
-        additionalState: {
-          ...additionalParameters,
-        },
-      });
+        // Persist captcha out of the redirect URL (same pattern as PKCE verifier)
+        if (openInPage && captchaToken) {
+          storeOAuthCaptchaToken(captchaToken);
+        }
+
+        // Build OAuth URL
+        return buildOAuthUrl({
+          provider,
+          clientId,
+          redirectUri,
+          publicKey,
+          nonce,
+          flow,
+          codeChallenge,
+          additionalState: {
+            ...additionalParameters,
+          },
+        });
+      };
 
       if (openInPage) {
         // Remainder of logic will occur in completeRedirectOauth
-        return redirectToOAuthProvider(authUrl);
+        return redirectToOAuthProvider(await buildAuthUrl());
       }
 
-      // Popup flow
-      const authWindow = openOAuthPopup();
-      if (!authWindow) {
-        throw new Error(
-          `Failed to open ${capitalizeProviderName(provider)} login window.`,
-        );
-      }
-      authWindow.location.href = authUrl;
+      // Popup flow: open the popup synchronously (before any async work), so
+      // the click's user-activation window is preserved - Safari blocks
+      // window.open once it runs after an await.
+      const authWindow = await openOAuthPopupAndNavigate(
+        provider,
+        buildAuthUrl,
+      );
 
       return new Promise<void>((resolve, reject) => {
         const interval = setInterval(async () => {
