@@ -152,6 +152,19 @@ describe("RedactionRegistry.scrubText", () => {
     }
   });
 
+  test("reads HTML character references as the character they stand for", () => {
+    const r = cardRegistry();
+    expect(
+      r.scrubText('<input value="4242&nbsp;4242&#160;4242&#xA0;4242">'),
+    ).toBe('<input value="[REDACTED:card]">');
+    const key = new RedactionRegistry();
+    key.registerValue("sk_live_abc123def456", "key");
+    expect(key.scrubText("sk_live_abc&#49;23&nbsp;def456")).toBe(
+      "[REDACTED:key]",
+    );
+    expect(key.scrubText("sk_live_abc123&def456;")).toBe("[REDACTED:key];");
+  });
+
   test("strips punctuation and folds case for long non-digit values", () => {
     const r = new RedactionRegistry();
     r.registerValues([
