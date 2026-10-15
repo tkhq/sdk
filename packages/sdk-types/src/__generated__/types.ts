@@ -1761,7 +1761,9 @@ export type v1CreateSwapQuoteIntentV3 = {
   slippageBps?: string;
   /** Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported. */
   destinationAddress?: string;
+  /** When true, Turnkey pays the provider fees for this swap and invoices them to the billing parent organization. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
   feeSponsorship?: boolean;
+  /** When true, requests a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false. */
   fixedRate?: boolean;
 };
 
@@ -1781,7 +1783,8 @@ export type v1CreateSwapQuoteResult = {
 };
 
 export type v1CreateSwapQuoteResultV2 = {
-  quotes?: v1SwapQuoteV2[];
+  /** One or more provider quotes for this request. Today this contains a single Relay quote; pass quotes[i].quoteId to execute_swap to bind execution. */
+  quotes: v1SwapQuoteV2[];
 };
 
 export type v1CreateTvcAppIntent = {
@@ -3647,7 +3650,7 @@ export type v1FiatOnRampProvider =
   | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
 
 export type v1GetActivePoliciesRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -3659,7 +3662,7 @@ export type v1GetActivePoliciesResponse = {
 };
 
 export type v1GetActivitiesRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Array of activity statuses filtering which activities will be listed in the response. */
   filterByStatus?: v1ActivityStatus[];
@@ -3675,14 +3678,14 @@ export type v1GetActivitiesResponse = {
 };
 
 export type v1GetActivityRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given activity object. */
   activityId: string;
 };
 
 export type v1GetApiKeyRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given API key. */
   apiKeyId: string;
@@ -3694,7 +3697,7 @@ export type v1GetApiKeyResponse = {
 };
 
 export type v1GetApiKeysRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given user. */
   userId?: string;
@@ -3729,7 +3732,7 @@ export type v1GetAppStatusResponse = {
 };
 
 export type v1GetAuthenticatorRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given authenticator. */
   authenticatorId: string;
@@ -3741,7 +3744,7 @@ export type v1GetAuthenticatorResponse = {
 };
 
 export type v1GetAuthenticatorsRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given user. */
   userId: string;
@@ -3854,7 +3857,7 @@ export type v1GetGasUsageResponse = {
 };
 
 export type v1GetIpAllowlistRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** If provided, return only the allowlist for this specific API key. */
   publicKey?: string;
@@ -3872,7 +3875,7 @@ export type v1GetLatestBootProofRequest = {
 };
 
 export type v1GetMfaPoliciesRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given user. */
   userId: string;
@@ -3884,7 +3887,7 @@ export type v1GetMfaPoliciesResponse = {
 };
 
 export type v1GetMfaPolicyRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given user. */
   userId: string;
@@ -3898,7 +3901,7 @@ export type v1GetMfaPolicyResponse = {
 };
 
 export type v1GetMfaStatusRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** The unique identifier of the activity to get MFA status for. */
   activityId: string;
@@ -3963,7 +3966,7 @@ export type v1GetOauth2CredentialResponse = {
 };
 
 export type v1GetOauthProvidersRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given user. */
   userId?: string;
@@ -3975,7 +3978,7 @@ export type v1GetOauthProvidersResponse = {
 };
 
 export type v1GetOnRampTransactionStatusRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** The unique identifier for the fiat on ramp transaction. */
   transactionId: string;
@@ -3989,7 +3992,7 @@ export type v1GetOnRampTransactionStatusResponse = {
 };
 
 export type v1GetOrganizationConfigsRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -3999,7 +4002,7 @@ export type v1GetOrganizationConfigsResponse = {
 };
 
 export type v1GetPoliciesRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -4009,7 +4012,7 @@ export type v1GetPoliciesResponse = {
 };
 
 export type v1GetPolicyEvaluationsRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given activity. */
   activityId: string;
@@ -4020,7 +4023,7 @@ export type v1GetPolicyEvaluationsResponse = {
 };
 
 export type v1GetPolicyRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given policy. */
   policyId: string;
@@ -4032,7 +4035,7 @@ export type v1GetPolicyResponse = {
 };
 
 export type v1GetPrivateKeyRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given private key. */
   privateKeyId: string;
@@ -4044,7 +4047,7 @@ export type v1GetPrivateKeyResponse = {
 };
 
 export type v1GetPrivateKeysRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -4054,7 +4057,7 @@ export type v1GetPrivateKeysResponse = {
 };
 
 export type v1GetSendTransactionStatusRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** The unique identifier of a send transaction request. */
   sendTransactionStatusId: string;
@@ -4074,7 +4077,7 @@ export type v1GetSendTransactionStatusResponse = {
 };
 
 export type v1GetSessionProfileRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a session profile. */
   sessionProfileId: string;
@@ -4086,7 +4089,7 @@ export type v1GetSessionProfileResponse = {
 };
 
 export type v1GetSessionProfilesRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -4096,7 +4099,7 @@ export type v1GetSessionProfilesResponse = {
 };
 
 export type v1GetSmartContractInterfaceRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given smart contract interface. */
   smartContractInterfaceId: string;
@@ -4108,7 +4111,7 @@ export type v1GetSmartContractInterfaceResponse = {
 };
 
 export type v1GetSmartContractInterfacesRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -4134,6 +4137,7 @@ export type v1GetSubOrgIdsResponse = {
 };
 
 export type v1GetSwapSponsorshipUsageRequest = {
+  /** Unique identifier for a given organization. */
   organizationId: string;
 };
 
@@ -4179,7 +4183,7 @@ export type v1GetSwapStatusResponse = {
 };
 
 export type v1GetTvcAppDeploymentsRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given TVC App. */
   appId: string;
@@ -4191,7 +4195,7 @@ export type v1GetTvcAppDeploymentsResponse = {
 };
 
 export type v1GetTvcAppRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given TVC App. */
   tvcAppId: string;
@@ -4203,7 +4207,7 @@ export type v1GetTvcAppResponse = {
 };
 
 export type v1GetTvcAppsRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Filter TVC Apps by whether they have a live deployment. If omitted, all TVC Apps are returned. */
   isLive?: boolean;
@@ -4247,7 +4251,7 @@ export type v1GetTvcDeploymentProvisioningDetailsResponse = {
 };
 
 export type v1GetTvcDeploymentRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given TVC Deployment. */
   deploymentId: string;
@@ -4259,7 +4263,7 @@ export type v1GetTvcDeploymentResponse = {
 };
 
 export type v1GetTvcOperatorsRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -4280,7 +4284,7 @@ export type v1GetTvcQosVersionsResponse = {
 };
 
 export type v1GetTvcQuorumKeysRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -4289,7 +4293,7 @@ export type v1GetTvcQuorumKeysResponse = {
 };
 
 export type v1GetUserRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given user. */
   userId: string;
@@ -4301,7 +4305,7 @@ export type v1GetUserResponse = {
 };
 
 export type v1GetUsersRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -4327,7 +4331,7 @@ export type v1GetVerifiedSubOrgIdsResponse = {
 };
 
 export type v1GetWalletAccountRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given wallet. */
   walletId: string;
@@ -4343,7 +4347,7 @@ export type v1GetWalletAccountResponse = {
 };
 
 export type v1GetWalletAccountsRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given wallet. If not provided, all accounts for the organization will be returned. */
   walletId?: string;
@@ -4359,7 +4363,7 @@ export type v1GetWalletAccountsResponse = {
 };
 
 export type v1GetWalletAddressBalancesRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Address corresponding to a wallet account. Private key addresses are not supported. */
   address: string;
@@ -4395,7 +4399,7 @@ export type v1GetWalletAddressBalancesResponse = {
 };
 
 export type v1GetWalletRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Unique identifier for a given wallet. */
   walletId: string;
@@ -4407,7 +4411,7 @@ export type v1GetWalletResponse = {
 };
 
 export type v1GetWalletsRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -4422,7 +4426,7 @@ export type v1GetWhoamiRequest = {
 };
 
 export type v1GetWhoamiResponse = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Human-readable name for an organization. */
   organizationName: string;
@@ -5162,7 +5166,7 @@ export type v1ListEmailEventsResponse = {
 };
 
 export type v1ListEthTransactionHistoryRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Address corresponding to a wallet account. Private key addresses are not supported. */
   address: string;
@@ -5213,7 +5217,7 @@ export type v1ListOauth2CredentialsResponse = {
 };
 
 export type v1ListPrivateKeyTagsRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -5235,7 +5239,7 @@ export type v1ListSecretsResponse = {
 };
 
 export type v1ListSolTransactionHistoryRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Address corresponding to a wallet account. Private key addresses are not supported. */
   address: string;
@@ -5256,7 +5260,7 @@ export type v1ListSolTransactionHistoryResponse = {
 };
 
 export type v1ListSupportedAssetsRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2:
@@ -5290,7 +5294,7 @@ export type v1ListSupportedAssetsResponse = {
 };
 
 export type v1ListUserTagsRequest = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
 };
 
@@ -6707,8 +6711,10 @@ export type v1SwapQuoteV2 = {
   clientFeeBps: string;
   /** Provider-estimated completion time in seconds, when available. */
   estimatedTimeSeconds?: string;
-  feeSponsorship?: boolean;
-  fixedRate?: boolean;
+  /** Whether Turnkey pays the provider fees for this quote. */
+  feeSponsorship: boolean;
+  /** Whether this quote uses a 1:1 fixed rate. */
+  fixedRate: boolean;
   /** Estimated USD adjustment for the fixed rate. Present only for fixed-rate quotes. Positive is a cost billed to you; negative is an earning credited against your transaction management charges at the end of the billing period. Informational; the final amount is settled after execution. */
   estimatedFixedRateAdjustmentUsd?: string;
 };
@@ -6723,6 +6729,7 @@ export type v1SwapRefund = {
 };
 
 export type v1SwapSpendingWindow = {
+  /** Rolling window duration in minutes. */
   windowDurationMinutes: number;
   /** The parent's window limit, or the per-child limit when queried by a sub-organization. */
   windowLimitUsd: string;
@@ -6730,6 +6737,7 @@ export type v1SwapSpendingWindow = {
   usageUsd: string;
   /** Remaining spending capacity, clamped to zero. For children, also capped by remaining parent capacity. Zero when the window is disabled. This is not a reservation or a guarantee of feature eligibility. */
   remainingUsd: string;
+  /** Whether the saved spending window permits new swaps. */
   enabled: boolean;
   /** Configured per-child limit. Returned only when querying the billing parent. */
   subOrgWindowLimitUsd?: string;
@@ -7531,6 +7539,7 @@ export type v1UpsertSwapFeeSponsorshipLimitConfigRequest = {
 };
 
 export type v1UpsertSwapFeeSponsorshipLimitConfigResult = {
+  /** Unique identifier of the organization the limit config was saved for. */
   organizationId: string;
 };
 
@@ -7555,6 +7564,7 @@ export type v1UpsertSwapFixedRateLimitConfigRequest = {
 };
 
 export type v1UpsertSwapFixedRateLimitConfigResult = {
+  /** Unique identifier of the organization the limit config was saved for. */
   organizationId: string;
 };
 
@@ -9013,7 +9023,7 @@ export type TValidateTvcImageBody = {
 export type TValidateTvcImageInput = { body: TValidateTvcImageBody };
 
 export type TGetWhoamiResponse = {
-  /** Unique identifier for a given organization. */
+  /** Unique identifier for a given Organization. */
   organizationId: string;
   /** Human-readable name for an organization. */
   organizationName: string;
@@ -9441,7 +9451,8 @@ export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
 
 export type TCreateSwapQuoteResponse = {
   activity: v1Activity;
-  quotes?: v1SwapQuoteV2[];
+  /** One or more provider quotes for this request. Today this contains a single Relay quote; pass quotes[i].quoteId to execute_swap to bind execution. */
+  quotes: v1SwapQuoteV2[];
 };
 
 export type TCreateSwapQuoteBody = {
@@ -9459,7 +9470,9 @@ export type TCreateSwapQuoteBody = {
   slippageBps?: string;
   /** Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported. */
   destinationAddress?: string;
+  /** When true, Turnkey pays the provider fees for this swap and invoices them to the billing parent organization. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
   feeSponsorship?: boolean;
+  /** When true, requests a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false. */
   fixedRate?: boolean;
   generateAppProofs?: boolean;
 };
@@ -11502,6 +11515,7 @@ export type TUpsertSwapConfigInput = { body: TUpsertSwapConfigBody };
 
 export type TUpsertSwapFeeSponsorshipLimitConfigResponse = {
   activity: v1Activity;
+  /** Unique identifier of the organization the limit config was saved for. */
   organizationId: string;
 };
 
@@ -11524,6 +11538,7 @@ export type TUpsertSwapFeeSponsorshipLimitConfigInput = {
 
 export type TUpsertSwapFixedRateLimitConfigResponse = {
   activity: v1Activity;
+  /** Unique identifier of the organization the limit config was saved for. */
   organizationId: string;
 };
 

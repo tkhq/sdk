@@ -9270,10 +9270,12 @@
           "description": "Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported."
         },
         "feeSponsorship": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "When true, Turnkey pays the provider fees for this swap and invoices them to the billing parent organization. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false."
         },
         "fixedRate": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "When true, requests a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false."
         }
       },
       "required": ["signWith", "inputToken", "outputToken", "inputAmount"]
@@ -9324,9 +9326,11 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1SwapQuoteV2"
-          }
+          },
+          "description": "One or more provider quotes for this request. Today this contains a single Relay quote; pass quotes[i].quoteId to execute_swap to bind execution."
         }
-      }
+      },
+      "required": ["quotes"]
     },
     "v1CreateTvcAppIntent": {
       "type": "object",
@@ -13318,7 +13322,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -13347,7 +13351,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "filterByStatus": {
           "type": "array",
@@ -13389,7 +13393,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "activityId": {
           "type": "string",
@@ -13403,7 +13407,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "apiKeyId": {
           "type": "string",
@@ -13427,7 +13431,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "userId": {
           "type": "string",
@@ -13506,7 +13510,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "authenticatorId": {
           "type": "string",
@@ -13530,7 +13534,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "userId": {
           "type": "string",
@@ -13766,7 +13770,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "publicKey": {
           "type": "string",
@@ -13803,7 +13807,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "userId": {
           "type": "string",
@@ -13831,7 +13835,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "userId": {
           "type": "string",
@@ -13859,7 +13863,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "activityId": {
           "type": "string",
@@ -13977,7 +13981,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "userId": {
           "type": "string",
@@ -14005,7 +14009,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "transactionId": {
           "type": "string",
@@ -14033,7 +14037,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -14053,7 +14057,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -14077,7 +14081,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "activityId": {
           "type": "string",
@@ -14104,7 +14108,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "policyId": {
           "type": "string",
@@ -14128,7 +14132,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "privateKeyId": {
           "type": "string",
@@ -14152,7 +14156,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -14176,7 +14180,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "sendTransactionStatusId": {
           "type": "string",
@@ -14216,7 +14220,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "sessionProfileId": {
           "type": "string",
@@ -14240,7 +14244,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -14264,7 +14268,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "smartContractInterfaceId": {
           "type": "string",
@@ -14288,7 +14292,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -14346,7 +14350,8 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given organization."
         }
       },
       "required": ["organizationId"]
@@ -14451,7 +14456,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "appId": {
           "type": "string",
@@ -14479,7 +14484,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "tvcAppId": {
           "type": "string",
@@ -14503,7 +14508,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "isLive": {
           "type": "boolean",
@@ -14603,7 +14608,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "deploymentId": {
           "type": "string",
@@ -14627,7 +14632,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -14677,7 +14682,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -14700,7 +14705,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "userId": {
           "type": "string",
@@ -14724,7 +14729,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -14783,7 +14788,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "walletId": {
           "type": "string",
@@ -14815,7 +14820,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "walletId": {
           "type": "string",
@@ -14851,7 +14856,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "address": {
           "type": "string",
@@ -14906,7 +14911,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "walletId": {
           "type": "string",
@@ -14930,7 +14935,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -14964,7 +14969,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "organizationName": {
           "type": "string",
@@ -16746,7 +16751,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "address": {
           "type": "string",
@@ -16849,7 +16854,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -16901,7 +16906,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "address": {
           "type": "string",
@@ -16946,7 +16951,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         },
         "caip2": {
           "type": "string",
@@ -16997,7 +17002,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given organization."
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -20488,10 +20493,12 @@
           "description": "Provider-estimated completion time in seconds, when available."
         },
         "feeSponsorship": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether Turnkey pays the provider fees for this quote."
         },
         "fixedRate": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether this quote uses a 1:1 fixed rate."
         },
         "estimatedFixedRateAdjustmentUsd": {
           "type": "string",
@@ -20504,7 +20511,9 @@
         "outputAmount",
         "minOutputAmount",
         "expiresAt",
-        "clientFeeBps"
+        "clientFeeBps",
+        "feeSponsorship",
+        "fixedRate"
       ]
     },
     "v1SwapRefund": {
@@ -20530,7 +20539,8 @@
       "properties": {
         "windowDurationMinutes": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "description": "Rolling window duration in minutes."
         },
         "windowLimitUsd": {
           "type": "string",
@@ -20545,7 +20555,8 @@
           "description": "Remaining spending capacity, clamped to zero. For children, also capped by remaining parent capacity. Zero when the window is disabled. This is not a reservation or a guarantee of feature eligibility."
         },
         "enabled": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether the saved spending window permits new swaps."
         },
         "subOrgWindowLimitUsd": {
           "type": "string",
@@ -22390,7 +22401,8 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier of the organization the limit config was saved for."
         }
       },
       "required": ["organizationId"]
@@ -22447,7 +22459,8 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier of the organization the limit config was saved for."
         }
       },
       "required": ["organizationId"]
