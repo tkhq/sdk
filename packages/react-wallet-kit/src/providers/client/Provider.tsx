@@ -6158,6 +6158,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
+      const sandboxMode = params.sandboxMode ?? true;
+
       return new Promise((resolve, reject) => {
         pushPage({
           key: "Fund",
@@ -6166,6 +6168,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               lockedCaip2={params.lockedCaip2}
               lockedCaip19={params.lockedCaip19}
               walletAccount={params.walletAccount}
+              sandboxMode={sandboxMode}
+              organizationId={organizationId}
+              stampWith={params.stampWith}
+              fiatCurrencyCode={params.fiatCurrencyCode}
+              defaultFiatCurrencyAmount={params.defaultFiatCurrencyAmount}
             />
           ),
           contextProvider: SupportedAssetsProvider,
