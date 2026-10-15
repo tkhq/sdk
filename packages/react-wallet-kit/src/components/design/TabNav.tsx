@@ -55,10 +55,8 @@ export function TabNav(props: TabNavProps) {
               name={`tab-${tab.id}`}
               onClick={() => selectTab(tab.id)}
               className={clsx(
-                "relative z-10 flex flex-1 items-center justify-center gap-1.5 px-4 py-2 rounded-md border border-transparent bg-transparent focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 transition-colors duration-200",
-                active
-                  ? "text-primary-text-light dark:text-primary-text-dark"
-                  : "text-primary-text-light/70 dark:text-primary-text-dark/70",
+                "relative z-10 flex flex-1 items-center justify-center gap-1.5 px-4 py-2 rounded-md border border-transparent bg-transparent text-modal-text-light dark:text-modal-text-dark focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 transition-colors duration-200",
+                active ? "opacity-100" : "opacity-50",
               )}
             >
               {tab.icon}
