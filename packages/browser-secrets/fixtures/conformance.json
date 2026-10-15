@@ -1,0 +1,1219 @@
+{
+  "description": "Binding-parse and authorization decisions: one case per deny reason, the frame-ancestry rules, and every sbm:* key. Each case names the secure-browser-mcp test or code path it came from.",
+  "cases": [
+    {
+      "kind": "parse",
+      "name": "parses every binding key",
+      "source": "browser-secrets: one case per sbm:* key",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:url-pattern": "/checkout*",
+        "sbm:frame-origin": "https://pay.example",
+        "sbm:selector": "input[name=cardNumber]",
+        "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+      },
+      "expect": {
+        "status": "bound",
+        "binding": {
+          "origin": "https://shop.example",
+          "frameOrigin": "https://pay.example",
+          "urlPattern": "/checkout*",
+          "selector": "input[name=cardNumber]",
+          "fields": {
+            "number": "input[name=cardNumber]",
+            "cvc": "input[name=cardCvc]"
+          }
+        }
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "sbm: keys without sbm:origin mean no binding",
+      "source": "secure-browser-mcp@cf13c4e src/broker/mock-secrets.ts parseBinding (if (origin === undefined) return {})",
+      "staticProperties": {
+        "sbm:selector": "input[type=password]"
+      },
+      "expect": {
+        "status": "unbound"
+      }
+    },
+    {
+      "kind": "parse",
+      "name": "fields is not JSON",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: rejects a binding whose fields is not JSON",
+      "staticProperties": {
+        "sbm:origin": "https://shop.example",
+        "sbm:fields": "{number:"
+      },
+      "expect": {
+        "status": "invalid",
+        "error": "invalid_fields"
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "fills every card part with one request",
+      "source": "secure-browser-mcp@599e7d5 test/e2e.test.ts: fills a JSON card secret into several fields with one call",
+      "secret": {
+        "secretId": "mock-secret-2",
+        "name": "demo-card",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:4173",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"expiry\":\"input[name=cardExpiry]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          },
+          {
+            "key": "expiry",
+            "elementId": "cardExpiry"
+          },
+          {
+            "key": "cvc",
+            "elementId": "cardCvc"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:4173/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-6",
+                "url": "http://localhost:4173/checkout",
+                "origin": "http://localhost:4173"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": true,
+              "input[name=cardExpiry]": false,
+              "input[name=cardCvc]": false
+            }
+          },
+          {
+            "elementId": "cardExpiry",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-7",
+                "url": "http://localhost:4173/checkout",
+                "origin": "http://localhost:4173"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": false,
+              "input[name=cardExpiry]": true,
+              "input[name=cardCvc]": false
+            }
+          },
+          {
+            "elementId": "cardCvc",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-8",
+                "url": "http://localhost:4173/checkout",
+                "origin": "http://localhost:4173"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": false,
+              "input[name=cardExpiry]": false,
+              "input[name=cardCvc]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": true
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "allows nested frames whose every ancestor is bound",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: nested frames enforce every ancestor and allow only the bound pair (allowed path)",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "nested"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "nested",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-38",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "nested",
+                "documentId": "doc-nested-39",
+                "url": "http://127.0.0.1:5001/wrapper",
+                "origin": "http://127.0.0.1:5001"
+              },
+              {
+                "frameId": "nested-inner",
+                "documentId": "doc-nested-inner-40",
+                "url": "http://127.0.0.1:5001/field?name=nested",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": true
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a request with an empty element ID",
+      "source": "browser-secrets M1 strict rule: request shape",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": ""
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": []
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "request_invalid",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a request with no targets",
+      "source": "secure-browser-mcp@599e7d5 src/tools/fill-common.ts validateTargets (No fill targets given)",
+      "secret": {
+        "secretId": "mock-secret-1",
+        "name": "demo-login-password",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:4173",
+          "sbm:url-pattern": "/login*",
+          "sbm:selector": "input[type=password]"
+        }
+      },
+      "request": {
+        "targets": []
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:4173/login",
+        "targets": []
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "no_targets"
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a mix of keyed and unkeyed targets",
+      "source": "secure-browser-mcp@599e7d5 src/tools/fill-common.ts validateTargets (Mix of keyed and unkeyed fill targets)",
+      "secret": {
+        "secretId": "mock-secret-2",
+        "name": "demo-card",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:4173",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"expiry\":\"input[name=cardExpiry]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          },
+          {
+            "elementId": "cardCvc"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:4173/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-16",
+                "url": "http://localhost:4173/checkout",
+                "origin": "http://localhost:4173"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": true,
+              "input[name=cardExpiry]": false,
+              "input[name=cardCvc]": false
+            }
+          },
+          {
+            "elementId": "cardCvc",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-17",
+                "url": "http://localhost:4173/checkout",
+                "origin": "http://localhost:4173"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": false,
+              "input[name=cardExpiry]": false,
+              "input[name=cardCvc]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "mixed_keyed_targets"
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses the same key and element twice",
+      "source": "secure-browser-mcp@cf13c4e src/tools/fill-common.ts validateTargets (Duplicate fill target)",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          },
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-66",
+                "url": "https://shop.example/checkout",
+                "origin": "https://shop.example"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": true,
+              "input[name=cardCvc]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "duplicate_target",
+        "targetIndex": 1
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a secret with a malformed binding",
+      "source": "secure-browser-mcp@599e7d5 test/binding.test.ts: BindingPolicy refuses a secret with a malformed binding",
+      "secret": {
+        "secretId": "s1",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "not json"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "e1"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "e1",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-9",
+                "url": "https://shop.example/checkout",
+                "origin": "https://shop.example"
+              }
+            ],
+            "selectorMatches": {}
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "binding_invalid"
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a secret without a binding",
+      "source": "secure-browser-mcp@599e7d5 src/broker/binding.ts BindingPolicy.assertAllowed (no binding)",
+      "secret": {
+        "secretId": "s2",
+        "staticProperties": {
+          "consensus": "unilateral"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "password"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:4173/login",
+        "targets": [
+          {
+            "elementId": "password",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-10",
+                "url": "http://localhost:4173/login",
+                "origin": "http://localhost:4173"
+              }
+            ],
+            "selectorMatches": {
+              "input[type=password]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unbound_secret"
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses an unkeyed fill of a field-bound card",
+      "source": "secure-browser-mcp@599e7d5 test/e2e.test.ts: fills a JSON card secret into several fields with one call (unkeyed); secure-browser-mcp@599e7d5 test/http.test.ts: await_fill refuses to re-target a card fill at an unkeyed element",
+      "secret": {
+        "secretId": "mock-secret-2",
+        "name": "demo-card",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:4173",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"expiry\":\"input[name=cardExpiry]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "cardName"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:4173/checkout",
+        "targets": [
+          {
+            "elementId": "cardName",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-3",
+                "url": "http://localhost:4173/checkout",
+                "origin": "http://localhost:4173"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": false,
+              "input[name=cardExpiry]": false,
+              "input[name=cardCvc]": false
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unkeyed_target_for_field_binding",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a payload key the binding does not declare",
+      "source": "secure-browser-mcp@599e7d5 test/e2e.test.ts: fills a JSON card secret into several fields with one call (badKey)",
+      "secret": {
+        "secretId": "mock-secret-2",
+        "name": "demo-card",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:4173",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"expiry\":\"input[name=cardExpiry]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "name",
+            "elementId": "cardName"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:4173/checkout",
+        "targets": [
+          {
+            "elementId": "cardName",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-4",
+                "url": "http://localhost:4173/checkout",
+                "origin": "http://localhost:4173"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": false,
+              "input[name=cardExpiry]": false,
+              "input[name=cardCvc]": false
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unknown_field_key",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a malformed observation",
+      "source": "browser-secrets M1 strict rule: observation shape",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": []
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "observation_invalid"
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a look-alike host for an origin-only secret",
+      "source": "secure-browser-mcp@599e7d5 src/broker/binding.ts BindingPolicy.assertAllowed (exact origin)",
+      "secret": {
+        "secretId": "mock-secret-4",
+        "name": "example-api-key",
+        "staticProperties": {
+          "sbm:origin": "https://dashboard.example.com"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "key"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://dashboard.example.com.evil.test/",
+        "targets": [
+          {
+            "elementId": "key",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-15",
+                "url": "https://dashboard.example.com.evil.test/",
+                "origin": "https://dashboard.example.com.evil.test"
+              }
+            ],
+            "selectorMatches": {}
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "top_level_origin_mismatch"
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a detached target",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: detached targets are invalid and sibling navigation preserves redaction",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "cross"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": []
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "target_not_observed",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a frame ancestry that does not start at the top-level URL",
+      "source": "browser-secrets M1 strict rule; secure-browser-mcp EMG-66 (staged on 599e7d5) src/broker/binding.ts (path[0].url !== pageUrl)",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-68",
+                "url": "https://shop.example/other",
+                "origin": "https://shop.example"
+              }
+            ],
+            "selectorMatches": {
+              "input[name=cardNumber]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "observation_inconsistent",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a srcdoc frame",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in [\"srcdoc\",\"2\"]",
+      "secret": {
+        "secretId": "mock-secret-2",
+        "name": "same",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://localhost:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "srcdoc"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "srcdoc",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-34",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "srcdoc",
+                "documentId": "doc-srcdoc-35",
+                "url": "about:srcdoc",
+                "origin": "http://localhost:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unsupported_document_scheme",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a sandboxed frame with an opaque origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in [\"sandbox\",\"3\"]",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "sandbox"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "sandbox",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-32",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "sandbox",
+                "documentId": "doc-sandbox-33",
+                "url": "http://127.0.0.1:5001/field?name=sandbox",
+                "origin": "null"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "opaque_origin",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a same-origin iframe without sbm:frame-origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in [\"same\",\"1\"]",
+      "secret": {
+        "secretId": "mock-secret-1",
+        "name": "main",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "same"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "same",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-25",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "same",
+                "documentId": "doc-same-26",
+                "url": "http://localhost:5001/field?name=same",
+                "origin": "http://localhost:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "frame_binding_required",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a frame whose origin is not the bound frame origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in [\"cross\",\"2\"]",
+      "secret": {
+        "secretId": "mock-secret-2",
+        "name": "same",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://localhost:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "cross"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "cross",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-29",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "cross",
+                "documentId": "doc-cross-30",
+                "url": "http://127.0.0.1:5001/field?name=cross",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "frame_origin_mismatch",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses nested frames with an unbound intermediate origin",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: nested frames enforce every ancestor and allow only the bound pair (refused path)",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "nested"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "nested",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-41",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              },
+              {
+                "frameId": "unbound",
+                "documentId": "doc-unbound-42",
+                "url": "http://localhost:5002/wrapper",
+                "origin": "http://localhost:5002"
+              },
+              {
+                "frameId": "unbound-inner",
+                "documentId": "doc-unbound-inner-43",
+                "url": "http://127.0.0.1:5001/field?name=nested",
+                "origin": "http://127.0.0.1:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unbound_intermediate_frame",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a frame-bound secret in the top-level document",
+      "source": "secure-browser-mcp EMG-66 (staged on 599e7d5) test/frames.test.ts: requires explicit frame opt-in [\"main\",\"3\"]",
+      "secret": {
+        "secretId": "mock-secret-3",
+        "name": "cross",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:5001",
+          "sbm:url-pattern": "/checkout*",
+          "sbm:selector": "input",
+          "sbm:frame-origin": "http://127.0.0.1:5001"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "main"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:5001/checkout",
+        "targets": [
+          {
+            "elementId": "main",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-31",
+                "url": "http://localhost:5001/checkout",
+                "origin": "http://localhost:5001"
+              }
+            ],
+            "selectorMatches": {
+              "input": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "frame_bound_top_level_target",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a page outside the bound URL pattern",
+      "source": "secure-browser-mcp@599e7d5 src/broker/binding.ts BindingPolicy.assertAllowed (url pattern)",
+      "secret": {
+        "secretId": "mock-secret-1",
+        "name": "demo-login-password",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:4173",
+          "sbm:url-pattern": "/login*",
+          "sbm:selector": "input[type=password]"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "password"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:4173/checkout",
+        "targets": [
+          {
+            "elementId": "password",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-11",
+                "url": "http://localhost:4173/checkout",
+                "origin": "http://localhost:4173"
+              }
+            ],
+            "selectorMatches": {
+              "input[type=password]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "url_pattern_mismatch",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses an element in a closed shadow root",
+      "source": "browser-secrets M1 strict rule; secure-browser-mcp EMG-66 (staged on 599e7d5) docs/IFRAMES.md: closed shadow roots are not traversed",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-67",
+                "url": "https://shop.example/checkout",
+                "origin": "https://shop.example"
+              }
+            ],
+            "shadowRoot": "closed",
+            "selectorMatches": {
+              "input[name=cardNumber]": true
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "unsupported_shadow_root",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses a target without selector evidence",
+      "source": "browser-secrets M1 strict rule: missing selector evidence denies",
+      "secret": {
+        "secretId": "card-2",
+        "staticProperties": {
+          "sbm:origin": "https://shop.example",
+          "sbm:fields": "{\"number\":\"input[name=cardNumber]\",\"cvc\":\"input[name=cardCvc]\"}"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "key": "number",
+            "elementId": "cardNumber"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "https://shop.example/checkout",
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-66",
+                "url": "https://shop.example/checkout",
+                "origin": "https://shop.example"
+              }
+            ],
+            "selectorMatches": {}
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "selector_evidence_missing",
+        "targetIndex": 0
+      }
+    },
+    {
+      "kind": "authorize",
+      "name": "refuses an element that does not match the bound selector",
+      "source": "secure-browser-mcp@599e7d5 src/broker/binding.ts BindingPolicy.assertAllowed (selector)",
+      "secret": {
+        "secretId": "mock-secret-1",
+        "name": "demo-login-password",
+        "staticProperties": {
+          "sbm:origin": "http://localhost:4173",
+          "sbm:url-pattern": "/login*",
+          "sbm:selector": "input[type=password]"
+        }
+      },
+      "request": {
+        "targets": [
+          {
+            "elementId": "username"
+          }
+        ]
+      },
+      "observation": {
+        "browserSessionId": "session-1",
+        "tabId": "tab-1",
+        "topLevelUrl": "http://localhost:4173/login",
+        "targets": [
+          {
+            "elementId": "username",
+            "frames": [
+              {
+                "frameId": "main",
+                "documentId": "doc-main-13",
+                "url": "http://localhost:4173/login",
+                "origin": "http://localhost:4173"
+              }
+            ],
+            "selectorMatches": {
+              "input[type=password]": false
+            }
+          }
+        ]
+      },
+      "expect": {
+        "allowed": false,
+        "reason": "selector_mismatch",
+        "targetIndex": 0
+      }
+    }
+  ]
+}

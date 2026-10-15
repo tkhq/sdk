@@ -4763,6 +4763,12 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  packages/browser-secrets:
+    dependencies:
+      urlpattern-polyfill:
+        specifier: 10.1.0
+        version: 10.1.0
+
   packages/core:
     dependencies:
       '@react-native-async-storage/async-storage':
@@ -19278,6 +19284,9 @@ packages:
 
   url-set-query@1.0.0:
     resolution: {integrity: sha512-3AChu4NiXquPfeckE5R5cGdiHCMWJx1dwCWOmWIL4KHAziJNOFIYJlpGFeKDvwLPHovZRCxK3cYlwzqI9Vp+Gg==}
+
+  urlpattern-polyfill@10.1.0:
+    resolution: {integrity: sha512-IGjKp/o0NL3Bso1PymYURCJxMPNAf/ILOpendP9f5B6e1rTJgdgiOvgfoT8VxCAdY+Wisb9uhGaJJf3yZ2V9nw==}
 
   usb@2.16.0:
     resolution: {integrity: sha512-jD88fvzDViMDH5KmmNJgzMBDj/95bDTt6+kBNaNxP4G98xUTnDMiLUY2CYmToba6JAFhM9VkcaQuxCNRLGR7zg==}
@@ -47239,6 +47248,8 @@ snapshots:
       requires-port: 1.0.0
 
   url-set-query@1.0.0: {}
+
+  urlpattern-polyfill@10.1.0: {}
 
   usb@2.16.0:
     dependencies:
