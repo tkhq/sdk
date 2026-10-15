@@ -422,3 +422,81 @@ describe("indexOf and regex scan paths agree", () => {
     }
   });
 });
+
+describe("value expiry", () => {
+  const clock = () => {
+    let now = 1_000;
+    return { now: () => now, advance: (ms: number) => void (now += ms) };
+  };
+
+  test("a short-lived value stops matching in every form after its expiry", () => {
+    const c = clock();
+    const registry = new RedactionRegistry({ now: c.now });
+    registry.registerValues([
+      { value: "4111 1111 1111 1111", secretId: "card", expiresAt: 2_000 },
+      { value: "hunter2-password", secretId: "pw" },
+    ]);
+    const text =
+      "4111-1111-1111-1111 4111%201111%201111%201111 hunter2-password";
+    expect(registry.scrubText(text)).toBe(
+      "[REDACTED:card] [REDACTED:card] [REDACTED:pw]",
+    );
+    c.advance(999);
+    expect(registry.findSecretIds(text)).toEqual(["card", "pw"]);
+    c.advance(1);
+    expect(registry.scrubText(text)).toBe(
+      "4111-1111-1111-1111 4111%201111%201111%201111 [REDACTED:pw]",
+    );
+  });
+
+  test("a permanent registration wins, and a later expiry extends an earlier one", () => {
+    const c = clock();
+    const registry = new RedactionRegistry({ now: c.now });
+    registry.registerValue("482913", "a", { expiresAt: 2_000 });
+    registry.registerValue("482913", "a");
+    registry.registerValue("555666", "b", { expiresAt: 2_000 });
+    registry.registerValue("555666", "b", { expiresAt: 4_000 });
+    registry.registerValue("555666", "c", { expiresAt: 3_000 });
+    c.advance(1_500);
+    expect(registry.findSecretIds("482913 555666")).toEqual(["a", "b", "c"]);
+    c.advance(1_000);
+    expect(registry.findSecretIds("482913 555666")).toEqual(["a", "b"]);
+    c.advance(1_000);
+    expect(registry.findSecretIds("482913 555666")).toEqual(["a"]);
+  });
+
+  test("past or invalid expiries are not registered; target tags do not expire", () => {
+    const c = clock();
+    const registry = new RedactionRegistry({ now: c.now });
+    registry.registerValues([
+      { value: "past-value", secretId: "a", expiresAt: 1_000 },
+      { value: "nan-value", secretId: "b", expiresAt: Number.NaN },
+    ]);
+    expect(registry.valueCount).toBe(0);
+    const tag: RedactionTarget = {
+      browserSessionId: "b",
+      tabId: "t",
+      frameId: "f",
+      documentId: "d",
+      elementId: "otp-input",
+    };
+    registry.registerValue("482913", "otp", { expiresAt: 2_000 });
+    registry.registerTarget(tag, "otp");
+    c.advance(5_000);
+    expect(registry.valueCount).toBe(0);
+    expect(registry.isRegisteredTarget(tag)).toBe(true);
+  });
+
+  test("releaseSecret and clear drop pending expiries", () => {
+    const c = clock();
+    const registry = new RedactionRegistry({ now: c.now });
+    registry.registerValue("482913", "otp", { expiresAt: 2_000 });
+    registry.releaseSecret("otp");
+    registry.registerValue("482913", "otp");
+    registry.registerValue("555666", "x", { expiresAt: 2_000 });
+    registry.clear();
+    registry.registerValue("555666", "x");
+    c.advance(5_000);
+    expect(registry.findSecretIds("482913 555666")).toEqual(["x"]);
+  });
+});

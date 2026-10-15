@@ -1,8 +1,8 @@
 # @turnkey/browser-secrets
 
-Destination binding, target authorization, and output redaction for browser agents that fill Turnkey secrets into web pages.
+Destination binding, target authorization, and output redaction for browser agents that fill stored secrets into web pages. It works with any secret store through a source contract. Turnkey is the default source.
 
-> Status: early and unpublished (`private` in `package.json`). This version has the binding, decision, and redaction core only. It does not call Turnkey yet. The API can change before the first stable release.
+> Status: early and unpublished (`private` in `package.json`). This version has the binding, decision, redaction, and source-contract core. It does not call Turnkey yet. The API can change before the first stable release.
 
 ## Scope
 
@@ -13,11 +13,12 @@ The package decides whether a secret may be written into a specific element on a
 - `authorize` is a pure decision: `allowed`, or a typed deny reason that is safe to show an agent.
 - `RedactionRegistry` scrubs values and tags document-scoped target elements.
 - `BrowserSecretsError` and `toSafeError` carry fixed messages and codes only.
+- `SecretSource`, `requireSources`, `connectSource`, and `manifestSource` connect a secret store. See [Secret sources](#secret-sources).
 - `fixtures/conformance.json` holds one case per deny reason, the frame-ancestry rules, and every binding key. `runConformanceFixture` runs it.
 
 ## Destination bindings
 
-A secret's binding comes from its static properties, which are fixed at import:
+A secret's binding comes from its static properties. Turnkey sets them when the secret is imported, and they cannot change. A manifest-based source compiles them from operator config. Every source uses the same keys:
 
 | Property           | Meaning                                                                                                 |
 | ------------------ | ------------------------------------------------------------------------------------------------------- |
@@ -28,6 +29,16 @@ A secret's binding comes from its static properties, which are fixed at import:
 | `sbm:fields`       | Optional. JSON map from payload key to CSS selector, for a JSON secret with several parts.              |
 
 Without `sbm:origin` the secret is unbound and never fills. A malformed declared part makes the binding invalid, and the secret never fills; it never falls back to a looser binding. Unknown keys are kept on the `SecretRef` and ignored by the decision.
+
+Each consumer owns one static property prefix and reads only its own keys. A new consumer picks a new prefix.
+
+| Prefix   | Owner                                                    |
+| -------- | -------------------------------------------------------- |
+| `sbm:`   | Destination bindings, read by this package               |
+| `valet:` | Valet                                                    |
+| `op:`    | 1Password provenance, for example `op:ref`, `op:version` |
+| `aws:`   | AWS Secrets Manager provenance                           |
+| `demo:`  | Relay demo metadata                                      |
 
 ## Usage
 
@@ -88,8 +99,58 @@ const safeOutput = registry.scrub(toolResult);
 - Values shorter than `minValueLength` (default 4) are not text-scanned. `registerValues` returns the IDs it skipped.
 - JS strings cannot be zeroized; `releaseSecret` drops references only. Errors never include a raw Turnkey response, a caught error's message, or secret material.
 
+## Secret sources
+
+A source is a secret store. It implements `SecretSource`: `id`, `capabilities`, `listRefs`, `export`, and `resume` (required when it supports approvals). `export` and `resume` return the value to the core, never to the agent, as one of:
+
+- `ready`: `ciphertext` (encrypted to the core's per-request key) or `plaintext` (only for a source inside the trusted host). `expiresAt` marks a one-time code; pass it to `registerValue`.
+- `pending`: waiting for approval. The handle is plain JSON. Persist it with the parked fill, encrypted, because `handle.state` can hold key material. Call `resume` with it; `resume` checks once and returns `pending` again until approvers act.
+- `denied`: the source refused.
+- `failed`: `submitted: "no"` means a retry is safe. `"unknown"` means do not retry on your own.
+
+Denied and failed outcomes carry a fixed code and the IDs only. Wrap vendor errors with `toSourceReason`.
+
+The host, never the agent, states what it requires. The defaults are strict: every guarantee Turnkey gives (approvals, bindings fixed at the source, policy on each export, a signed audit record, ciphertext delivery). `connectSource` refuses a source that does not meet them with a `source_refused` error and a typed reason, such as `approvals_required`. A host that accepts less names each guarantee it gives up:
+
+```ts
+const source = connectSource(turnkeySource); // strict defaults
+
+const onePassword = manifestSource({
+  id: "onepassword",
+  entries: [
+    {
+      secretId: "op://<vaultId>/<itemId>",
+      binding: { origin: "https://shop.example", urlPattern: "/login*" },
+      properties: { "op:ref": "op://<vaultId>/<itemId>/password" },
+    },
+  ],
+  resolve: async (entry) =>
+    client.secrets.resolve(entry.properties!["op:ref"]!),
+  verify: async (ref) => itemWebsiteMatches(ref.secretId, ref.binding!.origin),
+  audit: "provider-log",
+});
+const selfHosted = connectSource(
+  onePassword,
+  requireSources({
+    approvals: false,
+    bindings: "any",
+    exportPolicy: false,
+    audit: "any",
+    delivery: "any",
+  }),
+);
+```
+
+`connectSource` stamps each ref with `source` and `bindingProvenance`, rebuilds outcomes from known fields only, and turns a thrown error into `failed` with `submitted: "unknown"`. `manifestSource` lists its entries only, runs `verify` and then `resolve` on every export with no cache, and refuses an entry that does not bind. Each host connects one source.
+
+`fixtures/source-outcomes.json` holds the scenarios every source must pass: ready, denied, unknown secret, failure before submission, unknown submission, approved, still pending, rejected, and expired. Run them with `runSourceConformance` and a harness that puts your backend (or a mock) into each scenario.
+
+### Cross-channel rule
+
+A secret with `sbm:origin` leaves its source only through browser-secrets. A host that also delivers secrets another way (for example `valet-secrets run`, which puts values into a process environment) must not deliver a secret with `sbm:origin` that way, or the binding does not hold. Until Turnkey policy can enforce this (EMG-173, EMG-65), each host filters on `sbm:origin` before env-style delivery.
+
 ## Not included yet
 
-- The Turnkey backend (export, approval, decryption on `@turnkey/sdk-server`).
+- The Turnkey source (export, approval, decryption on `@turnkey/sdk-server`, EMG-165).
 - Fill and resume orchestration, pending-fill storage, and typed delivery outcomes.
 - Browser adapters. These stay in the host repositories.
