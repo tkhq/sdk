@@ -24,9 +24,6 @@ services:
       interval: 3s
       timeout: 10s
       retries: 5
-      # Checks that fail during start_period don't count, so a slow runner
-      # gets time for the Canton JVM to start. A passing check ends it early.
-      start_period: 120s
 
   # Builds the DAR archive from the daml sources
   build:

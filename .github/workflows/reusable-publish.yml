@@ -64,7 +64,7 @@ jobs:
         uses: ./.github/actions/js-setup
 
       - name: Build
-        run: pnpm build
+        run: pnpm build --filter='./packages/*'
 
       - name: Publish to NPM (dry run)
         run: |
@@ -95,7 +95,7 @@ jobs:
         uses: ./.github/actions/js-setup
 
       - name: Build
-        run: pnpm build
+        run: pnpm build --filter='./packages/*'
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
