@@ -1,5 +1,12 @@
 # @turnkey/telegram-cloud-storage-stamper
 
+## 2.1.19
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.18
+
 ## 2.1.18
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @turnkey/sdk-types
 
+## 1.11.0
+
+### Minor Changes
+
+- [#1601](https://github.com/tkhq/sdk/pull/1601) [`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Sync generated clients and types with mono `main` (2026-10-15).
+  - Add `upsertSwapFeeSponsorshipLimitConfig`, `upsertSwapFixedRateLimitConfig`, and `getSwapSponsorshipUsage` (plus `stamp*` variants).
+  - `createSwapQuote` now sends `ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3`. V3 accepts the optional `feeSponsorship` and `fixedRate` flags (both default to false, matching V2), and quotes include `feeSponsorship`, `fixedRate`, and `estimatedFixedRateAdjustmentUsd`.
+  - `@turnkey/http`: add `getFiatOnRampQuote` and `createFiatOnRampSession`. `deleteVelocityControl` is renamed to `deleteVelocityControls` to match the API.
+  - Earn intents take `caip2` instead of `chainCaip2`, matching the API rename.
+  - `FiatOnRampBlockchainNetwork.BITCOIN` is removed because the API no longer accepts it. `react-wallet-kit`'s `handleOnRamp` now throws for Bitcoin wallet accounts instead of sending a request the API rejects.
+
 ## 1.10.0
 
 ### Minor Changes
