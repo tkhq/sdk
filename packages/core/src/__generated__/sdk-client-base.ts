@@ -1883,6 +1883,53 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getSwapSponsorshipUsage = async (
+    input: SdkTypes.TGetSwapSponsorshipUsageBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetSwapSponsorshipUsageResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_swap_sponsorship_usage",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetSwapSponsorshipUsage = async (
+    input: SdkTypes.TGetSwapSponsorshipUsageBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_swap_sponsorship_usage";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getSwapStatus = async (
     input: SdkTypes.TGetSwapStatusBody,
     stampWith?: StamperType,
@@ -4870,9 +4917,9 @@ export class TurnkeySDKClientBase {
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
         generateAppProofs: generateAppProofs ?? false,
-        type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2",
+        type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3",
       },
-      "createSwapQuoteResult",
+      "createSwapQuoteResultV2",
       stampWith,
     );
   };
@@ -4896,7 +4943,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2",
+      type: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -10152,6 +10199,124 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPSERT_SWAP_CONFIG",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  upsertSwapFeeSponsorshipLimitConfig = async (
+    input: SdkTypes.TUpsertSwapFeeSponsorshipLimitConfigBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TUpsertSwapFeeSponsorshipLimitConfigResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/upsert_swap_fee_sponsorship_limit_config",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_UPSERT_SWAP_FEE_SPONSORSHIP_LIMIT_CONFIG",
+      },
+      "upsertSwapFeeSponsorshipLimitConfigResult",
+      stampWith,
+    );
+  };
+
+  stampUpsertSwapFeeSponsorshipLimitConfig = async (
+    input: SdkTypes.TUpsertSwapFeeSponsorshipLimitConfigBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/upsert_swap_fee_sponsorship_limit_config";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPSERT_SWAP_FEE_SPONSORSHIP_LIMIT_CONFIG",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  upsertSwapFixedRateLimitConfig = async (
+    input: SdkTypes.TUpsertSwapFixedRateLimitConfigBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TUpsertSwapFixedRateLimitConfigResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/upsert_swap_fixed_rate_limit_config",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_UPSERT_SWAP_FIXED_RATE_LIMIT_CONFIG",
+      },
+      "upsertSwapFixedRateLimitConfigResult",
+      stampWith,
+    );
+  };
+
+  stampUpsertSwapFixedRateLimitConfig = async (
+    input: SdkTypes.TUpsertSwapFixedRateLimitConfigBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/upsert_swap_fixed_rate_limit_config";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPSERT_SWAP_FIXED_RATE_LIMIT_CONFIG",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

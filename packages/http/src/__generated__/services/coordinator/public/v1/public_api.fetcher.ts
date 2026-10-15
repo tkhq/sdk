@@ -215,9 +215,9 @@ export type TGetAppStatusBody =
   operations["PublicApiService_GetAppStatus"]["parameters"]["body"]["body"];
 
 /**
- * Get TVC App status
+ * Get TVC app status
  *
- * Get live runtime status for a TVC App from the cluster.
+ * Get live runtime status for a TVC app from the cluster.
  *
  * `POST /public/v1/query/get_app_status`
  */
@@ -365,9 +365,9 @@ export type TGetBootProofBody =
   operations["PublicApiService_GetBootProof"]["parameters"]["body"]["body"];
 
 /**
- * Get a specific boot proof
+ * Get a specific Boot Proof
  *
- * Get the boot proof for a given ephemeral key.
+ * Get the Boot Proof for a given ephemeral key.
  *
  * `POST /public/v1/query/get_boot_proof`
  */
@@ -660,6 +660,58 @@ export const signGetEarnWithdrawStatus = (
   });
 
 /**
+ * `POST /public/v1/query/get_fiat_on_ramp_quote`
+ */
+export type TGetFiatOnRampQuoteResponse =
+  operations["PublicApiService_GetFiatOnRampQuote"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_fiat_on_ramp_quote`
+ */
+export type TGetFiatOnRampQuoteInput = { body: TGetFiatOnRampQuoteBody };
+
+/**
+ * `POST /public/v1/query/get_fiat_on_ramp_quote`
+ */
+export type TGetFiatOnRampQuoteBody =
+  operations["PublicApiService_GetFiatOnRampQuote"]["parameters"]["body"]["body"];
+
+/**
+ * Get a Fiat On Ramp quote
+ *
+ * Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.
+ *
+ * `POST /public/v1/query/get_fiat_on_ramp_quote`
+ */
+export const getFiatOnRampQuote = (input: TGetFiatOnRampQuoteInput) =>
+  request<
+    TGetFiatOnRampQuoteResponse,
+    TGetFiatOnRampQuoteBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_fiat_on_ramp_quote",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetFiatOnRampQuote` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetFiatOnRampQuote}
+ */
+export const signGetFiatOnRampQuote = (
+  input: TGetFiatOnRampQuoteInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetFiatOnRampQuoteBody, never, never>({
+    uri: "/public/v1/query/get_fiat_on_ramp_quote",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_gas_usage`
  */
 export type TGetGasUsageResponse =
@@ -769,9 +821,9 @@ export type TGetLatestBootProofBody =
   operations["PublicApiService_GetLatestBootProof"]["parameters"]["body"]["body"];
 
 /**
- * Get the latest boot proof for an app
+ * Get the latest Boot Proof for an app
  *
- * Get the latest boot proof for a given enclave app name.
+ * Get the latest Boot Proof for a given enclave app name.
  *
  * `POST /public/v1/query/get_latest_boot_proof`
  */
@@ -1057,7 +1109,7 @@ export type TGetOauthProvidersBody =
   operations["PublicApiService_GetOauthProviders"]["parameters"]["body"]["body"];
 
 /**
- * Get Oauth providers
+ * Get OAuth providers
  *
  * Get details about Oauth providers for a user.
  *
@@ -1608,6 +1660,60 @@ export const signGetSmartContractInterface = (
   });
 
 /**
+ * `POST /public/v1/query/get_swap_sponsorship_usage`
+ */
+export type TGetSwapSponsorshipUsageResponse =
+  operations["PublicApiService_GetSwapSponsorshipUsage"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_swap_sponsorship_usage`
+ */
+export type TGetSwapSponsorshipUsageInput = {
+  body: TGetSwapSponsorshipUsageBody;
+};
+
+/**
+ * `POST /public/v1/query/get_swap_sponsorship_usage`
+ */
+export type TGetSwapSponsorshipUsageBody =
+  operations["PublicApiService_GetSwapSponsorshipUsage"]["parameters"]["body"]["body"];
+
+/**
+ * Get swap sponsorship usage
+ *
+ * Read each swap sponsorship feature's spending window and settled spending in the current rolling window. Parents see aggregate spending; children see their own spending. Pending swaps are not reserved.
+ *
+ * `POST /public/v1/query/get_swap_sponsorship_usage`
+ */
+export const getSwapSponsorshipUsage = (input: TGetSwapSponsorshipUsageInput) =>
+  request<
+    TGetSwapSponsorshipUsageResponse,
+    TGetSwapSponsorshipUsageBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_swap_sponsorship_usage",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetSwapSponsorshipUsage` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetSwapSponsorshipUsage}
+ */
+export const signGetSwapSponsorshipUsage = (
+  input: TGetSwapSponsorshipUsageInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetSwapSponsorshipUsageBody, never, never>({
+    uri: "/public/v1/query/get_swap_sponsorship_usage",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_swap_status`
  */
 export type TGetSwapStatusResponse =
@@ -1625,7 +1731,7 @@ export type TGetSwapStatusBody =
   operations["PublicApiService_GetSwapStatus"]["parameters"]["body"]["body"];
 
 /**
- * Get swap status
+ * Get Swap status
  *
  * Poll the status of a swap by its swap_request_id. Covers same-chain and cross-chain swaps.
  *
@@ -1671,9 +1777,9 @@ export type TGetTvcAppBody =
   operations["PublicApiService_GetTvcApp"]["parameters"]["body"]["body"];
 
 /**
- * Get TVC App
+ * Get TVC app
  *
- * Get details about a single TVC App
+ * Get details about a single TVC app.
  *
  * `POST /public/v1/query/get_tvc_app`
  */
@@ -1717,9 +1823,9 @@ export type TGetTvcDeploymentBody =
   operations["PublicApiService_GetTvcDeployment"]["parameters"]["body"]["body"];
 
 /**
- * Get TVC Deployment
+ * Get TVC deployment
  *
- * Get details about a single TVC Deployment
+ * Get details about a single TVC deployment.
  *
  * `POST /public/v1/query/get_tvc_deployment`
  */
@@ -1771,7 +1877,7 @@ export type TGetTvcDeploymentDebugLogsBody =
   operations["PublicApiService_GetTvcDeploymentDebugLogs"]["parameters"]["body"]["body"];
 
 /**
- * Get TVC Deployment debug logs
+ * Get TVC deployment debug logs
  *
  * Get a bounded window of application logs from a debug-mode TVC deployment. Returned lines are collected from every running replica and sorted by platform timestamp.
  *
@@ -1827,9 +1933,9 @@ export type TGetTvcDeploymentProvisioningDetailsBody =
   operations["PublicApiService_GetTvcDeploymentProvisioningDetails"]["parameters"]["body"]["body"];
 
 /**
- * Get TVC Deployment's Provisioning Details
+ * Get TVC deployment's provisioning details
  *
- * Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment
+ * Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment.
  *
  * `POST /public/v1/query/get_tvc_deployment_provisioning_details`
  */
@@ -2577,7 +2683,7 @@ export type TListFiatOnRampCredentialsBody =
   operations["PublicApiService_ListFiatOnRampCredentials"]["parameters"]["body"]["body"];
 
 /**
- * List Fiat On Ramp Credentials
+ * List Fiat On Ramp credentials
  *
  * List all fiat on ramp provider credentials within an organization.
  *
@@ -2631,7 +2737,7 @@ export type TListOauth2CredentialsBody =
   operations["PublicApiService_ListOauth2Credentials"]["parameters"]["body"]["body"];
 
 /**
- * List OAuth 2.0 Credentials
+ * List OAuth 2.0 credentials
  *
  * List all OAuth 2.0 credentials within an organization.
  *
@@ -2987,7 +3093,7 @@ export type TGetSubOrgIdsBody =
 /**
  * Get sub-organizations
  *
- * Get all suborg IDs associated given a parent org ID and an optional filter.
+ * Get all suborg IDs (verified and unverified) associated with a given parent organization ID and an optional filter.
  *
  * `POST /public/v1/query/list_suborgs`
  */
@@ -3083,9 +3189,9 @@ export type TGetTvcAppDeploymentsBody =
   operations["PublicApiService_GetTvcAppDeployments"]["parameters"]["body"]["body"];
 
 /**
- * List TVC Deployments
+ * List TVC deployments
  *
- * List all deployments for a given TVC App
+ * List all deployments for a given TVC app.
  *
  * `POST /public/v1/query/list_tvc_app_deployments`
  */
@@ -3135,9 +3241,9 @@ export type TGetTvcAppsBody =
   operations["PublicApiService_GetTvcApps"]["parameters"]["body"]["body"];
 
 /**
- * List TVC Apps
+ * List TVC apps
  *
- * List all TVC Apps within an organization.
+ * List all TVC apps within an organization.
  *
  * `POST /public/v1/query/list_tvc_apps`
  */
@@ -3227,9 +3333,9 @@ export type TGetTvcQuorumKeysBody =
   operations["PublicApiService_GetTvcQuorumKeys"]["parameters"]["body"]["body"];
 
 /**
- * List TVC quorum keys
+ * List TVC Quorum Keys
  *
- * List all hosted TVC quorum keys within an organization, newest first.
+ * List all hosted TVC Quorum Keys within an organization, newest first.
  *
  * `POST /public/v1/query/list_tvc_quorum_keys`
  */
@@ -3425,7 +3531,7 @@ export type TGetVerifiedSubOrgIdsBody =
 /**
  * Get verified sub-organizations
  *
- * Get all email or phone verified suborg IDs associated given a parent org ID.
+ * Get all verified suborg IDs associated with a given parent organization ID and an optional filter.
  *
  * `POST /public/v1/query/list_verified_suborgs`
  */
@@ -3625,9 +3731,9 @@ export type TValidateTvcImageBody =
   operations["PublicApiService_ValidateTvcImage"]["parameters"]["body"]["body"];
 
 /**
- * Validate Container Image for TVC
+ * Validate container image for TVC
  *
- * Validate a container image URL and pull secret for TVC deployment
+ * Validate a container image URL and pull secret for TVC deployment.
  *
  * `POST /public/v1/query/validate_tvc_image`
  */
@@ -3679,7 +3785,7 @@ export type TGetWhoamiBody =
 /**
  * Who am I?
  *
- * Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users.
+ * Get basic information about your current API or WebAuthn user and their organization. Affords sub-organization lookups via parent organization for WebAuthn or API key users.
  *
  * `POST /public/v1/query/whoami`
  */
@@ -3769,7 +3875,7 @@ export type TClaimEarnFeesBody =
   operations["PublicApiService_ClaimEarnFees"]["parameters"]["body"]["body"];
 
 /**
- * Claim earn fees
+ * Claim Earn fees
  *
  * Claim earn fees through the activity pipeline.
  *
@@ -3815,7 +3921,7 @@ export type TClaimSwapFeesBody =
   operations["PublicApiService_ClaimSwapFees"]["parameters"]["body"]["body"];
 
 /**
- * Claim swap fees
+ * Claim Swap fees
  *
  * Claim swap fees through the activity pipeline.
  *
@@ -4013,9 +4119,9 @@ export type TCreateFiatOnRampCredentialBody =
   operations["PublicApiService_CreateFiatOnRampCredential"]["parameters"]["body"]["body"];
 
 /**
- * Create a Fiat On Ramp Credential
+ * Create a Fiat On Ramp credential
  *
- * Create a fiat on ramp provider credential
+ * Create a fiat on ramp provider credential.
  *
  * `POST /public/v1/submit/create_fiat_on_ramp_credential`
  */
@@ -4045,6 +4151,60 @@ export const signCreateFiatOnRampCredential = (
 ) =>
   signedRequest<TCreateFiatOnRampCredentialBody, never, never>({
     uri: "/public/v1/submit/create_fiat_on_ramp_credential",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_fiat_on_ramp_session`
+ */
+export type TCreateFiatOnRampSessionResponse =
+  operations["PublicApiService_CreateFiatOnRampSession"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_fiat_on_ramp_session`
+ */
+export type TCreateFiatOnRampSessionInput = {
+  body: TCreateFiatOnRampSessionBody;
+};
+
+/**
+ * `POST /public/v1/submit/create_fiat_on_ramp_session`
+ */
+export type TCreateFiatOnRampSessionBody =
+  operations["PublicApiService_CreateFiatOnRampSession"]["parameters"]["body"]["body"];
+
+/**
+ * Create Fiat On Ramp Session
+ *
+ * Open a fiat on-ramp session for a saved quote.
+ *
+ * `POST /public/v1/submit/create_fiat_on_ramp_session`
+ */
+export const createFiatOnRampSession = (input: TCreateFiatOnRampSessionInput) =>
+  request<
+    TCreateFiatOnRampSessionResponse,
+    TCreateFiatOnRampSessionBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_fiat_on_ramp_session",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateFiatOnRampSession` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateFiatOnRampSession}
+ */
+export const signCreateFiatOnRampSession = (
+  input: TCreateFiatOnRampSessionInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateFiatOnRampSessionBody, never, never>({
+    uri: "/public/v1/submit/create_fiat_on_ramp_session",
     body: input.body,
     options,
   });
@@ -4167,9 +4327,9 @@ export type TCreateOauth2CredentialBody =
   operations["PublicApiService_CreateOauth2Credential"]["parameters"]["body"]["body"];
 
 /**
- * Create an OAuth 2.0 Credential
+ * Create an OAuth 2.0 credential
  *
- * Enable authentication for end users with an OAuth 2.0 provider
+ * Enable authentication for end users with an OAuth 2.0 provider.
  *
  * `POST /public/v1/submit/create_oauth2_credential`
  */
@@ -4219,7 +4379,7 @@ export type TCreateOauthProvidersBody =
   operations["PublicApiService_CreateOauthProviders"]["parameters"]["body"]["body"];
 
 /**
- * Create Oauth providers
+ * Create OAuth providers
  *
  * Create Oauth providers for a specified user.
  *
@@ -4733,9 +4893,9 @@ export type TCreateSwapQuoteBody =
   operations["PublicApiService_CreateSwapQuote"]["parameters"]["body"]["body"];
 
 /**
- * Get swap quote
+ * Create Swap quote
  *
- * Get a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported.
+ * Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3.
  *
  * `POST /public/v1/submit/create_swap_quote`
  */
@@ -4779,9 +4939,9 @@ export type TCreateTvcAppBody =
   operations["PublicApiService_CreateTvcApp"]["parameters"]["body"]["body"];
 
 /**
- * Create a TVC App
+ * Create a TVC app
  *
- * Create a new TVC application
+ * Create a new TVC application.
  *
  * `POST /public/v1/submit/create_tvc_app`
  */
@@ -4825,9 +4985,9 @@ export type TCreateTvcDeploymentBody =
   operations["PublicApiService_CreateTvcDeployment"]["parameters"]["body"]["body"];
 
 /**
- * Create a TVC Deployment
+ * Create a TVC deployment
  *
- * Create a new TVC Deployment
+ * Create a new TVC deployment.
  *
  * `POST /public/v1/submit/create_tvc_deployment`
  */
@@ -4879,9 +5039,9 @@ export type TCreateTvcManifestApprovalsBody =
   operations["PublicApiService_CreateTvcManifestApprovals"]["parameters"]["body"]["body"];
 
 /**
- * Create TVC Manifest Approvals
+ * Create TVC manifest approvals
  *
- * Post one or more manifest approvals for a TVC Manifest
+ * Post one or more manifest approvals for a TVC manifest.
  *
  * `POST /public/v1/submit/create_tvc_manifest_approvals`
  */
@@ -4933,9 +5093,9 @@ export type TCreateTvcOperatorBody =
   operations["PublicApiService_CreateTvcOperator"]["parameters"]["body"]["body"];
 
 /**
- * Create TVC Operator
+ * Create TVC operator
  *
- * Create a TVC Operator backed by uncompressed P-256 Turnkey wallet accounts
+ * Create a TVC operator backed by uncompressed P-256 Turnkey wallet accounts.
  *
  * `POST /public/v1/submit/create_tvc_operator`
  */
@@ -4987,7 +5147,7 @@ export type TCreateTvcQuorumKeyBody =
 /**
  * Create TVC Quorum Key
  *
- * Create a hosted TVC quorum key and encrypted shares.
+ * Create a hosted TVC Quorum Key and encrypted shares.
  *
  * `POST /public/v1/submit/create_tvc_quorum_key`
  */
@@ -5333,7 +5493,7 @@ export type TDeleteApiKeysBody =
 /**
  * Delete API keys
  *
- * Remove api keys from a user.
+ * Remove API keys from a user.
  *
  * `POST /public/v1/submit/delete_api_keys`
  */
@@ -5431,9 +5591,9 @@ export type TDeleteFiatOnRampCredentialBody =
   operations["PublicApiService_DeleteFiatOnRampCredential"]["parameters"]["body"]["body"];
 
 /**
- * Delete a Fiat On Ramp Credential
+ * Delete a Fiat On Ramp credential
  *
- * Delete a fiat on ramp provider credential
+ * Delete a fiat on ramp provider credential.
  *
  * `POST /public/v1/submit/delete_fiat_on_ramp_credential`
  */
@@ -5585,9 +5745,9 @@ export type TDeleteOauth2CredentialBody =
   operations["PublicApiService_DeleteOauth2Credential"]["parameters"]["body"]["body"];
 
 /**
- * Delete an OAuth 2.0 Credential
+ * Delete an OAuth 2.0 credential
  *
- * Disable authentication for end users with an OAuth 2.0 provider
+ * Disable authentication for end users with an OAuth 2.0 provider.
  *
  * `POST /public/v1/submit/delete_oauth2_credential`
  */
@@ -5637,7 +5797,7 @@ export type TDeleteOauthProvidersBody =
   operations["PublicApiService_DeleteOauthProviders"]["parameters"]["body"]["body"];
 
 /**
- * Delete Oauth providers
+ * Delete OAuth providers
  *
  * Remove Oauth providers for a specified user.
  *
@@ -6041,9 +6201,9 @@ export type TDeleteTvcAppAndDeploymentsBody =
   operations["PublicApiService_DeleteTvcAppAndDeployments"]["parameters"]["body"]["body"];
 
 /**
- * Delete a TVC App and all of its deployments
+ * Delete a TVC app and all of its deployments
  *
- * Delete a TVC App and all of its deployments
+ * Delete a TVC app and all of its deployments.
  *
  * `POST /public/v1/submit/delete_tvc_app_and_deployments`
  */
@@ -6095,9 +6255,9 @@ export type TDeleteTvcDeploymentBody =
   operations["PublicApiService_DeleteTvcDeployment"]["parameters"]["body"]["body"];
 
 /**
- * Delete a TVC Deployment
+ * Delete a TVC deployment
  *
- * Delete a TVC Deployment
+ * Delete a TVC deployment.
  *
  * `POST /public/v1/submit/delete_tvc_deployment`
  */
@@ -6222,53 +6382,55 @@ export const signDeleteUsers = (
   });
 
 /**
- * `POST /public/v1/submit/delete_velocity_control`
+ * `POST /public/v1/submit/delete_velocity_controls`
  */
-export type TDeleteVelocityControlResponse =
-  operations["PublicApiService_DeleteVelocityControl"]["responses"]["200"]["schema"];
+export type TDeleteVelocityControlsResponse =
+  operations["PublicApiService_DeleteVelocityControls"]["responses"]["200"]["schema"];
 
 /**
- * `POST /public/v1/submit/delete_velocity_control`
+ * `POST /public/v1/submit/delete_velocity_controls`
  */
-export type TDeleteVelocityControlInput = { body: TDeleteVelocityControlBody };
+export type TDeleteVelocityControlsInput = {
+  body: TDeleteVelocityControlsBody;
+};
 
 /**
- * `POST /public/v1/submit/delete_velocity_control`
+ * `POST /public/v1/submit/delete_velocity_controls`
  */
-export type TDeleteVelocityControlBody =
-  operations["PublicApiService_DeleteVelocityControl"]["parameters"]["body"]["body"];
+export type TDeleteVelocityControlsBody =
+  operations["PublicApiService_DeleteVelocityControls"]["parameters"]["body"]["body"];
 
 /**
- * Delete velocity control
+ * Delete velocity controls
  *
- * Delete an existing velocity control.
+ * Delete existing velocity controls.
  *
- * `POST /public/v1/submit/delete_velocity_control`
+ * `POST /public/v1/submit/delete_velocity_controls`
  */
-export const deleteVelocityControl = (input: TDeleteVelocityControlInput) =>
+export const deleteVelocityControls = (input: TDeleteVelocityControlsInput) =>
   request<
-    TDeleteVelocityControlResponse,
-    TDeleteVelocityControlBody,
+    TDeleteVelocityControlsResponse,
+    TDeleteVelocityControlsBody,
     never,
     never,
     never
   >({
-    uri: "/public/v1/submit/delete_velocity_control",
+    uri: "/public/v1/submit/delete_velocity_controls",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Request a WebAuthn assertion and return a signed `DeleteVelocityControl` request, ready to be POSTed to Turnkey.
+ * Request a WebAuthn assertion and return a signed `DeleteVelocityControls` request, ready to be POSTed to Turnkey.
  *
- * See {@link DeleteVelocityControl}
+ * See {@link DeleteVelocityControls}
  */
-export const signDeleteVelocityControl = (
-  input: TDeleteVelocityControlInput,
+export const signDeleteVelocityControls = (
+  input: TDeleteVelocityControlsInput,
   options?: TurnkeyCredentialRequestOptions,
 ) =>
-  signedRequest<TDeleteVelocityControlBody, never, never>({
-    uri: "/public/v1/submit/delete_velocity_control",
+  signedRequest<TDeleteVelocityControlsBody, never, never>({
+    uri: "/public/v1/submit/delete_velocity_controls",
     body: input.body,
     options,
   });
@@ -6891,9 +7053,9 @@ export type TExecuteSwapBody =
   operations["PublicApiService_ExecuteSwap"]["parameters"]["body"]["body"];
 
 /**
- * Execute swap
+ * Execute Swap
  *
- * Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V2.
+ * Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V3.
  *
  * `POST /public/v1/submit/execute_swap`
  */
@@ -7277,7 +7439,7 @@ export type TInitFiatOnRampBody =
   operations["PublicApiService_InitFiatOnRamp"]["parameters"]["body"]["body"];
 
 /**
- * Init fiat on ramp
+ * Init Fiat On Ramp
  *
  * Initiate a fiat on ramp flow.
  *
@@ -7623,7 +7785,7 @@ export type TOauthBody =
   operations["PublicApiService_Oauth"]["parameters"]["body"]["body"];
 
 /**
- * Oauth
+ * OAuth
  *
  * Authenticate a user with an OIDC token (Oauth).
  *
@@ -7671,7 +7833,7 @@ export type TOauth2AuthenticateBody =
 /**
  * OAuth 2.0 authentication
  *
- * Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities
+ * Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities.
  *
  * `POST /public/v1/submit/oauth2_authenticate`
  */
@@ -7721,7 +7883,7 @@ export type TOauthLoginBody =
   operations["PublicApiService_OauthLogin"]["parameters"]["body"]["body"];
 
 /**
- * Login with Oauth
+ * Login with OAuth
  *
  * Create an Oauth session for a user.
  *
@@ -7859,9 +8021,9 @@ export type TPostTvcQuorumKeyShareBody =
   operations["PublicApiService_PostTvcQuorumKeyShare"]["parameters"]["body"]["body"];
 
 /**
- * Post TVC Quorum Key Share
+ * Post TVC Quorum Key share
  *
- * Post re-encrypted quorum key share for a TVC deployment.
+ * Post re-encrypted Quorum Key share for a TVC deployment.
  *
  * `POST /public/v1/submit/post_tvc_quorum_key_share`
  */
@@ -7913,9 +8075,9 @@ export type TReEncryptTvcQuorumKeyShareBody =
   operations["PublicApiService_ReEncryptTvcQuorumKeyShare"]["parameters"]["body"]["body"];
 
 /**
- * Re-encrypt TVC Quorum Key Share
+ * Re-encrypt TVC Quorum Key share
  *
- * Re-encrypt a hosted TVC quorum key share for a deployment.
+ * Re-encrypt a hosted TVC Quorum Key share for a deployment.
  *
  * `POST /public/v1/submit/re_encrypt_tvc_quorum_key_share`
  */
@@ -8167,9 +8329,9 @@ export type TRestoreTvcDeploymentBody =
   operations["PublicApiService_RestoreTvcDeployment"]["parameters"]["body"]["body"];
 
 /**
- * Restore a TVC Deployment
+ * Restore a TVC deployment
  *
- * Restore a deleted TVC Deployment
+ * Restore a deleted TVC deployment.
  *
  * `POST /public/v1/submit/restore_tvc_deployment`
  */
@@ -8321,9 +8483,9 @@ export type TUpdateTvcAppLiveDeploymentBody =
   operations["PublicApiService_UpdateTvcAppLiveDeployment"]["parameters"]["body"]["body"];
 
 /**
- * Set TVC App live deployment
+ * Set TVC app live deployment
  *
- * Set the live deployment for a TVC App
+ * Set the live deployment for a TVC app.
  *
  * `POST /public/v1/submit/set_tvc_app_live_deployment`
  */
@@ -8819,9 +8981,9 @@ export type TUpdateFiatOnRampCredentialBody =
   operations["PublicApiService_UpdateFiatOnRampCredential"]["parameters"]["body"]["body"];
 
 /**
- * Update a Fiat On Ramp Credential
+ * Update a Fiat On Ramp credential
  *
- * Update a fiat on ramp provider credential
+ * Update a fiat on ramp provider credential.
  *
  * `POST /public/v1/submit/update_fiat_on_ramp_credential`
  */
@@ -8921,9 +9083,9 @@ export type TUpdateOauth2CredentialBody =
   operations["PublicApiService_UpdateOauth2Credential"]["parameters"]["body"]["body"];
 
 /**
- * Update an OAuth 2.0 Credential
+ * Update an OAuth 2.0 credential
  *
- * Update an OAuth 2.0 provider credential
+ * Update an OAuth 2.0 provider credential.
  *
  * `POST /public/v1/submit/update_oauth2_credential`
  */
@@ -9511,7 +9673,7 @@ export type TUpsertSwapConfigBody =
   operations["PublicApiService_UpsertSwapConfig"]["parameters"]["body"]["body"];
 
 /**
- * Upsert swap config
+ * Upsert Swap config
  *
  * Enable or disable swap configuration for an organization.
  *
@@ -9541,6 +9703,118 @@ export const signUpsertSwapConfig = (
 ) =>
   signedRequest<TUpsertSwapConfigBody, never, never>({
     uri: "/public/v1/submit/upsert_swap_config",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/upsert_swap_fee_sponsorship_limit_config`
+ */
+export type TUpsertSwapFeeSponsorshipLimitConfigResponse =
+  operations["PublicApiService_UpsertSwapFeeSponsorshipLimitConfig"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/upsert_swap_fee_sponsorship_limit_config`
+ */
+export type TUpsertSwapFeeSponsorshipLimitConfigInput = {
+  body: TUpsertSwapFeeSponsorshipLimitConfigBody;
+};
+
+/**
+ * `POST /public/v1/submit/upsert_swap_fee_sponsorship_limit_config`
+ */
+export type TUpsertSwapFeeSponsorshipLimitConfigBody =
+  operations["PublicApiService_UpsertSwapFeeSponsorshipLimitConfig"]["parameters"]["body"]["body"];
+
+/**
+ * Upsert swap fee sponsorship limits
+ *
+ * Replace this feature's spending window. Requires the billing parent's signed permission and activity authorization.
+ *
+ * `POST /public/v1/submit/upsert_swap_fee_sponsorship_limit_config`
+ */
+export const upsertSwapFeeSponsorshipLimitConfig = (
+  input: TUpsertSwapFeeSponsorshipLimitConfigInput,
+) =>
+  request<
+    TUpsertSwapFeeSponsorshipLimitConfigResponse,
+    TUpsertSwapFeeSponsorshipLimitConfigBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/upsert_swap_fee_sponsorship_limit_config",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpsertSwapFeeSponsorshipLimitConfig` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpsertSwapFeeSponsorshipLimitConfig}
+ */
+export const signUpsertSwapFeeSponsorshipLimitConfig = (
+  input: TUpsertSwapFeeSponsorshipLimitConfigInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpsertSwapFeeSponsorshipLimitConfigBody, never, never>({
+    uri: "/public/v1/submit/upsert_swap_fee_sponsorship_limit_config",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/upsert_swap_fixed_rate_limit_config`
+ */
+export type TUpsertSwapFixedRateLimitConfigResponse =
+  operations["PublicApiService_UpsertSwapFixedRateLimitConfig"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/upsert_swap_fixed_rate_limit_config`
+ */
+export type TUpsertSwapFixedRateLimitConfigInput = {
+  body: TUpsertSwapFixedRateLimitConfigBody;
+};
+
+/**
+ * `POST /public/v1/submit/upsert_swap_fixed_rate_limit_config`
+ */
+export type TUpsertSwapFixedRateLimitConfigBody =
+  operations["PublicApiService_UpsertSwapFixedRateLimitConfig"]["parameters"]["body"]["body"];
+
+/**
+ * Upsert swap fixed rate limits
+ *
+ * Replace this feature's spending window. Requires the billing parent's signed permission and activity authorization.
+ *
+ * `POST /public/v1/submit/upsert_swap_fixed_rate_limit_config`
+ */
+export const upsertSwapFixedRateLimitConfig = (
+  input: TUpsertSwapFixedRateLimitConfigInput,
+) =>
+  request<
+    TUpsertSwapFixedRateLimitConfigResponse,
+    TUpsertSwapFixedRateLimitConfigBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/upsert_swap_fixed_rate_limit_config",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpsertSwapFixedRateLimitConfig` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpsertSwapFixedRateLimitConfig}
+ */
+export const signUpsertSwapFixedRateLimitConfig = (
+  input: TUpsertSwapFixedRateLimitConfigInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpsertSwapFixedRateLimitConfigBody, never, never>({
+    uri: "/public/v1/submit/upsert_swap_fixed_rate_limit_config",
     body: input.body,
     options,
   });
@@ -9598,6 +9872,10 @@ export type TNOOPCodegenAnchorResponse =
   operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
 
 /**
+ * Internal codegen anchor (no-op)
+ *
+ * Internal no-op endpoint used to force generation of types not otherwise referenced by a public request or response. Not intended for use.
+ *
  * `POST /tkhq/api/v1/noop-codegen-anchor`
  */
 export const nOOPCodegenAnchor = () =>

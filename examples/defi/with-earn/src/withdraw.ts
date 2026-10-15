@@ -38,7 +38,7 @@ async function main() {
     wrapperAddress: vault.wrapperAddress!,
     signWith,
     amountValue,
-    chainCaip2: CHAIN_CAIP2,
+    caip2: CHAIN_CAIP2,
     sponsor,
   });
 
