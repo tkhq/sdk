@@ -57,24 +57,29 @@ export function QuoteDetails(props: QuoteDetailsProps) {
 
   if (!quote) {
     return (
-      <div
-        className={clsx(
-          panelClassName,
-          "flex flex-col items-center py-6 text-center text-icon-text-light dark:text-icon-text-dark",
-        )}
-      >
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-icon-background-light text-xl dark:bg-icon-background-dark">
-          {needsAmount ? (
-            ":(" // :(
-          ) : (
-            <FontAwesomeIcon icon={faQuestion} className="text-4xl" />
-          )}
-        </span>
-        <p className="text-center">
-          {needsAmount
-            ? "Please enter an input amount"
-            : "No quotes found. Try a different amount, currency, or token."}
-        </p>
+      <div className={clsx(panelClassName, "relative")}>
+        <div aria-hidden className="invisible flex w-full flex-col gap-2">
+          <span>Fiat amount</span>
+          <span>Crypto amount</span>
+          <span>Total fee</span>
+          <div className="mt-1 border-t border-transparent pt-2 text-center text-xs">
+            MoonPay
+          </div>
+        </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-3 text-center text-icon-text-light dark:text-icon-text-dark">
+          <span className="flex size-12 items-center justify-center rounded-full bg-icon-background-light text-2xl font-bold dark:bg-icon-background-dark">
+            {needsAmount ? (
+              ":(" // :(
+            ) : (
+              <FontAwesomeIcon icon={faQuestion} className="text-4xl" />
+            )}
+          </span>
+          <p className="text-xs">
+            {needsAmount
+              ? "Please enter an input amount"
+              : "No quotes found. Try a different amount, currency, or token."}
+          </p>
+        </div>
       </div>
     );
   }

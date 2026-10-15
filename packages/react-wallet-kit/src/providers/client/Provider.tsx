@@ -154,8 +154,6 @@ import {
   type PasskeyAuthResult,
   type v1BootProof,
   type v1AppProof,
-  FiatOnRampCryptoCurrency,
-  FiatOnRampBlockchainNetwork,
   TGetSendTransactionStatusResponse,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
@@ -221,7 +219,6 @@ import type {
 import { VerifyPage } from "../../components/verify/Verify";
 import { OnRampPage } from "../../components/onramp/OnRamp";
 import { SupportedAssetsProvider } from "../SupportedAssetsProvider";
-import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
 import { getChainLogo } from "../../components/send-transaction/helpers";
 import { Turnstile } from "../../components/auth/Turnstile";
@@ -6148,6 +6145,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const sandboxMode = params.sandboxMode ?? true;
 
       return new Promise((resolve, reject) => {
+        let settled = false;
+        const resolveOnce = () => {
+          if (settled) return;
+          settled = true;
+          resolve();
+        };
+        const rejectOnce = (error: unknown) => {
+          if (settled) return;
+          settled = true;
+          reject(error);
+        };
+
         pushPage({
           key: "Fund",
           content: (
@@ -6160,12 +6169,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               stampWith={params.stampWith}
               fiatCurrencyCode={params.fiatCurrencyCode}
               defaultFiatCurrencyAmount={params.defaultFiatCurrencyAmount}
+              openInNewTab={params.openInNewTab}
+              successPageDuration={params.successPageDuration}
+              onSuccess={resolveOnce}
+              onError={rejectOnce}
             />
           ),
           contextProvider: SupportedAssetsProvider,
           preventBack: true,
           onClose: () =>
-            reject(
+            rejectOnce(
               new TurnkeyError(
                 "User canceled the onramp process.",
                 TurnkeyErrorCodes.USER_CANCELED,

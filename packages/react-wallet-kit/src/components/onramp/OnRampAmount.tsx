@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import {
+  TurnkeyError,
+  TurnkeyErrorCodes,
   OnRampCaip19Values,
   TGetFiatOnRampQuoteBody,
   type OnRampCaip19,
@@ -17,6 +19,7 @@ import { ActionButton } from "../design/Buttons";
 import { FiatAmountInput } from "./FiatAmountInput";
 import { PaymentMethodSelect } from "./PaymentMethods";
 import { QuoteDetails } from "./QuoteDetails";
+import { OnRampStatusPage } from "./OnRampStatus";
 import { rankQuotes } from "./rankQuotes";
 import { TokenSelect } from "./TokenSelect";
 
@@ -57,6 +60,10 @@ export type OnRampAmountProps = {
   sandboxMode?: boolean | undefined;
   organizationId?: string | undefined;
   stampWith?: StamperType | undefined;
+  openInNewTab?: boolean | undefined;
+  successPageDuration?: number | undefined;
+  onSuccess?: (() => void) | undefined;
+  onError?: ((error: unknown) => void) | undefined;
 };
 
 export function OnRampAmount(props: OnRampAmountProps) {
@@ -70,9 +77,13 @@ export function OnRampAmount(props: OnRampAmountProps) {
     sandboxMode,
     organizationId,
     stampWith,
+    openInNewTab,
+    successPageDuration,
+    onSuccess,
+    onError,
   } = props;
   const { httpClient } = useTurnkey();
-  const { isMobile } = useModal();
+  const { isMobile, pushPage, closeModal } = useModal();
   const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethod);
   const [currency, setCurrency] = useState<v1FiatOnRampCurrency>(
     fiatCurrencyCode ?? "FIAT_ON_RAMP_CURRENCY_USD",
@@ -185,6 +196,28 @@ export function OnRampAmount(props: OnRampAmountProps) {
 
   const handleContinue = async () => {
     if (!httpClient || !selectedQuote || !walletAccount) return;
+
+    // Open during the click. A window opened after the session request is
+    // treated as unsolicited and blocked.
+    const openedInNewTab = isMobile || !!openInNewTab;
+    const widget = window.open(
+      "",
+      openedInNewTab ? "_blank" : "turnkey-onramp",
+      openedInNewTab
+        ? undefined
+        : "popup,width=500,height=700,scrollbars=yes,resizable=yes",
+    );
+    if (!widget) {
+      onError?.(
+        new TurnkeyError(
+          "Failed to open the onramp widget.",
+          TurnkeyErrorCodes.BAD_RESPONSE,
+        ),
+      );
+      closeModal();
+      return;
+    }
+
     setCreatingSession(true);
     try {
       const request = {
@@ -195,9 +228,29 @@ export function OnRampAmount(props: OnRampAmountProps) {
       const result = stampWith
         ? await httpClient.createFiatOnRampSession(request, stampWith)
         : await httpClient.createFiatOnRampSession(request);
-      console.log(result);
+      if (widget.closed) return;
+      widget.location.href = result.onRampUrl;
+
+      pushPage({
+        key: "Buy",
+        showTitle: false,
+        content: (
+          <OnRampStatusPage
+            transactionId={result.onRampTransactionId}
+            organizationId={organizationId}
+            stampWith={stampWith}
+            provider={selectedQuote.onrampProvider}
+            openedInNewTab={openedInNewTab}
+            successPageDuration={successPageDuration}
+            onSuccess={() => onSuccess?.()}
+            onError={(error) => onError?.(error)}
+          />
+        ),
+      });
     } catch (error) {
-      console.error(error);
+      widget.close();
+      onError?.(error);
+      closeModal();
     } finally {
       setCreatingSession(false);
     }
@@ -206,7 +259,7 @@ export function OnRampAmount(props: OnRampAmountProps) {
   return (
     <div
       className={clsx(
-        "flex flex-col items-center justify-center gap-4 py-5 transition-all duration-300 text-center",
+        "flex flex-col items-center justify-center gap-4 py-4 transition-all duration-300 text-center",
         isMobile ? "w-full" : "w-96",
       )}
     >
@@ -241,16 +294,23 @@ export function OnRampAmount(props: OnRampAmountProps) {
         />
       </div>
 
-      <ActionButton
-        name="onramp-continue"
-        onClick={handleContinue}
-        disabled={fetchingQuotes || !selectedQuote || !walletAccount}
-        loading={creatingSession}
-        className="w-full bg-primary-light text-primary-text-light dark:bg-primary-dark dark:text-primary-text-dark"
-        spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
-      >
-        Continue
-      </ActionButton>
+      <div className="flex w-full flex-col items-cente gap-2">
+        <ActionButton
+          name="onramp-continue"
+          onClick={handleContinue}
+          disabled={fetchingQuotes || !selectedQuote || !walletAccount}
+          loading={creatingSession}
+          className="w-full bg-primary-light text-primary-text-light dark:bg-primary-dark dark:text-primary-text-dark"
+          spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
+        >
+          Continue
+        </ActionButton>
+        {sandboxMode && (
+          <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
+            Sandbox mode enabled. No real funds will be used.
+          </span>
+        )}
+      </div>
     </div>
   );
 }

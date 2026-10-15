@@ -109,7 +109,7 @@ function QuoteRow(props: {
             {warning}
           </span>
         )}
-        <span className="truncate text-primary-text-light dark:text-primary-text-dark">
+        <span className="truncate text-modal-text-light dark:text-modal-text-dark">
           {value}
         </span>
       </span>
