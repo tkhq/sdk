@@ -247,6 +247,7 @@ export default function AuthPage() {
       await turnkey.handleOnRamp({
         walletAccount: evmAccount,
         sandboxMode: true,
+        defaultFiatCurrencyAmount: "100",
       });
     } catch (err) {
       console.error("Fiat OnRamp failed:", err);

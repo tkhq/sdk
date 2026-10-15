@@ -113,6 +113,7 @@ export default function DemoPanel() {
       await handleOnRamp({
         walletAccount: selectedWalletAccount!,
         sandboxMode: true,
+        defaultFiatCurrencyAmount: "40",
       });
     } catch (error) {
       handleError(error);
