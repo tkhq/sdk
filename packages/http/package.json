@@ -44,13 +44,17 @@
     "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "codegen": "node scripts/codegen.js"
   },
   "dependencies": {
     "cross-fetch": "^3.1.5",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*"
+  },
+  "devDependencies": {
+    "openapi-typescript": "5.4.2"
   },
   "engines": {
     "node": ">=18.0.0"
