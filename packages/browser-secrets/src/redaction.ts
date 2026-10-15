@@ -528,8 +528,9 @@ export class RedactionRegistry {
 
   /**
    * Scrubs a JSON-like value: strings, and the keys and values of arrays,
-   * plain objects, `Map`s, and `Set`s, recursively. Returns a new value; the
-   * input is not changed.
+   * plain objects, `Map`s, and `Set`s, recursively. The input is not
+   * changed. Returns a new value, except when nothing is registered: then it
+   * returns `value` itself, so copy it before changing the result.
    *
    * Byte buffers (`ArrayBuffer`, `Uint8Array`, `Buffer`) are decoded as
    * UTF-8 and scrubbed. When that changes them, the result is the UTF-8
