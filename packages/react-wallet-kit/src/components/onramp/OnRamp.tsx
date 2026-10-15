@@ -12,7 +12,7 @@ export function OnRampPage(props: OnRampAmountProps) {
 
   return (
     <div
-      className={clsx("flex flex-col pb-3 pt-9", isMobile ? "w-full" : "w-80")}
+      className={clsx("flex flex-col pb-3 pt-9", isMobile ? "w-full" : "w-96")}
     >
       <TabNav
         defaultTab="cash"

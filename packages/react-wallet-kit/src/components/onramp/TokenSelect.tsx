@@ -6,11 +6,12 @@ import {
   ListboxOption,
   ListboxOptions,
 } from "@headlessui/react";
-import type { OnRampCaip19, OnRampCaip2, v1AssetMetadata } from "@turnkey/core";
+import type { OnRampCaip19, v1AssetMetadata } from "@turnkey/core";
 import clsx from "clsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSupportedAssets } from "../../providers/SupportedAssetsProvider";
 import { useScreenSize } from "../../utils/utils";
+import { caip2Of, tokenSymbol } from "./tokenSymbol";
 
 type Placement = "top start" | "bottom start";
 const desiredPanelHeight = 288;
@@ -23,10 +24,6 @@ const chainLabels: Record<string, string> = {
   "eip155:42161": "Arbitrum",
   "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp": "Solana",
 };
-
-function caip2Of(token: OnRampCaip19): OnRampCaip2 {
-  return token.slice(0, token.indexOf("/")) as OnRampCaip2;
-}
 
 function chainLabel(caip2: string): string {
   return chainLabels[caip2] ?? caip2;
@@ -52,15 +49,6 @@ function groupOnRampTokens(tokens: OnRampCaip19[]) {
     label: chainLabel(caip2),
     tokens: byChain.get(caip2)!,
   }));
-}
-
-function fallbackTokenSymbol(token: OnRampCaip19): string {
-  if (token.endsWith("slip44:60")) return "ETH";
-  if (token.endsWith("slip44:501")) return "SOL";
-  if (token.includes("0x7ceb23fd6bc0add59e62ac25578270cff1b9f619")) {
-    return "WETH";
-  }
-  return "USDC";
 }
 
 export type TokenSelectProps = {
@@ -221,14 +209,4 @@ function TokenLogo(props: {
   }
 
   return <img src={logoUrl} alt="" className="size-4 shrink-0 rounded-full" />;
-}
-
-function tokenSymbol(
-  token: OnRampCaip19,
-  assetsByCaip2: Record<string, v1AssetMetadata[]>,
-) {
-  return (
-    assetsByCaip2[caip2Of(token)]?.find((asset) => asset.caip19 === token)
-      ?.symbol || fallbackTokenSymbol(token)
-  );
 }
