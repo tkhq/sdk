@@ -1,5 +1,10 @@
 export * from "./types";
-export { parseBinding, createSecretRef, type SecretMetadata } from "./binding";
+export {
+  parseBinding,
+  createSecretRef,
+  redactionEntries,
+  type SecretMetadata,
+} from "./binding";
 export {
   isExactHttpOrigin,
   isExactOrigin,

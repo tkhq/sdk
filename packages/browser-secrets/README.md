@@ -37,6 +37,7 @@ import {
   BrowserSecretsError,
   createSecretRef,
   RedactionRegistry,
+  redactionEntries,
   requiredSelectors,
 } from "@turnkey/browser-secrets";
 
@@ -50,7 +51,11 @@ const decision = authorize(ref, request, observation);
 if (!decision.allowed) throw BrowserSecretsError.fromDecision(decision);
 
 const registry = new RedactionRegistry(); // one per tenant and browser session
-registry.registerValue(plaintext, ref.secretId); // before injection
+// Before injection. For a secret bound with sbm:fields this also registers
+// each payload part, which the page receives one by one. Parts shorter than
+// minValueLength, such as a CVC, are not text-scanned: keep the secrets
+// listed in `unscanned` out of agent-visible text by other means.
+const unscanned = registry.registerValues(redactionEntries(ref, plaintext));
 registry.registerTarget({ ...identities, elementId: "e12" }, ref.secretId);
 
 // In the snapshot serializer: elide registered targets, and any element

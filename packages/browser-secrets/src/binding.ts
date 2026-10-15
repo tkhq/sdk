@@ -159,3 +159,34 @@ export function createSecretRef(metadata: SecretMetadata): SecretRef {
     ...(parsed.status === "invalid" ? { bindingError: parsed.error } : {}),
   });
 }
+
+/**
+ * The values a host registers with `RedactionRegistry.registerValues` for a
+ * secret it is about to fill: the plaintext and, for a secret bound with
+ * `sbm:fields`, each top-level string or number in its JSON payload. The
+ * page receives those parts one by one, so a scan for the whole payload
+ * never sees them.
+ */
+export function redactionEntries(
+  ref: Pick<SecretRef, "secretId" | "staticProperties">,
+  plaintext: string,
+): readonly { readonly value: string; readonly secretId: string }[] {
+  const entry = (value: string) =>
+    Object.freeze({ value, secretId: ref.secretId });
+  const entries = [entry(plaintext)];
+  const parsed = parseBinding(ref.staticProperties);
+  let payload: unknown;
+  if (parsed.status === "bound" && parsed.binding.fields) {
+    try {
+      payload = JSON.parse(plaintext);
+    } catch {}
+  }
+  if (payload !== null && typeof payload === "object") {
+    for (const part of Object.values(payload)) {
+      if (typeof part === "string" || typeof part === "number") {
+        entries.push(entry(String(part)));
+      }
+    }
+  }
+  return Object.freeze(entries);
+}
