@@ -190,6 +190,7 @@ export function manifestSource(options: ManifestSourceOptions): SecretSource {
     if (!found) return deny("not_found");
     let resolved: ManifestValue;
     try {
+      // `verify` gets the source's own ref, not the caller's.
       if (verify && (await verify(found.ref)) !== true) {
         return deny("verification_failed");
       }
@@ -219,6 +220,7 @@ export function manifestSource(options: ManifestSourceOptions): SecretSource {
       delivery: "plaintext",
       otp,
     }),
+    // A manifest is small; one page holds every entry.
     listRefs: async () => ({ refs }),
     export: exportValue,
   });

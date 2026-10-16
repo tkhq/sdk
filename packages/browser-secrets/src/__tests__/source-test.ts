@@ -63,6 +63,7 @@ const request = (extra: Record<string, unknown> = {}) =>
     ...extra,
   }) as unknown as ExportRequest;
 
+/** The outcome of one export through `connectSource` for a raw source result. */
 const exportRaw = (raw: unknown, caps = TURNKEY_CAPS) =>
   connectSource(stubSource(caps, { export: async () => raw }), OPEN).export(
     request(),
@@ -134,6 +135,7 @@ describe("connectSource requirements", () => {
       [{ exportPolicy: false }, "export_policy_required"],
       [{ audit: "provider-log" }, "audit_required"],
       [{ delivery: "plaintext" }, "ciphertext_delivery_required"],
+      // Native 1Password fails several; the first in order wins.
       [NATIVE_CAPS, "approvals_required"],
     ];
     for (const [change, reason] of cases) {
@@ -152,6 +154,8 @@ describe("connectSource requirements", () => {
   });
 
   test("a partial or malformed requirements object is refused, never read as any", () => {
+    // Only `requireSources` may fill in defaults. A host that hands
+    // `connectSource` a partial object must not get looser checks.
     for (const bad of [
       { approvals: false },
       { ...OPEN, audit: undefined },
@@ -193,6 +197,7 @@ describe("connectSource requirements", () => {
         reason: "capabilities_invalid",
       });
     }
+    // An invalid ID is not echoed back.
     expect(
       refusal(stubSource(TURNKEY_CAPS, { id: `Bad ${canary}` })),
     ).not.toHaveProperty("sourceId");
@@ -209,6 +214,7 @@ describe("connectSource listRefs", () => {
               secretId: "op://v/i",
               name: "Shop",
               staticProperties: { "sbm:origin": "https://shop.example" },
+              // A source cannot claim fixed bindings for its refs.
               source: "turnkey",
               bindingProvenance: "fixed-at-source",
               vendor: canary,
@@ -325,11 +331,13 @@ describe("connectSource outcomes", () => {
     ];
     expect(outcomes).toEqual([
       { kind: "denied", reason: { code: "policy_denied", ...ids } },
+      // Unknown codes and submitted values fail safe.
       {
         kind: "failed",
         reason: { code: "source_error", ...ids },
         submitted: "unknown",
       },
+      // A source without otp cannot shorten redaction.
       { kind: "ready", delivery: { mode: "ciphertext", bundle: "b1" } },
       {
         kind: "pending",

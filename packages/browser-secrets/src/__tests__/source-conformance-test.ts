@@ -22,6 +22,7 @@ const fixture = JSON.parse(
 
 const canary = "harness-canary-77e0";
 
+/** manifestSource over a mock `resolve`. */
 const manifestHarness: SourceHarness = {
   async setup(scenario: SourceScenario) {
     const source = manifestSource({
@@ -52,6 +53,11 @@ const manifestHarness: SourceHarness = {
   },
 };
 
+/**
+ * An in-memory source with approvals, shaped like the Turnkey backend: an
+ * export submits an activity that resolves on a later resume. The handle
+ * carries the source's own state, as a restart-safe host would persist it.
+ */
 function approvalSource(scenario: SourceScenario): SecretSource {
   let polls = 0;
   const vendorError = () => new Error(`activity error: ${canary}`);
@@ -173,6 +179,7 @@ describe("source conformance runner", () => {
   test("reports a source that breaks the contract", async () => {
     const broken = overriding((source, scenario) => ({
       ...source,
+      // Ignores verify and the requested secret, and returns a wrong value.
       export: async () =>
         scenario === "fail-before-submit"
           ? {

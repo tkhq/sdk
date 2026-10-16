@@ -44,6 +44,7 @@ const make = (overrides: Partial<ManifestSourceOptions> = {}) =>
     ...overrides,
   });
 
+/** Connects a manifest source and returns it with its first ref. */
 async function connect(overrides: Partial<ManifestSourceOptions> = {}) {
   const source = connectSource(make(overrides), OPEN);
   const [ref] = (await source.listRefs()).refs;
@@ -107,6 +108,7 @@ describe("manifestSource entries", () => {
       { ...shop, binding: { origin: "https://shop.example", fields: "cc" } },
       { ...shop, binding: { origin: "https://shop.example", fields: ["cc"] } },
       { ...shop, binding: { origin: "https://shop.example", urlPattern: 7 } },
+      // Bindings come from `binding` only.
       { ...shop, properties: { "sbm:origin": "https://evil.example" } },
       { ...shop, properties: { "op:ref": 1 } },
     ];
@@ -277,6 +279,7 @@ describe("manifestSource export", () => {
       delivery: { mode: "plaintext", value: "123456" },
       expiresAt: 30_000,
     });
+    // Without otp the expiry is dropped: the value is redacted until released.
     const password = await connect({ resolve });
     expect(await password.exportRef()).toEqual({
       kind: "ready",

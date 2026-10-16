@@ -289,6 +289,7 @@ function readRequirements(value: unknown): SourceRequirements {
   return requirements;
 }
 
+/** The first host requirement the source fails, if any. */
 function refusal(
   caps: SourceCapabilities,
   required: SourceRequirements,
@@ -490,6 +491,7 @@ export function connectSource(
       const secretId = checked.ref.secretId;
       const handle = resume ? readHandle(request.handle) : undefined;
       if (!resume || !handle) throw invalidRequest();
+      // An approval past its window can no longer complete; do not ask.
       if (handle.expiresAt !== undefined && Date.now() > handle.expiresAt) {
         return {
           kind: "denied",
@@ -519,6 +521,7 @@ function readEntry(
   let staticProperties: Record<string, string> | undefined;
   if (rawProperties !== undefined) {
     if (!isObject(rawProperties)) return undefined;
+    // `Object.entries` reads each property once; check the copy.
     const copy: Record<string, unknown> = Object.fromEntries(
       Object.entries(rawProperties),
     );
@@ -553,6 +556,7 @@ function readHandle(raw: unknown): PendingHandle | undefined {
   };
 }
 
+/** Copies a listing page, or returns undefined when it is malformed. */
 function readListing(
   value: unknown,
   source: string,
@@ -623,6 +627,7 @@ function normalizeOutcome(
         delivery: ciphertext
           ? { mode: "ciphertext", bundle: payload }
           : { mode: "plaintext", value: payload },
+        // Only a source that issues one-time codes may shorten redaction.
         ...(caps.otp && expiresAt !== undefined ? { expiresAt } : {}),
       };
     }
