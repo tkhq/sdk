@@ -73,6 +73,14 @@ const ids = { secretId: "s1", sourceId: "stub" };
 describe("requireSources", () => {
   test("defaults are strict; overrides keep the other defaults", () => {
     expect(requireSources()).toEqual(STRICT_SOURCE_REQUIREMENTS);
+    // Pin the literal values, so a change to the defaults fails here.
+    expect(STRICT_SOURCE_REQUIREMENTS).toEqual({
+      approvals: true,
+      bindings: "fixed-at-source",
+      exportPolicy: true,
+      audit: "signed",
+      delivery: "ciphertext",
+    });
     expect(requireSources({ approvals: false })).toEqual({
       ...STRICT_SOURCE_REQUIREMENTS,
       approvals: false,
@@ -105,6 +113,20 @@ describe("connectSource requirements", () => {
     }
     return undefined;
   };
+
+  test("a Turnkey-shaped source meets the strict defaults", () => {
+    expect(refusal(stubSource(TURNKEY_CAPS))).toBeUndefined();
+  });
+
+  test("a source with approvals: false is refused when the host requires approvals", () => {
+    expect(
+      refusal(stubSource({ ...TURNKEY_CAPS, approvals: false })),
+    ).toMatchObject({
+      code: "source_refused",
+      reason: "approvals_required",
+      sourceId: "stub",
+    });
+  });
 
   test("each requirement has its own reason, checked in order", () => {
     const cases: [Partial<SourceCapabilities>, string][] = [
@@ -317,6 +339,23 @@ describe("connectSource outcomes", () => {
       { kind: "pending", handle: { id: "act-1" } },
     ]);
     expect(JSON.stringify(outcomes)).not.toContain(canary);
+  });
+
+  test("only a source that declares otp can set expiresAt on a ready value", async () => {
+    const ready = {
+      kind: "ready",
+      delivery: { mode: "plaintext", value: "482913" },
+      expiresAt: 1_000,
+    };
+    expect(await exportRaw(ready, NATIVE_CAPS)).toEqual({
+      kind: "ready",
+      delivery: { mode: "plaintext", value: "482913" },
+      expiresAt: 1_000,
+    });
+    expect(await exportRaw(ready, { ...NATIVE_CAPS, otp: false })).toEqual({
+      kind: "ready",
+      delivery: { mode: "plaintext", value: "482913" },
+    });
   });
 
   test("outcomes the source did not declare are invalid_response", async () => {
