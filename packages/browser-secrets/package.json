@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/browser-secrets",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -44,7 +44,8 @@
   ],
   "sideEffects": false,
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "tag": "alpha"
   },
   "scripts": {
     "prepublishOnly": "pnpm run clean && pnpm run build",
