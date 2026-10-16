@@ -21,7 +21,6 @@ const fixture = JSON.parse(
 
 const canary = "harness-canary-77e0";
 
-/** manifestSource over a mock `resolve`. */
 const manifestHarness: SourceHarness = {
   async setup(scenario: SourceScenario) {
     const source = manifestSource({
@@ -52,11 +51,6 @@ const manifestHarness: SourceHarness = {
   },
 };
 
-/**
- * An in-memory source with approvals, shaped like the Turnkey backend: an
- * export submits an activity that resolves on a later resume. The handle
- * carries the source's own state, as a restart-safe host would persist it.
- */
 function approvalSource(scenario: SourceScenario): SecretSource {
   let polls = 0;
   const vendorError = () => new Error(`activity error: ${canary}`);
@@ -152,6 +146,15 @@ const approvalHarness: SourceHarness = {
   },
 };
 
+const overriding = (
+  map: (source: SecretSource, scenario: SourceScenario) => SecretSource,
+): SourceHarness => ({
+  async setup(scenario) {
+    const { source, ...rest } = await manifestHarness.setup(scenario);
+    return { ...rest, source: map(source, scenario) };
+  },
+});
+
 const harnesses: [string, SourceHarness, number][] = [
   ["manifestSource with a mock resolve", manifestHarness, 4],
   ["an approval-capable in-memory source", approvalHarness, 9],
@@ -167,29 +170,20 @@ describe.each(harnesses)("source conformance: %s", (_, harness, ran) => {
 
 describe("source conformance runner", () => {
   test("reports a source that breaks the contract", async () => {
-    const broken: SourceHarness = {
-      async setup(scenario) {
-        const { source, ...rest } = await manifestHarness.setup(scenario);
-        return {
-          ...rest,
-          source: {
-            ...source,
-            // Ignores verify and leaks vendor text in a failure.
-            export: async () =>
-              scenario === "fail-before-submit"
-                ? {
-                    kind: "failed",
-                    reason: { code: "source_error" },
-                    submitted: "no",
-                  }
-                : {
-                    kind: "ready",
-                    delivery: { mode: "plaintext", value: "wrong" },
-                  },
-          },
-        };
-      },
-    };
+    const broken = overriding((source, scenario) => ({
+      ...source,
+      export: async () =>
+        scenario === "fail-before-submit"
+          ? {
+              kind: "failed",
+              reason: { code: "source_error" },
+              submitted: "no",
+            }
+          : {
+              kind: "ready",
+              delivery: { mode: "plaintext", value: "wrong" },
+            },
+    }));
     const results = await runSourceConformance(broken, fixture);
     const failed = results.filter((r) => !r.pass).map((r) => r.name);
     expect(failed).toEqual([
@@ -200,20 +194,12 @@ describe("source conformance runner", () => {
   });
 
   test("reports a source whose listing fails instead of throwing", async () => {
-    const unlistable: SourceHarness = {
-      async setup(scenario) {
-        const { source, ...rest } = await manifestHarness.setup(scenario);
-        return {
-          ...rest,
-          source: {
-            ...source,
-            listRefs: async () => {
-              throw new Error(`list failed ${canary}`);
-            },
-          },
-        };
+    const unlistable = overriding((source) => ({
+      ...source,
+      listRefs: async () => {
+        throw new Error(`list failed ${canary}`);
       },
-    };
+    }));
     const results = await runSourceConformance(unlistable, fixture);
     const ran = results.filter((r) => !r.skipped);
     expect(ran).toHaveLength(4);
@@ -226,54 +212,38 @@ describe("source conformance runner", () => {
     }
   });
 
-  test("reports a source that connectSource refuses with the reason only", async () => {
-    const refused: SourceHarness = {
-      async setup(scenario) {
-        const { source, ...rest } = await manifestHarness.setup(scenario);
-        return { ...rest, source: { ...source, id: `bad id ${canary}` } };
-      },
-    };
-    const exploding: SourceHarness = {
-      async setup(scenario) {
-        const { source, ...rest } = await manifestHarness.setup(scenario);
-        return {
-          ...rest,
-          source: Object.defineProperty({ ...source }, "capabilities", {
-            get() {
-              throw new Error(`vendor sdk ${canary}`);
-            },
-          }),
-        };
+  test("reports a source that connectSource refuses or a harness whose setup fails with the reason only", async () => {
+    const refused = overriding((source) => ({
+      ...source,
+      id: `bad id ${canary}`,
+    }));
+    const exploding = overriding((source) =>
+      Object.defineProperty({ ...source }, "capabilities", {
+        get() {
+          throw new Error(`vendor sdk ${canary}`);
+        },
+      }),
+    );
+    const brokenSetup: SourceHarness = {
+      async setup() {
+        throw new Error(`backend not reachable ${canary}`);
       },
     };
     for (const [harness, failure] of [
-      [refused, "source_refused/capabilities_invalid"],
-      [exploding, "source_error"],
+      [
+        refused,
+        "connectSource refused the source: source_refused/capabilities_invalid",
+      ],
+      [exploding, "connectSource refused the source: source_error"],
+      [brokenSetup, "setup failed: source_error"],
     ] as const) {
       const results = await runSourceConformance(harness, fixture);
       expect(results).toHaveLength(fixture.scenarios.length);
       for (const result of results) {
         expect(result).toMatchObject({ pass: false, skipped: false });
-        expect(result.failures).toEqual([
-          `connectSource refused the source: ${failure}`,
-        ]);
+        expect(result.failures).toEqual([failure]);
       }
       expect(JSON.stringify(results)).not.toContain(canary);
     }
-  });
-
-  test("reports a harness whose setup fails instead of throwing", async () => {
-    const broken: SourceHarness = {
-      async setup() {
-        throw new Error(`backend not reachable ${canary}`);
-      },
-    };
-    const results = await runSourceConformance(broken, fixture);
-    expect(results).toHaveLength(fixture.scenarios.length);
-    for (const result of results) {
-      expect(result).toMatchObject({ pass: false, skipped: false });
-      expect(result.failures).toEqual(["setup failed: source_error"]);
-    }
-    expect(JSON.stringify(results)).not.toContain(canary);
   });
 });
