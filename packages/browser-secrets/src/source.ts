@@ -349,7 +349,9 @@ export type ConnectedSource = {
 /**
  * Checks `source` against the host's requirements and wraps it. Throws a
  * `source_refused` error with a typed reason when the source cannot meet
- * them.
+ * them, and `source_config_invalid` when `requirements` is not a complete
+ * `SourceRequirements` (build it with `requireSources`). A missing or
+ * unknown requirement never counts as `"any"`.
  *
  * The wrapper enforces the contract on every call:
  * - Refs get `source` and `bindingProvenance` from the connection, not
@@ -365,6 +367,8 @@ export function connectSource(
   source: SecretSource,
   requirements: SourceRequirements = STRICT_SOURCE_REQUIREMENTS,
 ): ConnectedSource {
+  const required = pick<SourceRequirements>(requirements, REQUIREMENT_VALUES);
+  if (!required) throw new BrowserSecretsError("source_config_invalid");
   const caps = pick<SourceCapabilities>(
     (source as { capabilities?: unknown } | null)?.capabilities,
     CAPABILITY_VALUES,
@@ -377,7 +381,7 @@ export function connectSource(
     typeof source.listRefs === "function" &&
     typeof source.export === "function" &&
     (!caps.approvals || typeof source.resume === "function");
-  const reason = valid ? refusal(caps, requirements) : "capabilities_invalid";
+  const reason = valid ? refusal(caps, required) : "capabilities_invalid";
   if (reason !== undefined) {
     throw new BrowserSecretsError("source_refused", reason, {
       sourceId: typeof id === "string" && SOURCE_ID.test(id) ? id : undefined,

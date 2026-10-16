@@ -159,6 +159,22 @@ describe("connectSource requirements", () => {
     expect(refusal(stubSource(NATIVE_CAPS), OPEN)).toBeUndefined();
   });
 
+  test("a partial or malformed requirements object is refused, never read as any", () => {
+    // Only `requireSources` may fill in defaults. A host that hands
+    // `connectSource` a partial object must not get looser checks.
+    for (const bad of [
+      { approvals: false },
+      { ...OPEN, audit: undefined },
+      { ...OPEN, bindings: "operator-manifest" },
+      null,
+      "strict",
+    ]) {
+      expect(refusal(stubSource(NATIVE_CAPS), bad as never)).toMatchObject({
+        code: "source_config_invalid",
+      });
+    }
+  });
+
   test("malformed sources are refused as capabilities_invalid", () => {
     const bad: unknown[] = [
       null,
