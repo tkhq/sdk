@@ -5,11 +5,11 @@ Destination binding, target authorization, and output redaction for browser agen
 ## Install
 
 ```sh
-npm install @turnkey/browser-secrets
+npm install @turnkey/browser-secrets@alpha
 ```
 
-> Status: early. This is the first release (0.1.0). It has the binding, decision, redaction, and source-contract core. It does not call Turnkey yet.
-> The API can change between minor versions until 1.0.
+> Status: alpha (0.0.1-alpha.x). It has the binding, decision, redaction, and source-contract core. It does not call Turnkey yet.
+> The API can change in any release until 1.0. Alpha releases are not for production use.
 
 ## Scope
 
