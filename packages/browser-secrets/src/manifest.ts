@@ -101,8 +101,10 @@ function compileEntry(rawEntry: unknown, sourceId: string): SecretRef {
     [BINDING_KEYS.frameOrigin]: frameOrigin,
     [BINDING_KEYS.urlPattern]: urlPattern,
     [BINDING_KEYS.selector]: selector,
-    [BINDING_KEYS.fields]:
-      fields !== undefined ? JSON.stringify(fields) : undefined,
+    // JSON.stringify maps a function or symbol to undefined, which would
+    // drop the key and leave an origin-only binding. Anything that is not a
+    // plain object stays as is and fails the string check below.
+    [BINDING_KEYS.fields]: isObject(fields) ? JSON.stringify(fields) : fields,
   };
   for (const [key, value] of Object.entries(bindingProperties)) {
     if (value !== undefined) properties[key] = value;
