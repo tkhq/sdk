@@ -514,7 +514,11 @@ export class RedactionRegistry {
    */
   #sweep(): void {
     const now = this.#now();
-    if (now < this.#nextExpiry) return;
+    // A clock that returns NaN or a non-number must not drop anything: every
+    // comparison with it is false, so a plain `<` test would run the sweep
+    // and treat every value as expired. Keep the values until the clock
+    // reads a number again.
+    if (!(typeof now === "number" && now >= this.#nextExpiry)) return;
     this.#nextExpiry = Infinity;
     for (const [secretId, byValue] of [...this.#expiry]) {
       const live = [...byValue].filter(([, at]) => at > now);
