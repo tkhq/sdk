@@ -387,7 +387,6 @@ export class RedactionRegistry {
     return this.#register(entries, this.#now());
   }
 
-  /** `registerValues` at a given clock reading, so `#sweep` can pass its own. */
   #register(entries: readonly RedactionValue[], now: number): string[] {
     const skipped = new Set<string>();
     for (const { value, secretId, expiresAt: rawExpiry } of entries) {
@@ -396,7 +395,6 @@ export class RedactionRegistry {
         skipped.add(secretId);
         continue;
       }
-      // An invalid or past expiry fails closed: the value never expires.
       const expiresAt =
         typeof rawExpiry === "number" && rawExpiry > now ? rawExpiry : Infinity;
       let byValue = this.#expiry.get(secretId);

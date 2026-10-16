@@ -95,7 +95,7 @@ const describeError = (error: unknown): string =>
       : error.code
     : toSourceReason(error).code;
 
-const NO_REQUIREMENTS = requireSources({
+export const NO_REQUIREMENTS = requireSources({
   approvals: false,
   bindings: "any",
   exportPolicy: false,
@@ -110,122 +110,122 @@ export async function runSourceConformance(
 ): Promise<SourceConformanceResult[]> {
   const results: SourceConformanceResult[] = [];
   for (const scenario of file.scenarios) {
-    const failures: string[] = [];
-    const result = (skipped = false) => ({
-      name: scenario.name,
-      pass: failures.length === 0,
-      skipped,
-      failures,
-    });
-    let setup;
-    try {
-      setup = await harness.setup(scenario.scenario);
-    } catch (error) {
-      failures.push(`setup failed: ${describeError(error)}`);
-      results.push(result());
-      continue;
-    }
-    let source;
-    try {
-      source = connectSource(
-        setup.source,
-        harness.requirements ?? NO_REQUIREMENTS,
-      );
-    } catch (error) {
-      failures.push(
-        `connectSource refused the source: ${describeError(error)}`,
-      );
-      results.push(result());
-      continue;
-    }
-    if (scenario.requires?.approvals && !source.capabilities.approvals) {
-      results.push(result(true));
-      continue;
-    }
-
-    let listed;
-    let cursor: string | undefined;
-    try {
-      for (let page = 0; page < 100 && !listed; page++) {
-        const { refs, nextCursor } = await source.listRefs(
-          cursor !== undefined ? { cursor } : {},
-        );
-        listed = refs.find((ref) => ref.secretId === setup.secretId);
-        if ((cursor = nextCursor) === undefined) break;
-      }
-    } catch (error) {
-      failures.push(`listRefs failed: ${describeError(error)}`);
-      results.push(result());
-      continue;
-    }
-    if (scenario.scenario === "unknown-secret") {
-      if (listed) failures.push("the unknown secret is listed");
-    } else if (!listed) {
-      failures.push("the secret is not listed");
-    } else if (
-      listed.source !== source.id ||
-      listed.bindingProvenance !== source.capabilities.bindings
-    ) {
-      failures.push("the listed ref is not stamped with its source");
-    }
-
-    const request: ExportRequest = {
-      requestId: `conformance-${scenario.scenario}`,
-      ref: listed ?? { secretId: setup.secretId, staticProperties: {} },
-      ...(source.capabilities.delivery === "ciphertext"
-        ? { recipientPublicKey: "test-recipient-key" }
-        : {}),
-    };
-    let handle: PendingHandle | undefined;
-    for (const [index, { call, expect }] of scenario.steps.entries()) {
-      if (call === "resume" && !handle) {
-        failures.push(`step ${index}: resume without a pending handle`);
-        break;
-      }
-      const outcome =
-        call === "export"
-          ? await source.export(request)
-          : await source.resume({ ...request, handle: handle! });
-      const fail = (message: string) =>
-        failures.push(`step ${index}: ${message}`);
-      const before = failures.length;
-      if (outcome.kind !== expect.kind) {
-        const code = "reason" in outcome ? ` (${outcome.reason.code})` : "";
-        fail(`expected ${expect.kind}, got ${outcome.kind}${code}`);
-      } else if ("reason" in outcome) {
-        if (expect.code !== undefined && outcome.reason.code !== expect.code) {
-          fail(`expected code ${expect.code}, got ${outcome.reason.code}`);
-        }
-        if (
-          outcome.reason.secretId !== setup.secretId ||
-          outcome.reason.sourceId !== source.id
-        ) {
-          fail("reason does not name the secret and the source");
-        }
-        if (
-          outcome.kind === "failed" &&
-          expect.submitted !== undefined &&
-          outcome.submitted !== expect.submitted
-        ) {
-          fail(
-            `expected submitted ${expect.submitted}, got ${outcome.submitted}`,
-          );
-        }
-      } else if (
-        outcome.kind === "ready" &&
-        outcome.delivery.mode === "plaintext" &&
-        setup.expectedValue !== undefined &&
-        outcome.delivery.value !== setup.expectedValue
-      ) {
-        fail("ready value differs from the expected value");
-      }
-      if (setup.canary && JSON.stringify(outcome).includes(setup.canary)) {
-        fail("outcome contains vendor error text");
-      }
-      if (failures.length > before) break;
-      if (outcome.kind === "pending") handle = outcome.handle;
-    }
-    results.push(result());
+    results.push(await runScenario(harness, scenario));
   }
   return results;
+}
+
+async function runScenario(
+  harness: SourceHarness,
+  scenario: SourceFixtureFile["scenarios"][number],
+): Promise<SourceConformanceResult> {
+  const { name } = scenario;
+  const failed = (message: string): SourceConformanceResult => ({
+    name,
+    pass: false,
+    skipped: false,
+    failures: [message],
+  });
+  let setup;
+  try {
+    setup = await harness.setup(scenario.scenario);
+  } catch (error) {
+    return failed(`setup failed: ${describeError(error)}`);
+  }
+  let source;
+  try {
+    source = connectSource(
+      setup.source,
+      harness.requirements ?? NO_REQUIREMENTS,
+    );
+  } catch (error) {
+    return failed(`connectSource refused the source: ${describeError(error)}`);
+  }
+  if (scenario.requires?.approvals && !source.capabilities.approvals) {
+    return { name, pass: true, skipped: true, failures: [] };
+  }
+
+  let listed;
+  let cursor: string | undefined;
+  try {
+    for (let page = 0; page < 100 && !listed; page++) {
+      const { refs, nextCursor } = await source.listRefs(
+        cursor !== undefined ? { cursor } : {},
+      );
+      listed = refs.find((ref) => ref.secretId === setup.secretId);
+      if ((cursor = nextCursor) === undefined) break;
+    }
+  } catch (error) {
+    return failed(`listRefs failed: ${describeError(error)}`);
+  }
+  const failures: string[] = [];
+  if (scenario.scenario === "unknown-secret") {
+    if (listed) failures.push("the unknown secret is listed");
+  } else if (!listed) {
+    failures.push("the secret is not listed");
+  } else if (
+    listed.source !== source.id ||
+    listed.bindingProvenance !== source.capabilities.bindings
+  ) {
+    failures.push("the listed ref is not stamped with its source");
+  }
+
+  const request: ExportRequest = {
+    requestId: `conformance-${scenario.scenario}`,
+    ref: listed ?? { secretId: setup.secretId, staticProperties: {} },
+    ...(source.capabilities.delivery === "ciphertext"
+      ? { recipientPublicKey: "test-recipient-key" }
+      : {}),
+  };
+  let handle: PendingHandle | undefined;
+  for (const [index, { call, expect }] of scenario.steps.entries()) {
+    let outcome: ExportOutcome;
+    if (call === "export") {
+      outcome = await source.export(request);
+    } else if (handle) {
+      outcome = await source.resume({ ...request, handle });
+    } else {
+      failures.push(`step ${index}: resume without a pending handle`);
+      break;
+    }
+    const fail = (message: string) =>
+      failures.push(`step ${index}: ${message}`);
+    const before = failures.length;
+    if (outcome.kind !== expect.kind) {
+      const code = "reason" in outcome ? ` (${outcome.reason.code})` : "";
+      fail(`expected ${expect.kind}, got ${outcome.kind}${code}`);
+    } else if ("reason" in outcome) {
+      if (expect.code !== undefined && outcome.reason.code !== expect.code) {
+        fail(`expected code ${expect.code}, got ${outcome.reason.code}`);
+      }
+      if (
+        outcome.reason.secretId !== setup.secretId ||
+        outcome.reason.sourceId !== source.id
+      ) {
+        fail("reason does not name the secret and the source");
+      }
+      if (
+        outcome.kind === "failed" &&
+        expect.submitted !== undefined &&
+        outcome.submitted !== expect.submitted
+      ) {
+        fail(
+          `expected submitted ${expect.submitted}, got ${outcome.submitted}`,
+        );
+      }
+    } else if (
+      outcome.kind === "ready" &&
+      outcome.delivery.mode === "plaintext" &&
+      setup.expectedValue !== undefined &&
+      outcome.delivery.value !== setup.expectedValue
+    ) {
+      fail("ready value differs from the expected value");
+    }
+    if (setup.canary && JSON.stringify(outcome).includes(setup.canary)) {
+      fail("outcome contains vendor error text");
+    }
+    if (failures.length > before) break;
+    if (outcome.kind === "pending") handle = outcome.handle;
+  }
+  return { name, pass: failures.length === 0, skipped: false, failures };
 }
