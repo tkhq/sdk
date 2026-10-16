@@ -9,6 +9,7 @@ on:
         type: string
 
 permissions:
+  actions: write
   contents: write
   packages: write
   id-token: write
@@ -30,6 +31,8 @@ jobs:
     name: Build
     needs: check-version
     uses: ./.github/workflows/reusable-build.yml
+    with:
+      upload-package-dists: true
 
   test-pre-prod:
     name: Test (pre-prod)
@@ -63,19 +66,27 @@ jobs:
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
-      - name: Build
-        run: pnpm build --filter='./packages/*'
+      - name: Download package dists
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: package-dists
+          path: package-dists
 
+      - name: Restore package dists
+        run: ./.github/scripts/restore-package-dists.sh package-dists
+
+      # prepublishOnly deletes dist and rebuilds. These dists came from the
+      # 16-core Build job, so do not run that script on package-deploy.
       - name: Publish to NPM (dry run)
         run: |
-          pnpm publish -r --dry-run --no-git-checks --report-summary
+          pnpm publish -r --dry-run --ignore-scripts --no-git-checks --report-summary
           echo "npm publish dry run summary:"
           cat pnpm-publish-summary.json || echo "No NPM dry run summary generated"
 
       - name: Publish packages to NPM
         run: |
           echo "Publishing packages to NPM..."
-          pnpm publish -r --no-git-checks --report-summary || {
+          pnpm publish -r --ignore-scripts --no-git-checks --report-summary || {
             echo "❌ Publish failed. Check logs above.";
             exit 1;
           }
@@ -91,11 +102,14 @@ jobs:
         with:
           fetch-depth: 0 # required for git tags and history
 
-      - name: Setup JS
-        uses: ./.github/actions/js-setup
+      - name: Download package dists
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: package-dists
+          path: package-dists
 
-      - name: Build
-        run: pnpm build --filter='./packages/*'
+      - name: Restore package dists
+        run: ./.github/scripts/restore-package-dists.sh package-dists
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
