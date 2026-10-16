@@ -375,6 +375,9 @@ export type ConnectedSource = {
  * - Reasons keep a known code (others become `source_error`) and get IDs
  *   from the request.
  * - A thrown error becomes `failed` with `submitted: "unknown"`.
+ * - `export` and `resume` reject a malformed request with
+ *   `invalid_request`. The source gets a copy built from the checked
+ *   fields, with `ref.source` set to this source's ID.
  * - `resume` rejects a malformed handle with `invalid_request`. A handle
  *   whose `expiresAt` is past is `denied` with `expired` without calling
  *   the source.
@@ -412,7 +415,12 @@ export function connectSource(
   const invalidRequest = () =>
     new BrowserSecretsError("invalid_request", undefined, { sourceId });
 
-  const checkRequest = (request: ExportRequest): string => {
+  /**
+   * Checks a request and returns a copy built from the values it checked.
+   * The source gets the copy, so a getter cannot pass the check and then
+   * show the source a different secret.
+   */
+  const readRequest = (request: ExportRequest): ExportRequest => {
     const rawRequest: unknown = request;
     if (!isObject(rawRequest)) throw invalidRequest();
     const requestId = rawRequest["requestId"];
@@ -421,6 +429,7 @@ export function connectSource(
     const refSource = isObject(ref) ? ref["source"] : undefined;
     const recipient = rawRequest["recipientPublicKey"];
     if (
+      !isObject(ref) ||
       !isNonEmptyString(requestId) ||
       !isNonEmptyString(secretId) ||
       (refSource !== undefined && refSource !== sourceId) ||
@@ -428,7 +437,17 @@ export function connectSource(
     ) {
       throw invalidRequest();
     }
-    return secretId;
+    return Object.freeze({
+      requestId,
+      // The checked ID and this source's ID replace whatever the spread
+      // reads, so they are the values the check saw.
+      ref: Object.freeze({
+        ...(ref as SecretRef),
+        secretId,
+        source: sourceId,
+      }),
+      ...(isNonEmptyString(recipient) ? { recipientPublicKey: recipient } : {}),
+    });
   };
 
   const run = async (
@@ -463,11 +482,12 @@ export function connectSource(
       return page;
     },
     export: async (request: ExportRequest) => {
-      const secretId = checkRequest(request);
-      return run(secretId, () => exportValue.call(source, request));
+      const checked = readRequest(request);
+      return run(checked.ref.secretId, () => exportValue.call(source, checked));
     },
     resume: async (request: ResumeRequest): Promise<ExportOutcome> => {
-      const secretId = checkRequest(request);
+      const checked = readRequest(request);
+      const secretId = checked.ref.secretId;
       const handle = resume ? readHandle(request.handle) : undefined;
       if (!resume || !handle) throw invalidRequest();
       if (handle.expiresAt !== undefined && Date.now() > handle.expiresAt) {
@@ -476,7 +496,7 @@ export function connectSource(
           reason: toSourceReason(undefined, { secretId, sourceId }, "expired"),
         };
       }
-      return run(secretId, () => resume.call(source, { ...request, handle }));
+      return run(secretId, () => resume.call(source, { ...checked, handle }));
     },
   });
 }

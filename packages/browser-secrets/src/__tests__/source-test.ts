@@ -404,6 +404,48 @@ describe("connectSource outcomes", () => {
     expect(calls).toBe(0);
   });
 
+  test("the source sees the checked request, so a getter cannot change after the check", async () => {
+    const seen: unknown[] = [];
+    const record = async (r: ExportRequest) => {
+      seen.push([r.requestId, r.ref.secretId, r.ref.source]);
+      return { kind: "denied", reason: { code: "rejected" } };
+    };
+    const connected = connectSource(
+      stubSource(TURNKEY_CAPS, { export: record, resume: record }),
+    );
+    const shifting = () => {
+      let reads = 0;
+      const later =
+        <T>(first: T, next: string) =>
+        () =>
+          reads++ < 3 ? first : next;
+      const secretId = later("s1", `other ${canary}`);
+      const source = later(undefined, "stub");
+      const requestId = later("r1", `other ${canary}`);
+      return {
+        get requestId() {
+          return requestId();
+        },
+        ref: {
+          staticProperties: {},
+          get secretId() {
+            return secretId();
+          },
+          get source() {
+            return source();
+          },
+        },
+        recipientPublicKey: "04ab",
+      } as unknown as ExportRequest;
+    };
+    await connected.export(shifting());
+    await connected.resume({ ...shifting(), handle: { id: "h" } });
+    expect(seen).toEqual([
+      ["r1", "s1", "stub"],
+      ["r1", "s1", "stub"],
+    ]);
+  });
+
   test("resume requires approvals and a handle", async () => {
     const handle = { id: "h" };
     const native = connectSource(stubSource(NATIVE_CAPS), OPEN);
