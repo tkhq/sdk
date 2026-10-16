@@ -265,6 +265,22 @@ describe("connectSource listRefs", () => {
     }
   });
 
+  test("listing entries are read once, so a getter cannot change after the check", async () => {
+    let reads = 0;
+    const entry = {
+      secretId: "s1",
+      get name(): unknown {
+        return reads++ === 0 ? "Shop" : { leak: canary };
+      },
+    };
+    const connected = connectSource(
+      stubSource(TURNKEY_CAPS, { listRefs: async () => ({ refs: [entry] }) }),
+    );
+    const { refs } = await connected.listRefs();
+    expect(refs[0]?.name).toBe("Shop");
+    expect(JSON.stringify(refs)).not.toContain(canary);
+  });
+
   test("a thrown listing error drops the vendor text", async () => {
     const connected = connectSource(
       stubSource(TURNKEY_CAPS, {
@@ -370,6 +386,36 @@ describe("connectSource outcomes", () => {
         submitted: "unknown",
       });
     }
+  });
+
+  test("outcome fields are read once, so a getter cannot change after the check", async () => {
+    let stateReads = 0;
+    const pending = await exportRaw({
+      kind: "pending",
+      handle: {
+        id: "act-1",
+        get state(): unknown {
+          return stateReads++ === 0 ? undefined : { key: canary };
+        },
+      },
+    });
+    expect(pending).toEqual({ kind: "pending", handle: { id: "act-1" } });
+
+    let bundleReads = 0;
+    const ready = await exportRaw({
+      kind: "ready",
+      delivery: {
+        mode: "ciphertext",
+        get bundle(): unknown {
+          return bundleReads++ === 0 ? "b1" : 7;
+        },
+      },
+    });
+    expect(ready).toEqual({
+      kind: "ready",
+      delivery: { mode: "ciphertext", bundle: "b1" },
+    });
+    expect(JSON.stringify([pending, ready])).not.toContain(canary);
   });
 
   test("requests are checked before the source sees them", async () => {

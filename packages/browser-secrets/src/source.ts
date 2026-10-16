@@ -433,13 +433,14 @@ export function connectSource(
         const reason = toSourceReason(error, { sourceId });
         throw new BrowserSecretsError("source_error", reason.code, reason);
       }
-      if (!isListing(listing)) {
+      const page = readListing(listing);
+      if (!page) {
         throw new BrowserSecretsError("source_error", "invalid_response", {
           sourceId,
         });
       }
       return {
-        refs: listing.refs.map(({ secretId, name, staticProperties }) =>
+        refs: page.refs.map(({ secretId, name, staticProperties }) =>
           createSecretRef({
             secretId,
             name,
@@ -448,8 +449,8 @@ export function connectSource(
             bindingProvenance: capabilities.bindings,
           }),
         ),
-        ...(listing.nextCursor !== undefined
-          ? { nextCursor: listing.nextCursor }
+        ...(page.nextCursor !== undefined
+          ? { nextCursor: page.nextCursor }
           : {}),
       };
     },
@@ -467,21 +468,51 @@ export function connectSource(
   });
 }
 
-const isEntry = (entry: unknown): boolean =>
-  isObject(entry) &&
-  isNonEmptyString(entry["secretId"]) &&
-  ["string", "undefined"].includes(typeof entry["name"]) &&
-  (entry["staticProperties"] === undefined ||
-    (isObject(entry["staticProperties"]) &&
-      Object.values(entry["staticProperties"]).every(
-        (v) => typeof v === "string",
-      )));
+/**
+ * Copies one listing entry, or returns undefined when it is malformed. Each
+ * field is read once, so a getter cannot pass the check and then change.
+ */
+function readEntry(entry: unknown): SecretMetadata | undefined {
+  if (!isObject(entry)) return undefined;
+  const secretId = entry["secretId"];
+  const name = entry["name"];
+  const rawProperties = entry["staticProperties"];
+  if (!isNonEmptyString(secretId)) return undefined;
+  if (name !== undefined && typeof name !== "string") return undefined;
+  let staticProperties: Record<string, string> | undefined;
+  if (rawProperties !== undefined) {
+    if (!isObject(rawProperties)) return undefined;
+    // The spread reads each property once; check the copy.
+    const copy: Record<string, unknown> = { ...rawProperties };
+    if (!Object.values(copy).every((v) => typeof v === "string")) {
+      return undefined;
+    }
+    staticProperties = copy as Record<string, string>;
+  }
+  return {
+    secretId,
+    ...(name !== undefined ? { name } : {}),
+    ...(staticProperties !== undefined ? { staticProperties } : {}),
+  };
+}
 
-const isListing = (value: unknown): value is SourceListing =>
-  isObject(value) &&
-  Array.isArray(value["refs"]) &&
-  value["refs"].every(isEntry) &&
-  (value["nextCursor"] === undefined || isNonEmptyString(value["nextCursor"]));
+/** Copies a listing page, or returns undefined when it is malformed. */
+function readListing(value: unknown): SourceListing | undefined {
+  if (!isObject(value)) return undefined;
+  const rawRefs = value["refs"];
+  const nextCursor = value["nextCursor"];
+  if (!Array.isArray(rawRefs)) return undefined;
+  if (nextCursor !== undefined && !isNonEmptyString(nextCursor)) {
+    return undefined;
+  }
+  const refs: SecretMetadata[] = [];
+  for (const raw of Array.from(rawRefs as unknown[])) {
+    const entry = readEntry(raw);
+    if (!entry) return undefined;
+    refs.push(entry);
+  }
+  return { refs, ...(nextCursor !== undefined ? { nextCursor } : {}) };
+}
 
 function failed(
   reason: SourceReason,
@@ -490,7 +521,11 @@ function failed(
   return { kind: "failed", reason, submitted };
 }
 
-/** Rebuilds a source's outcome from known fields, or fails it. */
+/**
+ * Rebuilds a source's outcome from known fields, or fails it. Each field is
+ * read once into a local, checked, and the local is copied, so a getter
+ * cannot pass the check and then change.
+ */
 function normalizeOutcome(
   raw: unknown,
   caps: SourceCapabilities,
@@ -513,35 +548,36 @@ function normalizeOutcome(
   switch (raw["kind"]) {
     case "ready": {
       const delivery = raw["delivery"];
-      const field = caps.delivery === "ciphertext" ? "bundle" : "value";
       const expiresAt = raw["expiresAt"];
-      if (
-        !isObject(delivery) ||
-        delivery["mode"] !== caps.delivery ||
-        !isNonEmptyString(delivery[field]) ||
-        !isOptionalTimestamp(expiresAt)
-      ) {
+      if (!isObject(delivery) || !isOptionalTimestamp(expiresAt)) {
+        return invalid;
+      }
+      const field = caps.delivery === "ciphertext" ? "bundle" : "value";
+      const mode = delivery["mode"];
+      const payload = delivery[field];
+      if (mode !== caps.delivery || !isNonEmptyString(payload)) {
         return invalid;
       }
       return {
         kind: "ready",
-        delivery: { mode: caps.delivery, [field]: delivery[field] } as Delivery,
+        delivery: { mode: caps.delivery, [field]: payload } as Delivery,
         ...(expiresAt !== undefined ? { expiresAt } : {}),
       };
     }
     case "pending": {
       const handle = raw["handle"];
+      const approvalUrl = raw["approvalUrl"];
+      if (!caps.approvals || !isObject(handle)) return invalid;
+      const id = handle["id"];
+      const expiresAt = handle["expiresAt"];
+      const state = handle["state"];
       if (
-        !caps.approvals ||
-        !isObject(handle) ||
-        !isNonEmptyString(handle["id"]) ||
-        !isOptionalTimestamp(handle["expiresAt"]) ||
-        (handle["state"] !== undefined && typeof handle["state"] !== "string")
+        !isNonEmptyString(id) ||
+        !isOptionalTimestamp(expiresAt) ||
+        (state !== undefined && typeof state !== "string")
       ) {
         return invalid;
       }
-      const { id, expiresAt, state } = handle;
-      const approvalUrl = raw["approvalUrl"];
       return {
         kind: "pending",
         handle: {
@@ -557,11 +593,13 @@ function normalizeOutcome(
     }
     case "denied":
       return { kind: "denied", reason: reason(raw["reason"]) };
-    case "failed":
+    case "failed": {
+      const submitted = raw["submitted"];
       return failed(
         reason(raw["reason"]),
-        raw["submitted"] === "no" ? "no" : "unknown",
+        submitted === "no" ? "no" : "unknown",
       );
+    }
     default:
       return invalid;
   }
