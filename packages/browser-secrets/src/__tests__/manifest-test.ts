@@ -88,6 +88,7 @@ describe("manifestSource entries", () => {
   test("refuse entries that would not bind strictly", () => {
     const bad: unknown[] = [
       { ...shop, secretId: "" },
+      { ...shop, name: 7 },
       { ...shop, binding: undefined },
       { ...shop, binding: { origin: "https://shop.example/login" } },
       { ...shop, binding: { origin: "https://shop.example", fields: {} } },

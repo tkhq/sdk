@@ -93,6 +93,7 @@ function compileEntry(entry: ManifestEntry, sourceId: string): SecretRef {
     reservedKey ||
     typeof entry.secretId !== "string" ||
     entry.secretId.length === 0 ||
+    (entry.name !== undefined && typeof entry.name !== "string") ||
     Object.values(properties).some((value) => typeof value !== "string") ||
     parseBinding(properties).status !== "bound"
   ) {
