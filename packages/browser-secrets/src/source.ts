@@ -140,7 +140,9 @@ export type Delivery =
  *
  * - `ready`: the value, for the core only. A JSON value for a secret bound
  *   with `sbm:fields`. `expiresAt` marks a short-lived value (a one-time
- *   code); the core passes it to `RedactionRegistry`.
+ *   code); the core passes it to `RedactionRegistry`. It is the end of
+ *   the window in which a verifier still accepts the code, not when the
+ *   code was issued.
  * - `pending`: waiting for approval. Call `resume` with the handle.
  * - `denied`: the source refused. Nothing was released.
  * - `failed`: the source could not finish. `submitted: "no"` means no

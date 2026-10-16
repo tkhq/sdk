@@ -84,7 +84,9 @@ export type RedactionValue = {
    * never expires; two expiries keep the later one. An expiry that is not
    * a number, is NaN, or is already past (for example epoch seconds read
    * as milliseconds) counts as no expiry, so a bad expiry never stops a
-   * value from being redacted.
+   * value from being redacted. Set it to the end of the window in which
+   * a verifier still accepts the code, not to when the code was shown:
+   * TOTP verifiers commonly accept one earlier step.
    */
   readonly expiresAt?: number;
 };
