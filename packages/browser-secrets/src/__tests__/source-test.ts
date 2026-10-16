@@ -343,11 +343,8 @@ describe("connectSource outcomes", () => {
         reason: { code: "source_error", ...ids },
         submitted: "unknown",
       },
-      {
-        kind: "ready",
-        delivery: { mode: "ciphertext", bundle: "b1" },
-        expiresAt: 1_000,
-      },
+      // A source without otp cannot shorten redaction.
+      { kind: "ready", delivery: { mode: "ciphertext", bundle: "b1" } },
       {
         kind: "pending",
         handle: { id: "act-1", expiresAt: 5, state: "{}" },
@@ -356,6 +353,23 @@ describe("connectSource outcomes", () => {
       { kind: "pending", handle: { id: "act-1" } },
     ]);
     expect(JSON.stringify(outcomes)).not.toContain(canary);
+  });
+
+  test("only a source that declares otp can set expiresAt on a ready value", async () => {
+    const ready = {
+      kind: "ready",
+      delivery: { mode: "plaintext", value: "482913" },
+      expiresAt: 1_000,
+    };
+    expect(await exportRaw(ready, NATIVE_CAPS)).toEqual({
+      kind: "ready",
+      delivery: { mode: "plaintext", value: "482913" },
+      expiresAt: 1_000,
+    });
+    expect(await exportRaw(ready, { ...NATIVE_CAPS, otp: false })).toEqual({
+      kind: "ready",
+      delivery: { mode: "plaintext", value: "482913" },
+    });
   });
 
   test("outcomes the source did not declare are invalid_response", async () => {
