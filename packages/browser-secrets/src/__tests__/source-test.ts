@@ -458,6 +458,59 @@ describe("connectSource outcomes", () => {
       reason: { code: "rejected", ...ids },
     });
   });
+
+  test("resume rejects a malformed handle before the source sees it", async () => {
+    let calls = 0;
+    const turnkey = connectSource(
+      stubSource(TURNKEY_CAPS, {
+        resume: async () => {
+          calls++;
+          return { kind: "denied", reason: { code: "rejected" } };
+        },
+      }),
+    );
+    for (const handle of [
+      undefined,
+      { id: "h", state: { key: canary } },
+      { id: "h", state: 7 },
+      { id: "h", expiresAt: "soon" },
+      { id: "h", expiresAt: Number.NaN },
+      { id: "h", expiresAt: Infinity },
+    ]) {
+      await expect(
+        turnkey.resume({ ...request(), handle } as never),
+      ).rejects.toMatchObject({ code: "invalid_request" });
+    }
+    expect(calls).toBe(0);
+  });
+
+  test("resume denies an expired handle as expired without calling the source", async () => {
+    const seen: unknown[] = [];
+    const turnkey = connectSource(
+      stubSource(TURNKEY_CAPS, {
+        resume: async (r: { handle: unknown }) => {
+          seen.push(r.handle);
+          return { kind: "pending", handle: r.handle };
+        },
+      }),
+    );
+    expect(
+      await turnkey.resume({ ...request(), handle: { id: "h", expiresAt: 1 } }),
+    ).toEqual({ kind: "denied", reason: { code: "expired", ...ids } });
+    expect(seen).toEqual([]);
+
+    const later = Date.now() + 60_000;
+    expect(
+      await turnkey.resume({
+        ...request(),
+        handle: { id: "h", expiresAt: later, state: "s" },
+      }),
+    ).toEqual({
+      kind: "pending",
+      handle: { id: "h", expiresAt: later, state: "s" },
+    });
+    expect(seen).toEqual([{ id: "h", expiresAt: later, state: "s" }]);
+  });
 });
 
 test("toSourceReason keeps a safe source code and drops everything else", () => {

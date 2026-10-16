@@ -366,6 +366,9 @@ export type ConnectedSource = {
  * - Reasons keep a known code (others become `source_error`) and get IDs
  *   from the request.
  * - A thrown error becomes `failed` with `submitted: "unknown"`.
+ * - `resume` rejects a malformed handle with `invalid_request`. A handle
+ *   whose `expiresAt` is past is `denied` with `expired` without calling
+ *   the source.
  */
 export function connectSource(
   source: SecretSource,
@@ -458,12 +461,35 @@ export function connectSource(
       checkRequest(request);
       return run(request.ref.secretId, () => source.export(request));
     },
-    resume: async (request: ResumeRequest) => {
+    resume: async (request: ResumeRequest): Promise<ExportOutcome> => {
       checkRequest(request);
-      if (!capabilities.approvals || !isNonEmptyString(request.handle?.id)) {
+      const raw: unknown = request.handle;
+      if (!capabilities.approvals || !isObject(raw)) throw invalidRequest();
+      // Read once, so a getter cannot pass the check and then change.
+      const id = raw["id"];
+      const expiresAt = raw["expiresAt"];
+      const state = raw["state"];
+      if (
+        !isNonEmptyString(id) ||
+        !isOptionalTimestamp(expiresAt) ||
+        (state !== undefined && typeof state !== "string")
+      ) {
         throw invalidRequest();
       }
-      return run(request.ref.secretId, () => source.resume!(request));
+      const secretId = request.ref.secretId;
+      // An approval past its window can no longer complete; do not ask.
+      if (expiresAt !== undefined && Date.now() > expiresAt) {
+        return {
+          kind: "denied",
+          reason: toSourceReason(undefined, { secretId, sourceId }, "expired"),
+        };
+      }
+      const handle: PendingHandle = {
+        id,
+        ...(expiresAt !== undefined ? { expiresAt } : {}),
+        ...(state !== undefined ? { state } : {}),
+      };
+      return run(secretId, () => source.resume!({ ...request, handle }));
     },
   });
 }
