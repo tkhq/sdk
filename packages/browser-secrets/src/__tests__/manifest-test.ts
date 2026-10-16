@@ -85,6 +85,18 @@ describe("manifestSource entries", () => {
       { ...shop, binding: undefined },
       { ...shop, binding: { origin: "https://shop.example/login" } },
       { ...shop, binding: { origin: "https://shop.example", fields: {} } },
+      // JSON.stringify turns a function or symbol into undefined, which must
+      // not compile into an origin-only binding.
+      {
+        ...shop,
+        binding: { origin: "https://shop.example", fields: () => {} },
+      },
+      {
+        ...shop,
+        binding: { origin: "https://shop.example", fields: Symbol("f") },
+      },
+      { ...shop, binding: { origin: "https://shop.example", fields: "cc" } },
+      { ...shop, binding: { origin: "https://shop.example", fields: ["cc"] } },
       { ...shop, binding: { origin: "https://shop.example", urlPattern: 7 } },
       { ...shop, properties: { "sbm:origin": "https://evil.example" } },
       { ...shop, properties: { "op:ref": 1 } },
