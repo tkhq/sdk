@@ -83,7 +83,12 @@ export type SourceCapabilities = {
   readonly exportPolicy: boolean;
   readonly audit: AuditLevel;
   readonly delivery: DeliveryMode;
-  /** The source can produce one-time codes. Informational. */
+  /**
+   * The source can produce one-time codes. Only a source with `otp: true`
+   * can mark a ready value with `expiresAt`; `connectSource` drops the
+   * field from any other source, so a long-lived secret cannot be given a
+   * short redaction window.
+   */
   readonly otp: boolean;
 };
 
@@ -142,7 +147,7 @@ export type Delivery =
  *   with `sbm:fields`. `expiresAt` marks a short-lived value (a one-time
  *   code); the core passes it to `RedactionRegistry`. It is the end of
  *   the window in which a verifier still accepts the code, not when the
- *   code was issued.
+ *   code was issued. Only a source with `capabilities.otp` can set it.
  * - `pending`: waiting for approval. Call `resume` with the handle.
  * - `denied`: the source refused. Nothing was released.
  * - `failed`: the source could not finish. `submitted: "no"` means no
@@ -362,7 +367,9 @@ export type ConnectedSource = {
  *   from the source's listing.
  * - Outcomes are rebuilt from known fields only. A `pending` from a source
  *   without approvals, or a delivery in a mode the source did not declare,
- *   becomes `failed` with `invalid_response`.
+ *   becomes `failed` with `invalid_response`. An `expiresAt` on a ready
+ *   value from a source without `otp` is dropped: the value is then
+ *   redacted until the host releases it.
  * - Reasons keep a known code (others become `source_error`) and get IDs
  *   from the request.
  * - A thrown error becomes `failed` with `submitted: "unknown"`.
@@ -587,7 +594,8 @@ function normalizeOutcome(
       return {
         kind: "ready",
         delivery: { mode: caps.delivery, [field]: payload } as Delivery,
-        ...(expiresAt !== undefined ? { expiresAt } : {}),
+        // Only a source that issues one-time codes may shorten redaction.
+        ...(caps.otp && expiresAt !== undefined ? { expiresAt } : {}),
       };
     }
     case "pending": {
