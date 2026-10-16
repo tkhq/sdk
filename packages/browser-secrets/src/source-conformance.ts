@@ -7,6 +7,7 @@
 import {
   connectSource,
   requireSources,
+  toSourceReason,
   type ExportOutcome,
   type ExportRequest,
   type PendingHandle,
@@ -93,7 +94,15 @@ export async function runSourceConformance(
       skipped,
       failures,
     });
-    const setup = await harness.setup(scenario.scenario);
+    let setup;
+    try {
+      setup = await harness.setup(scenario.scenario);
+    } catch (error) {
+      // Only the safe code: a harness error can carry vendor text.
+      failures.push(`setup failed: ${toSourceReason(error).code}`);
+      results.push(result());
+      continue;
+    }
     let source;
     try {
       source = connectSource(

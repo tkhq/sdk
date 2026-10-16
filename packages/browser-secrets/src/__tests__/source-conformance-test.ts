@@ -225,4 +225,19 @@ describe("source conformance runner", () => {
       expect(JSON.stringify(result)).not.toContain(canary);
     }
   });
+
+  test("reports a harness whose setup fails instead of throwing", async () => {
+    const broken: SourceHarness = {
+      async setup() {
+        throw new Error(`backend not reachable ${canary}`);
+      },
+    };
+    const results = await runSourceConformance(broken, fixture);
+    expect(results).toHaveLength(fixture.scenarios.length);
+    for (const result of results) {
+      expect(result).toMatchObject({ pass: false, skipped: false });
+      expect(result.failures).toEqual(["setup failed: source_error"]);
+    }
+    expect(JSON.stringify(results)).not.toContain(canary);
+  });
 });
