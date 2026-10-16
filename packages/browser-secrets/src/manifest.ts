@@ -96,21 +96,26 @@ function compileEntry(rawEntry: unknown, sourceId: string): SecretRef {
     key.startsWith(BINDING_KEY_PREFIX),
   );
   const { origin, frameOrigin, urlPattern, selector, fields } = binding ?? {};
+  // JSON.stringify maps a function, a symbol, or an object whose `toJSON`
+  // returns undefined to undefined, which would drop the key and leave an
+  // origin-only binding. Anything that is not a plain object stays as is
+  // and fails the string check below.
+  const fieldsJson: unknown = isObject(fields)
+    ? JSON.stringify(fields)
+    : fields;
   const bindingProperties = {
     [BINDING_KEYS.origin]: origin,
     [BINDING_KEYS.frameOrigin]: frameOrigin,
     [BINDING_KEYS.urlPattern]: urlPattern,
     [BINDING_KEYS.selector]: selector,
-    // JSON.stringify maps a function or symbol to undefined, which would
-    // drop the key and leave an origin-only binding. Anything that is not a
-    // plain object stays as is and fails the string check below.
-    [BINDING_KEYS.fields]: isObject(fields) ? JSON.stringify(fields) : fields,
+    [BINDING_KEYS.fields]: fieldsJson,
   };
   for (const [key, value] of Object.entries(bindingProperties)) {
     if (value !== undefined) properties[key] = value;
   }
   if (
     reservedKey ||
+    (fields !== undefined && typeof fieldsJson !== "string") ||
     (rawProperties !== undefined && !isObject(rawProperties)) ||
     !isNonEmptyString(secretId) ||
     (name !== undefined && typeof name !== "string") ||

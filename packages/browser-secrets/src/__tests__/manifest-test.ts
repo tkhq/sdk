@@ -95,6 +95,15 @@ describe("manifestSource entries", () => {
         ...shop,
         binding: { origin: "https://shop.example", fields: Symbol("f") },
       },
+      // A plain object whose toJSON returns undefined stringifies to
+      // undefined too.
+      {
+        ...shop,
+        binding: {
+          origin: "https://shop.example",
+          fields: { cc: "#cc", toJSON: () => undefined },
+        },
+      },
       { ...shop, binding: { origin: "https://shop.example", fields: "cc" } },
       { ...shop, binding: { origin: "https://shop.example", fields: ["cc"] } },
       { ...shop, binding: { origin: "https://shop.example", urlPattern: 7 } },
