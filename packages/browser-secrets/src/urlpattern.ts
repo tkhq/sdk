@@ -23,9 +23,6 @@ export type URLPatternConstructor = new (
   init: URLPatternInitLike,
 ) => URLPatternLike;
 
-/** Which implementation `getURLPattern` returns. */
-export type URLPatternSource = "native" | "polyfill";
-
 function nativeURLPattern(): URLPatternConstructor | undefined {
   const candidate = (globalThis as { URLPattern?: unknown }).URLPattern;
   return typeof candidate === "function"
@@ -39,11 +36,6 @@ export function getURLPattern(): URLPatternConstructor {
     nativeURLPattern() ??
     (URLPatternPolyfill as unknown as URLPatternConstructor)
   );
-}
-
-/** Reports whether `getURLPattern` returns the native class or the polyfill. */
-export function getURLPatternSource(): URLPatternSource {
-  return nativeURLPattern() ? "native" : "polyfill";
 }
 
 /** @internal The polyfill class, for tests that compare both implementations. */

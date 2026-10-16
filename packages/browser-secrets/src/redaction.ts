@@ -50,8 +50,11 @@ export type RedactionRegistryOptions = {
    *    digits: copies with separators added, removed, or changed. The scan
    *    keeps letters and digits only, after NFKC normalization and case
    *    folding, reads decimal digits in any script as 0-9, and decodes
-   *    percent escapes. Any other character is a separator, with at most
-   *    three in a row between two kept characters. A value made only of
+   *    percent escapes and numeric HTML character references. A named
+   *    reference to punctuation or a space, such as `&nbsp;`, counts as one
+   *    separator. Any other
+   *    character is a separator, with at most three in a row between two
+   *    kept characters. A value made only of
    *    digits compares on digits only, so letters between its groups count
    *    as separators too. This catches input masks and formatters: card
    *    numbers in any grouping, IBANs, and reflowed keys.
@@ -90,6 +93,8 @@ const MAX_GAP = 3;
 const ALNUM = /[\p{L}\p{N}]/u;
 const DIGIT = /\p{Nd}/u;
 const PERCENT_ESCAPE = /^%[0-9a-f]{2}$/i;
+const HTML_REFERENCE =
+  /&(?:#(\d{1,7})|#x([0-9a-f]{1,6})|(?:nbsp|ensp|emsp|thinsp|shy|ndash|mdash|hyphen|minus|period|comma|colon|sol|lowbar|amp|lt|gt|quot|apos));/iy;
 
 type Normalized = {
   /** The kept characters, folded. */
@@ -104,8 +109,9 @@ type Normalized = {
 
 /**
  * Keeps only the characters matching `keep`, NFKC-normalized and case
- * folded, with decimal digits read as 0-9, one code point (or percent
- * escape) at a time, and records where each kept character came from.
+ * folded, with decimal digits read as 0-9, one code point, percent escape,
+ * or HTML character reference at a time, and records where each kept
+ * character came from.
  */
 function normalize(text: string, keep: RegExp): Normalized {
   let out = "";
@@ -123,6 +129,14 @@ function normalize(text: string, keep: RegExp): Normalized {
       // Multi-byte UTF-8 escapes stay separators: formatters emit ASCII.
       unit = byte < 0x80 ? String.fromCharCode(byte) : "%";
       width = 3;
+    } else if (text[i] === "&") {
+      HTML_REFERENCE.lastIndex = i;
+      const ref = HTML_REFERENCE.exec(text);
+      if (ref) {
+        const cp = ref[1] ? parseInt(ref[1], 10) : parseInt(ref[2] ?? "", 16);
+        unit = cp > 0 && cp <= 0x10ffff ? String.fromCodePoint(cp) : "&";
+        width = ref[0].length;
+      }
     }
     for (const ch of unit.normalize("NFKC").toLowerCase()) {
       if (!keep.test(ch)) {
@@ -514,8 +528,9 @@ export class RedactionRegistry {
 
   /**
    * Scrubs a JSON-like value: strings, and the keys and values of arrays,
-   * plain objects, `Map`s, and `Set`s, recursively. Returns a new value; the
-   * input is not changed.
+   * plain objects, `Map`s, and `Set`s, recursively. The input is not
+   * changed. Returns a new value, except when nothing is registered: then it
+   * returns `value` itself, so copy it before changing the result.
    *
    * Byte buffers (`ArrayBuffer`, `Uint8Array`, `Buffer`) are decoded as
    * UTF-8 and scrubbed. When that changes them, the result is the UTF-8

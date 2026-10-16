@@ -138,7 +138,7 @@ export type ShadowRootMode = "none" | "open" | "closed";
 
 /** One observed target element. */
 export type ObservedTarget = {
-  /** Host-owned element identity, scoped to its document. */
+  /** Host-owned element identity, unique across the whole observation. */
   readonly elementId: string;
   /** From the top-level document (index 0) to the target's document (last). */
   readonly frames: readonly ObservedDocument[];

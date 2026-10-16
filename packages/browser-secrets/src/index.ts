@@ -1,25 +1,19 @@
 export * from "./types";
-export { parseBinding, createSecretRef, type SecretMetadata } from "./binding";
 export {
-  isExactHttpOrigin,
-  isExactOrigin,
-  isHttpUrl,
-  httpOriginOf,
-  matchesOrigin,
-  matchesUrl,
-  compileUrlPattern,
-  type UrlRule,
-} from "./matcher";
-export {
-  getURLPattern,
-  getURLPatternSource,
-  type URLPatternConstructor,
-  type URLPatternInitLike,
-  type URLPatternLike,
-  type URLPatternSource,
+  parseBinding,
+  createSecretRef,
+  redactionEntries,
+  type SecretMetadata,
+} from "./binding";
+export { matchesOrigin, matchesUrl, type UrlRule } from "./matcher";
+export type {
+  URLPatternConstructor,
+  URLPatternInitLike,
+  URLPatternLike,
 } from "./urlpattern";
 export {
   authorize,
+  isSameDestination,
   validateRequest,
   requiredSelectors,
   DENY_REASONS,

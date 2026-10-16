@@ -135,7 +135,30 @@
         ]
       },
       "expect": {
-        "allowed": true
+        "allowed": true,
+        "targets": [
+          {
+            "elementId": "cardNumber",
+            "key": "number",
+            "selector": "input[name=cardNumber]",
+            "frameId": "main",
+            "documentId": "doc-main-6"
+          },
+          {
+            "elementId": "cardExpiry",
+            "key": "expiry",
+            "selector": "input[name=cardExpiry]",
+            "frameId": "main",
+            "documentId": "doc-main-7"
+          },
+          {
+            "elementId": "cardCvc",
+            "key": "cvc",
+            "selector": "input[name=cardCvc]",
+            "frameId": "main",
+            "documentId": "doc-main-8"
+          }
+        ]
       }
     },
     {
@@ -193,7 +216,15 @@
         ]
       },
       "expect": {
-        "allowed": true
+        "allowed": true,
+        "targets": [
+          {
+            "elementId": "nested",
+            "selector": "input",
+            "frameId": "nested-inner",
+            "documentId": "doc-nested-inner-40"
+          }
+        ]
       }
     },
     {

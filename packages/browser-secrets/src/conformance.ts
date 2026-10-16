@@ -4,7 +4,7 @@
  * The fixture file is the specification; this runner is the reference
  * implementation of how to read it.
  */
-import { authorize, type DenyReason } from "./authorize";
+import { authorize, type AuthorizedTarget, type DenyReason } from "./authorize";
 import { parseBinding } from "./binding";
 import type {
   BindingErrorCode,
@@ -37,7 +37,7 @@ export type AuthorizeFixtureCase = {
   request: FillRequest;
   observation: TargetObservation;
   expect:
-    | { allowed: true }
+    | { allowed: true; targets?: AuthorizedTarget[] }
     | { allowed: false; reason: DenyReason; targetIndex?: number };
 };
 
@@ -87,9 +87,15 @@ export function runConformanceCase(
       testCase.request,
       testCase.observation,
     );
-    // A case that expects no targetIndex accepts a decision with one.
+    // A case that expects no targets or targetIndex accepts a decision with
+    // them.
     actual = decision.allowed
-      ? { allowed: true }
+      ? {
+          allowed: true,
+          ...(testCase.expect.allowed && testCase.expect.targets !== undefined
+            ? { targets: decision.targets }
+            : {}),
+        }
       : {
           allowed: false,
           reason: decision.reason,

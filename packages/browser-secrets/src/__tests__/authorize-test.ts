@@ -3,6 +3,7 @@ import { describe, expect, test } from "@jest/globals";
 import {
   authorize,
   createSecretRef,
+  isSameDestination,
   requiredSelectors,
   validateRequest,
   type TargetObservation,
@@ -114,6 +115,43 @@ describe("authorize", () => {
       allowed: false,
       reason: "binding_invalid",
     });
+  });
+});
+
+describe("isSameDestination", () => {
+  const allow = (o: TargetObservation) => {
+    const decision = authorize(card, request, o);
+    if (!decision.allowed) throw new Error(decision.reason);
+    return decision;
+  };
+  const approved = allow(observation);
+
+  test("matches a fresh decision for the same documents", () => {
+    expect(isSameDestination(approved, allow(observation))).toBe(true);
+  });
+
+  test("refuses a decision for a replaced document", () => {
+    const [number, cvc] = observation.targets;
+    const reloaded: TargetObservation = {
+      ...observation,
+      targets: [
+        {
+          ...number!,
+          frames: [
+            number!.frames[0]!,
+            { ...number!.frames[1]!, documentId: "d9" },
+          ],
+        },
+        cvc!,
+      ],
+    };
+    expect(isSameDestination(approved, allow(reloaded))).toBe(false);
+  });
+
+  test("refuses a decision for another tab", () => {
+    expect(
+      isSameDestination(approved, allow({ ...observation, tabId: "t2" })),
+    ).toBe(false);
   });
 });
 

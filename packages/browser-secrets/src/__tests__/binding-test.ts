@@ -1,6 +1,12 @@
 import { describe, expect, test } from "@jest/globals";
 
-import { createSecretRef, parseBinding, type BindingErrorCode } from "../index";
+import {
+  createSecretRef,
+  parseBinding,
+  RedactionRegistry,
+  redactionEntries,
+  type BindingErrorCode,
+} from "../index";
 
 const origin = { "sbm:origin": "https://shop.example" };
 
@@ -102,5 +108,39 @@ describe("parseBinding", () => {
     expect(Object.isFrozen(fields)).toBe(true);
     expect(fields["constructor"]).toBeUndefined();
     expect(fields["__proto__"]).toBe("input[name=p]");
+  });
+});
+
+describe("redactionEntries", () => {
+  const card = {
+    secretId: "card",
+    staticProperties: {
+      ...origin,
+      "sbm:fields": '{"number":"input[name=n]","cvc":"input[name=c]"}',
+    },
+  };
+  const plaintext = JSON.stringify({ number: "4111111111111111", cvc: 123 });
+
+  test("adds each payload part of a field-bound secret", () => {
+    expect(redactionEntries(card, plaintext)).toEqual([
+      { value: plaintext, secretId: "card" },
+      { value: "4111111111111111", secretId: "card" },
+      { value: "123", secretId: "card" },
+    ]);
+    const registry = new RedactionRegistry();
+    registry.registerValues(redactionEntries(card, plaintext));
+    expect(registry.scrubText("value=4111111111111111")).toBe(
+      "value=[REDACTED:card]",
+    );
+  });
+
+  test("returns only the plaintext for other secrets", () => {
+    const login = { secretId: "pw", staticProperties: origin };
+    expect(redactionEntries(login, '{"a":"b"}')).toEqual([
+      { value: '{"a":"b"}', secretId: "pw" },
+    ]);
+    expect(redactionEntries(card, "not json")).toEqual([
+      { value: "not json", secretId: "card" },
+    ]);
   });
 });
