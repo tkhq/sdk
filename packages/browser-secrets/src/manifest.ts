@@ -111,9 +111,28 @@ function compileEntry(entry: ManifestEntry, sourceId: string): SecretRef {
   });
 }
 
-/** Builds a `SecretSource` from an operator manifest and a `resolve` function. */
+/**
+ * Builds a `SecretSource` from an operator manifest and a `resolve` function.
+ * Throws `source_config_invalid` when `audit` is not `"provider-log"` or
+ * `"none"`, or `otp` is not a boolean: a manifest source cannot claim a
+ * signed audit record.
+ */
 export function manifestSource(options: ManifestSourceOptions): SecretSource {
   const { id, resolve, verify } = options;
+  // Read once and check: callers can be plain JavaScript, and a declared
+  // capability the source cannot keep would pass `connectSource`.
+  const rawAudit: unknown = options.audit;
+  const rawOtp: unknown = options.otp;
+  const audit = rawAudit === undefined ? "none" : rawAudit;
+  const otp = rawOtp === undefined ? false : rawOtp;
+  if (
+    (audit !== "provider-log" && audit !== "none") ||
+    typeof otp !== "boolean"
+  ) {
+    throw new BrowserSecretsError("source_config_invalid", undefined, {
+      sourceId: id,
+    });
+  }
   const entries = new Map<string, { entry: ManifestEntry; ref: SecretRef }>();
   for (const entry of options.entries) {
     const ref = compileEntry(entry, id);
@@ -176,9 +195,9 @@ export function manifestSource(options: ManifestSourceOptions): SecretSource {
       bindings: "operator-manifest",
       approvals: false,
       exportPolicy: false,
-      audit: options.audit ?? "none",
+      audit,
       delivery: "plaintext",
-      otp: options.otp ?? false,
+      otp,
     }),
     // A manifest is small; one page holds every entry.
     listRefs: async () => ({ refs }),

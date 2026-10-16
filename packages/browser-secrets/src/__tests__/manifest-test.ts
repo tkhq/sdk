@@ -110,6 +110,38 @@ describe("manifestSource entries", () => {
     );
   });
 
+  test("refuse an audit or otp value the source cannot keep", () => {
+    // With audit left at the strict "signed" default, a source that
+    // claimed a signed record would be accepted.
+    const auditRequired = requireSources({
+      approvals: false,
+      bindings: "any",
+      exportPolicy: false,
+      delivery: "any",
+    });
+    for (const bad of [
+      { audit: "signed" },
+      { audit: canary },
+      { otp: "yes" },
+      { otp: null },
+    ]) {
+      let error: unknown;
+      try {
+        connectSource(make(bad as never), auditRequired);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toMatchObject({
+        code: "source_config_invalid",
+        sourceId: "onepassword",
+      });
+      expect(JSON.stringify(error)).not.toContain(canary);
+    }
+    expect(() =>
+      connectSource(make({ audit: "provider-log" }), auditRequired),
+    ).toThrow(expect.objectContaining({ reason: "audit_required" }));
+  });
+
   test("the strict defaults refuse the source; an explicit opt-out accepts it", () => {
     expect(() => connectSource(make())).toThrow(
       expect.objectContaining({
