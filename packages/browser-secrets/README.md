@@ -2,7 +2,14 @@
 
 Destination binding, target authorization, and output redaction for browser agents that fill stored secrets into web pages. It works with any secret store through a source contract. Turnkey is the default source.
 
-> Status: early and unpublished (`private` in `package.json`). This version has the binding, decision, redaction, and source-contract core. It does not call Turnkey yet. The API can change before the first stable release.
+## Install
+
+```sh
+npm install @turnkey/browser-secrets
+```
+
+> Status: early. This is the first release (0.1.0). It has the binding, decision, redaction, and source-contract core. It does not call Turnkey yet.
+> The API can change between minor versions until 1.0.
 
 ## Scope
 
