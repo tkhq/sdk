@@ -37,6 +37,10 @@ jobs:
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
+        with:
+          # This job builds only a part of the workspace. Use a separate cache key so that
+          # the full js-build job can save the main-<sha> cache that publish restores.
+          turbo-cache-scope: workers-
 
       # Builds the workspace packages that the test Worker imports
       - name: Build
