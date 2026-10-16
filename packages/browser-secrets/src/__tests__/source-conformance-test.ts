@@ -198,4 +198,31 @@ describe("source conformance runner", () => {
       "unknown secret is denied as not_found",
     ]);
   });
+
+  test("reports a source whose listing fails instead of throwing", async () => {
+    const unlistable: SourceHarness = {
+      async setup(scenario) {
+        const { source, ...rest } = await manifestHarness.setup(scenario);
+        return {
+          ...rest,
+          source: {
+            ...source,
+            listRefs: async () => {
+              throw new Error(`list failed ${canary}`);
+            },
+          },
+        };
+      },
+    };
+    const results = await runSourceConformance(unlistable, fixture);
+    const ran = results.filter((r) => !r.skipped);
+    expect(ran).toHaveLength(4);
+    for (const result of ran) {
+      expect(result.pass).toBe(false);
+      expect(result.failures).toEqual([
+        expect.stringMatching(/^listRefs failed: /),
+      ]);
+      expect(JSON.stringify(result)).not.toContain(canary);
+    }
+  });
 });

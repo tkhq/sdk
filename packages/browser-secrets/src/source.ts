@@ -140,7 +140,9 @@ export type Delivery =
  *
  * - `ready`: the value, for the core only. A JSON value for a secret bound
  *   with `sbm:fields`. `expiresAt` marks a short-lived value (a one-time
- *   code); the core passes it to `RedactionRegistry`.
+ *   code); the core passes it to `RedactionRegistry`. It is the end of
+ *   the window in which a verifier still accepts the code, not when the
+ *   code was issued.
  * - `pending`: waiting for approval. Call `resume` with the handle.
  * - `denied`: the source refused. Nothing was released.
  * - `failed`: the source could not finish. `submitted: "no"` means no
@@ -256,8 +258,10 @@ function pick<T>(
   if (!isObject(value)) return undefined;
   const out: Record<string, unknown> = {};
   for (const [key, allowed] of Object.entries(spec)) {
-    if (!allowed.includes(value[key])) return undefined;
-    out[key] = value[key];
+    // Read once, so a getter cannot pass the check and then change.
+    const field = value[key];
+    if (!allowed.includes(field)) return undefined;
+    out[key] = field;
   }
   return Object.freeze(out) as T;
 }
@@ -349,7 +353,9 @@ export type ConnectedSource = {
 /**
  * Checks `source` against the host's requirements and wraps it. Throws a
  * `source_refused` error with a typed reason when the source cannot meet
- * them.
+ * them, and `source_config_invalid` when `requirements` is not a complete
+ * `SourceRequirements` (build it with `requireSources`). A missing or
+ * unknown requirement never counts as `"any"`.
  *
  * The wrapper enforces the contract on every call:
  * - Refs get `source` and `bindingProvenance` from the connection, not
@@ -365,6 +371,8 @@ export function connectSource(
   source: SecretSource,
   requirements: SourceRequirements = STRICT_SOURCE_REQUIREMENTS,
 ): ConnectedSource {
+  const required = pick<SourceRequirements>(requirements, REQUIREMENT_VALUES);
+  if (!required) throw new BrowserSecretsError("source_config_invalid");
   const caps = pick<SourceCapabilities>(
     (source as { capabilities?: unknown } | null)?.capabilities,
     CAPABILITY_VALUES,
@@ -377,7 +385,7 @@ export function connectSource(
     typeof source.listRefs === "function" &&
     typeof source.export === "function" &&
     (!caps.approvals || typeof source.resume === "function");
-  const reason = valid ? refusal(caps, requirements) : "capabilities_invalid";
+  const reason = valid ? refusal(caps, required) : "capabilities_invalid";
   if (reason !== undefined) {
     throw new BrowserSecretsError("source_refused", reason, {
       sourceId: typeof id === "string" && SOURCE_ID.test(id) ? id : undefined,
@@ -390,6 +398,10 @@ export function connectSource(
 
   const checkRequest = (request: ExportRequest): void => {
     if (
+      !isObject(request) ||
+      !isNonEmptyString(request.requestId) ||
+      !isObject(request.ref) ||
+      !isNonEmptyString(request.ref.secretId) ||
       (request.ref.source !== undefined && request.ref.source !== sourceId) ||
       (capabilities.delivery === "ciphertext" &&
         !isNonEmptyString(request.recipientPublicKey))

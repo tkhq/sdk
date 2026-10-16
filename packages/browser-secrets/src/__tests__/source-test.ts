@@ -159,6 +159,34 @@ describe("connectSource requirements", () => {
     expect(refusal(stubSource(NATIVE_CAPS), OPEN)).toBeUndefined();
   });
 
+  test("a partial or malformed requirements object is refused, never read as any", () => {
+    // Only `requireSources` may fill in defaults. A host that hands
+    // `connectSource` a partial object must not get looser checks.
+    for (const bad of [
+      { approvals: false },
+      { ...OPEN, audit: undefined },
+      { ...OPEN, bindings: "operator-manifest" },
+      null,
+      "strict",
+    ]) {
+      expect(refusal(stubSource(NATIVE_CAPS), bad as never)).toMatchObject({
+        code: "source_config_invalid",
+      });
+    }
+  });
+
+  test("capabilities are read once, so a getter cannot change after the check", () => {
+    let reads = 0;
+    const capabilities = {
+      ...TURNKEY_CAPS,
+      get delivery() {
+        return reads++ === 0 ? "ciphertext" : "plaintext";
+      },
+    } as SourceCapabilities;
+    const connected = connectSource(stubSource(capabilities));
+    expect(connected.capabilities.delivery).toBe("ciphertext");
+  });
+
   test("malformed sources are refused as capabilities_invalid", () => {
     const bad: unknown[] = [
       null,
@@ -357,6 +385,10 @@ describe("connectSource outcomes", () => {
     for (const bad of [
       request({ ref: createSecretRef({ secretId: "s1", source: "other" }) }),
       request({ recipientPublicKey: undefined }),
+      request({ ref: undefined }),
+      request({ ref: { secretId: "", staticProperties: {} } }),
+      request({ requestId: "" }),
+      undefined as unknown as ExportRequest,
     ]) {
       await expect(connected.export(bad)).rejects.toMatchObject({
         code: "invalid_request",

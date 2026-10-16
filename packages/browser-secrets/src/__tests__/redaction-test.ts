@@ -465,14 +465,24 @@ describe("value expiry", () => {
     expect(registry.findSecretIds("482913 555666")).toEqual(["a"]);
   });
 
-  test("past or invalid expiries are not registered; target tags do not expire", () => {
+  test("a past or invalid expiry never expires", () => {
     const c = clock();
     const registry = new RedactionRegistry({ now: c.now });
     registry.registerValues([
       { value: "past-value", secretId: "a", expiresAt: 1_000 },
       { value: "nan-value", secretId: "b", expiresAt: Number.NaN },
+      { value: "text-value", secretId: "c", expiresAt: "soon" as never },
+      { value: "null-value", secretId: "d", expiresAt: null as never },
     ]);
-    expect(registry.valueCount).toBe(0);
+    c.advance(1_000_000);
+    expect(
+      registry.findSecretIds("past-value nan-value text-value null-value"),
+    ).toEqual(["a", "b", "c", "d"]);
+  });
+
+  test("target tags do not expire", () => {
+    const c = clock();
+    const registry = new RedactionRegistry({ now: c.now });
     const tag: RedactionTarget = {
       browserSessionId: "b",
       tabId: "t",

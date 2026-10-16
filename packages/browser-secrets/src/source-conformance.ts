@@ -112,12 +112,18 @@ export async function runSourceConformance(
 
     let listed;
     let cursor: string | undefined;
-    for (let page = 0; page < 100 && !listed; page++) {
-      const { refs, nextCursor } = await source.listRefs(
-        cursor !== undefined ? { cursor } : {},
-      );
-      listed = refs.find((ref) => ref.secretId === setup.secretId);
-      if ((cursor = nextCursor) === undefined) break;
+    try {
+      for (let page = 0; page < 100 && !listed; page++) {
+        const { refs, nextCursor } = await source.listRefs(
+          cursor !== undefined ? { cursor } : {},
+        );
+        listed = refs.find((ref) => ref.secretId === setup.secretId);
+        if ((cursor = nextCursor) === undefined) break;
+      }
+    } catch (error) {
+      failures.push(`listRefs failed: ${String(error)}`);
+      results.push(result());
+      continue;
     }
     if (scenario.scenario === "unknown-secret") {
       if (listed) failures.push("the unknown secret is listed");

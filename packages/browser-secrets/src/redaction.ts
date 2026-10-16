@@ -81,7 +81,12 @@ export type RedactionValue = {
    * Epoch milliseconds after which the value stops matching, for
    * short-lived values such as one-time codes. Omitted means it matches
    * until released. A value registered both with and without an expiry
-   * never expires; two expiries keep the later one.
+   * never expires; two expiries keep the later one. An expiry that is not
+   * a number, is NaN, or is already past (for example epoch seconds read
+   * as milliseconds) counts as no expiry, so a bad expiry never stops a
+   * value from being redacted. Set it to the end of the window in which
+   * a verifier still accepts the code, not to when the code was shown:
+   * TOTP verifiers commonly accept one earlier step.
    */
   readonly expiresAt?: number;
 };
@@ -381,14 +386,15 @@ export class RedactionRegistry {
   registerValues(entries: readonly RedactionValue[]): string[] {
     const skipped = new Set<string>();
     const now = this.#now();
-    for (const { value, secretId, expiresAt = Infinity } of entries) {
+    for (const { value, secretId, expiresAt: rawExpiry } of entries) {
       if (typeof value !== "string" || value.length === 0) continue;
       if (value.length < this.#minValueLength) {
         skipped.add(secretId);
         continue;
       }
-      // NaN and past expiries would never match; skip them.
-      if (!(expiresAt > now)) continue;
+      // An invalid or past expiry fails closed: the value never expires.
+      const expiresAt =
+        typeof rawExpiry === "number" && rawExpiry > now ? rawExpiry : Infinity;
       let byValue = this.#expiry.get(secretId);
       if (!byValue) this.#expiry.set(secretId, (byValue = new Map()));
       byValue.set(value, Math.max(byValue.get(value) ?? 0, expiresAt));
