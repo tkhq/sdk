@@ -4,6 +4,7 @@
  * mock of it) into each named scenario. The runner drives the source
  * through `connectSource`, so the core's checks apply too.
  */
+import { isBrowserSecretsError } from "./errors";
 import {
   connectSource,
   requireSources,
@@ -82,6 +83,18 @@ export type SourceConformanceResult = {
   failures: string[];
 };
 
+/**
+ * The safe part of a thrown error: the package's code and reason, or the
+ * source error code anything else maps to. A source or harness error can
+ * carry vendor text, and the results are meant to be printed.
+ */
+const describeError = (error: unknown): string =>
+  isBrowserSecretsError(error)
+    ? error.reason !== undefined
+      ? `${error.code}/${error.reason}`
+      : error.code
+    : toSourceReason(error).code;
+
 const NO_REQUIREMENTS = requireSources({
   approvals: false,
   bindings: "any",
@@ -108,8 +121,7 @@ export async function runSourceConformance(
     try {
       setup = await harness.setup(scenario.scenario);
     } catch (error) {
-      // Only the safe code: a harness error can carry vendor text.
-      failures.push(`setup failed: ${toSourceReason(error).code}`);
+      failures.push(`setup failed: ${describeError(error)}`);
       results.push(result());
       continue;
     }
@@ -120,7 +132,9 @@ export async function runSourceConformance(
         harness.requirements ?? NO_REQUIREMENTS,
       );
     } catch (error) {
-      failures.push(`connectSource refused the source: ${String(error)}`);
+      failures.push(
+        `connectSource refused the source: ${describeError(error)}`,
+      );
       results.push(result());
       continue;
     }
@@ -140,7 +154,7 @@ export async function runSourceConformance(
         if ((cursor = nextCursor) === undefined) break;
       }
     } catch (error) {
-      failures.push(`listRefs failed: ${String(error)}`);
+      failures.push(`listRefs failed: ${describeError(error)}`);
       results.push(result());
       continue;
     }

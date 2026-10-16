@@ -220,9 +220,45 @@ describe("source conformance runner", () => {
     for (const result of ran) {
       expect(result.pass).toBe(false);
       expect(result.failures).toEqual([
-        expect.stringMatching(/^listRefs failed: /),
+        "listRefs failed: source_error/source_error",
       ]);
       expect(JSON.stringify(result)).not.toContain(canary);
+    }
+  });
+
+  test("reports a source that connectSource refuses with the reason only", async () => {
+    const refused: SourceHarness = {
+      async setup(scenario) {
+        const { source, ...rest } = await manifestHarness.setup(scenario);
+        return { ...rest, source: { ...source, id: `bad id ${canary}` } };
+      },
+    };
+    const exploding: SourceHarness = {
+      async setup(scenario) {
+        const { source, ...rest } = await manifestHarness.setup(scenario);
+        return {
+          ...rest,
+          source: Object.defineProperty({ ...source }, "capabilities", {
+            get() {
+              throw new Error(`vendor sdk ${canary}`);
+            },
+          }),
+        };
+      },
+    };
+    for (const [harness, failure] of [
+      [refused, "source_refused/capabilities_invalid"],
+      [exploding, "source_error"],
+    ] as const) {
+      const results = await runSourceConformance(harness, fixture);
+      expect(results).toHaveLength(fixture.scenarios.length);
+      for (const result of results) {
+        expect(result).toMatchObject({ pass: false, skipped: false });
+        expect(result.failures).toEqual([
+          `connectSource refused the source: ${failure}`,
+        ]);
+      }
+      expect(JSON.stringify(results)).not.toContain(canary);
     }
   });
 
