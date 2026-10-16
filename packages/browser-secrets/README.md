@@ -143,7 +143,7 @@ const selfHosted = connectSource(
 
 `connectSource` stamps each ref with `source` and `bindingProvenance`, rebuilds outcomes from known fields only, and turns a thrown error into `failed` with `submitted: "unknown"`. `manifestSource` lists its entries only, runs `verify` and then `resolve` on every export with no cache, and refuses an entry that does not bind. Each host connects one source.
 
-`fixtures/source-outcomes.json` holds the scenarios every source must pass: ready, denied, unknown secret, failure before submission, unknown submission, approved, still pending, rejected, and expired. Run them with `runSourceConformance` and a harness that puts your backend (or a mock) into each scenario.
+`fixtures/source-outcomes.json` holds the scenarios every source must pass: ready, denied, unknown secret, failure before submission, unknown submission, approved, still pending, rejected, and expired. Run them with `runSourceConformance` and a harness that puts your backend (or a mock) into each scenario. A scenario that needs approvals is skipped for a source without them. A skipped scenario has `skipped: true` and counts as passing. A host that requires approvals must also check that no approval scenario was skipped.
 
 ### Cross-channel rule
 

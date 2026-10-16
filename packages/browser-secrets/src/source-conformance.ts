@@ -63,10 +63,20 @@ export type SourceHarness = {
   requirements?: SourceRequirements;
 };
 
+/**
+ * The result of one scenario. A skipped scenario does not apply to the
+ * source and counts as passing (`pass: true`). A host that requires
+ * approvals must also check that no approval scenario was skipped, for
+ * example `results.filter((r) => r.skipped)` is empty.
+ */
 export type SourceConformanceResult = {
   name: string;
+  /** False when any check failed. True for a skipped scenario. */
   pass: boolean;
-  /** True when the source lacks approvals and the scenario needs them. */
+  /**
+   * True when the source lacks approvals and the scenario needs them. The
+   * scenario did not run, and `pass` is true.
+   */
   skipped: boolean;
   /** Empty when the scenario passed. */
   failures: string[];
