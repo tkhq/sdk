@@ -45,8 +45,21 @@ export type SecretMetadata = {
   createdAtUnixMs: string;
 };
 
-export type ExportSecretParams = {
+/** Server-enforced limit on items in one `export_secrets` activity. */
+export const MAX_SECRETS_PER_EXPORT_ACTIVITY = 32;
+
+export type ExportSecretItem = {
   secretId: string;
+  /**
+   * Claims bound into the signed request for this secret only, for policy and
+   * audit. Never merged across items.
+   */
+  requestContext?: Record<string, string>;
+};
+
+export type ExportSecretsAndDecryptParams = {
+  /** 1 to 32 secrets, exported in one activity. IDs must be distinct. */
+  secrets: ExportSecretItem[];
   organizationId?: string;
   timestampMs?: string;
   /** How long to wait for the activity to reach a terminal status. Defaults to 60s. */
@@ -57,8 +70,11 @@ export type ExportSecretParams = {
   dangerouslyOverrideSignerPublicKey?: string;
 };
 
+export type ExportSecretParams = ExportSecretItem &
+  Omit<ExportSecretsAndDecryptParams, "secrets">;
+
 export type CreateExportSecretsProposalParams = {
-  secrets: { secretId: string }[];
+  secrets: ExportSecretItem[];
   /** Recipient's ephemeral P-256 public key (65-byte uncompressed hex, e.g. `generateP256KeyPair().publicKeyUncompressed`). Only the holder of the private half can decrypt the export. */
   targetPublicKey: string;
   organizationId?: string;
