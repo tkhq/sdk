@@ -175,6 +175,18 @@ describe("connectSource requirements", () => {
     }
   });
 
+  test("capabilities are read once, so a getter cannot change after the check", () => {
+    let reads = 0;
+    const capabilities = {
+      ...TURNKEY_CAPS,
+      get delivery() {
+        return reads++ === 0 ? "ciphertext" : "plaintext";
+      },
+    } as SourceCapabilities;
+    const connected = connectSource(stubSource(capabilities));
+    expect(connected.capabilities.delivery).toBe("ciphertext");
+  });
+
   test("malformed sources are refused as capabilities_invalid", () => {
     const bad: unknown[] = [
       null,

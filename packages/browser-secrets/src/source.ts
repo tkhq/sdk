@@ -258,8 +258,10 @@ function pick<T>(
   if (!isObject(value)) return undefined;
   const out: Record<string, unknown> = {};
   for (const [key, allowed] of Object.entries(spec)) {
-    if (!allowed.includes(value[key])) return undefined;
-    out[key] = value[key];
+    // Read once, so a getter cannot pass the check and then change.
+    const field = value[key];
+    if (!allowed.includes(field)) return undefined;
+    out[key] = field;
   }
   return Object.freeze(out) as T;
 }
