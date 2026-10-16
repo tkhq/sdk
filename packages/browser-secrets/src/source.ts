@@ -394,6 +394,10 @@ export function connectSource(
 
   const checkRequest = (request: ExportRequest): void => {
     if (
+      !isObject(request) ||
+      !isNonEmptyString(request.requestId) ||
+      !isObject(request.ref) ||
+      !isNonEmptyString(request.ref.secretId) ||
       (request.ref.source !== undefined && request.ref.source !== sourceId) ||
       (capabilities.delivery === "ciphertext" &&
         !isNonEmptyString(request.recipientPublicKey))

@@ -373,6 +373,10 @@ describe("connectSource outcomes", () => {
     for (const bad of [
       request({ ref: createSecretRef({ secretId: "s1", source: "other" }) }),
       request({ recipientPublicKey: undefined }),
+      request({ ref: undefined }),
+      request({ ref: { secretId: "", staticProperties: {} } }),
+      request({ requestId: "" }),
+      undefined as unknown as ExportRequest,
     ]) {
       await expect(connected.export(bad)).rejects.toMatchObject({
         code: "invalid_request",
