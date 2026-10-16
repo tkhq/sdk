@@ -66,7 +66,10 @@ export type ManifestSourceOptions = {
   readonly verify?: (ref: SecretRef) => boolean | Promise<boolean>;
   /** Default `"none"`. Set `"provider-log"` when the store keeps an access log. */
   readonly audit?: Exclude<AuditLevel, "signed">;
-  /** Default false. Required for `resolve` to return an `expiresAt`. */
+  /**
+   * Default false. The source passes on an `expiresAt` from `resolve`
+   * either way, but `connectSource` drops it unless this is true.
+   */
   readonly otp?: boolean;
 };
 
