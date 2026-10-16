@@ -497,6 +497,22 @@ describe("value expiry", () => {
     expect(registry.findSecretIds(text)).toEqual(["pw"]);
   });
 
+  test("a clock that returns Infinity drops nothing", () => {
+    let now = 1_000;
+    const registry = new RedactionRegistry({ now: () => now });
+    registry.registerValues([
+      { value: "hunter2-password", secretId: "pw" },
+      { value: "482913", secretId: "otp", expiresAt: 2_000 },
+    ]);
+    const text = "hunter2-password 482913";
+    for (const bad of [Infinity, -Infinity]) {
+      now = bad;
+      expect(registry.findSecretIds(text)).toEqual(["otp", "pw"]);
+    }
+    now = 2_000;
+    expect(registry.findSecretIds(text)).toEqual(["pw"]);
+  });
+
   test("a sweep uses one clock reading for the values it keeps", () => {
     // The sweep reads 2999 and keeps the 3000 value. If the clock moved to
     // 3000 before that value was registered again, it must still expire.
