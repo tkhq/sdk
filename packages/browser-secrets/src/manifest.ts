@@ -42,7 +42,8 @@ export type ManifestEntry = {
 /**
  * A resolved value. For an entry with `binding.fields`, a JSON object
  * string. `expiresAt` (epoch ms) marks a short-lived value such as a
- * one-time code.
+ * one-time code; `connectSource` keeps it only when the source was built
+ * with `otp: true`.
  */
 export type ManifestValue =
   | string
@@ -62,7 +63,7 @@ export type ManifestSourceOptions = {
   readonly verify?: (ref: SecretRef) => boolean | Promise<boolean>;
   /** Default `"none"`. Set `"provider-log"` when the store keeps an access log. */
   readonly audit?: Exclude<AuditLevel, "signed">;
-  /** Default false. */
+  /** Default false. Required for `resolve` to return an `expiresAt`. */
   readonly otp?: boolean;
 };
 

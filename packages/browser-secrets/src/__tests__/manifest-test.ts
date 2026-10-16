@@ -255,13 +255,18 @@ describe("manifestSource export", () => {
   });
 
   test("short-lived values carry their expiry; malformed values are invalid_response", async () => {
-    const otp = await connect({
-      resolve: async () => ({ value: "123456", expiresAt: 30_000 }),
-    });
+    const resolve = async () => ({ value: "123456", expiresAt: 30_000 });
+    const otp = await connect({ resolve, otp: true });
     expect(await otp.exportRef()).toEqual({
       kind: "ready",
       delivery: { mode: "plaintext", value: "123456" },
       expiresAt: 30_000,
+    });
+    // Without otp the expiry is dropped: the value is redacted until released.
+    const password = await connect({ resolve });
+    expect(await password.exportRef()).toEqual({
+      kind: "ready",
+      delivery: { mode: "plaintext", value: "123456" },
     });
     for (const value of [
       "",
