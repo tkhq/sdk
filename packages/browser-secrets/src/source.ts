@@ -83,7 +83,12 @@ export type SourceCapabilities = {
   readonly exportPolicy: boolean;
   readonly audit: AuditLevel;
   readonly delivery: DeliveryMode;
-  /** The source can produce one-time codes. Informational. */
+  /**
+   * The source can produce one-time codes. Only a source with `otp: true`
+   * can mark a ready value with `expiresAt`; `connectSource` drops the
+   * field from any other source, so a long-lived secret cannot be given a
+   * short redaction window.
+   */
   readonly otp: boolean;
 };
 
@@ -142,7 +147,7 @@ export type Delivery =
  *   with `sbm:fields`. `expiresAt` marks a short-lived value (a one-time
  *   code); the core passes it to `RedactionRegistry`. It is the end of
  *   the window in which a verifier still accepts the code, not when the
- *   code was issued.
+ *   code was issued. Only a source with `capabilities.otp` can set it.
  * - `pending`: waiting for approval. Call `resume` with the handle.
  * - `denied`: the source refused. Nothing was released.
  * - `failed`: the source could not finish. `submitted: "no"` means no
@@ -234,13 +239,15 @@ const AUDIT_RANK: Readonly<Record<AuditLevel, number>> = {
 
 const SOURCE_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
 
-const isObject = (value: unknown): value is Record<string, unknown> =>
+export const isObject = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 
-const isNonEmptyString = (value: unknown): value is string =>
+export const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.length > 0;
 
-const isOptionalTimestamp = (value: unknown): value is number | undefined =>
+export const isOptionalTimestamp = (
+  value: unknown,
+): value is number | undefined =>
   value === undefined || (typeof value === "number" && Number.isFinite(value));
 
 const oneOf = <T>(value: unknown, options: readonly T[]): value is T =>
@@ -251,16 +258,16 @@ const oneOf = <T>(value: unknown, options: readonly T[]): value is T =>
  * does not hold an allowed value. Sources and host config can be plain
  * JavaScript, so the core checks what it reads.
  */
-function pick<T>(
+function pick<T extends object>(
   value: unknown,
-  spec: Readonly<Record<string, readonly unknown[]>>,
+  spec: { readonly [K in keyof T]: readonly T[K][] },
 ): T | undefined {
   if (!isObject(value)) return undefined;
   const out: Record<string, unknown> = {};
-  for (const [key, allowed] of Object.entries(spec)) {
+  for (const key of Object.keys(spec) as (keyof T & string)[]) {
     // Read once, so a getter cannot pass the check and then change.
     const field = value[key];
-    if (!allowed.includes(field)) return undefined;
+    if (!(spec[key] as readonly unknown[]).includes(field)) return undefined;
     out[key] = field;
   }
   return Object.freeze(out) as T;
@@ -273,15 +280,15 @@ function pick<T>(
 export function requireSources(
   overrides: Partial<SourceRequirements> = {},
 ): SourceRequirements {
-  const requirements = pick<SourceRequirements>(
-    { ...STRICT_SOURCE_REQUIREMENTS, ...overrides },
-    REQUIREMENT_VALUES,
-  );
+  return readRequirements({ ...STRICT_SOURCE_REQUIREMENTS, ...overrides });
+}
+
+function readRequirements(value: unknown): SourceRequirements {
+  const requirements = pick<SourceRequirements>(value, REQUIREMENT_VALUES);
   if (!requirements) throw new BrowserSecretsError("source_config_invalid");
   return requirements;
 }
 
-/** The first host requirement the source fails, if any. */
 function refusal(
   caps: SourceCapabilities,
   required: SourceRequirements,
@@ -362,7 +369,9 @@ export type ConnectedSource = {
  *   from the source's listing.
  * - Outcomes are rebuilt from known fields only. A `pending` from a source
  *   without approvals, or a delivery in a mode the source did not declare,
- *   becomes `failed` with `invalid_response`.
+ *   becomes `failed` with `invalid_response`. An `expiresAt` on a ready
+ *   value from a source without `otp` is dropped: the value is then
+ *   redacted until the host releases it.
  * - Reasons keep a known code (others become `source_error`) and get IDs
  *   from the request.
  * - A thrown error becomes `failed` with `submitted: "unknown"`.
@@ -374,43 +383,52 @@ export function connectSource(
   source: SecretSource,
   requirements: SourceRequirements = STRICT_SOURCE_REQUIREMENTS,
 ): ConnectedSource {
-  const required = pick<SourceRequirements>(requirements, REQUIREMENT_VALUES);
-  if (!required) throw new BrowserSecretsError("source_config_invalid");
-  const caps = pick<SourceCapabilities>(
-    (source as { capabilities?: unknown } | null)?.capabilities,
-    CAPABILITY_VALUES,
-  );
-  const id: unknown = (source as { id?: unknown } | null)?.id;
-  const valid =
-    caps !== undefined &&
-    typeof id === "string" &&
-    SOURCE_ID.test(id) &&
-    typeof source.listRefs === "function" &&
-    typeof source.export === "function" &&
-    (!caps.approvals || typeof source.resume === "function");
-  const reason = valid ? refusal(caps, required) : "capabilities_invalid";
-  if (reason !== undefined) {
-    throw new BrowserSecretsError("source_refused", reason, {
-      sourceId: typeof id === "string" && SOURCE_ID.test(id) ? id : undefined,
+  const required = readRequirements(requirements);
+  const raw: unknown = source;
+  const capabilities = isObject(raw)
+    ? pick<SourceCapabilities>(raw["capabilities"], CAPABILITY_VALUES)
+    : undefined;
+  const id = isObject(raw) ? raw["id"] : undefined;
+  const sourceId =
+    typeof id === "string" && SOURCE_ID.test(id) ? id : undefined;
+  const listRefs = capabilities ? source.listRefs : undefined;
+  const exportValue = capabilities ? source.export : undefined;
+  const resume = capabilities?.approvals ? source.resume : undefined;
+  if (
+    capabilities === undefined ||
+    sourceId === undefined ||
+    typeof listRefs !== "function" ||
+    typeof exportValue !== "function" ||
+    (capabilities.approvals && typeof resume !== "function")
+  ) {
+    throw new BrowserSecretsError("source_refused", "capabilities_invalid", {
+      sourceId,
     });
   }
-  const sourceId = id as string;
-  const capabilities = caps!;
+  const reason = refusal(capabilities, required);
+  if (reason !== undefined) {
+    throw new BrowserSecretsError("source_refused", reason, { sourceId });
+  }
   const invalidRequest = () =>
     new BrowserSecretsError("invalid_request", undefined, { sourceId });
 
-  const checkRequest = (request: ExportRequest): void => {
+  const checkRequest = (request: ExportRequest): string => {
+    const rawRequest: unknown = request;
+    if (!isObject(rawRequest)) throw invalidRequest();
+    const requestId = rawRequest["requestId"];
+    const ref = rawRequest["ref"];
+    const secretId = isObject(ref) ? ref["secretId"] : undefined;
+    const refSource = isObject(ref) ? ref["source"] : undefined;
+    const recipient = rawRequest["recipientPublicKey"];
     if (
-      !isObject(request) ||
-      !isNonEmptyString(request.requestId) ||
-      !isObject(request.ref) ||
-      !isNonEmptyString(request.ref.secretId) ||
-      (request.ref.source !== undefined && request.ref.source !== sourceId) ||
-      (capabilities.delivery === "ciphertext" &&
-        !isNonEmptyString(request.recipientPublicKey))
+      !isNonEmptyString(requestId) ||
+      !isNonEmptyString(secretId) ||
+      (refSource !== undefined && refSource !== sourceId) ||
+      (capabilities.delivery === "ciphertext" && !isNonEmptyString(recipient))
     ) {
       throw invalidRequest();
     }
+    return secretId;
   };
 
   const run = async (
@@ -431,65 +449,34 @@ export function connectSource(
     listRefs: async (scope: ListScope = {}) => {
       let listing: unknown;
       try {
-        listing = await source.listRefs(scope);
+        listing = await listRefs.call(source, scope);
       } catch (error) {
         const reason = toSourceReason(error, { sourceId });
         throw new BrowserSecretsError("source_error", reason.code, reason);
       }
-      const page = readListing(listing);
+      const page = readListing(listing, sourceId, capabilities.bindings);
       if (!page) {
         throw new BrowserSecretsError("source_error", "invalid_response", {
           sourceId,
         });
       }
-      return {
-        refs: page.refs.map(({ secretId, name, staticProperties }) =>
-          createSecretRef({
-            secretId,
-            name,
-            staticProperties,
-            source: sourceId,
-            bindingProvenance: capabilities.bindings,
-          }),
-        ),
-        ...(page.nextCursor !== undefined
-          ? { nextCursor: page.nextCursor }
-          : {}),
-      };
+      return page;
     },
     export: async (request: ExportRequest) => {
-      checkRequest(request);
-      return run(request.ref.secretId, () => source.export(request));
+      const secretId = checkRequest(request);
+      return run(secretId, () => exportValue.call(source, request));
     },
     resume: async (request: ResumeRequest): Promise<ExportOutcome> => {
-      checkRequest(request);
-      const raw: unknown = request.handle;
-      if (!capabilities.approvals || !isObject(raw)) throw invalidRequest();
-      // Read once, so a getter cannot pass the check and then change.
-      const id = raw["id"];
-      const expiresAt = raw["expiresAt"];
-      const state = raw["state"];
-      if (
-        !isNonEmptyString(id) ||
-        !isOptionalTimestamp(expiresAt) ||
-        (state !== undefined && typeof state !== "string")
-      ) {
-        throw invalidRequest();
-      }
-      const secretId = request.ref.secretId;
-      // An approval past its window can no longer complete; do not ask.
-      if (expiresAt !== undefined && Date.now() > expiresAt) {
+      const secretId = checkRequest(request);
+      const handle = resume ? readHandle(request.handle) : undefined;
+      if (!resume || !handle) throw invalidRequest();
+      if (handle.expiresAt !== undefined && Date.now() > handle.expiresAt) {
         return {
           kind: "denied",
           reason: toSourceReason(undefined, { secretId, sourceId }, "expired"),
         };
       }
-      const handle: PendingHandle = {
-        id,
-        ...(expiresAt !== undefined ? { expiresAt } : {}),
-        ...(state !== undefined ? { state } : {}),
-      };
-      return run(secretId, () => source.resume!({ ...request, handle }));
+      return run(secretId, () => resume.call(source, { ...request, handle }));
     },
   });
 }
@@ -498,7 +485,11 @@ export function connectSource(
  * Copies one listing entry, or returns undefined when it is malformed. Each
  * field is read once, so a getter cannot pass the check and then change.
  */
-function readEntry(entry: unknown): SecretMetadata | undefined {
+function readEntry(
+  entry: unknown,
+  source: string,
+  bindingProvenance: BindingProvenance,
+): SecretMetadata | undefined {
   if (!isObject(entry)) return undefined;
   const secretId = entry["secretId"];
   const name = entry["name"];
@@ -508,22 +499,45 @@ function readEntry(entry: unknown): SecretMetadata | undefined {
   let staticProperties: Record<string, string> | undefined;
   if (rawProperties !== undefined) {
     if (!isObject(rawProperties)) return undefined;
-    // The spread reads each property once; check the copy.
-    const copy: Record<string, unknown> = { ...rawProperties };
+    const copy: Record<string, unknown> = Object.fromEntries(
+      Object.entries(rawProperties),
+    );
     if (!Object.values(copy).every((v) => typeof v === "string")) {
       return undefined;
     }
     staticProperties = copy as Record<string, string>;
   }
+  return { secretId, name, staticProperties, source, bindingProvenance };
+}
+
+/**
+ * Copies a pending handle, or returns undefined when it is malformed. Each
+ * field is read once, so a getter cannot pass the check and then change.
+ */
+function readHandle(raw: unknown): PendingHandle | undefined {
+  if (!isObject(raw)) return undefined;
+  const id = raw["id"];
+  const expiresAt = raw["expiresAt"];
+  const state = raw["state"];
+  if (
+    !isNonEmptyString(id) ||
+    !isOptionalTimestamp(expiresAt) ||
+    (state !== undefined && typeof state !== "string")
+  ) {
+    return undefined;
+  }
   return {
-    secretId,
-    ...(name !== undefined ? { name } : {}),
-    ...(staticProperties !== undefined ? { staticProperties } : {}),
+    id,
+    ...(expiresAt !== undefined ? { expiresAt } : {}),
+    ...(state !== undefined ? { state } : {}),
   };
 }
 
-/** Copies a listing page, or returns undefined when it is malformed. */
-function readListing(value: unknown): SourceListing | undefined {
+function readListing(
+  value: unknown,
+  source: string,
+  bindingProvenance: BindingProvenance,
+): { refs: SecretRef[]; nextCursor?: string } | undefined {
   if (!isObject(value)) return undefined;
   const rawRefs = value["refs"];
   const nextCursor = value["nextCursor"];
@@ -531,11 +545,11 @@ function readListing(value: unknown): SourceListing | undefined {
   if (nextCursor !== undefined && !isNonEmptyString(nextCursor)) {
     return undefined;
   }
-  const refs: SecretMetadata[] = [];
+  const refs: SecretRef[] = [];
   for (const raw of Array.from(rawRefs as unknown[])) {
-    const entry = readEntry(raw);
+    const entry = readEntry(raw, source, bindingProvenance);
     if (!entry) return undefined;
-    refs.push(entry);
+    refs.push(createSecretRef(entry));
   }
   return { refs, ...(nextCursor !== undefined ? { nextCursor } : {}) };
 }
@@ -578,39 +592,27 @@ function normalizeOutcome(
       if (!isObject(delivery) || !isOptionalTimestamp(expiresAt)) {
         return invalid;
       }
-      const field = caps.delivery === "ciphertext" ? "bundle" : "value";
+      const ciphertext = caps.delivery === "ciphertext";
       const mode = delivery["mode"];
-      const payload = delivery[field];
+      const payload = delivery[ciphertext ? "bundle" : "value"];
       if (mode !== caps.delivery || !isNonEmptyString(payload)) {
         return invalid;
       }
       return {
         kind: "ready",
-        delivery: { mode: caps.delivery, [field]: payload } as Delivery,
-        ...(expiresAt !== undefined ? { expiresAt } : {}),
+        delivery: ciphertext
+          ? { mode: "ciphertext", bundle: payload }
+          : { mode: "plaintext", value: payload },
+        ...(caps.otp && expiresAt !== undefined ? { expiresAt } : {}),
       };
     }
     case "pending": {
-      const handle = raw["handle"];
+      const handle = caps.approvals ? readHandle(raw["handle"]) : undefined;
+      if (!handle) return invalid;
       const approvalUrl = raw["approvalUrl"];
-      if (!caps.approvals || !isObject(handle)) return invalid;
-      const id = handle["id"];
-      const expiresAt = handle["expiresAt"];
-      const state = handle["state"];
-      if (
-        !isNonEmptyString(id) ||
-        !isOptionalTimestamp(expiresAt) ||
-        (state !== undefined && typeof state !== "string")
-      ) {
-        return invalid;
-      }
       return {
         kind: "pending",
-        handle: {
-          id,
-          ...(expiresAt !== undefined ? { expiresAt } : {}),
-          ...(state !== undefined ? { state } : {}),
-        },
+        handle,
         ...(typeof approvalUrl === "string" &&
         httpOriginOf(approvalUrl) !== undefined
           ? { approvalUrl }

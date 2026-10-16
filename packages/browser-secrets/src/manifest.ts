@@ -9,9 +9,12 @@
  * It declares `bindings: "operator-manifest"` and `approvals: false`, so the
  * strict default requirements refuse it; a host must opt out by name.
  */
-import { createSecretRef, parseBinding } from "./binding";
+import { createSecretRef } from "./binding";
 import { BrowserSecretsError } from "./errors";
 import {
+  isNonEmptyString,
+  isObject,
+  isOptionalTimestamp,
   toSourceReason,
   type AuditLevel,
   type ExportOutcome,
@@ -42,7 +45,8 @@ export type ManifestEntry = {
 /**
  * A resolved value. For an entry with `binding.fields`, a JSON object
  * string. `expiresAt` (epoch ms) marks a short-lived value such as a
- * one-time code.
+ * one-time code; `connectSource` keeps it only when the source was built
+ * with `otp: true`.
  */
 export type ManifestValue =
   | string
@@ -62,59 +66,74 @@ export type ManifestSourceOptions = {
   readonly verify?: (ref: SecretRef) => boolean | Promise<boolean>;
   /** Default `"none"`. Set `"provider-log"` when the store keeps an access log. */
   readonly audit?: Exclude<AuditLevel, "signed">;
-  /** Default false. */
+  /** Default false. Required for `resolve` to return an `expiresAt`. */
   readonly otp?: boolean;
 };
+
+const invalidConfig = (sourceId: string, secretId?: string) =>
+  new BrowserSecretsError("source_config_invalid", undefined, {
+    secretId,
+    sourceId,
+  });
 
 /**
  * Compiles a manifest entry into a ref with `sbm:*` static properties.
  * Throws `source_config_invalid` when the entry is malformed or does not
  * bind; a bad entry never becomes a looser binding.
  */
-function compileEntry(entry: ManifestEntry, sourceId: string): SecretRef {
-  const properties: Record<string, unknown> = { ...entry.properties };
+function compileEntry(rawEntry: unknown, sourceId: string): SecretRef {
+  if (!isObject(rawEntry)) throw invalidConfig(sourceId);
+  const {
+    secretId,
+    name,
+    properties: rawProperties,
+    binding,
+  } = rawEntry as ManifestEntry;
+  const properties: Record<string, unknown> = isObject(rawProperties)
+    ? Object.fromEntries(Object.entries(rawProperties))
+    : {};
   const reservedKey = Object.keys(properties).some((key) =>
     key.startsWith(BINDING_KEY_PREFIX),
   );
-  const { origin, frameOrigin, urlPattern, selector, fields } =
-    entry.binding ?? {};
+  const { origin, frameOrigin, urlPattern, selector, fields } = binding ?? {};
   const bindingProperties = {
     [BINDING_KEYS.origin]: origin,
     [BINDING_KEYS.frameOrigin]: frameOrigin,
     [BINDING_KEYS.urlPattern]: urlPattern,
     [BINDING_KEYS.selector]: selector,
-    [BINDING_KEYS.fields]:
-      fields !== undefined ? JSON.stringify(fields) : undefined,
+    // JSON.stringify maps a function or symbol to undefined, which would
+    // drop the key and leave an origin-only binding. Anything that is not a
+    // plain object stays as is and fails the string check below.
+    [BINDING_KEYS.fields]: isObject(fields) ? JSON.stringify(fields) : fields,
   };
   for (const [key, value] of Object.entries(bindingProperties)) {
     if (value !== undefined) properties[key] = value;
   }
   if (
     reservedKey ||
-    typeof entry.secretId !== "string" ||
-    entry.secretId.length === 0 ||
-    (entry.name !== undefined && typeof entry.name !== "string") ||
-    Object.values(properties).some((value) => typeof value !== "string") ||
-    parseBinding(properties).status !== "bound"
+    (rawProperties !== undefined && !isObject(rawProperties)) ||
+    !isNonEmptyString(secretId) ||
+    (name !== undefined && typeof name !== "string") ||
+    Object.values(properties).some((value) => typeof value !== "string")
   ) {
-    throw new BrowserSecretsError("source_config_invalid", undefined, {
-      secretId: entry.secretId,
-      sourceId,
-    });
+    throw invalidConfig(sourceId, secretId);
   }
-  return createSecretRef({
-    secretId: entry.secretId,
-    name: entry.name,
+  const ref = createSecretRef({
+    secretId,
+    name,
     staticProperties: properties as Record<string, string>,
     source: sourceId,
     bindingProvenance: "operator-manifest",
   });
+  if (ref.binding === undefined) throw invalidConfig(sourceId, secretId);
+  return ref;
 }
 
 /**
  * Builds a `SecretSource` from an operator manifest and a `resolve` function.
  * Throws `source_config_invalid` when `audit` is not `"provider-log"` or
- * `"none"`, or `otp` is not a boolean: a manifest source cannot claim a
+ * `"none"`, `otp` is not a boolean, `resolve` is not a function, or
+ * `verify` is set and not a function: a manifest source cannot claim a
  * signed audit record.
  */
 export function manifestSource(options: ManifestSourceOptions): SecretSource {
@@ -123,28 +142,27 @@ export function manifestSource(options: ManifestSourceOptions): SecretSource {
   // capability the source cannot keep would pass `connectSource`.
   const rawAudit: unknown = options.audit;
   const rawOtp: unknown = options.otp;
+  const rawEntries: unknown = options.entries;
   const audit = rawAudit === undefined ? "none" : rawAudit;
   const otp = rawOtp === undefined ? false : rawOtp;
   if (
     (audit !== "provider-log" && audit !== "none") ||
-    typeof otp !== "boolean"
+    typeof otp !== "boolean" ||
+    !Array.isArray(rawEntries) ||
+    typeof resolve !== "function" ||
+    (verify !== undefined && typeof verify !== "function")
   ) {
-    throw new BrowserSecretsError("source_config_invalid", undefined, {
-      sourceId: id,
-    });
+    throw invalidConfig(id);
   }
   const entries = new Map<string, { entry: ManifestEntry; ref: SecretRef }>();
-  for (const entry of options.entries) {
+  for (const entry of rawEntries) {
     const ref = compileEntry(entry, id);
     if (entries.has(ref.secretId)) {
-      throw new BrowserSecretsError("source_config_invalid", undefined, {
-        secretId: ref.secretId,
-        sourceId: id,
-      });
+      throw invalidConfig(id, ref.secretId);
     }
     entries.set(ref.secretId, { entry, ref });
   }
-  const refs = [...entries.values()].map((e) => e.ref);
+  const refs = Object.freeze([...entries.values()].map((e) => e.ref));
 
   const exportValue = async (
     request: ExportRequest,
@@ -164,7 +182,6 @@ export function manifestSource(options: ManifestSourceOptions): SecretSource {
     if (!found) return deny("not_found");
     let resolved: ManifestValue;
     try {
-      // `verify` gets the source's own ref, not the caller's.
       if (verify && (await verify(found.ref)) !== true) {
         return deny("verification_failed");
       }
@@ -174,12 +191,7 @@ export function manifestSource(options: ManifestSourceOptions): SecretSource {
     }
     const { value, expiresAt }: { value?: unknown; expiresAt?: unknown } =
       typeof resolved === "string" ? { value: resolved } : (resolved ?? {});
-    if (
-      typeof value !== "string" ||
-      value.length === 0 ||
-      (expiresAt !== undefined &&
-        !(typeof expiresAt === "number" && Number.isFinite(expiresAt)))
-    ) {
+    if (!isNonEmptyString(value) || !isOptionalTimestamp(expiresAt)) {
       return fail("invalid_response");
     }
     return {
@@ -199,7 +211,6 @@ export function manifestSource(options: ManifestSourceOptions): SecretSource {
       delivery: "plaintext",
       otp,
     }),
-    // A manifest is small; one page holds every entry.
     listRefs: async () => ({ refs }),
     export: exportValue,
   });

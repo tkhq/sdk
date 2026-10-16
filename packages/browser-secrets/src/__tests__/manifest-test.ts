@@ -12,16 +12,9 @@ import {
   type SecretRef,
   type TargetObservation,
 } from "../index";
+import { OPEN } from "./shared";
 
 const canary = "op-canary-9d2a";
-
-const OPEN = requireSources({
-  approvals: false,
-  bindings: "any",
-  exportPolicy: false,
-  audit: "any",
-  delivery: "any",
-});
 
 const shop: ManifestEntry = {
   secretId: "op://vault/shop",
@@ -51,7 +44,6 @@ const make = (overrides: Partial<ManifestSourceOptions> = {}) =>
     ...overrides,
   });
 
-/** Connects a manifest source and returns it with its first ref. */
 async function connect(overrides: Partial<ManifestSourceOptions> = {}) {
   const source = connectSource(make(overrides), OPEN);
   const [ref] = (await source.listRefs()).refs;
@@ -87,13 +79,25 @@ describe("manifestSource entries", () => {
 
   test("refuse entries that would not bind strictly", () => {
     const bad: unknown[] = [
+      null,
       { ...shop, secretId: "" },
       { ...shop, name: 7 },
       { ...shop, binding: undefined },
       { ...shop, binding: { origin: "https://shop.example/login" } },
       { ...shop, binding: { origin: "https://shop.example", fields: {} } },
+      // JSON.stringify turns a function or symbol into undefined, which must
+      // not compile into an origin-only binding.
+      {
+        ...shop,
+        binding: { origin: "https://shop.example", fields: () => {} },
+      },
+      {
+        ...shop,
+        binding: { origin: "https://shop.example", fields: Symbol("f") },
+      },
+      { ...shop, binding: { origin: "https://shop.example", fields: "cc" } },
+      { ...shop, binding: { origin: "https://shop.example", fields: ["cc"] } },
       { ...shop, binding: { origin: "https://shop.example", urlPattern: 7 } },
-      // Bindings come from `binding` only.
       { ...shop, properties: { "sbm:origin": "https://evil.example" } },
       { ...shop, properties: { "op:ref": 1 } },
     ];
@@ -110,7 +114,7 @@ describe("manifestSource entries", () => {
     );
   });
 
-  test("refuse an audit or otp value the source cannot keep", () => {
+  test("refuse an audit, otp, resolve, or verify value the source cannot keep", () => {
     // With audit left at the strict "signed" default, a source that
     // claimed a signed record would be accepted.
     const auditRequired = requireSources({
@@ -124,6 +128,8 @@ describe("manifestSource entries", () => {
       { audit: canary },
       { otp: "yes" },
       { otp: null },
+      { resolve: "op read" },
+      { verify: "yes" },
     ]) {
       let error: unknown;
       try {
@@ -255,13 +261,17 @@ describe("manifestSource export", () => {
   });
 
   test("short-lived values carry their expiry; malformed values are invalid_response", async () => {
-    const otp = await connect({
-      resolve: async () => ({ value: "123456", expiresAt: 30_000 }),
-    });
+    const resolve = async () => ({ value: "123456", expiresAt: 30_000 });
+    const otp = await connect({ resolve, otp: true });
     expect(await otp.exportRef()).toEqual({
       kind: "ready",
       delivery: { mode: "plaintext", value: "123456" },
       expiresAt: 30_000,
+    });
+    const password = await connect({ resolve });
+    expect(await password.exportRef()).toEqual({
+      kind: "ready",
+      delivery: { mode: "plaintext", value: "123456" },
     });
     for (const value of [
       "",

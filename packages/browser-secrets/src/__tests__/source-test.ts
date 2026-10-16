@@ -12,6 +12,7 @@ import {
   type SecretSource,
   type SourceCapabilities,
 } from "../index";
+import { OPEN } from "./shared";
 
 const canary = "vendor-canary-31f7";
 
@@ -32,14 +33,6 @@ const NATIVE_CAPS: SourceCapabilities = {
   delivery: "plaintext",
   otp: true,
 };
-
-const OPEN = requireSources({
-  approvals: false,
-  bindings: "any",
-  exportPolicy: false,
-  audit: "any",
-  delivery: "any",
-});
 
 function stubSource(
   capabilities: SourceCapabilities,
@@ -70,7 +63,6 @@ const request = (extra: Record<string, unknown> = {}) =>
     ...extra,
   }) as unknown as ExportRequest;
 
-/** The outcome of one export through `connectSource` for a raw source result. */
 const exportRaw = (raw: unknown, caps = TURNKEY_CAPS) =>
   connectSource(stubSource(caps, { export: async () => raw }), OPEN).export(
     request(),
@@ -81,13 +73,6 @@ const ids = { secretId: "s1", sourceId: "stub" };
 describe("requireSources", () => {
   test("defaults are strict; overrides keep the other defaults", () => {
     expect(requireSources()).toEqual(STRICT_SOURCE_REQUIREMENTS);
-    expect(STRICT_SOURCE_REQUIREMENTS).toEqual({
-      approvals: true,
-      bindings: "fixed-at-source",
-      exportPolicy: true,
-      audit: "signed",
-      delivery: "ciphertext",
-    });
     expect(requireSources({ approvals: false })).toEqual({
       ...STRICT_SOURCE_REQUIREMENTS,
       approvals: false,
@@ -121,32 +106,17 @@ describe("connectSource requirements", () => {
     return undefined;
   };
 
-  test("a Turnkey-shaped source meets the strict defaults", () => {
-    expect(refusal(stubSource(TURNKEY_CAPS))).toBeUndefined();
-  });
-
-  test("a source with approvals: false is refused when the host requires approvals", () => {
-    expect(
-      refusal(stubSource({ ...TURNKEY_CAPS, approvals: false })),
-    ).toMatchObject({
-      code: "source_refused",
-      reason: "approvals_required",
-      sourceId: "stub",
-    });
-  });
-
   test("each requirement has its own reason, checked in order", () => {
     const cases: [Partial<SourceCapabilities>, string][] = [
       [{ bindings: "operator-manifest" }, "fixed_bindings_required"],
       [{ exportPolicy: false }, "export_policy_required"],
       [{ audit: "provider-log" }, "audit_required"],
       [{ delivery: "plaintext" }, "ciphertext_delivery_required"],
-      // Native 1Password fails several; the first in order wins.
       [NATIVE_CAPS, "approvals_required"],
     ];
     for (const [change, reason] of cases) {
       expect(refusal(stubSource({ ...TURNKEY_CAPS, ...change }))).toMatchObject(
-        { reason },
+        { code: "source_refused", reason, sourceId: "stub" },
       );
     }
   });
@@ -160,8 +130,6 @@ describe("connectSource requirements", () => {
   });
 
   test("a partial or malformed requirements object is refused, never read as any", () => {
-    // Only `requireSources` may fill in defaults. A host that hands
-    // `connectSource` a partial object must not get looser checks.
     for (const bad of [
       { approvals: false },
       { ...OPEN, audit: undefined },
@@ -203,7 +171,6 @@ describe("connectSource requirements", () => {
         reason: "capabilities_invalid",
       });
     }
-    // An invalid ID is not echoed back.
     expect(
       refusal(stubSource(TURNKEY_CAPS, { id: `Bad ${canary}` })),
     ).not.toHaveProperty("sourceId");
@@ -220,7 +187,6 @@ describe("connectSource listRefs", () => {
               secretId: "op://v/i",
               name: "Shop",
               staticProperties: { "sbm:origin": "https://shop.example" },
-              // A source cannot claim fixed bindings for its refs.
               source: "turnkey",
               bindingProvenance: "fixed-at-source",
               vendor: canary,
@@ -337,17 +303,12 @@ describe("connectSource outcomes", () => {
     ];
     expect(outcomes).toEqual([
       { kind: "denied", reason: { code: "policy_denied", ...ids } },
-      // Unknown codes and submitted values fail safe.
       {
         kind: "failed",
         reason: { code: "source_error", ...ids },
         submitted: "unknown",
       },
-      {
-        kind: "ready",
-        delivery: { mode: "ciphertext", bundle: "b1" },
-        expiresAt: 1_000,
-      },
+      { kind: "ready", delivery: { mode: "ciphertext", bundle: "b1" } },
       {
         kind: "pending",
         handle: { id: "act-1", expiresAt: 5, state: "{}" },

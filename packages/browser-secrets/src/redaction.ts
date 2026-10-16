@@ -387,7 +387,6 @@ export class RedactionRegistry {
     return this.#register(entries, this.#now());
   }
 
-  /** `registerValues` at a given clock reading, so `#sweep` can pass its own. */
   #register(entries: readonly RedactionValue[], now: number): string[] {
     const skipped = new Set<string>();
     for (const { value, secretId, expiresAt: rawExpiry } of entries) {
@@ -396,7 +395,6 @@ export class RedactionRegistry {
         skipped.add(secretId);
         continue;
       }
-      // An invalid or past expiry fails closed: the value never expires.
       const expiresAt =
         typeof rawExpiry === "number" && rawExpiry > now ? rawExpiry : Infinity;
       let byValue = this.#expiry.get(secretId);
@@ -514,7 +512,11 @@ export class RedactionRegistry {
    */
   #sweep(): void {
     const now = this.#now();
-    if (now < this.#nextExpiry) return;
+    // A clock that returns NaN or a non-number must not drop anything: every
+    // comparison with it is false, so a plain `<` test would run the sweep
+    // and treat every value as expired. Keep the values until the clock
+    // reads a number again.
+    if (!(typeof now === "number" && now >= this.#nextExpiry)) return;
     this.#nextExpiry = Infinity;
     for (const [secretId, byValue] of [...this.#expiry]) {
       const live = [...byValue].filter(([, at]) => at > now);

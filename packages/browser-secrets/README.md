@@ -103,7 +103,7 @@ const safeOutput = registry.scrub(toolResult);
 
 A source is a secret store. It implements `SecretSource`: `id`, `capabilities`, `listRefs`, `export`, and `resume` (required when it supports approvals). `export` and `resume` return the value to the core, never to the agent, as one of:
 
-- `ready`: `ciphertext` (encrypted to the core's per-request key) or `plaintext` (only for a source inside the trusted host). `expiresAt` marks a one-time code; pass it to `registerValue`. An `expiresAt` that is not a number, is NaN, or is already past counts as no expiry: the value is redacted until it is released.
+- `ready`: `ciphertext` (encrypted to the core's per-request key) or `plaintext` (only for a source inside the trusted host). `expiresAt` marks a one-time code; pass it to `registerValue`. Only a source with `otp: true` can set it; `connectSource` drops it from any other source. An `expiresAt` that is not a number, is NaN, or is already past counts as no expiry: the value is redacted until it is released.
 - `pending`: waiting for approval. The handle is plain JSON. Persist it with the parked fill, encrypted, because `handle.state` can hold key material. Call `resume` with it; `resume` checks once and returns `pending` again until approvers act. When `handle.expiresAt` is past, `connectSource` returns `denied` with `expired` and does not call the source.
 - `denied`: the source refused.
 - `failed`: `submitted: "no"` means a retry is safe. `"unknown"` means do not retry on your own.
