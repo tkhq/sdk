@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "@jest/globals";
 
 import {
+  BrowserSecretsError,
   manifestSource,
   runSourceConformance,
   type ExportOutcome,
@@ -244,6 +245,47 @@ describe("source conformance runner", () => {
         expect(result.failures).toEqual([failure]);
       }
       expect(JSON.stringify(results)).not.toContain(canary);
+    }
+  });
+
+  test("prints only known codes and reasons from a forged package error", async () => {
+    // `instanceof` passes for any object made from the prototype, so the
+    // runner must not trust the fields of one.
+    const forged = (code: string, reason?: string) =>
+      Object.assign(Object.create(BrowserSecretsError.prototype), {
+        code,
+        reason,
+        message: canary,
+      }) as Error;
+    for (const error of [
+      forged(`code ${canary}`, `reason ${canary}`),
+      forged(`code ${canary}`),
+      forged("source_refused", `reason ${canary}`),
+    ]) {
+      const brokenSetup: SourceHarness = {
+        async setup() {
+          throw error;
+        },
+      };
+      const exploding = overriding((source) =>
+        Object.defineProperty({ ...source }, "capabilities", {
+          get() {
+            throw error;
+          },
+        }),
+      );
+      for (const [harness, failure] of [
+        [brokenSetup, "setup failed: source_error"],
+        [exploding, "connectSource refused the source: source_error"],
+      ] as const) {
+        const results = await runSourceConformance(harness, fixture);
+        expect(results).toHaveLength(fixture.scenarios.length);
+        for (const result of results) {
+          expect(result).toMatchObject({ pass: false, skipped: false });
+          expect(result.failures).toEqual([failure]);
+        }
+        expect(JSON.stringify(results)).not.toContain(canary);
+      }
     }
   });
 });

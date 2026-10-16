@@ -110,6 +110,16 @@ const REASON_MESSAGES: Readonly<Record<BrowserSecretsReason, string>> = {
 const hasOwn = (object: object, key: unknown): boolean =>
   typeof key === "string" && Object.prototype.hasOwnProperty.call(object, key);
 
+/** True when `value` is one of this package's error codes. */
+export const isBrowserSecretsErrorCode = (
+  value: unknown,
+): value is BrowserSecretsErrorCode => hasOwn(ERROR_MESSAGES, value);
+
+/** True when `value` is one of the reasons an error can carry. */
+export const isBrowserSecretsReason = (
+  value: unknown,
+): value is BrowserSecretsReason => hasOwn(REASON_MESSAGES, value);
+
 /** Agent-safe context for an error: IDs only, never values or vendor text. */
 export type BrowserSecretsErrorContext = {
   readonly secretId?: string | undefined;

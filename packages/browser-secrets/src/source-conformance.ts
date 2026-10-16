@@ -4,7 +4,11 @@
  * mock of it) into each named scenario. The runner drives the source
  * through `connectSource`, so the core's checks apply too.
  */
-import { isBrowserSecretsError } from "./errors";
+import {
+  isBrowserSecretsError,
+  isBrowserSecretsErrorCode,
+  isBrowserSecretsReason,
+} from "./errors";
 import {
   connectSource,
   requireSources,
@@ -88,12 +92,27 @@ export type SourceConformanceResult = {
  * source error code anything else maps to. A source or harness error can
  * carry vendor text, and the results are meant to be printed.
  */
-const describeError = (error: unknown): string =>
-  isBrowserSecretsError(error)
-    ? error.reason !== undefined
-      ? `${error.code}/${error.reason}`
-      : error.code
-    : toSourceReason(error).code;
+function describeError(error: unknown): string {
+  if (!isBrowserSecretsError(error)) return toSourceReason(error).code;
+  // `instanceof` is not proof: `Object.create(BrowserSecretsError.prototype)`
+  // passes it with any fields. Read each field once and print it only when
+  // it is in the package's tables.
+  let code: unknown;
+  let reason: unknown;
+  try {
+    code = error.code;
+    reason = error.reason;
+  } catch {
+    return "source_error";
+  }
+  if (
+    !isBrowserSecretsErrorCode(code) ||
+    (reason !== undefined && !isBrowserSecretsReason(reason))
+  ) {
+    return "source_error";
+  }
+  return reason !== undefined ? `${code}/${reason}` : code;
+}
 
 export const NO_REQUIREMENTS = requireSources({
   approvals: false,
