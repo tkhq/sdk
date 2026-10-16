@@ -480,6 +480,27 @@ describe("value expiry", () => {
     ).toEqual(["a", "b", "c", "d"]);
   });
 
+  test("a sweep uses one clock reading for the values it keeps", () => {
+    // The sweep reads 2999 and keeps the 3000 value. If the clock moved to
+    // 3000 before that value was registered again, it must still expire.
+    let now = 1_000;
+    const readings: number[] = [];
+    const registry = new RedactionRegistry({
+      now: () => readings.shift() ?? now,
+    });
+    registry.registerValues([
+      { value: "first-code-111", secretId: "a", expiresAt: 2_000 },
+      { value: "second-code-222", secretId: "a", expiresAt: 3_000 },
+    ]);
+    readings.push(2_999, 3_000);
+    expect(registry.valueCount).toBeGreaterThan(0);
+    now = 5_000;
+    readings.length = 0;
+    expect(registry.findSecretIds("first-code-111 second-code-222")).toEqual(
+      [],
+    );
+  });
+
   test("target tags do not expire", () => {
     const c = clock();
     const registry = new RedactionRegistry({ now: c.now });

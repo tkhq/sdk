@@ -384,8 +384,12 @@ export class RedactionRegistry {
    * agent-visible text paths by other means.
    */
   registerValues(entries: readonly RedactionValue[]): string[] {
+    return this.#register(entries, this.#now());
+  }
+
+  /** `registerValues` at a given clock reading, so `#sweep` can pass its own. */
+  #register(entries: readonly RedactionValue[], now: number): string[] {
     const skipped = new Set<string>();
-    const now = this.#now();
     for (const { value, secretId, expiresAt: rawExpiry } of entries) {
       if (typeof value !== "string" || value.length === 0) continue;
       if (value.length < this.#minValueLength) {
@@ -522,8 +526,11 @@ export class RedactionRegistry {
       }
       this.#releaseValues(secretId);
       this.#expiry.delete(secretId);
-      this.registerValues(
+      // The same `now` as the filter above. A second clock read could pass
+      // a live expiry, which would then count as no expiry at all.
+      this.#register(
         live.map(([value, expiresAt]) => ({ value, secretId, expiresAt })),
+        now,
       );
     }
   }
