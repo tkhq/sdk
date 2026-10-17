@@ -1,0 +1,18 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "name": "browser-secrets",
+  "exclude": ["**/__tests__/**", "**/node_modules/**"],
+  "excludeInternal": true,
+  "includeVersion": true,
+  "alwaysCreateEntryPointModule": true,
+  "gitRevision": "main",
+  "router": "structure-dir",
+  "outputs": [
+    {
+      // requires typedoc-plugin-markdown
+      "name": "json",
+      "path": "./generated-docs/sdks",
+      "fileExtension": "json"
+    }
+  ]
+}

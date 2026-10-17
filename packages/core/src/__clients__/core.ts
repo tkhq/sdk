@@ -20,6 +20,7 @@ import {
   type TGetUserResponse,
   type v1ClientSignature,
   type v1OauthProviderParamsV2,
+  type v1Activity,
   TurnkeyError,
   TurnkeyErrorCodes,
   AuthAction,
@@ -116,6 +117,10 @@ import {
   type DeleteApiKeyPairParams,
 } from "../__types__";
 import {
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
+} from "@turnkey/http";
+import {
   buildSignUpBody,
   generateWalletAccountsFromAddressFormat,
   getEncodedMessage,
@@ -172,6 +177,30 @@ import { AttestedScheme, AttestedStamper } from "../__stampers__/attested/base";
 type PublicMethods<T> = {
   [K in keyof T as T[K] extends Function ? K : never]: T[K];
 };
+
+function assertSendTransactionActivitySucceeded(activity: v1Activity): void {
+  if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
+    return;
+  }
+
+  if (activity.status === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+    throw new TurnkeyActivityConsensusNeededError({
+      message: "Send transaction activity requires consensus",
+      activityId: activity.id,
+      activityStatus: activity.status,
+      activityType: activity.type,
+    });
+  }
+
+  throw new TurnkeyActivityError({
+    message:
+      activity.failure?.message ??
+      `Expected COMPLETED status, got ${activity.status}`,
+    activityId: activity.id,
+    activityStatus: activity.status,
+    activityType: activity.type,
+  });
+}
 
 export type TurnkeyClientMethods = Omit<
   PublicMethods<TurnkeyClient>,
@@ -1965,6 +1994,7 @@ export class TurnkeyClient {
         const accountRes = await this.httpClient.proxyGetAccount({
           filterType: "OIDC_TOKEN",
           filterValue: oidcToken,
+          includeRequiresSocialLinking: true,
         });
 
         if (!accountRes) {
@@ -1973,12 +2003,14 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
           );
         }
-        const subOrganizationId = accountRes.organizationId;
+        const { organizationId: subOrganizationId, requiresSocialLinking } =
+          accountRes;
         if (subOrganizationId) {
           const loginRes = await this.loginWithOauth({
             oidcToken,
             publicKey,
             organizationId: subOrganizationId,
+            ...(requiresSocialLinking && { requiresSocialLinking }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
             ...(expirationSeconds && { expirationSeconds }),
@@ -2045,6 +2077,7 @@ export class TurnkeyClient {
       oidcToken,
       publicKey,
       organizationId,
+      requiresSocialLinking = false,
       invalidateExisting = false,
       sessionKey = SessionKey.DefaultSessionkey,
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -2058,6 +2091,33 @@ export class TurnkeyClient {
             "Public key must be provided to log in with OAuth. Please create a key pair first.",
             TurnkeyErrorCodes.MISSING_PARAMS,
           );
+        }
+
+        if (requiresSocialLinking) {
+          // The account was matched by verified email, so this OIDC identity is not yet
+          // registered on it and stampLogin cannot authenticate with it. The auth proxy's
+          // oauth_login registers the identity and returns a session in one call.
+          // organizationId is deliberately omitted: providing it makes oauth_login skip
+          // the social-linking flow.
+          const proxyRes = await this.httpClient.proxyOAuthLogin({
+            oidcToken,
+            publicKey,
+            invalidateExisting,
+          });
+
+          if (!proxyRes?.session) {
+            throw new TurnkeyError(
+              "No session returned from OAuth login",
+              TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+            );
+          }
+
+          await this.storeSession({
+            sessionToken: proxyRes.session,
+            sessionKey,
+          });
+
+          return { sessionToken: proxyRes.session };
         }
 
         // We override the attested stamper with the oidcToken so the stampLogin request can be stamped with it.
@@ -3110,7 +3170,9 @@ export class TurnkeyClient {
    * @returns A promise resolving to the `sendTransactionStatusId`.
    *          This ID must be passed to `pollTransactionStatus`.
    *
-   * @throws {TurnkeyError} If the transaction is invalid or Turnkey rejects it.
+   * @throws {TurnkeyActivityConsensusNeededError} If the activity requires consensus.
+   * @throws {TurnkeyActivityError} If the activity does not complete successfully.
+   * @throws {TurnkeyError} If the transaction is invalid or submission fails.
    */
   ethSendTransaction = async (
     params: EthSendTransactionParams,
@@ -3155,6 +3217,8 @@ export class TurnkeyClient {
                 stampWith,
               );
 
+        assertSendTransactionActivitySucceeded(resp.activity);
+
         const id = resp.sendTransactionStatusId;
         if (!id) {
           throw new TurnkeyError(
@@ -3197,7 +3261,9 @@ export class TurnkeyClient {
    * @param params.transaction - The Solana transaction details.
    * @returns A promise resolving to the `sendTransactionStatusId`.
    *          This ID must be passed to `pollTransactionStatus`.
-   * @throws {TurnkeyError} If the transaction is invalid or Turnkey rejects it.
+   * @throws {TurnkeyActivityConsensusNeededError} If the activity requires consensus.
+   * @throws {TurnkeyActivityError} If the activity does not complete successfully.
+   * @throws {TurnkeyError} If the transaction is invalid or submission fails.
    */
   solSendTransaction = async (
     params: SolSendTransactionParams,
@@ -3241,6 +3307,8 @@ export class TurnkeyClient {
                 },
                 stampWith,
               );
+
+        assertSendTransactionActivitySucceeded(resp.activity);
 
         const id = resp.sendTransactionStatusId;
         if (!id) {
