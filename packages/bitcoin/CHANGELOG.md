@@ -1,5 +1,37 @@
 # @turnkey/bitcoin
 
+## 0.1.15
+
+### Patch Changes
+
+- Updated dependencies [[`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3)]:
+  - @turnkey/sdk-server@8.7.0
+  - @turnkey/sdk-browser@8.7.0
+  - @turnkey/core@2.13.0
+
+## 0.1.14
+
+### Patch Changes
+
+- Updated dependencies [[`f4d6892`](https://github.com/tkhq/sdk/commit/f4d6892970d30cf03df63f2d5aba72b2cbb4b397)]:
+  - @turnkey/core@2.12.2
+
+## 0.1.13
+
+### Patch Changes
+
+- Updated dependencies [[`6a255dd`](https://github.com/tkhq/sdk/commit/6a255dd81c97fc894f9458436d2cc4497fe1e43d), [`6e0e723`](https://github.com/tkhq/sdk/commit/6e0e72323d08b1577895082ac5ff6bfd8cbb7623)]:
+  - @turnkey/core@2.12.1
+
+## 0.1.12
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-browser@8.6.0
+  - @turnkey/sdk-server@8.6.0
+  - @turnkey/core@2.12.0
+
 ## 0.1.11
 
 ### Patch Changes

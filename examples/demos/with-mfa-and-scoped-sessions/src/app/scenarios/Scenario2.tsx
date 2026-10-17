@@ -204,7 +204,14 @@ export default function Scenario2() {
 
           <PrimaryButton
             disabled={loading}
-            onClick={() => run(() => handleAddPasskey().then(() => {}))}
+            onClick={() =>
+              run(() =>
+                handleAddPasskey({
+                  name: `Scenario 2 ${Date.now()}`,
+                  displayName: "Scenario 2",
+                }).then(() => {}),
+              )
+            }
           >
             1. Add Passkey
           </PrimaryButton>

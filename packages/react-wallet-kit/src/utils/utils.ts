@@ -5,6 +5,9 @@ import {
   WalletProvider,
   WalletInterfaceType,
   Chain,
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
+  StamperType,
 } from "@turnkey/core";
 
 export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
@@ -68,6 +71,14 @@ export const isValidSession = (session?: Session | undefined): boolean => {
   return session?.expiry !== undefined && session.expiry * 1000 > Date.now();
 };
 
+// Use the session key for internal refreshes so they don't prompt the user.
+// Falls back to the caller's stamper when there's no session.
+export const resolveRefreshStamper = (
+  session: Session | undefined,
+  stampWith?: StamperType,
+): StamperType | undefined =>
+  isValidSession(session) ? StamperType.ApiKey : stampWith;
+
 export async function withTurnkeyErrorHandling<T>(
   fn: () => Promise<T>,
   sessionExpireFn?: () => Promise<void>,
@@ -79,6 +90,13 @@ export async function withTurnkeyErrorHandling<T>(
     return await fn();
   } catch (error) {
     let tkError: TurnkeyError;
+
+    if (
+      error instanceof TurnkeyActivityError ||
+      error instanceof TurnkeyActivityConsensusNeededError
+    ) {
+      throw error;
+    }
 
     if (error instanceof TurnkeyError) {
       tkError = error;
