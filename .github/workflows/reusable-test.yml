@@ -77,6 +77,10 @@ jobs:
           pnpm test --concurrency=1 --filter="$FILTER"
         env:
           NODE_ENV: development
+          # The dpm service container holds 6864 and 6865. The with-canton
+          # build starts its own sandbox, so it uses other host ports.
+          CANTON_SANDBOX_HTTP_PORT: "16864"
+          CANTON_SANDBOX_GRPC_PORT: "16865"
           API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
           BASE_URL: ${{ secrets.BASE_URL }}
