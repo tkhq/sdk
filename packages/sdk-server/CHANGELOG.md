@@ -1,5 +1,40 @@
 # @turnkey/sdk-server
 
+## 8.7.0
+
+### Minor Changes
+
+- [#1601](https://github.com/tkhq/sdk/pull/1601) [`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Sync generated clients and types with mono `main` (2026-10-15).
+  - Add `upsertSwapFeeSponsorshipLimitConfig`, `upsertSwapFixedRateLimitConfig`, and `getSwapSponsorshipUsage` (plus `stamp*` variants).
+  - `createSwapQuote` now sends `ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3`. V3 accepts the optional `feeSponsorship` and `fixedRate` flags (both default to false, matching V2), and quotes include `feeSponsorship`, `fixedRate`, and `estimatedFixedRateAdjustmentUsd`.
+  - `@turnkey/http`: add `getFiatOnRampQuote` and `createFiatOnRampSession`. `deleteVelocityControl` is renamed to `deleteVelocityControls` to match the API.
+  - Earn intents take `caip2` instead of `chainCaip2`, matching the API rename.
+  - `FiatOnRampBlockchainNetwork.BITCOIN` is removed because the API no longer accepts it. `react-wallet-kit`'s `handleOnRamp` now throws for Bitcoin wallet accounts instead of sending a request the API rejects.
+
+### Patch Changes
+
+- Updated dependencies [[`b7d42d2`](https://github.com/tkhq/sdk/commit/b7d42d2f7a045c21bc236a8cf2da2974548df415), [`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3)]:
+  - @turnkey/http@6.7.0
+  - @turnkey/sdk-types@1.11.0
+  - @turnkey/wallet-stamper@1.1.30
+  - @turnkey/crypto@2.13.3
+  - @turnkey/api-key-stamper@0.6.18
+
+## 8.6.0
+
+### Minor Changes
+
+- [`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2) Author [@ericvelazquez](https://github.com/ericvelazquez) - Add Earn rewards: listEarnRewards, earnClaimRewards, getEarnClaimRewardsStatus
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-types@1.10.0
+  - @turnkey/http@6.6.0
+  - @turnkey/crypto@2.13.2
+  - @turnkey/wallet-stamper@1.1.29
+  - @turnkey/api-key-stamper@0.6.17
+
 ## 8.5.1
 
 ### Patch Changes

@@ -7,6 +7,7 @@ on:
       - main
 
 permissions:
+  actions: write
   contents: write
   packages: write
   id-token: write
@@ -36,6 +37,7 @@ jobs:
     uses: ./.github/workflows/reusable-publish.yml
     secrets: inherit
     permissions:
+      actions: write
       contents: write
       packages: write
       id-token: write

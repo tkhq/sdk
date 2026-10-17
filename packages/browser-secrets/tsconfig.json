@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    // Emit native `#private` fields. With the base target they compile to
+    // tslib helpers, which rollup writes under dist/node_modules, and npm
+    // drops that directory when packing.
+    "target": "ES2022"
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
+  "exclude": ["dist", "node_modules"]
+}
