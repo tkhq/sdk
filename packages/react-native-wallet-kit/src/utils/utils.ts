@@ -1,5 +1,9 @@
 import { Session, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
-import { StamperType } from "@turnkey/core";
+import {
+  StamperType,
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
+} from "@turnkey/core";
 import type { Wallet, WalletProvider } from "@turnkey/core";
 import { useCallback, useRef, useState } from "react";
 
@@ -76,6 +80,13 @@ export async function withTurnkeyErrorHandling<T>(
     return await fn();
   } catch (error) {
     let tkError: TurnkeyError;
+
+    if (
+      error instanceof TurnkeyActivityError ||
+      error instanceof TurnkeyActivityConsensusNeededError
+    ) {
+      throw error;
+    }
 
     if (error instanceof TurnkeyError) {
       tkError = error;

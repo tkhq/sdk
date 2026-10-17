@@ -4101,6 +4101,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
               new TurnkeyError(
                 `WalletConnect initialization failed: ${evt.error || "Unknown error"}`,
                 TurnkeyErrorCodes.WALLET_CONNECT_INITIALIZATION_ERROR,
+                evt.error,
               ),
             );
             return;
