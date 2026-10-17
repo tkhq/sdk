@@ -8,7 +8,9 @@
   "updateInternalDependencies": "patch",
   "bumpVersionsWithWorkspaceProtocolOnly": true,
   "ignore": [
+    "@turnkey/browser-secrets",
     "@turnkey/jest-config",
+    "@turnkey/workers-e2e",
     "@turnkey/example-*",
     "@turnkey/kitchen-sink",
     "@turnkey/with-*",
@@ -21,10 +23,12 @@
     "@turnkey/solana-usdc-swap",
     "@turnkey/wallet-auth-*",
     "magic-link-auth",
+    "oauth-cross-platform-mobile",
     "with-0x",
     "with-delegated-client-side",
     "with-export-and-sign-escrow",
     "with-lifi",
+    "with-react-native-wallet-kit",
     "with-x",
     "with-x402"
   ]

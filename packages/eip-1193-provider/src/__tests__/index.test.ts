@@ -448,13 +448,33 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             expect(transactionHash).toBeDefined();
             expect(transactionHash).toMatch(/^0x[a-fA-F0-9]+$/);
 
-            // Optionally, you can wait for the transaction to be mined and then perform assertions on the receipt
-            const receipt = await eip1193Provider.request({
+            // The node mines asynchronously, so the receipt can be null right
+            // after the send. Poll until it shows up.
+            const receiptPollIntervalMs = 250;
+            const receiptTimeoutMs = 10_000;
+            const receiptDeadline = Date.now() + receiptTimeoutMs;
+            let receipt = await eip1193Provider.request({
               method: "eth_getTransactionReceipt",
               params: [transactionHash!],
             });
 
-            expect(receipt).toBeDefined();
+            while (receipt == null && Date.now() < receiptDeadline) {
+              await new Promise((resolve) =>
+                setTimeout(resolve, receiptPollIntervalMs),
+              );
+              receipt = await eip1193Provider.request({
+                method: "eth_getTransactionReceipt",
+                params: [transactionHash!],
+              });
+            }
+
+            if (receipt == null) {
+              throw new Error(
+                `Timed out after ${receiptTimeoutMs}ms waiting for the receipt of transaction ${transactionHash}`,
+              );
+            }
+
+            expect(receipt).not.toBeNull();
             expect(receipt?.status).toBe("0x1"); // Success status
           });
         });

@@ -1,0 +1,98 @@
+{
+  "description": "Source contract conformance. Each scenario names a backend state the source package's harness sets up, the capabilities it applies to, and the outcome each call must return through connectSource. Every source package runs these with runSourceConformance.",
+  "scenarios": [
+    {
+      "name": "ready on first export",
+      "scenario": "ready",
+      "source": "EMG-225 acceptance: ready",
+      "steps": [{ "call": "export", "expect": { "kind": "ready" } }]
+    },
+    {
+      "name": "denied by the source",
+      "scenario": "deny",
+      "source": "EMG-225 acceptance: denied",
+      "steps": [{ "call": "export", "expect": { "kind": "denied" } }]
+    },
+    {
+      "name": "unknown secret is denied as not_found",
+      "scenario": "unknown-secret",
+      "source": "EMG-225: a source never invents a secret",
+      "steps": [
+        {
+          "call": "export",
+          "expect": { "kind": "denied", "code": "not_found" }
+        }
+      ]
+    },
+    {
+      "name": "failure before anything reaches the store",
+      "scenario": "fail-before-submit",
+      "source": "EMG-64 §4: a failure before any write may permit retry",
+      "steps": [
+        {
+          "call": "export",
+          "expect": { "kind": "failed", "submitted": "no" }
+        }
+      ]
+    },
+    {
+      "name": "lost response after submission is unknown",
+      "scenario": "lost-response",
+      "source": "EMG-225 acceptance: unknown submission",
+      "requires": { "approvals": true },
+      "steps": [
+        {
+          "call": "export",
+          "expect": { "kind": "failed", "submitted": "unknown" }
+        }
+      ]
+    },
+    {
+      "name": "pending, then approved on resume",
+      "scenario": "approve",
+      "source": "EMG-225 acceptance: pending, resume",
+      "requires": { "approvals": true },
+      "steps": [
+        { "call": "export", "expect": { "kind": "pending" } },
+        { "call": "resume", "expect": { "kind": "ready" } }
+      ]
+    },
+    {
+      "name": "resume while still pending stays pending",
+      "scenario": "approve-after-wait",
+      "source": "EMG-225 acceptance: resume",
+      "requires": { "approvals": true },
+      "steps": [
+        { "call": "export", "expect": { "kind": "pending" } },
+        { "call": "resume", "expect": { "kind": "pending" } },
+        { "call": "resume", "expect": { "kind": "ready" } }
+      ]
+    },
+    {
+      "name": "pending, then rejected on resume",
+      "scenario": "reject",
+      "source": "EMG-64 §4: denied/rejected",
+      "requires": { "approvals": true },
+      "steps": [
+        { "call": "export", "expect": { "kind": "pending" } },
+        {
+          "call": "resume",
+          "expect": { "kind": "denied", "code": "rejected" }
+        }
+      ]
+    },
+    {
+      "name": "pending, then expired on resume",
+      "scenario": "expire",
+      "source": "EMG-64 §4: expired",
+      "requires": { "approvals": true },
+      "steps": [
+        { "call": "export", "expect": { "kind": "pending" } },
+        {
+          "call": "resume",
+          "expect": { "kind": "denied", "code": "expired" }
+        }
+      ]
+    }
+  ]
+}
