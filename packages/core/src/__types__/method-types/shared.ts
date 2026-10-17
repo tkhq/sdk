@@ -210,6 +210,7 @@ export type LoginWithOauthParams = {
   oidcToken: string;
   publicKey: string;
   organizationId?: string;
+  requiresSocialLinking?: boolean;
   invalidateExisting?: boolean;
   sessionKey?: string;
   expirationSeconds?: string;

@@ -12,13 +12,19 @@ This example shows how to integrate [`@walletconnect/pay`](https://www.npmjs.com
 
 ### 1/ Cloning the example
 
-Make sure you have `Node.js` installed locally; we recommend using Node v18+.
+Make sure you have `Node.js` installed locally; we recommend using Node v18+. To run on iOS you'll need Xcode 26.4+, since Expo SDK 57 requires Xcode 26.4 or newer.
+
+This example uses `@turnkey/react-native-wallet-kit` from the workspace (`workspace:*`), so it runs against your local copy of the kit and its Turnkey dependencies instead of a published version. Install from the repo root and build the packages before running the app:
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
-$ cd sdk/examples/defi/with-walletconnect-pay/
-$ npm install
+$ cd sdk
+$ pnpm install
+$ pnpm build-all
+$ cd examples/defi/with-walletconnect-pay/
 ```
+
+The app loads the kit's built `dist` output, so rerun the build after changing the kit or `@turnkey/core`, then reload the app.
 
 ### 2/ Setting up
 
@@ -50,21 +56,18 @@ On the iOS simulator (no camera): click the QR code image in the WalletConnect d
 
 ### 3/ Running the app
 
-First, generate the native project:
-
-```bash
-$ npx expo prebuild --platform ios
-```
-
 **Option 1: CLI**
 
 ```bash
-$ npx expo run:ios
+$ pnpm ios
 ```
 
 **Option 2: Xcode**
 
 ```bash
+# Generate the native project first (Option 1 does this automatically)
+$ npx expo prebuild --platform ios
+
 # In one terminal: start the Metro bundler
 $ npx expo start
 

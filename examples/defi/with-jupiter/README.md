@@ -44,10 +44,10 @@ This project shows how to:
    Create a `.env.local` file with:
 
    ```env
-    NEXT_PUBLIC_BASE_URL="https://api.turnkey.com"
-    NEXT_PUBLIC_ORGANIZATION_ID="1875b49b-22ad-42c6-949f-04d5dd03ee3a"
-    NEXT_PUBLIC_AUTH_PROXY_URL="https://authproxy.turnkey.com/"
-    NEXT_PUBLIC_AUTH_PROXY_ID="a70d82ef-4373-467a-a189-9be44629799b"
+      NEXT_PUBLIC_BASE_URL="https://api.turnkey.com"
+      NEXT_PUBLIC_ORGANIZATION_ID="<Turnkey organization ID>"
+      NEXT_PUBLIC_AUTH_PROXY_URL="https://authproxy.turnkey.com/"
+      NEXT_PUBLIC_AUTH_PROXY_ID="<Turnkey Auth Proxy ID>"
 
    ```
 
