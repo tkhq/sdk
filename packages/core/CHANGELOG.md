@@ -1,5 +1,54 @@
 # @turnkey/core
 
+## 2.13.0
+
+### Minor Changes
+
+- [#1601](https://github.com/tkhq/sdk/pull/1601) [`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Sync generated clients and types with mono `main` (2026-10-15).
+  - Add `upsertSwapFeeSponsorshipLimitConfig`, `upsertSwapFixedRateLimitConfig`, and `getSwapSponsorshipUsage` (plus `stamp*` variants).
+  - `createSwapQuote` now sends `ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3`. V3 accepts the optional `feeSponsorship` and `fixedRate` flags (both default to false, matching V2), and quotes include `feeSponsorship`, `fixedRate`, and `estimatedFixedRateAdjustmentUsd`.
+  - `@turnkey/http`: add `getFiatOnRampQuote` and `createFiatOnRampSession`. `deleteVelocityControl` is renamed to `deleteVelocityControls` to match the API.
+  - Earn intents take `caip2` instead of `chainCaip2`, matching the API rename.
+  - `FiatOnRampBlockchainNetwork.BITCOIN` is removed because the API no longer accepts it. `react-wallet-kit`'s `handleOnRamp` now throws for Bitcoin wallet accounts instead of sending a request the API rejects.
+
+### Patch Changes
+
+- Updated dependencies [[`b7d42d2`](https://github.com/tkhq/sdk/commit/b7d42d2f7a045c21bc236a8cf2da2974548df415), [`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3)]:
+  - @turnkey/http@6.7.0
+  - @turnkey/sdk-types@1.11.0
+  - @turnkey/react-native-passkey-stamper@1.2.27
+  - @turnkey/crypto@2.13.3
+  - @turnkey/api-key-stamper@0.6.18
+
+## 2.12.2
+
+### Patch Changes
+
+- [#1581](https://github.com/tkhq/sdk/pull/1581) [`f4d6892`](https://github.com/tkhq/sdk/commit/f4d6892970d30cf03df63f2d5aba72b2cbb4b397) Author [@moeodeh3](https://github.com/moeodeh3) - `buildWalletConnectAppEntries` now checks each configured chain separately, so wallets that support only some of the configured chains are included for the chains they support. For example, MetaMask is now offered for Ethereum when both Ethereum and Solana are configured, instead of being hidden. Wallets that only support the discontinued WalletConnect v1 protocol are no longer included, since they can't connect.
+
+## 2.12.1
+
+### Patch Changes
+
+- [#1564](https://github.com/tkhq/sdk/pull/1564) [`6a255dd`](https://github.com/tkhq/sdk/commit/6a255dd81c97fc894f9458436d2cc4497fe1e43d) Author [@truham](https://github.com/truham) - Fix a bug where signing in with Google failed for an account that had signed up with email OTP. `completeOauth` now completes the social-linking flow through the auth proxy instead of attempting a stamped login with an identity that was never registered on the sub-organization.
+
+- [#1531](https://github.com/tkhq/sdk/pull/1531) [`6e0e723`](https://github.com/tkhq/sdk/commit/6e0e72323d08b1577895082ac5ff6bfd8cbb7623) Author [@actype](https://github.com/actype) - Preserve failed and consensus-needed send activities as rich activity errors, and prevent duplicate unhandled rejections.
+
+## 2.12.0
+
+### Minor Changes
+
+- [`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2) Author [@ericvelazquez](https://github.com/ericvelazquez) - Add Earn rewards: listEarnRewards, earnClaimRewards, getEarnClaimRewardsStatus
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-types@1.10.0
+  - @turnkey/http@6.6.0
+  - @turnkey/crypto@2.13.2
+  - @turnkey/react-native-passkey-stamper@1.2.26
+  - @turnkey/api-key-stamper@0.6.17
+
 ## 2.11.0
 
 ### Minor Changes
