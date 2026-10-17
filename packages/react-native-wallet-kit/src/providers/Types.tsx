@@ -51,9 +51,6 @@ export interface ClientContextType
     | "importPrivateKey"
     | "connectWalletAccount"
   > {
-  /** @internal */
-  walletProviders: WalletProvider[];
-
   /**
    * Connects the specified wallet account.
    *
@@ -82,6 +79,8 @@ export interface ClientContextType
   user: v1User | undefined;
   /** @internal */
   wallets: Wallet[];
+  /** @internal */
+  walletProviders: WalletProvider[];
 
   /**
    * Export a wallet. Optionally decrypt and return the mnemonic directly.
