@@ -2,6 +2,12 @@ name: Build
 
 on:
   workflow_call:
+    inputs:
+      upload-package-dists:
+        description: "Upload built packages/*/dist for a later publish job"
+        required: false
+        type: boolean
+        default: false
 
 env:
   NODE_ENV: production
@@ -56,3 +62,44 @@ jobs:
             git --no-pager diff HEAD
             exit 1
           fi
+
+      # publish-npm downloads these instead of compiling on package-deploy.
+      # Each package keeps its own dist directory so outputs cannot be mixed.
+      - name: Pack package dists
+        if: ${{ inputs.upload-package-dists }}
+        run: |
+          set -euo pipefail
+          stage="${RUNNER_TEMP}/package-dists"
+          rm -rf "$stage"
+          mkdir -p "$stage"
+          missing=0
+          for dir in packages/*; do
+            [ -f "$dir/package.json" ] || continue
+            name="$(basename "$dir")"
+            private="$(node -p "require('./${dir}/package.json').private === true")"
+            if [ "$private" = "true" ]; then
+              echo "skip private ${name}"
+              continue
+            fi
+            if [ ! -d "$dir/dist" ]; then
+              echo "missing dist for ${name}"
+              missing=1
+              continue
+            fi
+            mkdir -p "$stage/$name"
+            cp -a "$dir/dist" "$stage/$name/dist"
+            echo "packed ${name}"
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Upload package dists
+        if: ${{ inputs.upload-package-dists }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: package-dists
+          path: ${{ runner.temp }}/package-dists
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 5

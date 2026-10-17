@@ -28,7 +28,7 @@ await completeOauth({ oidcToken: tokens.id_token, publicKey });
 
 ## Prerequisites
 
-- **iOS:** Xcode (macOS only)
+- **iOS:** Xcode 26.4+ (macOS only). Expo SDK 57 requires Xcode 26.4 or newer.
 - **Android:** Android Studio with an emulator or a physical device with USB debugging enabled
 - An auth proxy configured for your Turnkey org
 
@@ -36,10 +36,15 @@ await completeOauth({ oidcToken: tokens.id_token, publicKey });
 
 ### 1. Install
 
+This example uses `@turnkey/react-native-wallet-kit` from the workspace (`workspace:*`), so it runs against your local copy of the kit and its Turnkey dependencies instead of a published version. Install from the repo root and build the packages before running the app:
+
 ```bash
+pnpm install
+pnpm build-all
 cd examples/authentication/oauth-cross-platform/mobile
-npm install
 ```
+
+The app loads the kit's built `dist` output, so rerun the build after changing the kit or `@turnkey/core`, then reload the app.
 
 ### 2. Set platform URL schemes in `app.json`
 
@@ -67,13 +72,11 @@ Fill in `.env.local`:
 ### 4. Build and run
 
 ```bash
-npx expo prebuild
-
 # iOS
-npx expo run:ios
+pnpm ios
 
 # Android
-npx expo run:android
+pnpm android
 ```
 
 ### 5. Try it

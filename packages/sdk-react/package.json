@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-react",
-  "version": "6.0.11",
+  "version": "6.0.13",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -65,7 +65,7 @@
     "@turnkey/wallet-stamper": "workspace:*",
     "jwt-decode": "^4.0.0",
     "libphonenumber-js": "^1.11.14",
-    "next": "15.5.24",
+    "next": "15.5.27",
     "react-apple-login": "^1.1.6",
     "react-international-phone": "^4.3.0",
     "usehooks-ts": "^3.1.1"
