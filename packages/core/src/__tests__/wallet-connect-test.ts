@@ -139,6 +139,47 @@ describe("WalletConnectWallet pairing URI regeneration", () => {
     expect(await currentUri()).toBe("wc:uri-1");
   });
 
+  it("regenerates the URI before notifying when the app disconnects", async () => {
+    const {
+      client,
+      walletResponse,
+      wallet,
+      provider,
+      setSession,
+      events,
+      currentUri,
+    } = await createWallet();
+    walletResponse.mockImplementationOnce(async () => {
+      setSession(CONNECTED_SESSION);
+      return CONNECTED_SESSION;
+    });
+    await wallet.connectWalletAccount(provider);
+
+    await wallet.disconnectWalletAccount(provider);
+
+    expect(client.disconnect).toHaveBeenCalledTimes(1);
+    expect(await currentUri()).toBe("wc:uri-2");
+    expect(events).toEqual(["disconnect"]);
+  });
+
+  it("still notifies when the app disconnects but the URI can't be regenerated", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    const { client, walletResponse, wallet, provider, setSession, events } =
+      await createWallet();
+    walletResponse.mockImplementationOnce(async () => {
+      setSession(CONNECTED_SESSION);
+      return CONNECTED_SESSION;
+    });
+    await wallet.connectWalletAccount(provider);
+
+    client.pair.mockRejectedValueOnce(new Error("relay unreachable"));
+
+    await expect(
+      wallet.disconnectWalletAccount(provider),
+    ).resolves.toBeUndefined();
+    expect(events).toEqual(["disconnect"]);
+  });
+
   it("shares one regeneration between concurrent triggers", async () => {
     const { client, handlers } = await createWallet();
 

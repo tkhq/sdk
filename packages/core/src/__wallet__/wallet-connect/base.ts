@@ -599,19 +599,24 @@ export class WalletConnectWallet implements WalletConnectInterface {
   }
 
   /**
-   * Disconnects the current session and re-initiates a fresh pairing URI.
+   * Disconnects the current session and replaces the pairing URI with a fresh one.
    *
-   * - Calls `disconnect()` on the client, then `pair()` with current namespaces.
-   * - Updates `this.uri` so the UI can present a new QR/deeplink.
+   * - The URI that created the session has been used up, so a new one is needed
+   *   before the user can connect again.
+   * - If regenerating the URI fails, the disconnect still succeeds and listeners
+   *   are still notified, so the UI doesn't keep showing the wallet as connected.
+   *   The next connection attempt regenerates the URI again.
    */
   async disconnectWalletAccount(_provider: WalletProvider): Promise<void> {
     await this.client.disconnect();
 
-    const namespaces = this.buildNamespaces();
-
-    await this.client.pair(namespaces).then((newUri) => {
-      this.uri = newUri;
-    });
+    // we regenerate the URI before notifying so listeners that refresh
+    // on disconnect pick up the fresh URI
+    try {
+      await this.regenerateUri();
+    } catch (error) {
+      console.error("failed to regenerate URI:", error);
+    }
 
     // we emit a disconnect event because WalletConnect doesn't
     this.notifyChange({ type: "disconnect" });
