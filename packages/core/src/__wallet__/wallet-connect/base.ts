@@ -130,14 +130,11 @@ export class WalletConnectWallet implements WalletConnectInterface {
   }
 
   /**
-   * Replaces the current pairing URI with a fresh one.
+   * Creates a fresh pairing URI, since each URI only works for one connection attempt.
    *
-   * - A pairing URI can only be used once, so this is called whenever the current
-   *   one can no longer be approved (expired, rejected, or its session ended).
-   * - Cancels any in-progress pairing first, since `pair()` throws if one exists.
-   * - Skipped while a session with connected accounts is active, since pairing
-   *   would create a second session.
-   * - Concurrent calls share the same in-flight regeneration.
+   * - Called whenever the current URI is used up (expired, rejected, or its session ended).
+   * - Skipped while a wallet is connected, since pairing would open a second session.
+   * - Concurrent calls share one regeneration instead of pairing twice.
    */
   private regenerateUri(): Promise<void> {
     if (this.regeneratingUri) return this.regeneratingUri;
@@ -146,6 +143,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
       try {
         if (hasConnectedAccounts(this.client.getSession())) return;
 
+        // pair() throws while another pairing is pending, so we cancel it first
         await this.client.cancelPairing();
         this.uri = await this.client.pair(this.buildNamespaces());
       } finally {
