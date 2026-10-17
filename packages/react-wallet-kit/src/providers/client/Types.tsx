@@ -796,6 +796,8 @@ export interface ClientContextType
    * @param params.icon - Optional icon to display in the transaction modal.
    *
    * @returns A promise that resolves when the transaction reaches a terminal state.
+   * @throws {TurnkeyActivityConsensusNeededError} If the send activity requires consensus.
+   * @throws {TurnkeyActivityError} If the send activity fails or is rejected.
    * @throws {TurnkeyError} If submission fails, polling fails, or the user cancels the flow.
    */
   handleSendTransaction: (params: HandleSendTransactionParams) => Promise<void>;
