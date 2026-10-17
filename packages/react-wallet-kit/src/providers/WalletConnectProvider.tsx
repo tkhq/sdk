@@ -49,9 +49,8 @@ export function WalletConnectProvider({
   const { config } = useTurnkey();
   const projectId = config?.walletConfig?.walletConnect?.projectId;
 
-  // WalletConnect will only work if the app supports ALL of the configured namespaces, so
-  // we build a list of these namespaces so that `buildWalletConnectAppEntries` can filter
-  // and only returns apps that support all of them
+  // we build a list of the configured namespaces so that `buildWalletConnectAppEntries`
+  // can filter apps by chain, only returning entries for the chains each app supports
   const namespaces = [
     ...(config?.walletConfig?.chains?.ethereum?.walletConnectNamespaces ?? []),
     ...(config?.walletConfig?.chains?.solana?.walletConnectNamespaces ?? []),

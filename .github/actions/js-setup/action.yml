@@ -1,6 +1,12 @@
 name: "Setup JS"
 description: "Install JS toolchain and dependencies (node_modules)"
 
+inputs:
+  turbo-cache-scope:
+    description: "Prefix for the turbo cache key. Set it for jobs that build only part of the workspace, so that their partial cache does not take the key of the full build."
+    required: false
+    default: ""
+
 runs:
   using: "composite"
 
@@ -33,7 +39,7 @@ runs:
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: .turbo/cache
-        key: ${{ runner.os }}-${{ runner.arch }}-turbo-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+        key: ${{ runner.os }}-${{ runner.arch }}-turbo-${{ inputs.turbo-cache-scope }}${{ github.head_ref || github.ref_name }}-${{ github.sha }}
         # The hierarchy of restoring the cache goes as follows:
         #
         # - First we try to match an existing cache from the same branch
