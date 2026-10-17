@@ -1,5 +1,54 @@
 # @turnkey/react-wallet-kit
 
+## 2.6.0
+
+### Minor Changes
+
+- [#1601](https://github.com/tkhq/sdk/pull/1601) [`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Sync generated clients and types with mono `main` (2026-10-15).
+  - Add `upsertSwapFeeSponsorshipLimitConfig`, `upsertSwapFixedRateLimitConfig`, and `getSwapSponsorshipUsage` (plus `stamp*` variants).
+  - `createSwapQuote` now sends `ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3`. V3 accepts the optional `feeSponsorship` and `fixedRate` flags (both default to false, matching V2), and quotes include `feeSponsorship`, `fixedRate`, and `estimatedFixedRateAdjustmentUsd`.
+  - `@turnkey/http`: add `getFiatOnRampQuote` and `createFiatOnRampSession`. `deleteVelocityControl` is renamed to `deleteVelocityControls` to match the API.
+  - Earn intents take `caip2` instead of `chainCaip2`, matching the API rename.
+  - `FiatOnRampBlockchainNetwork.BITCOIN` is removed because the API no longer accepts it. `react-wallet-kit`'s `handleOnRamp` now throws for Bitcoin wallet accounts instead of sending a request the API rejects.
+
+### Patch Changes
+
+- Updated dependencies [[`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3)]:
+  - @turnkey/sdk-types@1.11.0
+  - @turnkey/core@2.13.0
+
+## 2.5.3
+
+### Patch Changes
+
+- [#1584](https://github.com/tkhq/sdk/pull/1584) [`f77e273`](https://github.com/tkhq/sdk/commit/f77e273abb58f5af015c9b1a2023024fd01bf705) Author [@radusandor](https://github.com/radusandor) - Internal state refreshes no longer inherit the caller's `stampWith`. When a valid session exists, the refresh that follows a write is now stamped with the session's API key, so passing `stampWith: StamperType.Passkey` to methods like `addPasskey`, `updateUserName`, `createWallet` or `exportWallet` no longer costs an extra passkey prompt for each request the refresh makes. With no valid session the caller's stamper is still used, so setups without a session are unaffected.
+
+- Updated dependencies [[`f4d6892`](https://github.com/tkhq/sdk/commit/f4d6892970d30cf03df63f2d5aba72b2cbb4b397)]:
+  - @turnkey/core@2.12.2
+
+## 2.5.2
+
+### Patch Changes
+
+- [#1573](https://github.com/tkhq/sdk/pull/1573) [`6cccc60`](https://github.com/tkhq/sdk/commit/6cccc606d459b103fb5b09b0b61c6565fed02073) Author [@hadrelandon](https://github.com/hadrelandon) - Fixed issue with turnstile captchas failing with `X-Captcha-Token header is required` on UpdateEmail and UpdatePhoneNumber
+
+- [#1559](https://github.com/tkhq/sdk/pull/1559) [`ed0541b`](https://github.com/tkhq/sdk/commit/ed0541ba338c173779a3b3943d92f202cd03dd9a) Author [@justinformentin](https://github.com/justinformentin) - Skip the CAPTCHA token wait (and its timeout warning) when CAPTCHA is not enabled
+
+- [#1531](https://github.com/tkhq/sdk/pull/1531) [`6e0e723`](https://github.com/tkhq/sdk/commit/6e0e72323d08b1577895082ac5ff6bfd8cbb7623) Author [@actype](https://github.com/actype) - Preserve failed and consensus-needed send activities as rich activity errors, and prevent duplicate unhandled rejections.
+
+- Updated dependencies [[`6a255dd`](https://github.com/tkhq/sdk/commit/6a255dd81c97fc894f9458436d2cc4497fe1e43d), [`6e0e723`](https://github.com/tkhq/sdk/commit/6e0e72323d08b1577895082ac5ff6bfd8cbb7623)]:
+  - @turnkey/core@2.12.1
+
+## 2.5.1
+
+### Patch Changes
+
+- [#1535](https://github.com/tkhq/sdk/pull/1535) [`e72c314`](https://github.com/tkhq/sdk/commit/e72c3145aa46f55d493a0a13123108a68576b416) Thanks [@t-vila](https://github.com/t-vila)! - Surface config fetch failures through `onError`
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-types@1.10.0
+  - @turnkey/core@2.12.0
+
 ## 2.5.0
 
 ### Minor Changes
