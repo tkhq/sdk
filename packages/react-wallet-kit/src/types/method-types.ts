@@ -259,6 +259,10 @@ export type HandleConnectExternalWalletParams = {
   successPageDuration?: number | undefined;
 };
 
+export type HandleConnectExternalWalletResult =
+  | { type: "connect"; account: WalletAccount }
+  | { type: "disconnect"; account?: WalletAccount };
+
 export type HandleRemoveUserEmailParams = {
   userId?: string;
   successPageDuration?: number | undefined;

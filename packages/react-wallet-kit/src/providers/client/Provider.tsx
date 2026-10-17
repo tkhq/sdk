@@ -193,6 +193,7 @@ import type {
   HandleAddPhoneNumberParams,
   HandleAppleOauthParams,
   HandleConnectExternalWalletParams,
+  HandleConnectExternalWalletResult,
   HandleDiscordOauthParams,
   HandleExportPrivateKeyParams,
   HandleExportWalletAccountParams,
@@ -5753,7 +5754,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleConnectExternalWallet = useCallback(
     async (
       params?: HandleConnectExternalWalletParams,
-    ): Promise<{ type: "connect" | "disconnect"; account: WalletAccount }> => {
+    ): Promise<HandleConnectExternalWalletResult> => {
       const { successPageDuration = 2000 } = params || {};
       if (!client)
         throw new TurnkeyError(
@@ -5773,12 +5774,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           content: (
             <ConnectWalletModal
               successPageDuration={successPageDuration}
-              onSuccess={(
-                type: "connect" | "disconnect",
-                account: WalletAccount,
-              ) => {
-                resolve({ type, account });
-              }}
+              onSuccess={(result) => resolve(result)}
             />
           ),
           onClose: () =>
