@@ -16,7 +16,7 @@
   },
   "types": "./dist/index.d.ts",
   "license": "Apache-2.0",
-  "description": "Destination binding, target authorization, and output redaction for browser agents that fill Turnkey secrets",
+  "description": "Destination binding, target authorization, and output redaction for browser agents that fill stored secrets, with Turnkey as the default source",
   "keywords": [
     "Turnkey",
     "secrets",

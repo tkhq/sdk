@@ -59,6 +59,17 @@ export const BINDING_KEY_PREFIX = "sbm:";
  */
 export type StaticProperties = Readonly<Record<string, string>>;
 
+/**
+ * Where a secret's binding comes from.
+ *
+ * - `fixed-at-source`: the store sets it at import and it cannot change
+ *   (Turnkey static properties). Store policies can read it.
+ * - `operator-manifest`: the host's operator configures it (for example a
+ *   1Password manifest). An operator can edit it, and nothing outside the
+ *   host sees it.
+ */
+export type BindingProvenance = "fixed-at-source" | "operator-manifest";
+
 /** A destination binding parsed from static properties. */
 export type SecretBinding = {
   readonly origin: string;
@@ -97,9 +108,10 @@ export type SecretRef = {
   readonly binding?: SecretBinding;
   /** Set instead of `binding` when the declared binding is malformed. */
   readonly bindingError?: BindingErrorCode;
-  // TODO(EMG-225): add optional `source` (for example "turnkey", "onepassword")
-  // and `bindingProvenance` ("fixed-at-source" | "operator-manifest"). Both are
-  // metadata and safe to show the agent. Adding them is not a breaking change.
+  /** The ID of the source that holds the secret, for example `"turnkey"`. Set by `connectSource`. */
+  readonly source?: string;
+  /** Where the binding comes from, copied from the source's capabilities. */
+  readonly bindingProvenance?: BindingProvenance;
 };
 
 /** One requested destination: a host-owned element ID and, for field-bound secrets, a payload key. */
