@@ -363,14 +363,17 @@ export class WalletConnectWallet implements WalletConnectInterface {
     provider: WalletProvider,
     intent: SignIntent,
   ): Promise<string> {
-    const session = await this.ensureSession();
+    let session = await this.ensureSession();
 
     if (!hasConnectedAccounts(session)) {
       await this.connectWalletAccount(provider);
+      // Re-read the session: the one captured above predates the approval
+      // and still has no accounts on it.
+      session = await this.ensureSession();
     }
 
     if (provider.chainInfo.namespace === Chain.Ethereum) {
-      const address = getConnectedEthereum(session);
+      const address = getConnectedEthereum(session) as Hex | undefined;
       if (!address) {
         throw new Error("no Ethereum account to sign with");
       }
@@ -382,12 +385,13 @@ export class WalletConnectWallet implements WalletConnectInterface {
             address,
           ])) as string;
         case SignIntent.SignAndSendTransaction:
-          const account = provider.connectedAddresses[0] as Hex;
-          if (!account) throw new Error("no connected address");
+          // Use the address from the live session, the same source
+          // `personal_sign` uses. `provider.connectedAddresses` is a snapshot
+          // taken when the provider descriptor was built and can be stale.
           const tx = Transaction.from(payload);
 
           const base: EvmTransactionParams = {
-            from: account,
+            from: address,
             to: tx.to?.toString() as Hex,
             value: toHex(tx.value),
             gas: toHex(tx.gasLimit),
