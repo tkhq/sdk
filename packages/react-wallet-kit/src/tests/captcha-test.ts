@@ -67,7 +67,12 @@ describe("captcha utilities", () => {
       };
 
       await expect(
-        consumeCaptchaToken(() => "tok_abc", setTurnstileToken, turnstileRef),
+        consumeCaptchaToken(
+          () => "tok_abc",
+          setTurnstileToken,
+          turnstileRef,
+          true,
+        ),
       ).resolves.toEqual({ captchaToken: "tok_abc" });
 
       expect(setTurnstileToken).toHaveBeenCalledWith(null);
@@ -78,16 +83,41 @@ describe("captcha utilities", () => {
       const setTurnstileToken = jest.fn();
 
       await expect(
-        consumeCaptchaToken(() => "tok_no_ref", setTurnstileToken),
+        consumeCaptchaToken(
+          () => "tok_no_ref",
+          setTurnstileToken,
+          undefined,
+          true,
+        ),
       ).resolves.toEqual({ captchaToken: "tok_no_ref" });
 
       expect(setTurnstileToken).toHaveBeenCalledWith(null);
     });
 
+    it("does not wait or warn when CAPTCHA is disabled by default", async () => {
+      const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+      const getTurnstileToken = jest.fn(() => null);
+      const setTurnstileToken = jest.fn();
+
+      await expect(
+        consumeCaptchaToken(getTurnstileToken, setTurnstileToken),
+      ).resolves.toEqual({});
+
+      expect(getTurnstileToken).not.toHaveBeenCalled();
+      expect(setTurnstileToken).not.toHaveBeenCalled();
+      expect(warn).not.toHaveBeenCalled();
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
     it("returns {} and warns when waiting times out", async () => {
       const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
       const setTurnstileToken = jest.fn();
-      const pending = consumeCaptchaToken(() => null, setTurnstileToken);
+      const pending = consumeCaptchaToken(
+        () => null,
+        setTurnstileToken,
+        undefined,
+        true,
+      );
 
       jest.advanceTimersByTime(5000);
 
@@ -101,7 +131,12 @@ describe("captcha utilities", () => {
     it("consumes a token that arrives during the wait", async () => {
       let token: string | null = null;
       const setTurnstileToken = jest.fn();
-      const pending = consumeCaptchaToken(() => token, setTurnstileToken);
+      const pending = consumeCaptchaToken(
+        () => token,
+        setTurnstileToken,
+        undefined,
+        true,
+      );
 
       jest.advanceTimersByTime(600);
       token = "tok_delayed";

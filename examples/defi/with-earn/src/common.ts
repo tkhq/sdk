@@ -11,7 +11,7 @@ import {
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-export type ChainCaip2 = v1EarnDepositIntent["chainCaip2"];
+export type ChainCaip2 = v1EarnDepositIntent["caip2"];
 
 export const CHAIN_CAIP2 = (process.env.CHAIN_CAIP2 ??
   "eip155:8453") as ChainCaip2;
