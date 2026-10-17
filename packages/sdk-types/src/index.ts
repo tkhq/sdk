@@ -245,7 +245,6 @@ export enum FiatOnRampCurrency {
 }
 
 export enum FiatOnRampBlockchainNetwork {
-  BITCOIN = "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN", // bitcoin
   ETHEREUM = "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM", // ethereum
   SOLANA = "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA", // solana
   BASE = "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BASE", // base

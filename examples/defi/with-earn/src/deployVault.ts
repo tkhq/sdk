@@ -66,7 +66,7 @@ async function main() {
     await client.earnDeployWrapper({
       organizationId,
       vaultAddress,
-      chainCaip2: CHAIN_CAIP2,
+      caip2: CHAIN_CAIP2,
       clientFeeBps,
       clientFeeWallet,
     });
