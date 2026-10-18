@@ -3,8 +3,13 @@ import {
   StamperType,
   TurnkeyActivityConsensusNeededError,
   TurnkeyActivityError,
+  buildWalletConnectAppEntries as buildCoreWalletConnectAppEntries,
 } from "@turnkey/core";
-import type { Wallet, WalletProvider } from "@turnkey/core";
+import type {
+  Wallet,
+  WalletConnectAppEntry,
+  WalletProvider,
+} from "@turnkey/core";
 import { useCallback, useRef, useState } from "react";
 
 export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
@@ -160,4 +165,22 @@ export function useWalletProviderState(initialState: WalletProvider[] = []) {
   );
 
   return [walletProviders, updateWalletProviders] as const;
+}
+
+/**
+ * Builds the list of WalletConnect wallet apps to show in a wallet picker.
+ *
+ * - Same as `buildWalletConnectAppEntries` from `@turnkey/core`, but only keeps
+ *   wallets with a mobile deep link, since there's no QR code fallback on mobile.
+ *
+ * @param projectId - WalletConnect project ID.
+ * @param namespaces - CAIP-2 namespaces to offer wallets for (e.g. "eip155:1").
+ * @returns The wallet apps that can be opened on this device.
+ */
+export async function buildWalletConnectAppEntries(
+  projectId: string,
+  namespaces: string[],
+): Promise<WalletConnectAppEntry[]> {
+  const entries = await buildCoreWalletConnectAppEntries(projectId, namespaces);
+  return entries.filter((entry) => entry.uri);
 }

@@ -11,14 +11,6 @@ const namespaces = [
   ...(walletConfig?.chains.solana?.walletConnectNamespaces ?? []),
 ];
 
-// apps without a mobile link are skipped since there's no QR fallback on mobile
-async function buildEntries(
-  projectId: string,
-): Promise<WalletConnectAppEntry[]> {
-  const entries = await buildWalletConnectAppEntries(projectId, namespaces);
-  return entries.filter((entry) => entry.uri);
-}
-
 // cache so the directory is only fetched once
 let entriesPromise: Promise<WalletConnectAppEntry[]> | undefined;
 
@@ -35,7 +27,10 @@ export function useWalletConnectApps() {
       return;
     }
 
-    entriesPromise ??= buildEntries(projectId).catch((error) => {
+    entriesPromise ??= buildWalletConnectAppEntries(
+      projectId,
+      namespaces,
+    ).catch((error) => {
       entriesPromise = undefined;
       throw error;
     });

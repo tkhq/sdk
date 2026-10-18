@@ -11,8 +11,11 @@ export {
   isSolanaProvider,
   buildSecondaryOidcClaims,
   buildSecondaryOauthProviders,
-  buildWalletConnectAppEntries,
 } from "@turnkey/core";
+
+// RN-specific version of the core helper that only returns wallets that can be
+// opened on mobile
+export { buildWalletConnectAppEntries } from "./utils/utils";
 
 // Re-export all types from @turnkey/core
 //
