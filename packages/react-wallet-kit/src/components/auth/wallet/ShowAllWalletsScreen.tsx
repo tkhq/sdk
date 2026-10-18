@@ -51,18 +51,20 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const rafIdRef = useRef<number | null>(null);
 
-  // Group wallet apps by id (same wallet across different chains)
+  // Group wallet apps by id (same wallet across different chains).
+  // On mobile a wallet can only be opened through its deep link, which some
+  // WalletConnect directory entries don't have. We hide those on mobile since
+  // tapping them opens a broken page. Desktop keeps them for since they still work through the QR code.
   const grouped = useMemo(
     () =>
-      walletConnectApps.reduce<Record<string, WalletConnectAppEntry[]>>(
-        (acc, app) => {
+      walletConnectApps
+        .filter((app) => !isMobile || app.uri)
+        .reduce<Record<string, WalletConnectAppEntry[]>>((acc, app) => {
           if (!acc[app.id]) acc[app.id] = [];
           acc[app.id]!.push(app);
           return acc;
-        },
-        {},
-      ),
-    [walletConnectApps],
+        }, {}),
+    [walletConnectApps, isMobile],
   );
 
   // Filter by search query
