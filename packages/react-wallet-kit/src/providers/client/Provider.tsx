@@ -6185,6 +6185,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               countrySubdivisionCode={params.countrySubdivisionCode}
               openInNewTab={params.openInNewTab}
               successPageDuration={params.successPageDuration}
+              rpcUrl={params.rpcUrl}
               onSuccess={resolveOnce}
               onError={rejectOnce}
             />

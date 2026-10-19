@@ -292,6 +292,7 @@ export type HandleOnRampParams = {
   stampWith?: StamperType;
   successPageDuration?: number;
   openInNewTab?: boolean;
+  rpcUrl?: string;
 };
 
 export type HandleSendTransactionParams = {

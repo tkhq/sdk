@@ -773,6 +773,7 @@ export interface ClientContextType
    * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @param params.successPageDuration - optional duration (in ms) for the success page after connecting (default: 2000ms).
+   * @param params.rpcUrl - only needed for Solana. Connected Solana wallets use it to broadcast and confirm the transfer.
    * @param params.openInNewTab: optional boolean on whether to open the onramp URL in a new browser tab or popup
    * @returns A promise that resolves when the onramp flow completes successfully.
    * @throws {TurnkeyError} If initialization fails, polling fails, or the user cancels the process.

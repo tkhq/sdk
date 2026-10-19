@@ -9,7 +9,7 @@ import type {
 import { BaseButton } from "../design/Buttons";
 import { CoinbaseLogo, MoonPayLogo } from "../design/Svg";
 import { useSupportedAssets } from "../../providers/SupportedAssetsProvider";
-import { tokenSymbol } from "./tokenSymbol";
+import { tokenSymbol } from "../../utils/onramp";
 
 const providerNames = {
   FIAT_ON_RAMP_PROVIDER_COINBASE: "Coinbase",

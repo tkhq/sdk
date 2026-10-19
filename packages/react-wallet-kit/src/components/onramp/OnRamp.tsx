@@ -37,6 +37,10 @@ export function OnRampPage(props: OnRampAmountProps) {
                 walletAccount={props.walletAccount}
                 lockedCaip19={props.lockedCaip19}
                 lockedCaip2={props.lockedCaip2}
+                rpcUrl={props.rpcUrl}
+                successPageDuration={props.successPageDuration}
+                onSuccess={props.onSuccess}
+                onError={props.onError}
               />
             ),
           },
