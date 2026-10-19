@@ -13,12 +13,23 @@ function fallbackTokenSymbol(token: OnRampCaip19): string {
   return "USDC";
 }
 
+export function tokenMetadata(
+  token: OnRampCaip19,
+  assetsByCaip2: Record<string, v1AssetMetadata[]>,
+): v1AssetMetadata | undefined {
+  return assetsByCaip2[caip2Of(token)]?.find((asset) => asset.caip19 === token);
+}
+
 export function tokenSymbol(
   token: OnRampCaip19,
   assetsByCaip2: Record<string, v1AssetMetadata[]>,
 ) {
-  return (
-    assetsByCaip2[caip2Of(token)]?.find((asset) => asset.caip19 === token)
-      ?.symbol || fallbackTokenSymbol(token)
-  );
+  return tokenMetadata(token, assetsByCaip2)?.symbol || fallbackTokenSymbol(token);
+}
+
+export function tokenDecimals(
+  token: OnRampCaip19,
+  assetsByCaip2: Record<string, v1AssetMetadata[]>,
+): number {
+  return tokenMetadata(token, assetsByCaip2)?.decimals ?? 6;
 }

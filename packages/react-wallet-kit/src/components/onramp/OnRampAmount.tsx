@@ -3,7 +3,6 @@ import clsx from "clsx";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
-  OnRampCaip19Values,
   TGetFiatOnRampQuoteBody,
   type OnRampCaip19,
   type OnRampCaip2,
@@ -20,35 +19,9 @@ import { FiatAmountInput } from "./FiatAmountInput";
 import { PaymentMethodSelect } from "./PaymentMethods";
 import { QuoteDetails } from "./QuoteDetails";
 import { OnRampStatusPage } from "./OnRampStatus";
+import { onRampTokensForAccount } from "./onRampTokens";
 import { rankQuotes } from "./rankQuotes";
 import { TokenSelect } from "./TokenSelect";
-
-function caip2Of(token: OnRampCaip19): string {
-  return token.slice(0, token.indexOf("/"));
-}
-
-function onRampTokensForAccount(
-  walletAccount?: WalletAccount | undefined,
-  locked?: {
-    caip19?: OnRampCaip19 | undefined;
-    caip2?: OnRampCaip2 | undefined;
-  },
-): OnRampCaip19[] {
-  if (locked?.caip19) return [locked.caip19];
-
-  let tokens: readonly OnRampCaip19[] = OnRampCaip19Values;
-  if (walletAccount?.addressFormat === "ADDRESS_FORMAT_ETHEREUM") {
-    tokens = tokens.filter((token) => caip2Of(token).startsWith("eip155:"));
-  } else if (walletAccount?.addressFormat === "ADDRESS_FORMAT_SOLANA") {
-    tokens = tokens.filter((token) => caip2Of(token).startsWith("solana:"));
-  }
-
-  if (locked?.caip2) {
-    tokens = tokens.filter((token) => caip2Of(token) === locked.caip2);
-  }
-
-  return [...tokens];
-}
 
 export type OnRampAmountProps = {
   lockedCaip19?: OnRampCaip19 | undefined;
@@ -57,6 +30,8 @@ export type OnRampAmountProps = {
   paymentMethod?: v1FiatOnRampPaymentMethod | undefined;
   fiatCurrencyCode?: v1FiatOnRampCurrency | undefined;
   defaultFiatCurrencyAmount?: string | undefined;
+  countryCode?: string | undefined;
+  countrySubdivisionCode?: string | undefined;
   sandboxMode?: boolean | undefined;
   organizationId?: string | undefined;
   stampWith?: StamperType | undefined;
@@ -74,6 +49,8 @@ export function OnRampAmount(props: OnRampAmountProps) {
     paymentMethod: initialPaymentMethod,
     fiatCurrencyCode,
     defaultFiatCurrencyAmount,
+    countryCode,
+    countrySubdivisionCode,
     sandboxMode,
     organizationId,
     stampWith,
@@ -141,11 +118,10 @@ export function OnRampAmount(props: OnRampAmountProps) {
         fiatAmount: amount,
         fiatCurrencyCode: currency,
         caip19: token,
-        // TODO (Amir): Figure out if we can / should hardocde the country or ask the user to pass it in
-        countryCode: "US",
-        countrySubdivisionCode: "NY",
         sandboxMode: sandboxMode ?? false,
         ...(organizationId ? { organizationId } : {}),
+        ...(countryCode ? { countryCode } : {}),
+        ...(countrySubdivisionCode ? { countrySubdivisionCode } : {}),
       } as TGetFiatOnRampQuoteBody;
       const pending = stampWith
         ? httpClient.getFiatOnRampQuote(request, stampWith)
@@ -180,6 +156,8 @@ export function OnRampAmount(props: OnRampAmountProps) {
     };
   }, [
     amount,
+    countryCode,
+    countrySubdivisionCode,
     currency,
     httpClient,
     organizationId,
