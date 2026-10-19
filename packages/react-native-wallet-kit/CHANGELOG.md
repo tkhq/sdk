@@ -1,5 +1,20 @@
 # @turnkey/react-native-wallet-kit
 
+## 2.5.0
+
+### Minor Changes
+
+- [#1612](https://github.com/tkhq/sdk/pull/1612) [`634ad6c`](https://github.com/tkhq/sdk/commit/634ad6c6134381ca669c6e9dc483418b42a09b75) Author [@moeodeh3](https://github.com/moeodeh3) - - Added external wallet support via WalletConnect. Pass a `walletConfig` to `TurnkeyProvider` to log in or sign up with an external wallet (Ethereum and Solana), or connect one to an existing account
+  - Added `walletProviders`, `connectWalletAccount`, `disconnectWalletAccount`, `loginOrSignupWithWallet` and the other wallet methods to `useTurnkey()`
+  - Added `createSuborgParams.walletAuth` to customize sub-orgs created through wallet signup
+  - Added `buildWalletConnectAppEntries`, which returns the WalletConnect wallet apps that can be opened on mobile
+  - Activity errors are now rethrown as is instead of being wrapped in a generic `TurnkeyError`, matching `@turnkey/react-wallet-kit`
+
+### Patch Changes
+
+- Updated dependencies [[`634ad6c`](https://github.com/tkhq/sdk/commit/634ad6c6134381ca669c6e9dc483418b42a09b75)]:
+  - @turnkey/core@2.13.1
+
 ## 2.4.0
 
 ### Minor Changes

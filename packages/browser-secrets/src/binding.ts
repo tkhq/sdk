@@ -10,6 +10,7 @@ import {
   BINDING_KEY_PREFIX,
   BINDING_KEYS,
   type BindingErrorCode,
+  type BindingProvenance,
   type ParsedBinding,
   type SecretBinding,
   type SecretRef,
@@ -139,6 +140,8 @@ export type SecretMetadata = {
   secretId: string;
   name?: string | undefined;
   staticProperties?: Record<string, string> | undefined;
+  source?: string | undefined;
+  bindingProvenance?: BindingProvenance | undefined;
 };
 
 /**
@@ -154,6 +157,10 @@ export function createSecretRef(metadata: SecretMetadata): SecretRef {
   return Object.freeze({
     secretId: metadata.secretId,
     ...(metadata.name !== undefined ? { name: metadata.name } : {}),
+    ...(metadata.source !== undefined ? { source: metadata.source } : {}),
+    ...(metadata.bindingProvenance !== undefined
+      ? { bindingProvenance: metadata.bindingProvenance }
+      : {}),
     staticProperties,
     ...(parsed.status === "bound" ? { binding: parsed.binding } : {}),
     ...(parsed.status === "invalid" ? { bindingError: parsed.error } : {}),

@@ -69,6 +69,26 @@ export type RedactionRegistryOptions = {
   minValueLength?: number;
   /** Builds the replacement text. Default: `[REDACTED:<secretId>]`. */
   marker?: (secretIds: readonly string[]) => string;
+  /** Clock for value expiry, in epoch milliseconds. Default: `Date.now`. */
+  now?: () => number;
+};
+
+/** One value to register. */
+export type RedactionValue = {
+  readonly value: string;
+  readonly secretId: string;
+  /**
+   * Epoch milliseconds after which the value stops matching, for
+   * short-lived values such as one-time codes. Omitted means it matches
+   * until released. A value registered both with and without an expiry
+   * never expires; two expiries keep the later one. An expiry that is not
+   * a number, is NaN, or is already past (for example epoch seconds read
+   * as milliseconds) counts as no expiry, so a bad expiry never stops a
+   * value from being redacted. Set it to the end of the window in which
+   * a verifier still accepts the code, not to when the code was shown:
+   * TOTP verifiers commonly accept one earlier step.
+   */
+  readonly expiresAt?: number;
 };
 
 /** A registered value found in a text: the span it covers and its secrets. */
@@ -329,6 +349,11 @@ export class RedactionRegistry {
   #targets = new Map<string, Set<string>>();
   /** document key -> target keys, for release on document replacement. */
   #targetsByDocument = new Map<string, Set<string>>();
+  /** secret ID -> registered value -> expiry (Infinity for none). */
+  #expiry = new Map<string, Map<string, number>>();
+  /** Earliest finite expiry, or Infinity. */
+  #nextExpiry = Infinity;
+  #now: () => number;
   /** Compiled scan list, rebuilt lazily after a change. */
   #compiled: Compiled | undefined;
 
@@ -336,6 +361,7 @@ export class RedactionRegistry {
     this.#encodedVariants = options.encodedVariants ?? true;
     this.#minValueLength = options.minValueLength ?? DEFAULT_MIN_VALUE_LENGTH;
     this.#marker = options.marker ?? defaultMarker;
+    this.#now = options.now ?? Date.now;
   }
 
   /**
@@ -343,8 +369,12 @@ export class RedactionRegistry {
    * memory. Returns false when the value is shorter than `minValueLength`
    * and so is not text-scanned.
    */
-  registerValue(value: string, secretId: string): boolean {
-    return this.registerValues([{ value, secretId }]).length === 0;
+  registerValue(
+    value: string,
+    secretId: string,
+    options: { readonly expiresAt?: number } = {},
+  ): boolean {
+    return this.registerValues([{ value, secretId, ...options }]).length === 0;
   }
 
   /**
@@ -353,16 +383,26 @@ export class RedactionRegistry {
    * which are not text-scanned. Hosts should keep such values out of
    * agent-visible text paths by other means.
    */
-  registerValues(
-    entries: readonly { readonly value: string; readonly secretId: string }[],
-  ): string[] {
+  registerValues(entries: readonly RedactionValue[]): string[] {
+    return this.#register(entries, this.#now());
+  }
+
+  /** `registerValues` at a given clock reading, so `#sweep` can pass its own. */
+  #register(entries: readonly RedactionValue[], now: number): string[] {
     const skipped = new Set<string>();
-    for (const { value, secretId } of entries) {
+    for (const { value, secretId, expiresAt: rawExpiry } of entries) {
       if (typeof value !== "string" || value.length === 0) continue;
       if (value.length < this.#minValueLength) {
         skipped.add(secretId);
         continue;
       }
+      // An invalid or past expiry fails closed: the value never expires.
+      const expiresAt =
+        typeof rawExpiry === "number" && rawExpiry > now ? rawExpiry : Infinity;
+      let byValue = this.#expiry.get(secretId);
+      if (!byValue) this.#expiry.set(secretId, (byValue = new Map()));
+      byValue.set(value, Math.max(byValue.get(value) ?? 0, expiresAt));
+      this.#nextExpiry = Math.min(this.#nextExpiry, expiresAt);
       const forms = this.#encodedVariants
         ? [value, ...encodedForms(value)]
         : [value];
@@ -439,6 +479,19 @@ export class RedactionRegistry {
 
   /** Drops every value and target registered for a secret. */
   releaseSecret(secretId: string): void {
+    this.#releaseValues(secretId);
+    this.#expiry.delete(secretId);
+    for (const [key, ids] of this.#targets) {
+      ids.delete(secretId);
+      if (ids.size === 0) this.#targets.delete(key);
+    }
+    for (const [doc, keys] of this.#targetsByDocument) {
+      for (const key of keys) if (!this.#targets.has(key)) keys.delete(key);
+      if (keys.size === 0) this.#targetsByDocument.delete(doc);
+    }
+  }
+
+  #releaseValues(secretId: string): void {
     for (const form of this.#valuesBySecret.get(secretId) ?? []) {
       const ids = this.#values.get(form);
       ids?.delete(secretId);
@@ -451,15 +504,40 @@ export class RedactionRegistry {
       if (ids && ids.size === 0) this.#looseValues.delete(form);
     }
     this.#looseBySecret.delete(secretId);
-    for (const [key, ids] of this.#targets) {
-      ids.delete(secretId);
-      if (ids.size === 0) this.#targets.delete(key);
-    }
-    for (const [doc, keys] of this.#targetsByDocument) {
-      for (const key of keys) if (!this.#targets.has(key)) keys.delete(key);
-      if (keys.size === 0) this.#targetsByDocument.delete(doc);
-    }
     this.#compiled = undefined;
+  }
+
+  /**
+   * Drops expired values. A secret with an expired value is released and
+   * its live values are registered again, so a form it shares with a live
+   * value keeps matching. Target tags do not expire.
+   */
+  #sweep(): void {
+    const now = this.#now();
+    // A clock that returns NaN, Infinity, or a non-number must not drop
+    // anything. Every comparison with NaN is false, so a plain `<` test
+    // would run the sweep and treat every value as expired; Infinity is past
+    // even a never-expiring value. Keep the values until the clock reads a
+    // finite number again.
+    if (!(Number.isFinite(now) && now >= this.#nextExpiry)) return;
+    this.#nextExpiry = Infinity;
+    for (const [secretId, byValue] of [...this.#expiry]) {
+      const live = [...byValue].filter(([, at]) => at > now);
+      if (live.length === byValue.size) {
+        for (const [, at] of live) {
+          this.#nextExpiry = Math.min(this.#nextExpiry, at);
+        }
+        continue;
+      }
+      this.#releaseValues(secretId);
+      this.#expiry.delete(secretId);
+      // The same `now` as the filter above. A second clock read could pass
+      // a live expiry, which would then count as no expiry at all.
+      this.#register(
+        live.map(([value, expiresAt]) => ({ value, secretId, expiresAt })),
+        now,
+      );
+    }
   }
 
   /** Serializes to counts only, never to values or target IDs. */
@@ -480,11 +558,14 @@ export class RedactionRegistry {
     this.#looseBySecret.clear();
     this.#targets.clear();
     this.#targetsByDocument.clear();
+    this.#expiry.clear();
+    this.#nextExpiry = Infinity;
     this.#compiled = undefined;
   }
 
   /** Number of distinct exact scan strings, including encoded forms. */
   get valueCount(): number {
+    this.#sweep();
     return this.#values.size;
   }
 
@@ -493,6 +574,7 @@ export class RedactionRegistry {
   }
 
   #patterns(): Compiled {
+    this.#sweep();
     return (this.#compiled ??= compile(this.#values, this.#looseValues));
   }
 
