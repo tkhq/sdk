@@ -4,9 +4,9 @@ This example demonstrates programmatic API key storage with Turnkey secrets, fol
 
 - Creating a trading service user with its own API key
 - Importing an API key as a secret, with policy-visible static properties bound at import time
-- Creating a policy that scopes retrieval of trade-only exchange keys to that service user
+- Creating a policy that scopes retrieval of trade-only exchange keys to that service user, for the environment its request context names
 - Listing the organization's secrets (metadata only)
-- Retrieving the plaintext at runtime with `exportSecret`, as the service user, with a `requestContext` claim bound into the signed request for audit
+- Retrieving the plaintext at runtime with `exportSecret`, as the service user, with a `requestContext` that the policy checks
 
 For a multi-party retrieval flow where two agents approve the same export in parallel, see the [`programmable-credential-access`](../programmable-credential-access/) example.
 

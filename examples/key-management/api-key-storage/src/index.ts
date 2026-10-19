@@ -69,7 +69,9 @@ async function main() {
   console.log(`Imported secret with id: ${secretId}`);
 
   // 2/ Gate retrieval with a policy: only this service user may export
-  // trade-only exchange keys.
+  // trade-only exchange keys, and only for the environment its request
+  // context says it runs in. The service asserts its own environment, so this
+  // guards against misconfiguration rather than acting as access control.
   const { policyId } = await apiClient.createPolicy({
     policyName: `Trading service can retrieve trade-only exchange keys (${suffix})`,
     effect: "EFFECT_ALLOW",
@@ -77,7 +79,8 @@ async function main() {
     condition:
       `secret.static_properties['kind'] == 'exchangeApiKey' && ` +
       `secret.static_properties['permissions'] == 'trade' && ` +
-      `activity.type == 'ACTIVITY_TYPE_EXPORT_SECRETS'`,
+      `activity.type == 'ACTIVITY_TYPE_EXPORT_SECRETS' && ` +
+      `request_context['environment'] == secret.static_properties['environment']`,
     notes:
       "Scopes retrieval of trade-only exchange keys to the trading service",
   });
@@ -96,11 +99,11 @@ async function main() {
   // 4/ Retrieve the credential at runtime, as the trading service user the
   // policy authorizes. exportSecret generates an ephemeral P-256 keypair,
   // submits the export activity, and decrypts the payload into this process's
-  // memory only. The request context is bound into the signed request for
-  // policy and audit.
+  // memory only. The request context is bound into the signed request, where
+  // the policy checks it.
   const exported = await tradingService.exportSecret({
     secretId,
-    requestContext: { purpose: "order-routing" },
+    requestContext: { environment: "production" },
   });
   if (exported !== emsJwt) {
     throw new Error("Exported plaintext does not match the imported value");
