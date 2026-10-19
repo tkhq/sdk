@@ -1,4 +1,7 @@
-import { faChevronRight, faCreditCard } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronRight,
+  faCreditCard,
+} from "@fortawesome/free-solid-svg-icons";
 import { faApple, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
@@ -11,21 +14,25 @@ import { ActionButton } from "../design/Buttons";
 const paymentMethods: {
   method: v1FiatOnRampPaymentMethod;
   label: string;
+  description: string;
   icon: IconDefinition;
 }[] = [
   {
     method: "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD",
     label: "Card",
+    description: "Directly enter your debit or credit card details",
     icon: faCreditCard,
   },
   {
     method: "FIAT_ON_RAMP_PAYMENT_METHOD_APPLE_PAY",
     label: "Apple Pay",
+    description: "Use your Apple Wallet to pay",
     icon: faApple,
   },
   {
     method: "FIAT_ON_RAMP_PAYMENT_METHOD_GOOGLE_PAY",
     label: "Google Pay",
+    description: "Use your Google Wallet to pay",
     icon: faGoogle,
   },
 ];
@@ -51,7 +58,13 @@ function PaymentMethodButton(props: {
       <span className="flex size-6 shrink-0 items-center justify-center">
         <FontAwesomeIcon icon={option.icon} className="size-4 text-xl" />
       </span>
-      <span>{option.label}</span>
+      <span className="flex flex-col items-start">
+        <span>{option.label}</span>
+
+        <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
+          {option.description}
+        </span>
+      </span>
       <FontAwesomeIcon
         className={clsx(
           "absolute transition-all duration-200 text-icon-text-light dark:text-icon-text-dark",

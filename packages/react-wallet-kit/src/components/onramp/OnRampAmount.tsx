@@ -3,7 +3,7 @@ import clsx from "clsx";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
-  TGetFiatOnRampQuoteBody,
+  type TGetFiatOnRampQuoteBody,
   type OnRampCaip19,
   type OnRampCaip2,
   type StamperType,
@@ -14,13 +14,12 @@ import {
 } from "@turnkey/core";
 import { useTurnkey } from "../../providers/client/Hook";
 import { useModal } from "../../providers/modal/Hook";
+import { onRampTokensForAccount, rankQuotes } from "../../utils/onramp";
 import { ActionButton } from "../design/Buttons";
 import { FiatAmountInput } from "./FiatAmountInput";
 import { PaymentMethodSelect } from "./PaymentMethods";
 import { QuoteDetails } from "./QuoteDetails";
 import { OnRampStatusPage } from "./OnRampStatus";
-import { onRampTokensForAccount } from "./onRampTokens";
-import { rankQuotes } from "./rankQuotes";
 import { TokenSelect } from "./TokenSelect";
 
 export type OnRampAmountProps = {
@@ -37,6 +36,7 @@ export type OnRampAmountProps = {
   stampWith?: StamperType | undefined;
   openInNewTab?: boolean | undefined;
   successPageDuration?: number | undefined;
+  rpcUrl?: string | undefined;
   onSuccess?: (() => void) | undefined;
   onError?: ((error: unknown) => void) | undefined;
 };
@@ -60,7 +60,7 @@ export function OnRampAmount(props: OnRampAmountProps) {
     onError,
   } = props;
   const { httpClient } = useTurnkey();
-  const { isMobile, pushPage, closeModal } = useModal();
+  const { isMobile, pushPage } = useModal();
   const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethod);
   const [currency, setCurrency] = useState<v1FiatOnRampCurrency>(
     fiatCurrencyCode ?? "FIAT_ON_RAMP_CURRENCY_USD",
@@ -72,6 +72,8 @@ export function OnRampAmount(props: OnRampAmountProps) {
   >(undefined);
   const [fetchingQuotes, setFetchingQuotes] = useState(false);
   const [creatingSession, setCreatingSession] = useState(false);
+  const [error, setError] = useState(false);
+  const [shaking, setShaking] = useState(false);
   const tokens = useMemo(
     () =>
       onRampTokensForAccount(walletAccount, {
@@ -167,6 +169,10 @@ export function OnRampAmount(props: OnRampAmountProps) {
     token,
   ]);
 
+  useEffect(() => {
+    setError(false);
+  }, [amount, token, selectedQuote]);
+
   const tokenAmount =
     selectedQuote && selectedQuote.caip19 === token
       ? selectedQuote.cryptoAmount.display
@@ -186,17 +192,20 @@ export function OnRampAmount(props: OnRampAmountProps) {
         : "popup,width=500,height=700,scrollbars=yes,resizable=yes",
     );
     if (!widget) {
+      setError(true);
+      setShaking(true);
+      setTimeout(() => setShaking(false), 250);
       onError?.(
         new TurnkeyError(
           "Failed to open the onramp widget.",
           TurnkeyErrorCodes.BAD_RESPONSE,
         ),
       );
-      closeModal();
       return;
     }
 
     setCreatingSession(true);
+    setError(false);
     try {
       const request = {
         quoteId: selectedQuote.quoteId,
@@ -225,10 +234,12 @@ export function OnRampAmount(props: OnRampAmountProps) {
           />
         ),
       });
-    } catch (error) {
+    } catch (caught) {
       widget.close();
-      onError?.(error);
-      closeModal();
+      setError(true);
+      setShaking(true);
+      setTimeout(() => setShaking(false), 250);
+      onError?.(caught);
     } finally {
       setCreatingSession(false);
     }
@@ -237,7 +248,7 @@ export function OnRampAmount(props: OnRampAmountProps) {
   return (
     <div
       className={clsx(
-        "flex flex-col items-center justify-center gap-4 py-4 transition-all duration-300 text-center",
+        "relative flex flex-col items-center justify-center gap-4 py-4 transition-all duration-300 text-center",
         isMobile ? "w-full" : "w-96",
       )}
     >
@@ -278,11 +289,25 @@ export function OnRampAmount(props: OnRampAmountProps) {
           onClick={handleContinue}
           disabled={fetchingQuotes || !selectedQuote || !walletAccount}
           loading={creatingSession}
-          className="w-full bg-primary-light text-primary-text-light dark:bg-primary-dark dark:text-primary-text-dark"
+          className={clsx(
+            "w-full bg-primary-light text-primary-text-light dark:bg-primary-dark dark:text-primary-text-dark",
+            shaking && "animate-shake",
+          )}
           spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         >
           Continue
         </ActionButton>
+        <p
+          data-testid="onramp-error"
+          className={clsx(
+            "text-sm text-red-500 transition-opacity delay-75 line-clamp-2 w-full",
+            error
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none absolute",
+          )}
+        >
+          Unable to start this purchase
+        </p>
         {sandboxMode && (
           <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
             Sandbox mode enabled. No real funds will be used.

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useTurnkey } from "../../providers/client/Hook";
 import { useModal } from "../../providers/modal/Hook";
 import { ActionPage } from "../auth/Action";
@@ -9,24 +10,38 @@ import { isWalletConnect } from "../../utils/utils";
 import clsx from "clsx";
 import {
   Chain,
-  WalletSource,
-  type ConnectedWallet,
   type OnRampCaip19,
   type OnRampCaip2,
   type WalletAccount,
   type WalletProvider,
 } from "@turnkey/core";
+import {
+  accountsForProvider,
+  OnRampExternalAccountSelector,
+} from "./OnRampExternalAccountSelector";
 import { OnRampCryptoSend } from "./OnRampCryptoSend";
 
 export type OnRampExternalWalletProps = {
   walletAccount?: WalletAccount | undefined;
   lockedCaip19?: OnRampCaip19 | undefined;
   lockedCaip2?: OnRampCaip2 | undefined;
+  rpcUrl?: string | undefined;
+  successPageDuration?: number | undefined;
+  onSuccess?: (() => void) | undefined;
+  onError?: ((error: unknown) => void) | undefined;
 };
 
 export function OnRampExternalWallet(props: OnRampExternalWalletProps) {
-  const { walletAccount, lockedCaip19, lockedCaip2 } = props;
-  const { pushPage, popToPage, isMobile } = useModal();
+  const {
+    walletAccount,
+    lockedCaip19,
+    lockedCaip2,
+    rpcUrl,
+    successPageDuration,
+    onSuccess,
+    onError,
+  } = props;
+  const { pushPage, popPage, popToPage, isMobile } = useModal();
   const { walletProviders, wallets, connectWalletAccount } = useTurnkey();
   const chain = chainForAccount(walletAccount);
 
@@ -51,6 +66,10 @@ export function OnRampExternalWallet(props: OnRampExternalWalletProps) {
           walletAccount={walletAccount}
           lockedCaip19={lockedCaip19}
           lockedCaip2={lockedCaip2}
+          rpcUrl={rpcUrl}
+          successPageDuration={successPageDuration}
+          onSuccess={onSuccess}
+          onError={onError}
         />
       ),
     });
@@ -67,7 +86,36 @@ export function OnRampExternalWallet(props: OnRampExternalWalletProps) {
           externalAccount={externalAccount}
           lockedCaip19={lockedCaip19}
           lockedCaip2={lockedCaip2}
+          rpcUrl={rpcUrl}
+          successPageDuration={successPageDuration}
+          onSuccess={onSuccess}
+          onError={onError}
           onChangeWallet={openWalletList}
+        />
+      ),
+    });
+  };
+
+  const openAccounts = (provider: WalletProvider) => {
+    const current =
+      walletProviders.find(
+        (item) =>
+          item.info.name === provider.info.name &&
+          item.chainInfo.namespace === provider.chainInfo.namespace,
+      ) ?? provider;
+    const accounts = accountsForProvider(wallets, current);
+    if (accounts.length === 1 && accounts[0]) {
+      openSend(current, accounts[0]);
+      return;
+    }
+
+    popToPage("Select wallet provider");
+    pushPage({
+      key: "Select account",
+      content: (
+        <OnRampExternalAccountSelector
+          provider={provider}
+          onSelect={openSend}
         />
       ),
     });
@@ -88,8 +136,8 @@ export function OnRampExternalWallet(props: OnRampExternalWalletProps) {
             />
           }
           action={async () => {
-            const account = await connectWalletAccount(provider);
-            openSend(provider, account);
+            await connectWalletAccount(provider);
+            openAccounts(provider);
           }}
         />
       ),
@@ -98,8 +146,8 @@ export function OnRampExternalWallet(props: OnRampExternalWalletProps) {
 
   const openWalletConnect = (provider: WalletProvider) => {
     const connectAndSend = async (selected: WalletProvider) => {
-      const account = await connectWalletAccount(selected);
-      openSend(selected, account);
+      await connectWalletAccount(selected);
+      openAccounts(selected);
     };
 
     const pushQr = (
@@ -157,9 +205,8 @@ export function OnRampExternalWallet(props: OnRampExternalWalletProps) {
   };
 
   const selectProvider = (provider: WalletProvider) => {
-    const existing = connectedAccount(wallets, provider);
-    if (existing) {
-      openSend(provider, existing);
+    if (provider.connectedAddresses.length > 0) {
+      openAccounts(provider);
       return;
     }
 
@@ -170,6 +217,20 @@ export function OnRampExternalWallet(props: OnRampExternalWalletProps) {
 
     connectThenSend(provider);
   };
+
+  const groups = Object.values(grouped);
+  const onlyProvider = groups.length === 1 ? groups[0]?.[0] : undefined;
+  const didAutoSelect = useRef(false);
+
+  useEffect(() => {
+    if (didAutoSelect.current || !onlyProvider) return;
+    didAutoSelect.current = true;
+    // Drop this page so Back does not return to a one-item list.
+    popPage();
+    selectProvider(onlyProvider);
+  }, [onlyProvider, popPage, selectProvider]);
+
+  if (onlyProvider) return null;
 
   if (Object.keys(grouped).length === 0) {
     return (
@@ -225,15 +286,3 @@ function chainForAccount(account?: WalletAccount | undefined): Chain | undefined
   return undefined;
 }
 
-function connectedAccount(
-  wallets: { source: WalletSource; accounts: WalletAccount[] }[],
-  provider: WalletProvider,
-): WalletAccount | undefined {
-  const address = provider.connectedAddresses[0]?.toLowerCase();
-  if (!address) return undefined;
-
-  return wallets
-    .filter((wallet): wallet is ConnectedWallet => wallet.source === WalletSource.Connected)
-    .flatMap((wallet) => wallet.accounts)
-    .find((account) => account.address.toLowerCase() === address);
-}

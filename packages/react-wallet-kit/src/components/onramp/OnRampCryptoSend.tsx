@@ -1,4 +1,9 @@
-import { faChevronRight, faWallet } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faChevronRight,
+  faCopy,
+  faWallet,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
@@ -8,17 +13,26 @@ import type {
   WalletAccount,
   WalletProvider,
 } from "@turnkey/core";
+import { useTurnkey } from "../../providers/client/Hook";
 import { useModal } from "../../providers/modal/Hook";
+import { useSupportedAssets } from "../../providers/SupportedAssetsProvider";
+import {
+  buildOnRampCryptoTransfer,
+  buildUnsignedOnRampTransaction,
+  caip2Of,
+  evmChainId,
+  isUserRejected,
+  onRampTokensForAccount,
+  switchSelectedEthereumChain,
+  tokenDecimals,
+} from "../../utils/onramp";
 import { ActionButton } from "../design/Buttons";
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
 import { CryptoAmountInput } from "./CryptoAmountInput";
-import { onRampTokensForAccount } from "./onRampTokens";
-import { caip2Of } from "./tokenSymbol";
+import { OnRampCryptoStatus } from "./OnRampCryptoStatus";
 
 const partyLabelClassName =
   "px-1 text-xs font-medium text-icon-text-light dark:text-icon-text-dark";
-const partyBoxClassName =
-  "box-border! flex w-full items-center gap-2 rounded-md border border-modal-background-dark/15 bg-button-light px-4 py-3 text-inherit dark:border-modal-background-light/15 dark:bg-button-dark";
 
 export type OnRampCryptoSendProps = {
   destination?: WalletAccount | undefined;
@@ -26,6 +40,10 @@ export type OnRampCryptoSendProps = {
   externalAccount: WalletAccount;
   lockedCaip19?: OnRampCaip19 | undefined;
   lockedCaip2?: OnRampCaip2 | undefined;
+  rpcUrl?: string | undefined;
+  successPageDuration?: number | undefined;
+  onSuccess?: (() => void) | undefined;
+  onError?: ((error: unknown) => void) | undefined;
   onChangeWallet: () => void;
 };
 
@@ -36,10 +54,20 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
     externalAccount,
     lockedCaip19,
     lockedCaip2,
+    rpcUrl,
+    onSuccess,
+    onError,
     onChangeWallet,
   } = props;
-  const { isMobile } = useModal();
+  const { pushPage, isMobile } = useModal();
+  const { signAndSendTransaction } = useTurnkey();
+  const { assetsByCaip2 } = useSupportedAssets();
   const [isHoveringFrom, setIsHoveringFrom] = useState(false);
+  const [isHoveringTo, setIsHoveringTo] = useState(false);
+  const [showCopied, setShowCopied] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [shaking, setShaking] = useState(false);
   const tokens = useMemo(
     () =>
       onRampTokensForAccount(destination, {
@@ -63,12 +91,87 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
     }
   }, [lockedCaip19, token, tokens]);
 
+  useEffect(() => {
+    setError(null);
+  }, [amount, token]);
+
   const ChainLogo = isSolanaChain(destination, token) ? SolanaLogo : EthereumLogo;
+  const preparedTransfer = useMemo(() => {
+    if (!token || !destination) return undefined;
+    try {
+      return buildOnRampCryptoTransfer({
+        token,
+        amount,
+        decimals: tokenDecimals(token, assetsByCaip2),
+        from: externalAccount,
+        to: destination,
+      });
+    } catch {
+      return undefined;
+    }
+  }, [amount, assetsByCaip2, destination, externalAccount, token]);
+
+  const send = async () => {
+    if (!preparedTransfer || sending) return;
+    setSending(true);
+    setError(null);
+    try {
+      const provider = externalWallet.provider;
+      if (preparedTransfer.transactionType === "TRANSACTION_TYPE_ETHEREUM") {
+        const chainId = Number(preparedTransfer.caip2.slice("eip155:".length));
+        if (evmChainId(externalWallet.chainInfo) !== chainId) {
+          await switchSelectedEthereumChain(provider, `0x${chainId.toString(16)}`);
+        }
+      }
+
+      const unsignedTransaction = await buildUnsignedOnRampTransaction({
+        transfer: preparedTransfer,
+        provider,
+        rpcUrl,
+      });
+      const transactionId = await signAndSendTransaction({
+        walletAccount: externalAccount,
+        unsignedTransaction,
+        transactionType: preparedTransfer.transactionType,
+        ...(rpcUrl ? { rpcUrl } : {}),
+      });
+
+      pushPage({
+        key: "Sending",
+        showTitle: false,
+        content: (
+          <OnRampCryptoStatus
+            chain={
+              preparedTransfer.transactionType === "TRANSACTION_TYPE_SOLANA"
+                ? "solana"
+                : "ethereum"
+            }
+            caip2={preparedTransfer.caip2}
+            transactionId={transactionId}
+            provider={provider}
+            rpcUrl={rpcUrl}
+            iconUrl={externalWallet.info.icon}
+            onSuccess={onSuccess ?? (() => undefined)}
+            onError={onError ?? (() => undefined)}
+          />
+        ),
+      });
+    } catch (caught) {
+      if (!isUserRejected(caught)) {
+        setError(sendErrorMessage(caught));
+        setShaking(true);
+        setTimeout(() => setShaking(false), 250);
+      }
+      onError?.(caught);
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div
       className={clsx(
-        "flex flex-col items-center justify-center gap-4 py-4 text-center",
+        "relative flex flex-col items-center justify-center gap-4 py-4 text-center",
         isMobile ? "w-full" : "w-96",
       )}
     >
@@ -117,7 +220,24 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
 
         <div className="flex flex-col gap-1">
           <div className={partyLabelClassName}>To</div>
-          <div className={partyBoxClassName}>
+          <ActionButton
+            name="onramp-crypto-to"
+            disabled={!destination}
+            onClick={() => {
+              if (!destination) return;
+              setShowCopied(true);
+              void navigator.clipboard.writeText(destination.address);
+              setTimeout(() => setShowCopied(false), 1500);
+            }}
+            {...(!isMobile && {
+              onMouseEnter: () => setIsHoveringTo(true),
+              onMouseLeave: () => setIsHoveringTo(false),
+            })}
+            className={clsx(
+              "relative flex w-full items-center gap-2 bg-button-light text-inherit dark:bg-button-dark",
+              showCopied ? "overflow-visible" : "overflow-hidden",
+            )}
+          >
             <span className="relative flex size-6 shrink-0 items-center justify-center">
               <FontAwesomeIcon icon={faWallet} className="size-4" />
               <span className="absolute -right-1.5 -bottom-1 flex size-3.5 items-center justify-center rounded-full bg-button-light dark:bg-button-dark">
@@ -127,18 +247,83 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
             <span className="text-sm">
               {destination ? truncateAddress(destination.address) : ""}
             </span>
-          </div>
+            <div
+              className={clsx(
+                "absolute transition-all duration-200",
+                isHoveringTo || showCopied || isMobile ? "right-4" : "-right-4",
+              )}
+            >
+              <div className="relative">
+                <FontAwesomeIcon
+                  icon={showCopied ? faCheck : faCopy}
+                  className={clsx(
+                    "transition-colors",
+                    showCopied
+                      ? "text-success-light dark:text-success-dark"
+                      : "text-icon-text-light dark:text-icon-text-dark",
+                  )}
+                />
+                {showCopied && (
+                  <FontAwesomeIcon
+                    icon={faCheck}
+                    className="absolute inset-0 m-auto text-success-light dark:text-success-dark animate-ping"
+                  />
+                )}
+              </div>
+            </div>
+          </ActionButton>
         </div>
       </div>
 
       <ActionButton
         name="onramp-crypto-continue"
-        className="w-full bg-primary-light text-primary-text-light dark:bg-primary-dark dark:text-primary-text-dark"
+        disabled={!preparedTransfer || sending}
+        loading={sending}
+        onClick={() => void send()}
+        spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
+        className={clsx(
+          "w-full bg-primary-light text-primary-text-light dark:bg-primary-dark dark:text-primary-text-dark",
+          shaking && "animate-shake",
+        )}
       >
         Continue
       </ActionButton>
+      <p
+        data-testid="onramp-crypto-error"
+        className={clsx(
+          "text-sm text-red-500 transition-opacity delay-75 line-clamp-2 w-full",
+          error
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none absolute",
+        )}
+      >
+        {error}
+      </p>
     </div>
   );
+}
+
+function sendErrorMessage(error: unknown) {
+  const messages: string[] = [];
+  const seen = new Set<unknown>();
+  let current: unknown = error;
+  while (current && typeof current === "object" && !seen.has(current)) {
+    seen.add(current);
+    const record = current as { message?: unknown; cause?: unknown };
+    if (typeof record.message === "string" && record.message.trim()) {
+      messages.push(record.message.trim());
+    }
+    current = record.cause;
+  }
+
+  if (messages.some((message) => /insufficient|out\s*of\s*funds/i.test(message))) {
+    return "Insufficient funds.";
+  }
+
+  const specific = [...messages]
+    .reverse()
+    .find((message) => !/^failed to /i.test(message));
+  return specific ?? "Unable to send this transfer.";
 }
 
 function truncateAddress(address: string) {

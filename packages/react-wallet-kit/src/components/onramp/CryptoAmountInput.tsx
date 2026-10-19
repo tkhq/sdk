@@ -2,9 +2,9 @@ import { Input } from "@headlessui/react";
 import type { OnRampCaip19 } from "@turnkey/core";
 import { useEffect, useMemo, useRef } from "react";
 import { useSupportedAssets } from "../../providers/SupportedAssetsProvider";
+import { caip2Of, tokenDecimals } from "../../utils/onramp";
 import { sanitizeAmount } from "./FiatAmountInput";
 import { TokenLogo, TokenSelect } from "./TokenSelect";
-import { caip2Of, tokenDecimals } from "./tokenSymbol";
 
 export type CryptoAmountInputProps = {
   value: string;

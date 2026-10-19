@@ -11,7 +11,7 @@ import clsx from "clsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSupportedAssets } from "../../providers/SupportedAssetsProvider";
 import { useScreenSize } from "../../utils/utils";
-import { caip2Of, tokenSymbol } from "./tokenSymbol";
+import { caip2Of, tokenSymbol } from "../../utils/onramp";
 
 type Placement = "top start" | "bottom start";
 const desiredPanelHeight = 288;
