@@ -45,21 +45,17 @@ export type SecretMetadata = {
   createdAtUnixMs: string;
 };
 
-/** Server-enforced limit on items in one `export_secrets` activity. */
-export const MAX_SECRETS_PER_EXPORT_ACTIVITY = 32;
-
 export type ExportSecretItem = {
   secretId: string;
   /**
    * Claims bound into the signed request for this secret only, for policy and
-   * audit. Never merged across items.
+   * audit. Serialized sorted by key, so the same context always produces the
+   * same body and fingerprint.
    */
   requestContext?: Record<string, string>;
 };
 
-export type ExportSecretsAndDecryptParams = {
-  /** 1 to 32 secrets, exported in one activity. IDs must be distinct. */
-  secrets: ExportSecretItem[];
+export type ExportSecretParams = ExportSecretItem & {
   organizationId?: string;
   timestampMs?: string;
   /** How long to wait for the activity to reach a terminal status. Defaults to 60s. */
@@ -69,9 +65,6 @@ export type ExportSecretsAndDecryptParams = {
   /** Override the signer public key used to verify enclave bundles. Testing only. */
   dangerouslyOverrideSignerPublicKey?: string;
 };
-
-export type ExportSecretParams = ExportSecretItem &
-  Omit<ExportSecretsAndDecryptParams, "secrets">;
 
 export type CreateExportSecretsProposalParams = {
   secrets: ExportSecretItem[];

@@ -6,8 +6,7 @@ This example demonstrates programmatic API key storage with Turnkey secrets, fol
 - Importing an API key as a secret, with policy-visible static properties bound at import time
 - Creating a policy that scopes retrieval of trade-only exchange keys to that service user
 - Listing the organization's secrets (metadata only)
-- Retrieving the plaintext at runtime with `exportSecret`, as the service user
-- Retrieving up to 32 plaintexts in one activity with `exportSecretsAndDecrypt`, attaching per-secret `requestContext` claims for audit. Authorization is all-or-nothing: either every secret is returned or none is. The decryption key exists only in memory, so plaintext cannot be recovered after an error.
+- Retrieving the plaintext at runtime with `exportSecret`, as the service user, with a `requestContext` claim bound into the signed request for audit
 
 For a multi-party retrieval flow where two agents approve the same export in parallel, see the [`programmable-credential-access`](../programmable-credential-access/) example.
 
@@ -52,4 +51,4 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm start
 ```
 
-The script creates the trading service user, imports a demo credential, creates the retrieval policy, lists the org's secrets, exports the credential as the service user, imports a backup credential, batch-exports both with `exportSecretsAndDecrypt` using per-secret `requestContext` claims, and verifies both round trips.
+The script creates the trading service user, imports a demo credential, creates the retrieval policy, lists the org's secrets, exports the credential as the service user, and verifies the round trip.
