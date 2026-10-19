@@ -126,6 +126,9 @@ export class TurnkeyServerSDK {
     });
   };
 
+  /**
+   * @deprecated Use apiClient directly instead. This method will be removed in a future release.
+   */
   apiProxy = async (methodName: string, params: any[]): Promise<any> => {
     const apiClient = this.apiClient();
     const method = apiClient[methodName];
@@ -138,12 +141,18 @@ export class TurnkeyServerSDK {
     }
   };
 
+  /**
+   * @deprecated Use apiClient directly instead. This method will be removed in a future release.
+   */
   expressProxyHandler = (config: TurnkeyProxyHandlerConfig): RequestHandler => {
     return async (request: Request, response: Response): Promise<void> => {
       await handleProxyRequest(this.apiProxy, config, request.body, response);
     };
   };
 
+  /**
+   * @deprecated Use apiClient directly instead. This method will be removed in a future release.
+   */
   nextProxyHandler = (config: TurnkeyProxyHandlerConfig): NextApiHandler => {
     return async (
       request: NextApiRequest,
