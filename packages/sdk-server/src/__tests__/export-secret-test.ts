@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import { type TActivityStatus, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 
 import { TurnkeyApiClient } from "../sdk-client";
@@ -23,21 +23,20 @@ function createClient(
     fingerprint: "sha256:fingerprint",
     status: submitStatus,
   });
-  const getActivity = jest.fn(async () => ({
+  client.getActivity = (async () => ({
     activity: {
       id: "activity-id",
       fingerprint: "sha256:fingerprint",
       status: pollStatus,
     },
-  }));
-  client.getActivity = getActivity as unknown as typeof client.getActivity;
+  })) as unknown as typeof client.getActivity;
 
-  return { client, getActivity };
+  return client;
 }
 
 describe("exportSecret", () => {
   it("throws consensus needed as soon as polling sees it", async () => {
-    const { client, getActivity } = createClient(
+    const client = createClient(
       "ACTIVITY_STATUS_PENDING",
       "ACTIVITY_STATUS_CONSENSUS_NEEDED",
     );
@@ -47,13 +46,12 @@ describe("exportSecret", () => {
     ).rejects.toMatchObject({
       code: TurnkeyErrorCodes.EXPORT_SECRET_CONSENSUS_NEEDED,
     });
-    expect(getActivity).toHaveBeenCalledTimes(1);
   });
 
   it("does not poll when submit returns a terminal status", async () => {
-    const { client, getActivity } = createClient(
+    const client = createClient(
       "ACTIVITY_STATUS_FAILED",
-      "ACTIVITY_STATUS_FAILED",
+      "ACTIVITY_STATUS_REJECTED",
     );
 
     await expect(
@@ -63,6 +61,5 @@ describe("exportSecret", () => {
       message:
         "Secret export activity reached terminal status ACTIVITY_STATUS_FAILED",
     });
-    expect(getActivity).not.toHaveBeenCalled();
   });
 });

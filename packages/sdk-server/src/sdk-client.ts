@@ -6,6 +6,7 @@ import {
   TurnkeyErrorCodes,
   TurnkeyRequestError,
   type TActivityResponse,
+  type v1Activity,
   type v1ExportSecretsRequest,
   type v1InitImportSecretsResult,
 } from "@turnkey/sdk-types";
@@ -53,6 +54,21 @@ function consensusNeededError(cause: unknown): TurnkeyError {
     TurnkeyErrorCodes.EXPORT_SECRET_CONSENSUS_NEEDED,
     cause,
   );
+}
+
+const sleep = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+function toExportSecretsResult(
+  activity: v1Activity,
+): SubmitExportSecretsResult {
+  const secretPayloads = activity.result?.exportSecretsResult?.secretPayloads;
+  return {
+    activityId: activity.id,
+    fingerprint: activity.fingerprint,
+    status: activity.status,
+    ...(secretPayloads ? { secretPayloads } : {}),
+  };
 }
 
 const DEFAULT_API_PROXY_ALLOWED_METHODS = [
@@ -374,9 +390,7 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
 
     const [plaintext] = await this.awaitAndDecryptExport({
       proposal,
-      activityId: submitted.activityId,
       submitted,
-      failOnConsensusNeeded: true,
       embeddedPrivateKey: privateKey,
       ...(params.timeoutMs !== undefined
         ? { timeoutMs: params.timeoutMs }
@@ -474,17 +488,10 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
     }
 
     const activityResponse = (await response.json()) as TActivityResponse;
-    const activity = activityResponse.activity;
     // `result` is null until the activity completes — e.g. when this
     // submission registered as an approval vote and consensus is still
     // pending, or when it lands after another signer already created it.
-    const secretPayloads = activity.result?.exportSecretsResult?.secretPayloads;
-    return {
-      activityId: activity.id,
-      fingerprint: activity.fingerprint,
-      status: activity.status,
-      ...(secretPayloads ? { secretPayloads } : {}),
-    };
+    return toExportSecretsResult(activityResponse.activity);
   };
 
   /**
@@ -495,16 +502,9 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
     params: AwaitExportedSecretsParams,
   ): Promise<string[]> => this.awaitAndDecryptExport(params);
 
-  /**
-   * `awaitExportedSecrets`, plus two options for `exportSecret`: a terminal
-   * `submitted` result is decrypted directly without polling, and
-   * `failOnConsensusNeeded` throws as soon as polling sees the activity needs
-   * consensus instead of waiting until timeout.
-   */
   private awaitAndDecryptExport = async (
     params: AwaitExportedSecretsParams & {
       submitted?: SubmitExportSecretsResult;
-      failOnConsensusNeeded?: boolean;
     },
   ): Promise<string[]> => {
     const {
@@ -521,16 +521,14 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
       // The public API has no fingerprint filter, so first resolve the
       // fingerprint to an activity ID by walking list_activities pages, then
       // poll that activity directly.
-      let activityId = params.activityId;
+      let activityId = params.submitted?.activityId ?? params.activityId;
       while (!activityId && Date.now() < deadline) {
         activityId = await this.findExportActivityIdByFingerprint(
           proposal.organizationId,
           proposal.fingerprint,
         );
         if (!activityId) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, pollingIntervalMs),
-          );
+          await sleep(pollingIntervalMs);
         }
       }
       if (!activityId) {
@@ -540,12 +538,15 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
         );
       }
 
+      if (params.submitted) {
+        await sleep(pollingIntervalMs);
+      }
       result = await this.pollExportSecretsActivity({
         organizationId: proposal.organizationId,
         activityId,
         deadline,
         pollingIntervalMs,
-        failOnConsensusNeeded: params.failOnConsensusNeeded ?? false,
+        failOnConsensusNeeded: params.submitted !== undefined,
       });
     }
 
@@ -623,29 +624,19 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
         activityId: params.activityId,
       });
       const status = activity.status;
+      const result = toExportSecretsResult(activity);
 
       if (TERMINAL_ACTIVITY_STATUSES.includes(status)) {
         // Terminal but unsuccessful activities (failed, rejected) carry no
         // result; the caller surfaces the status.
-        const secretPayloads =
-          activity.result?.exportSecretsResult?.secretPayloads;
-        return {
-          activityId: activity.id,
-          fingerprint: activity.fingerprint,
-          status,
-          ...(secretPayloads ? { secretPayloads } : {}),
-        };
+        return result;
       }
 
       if (
         params.failOnConsensusNeeded &&
         status === "ACTIVITY_STATUS_CONSENSUS_NEEDED"
       ) {
-        throw consensusNeededError({
-          activityId: activity.id,
-          fingerprint: activity.fingerprint,
-          status,
-        });
+        throw consensusNeededError(result);
       }
 
       if (Date.now() >= params.deadline) {
@@ -654,9 +645,7 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
           TurnkeyErrorCodes.EXPORT_SECRET_ERROR,
         );
       }
-      await new Promise((resolve) =>
-        setTimeout(resolve, params.pollingIntervalMs),
-      );
+      await sleep(params.pollingIntervalMs);
     }
   };
 }
