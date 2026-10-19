@@ -217,8 +217,7 @@ import type {
   RefreshWalletsParams,
 } from "../../types/method-types";
 import { VerifyPage } from "../../components/verify/Verify";
-import { OnRampPage } from "../../components/onramp/OnRamp";
-import { SupportedAssetsProvider } from "../SupportedAssetsProvider";
+import { OnRampPage, OnRampProviders } from "../../components/onramp/OnRamp";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
 import { getChainLogo } from "../../components/send-transaction/helpers";
 import { Turnstile } from "../../components/auth/Turnstile";
@@ -6182,13 +6181,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               stampWith={params.stampWith}
               fiatCurrencyCode={params.fiatCurrencyCode}
               defaultFiatCurrencyAmount={params.defaultFiatCurrencyAmount}
+              countryCode={params.countryCode}
+              countrySubdivisionCode={params.countrySubdivisionCode}
               openInNewTab={params.openInNewTab}
               successPageDuration={params.successPageDuration}
               onSuccess={resolveOnce}
               onError={rejectOnce}
             />
           ),
-          contextProvider: SupportedAssetsProvider,
+          contextProvider: OnRampProviders,
           preventBack: true,
           onClose: () =>
             rejectOnce(

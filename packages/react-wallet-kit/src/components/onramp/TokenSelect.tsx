@@ -16,6 +16,8 @@ import { caip2Of, tokenSymbol } from "./tokenSymbol";
 type Placement = "top start" | "bottom start";
 const desiredPanelHeight = 288;
 
+export type TokenSelectTrigger = "row" | "symbol";
+
 const chainLabels: Record<string, string> = {
   "eip155:1": "Ethereum",
   "eip155:10": "Optimism",
@@ -57,10 +59,13 @@ export type TokenSelectProps = {
   onChange?: (token: OnRampCaip19) => void;
   amount?: string | undefined;
   locked?: boolean;
+  // TODO (Amir): This might be too weird. Maybe just componantize the inner list box options
+  /** "row" sits under the cash amount. "symbol" sits beside a crypto amount, like the currency code. */
+  trigger?: TokenSelectTrigger;
 };
 
 export function TokenSelect(props: TokenSelectProps) {
-  const { tokens, value, onChange, amount, locked } = props;
+  const { tokens, value, onChange, amount, locked, trigger = "row" } = props;
   const selectable = !locked && !!onChange;
   const { assetsByCaip2, ensureAssets } = useSupportedAssets();
   const chains = tokens.map(caip2Of).join(",");
@@ -77,7 +82,16 @@ export function TokenSelect(props: TokenSelectProps) {
         onChange={onChange}
         amount={amount}
         assetsByCaip2={assetsByCaip2}
+        trigger={trigger}
       />
+    );
+  }
+
+  if (trigger === "symbol") {
+    return (
+      <span className="text-lg font-bold leading-none">
+        {tokenSymbol(value, assetsByCaip2)}
+      </span>
     );
   }
 
@@ -92,8 +106,9 @@ function SelectableToken(props: {
   onChange: (token: OnRampCaip19) => void;
   amount?: string | undefined;
   assetsByCaip2: Record<string, v1AssetMetadata[]>;
+  trigger: TokenSelectTrigger;
 }) {
-  const { tokens, value, onChange, amount, assetsByCaip2 } = props;
+  const { tokens, value, onChange, amount, assetsByCaip2, trigger } = props;
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [placement, setPlacement] = useState<Placement>("bottom start");
   const { height } = useScreenSize();
@@ -122,14 +137,29 @@ function SelectableToken(props: {
         <ListboxButton
           ref={buttonRef}
           data-testid="onramp-token-select"
-          className="flex cursor-pointer items-center border-none bg-transparent p-0 text-inherit focus:outline-none"
+          className={clsx(
+            "flex cursor-pointer items-center border-none bg-transparent p-0 text-inherit focus:outline-none",
+            trigger === "symbol" && "gap-1",
+          )}
         >
-          <TokenRow
-            token={value}
-            amount={amount}
-            assetsByCaip2={assetsByCaip2}
-            showChevron
-          />
+          {trigger === "symbol" ? (
+            <>
+              <span className="text-lg font-bold leading-none">
+                {tokenSymbol(value, assetsByCaip2)}
+              </span>
+              <FontAwesomeIcon
+                icon={faChevronDown}
+                className="size-3 shrink-0 text-icon-text-light dark:text-icon-text-dark"
+              />
+            </>
+          ) : (
+            <TokenRow
+              token={value}
+              amount={amount}
+              assetsByCaip2={assetsByCaip2}
+              showChevron
+            />
+          )}
         </ListboxButton>
         <ListboxOptions
           transition
@@ -193,20 +223,32 @@ function TokenRow(props: {
   );
 }
 
-function TokenLogo(props: {
+export function TokenLogo(props: {
   token: OnRampCaip19;
   assetsByCaip2: Record<string, v1AssetMetadata[]>;
+  className?: string;
 }) {
-  const { token, assetsByCaip2 } = props;
+  const { token, assetsByCaip2, className = "size-4" } = props;
   const logoUrl = assetsByCaip2[caip2Of(token)]?.find(
     (asset) => asset.caip19 === token,
   )?.logoUrl;
 
   if (!logoUrl) {
     return (
-      <span className="size-4 shrink-0 rounded-full bg-icon-background-light dark:bg-icon-background-dark" />
+      <span
+        className={clsx(
+          "shrink-0 rounded-full bg-icon-background-light dark:bg-icon-background-dark",
+          className,
+        )}
+      />
     );
   }
 
-  return <img src={logoUrl} alt="" className="size-4 shrink-0 rounded-full" />;
+  return (
+    <img
+      src={logoUrl}
+      alt=""
+      className={clsx("shrink-0 rounded-full", className)}
+    />
+  );
 }

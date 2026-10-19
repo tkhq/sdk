@@ -30,7 +30,7 @@ function currencyFormat(
   };
 }
 
-function sanitizeAmount(raw: string, decimals: number) {
+export function sanitizeAmount(raw: string, decimals: number) {
   let cleaned = raw.replace(/[^\d.]/g, "");
   if (decimals === 0) {
     cleaned = cleaned.replace(/\./g, "");
