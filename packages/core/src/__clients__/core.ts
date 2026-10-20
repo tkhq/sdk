@@ -217,6 +217,9 @@ export class TurnkeyClient {
   private walletManager?: WalletManagerBase | undefined;
   private storageManager!: StorageBase;
 
+  // Tail of the queue of logins that use the shared attested stamper.
+  private attestedStamperLock: Promise<void> = Promise.resolve();
+
   constructor(
     config: TurnkeySDKClientConfig,
 
@@ -1596,6 +1599,31 @@ export class TurnkeyClient {
   };
 
   /**
+   * Runs `fn` while no other login uses the shared attested stamper.
+   *
+   * - Logins configure the one attested stamper and then stamp with it, so concurrent logins
+   *   must run one at a time or a request can be stamped with another login's identity.
+   * - The lock is released when `fn` settles, also when it throws.
+   * - `fn` must not call this method again, or it waits on itself.
+   */
+  private withAttestedStamperLock = async <T>(
+    fn: () => Promise<T>,
+  ): Promise<T> => {
+    const previous = this.attestedStamperLock;
+    let release!: () => void;
+    this.attestedStamperLock = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+
+    await previous;
+    try {
+      return await fn();
+    } finally {
+      release();
+    }
+  };
+
+  /**
    * Logs in a user using an OTP verification token.
    *
    * - This function logs in a user using the verification token received after OTP verification (from email or SMS).
@@ -1636,23 +1664,25 @@ export class TurnkeyClient {
           );
         }
 
-        // We override the attested stamper with the verification token so the stampLogin request can be stamped with it.
-        await this.overrideAttestedStamper({
-          verificationToken,
-          publicKey: verificationPublicKey,
-        });
-
-        // the verification token's public key is also used as the session public key for login
-        const loginRes = await this.httpClient.stampLogin(
-          {
+        const loginRes = await this.withAttestedStamperLock(async () => {
+          // We override the attested stamper with the verification token so the stampLogin request can be stamped with it.
+          await this.overrideAttestedStamper({
+            verificationToken,
             publicKey: verificationPublicKey,
-            expirationSeconds,
-            invalidateExisting,
-            ...(organizationId && { organizationId }),
-            ...(sessionProfileId && { sessionProfileId }),
-          },
-          StamperType.Attested,
-        );
+          });
+
+          // the verification token's public key is also used as the session public key for login
+          return this.httpClient.stampLogin(
+            {
+              publicKey: verificationPublicKey,
+              expirationSeconds,
+              invalidateExisting,
+              ...(organizationId && { organizationId }),
+              ...(sessionProfileId && { sessionProfileId }),
+            },
+            StamperType.Attested,
+          );
+        });
 
         if (!loginRes) {
           throw new TurnkeyError(
@@ -2120,22 +2150,24 @@ export class TurnkeyClient {
           return { sessionToken: proxyRes.session };
         }
 
-        // We override the attested stamper with the oidcToken so the stampLogin request can be stamped with it.
-        await this.overrideAttestedStamper({
-          oidcToken,
-          publicKey,
-        });
-
-        const loginRes = await this.httpClient.stampLogin(
-          {
+        const loginRes = await this.withAttestedStamperLock(async () => {
+          // We override the attested stamper with the oidcToken so the stampLogin request can be stamped with it.
+          await this.overrideAttestedStamper({
+            oidcToken,
             publicKey,
-            expirationSeconds,
-            invalidateExisting,
-            ...(organizationId && { organizationId }),
-            ...(sessionProfileId && { sessionProfileId }),
-          },
-          StamperType.Attested,
-        );
+          });
+
+          return this.httpClient.stampLogin(
+            {
+              publicKey,
+              expirationSeconds,
+              invalidateExisting,
+              ...(organizationId && { organizationId }),
+              ...(sessionProfileId && { sessionProfileId }),
+            },
+            StamperType.Attested,
+          );
+        });
 
         if (!loginRes) {
           throw new TurnkeyError(
