@@ -154,17 +154,6 @@ export type TGetEarnWithdrawStatusBody = Omit<
 > &
   queryOverrideParams;
 
-export type TGetFiatOnRampQuoteResponse =
-  operations["PublicApiService_GetFiatOnRampQuote"]["responses"]["200"]["schema"];
-
-export type TGetFiatOnRampQuoteInput = { body: TGetFiatOnRampQuoteBody };
-
-export type TGetFiatOnRampQuoteBody = Omit<
-  operations["PublicApiService_GetFiatOnRampQuote"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
 export type TGetGasUsageResponse =
   operations["PublicApiService_GetGasUsage"]["responses"]["200"]["schema"];
 
@@ -599,6 +588,17 @@ export type TListFiatOnRampCredentialsInput = {
 
 export type TListFiatOnRampCredentialsBody = Omit<
   operations["PublicApiService_ListFiatOnRampCredentials"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetFiatOnRampQuotesResponse =
+  operations["PublicApiService_GetFiatOnRampQuotes"]["responses"]["200"]["schema"];
+
+export type TGetFiatOnRampQuotesInput = { body: TGetFiatOnRampQuotesBody };
+
+export type TGetFiatOnRampQuotesBody = Omit<
+  operations["PublicApiService_GetFiatOnRampQuotes"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -1039,7 +1039,7 @@ export type TCreateSmartContractInterfaceBody =
     commandOverrideParams;
 
 export type TCreateSubOrganizationResponse =
-  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV8"] &
+  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV9"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };

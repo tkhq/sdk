@@ -1,4 +1,10 @@
-import { TurnkeyError, TurnkeyErrorCodes, type OnRampCaip19, type OnRampCaip2, type WalletAccount } from "@turnkey/core";
+import {
+  TurnkeyError,
+  TurnkeyErrorCodes,
+  type OnRampCaip19,
+  type OnRampCaip2,
+  type WalletAccount,
+} from "@turnkey/core";
 import { encodeFunctionData, type Hex } from "viem";
 import { caip2Of } from "./tokenSymbol";
 
@@ -146,7 +152,9 @@ function chainOf(token: OnRampCaip19): "ethereum" | "solana" {
   );
 }
 
-function chainOfAccount(account: WalletAccount): "ethereum" | "solana" | undefined {
+function chainOfAccount(
+  account: WalletAccount,
+): "ethereum" | "solana" | undefined {
   if (account.addressFormat === "ADDRESS_FORMAT_ETHEREUM") return "ethereum";
   if (account.addressFormat === "ADDRESS_FORMAT_SOLANA") return "solana";
   return undefined;

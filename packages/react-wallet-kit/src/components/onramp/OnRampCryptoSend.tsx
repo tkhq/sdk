@@ -95,7 +95,9 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
     setError(null);
   }, [amount, token]);
 
-  const ChainLogo = isSolanaChain(destination, token) ? SolanaLogo : EthereumLogo;
+  const ChainLogo = isSolanaChain(destination, token)
+    ? SolanaLogo
+    : EthereumLogo;
   const preparedTransfer = useMemo(() => {
     if (!token || !destination) return undefined;
     try {
@@ -120,7 +122,10 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
       if (preparedTransfer.transactionType === "TRANSACTION_TYPE_ETHEREUM") {
         const chainId = Number(preparedTransfer.caip2.slice("eip155:".length));
         if (evmChainId(externalWallet.chainInfo) !== chainId) {
-          await switchSelectedEthereumChain(provider, `0x${chainId.toString(16)}`);
+          await switchSelectedEthereumChain(
+            provider,
+            `0x${chainId.toString(16)}`,
+          );
         }
       }
 
@@ -207,7 +212,9 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
             ) : (
               <span className="size-6 shrink-0 rounded-full bg-icon-background-light dark:bg-icon-background-dark" />
             )}
-            <span className="text-sm">{truncateAddress(externalAccount.address)}</span>
+            <span className="text-sm">
+              {truncateAddress(externalAccount.address)}
+            </span>
             <FontAwesomeIcon
               className={clsx(
                 "absolute transition-all duration-200 text-icon-text-light dark:text-icon-text-dark",
@@ -316,7 +323,9 @@ function sendErrorMessage(error: unknown) {
     current = record.cause;
   }
 
-  if (messages.some((message) => /insufficient|out\s*of\s*funds/i.test(message))) {
+  if (
+    messages.some((message) => /insufficient|out\s*of\s*funds/i.test(message))
+  ) {
     return "Insufficient funds.";
   }
 

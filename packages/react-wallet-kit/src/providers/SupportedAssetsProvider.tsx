@@ -9,10 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type {
-  TListSupportedAssetsBody,
-  v1AssetMetadata,
-} from "@turnkey/core";
+import type { TListSupportedAssetsBody, v1AssetMetadata } from "@turnkey/core";
 import { useTurnkey } from "./client/Hook";
 
 type Caip2 = TListSupportedAssetsBody["caip2"];
@@ -29,9 +26,7 @@ interface SupportedAssetsState {
   ensureAssets: (caip2s: Caip2[]) => Promise<void>;
 }
 
-const SupportedAssetsContext = createContext<SupportedAssetsState | null>(
-  null,
-);
+const SupportedAssetsContext = createContext<SupportedAssetsState | null>(null);
 
 /**
  * @internal

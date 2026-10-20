@@ -59,10 +59,6 @@ import type {
   TGetEarnWithdrawStatusResponse,
 } from "./public_api.fetcher";
 import type {
-  TGetFiatOnRampQuoteBody,
-  TGetFiatOnRampQuoteResponse,
-} from "./public_api.fetcher";
-import type {
   TGetGasUsageBody,
   TGetGasUsageResponse,
 } from "./public_api.fetcher";
@@ -204,8 +200,16 @@ import type {
   TListEthTransactionHistoryResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetFiatOffRampQuotesBody,
+  TGetFiatOffRampQuotesResponse,
+} from "./public_api.fetcher";
+import type {
   TListFiatOnRampCredentialsBody,
   TListFiatOnRampCredentialsResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetFiatOnRampQuotesBody,
+  TGetFiatOnRampQuotesResponse,
 } from "./public_api.fetcher";
 import type {
   TListOauth2CredentialsBody,
@@ -312,6 +316,10 @@ import type {
 import type {
   TCreateAuthenticatorsBody,
   TCreateAuthenticatorsResponse,
+} from "./public_api.fetcher";
+import type {
+  TCreateFiatOffRampSessionBody,
+  TCreateFiatOffRampSessionResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateFiatOnRampCredentialBody,
@@ -1220,38 +1228,6 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/get_earn_withdraw_status";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.
-   *
-   * Sign the provided `TGetFiatOnRampQuoteBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_fiat_on_ramp_quote).
-   *
-   * See also {@link stampGetFiatOnRampQuote}.
-   */
-  getFiatOnRampQuote = async (
-    input: TGetFiatOnRampQuoteBody,
-  ): Promise<TGetFiatOnRampQuoteResponse> => {
-    return this.request("/public/v1/query/get_fiat_on_ramp_quote", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TGetFiatOnRampQuoteBody` by using the client's `stamp` function.
-   *
-   * See also {@link GetFiatOnRampQuote}.
-   */
-  stampGetFiatOnRampQuote = async (
-    input: TGetFiatOnRampQuoteBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/query/get_fiat_on_ramp_quote";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2480,6 +2456,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Quote enabled fiat off-ramp providers for a sell. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.
+   *
+   * Sign the provided `TGetFiatOffRampQuotesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_fiat_off_ramp_quotes).
+   *
+   * See also {@link stampGetFiatOffRampQuotes}.
+   */
+  getFiatOffRampQuotes = async (
+    input: TGetFiatOffRampQuotesBody,
+  ): Promise<TGetFiatOffRampQuotesResponse> => {
+    return this.request("/public/v1/query/list_fiat_off_ramp_quotes", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetFiatOffRampQuotesBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetFiatOffRampQuotes}.
+   */
+  stampGetFiatOffRampQuotes = async (
+    input: TGetFiatOffRampQuotesBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_fiat_off_ramp_quotes";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * List all fiat on ramp provider credentials within an organization.
    *
    * Sign the provided `TListFiatOnRampCredentialsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_fiat_on_ramp_credentials).
@@ -2505,6 +2513,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.
+   *
+   * Sign the provided `TGetFiatOnRampQuotesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_fiat_on_ramp_quotes).
+   *
+   * See also {@link stampGetFiatOnRampQuotes}.
+   */
+  getFiatOnRampQuotes = async (
+    input: TGetFiatOnRampQuotesBody,
+  ): Promise<TGetFiatOnRampQuotesResponse> => {
+    return this.request("/public/v1/query/list_fiat_on_ramp_quotes", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetFiatOnRampQuotesBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetFiatOnRampQuotes}.
+   */
+  stampGetFiatOnRampQuotes = async (
+    input: TGetFiatOnRampQuotesBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_fiat_on_ramp_quotes";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -3383,6 +3423,41 @@ export class TurnkeyClient {
   };
 
   /**
+   * Open a fiat off-ramp session for a saved quote.
+   *
+   * Sign the provided `TCreateFiatOffRampSessionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_fiat_off_ramp_session).
+   *
+   * See also {@link stampCreateFiatOffRampSession}.
+   */
+  createFiatOffRampSession = async (
+    input: TCreateFiatOffRampSessionBody,
+  ): Promise<TCreateFiatOffRampSessionResponse> => {
+    return this.request(
+      "/public/v1/submit/create_fiat_off_ramp_session",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateFiatOffRampSessionBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateFiatOffRampSession}.
+   */
+  stampCreateFiatOffRampSession = async (
+    input: TCreateFiatOffRampSessionBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_fiat_off_ramp_session";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Create a fiat on ramp provider credential.
    *
    * Sign the provided `TCreateFiatOnRampCredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_fiat_on_ramp_credential).
@@ -3834,7 +3909,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS).
+   * Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, a wallet authenticator, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS).
    *
    * Sign the provided `TCreateSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_sub_organization).
    *
@@ -3866,7 +3941,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3.
+   * Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3, which returns its quotes in createSwapQuoteResultV2.
    *
    * Sign the provided `TCreateSwapQuoteBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_swap_quote).
    *

@@ -660,58 +660,6 @@ export const signGetEarnWithdrawStatus = (
   });
 
 /**
- * `POST /public/v1/query/get_fiat_on_ramp_quote`
- */
-export type TGetFiatOnRampQuoteResponse =
-  operations["PublicApiService_GetFiatOnRampQuote"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/get_fiat_on_ramp_quote`
- */
-export type TGetFiatOnRampQuoteInput = { body: TGetFiatOnRampQuoteBody };
-
-/**
- * `POST /public/v1/query/get_fiat_on_ramp_quote`
- */
-export type TGetFiatOnRampQuoteBody =
-  operations["PublicApiService_GetFiatOnRampQuote"]["parameters"]["body"]["body"];
-
-/**
- * Get a Fiat On Ramp quote
- *
- * Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.
- *
- * `POST /public/v1/query/get_fiat_on_ramp_quote`
- */
-export const getFiatOnRampQuote = (input: TGetFiatOnRampQuoteInput) =>
-  request<
-    TGetFiatOnRampQuoteResponse,
-    TGetFiatOnRampQuoteBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/query/get_fiat_on_ramp_quote",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetFiatOnRampQuote` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetFiatOnRampQuote}
- */
-export const signGetFiatOnRampQuote = (
-  input: TGetFiatOnRampQuoteInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetFiatOnRampQuoteBody, never, never>({
-    uri: "/public/v1/query/get_fiat_on_ramp_quote",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/query/get_gas_usage`
  */
 export type TGetGasUsageResponse =
@@ -2664,6 +2612,58 @@ export const signListEthTransactionHistory = (
   });
 
 /**
+ * `POST /public/v1/query/list_fiat_off_ramp_quotes`
+ */
+export type TGetFiatOffRampQuotesResponse =
+  operations["PublicApiService_GetFiatOffRampQuotes"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_fiat_off_ramp_quotes`
+ */
+export type TGetFiatOffRampQuotesInput = { body: TGetFiatOffRampQuotesBody };
+
+/**
+ * `POST /public/v1/query/list_fiat_off_ramp_quotes`
+ */
+export type TGetFiatOffRampQuotesBody =
+  operations["PublicApiService_GetFiatOffRampQuotes"]["parameters"]["body"]["body"];
+
+/**
+ * List Fiat Off Ramp quotes
+ *
+ * Quote enabled fiat off-ramp providers for a sell. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.
+ *
+ * `POST /public/v1/query/list_fiat_off_ramp_quotes`
+ */
+export const getFiatOffRampQuotes = (input: TGetFiatOffRampQuotesInput) =>
+  request<
+    TGetFiatOffRampQuotesResponse,
+    TGetFiatOffRampQuotesBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_fiat_off_ramp_quotes",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetFiatOffRampQuotes` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetFiatOffRampQuotes}
+ */
+export const signGetFiatOffRampQuotes = (
+  input: TGetFiatOffRampQuotesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetFiatOffRampQuotesBody, never, never>({
+    uri: "/public/v1/query/list_fiat_off_ramp_quotes",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_fiat_on_ramp_credentials`
  */
 export type TListFiatOnRampCredentialsResponse =
@@ -2715,6 +2715,58 @@ export const signListFiatOnRampCredentials = (
 ) =>
   signedRequest<TListFiatOnRampCredentialsBody, never, never>({
     uri: "/public/v1/query/list_fiat_on_ramp_credentials",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_fiat_on_ramp_quotes`
+ */
+export type TGetFiatOnRampQuotesResponse =
+  operations["PublicApiService_GetFiatOnRampQuotes"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_fiat_on_ramp_quotes`
+ */
+export type TGetFiatOnRampQuotesInput = { body: TGetFiatOnRampQuotesBody };
+
+/**
+ * `POST /public/v1/query/list_fiat_on_ramp_quotes`
+ */
+export type TGetFiatOnRampQuotesBody =
+  operations["PublicApiService_GetFiatOnRampQuotes"]["parameters"]["body"]["body"];
+
+/**
+ * List Fiat On Ramp quotes
+ *
+ * Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.
+ *
+ * `POST /public/v1/query/list_fiat_on_ramp_quotes`
+ */
+export const getFiatOnRampQuotes = (input: TGetFiatOnRampQuotesInput) =>
+  request<
+    TGetFiatOnRampQuotesResponse,
+    TGetFiatOnRampQuotesBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_fiat_on_ramp_quotes",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetFiatOnRampQuotes` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetFiatOnRampQuotes}
+ */
+export const signGetFiatOnRampQuotes = (
+  input: TGetFiatOnRampQuotesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetFiatOnRampQuotesBody, never, never>({
+    uri: "/public/v1/query/list_fiat_on_ramp_quotes",
     body: input.body,
     options,
   });
@@ -4100,6 +4152,62 @@ export const signCreateAuthenticators = (
   });
 
 /**
+ * `POST /public/v1/submit/create_fiat_off_ramp_session`
+ */
+export type TCreateFiatOffRampSessionResponse =
+  operations["PublicApiService_CreateFiatOffRampSession"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_fiat_off_ramp_session`
+ */
+export type TCreateFiatOffRampSessionInput = {
+  body: TCreateFiatOffRampSessionBody;
+};
+
+/**
+ * `POST /public/v1/submit/create_fiat_off_ramp_session`
+ */
+export type TCreateFiatOffRampSessionBody =
+  operations["PublicApiService_CreateFiatOffRampSession"]["parameters"]["body"]["body"];
+
+/**
+ * Create Fiat Off Ramp Session
+ *
+ * Open a fiat off-ramp session for a saved quote.
+ *
+ * `POST /public/v1/submit/create_fiat_off_ramp_session`
+ */
+export const createFiatOffRampSession = (
+  input: TCreateFiatOffRampSessionInput,
+) =>
+  request<
+    TCreateFiatOffRampSessionResponse,
+    TCreateFiatOffRampSessionBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_fiat_off_ramp_session",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateFiatOffRampSession` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateFiatOffRampSession}
+ */
+export const signCreateFiatOffRampSession = (
+  input: TCreateFiatOffRampSessionInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateFiatOffRampSessionBody, never, never>({
+    uri: "/public/v1/submit/create_fiat_off_ramp_session",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/create_fiat_on_ramp_credential`
  */
 export type TCreateFiatOnRampCredentialResponse =
@@ -4843,7 +4951,7 @@ export type TCreateSubOrganizationBody =
 /**
  * Create sub-organization
  *
- * Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS).
+ * Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, a wallet authenticator, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS).
  *
  * `POST /public/v1/submit/create_sub_organization`
  */
@@ -4895,7 +5003,7 @@ export type TCreateSwapQuoteBody =
 /**
  * Create Swap quote
  *
- * Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3.
+ * Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3, which returns its quotes in createSwapQuoteResultV2.
  *
  * `POST /public/v1/submit/create_swap_quote`
  */

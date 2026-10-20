@@ -24,7 +24,9 @@ export function tokenSymbol(
   token: OnRampCaip19,
   assetsByCaip2: Record<string, v1AssetMetadata[]>,
 ) {
-  return tokenMetadata(token, assetsByCaip2)?.symbol || fallbackTokenSymbol(token);
+  return (
+    tokenMetadata(token, assetsByCaip2)?.symbol || fallbackTokenSymbol(token)
+  );
 }
 
 export function tokenDecimals(

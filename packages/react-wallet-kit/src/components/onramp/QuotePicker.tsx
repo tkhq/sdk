@@ -18,7 +18,10 @@ export const QuotePicker = forwardRef<HTMLDivElement, QuotePickerProps>(
 
     return (
       <SupportedAssetsProvider>
-        <div ref={ref} className={clsx("flex w-full flex-col gap-3", className)}>
+        <div
+          ref={ref}
+          className={clsx("flex w-full flex-col gap-3", className)}
+        >
           {rankQuotes(quotes).map(({ quote, labels }) => (
             <div key={quote.quoteId} className="flex flex-col gap-1">
               {labels.map((label) => (
@@ -29,11 +32,7 @@ export const QuotePicker = forwardRef<HTMLDivElement, QuotePickerProps>(
                   {label}
                 </div>
               ))}
-              <QuoteOption
-                quote={quote}
-                amount={amount}
-                onSelect={onSelect}
-              />
+              <QuoteOption quote={quote} amount={amount} onSelect={onSelect} />
             </div>
           ))}
         </div>
