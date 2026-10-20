@@ -106,6 +106,7 @@ export class TurnkeySDKClientBase {
   private async pollForCompletion(
     activityId: string,
     stampWith?: StamperType,
+    organizationId?: string,
   ): Promise<TActivityResponse> {
     const pollingDuration = this.config.activityPoller?.intervalMs ?? 1000;
     const maxRetries = this.config.activityPoller?.numRetries ?? 3;
@@ -116,7 +117,7 @@ export class TurnkeySDKClientBase {
     do {
       await this.sleep(pollingDuration);
       activityData = (await this.getActivity(
-        { activityId },
+        { activityId, ...(organizationId !== undefined ? { organizationId } : {}) },
         stampWith,
       )) as TActivityResponse;
       attempts++;
@@ -229,6 +230,7 @@ export class TurnkeySDKClientBase {
     activityData = await this.pollForCompletion(
       activityData.activity.id,
       stampWith,
+      activityData.activity.organizationId,
     );
 
     return activityData;
@@ -298,6 +300,7 @@ export class TurnkeySDKClientBase {
       activityData = await this.pollForCompletion(
         activityData.activity.id,
         stampWith,
+        activityData.activity.organizationId,
       );
     }
 
@@ -422,7 +425,11 @@ export class TurnkeySDKClientBase {
           activityData.activity.status as TActivityStatus,
         )
       ) {
-        activityData = await this.pollForCompletion(activityData.activity.id);
+        activityData = await this.pollForCompletion(
+          activityData.activity.id,
+          undefined,
+          activityData.activity.organizationId,
+        );
       }
 
       // Handle MFA if needed (callback gate + re-poll)
