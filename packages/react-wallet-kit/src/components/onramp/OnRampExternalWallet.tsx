@@ -74,7 +74,10 @@ export function OnRampExternalWallet(props: OnRampExternalWalletProps) {
       ),
     });
 
-  const openSend = (externalWallet: WalletProvider, externalAccount: WalletAccount) => {
+  const openSend = (
+    externalWallet: WalletProvider,
+    externalAccount: WalletAccount,
+  ) => {
     popToPage("Fund");
     pushPage({
       key: "Send",
@@ -280,9 +283,11 @@ export function OnRampExternalWallet(props: OnRampExternalWalletProps) {
   );
 }
 
-function chainForAccount(account?: WalletAccount | undefined): Chain | undefined {
-  if (account?.addressFormat === "ADDRESS_FORMAT_ETHEREUM") return Chain.Ethereum;
+function chainForAccount(
+  account?: WalletAccount | undefined,
+): Chain | undefined {
+  if (account?.addressFormat === "ADDRESS_FORMAT_ETHEREUM")
+    return Chain.Ethereum;
   if (account?.addressFormat === "ADDRESS_FORMAT_SOLANA") return Chain.Solana;
   return undefined;
 }
-

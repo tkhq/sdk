@@ -3,7 +3,7 @@ import clsx from "clsx";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
-  type TGetFiatOnRampQuoteBody,
+  type TGetFiatOnRampQuotesBody,
   type OnRampCaip19,
   type OnRampCaip2,
   type StamperType,
@@ -124,10 +124,10 @@ export function OnRampAmount(props: OnRampAmountProps) {
         ...(organizationId ? { organizationId } : {}),
         ...(countryCode ? { countryCode } : {}),
         ...(countrySubdivisionCode ? { countrySubdivisionCode } : {}),
-      } as TGetFiatOnRampQuoteBody;
+      } as TGetFiatOnRampQuotesBody;
       const pending = stampWith
-        ? httpClient.getFiatOnRampQuote(request, stampWith)
-        : httpClient.getFiatOnRampQuote(request);
+        ? httpClient.getFiatOnRampQuotes(request, stampWith)
+        : httpClient.getFiatOnRampQuotes(request);
 
       pending
         .then((response) => {

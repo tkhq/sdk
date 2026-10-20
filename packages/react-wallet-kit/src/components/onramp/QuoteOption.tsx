@@ -1,4 +1,7 @@
-import { faChevronRight, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronRight,
+  faTriangleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type {
   v1FiatOnRampAmount,
@@ -162,4 +165,3 @@ function toAtomic(value: string, decimals: number): bigint | undefined {
     return undefined;
   }
 }
-

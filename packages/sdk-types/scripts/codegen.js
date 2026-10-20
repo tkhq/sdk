@@ -790,10 +790,10 @@ function main() {
 }
 
 // CAIP-19 ids are not valid TypeScript enum keys, so codegen keeps the swagger
-// enum as a const array. The union on TGetFiatOnRampQuoteBody has no runtime value.
+// enum as a const array. The union on TGetFiatOnRampQuotesBody has no runtime value.
 function generateOnRampCaip19Values(swagger) {
   const values =
-    swagger.definitions?.v1GetFiatOnRampQuoteRequest?.properties?.caip19
+    swagger.definitions?.v1GetFiatOnRampQuotesRequest?.properties?.caip19
       ?.enum ?? [];
   if (values.length === 0) return "";
 
@@ -801,11 +801,11 @@ function generateOnRampCaip19Values(swagger) {
   return `
 export const OnRampCaip19Values = [
 ${entries}
-] as const satisfies readonly TGetFiatOnRampQuoteBody["caip19"][];
+] as const satisfies readonly TGetFiatOnRampQuotesBody["caip19"][];
 
 type _AssertExtends<A extends B, B> = A;
 export type _AssertOnRampCaip19ValuesInSync = _AssertExtends<
-  TGetFiatOnRampQuoteBody["caip19"],
+  TGetFiatOnRampQuotesBody["caip19"],
   (typeof OnRampCaip19Values)[number]
 >;
 `;

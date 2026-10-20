@@ -819,9 +819,11 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_DELETE_SECRETS"
   | "ACTIVITY_TYPE_EARN_CLAIM_REWARDS"
   | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3"
+  | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V9"
   | "ACTIVITY_TYPE_UPSERT_SWAP_FEE_SPONSORSHIP_LIMIT_CONFIG"
   | "ACTIVITY_TYPE_UPSERT_SWAP_FIXED_RATE_LIMIT_CONFIG"
-  | "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION";
+  | "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION"
+  | "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION";
 
 export type v1ApiKey = {
   /** A User credential that can be used to authenticate to Turnkey. */
@@ -932,7 +934,8 @@ export type v1AuthenticationType =
   | "AUTHENTICATION_TYPE_PASSKEY"
   | "AUTHENTICATION_TYPE_API_KEY"
   | "AUTHENTICATION_TYPE_OAUTH"
-  | "AUTHENTICATION_TYPE_SESSION";
+  | "AUTHENTICATION_TYPE_SESSION"
+  | "AUTHENTICATION_TYPE_WALLET";
 
 export type v1Authenticator = {
   /** Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
@@ -1104,6 +1107,22 @@ export type v1CreateAuthenticatorsResult = {
   authenticatorIds: string[];
 };
 
+export type v1CreateFiatOffRampSessionIntent = {
+  /** Identifier of a saved fiat off-ramp quote. Returned by GetFiatOffRampQuotes. */
+  quoteId: string;
+  /** Wallet address for this sale. Coinbase uses it as the source address. MoonPay uses it as the refund address; the user deposits the crypto to MoonPay separately. */
+  walletAddress: string;
+  /** URL Coinbase redirects to after the user submits the sell. Required when the saved quote is from Coinbase. Coinbase buy does not use this field. MoonPay ignores it. */
+  redirectUrl?: string;
+};
+
+export type v1CreateFiatOffRampSessionResult = {
+  /** URL of the fiat off-ramp session for the saved quote. */
+  offRampUrl: string;
+  /** Unique identifier used to retrieve transaction statuses for a given fiat off-ramp flow. */
+  offRampTransactionId: string;
+};
+
 export type v1CreateFiatOnRampCredentialIntent = {
   /** The fiat on-ramp provider */
   onrampProvider: v1FiatOnRampProvider;
@@ -1135,10 +1154,20 @@ export type v1CreateFiatOnRampCredentialResult = {
 };
 
 export type v1CreateFiatOnRampSessionIntent = {
-  /** Identifier of a saved fiat on-ramp quote. Returned by GetFiatOnRampQuote. */
+  /** Identifier of a saved fiat on-ramp quote. Returned by GetFiatOnRampQuotes. */
   quoteId: string;
   /** Destination wallet address for the buy transaction. */
   walletAddress: string;
+};
+
+export type v1CreateFiatOnRampSessionRequest = {
+  type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateFiatOnRampSessionIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateFiatOnRampSessionResult = {
@@ -1668,6 +1697,29 @@ export type v1CreateSubOrganizationIntentV8 = {
   clientSignature?: v1ClientSignature;
 };
 
+export type v1CreateSubOrganizationIntentV9 = {
+  /** Name for this sub-organization */
+  subOrganizationName: string;
+  /** Root users to create within this sub-organization */
+  rootUsers: v1RootUserParamsV6[];
+  /** The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users */
+  rootQuorumThreshold: number;
+  /** The wallet to create for the sub-organization */
+  wallet?: v1WalletParams;
+  /** Disable email recovery for the sub-organization */
+  disableEmailRecovery?: boolean;
+  /** Disable email auth for the sub-organization */
+  disableEmailAuth?: boolean;
+  /** Disable OTP SMS auth for the sub-organization */
+  disableSmsAuth?: boolean;
+  /** Disable OTP email auth for the sub-organization */
+  disableOtpEmailAuth?: boolean;
+  /** Signed JWT containing a unique id, expiry, verification type, contact */
+  verificationToken?: string;
+  /** Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
+  clientSignature?: v1ClientSignature;
+};
+
 export type v1CreateSubOrganizationRequest = {
   type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
@@ -1715,6 +1767,12 @@ export type v1CreateSubOrganizationResultV7 = {
 };
 
 export type v1CreateSubOrganizationResultV8 = {
+  subOrganizationId: string;
+  wallet?: v1WalletResult;
+  rootUserIds?: string[];
+};
+
+export type v1CreateSubOrganizationResultV9 = {
   subOrganizationId: string;
   wallet?: v1WalletResult;
   rootUserIds?: string[];
@@ -3562,6 +3620,15 @@ export type v1FeatureName =
   | "FEATURE_NAME_SWAP_FEE_SPONSORSHIP"
   | "FEATURE_NAME_SWAP_FIXED_RATE";
 
+export type v1FiatOnRampAmount = {
+  /** Amount in atomic units. Use this to compare quotes. Do not use display. */
+  amount: string;
+  /** Decimal places for this amount. Asset decimals for cryptocurrency, atomic-unit decimals for fiat (2 for USD). */
+  decimals: number;
+  /** Decimal representation in standard currency units. */
+  display: string;
+};
+
 export type v1FiatOnRampBlockchainNetwork =
   | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM"
   | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA"
@@ -3648,6 +3715,41 @@ export type v1FiatOnRampPaymentMethod =
 export type v1FiatOnRampProvider =
   | "FIAT_ON_RAMP_PROVIDER_COINBASE"
   | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
+
+export type v1FiatOnRampQuote = {
+  /** Identifier for this saved quote. Pass this to the create on ramp session activity. */
+  quoteId: string;
+  /** Provider that produced this quote. */
+  onrampProvider: v1FiatOnRampProvider;
+  /** Underlying provider when onramp_provider aggregates several. */
+  serviceProvider?: string;
+  /** Fiat the user pays, in atomic units of fiat_currency_code. For USD, 100 dollars is "10000". */
+  fiatAmount: v1FiatOnRampAmount;
+  /** Fiat currency of fiat_amount and total_fee. */
+  fiatCurrencyCode: v1FiatOnRampCurrency;
+  /** Cryptocurrency the user would receive, in atomic units. Not locked in the session. */
+  cryptoAmount: v1FiatOnRampAmount;
+  /** CAIP-19 asset of crypto_amount. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** Payment method this quote was priced for. Bank transfers are not included. */
+  paymentMethod: v1FiatOnRampPaymentMethod;
+  /** Total fee in atomic units of fiat_currency_code. */
+  totalFee: v1FiatOnRampAmount;
+  /** Quote expiration as a millisecond epoch string. Empty when the provider does not send one. */
+  expiresAt?: string;
+};
 
 export type v1GetActivePoliciesRequest = {
   /** Unique identifier for a given Organization. */
@@ -3840,6 +3942,40 @@ export type v1GetEarnWithdrawStatusResponse = {
   withdrawTxHash?: string;
   /** Reason the withdrawal transaction failed, when status is FAILED. */
   error?: string;
+};
+
+export type v1GetFiatOnRampQuotesRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Fiat amount the user wants to spend, in major units of fiat_currency_code. For example, "100" for 100 USD. */
+  fiatAmount: string;
+  /** Fiat currency for fiat_amount, for example USD. */
+  fiatCurrencyCode: v1FiatOnRampCurrency;
+  /** CAIP-19 asset to buy. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** ISO 3166-1 alpha-2 country code of the purchasing user, for example US. When omitted, the country is taken from the location of the request. */
+  countryCode?: string;
+  /** ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request. */
+  countrySubdivisionCode?: string;
+  /** Quote sandbox credentials when true. Defaults to false. */
+  sandboxMode?: boolean;
+};
+
+export type v1GetFiatOnRampQuotesResponse = {
+  /** One quote per provider and payment method that can serve this route. Empty when none can. */
+  quotes: v1FiatOnRampQuote[];
 };
 
 export type v1GetGasUsageRequest = {
@@ -5037,9 +5173,11 @@ export type v1Intent = {
   deleteSecretsIntent?: v1DeleteSecretsIntent;
   earnClaimRewardsIntent?: v1EarnClaimRewardsIntent;
   createSwapQuoteIntentV3?: v1CreateSwapQuoteIntentV3;
+  createSubOrganizationIntentV9?: v1CreateSubOrganizationIntentV9;
   upsertSwapFeeSponsorshipLimitConfigIntent?: v1UpsertSwapFeeSponsorshipLimitConfigIntent;
   upsertSwapFixedRateLimitConfigIntent?: v1UpsertSwapFixedRateLimitConfigIntent;
   createFiatOnRampSessionIntent?: v1CreateFiatOnRampSessionIntent;
+  createFiatOffRampSessionIntent?: v1CreateFiatOffRampSessionIntent;
 };
 
 export type v1InvitationParams = {
@@ -5994,9 +6132,11 @@ export type v1Result = {
   deleteSecretsResult?: v1DeleteSecretsResult;
   earnClaimRewardsResult?: v1EarnClaimRewardsResult;
   createSwapQuoteResultV2?: v1CreateSwapQuoteResultV2;
+  createSubOrganizationResultV9?: v1CreateSubOrganizationResultV9;
   upsertSwapFeeSponsorshipLimitConfigResult?: v1UpsertSwapFeeSponsorshipLimitConfigResult;
   upsertSwapFixedRateLimitConfigResult?: v1UpsertSwapFixedRateLimitConfigResult;
   createFiatOnRampSessionResult?: v1CreateFiatOnRampSessionResult;
+  createFiatOffRampSessionResult?: v1CreateFiatOffRampSessionResult;
 };
 
 export type v1RevertChainEntry = {
@@ -6079,6 +6219,23 @@ export type v1RootUserParamsV5 = {
   authenticators: v1AuthenticatorParamsV2[];
   /** A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
   oauthProviders: v1OauthProviderParamsV2[];
+};
+
+export type v1RootUserParamsV6 = {
+  /** Human-readable name for a User. */
+  userName: string;
+  /** The user's email address. */
+  userEmail?: string;
+  /** The user's phone number in E.164 format e.g. +13214567890 */
+  userPhoneNumber?: string;
+  /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
+  apiKeys: v1ApiKeyParamsV2[];
+  /** A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
+  authenticators: v1AuthenticatorParamsV2[];
+  /** A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
+  oauthProviders: v1OauthProviderParamsV2[];
+  /** A list of wallet authenticators. This field, if not needed, should be an empty array in your request body. */
+  walletAuthenticators: v1WalletAuthenticatorParams[];
 };
 
 export type v1SecretMetadata = {
@@ -6279,6 +6436,15 @@ export type v1SignupUsageV2 = {
   apiKeys?: v1ApiKeyParamsV2[];
   authenticators?: v1AuthenticatorParamsV2[];
   oauthProviders?: v1OauthProviderParamsV2[];
+};
+
+export type v1SignupUsageV3 = {
+  email?: string;
+  phoneNumber?: string;
+  apiKeys?: v1ApiKeyParamsV2[];
+  authenticators?: v1AuthenticatorParamsV2[];
+  oauthProviders?: v1OauthProviderParamsV2[];
+  walletAuthenticators?: v1WalletAuthenticatorParams[];
 };
 
 export type v1SimpleClientExtensionResults = {
@@ -6744,7 +6910,7 @@ export type v1SwapSpendingWindow = {
 };
 
 export type v1SwapSponsorshipFeature = {
-  /** Whether the billing parent holds this feature's signed permission. Quotes can use the feature only when it is permitted and its window is enabled. */
+  /** Whether the billing parent holds this feature's signed permission, which enabling its spending window grants. Quotes can use the feature only when it is permitted and its window is enabled. */
   permitted: boolean;
   /** Absent until the billing parent saves a spending window. */
   window?: v1SwapSpendingWindow;
@@ -6760,6 +6926,7 @@ export type v1TokenUsage = {
   signup?: v1SignupUsage;
   login?: v1LoginUsage;
   signupV2?: v1SignupUsageV2;
+  signupV3?: v1SignupUsageV3;
 };
 
 export type v1TransactionHistoryAsset = {
@@ -7525,7 +7692,7 @@ export type v1UpsertSwapFeeSponsorshipLimitConfigIntent = {
   subOrgWindowLimitUsd: string;
   /** Positive rolling window duration in minutes, at most 153722867. */
   windowDurationMinutes: string;
-  /** Whether this spending window permits new swaps. Setting false only turns the saved window off and keeps its limits; it doesn't require the signed permission. This does not grant or remove the signed organization permission. */
+  /** Whether this spending window permits new swaps. True also grants the billing parent's signed permission for the feature. False turns the saved window off, keeps its limits, and removes the permission. Granting or removing the permission needs root quorum. */
   enabled: boolean;
 };
 
@@ -7550,7 +7717,7 @@ export type v1UpsertSwapFixedRateLimitConfigIntent = {
   subOrgWindowLimitUsd: string;
   /** Positive rolling window duration in minutes, at most 153722867. */
   windowDurationMinutes: string;
-  /** Whether this spending window permits new swaps. Setting false only turns the saved window off and keeps its limits; it doesn't require the signed permission. This does not grant or remove the signed organization permission. */
+  /** Whether this spending window permits new swaps. True also grants the billing parent's signed permission for the feature. False turns the saved window off, keeps its limits, and removes the permission. Granting or removing the permission needs root quorum. */
   enabled: boolean;
 };
 
@@ -7591,6 +7758,8 @@ export type v1User = {
   updatedAt: externaldatav1Timestamp;
   /** A list of MFA Policies that define multi-factor authentication requirements for this user. */
   mfaPolicies: v1MfaPolicy[];
+  /** A list of wallet authenticators (externally-owned Ethereum or Solana accounts used to authenticate). If not needed, this should be an empty array. */
+  walletAuthenticators: v1WalletAuthenticator[];
 };
 
 export type v1UserParams = {
@@ -7673,7 +7842,7 @@ export type v1VelocityControlAggregation = {
   method: v1VelocityControlAggregationMethod;
   /** Comparison between the aggregate and the threshold. */
   operator: v1VelocityControlAggregationOperator;
-  /** Non-negative base-10 decimal string with at most 38 total digits and 18 fractional digits. */
+  /** Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits. */
   threshold: string;
   /** Time window for the aggregation. */
   window: v1VelocityControlAggregationWindow;
@@ -7746,7 +7915,7 @@ export type v1VelocityControlDataSourceChainAssetTransfer = {
 export type v1VelocityControlDataSourceChainAssetTransferDefinition = {
   /** CAIP-19 identifier for the asset. */
   caip19: string;
-  /** Integer between 0 and 255 (inclusive) that specifies the number of decimal places for the asset. */
+  /** Integer between 0 and 32 (inclusive) that specifies the number of decimal places for the asset. */
   decimals: number;
 };
 
@@ -7856,6 +8025,32 @@ export type v1WalletAccount = {
   /** The CAIP-2 namespace shared by the chains supported by this account (for example, 'eip155' or 'solana'). */
   caip2Prefix?: string;
 };
+
+export type v1WalletAuthenticator = {
+  /** Unique identifier for a wallet authenticator. */
+  walletAuthenticatorId: string;
+  /** Network this authenticator belongs to. */
+  type: v1WalletAuthenticatorType;
+  /** Normalized account address. */
+  address: string;
+  /** SIWE/SIWS domain this authenticator is bound to. */
+  domain: string;
+  createdAt: externaldatav1Timestamp;
+  updatedAt: externaldatav1Timestamp;
+};
+
+export type v1WalletAuthenticatorParams = {
+  /** Network this authenticator belongs to. */
+  type: v1WalletAuthenticatorType;
+  /** Account address. Ethereum addresses are stored lowercase with a 0x prefix. Solana addresses are canonical base58. */
+  address: string;
+  /** SIWE/SIWS domain this authenticator is bound to. Host only, lowercased. */
+  domain: string;
+};
+
+export type v1WalletAuthenticatorType =
+  | "WALLET_AUTHENTICATOR_TYPE_ETHEREUM"
+  | "WALLET_AUTHENTICATOR_TYPE_SOLANA";
 
 export type v1WalletKitSettingsParams = {
   /** List of enabled social login providers (e.g., 'apple', 'google', 'facebook') */
@@ -8739,6 +8934,41 @@ export type TListFiatOnRampCredentialsInput = {
   body: TListFiatOnRampCredentialsBody;
 };
 
+export type TGetFiatOnRampQuotesResponse = {
+  /** One quote per provider and payment method that can serve this route. Empty when none can. */
+  quotes: v1FiatOnRampQuote[];
+};
+
+export type TGetFiatOnRampQuotesBody = {
+  organizationId?: string;
+  /** Fiat amount the user wants to spend, in major units of fiat_currency_code. For example, "100" for 100 USD. */
+  fiatAmount: string;
+  /** Fiat currency for fiat_amount, for example USD. */
+  fiatCurrencyCode: v1FiatOnRampCurrency;
+  /** CAIP-19 asset to buy. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** ISO 3166-1 alpha-2 country code of the purchasing user, for example US. When omitted, the country is taken from the location of the request. */
+  countryCode?: string;
+  /** ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request. */
+  countrySubdivisionCode?: string;
+  /** Quote sandbox credentials when true. Defaults to false. */
+  sandboxMode?: boolean;
+};
+
+export type TGetFiatOnRampQuotesInput = { body: TGetFiatOnRampQuotesBody };
+
 export type TListOauth2CredentialsResponse = {
   oauth2Credentials: v1Oauth2Credential[];
 };
@@ -9145,6 +9375,28 @@ export type TCreateFiatOnRampCredentialBody = {
 
 export type TCreateFiatOnRampCredentialInput = {
   body: TCreateFiatOnRampCredentialBody;
+};
+
+export type TCreateFiatOnRampSessionResponse = {
+  activity: v1Activity;
+  /** URL of the fiat on-ramp session for the saved quote. */
+  onRampUrl: string;
+  /** Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
+  onRampTransactionId: string;
+};
+
+export type TCreateFiatOnRampSessionBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Identifier of a saved fiat on-ramp quote. Returned by GetFiatOnRampQuotes. */
+  quoteId: string;
+  /** Destination wallet address for the buy transaction. */
+  walletAddress: string;
+  generateAppProofs?: boolean;
+};
+
+export type TCreateFiatOnRampSessionInput = {
+  body: TCreateFiatOnRampSessionBody;
 };
 
 export type TCreateInvitationsResponse = {
@@ -11528,7 +11780,7 @@ export type TUpsertSwapFeeSponsorshipLimitConfigBody = {
   subOrgWindowLimitUsd: string;
   /** Positive rolling window duration in minutes, at most 153722867. */
   windowDurationMinutes: string;
-  /** Whether this spending window permits new swaps. Setting false only turns the saved window off and keeps its limits; it doesn't require the signed permission. This does not grant or remove the signed organization permission. */
+  /** Whether this spending window permits new swaps. True also grants the billing parent's signed permission for the feature. False turns the saved window off, keeps its limits, and removes the permission. Granting or removing the permission needs root quorum. */
   enabled: boolean;
 };
 
@@ -11551,7 +11803,7 @@ export type TUpsertSwapFixedRateLimitConfigBody = {
   subOrgWindowLimitUsd: string;
   /** Positive rolling window duration in minutes, at most 153722867. */
   windowDurationMinutes: string;
-  /** Whether this spending window permits new swaps. Setting false only turns the saved window off and keeps its limits; it doesn't require the signed permission. This does not grant or remove the signed organization permission. */
+  /** Whether this spending window permits new swaps. True also grants the billing parent's signed permission for the feature. False turns the saved window off, keeps its limits, and removes the permission. Granting or removing the permission needs root quorum. */
   enabled: boolean;
 };
 
@@ -12015,3 +12267,24 @@ export type ProxyTGetWalletKitConfigBody = {};
 export type ProxyTGetWalletKitConfigInput = {
   body: ProxyTGetWalletKitConfigBody;
 };
+
+export const OnRampCaip19Values = [
+  "eip155:1/slip44:60",
+  "eip155:10/slip44:60",
+  "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+  "eip155:8453/slip44:60",
+  "eip155:42161/slip44:60",
+  "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+  "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+  "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+  "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+  "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501",
+  "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+] as const satisfies readonly TGetFiatOnRampQuotesBody["caip19"][];
+
+type _AssertExtends<A extends B, B> = A;
+export type _AssertOnRampCaip19ValuesInSync = _AssertExtends<
+  TGetFiatOnRampQuotesBody["caip19"],
+  (typeof OnRampCaip19Values)[number]
+>;

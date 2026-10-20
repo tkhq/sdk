@@ -694,48 +694,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  getFiatOnRampQuote = async (
-    input: SdkApiTypes.TGetFiatOnRampQuoteBody,
-  ): Promise<SdkApiTypes.TGetFiatOnRampQuoteResponse> => {
-    const sessionData = await getStorageValue(StorageKeys.Session);
-    const session = sessionData ? parseSession(sessionData) : null;
-    return this.request("/public/v1/query/get_fiat_on_ramp_quote", {
-      ...input,
-      organizationId:
-        input.organizationId ??
-        session?.organizationId ??
-        this.config.organizationId,
-    });
-  };
-
-  stampGetFiatOnRampQuote = async (
-    input: SdkApiTypes.TGetFiatOnRampQuoteBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const sessionData = await getStorageValue(StorageKeys.Session);
-    const session = sessionData ? parseSession(sessionData) : null;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_fiat_on_ramp_quote";
-    const body = {
-      ...input,
-      organizationId:
-        input.organizationId ??
-        session?.organizationId ??
-        this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   getGasUsage = async (
     input: SdkApiTypes.TGetGasUsageBody,
   ): Promise<SdkApiTypes.TGetGasUsageResponse> => {
@@ -2307,6 +2265,48 @@ export class TurnkeySDKClientBase {
     const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getFiatOnRampQuotes = async (
+    input: SdkApiTypes.TGetFiatOnRampQuotesBody,
+  ): Promise<SdkApiTypes.TGetFiatOnRampQuotesResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/list_fiat_on_ramp_quotes", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetFiatOnRampQuotes = async (
+    input: SdkApiTypes.TGetFiatOnRampQuotesBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_quotes";
     const body = {
       ...input,
       organizationId:
@@ -4200,7 +4200,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
       },
-      "createSubOrganizationResultV8",
+      "createSubOrganizationResultV9",
     );
   };
 

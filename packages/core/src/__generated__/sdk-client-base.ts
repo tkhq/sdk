@@ -1050,53 +1050,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  getFiatOnRampQuote = async (
-    input: SdkTypes.TGetFiatOnRampQuoteBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TGetFiatOnRampQuoteResponse> => {
-    const session = await this.storageManager?.getActiveSession();
-    return this.request(
-      "/public/v1/query/get_fiat_on_ramp_quote",
-      {
-        ...input,
-        organizationId:
-          input.organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-      },
-      stampWith,
-    );
-  };
-
-  stampGetFiatOnRampQuote = async (
-    input: SdkTypes.TGetFiatOnRampQuoteBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const session = await this.storageManager?.getActiveSession();
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_fiat_on_ramp_quote";
-    const body = {
-      ...input,
-      organizationId:
-        input.organizationId ??
-        session?.organizationId ??
-        this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   getGasUsage = async (
     input: SdkTypes.TGetGasUsageBody,
     stampWith?: StamperType,
@@ -2855,6 +2808,53 @@ export class TurnkeySDKClientBase {
     const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getFiatOnRampQuotes = async (
+    input: SdkTypes.TGetFiatOnRampQuotesBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetFiatOnRampQuotesResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_fiat_on_ramp_quotes",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetFiatOnRampQuotes = async (
+    input: SdkTypes.TGetFiatOnRampQuotesBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_quotes";
     const body = {
       ...input,
       organizationId:
@@ -4973,7 +4973,7 @@ export class TurnkeySDKClientBase {
         generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
       },
-      "createSubOrganizationResultV8",
+      "createSubOrganizationResultV9",
       stampWith,
     );
   };
