@@ -36,6 +36,8 @@ import { AttestedScheme, AttestedStamper } from "../__stampers__/attested/base";
 
 const API_BASE_URL = "https://api.test";
 const FAILING_PUBLIC_KEY = "failing-key";
+// stamp_login for keys with this prefix returns ACTIVITY_STATUS_AUTHENTICATORS_NEEDED
+const MFA_KEY_PREFIX = "mfa-";
 
 type RecordedRequest = {
   url: string;
@@ -80,6 +82,7 @@ function decodeStamp(headerValue: string): RecordedRequest["stamp"] {
 
 // Mocked fetch: records each stamped request. stamp_login returns a pending
 // activity, so every login also polls get_activity with the attested stamper.
+// Keys with MFA_KEY_PREFIX need MFA, so their login also calls get_mfa_status.
 function installFetchMock(): RecordedRequest[] {
   const requests: RecordedRequest[] = [];
 
@@ -106,10 +109,17 @@ function installFetchMock(): RecordedRequest[] {
         activity: {
           id: `activity-${publicKey}`,
           organizationId: body.organizationId,
-          status: "ACTIVITY_STATUS_PENDING",
+          status: publicKey.startsWith(MFA_KEY_PREFIX)
+            ? "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED"
+            : "ACTIVITY_STATUS_PENDING",
           type: "ACTIVITY_TYPE_STAMP_LOGIN",
+          fingerprint: `fingerprint-${publicKey}`,
         },
       });
+    }
+
+    if (String(url).endsWith("/public/v1/query/get_mfa_status")) {
+      return json({ mfaStatuses: [{ status: "pending" }] });
     }
 
     if (String(url).endsWith("/public/v1/query/get_activity")) {
@@ -131,7 +141,13 @@ function installFetchMock(): RecordedRequest[] {
   return requests;
 }
 
-function createClient(signDelays: Record<string, number> = {}): TurnkeyClient {
+function createClient(
+  signDelays: Record<string, number> = {},
+  options: {
+    getActiveSessionDelayMs?: number;
+    onMfaRequired?: () => Promise<void>;
+  } = {},
+): TurnkeyClient {
   const signer = createFakeSigner(signDelays);
   const attestedStamper = new AttestedStamper(signer as any);
 
@@ -140,13 +156,24 @@ function createClient(signDelays: Record<string, number> = {}): TurnkeyClient {
     apiBaseUrl: API_BASE_URL,
   });
 
+  (client as any).apiKeyStamper = signer;
   (client as any).attestedStamper = attestedStamper;
   (client as any).httpClient = new TurnkeySDKClientBase({
     apiBaseUrl: API_BASE_URL,
     organizationId: "org-id",
     attestedStamper,
     activityPoller: { intervalMs: 5, numRetries: 3 },
+    storageManager: {
+      getActiveSession: async () => {
+        await sleep(options.getActiveSessionDelayMs ?? 0);
+        return undefined;
+      },
+    } as any,
   });
+  // The wallet kits set onMfaRequired on httpClient.config after init.
+  if (options.onMfaRequired) {
+    client.httpClient.config.onMfaRequired = options.onMfaRequired;
+  }
   (client as any).storeSession = jest.fn(async () => {});
   (client as any).deleteApiKeyPair = jest.fn(async () => {});
 
@@ -182,6 +209,20 @@ const oauthIdentity = (publicKey: string) => ({
   attestation: oidcTokenFor(publicKey),
   scheme: AttestedScheme.P256_OIDC,
 });
+
+// Fails if `promise` does not settle within `ms`, so a hung login fails fast.
+function within<T>(promise: Promise<T>, ms = 2000): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      timer = setTimeout(
+        () => reject(new Error(`timed out after ${ms}ms`)),
+        ms,
+      );
+    }),
+  ]).finally(() => clearTimeout(timer));
+}
 
 describe("attested stamper concurrency", () => {
   const originalFetch = global.fetch;
@@ -271,7 +312,7 @@ describe("attested stamper concurrency", () => {
     });
   });
 
-  it("lets the next login run after a login fails", async () => {
+  it("keeps other logins working when a login fails", async () => {
     const client = createClient({ [FAILING_PUBLIC_KEY]: 30 });
 
     const [failed, b] = await Promise.allSettled([
@@ -297,6 +338,82 @@ describe("attested stamper concurrency", () => {
       "key-c": oauthIdentity("key-c"),
     });
   }, 5000);
+
+  it("binds a login to its own principal when overrideAttestedStamper is called during it", async () => {
+    // Models the wallet kits, which call overrideAttestedStamper directly
+    // (for example after verifyOtp) while another login can be in flight.
+    const client = createClient({}, { getActiveSessionDelayMs: 10 });
+
+    const login = client.loginWithOtp({
+      verificationToken: verificationTokenFor("key-a"),
+    });
+    await sleep(1);
+    await client.overrideAttestedStamper({
+      verificationToken: verificationTokenFor("key-b"),
+      publicKey: "key-b",
+    });
+
+    expect((await login).sessionToken).toBe("session-key-a");
+    expectRequestsBoundToOwnPrincipal(requests, {
+      "key-a": otpIdentity("key-a"),
+    });
+    // The direct override still configures the shared stamper.
+    expect((client as any).attestedStamper.publicKey).toBe("key-b");
+  });
+
+  it("does not block other logins while an MFA handler is pending", async () => {
+    const client = createClient(
+      {},
+      { onMfaRequired: () => new Promise<void>(() => {}) },
+    );
+
+    // never settles: its MFA handler never resolves
+    void client.loginWithOauth({
+      oidcToken: oidcTokenFor("mfa-key-a"),
+      publicKey: "mfa-key-a",
+    });
+    await sleep(20);
+
+    const b = await within(
+      client.loginWithOtp({ verificationToken: verificationTokenFor("key-b") }),
+    );
+
+    expect(b.sessionToken).toBe("session-key-b");
+    expectRequestsBoundToOwnPrincipal(requests, {
+      "mfa-key-a": oauthIdentity("mfa-key-a"),
+      "key-b": otpIdentity("key-b"),
+    });
+  });
+
+  it("does not deadlock when an MFA handler starts a login", async () => {
+    let client!: TurnkeyClient;
+    let nested: Promise<unknown> | undefined;
+    client = createClient(
+      {},
+      {
+        onMfaRequired: async () => {
+          nested = client.loginWithOauth({
+            oidcToken: oidcTokenFor("key-b"),
+            publicKey: "key-b",
+          });
+          await nested;
+        },
+      },
+    );
+
+    const a = await within(
+      client.loginWithOtp({
+        verificationToken: verificationTokenFor("mfa-key-a"),
+      }),
+    );
+
+    expect(a.sessionToken).toBe("session-mfa-key-a");
+    expect(await nested).toEqual({ sessionToken: "session-key-b" });
+    expectRequestsBoundToOwnPrincipal(requests, {
+      "mfa-key-a": otpIdentity("mfa-key-a"),
+      "key-b": oauthIdentity("key-b"),
+    });
+  });
 
   it("builds the stamp from the config present when stamp() was called", async () => {
     const stamper = new AttestedStamper(

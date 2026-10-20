@@ -2,4 +2,4 @@
 "@turnkey/core": patch
 ---
 
-Concurrent `loginWithOtp` and `loginWithOauth` calls on one client now run their `stampLogin` request one at a time, so each request is stamped with the identity of its own login. `AttestedStamper.stamp()` now reads its configuration once, before it signs, so a concurrent `configure()` or `clear()` cannot change the stamp it is building.
+`loginWithOtp` and `loginWithOauth` now stamp their `stampLogin` request, activity polling and MFA status requests with an attested stamper that only that login uses. A concurrent login or `overrideAttestedStamper` call no longer changes the identity these requests are stamped with. Both methods still configure the shared attested stamper, as before. `AttestedStamper.stamp()` now reads its configuration once, before it signs.
