@@ -2,7 +2,12 @@ import type { WalletInterface } from "@turnkey/wallet-stamper";
 import type { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
-import { getWebAuthnAttestation } from "@turnkey/http";
+import {
+  assertActivityCompleted,
+  getWebAuthnAttestation,
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
+} from "@turnkey/http";
 import { type Session, SessionType, SignatureFormat } from "@turnkey/sdk-types";
 
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
@@ -118,6 +123,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     const readOnlySessionResult = await this.createReadOnlySession(
       config || {},
     );
+    assertActivityCompleted(readOnlySessionResult.activity);
     const session: Session = {
       sessionType: SessionType.READ_ONLY,
       userId: readOnlySessionResult.userId,
@@ -162,6 +168,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           }
 
           const result = await this.createReadOnlySession({});
+          assertActivityCompleted(result.activity);
           const session: Session = {
             sessionType: SessionType.READ_ONLY,
             userId: result.userId,
@@ -242,6 +249,12 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           throw new Error(`Invalid session type passed: ${sessionType}`);
       }
     } catch (error) {
+      if (
+        error instanceof TurnkeyActivityError ||
+        error instanceof TurnkeyActivityConsensusNeededError
+      ) {
+        throw error;
+      }
       throw new Error(`Unable to refresh session: ${error}`);
     }
   };
@@ -320,6 +333,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       // Create a read-only session
       if (sessionType === SessionType.READ_ONLY) {
         const readOnlySessionResult = await this.createReadOnlySession({});
+        assertActivityCompleted(readOnlySessionResult.activity);
 
         const session: Session = {
           sessionType: SessionType.READ_ONLY,
@@ -348,6 +362,12 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
     } catch (error) {
+      if (
+        error instanceof TurnkeyActivityError ||
+        error instanceof TurnkeyActivityConsensusNeededError
+      ) {
+        throw error;
+      }
       throw new Error(`Unable to log in with the provided passkey: ${error}`);
     }
   };
@@ -372,6 +392,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
       if (sessionType === SessionType.READ_ONLY) {
         const readOnlySessionResult = await this.createReadOnlySession({});
+        assertActivityCompleted(readOnlySessionResult.activity);
 
         const session: Session = {
           sessionType: SessionType.READ_ONLY,
@@ -400,6 +421,12 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
     } catch (error) {
+      if (
+        error instanceof TurnkeyActivityError ||
+        error instanceof TurnkeyActivityConsensusNeededError
+      ) {
+        throw error;
+      }
       throw new Error(`Unable to log in with the provided wallet: ${error}`);
     }
   };
