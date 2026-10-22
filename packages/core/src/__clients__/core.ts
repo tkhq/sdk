@@ -116,6 +116,7 @@ import {
   type OverridePasskeyStamperParams,
   type OverrideAttestedStamperParams,
   type DeleteApiKeyPairParams,
+  type TurnkeyHttpClientConfig,
 } from "../__types__";
 import {
   TurnkeyActivityConsensusNeededError,
@@ -1600,7 +1601,7 @@ export class TurnkeyClient {
     );
   };
 
-  // A per-call stamper, so a concurrent login or overrideAttestedStamper cannot change this login's identity.
+  // Per-login stamper, so concurrent logins cannot change this login's identity.
   private stampLoginWithAttestedConfig = async (
     attestedConfig: AttestedConfig,
     input: TStampLoginBody,
@@ -1619,7 +1620,7 @@ export class TurnkeyClient {
     return new TurnkeySDKClientBase(
       Object.create(this.httpClient.config, {
         attestedStamper: { value: attestedStamper, enumerable: true },
-      }),
+      }) as TurnkeyHttpClientConfig,
     ).stampLogin(input, StamperType.Attested);
   };
 
