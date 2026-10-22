@@ -1,5 +1,12 @@
 # @turnkey/sdk-react
 
+## 6.0.15
+
+### Patch Changes
+
+- Updated dependencies [[`196389b`](https://github.com/tkhq/sdk/commit/196389b40332cacfb0cc2746bdf8b7b47ac8eee6)]:
+  - @turnkey/sdk-server@8.8.0
+
 ## 6.0.14
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @turnkey/eip-1193-provider
 
+## 3.4.48
+
+### Patch Changes
+
+- Updated dependencies [[`a1a9403`](https://github.com/tkhq/sdk/commit/a1a9403797d5ee6c543f9401d9c0d6fd0b23b3d0)]:
+  - @turnkey/core@2.13.2
+
 ## 3.4.47
 
 ### Patch Changes
