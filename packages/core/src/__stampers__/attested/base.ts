@@ -38,8 +38,7 @@ export class AttestedStamper implements TStamper {
   }
 
   async stamp(payload: string): Promise<TStamp> {
-    // Copy the config before the first await so that a concurrent configure()
-    // or clear() cannot change it between signing and building the stamp.
+    // Copy before awaiting so a concurrent configure() or clear() cannot change the stamp.
     const { attestedIdentity, publicKey, scheme } = this;
 
     if (!attestedIdentity) {

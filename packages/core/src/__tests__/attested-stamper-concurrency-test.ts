@@ -63,8 +63,7 @@ function oidcTokenFor(publicKey: string): string {
   return `oidc-${publicKey}`;
 }
 
-// Fake signer: the signature names the key that signed, and keys listed in
-// `signDelays` take longer to sign so that concurrent logins interleave.
+// The signature names the signing key; `signDelays` slows keys so logins interleave.
 function createFakeSigner(signDelays: Record<string, number>) {
   return {
     sign: jest.fn(
@@ -80,9 +79,7 @@ function decodeStamp(headerValue: string): RecordedRequest["stamp"] {
   return JSON.parse(Buffer.from(headerValue, "base64url").toString("utf8"));
 }
 
-// Mocked fetch: records each stamped request. stamp_login returns a pending
-// activity, so every login also polls get_activity with the attested stamper.
-// Keys with MFA_KEY_PREFIX need MFA, so their login also calls get_mfa_status.
+// Records each stamped request; stamp_login returns a pending activity so every login also polls.
 function installFetchMock(): RecordedRequest[] {
   const requests: RecordedRequest[] = [];
 
@@ -180,9 +177,7 @@ function createClient(
   return client;
 }
 
-// Every request must be stamped with the identity of the principal it is for:
-// the stamp's public key matches the key in the body (or the activity being
-// polled), and the attestation and signature belong to that same key.
+// Each request's stamp must match the key in its body (or the polled activity).
 function expectRequestsBoundToOwnPrincipal(
   requests: RecordedRequest[],
   identities: Record<string, { attestation: string; scheme: AttestedScheme }>,
@@ -340,8 +335,7 @@ describe("attested stamper concurrency", () => {
   }, 5000);
 
   it("binds a login to its own principal when overrideAttestedStamper is called during it", async () => {
-    // Models the wallet kits, which call overrideAttestedStamper directly
-    // (for example after verifyOtp) while another login can be in flight.
+    // The wallet kits call overrideAttestedStamper directly, e.g. after verifyOtp.
     const client = createClient({}, { getActiveSessionDelayMs: 10 });
 
     const login = client.loginWithOtp({
@@ -413,6 +407,34 @@ describe("attested stamper concurrency", () => {
       "mfa-key-a": otpIdentity("mfa-key-a"),
       "key-b": oauthIdentity("key-b"),
     });
+  });
+
+  it("does not call an MFA handler cleared during a login", async () => {
+    const onMfaRequired = jest.fn(() => new Promise<void>(() => {}));
+    const client = createClient({ "mfa-key-a": 30 }, { onMfaRequired });
+
+    const login = client.loginWithOtp({
+      verificationToken: verificationTokenFor("mfa-key-a"),
+    });
+    await sleep(10);
+    client.httpClient.config.onMfaRequired = undefined;
+
+    await expect(within(login)).rejects.toThrow("No session returned");
+    expect(onMfaRequired).not.toHaveBeenCalled();
+  });
+
+  it("calls an MFA handler set during a login", async () => {
+    const onMfaRequired = jest.fn(async () => {});
+    const client = createClient({ "mfa-key-a": 30 });
+
+    const login = client.loginWithOtp({
+      verificationToken: verificationTokenFor("mfa-key-a"),
+    });
+    await sleep(10);
+    client.httpClient.config.onMfaRequired = onMfaRequired;
+
+    expect((await within(login)).sessionToken).toBe("session-mfa-key-a");
+    expect(onMfaRequired).toHaveBeenCalledTimes(1);
   });
 
   it("builds the stamp from the config present when stamp() was called", async () => {

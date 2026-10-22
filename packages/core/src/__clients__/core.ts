@@ -1600,13 +1600,7 @@ export class TurnkeyClient {
     );
   };
 
-  /**
-   * Calls stampLogin with an attested stamper that only this call uses.
-   *
-   * - The login request, activity polling and MFA status requests are stamped with `attestedConfig`.
-   * - They do not read the shared attested stamper, so a concurrent login or `overrideAttestedStamper`
-   *   call cannot change the identity they are stamped with.
-   */
+  // A per-call stamper, so a concurrent login or overrideAttestedStamper cannot change this login's identity.
   private stampLoginWithAttestedConfig = async (
     attestedConfig: AttestedConfig,
     input: TStampLoginBody,
@@ -1621,11 +1615,12 @@ export class TurnkeyClient {
     const attestedStamper = new AttestedStamper(this.apiKeyStamper);
     attestedStamper.configure(attestedConfig);
 
-    // Use httpClient.config, not this.config, so settings changed after init (such as onMfaRequired) apply.
-    return new TurnkeySDKClientBase({
-      ...this.httpClient.config,
-      attestedStamper,
-    }).stampLogin(input, StamperType.Attested);
+    // Inherit from httpClient.config so later changes to it (such as onMfaRequired) still apply.
+    return new TurnkeySDKClientBase(
+      Object.create(this.httpClient.config, {
+        attestedStamper: { value: attestedStamper, enumerable: true },
+      }),
+    ).stampLogin(input, StamperType.Attested);
   };
 
   /**
