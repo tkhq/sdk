@@ -4,6 +4,7 @@ interface PasskeyButtonsProps {
   onLogin: () => void;
   onSignUp: () => void;
   disabled?: boolean;
+  hideSignUp?: boolean;
 }
 
 export function PasskeyButtons(props: PasskeyButtonsProps) {
@@ -18,14 +19,16 @@ export function PasskeyButtons(props: PasskeyButtonsProps) {
       >
         Log in with passkey
       </ActionButton>
-      <ActionButton
-        name="passkey-signup-button"
-        onClick={onSignUp}
-        className="w-full bg-transparent text-primary-light dark:text-primary-dark border-none"
-        disabled={props.disabled ?? false}
-      >
-        Sign up with passkey
-      </ActionButton>
+      {!(props.hideSignUp ?? false) && (
+        <ActionButton
+          name="passkey-signup-button"
+          onClick={onSignUp}
+          className="w-full bg-transparent text-primary-light dark:text-primary-dark border-none"
+          disabled={props.disabled ?? false}
+        >
+          Sign up with passkey
+        </ActionButton>
+      )}
     </div>
   );
 }
