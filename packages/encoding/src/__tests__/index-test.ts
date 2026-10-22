@@ -5,7 +5,15 @@ import {
   uint8ArrayToHexString,
   base64StringToBase64UrlEncodedString,
   hexStringToBase64url,
+  decodeBase64urlToString,
 } from "..";
+
+test("decodeBase64urlToString decodes UTF-8 bytes", () => {
+  expect(decodeBase64urlToString("8J-agHVzZXJAZXhhbXBsZS5jb20")).toBe(
+    "🚀user@example.com",
+  );
+  expect(() => decodeBase64urlToString("_w")).toThrow();
+});
 
 // Test for stringToBase64urlString
 // These test vectors can be verified with NodeJS:
