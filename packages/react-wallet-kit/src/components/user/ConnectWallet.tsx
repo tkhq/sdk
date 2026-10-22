@@ -1,12 +1,12 @@
-import type { WalletAccount } from "@turnkey/core";
 import {
   ExternalWalletSelector,
   WalletSelectorMode,
 } from "../auth/wallet/ExternalWalletSelector";
+import type { HandleConnectExternalWalletResult } from "../../types/method-types";
 
 interface ConnectWalletModalProps {
   successPageDuration?: number | undefined;
-  onSuccess: (type: "connect" | "disconnect", account: WalletAccount) => void;
+  onSuccess: (result: HandleConnectExternalWalletResult) => void;
 }
 
 export function ConnectWalletModal(props: ConnectWalletModalProps) {
