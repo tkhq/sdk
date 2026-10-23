@@ -28,14 +28,17 @@ export function providerName(provider: v1FiatOnRampProvider) {
   return providerNames[provider];
 }
 
+export type QuoteAmountBasis = "fiat" | "crypto";
+
 export type QuoteOptionProps = {
   quote: v1FiatOnRampQuote;
   amount?: string | undefined;
+  amountBasis?: QuoteAmountBasis | undefined;
   onSelect: (quote: v1FiatOnRampQuote) => void;
 };
 
 export function QuoteOption(props: QuoteOptionProps) {
-  const { quote, amount, onSelect } = props;
+  const { quote, amount, amountBasis, onSelect } = props;
 
   return (
     <BaseButton
@@ -44,7 +47,7 @@ export function QuoteOption(props: QuoteOptionProps) {
       onClick={() => onSelect(quote)}
       className="flex w-full flex-col gap-2 rounded-md border border-modal-background-dark/20 dark:border-modal-background-light/20 bg-button-light dark:bg-button-dark px-3 py-3 text-left text-sm box-border transition-all focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0"
     >
-      <QuoteSummary quote={quote} amount={amount} />
+      <QuoteSummary quote={quote} amount={amount} amountBasis={amountBasis} />
     </BaseButton>
   );
 }
@@ -52,14 +55,19 @@ export function QuoteOption(props: QuoteOptionProps) {
 export function QuoteSummary(props: {
   quote: v1FiatOnRampQuote;
   amount?: string | undefined;
+  amountBasis?: QuoteAmountBasis | undefined;
   showChevron?: boolean;
 }) {
-  const { quote, amount, showChevron } = props;
+  const { quote, amount, amountBasis = "fiat", showChevron } = props;
   const { assetsByCaip2 } = useSupportedAssets();
-  const fiatComparison =
+  const compared =
     amount === undefined
       ? undefined
-      : compareFiatAmount(quote.fiatAmount, amount);
+      : compareFiatAmount(
+          amountBasis === "crypto" ? quote.cryptoAmount : quote.fiatAmount,
+          amount,
+        );
+  const warning = compared ? `${compared} than input amount` : undefined;
   const ProviderLogo = providerLogos[quote.onrampProvider];
 
   return (
@@ -67,13 +75,12 @@ export function QuoteSummary(props: {
       <QuoteRow
         label="Fiat amount"
         value={formatFiat(quote.fiatAmount, quote.fiatCurrencyCode)}
-        warning={
-          fiatComparison ? `${fiatComparison} than input amount` : undefined
-        }
+        warning={amountBasis === "fiat" ? warning : undefined}
       />
       <QuoteRow
         label="Crypto amount"
         value={`${quote.cryptoAmount.display} ${tokenSymbol(quote.caip19, assetsByCaip2)}`}
+        warning={amountBasis === "crypto" ? warning : undefined}
       />
       <QuoteRow
         label="Total fee"

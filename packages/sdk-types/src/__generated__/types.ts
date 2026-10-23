@@ -1116,6 +1116,16 @@ export type v1CreateFiatOffRampSessionIntent = {
   redirectUrl?: string;
 };
 
+export type v1CreateFiatOffRampSessionRequest = {
+  type: "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateFiatOffRampSessionIntent;
+  generateAppProofs?: boolean;
+};
+
 export type v1CreateFiatOffRampSessionResult = {
   /** URL of the fiat off-ramp session for the saved quote. */
   offRampUrl: string;
@@ -3620,6 +3630,41 @@ export type v1FeatureName =
   | "FEATURE_NAME_SWAP_FEE_SPONSORSHIP"
   | "FEATURE_NAME_SWAP_FIXED_RATE";
 
+export type v1FiatOffRampQuote = {
+  /** Identifier for this saved quote. */
+  quoteId: string;
+  /** Provider that produced this quote. */
+  provider: v1FiatOnRampProvider;
+  /** Underlying provider when provider aggregates several. */
+  serviceProvider?: string;
+  /** Fiat the user receives, in atomic units of fiat_currency_code. For USD, 100 dollars is "10000". */
+  fiatAmount: v1FiatOnRampAmount;
+  /** Fiat currency of fiat_amount and total_fee. */
+  fiatCurrencyCode: v1FiatOnRampCurrency;
+  /** Cryptocurrency the user would sell, in atomic units. Not locked in the session. */
+  cryptoAmount: v1FiatOnRampAmount;
+  /** CAIP-19 asset of crypto_amount. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** Payout method this quote was priced for. Bank transfers are not included. */
+  paymentMethod: v1FiatOnRampPaymentMethod;
+  /** Total fee in atomic units of fiat_currency_code. */
+  totalFee: v1FiatOnRampAmount;
+  /** Quote expiration as a millisecond epoch string. Empty when the provider does not send one. */
+  expiresAt?: string;
+};
+
 export type v1FiatOnRampAmount = {
   /** Amount in atomic units. Use this to compare quotes. Do not use display. */
   amount: string;
@@ -3942,6 +3987,40 @@ export type v1GetEarnWithdrawStatusResponse = {
   withdrawTxHash?: string;
   /** Reason the withdrawal transaction failed, when status is FAILED. */
   error?: string;
+};
+
+export type v1GetFiatOffRampQuotesRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Crypto amount the user wants to sell, in major units of the caip19 asset. For example, "0.05" for 0.05 ETH. The wallet address is not part of this query. */
+  cryptoAmount: string;
+  /** Fiat currency the user receives, for example USD. */
+  fiatCurrencyCode: v1FiatOnRampCurrency;
+  /** CAIP-19 asset to sell. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** ISO 3166-1 alpha-2 country code of the selling user, for example US. When omitted, the country is taken from the location of the request. */
+  countryCode?: string;
+  /** ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request. */
+  countrySubdivisionCode?: string;
+  /** Quote sandbox credentials when true. Defaults to false. */
+  sandboxMode?: boolean;
+};
+
+export type v1GetFiatOffRampQuotesResponse = {
+  /** One quote per provider and payment method that can serve this route. Empty when none can. */
+  quotes: v1FiatOffRampQuote[];
 };
 
 export type v1GetFiatOnRampQuotesRequest = {
@@ -8922,6 +9001,41 @@ export type TListEthTransactionHistoryInput = {
   body: TListEthTransactionHistoryBody;
 };
 
+export type TGetFiatOffRampQuotesResponse = {
+  /** One quote per provider and payment method that can serve this route. Empty when none can. */
+  quotes: v1FiatOffRampQuote[];
+};
+
+export type TGetFiatOffRampQuotesBody = {
+  organizationId?: string;
+  /** Crypto amount the user wants to sell, in major units of the caip19 asset. For example, "0.05" for 0.05 ETH. The wallet address is not part of this query. */
+  cryptoAmount: string;
+  /** Fiat currency the user receives, for example USD. */
+  fiatCurrencyCode: v1FiatOnRampCurrency;
+  /** CAIP-19 asset to sell. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** ISO 3166-1 alpha-2 country code of the selling user, for example US. When omitted, the country is taken from the location of the request. */
+  countryCode?: string;
+  /** ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request. */
+  countrySubdivisionCode?: string;
+  /** Quote sandbox credentials when true. Defaults to false. */
+  sandboxMode?: boolean;
+};
+
+export type TGetFiatOffRampQuotesInput = { body: TGetFiatOffRampQuotesBody };
+
 export type TListFiatOnRampCredentialsResponse = {
   fiatOnRampCredentials: v1FiatOnRampCredential[];
 };
@@ -9348,6 +9462,30 @@ export type TCreateAuthenticatorsBody = {
 };
 
 export type TCreateAuthenticatorsInput = { body: TCreateAuthenticatorsBody };
+
+export type TCreateFiatOffRampSessionResponse = {
+  activity: v1Activity;
+  /** URL of the fiat off-ramp session for the saved quote. */
+  offRampUrl: string;
+  /** Unique identifier used to retrieve transaction statuses for a given fiat off-ramp flow. */
+  offRampTransactionId: string;
+};
+
+export type TCreateFiatOffRampSessionBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Identifier of a saved fiat off-ramp quote. Returned by GetFiatOffRampQuotes. */
+  quoteId: string;
+  /** Wallet address for this sale. Coinbase uses it as the source address. MoonPay uses it as the refund address; the user deposits the crypto to MoonPay separately. */
+  walletAddress: string;
+  /** URL Coinbase redirects to after the user submits the sell. Required when the saved quote is from Coinbase. Coinbase buy does not use this field. MoonPay ignores it. */
+  redirectUrl?: string;
+  generateAppProofs?: boolean;
+};
+
+export type TCreateFiatOffRampSessionInput = {
+  body: TCreateFiatOffRampSessionBody;
+};
 
 export type TCreateFiatOnRampCredentialResponse = {
   activity: v1Activity;
