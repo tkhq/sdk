@@ -26,6 +26,8 @@ export type OnRampStatusPageProps = {
   provider: v1FiatOnRampProvider;
   openedInNewTab: boolean;
   successPageDuration?: number | undefined;
+  successText?: string | undefined;
+  statusLabel?: string | undefined;
   onSuccess: () => void;
   onError: (error: unknown) => void;
 };
@@ -38,6 +40,8 @@ export function OnRampStatusPage(props: OnRampStatusPageProps) {
     provider,
     openedInNewTab,
     successPageDuration = 2000,
+    successText = "Purchase complete",
+    statusLabel = "Onramp",
     onSuccess,
     onError,
   } = props;
@@ -83,7 +87,7 @@ export function OnRampStatusPage(props: OnRampStatusPageProps) {
           finish(() => {
             onError(
               new TurnkeyError(
-                `Onramp transaction ${response.transactionStatus}.`,
+                `${statusLabel} transaction ${response.transactionStatus}.`,
                 TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
               ),
             );
@@ -110,13 +114,14 @@ export function OnRampStatusPage(props: OnRampStatusPageProps) {
     onError,
     organizationId,
     stampWith,
+    statusLabel,
     transactionId,
   ]);
 
   if (completed) {
     return (
       <SuccessPage
-        text="Purchase complete"
+        text={successText}
         duration={successPageDuration}
         onComplete={() => {
           onSuccess();

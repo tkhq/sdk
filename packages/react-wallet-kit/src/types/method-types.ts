@@ -295,6 +295,23 @@ export type HandleOnRampParams = {
   rpcUrl?: string;
 };
 
+export type HandleOffRampParams = {
+  walletAccount?: WalletAccount;
+  lockedCaip2?: OnRampCaip2;
+  lockedCaip19?: OnRampCaip19;
+  fiatCurrencyCode?: v1FiatOnRampCurrency;
+  defaultCryptoAmount?: string;
+  countryCode?: string;
+  countrySubdivisionCode?: string;
+  sandboxMode?: boolean;
+  organizationId?: string;
+  userId?: string;
+  stampWith?: StamperType;
+  successPageDuration?: number;
+  openInNewTab?: boolean;
+  rpcUrl?: string;
+};
+
 export type HandleSendTransactionParams = {
   // Required Turnkey context
   organizationId?: string;

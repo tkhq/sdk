@@ -139,7 +139,7 @@ async function buildUnsignedEthereumTransaction(
   }
 }
 
-async function buildUnsignedSolanaTransaction(
+export async function buildUnsignedSolanaTransaction(
   transfer: OnRampCryptoTransfer,
   rpcUrl: string,
 ) {

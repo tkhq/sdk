@@ -200,6 +200,7 @@ import type {
   HandleImportPrivateKeyParams,
   HandleImportWalletParams,
   HandleLoginParams,
+  HandleOffRampParams,
   HandleOnRampParams,
   HandleRemoveOauthProviderParams,
   HandleRemovePasskeyParams,
@@ -217,6 +218,7 @@ import type {
   RefreshWalletsParams,
 } from "../../types/method-types";
 import { VerifyPage } from "../../components/verify/Verify";
+import { OffRampPage } from "../../components/onramp/OffRamp";
 import { OnRampPage, OnRampProviders } from "../../components/onramp/OnRamp";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
 import { getChainLogo } from "../../components/send-transaction/helpers";
@@ -6205,6 +6207,68 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [getSession, pushPage],
   );
 
+  const handleOffRamp = useCallback(
+    async (params: HandleOffRampParams): Promise<void> => {
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
+      if (!organizationId) {
+        throw new TurnkeyError(
+          "A session or passed in organization ID is required.",
+          TurnkeyErrorCodes.INVALID_REQUEST,
+        );
+      }
+
+      const sandboxMode = params.sandboxMode ?? true;
+
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        const resolveOnce = () => {
+          if (settled) return;
+          settled = true;
+          resolve();
+        };
+        const rejectOnce = (error: unknown) => {
+          if (settled) return;
+          settled = true;
+          reject(error);
+        };
+
+        pushPage({
+          key: "Cash out",
+          content: (
+            <OffRampPage
+              lockedCaip2={params.lockedCaip2}
+              lockedCaip19={params.lockedCaip19}
+              walletAccount={params.walletAccount}
+              sandboxMode={sandboxMode}
+              organizationId={organizationId}
+              stampWith={params.stampWith}
+              fiatCurrencyCode={params.fiatCurrencyCode}
+              defaultCryptoAmount={params.defaultCryptoAmount}
+              countryCode={params.countryCode}
+              countrySubdivisionCode={params.countrySubdivisionCode}
+              openInNewTab={params.openInNewTab}
+              successPageDuration={params.successPageDuration}
+              rpcUrl={params.rpcUrl}
+              onSuccess={resolveOnce}
+              onError={rejectOnce}
+            />
+          ),
+          contextProvider: OnRampProviders,
+          preventBack: true,
+          onClose: () =>
+            rejectOnce(
+              new TurnkeyError(
+                "User canceled the offramp process.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
+        });
+      });
+    },
+    [getSession, pushPage],
+  );
+
   const handleVerifyAppProofs = useCallback(
     async (params: HandleVerifyAppProofsParams): Promise<void> => {
       const { appProofs, successPageDuration = 3000, stampWith } = params || {};
@@ -6558,6 +6622,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleRemoveUserPhoneNumber,
         handleVerifyAppProofs,
         handleOnRamp,
+        handleOffRamp,
         handleSendTransaction,
         handleSendErc20Transfer,
         setMfaHandler,

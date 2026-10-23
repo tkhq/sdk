@@ -579,6 +579,17 @@ export type TListEthTransactionHistoryBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetFiatOffRampQuotesResponse =
+  operations["PublicApiService_GetFiatOffRampQuotes"]["responses"]["200"]["schema"];
+
+export type TGetFiatOffRampQuotesInput = { body: TGetFiatOffRampQuotesBody };
+
+export type TGetFiatOffRampQuotesBody = Omit<
+  operations["PublicApiService_GetFiatOffRampQuotes"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TListFiatOnRampCredentialsResponse =
   operations["PublicApiService_ListFiatOnRampCredentials"]["responses"]["200"]["schema"];
 
@@ -886,6 +897,18 @@ export type TCreateAuthenticatorsInput = { body: TCreateAuthenticatorsBody };
 
 export type TCreateAuthenticatorsBody =
   operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateFiatOffRampSessionResponse =
+  operations["PublicApiService_CreateFiatOffRampSession"]["responses"]["200"]["schema"]["activity"]["result"]["createFiatOffRampSessionResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateFiatOffRampSessionInput = {
+  body: TCreateFiatOffRampSessionBody;
+};
+
+export type TCreateFiatOffRampSessionBody =
+  operations["PublicApiService_CreateFiatOffRampSession"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateFiatOnRampCredentialResponse =

@@ -253,6 +253,33 @@ export default function AuthPage() {
       console.error("Fiat OnRamp failed:", err);
     }
   };
+  const handleOffRamp = async () => {
+    try {
+      if (!wallets.length || !wallets[0]?.accounts?.length) {
+        console.error("No wallets available for offramp");
+        return;
+      }
+
+      const evmAccount: WalletAccount | undefined = wallets[0].accounts.find(
+        (a) => a.addressFormat === "ADDRESS_FORMAT_ETHEREUM",
+      );
+
+      if (!evmAccount) {
+        console.error("No EVM-compatible account found for offramp");
+        return;
+      }
+
+      await turnkey.handleOffRamp({
+        walletAccount: evmAccount,
+        sandboxMode: true,
+        defaultCryptoAmount: "0.05",
+        countryCode: "US",
+        countrySubdivisionCode: "OR",
+      });
+    } catch (err) {
+      console.error("Fiat OffRamp failed:", err);
+    }
+  };
 
   const signWithViem = async () => {
     const turnkeyAccount = await createAccount({
@@ -1399,6 +1426,18 @@ export default function AuthPage() {
                 }}
               >
                 Onramp
+              </button>
+              <button
+                data-testid="show-offramp-modal"
+                onClick={handleOffRamp}
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Offramp
               </button>
             </>
           )}

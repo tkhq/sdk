@@ -2,6 +2,7 @@
 
 import { ClientProvider } from "./client/Provider";
 import { ModalProvider } from "./modal/Provider";
+import { OffRampReturn } from "../components/onramp/OffRampReturn";
 import { ModalRoot } from "./modal/Root";
 import { TurnkeyThemeOverrides } from "./theme/Overrides";
 import type { TurnkeyCallbacks, TurnkeyProviderConfig } from "../types/base";
@@ -33,6 +34,7 @@ export function TurnkeyProvider({
           </div>
         )}
 
+        <OffRampReturn />
         <ModalRoot config={config} />
       </ClientProvider>
     </ModalProvider>
