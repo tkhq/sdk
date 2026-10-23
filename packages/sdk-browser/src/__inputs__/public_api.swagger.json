@@ -1680,6 +1680,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/query/list_fiat_off_ramp_quotes": {
+      "post": {
+        "summary": "List Fiat Off Ramp quotes",
+        "description": "Quote enabled fiat off-ramp providers for a sell. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.",
+        "operationId": "PublicApiService_GetFiatOffRampQuotes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetFiatOffRampQuotesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetFiatOffRampQuotesRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
+      }
+    },
     "/public/v1/query/list_fiat_on_ramp_credentials": {
       "post": {
         "summary": "List Fiat On Ramp credentials",
@@ -2574,6 +2606,38 @@
           }
         ],
         "tags": ["Authenticators"]
+      }
+    },
+    "/public/v1/submit/create_fiat_off_ramp_session": {
+      "post": {
+        "summary": "Create Fiat Off Ramp Session",
+        "description": "Open a fiat off-ramp session for a saved quote.",
+        "operationId": "PublicApiService_CreateFiatOffRampSession",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateFiatOffRampSessionRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
       }
     },
     "/public/v1/submit/create_fiat_on_ramp_credential": {
@@ -7793,6 +7857,30 @@
         }
       },
       "required": ["quoteId", "walletAddress"]
+    },
+    "v1CreateFiatOffRampSessionRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateFiatOffRampSessionIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateFiatOffRampSessionResult": {
       "type": "object",
@@ -13376,6 +13464,75 @@
         "FEATURE_NAME_SWAP_FIXED_RATE"
       ]
     },
+    "v1FiatOffRampQuote": {
+      "type": "object",
+      "properties": {
+        "quoteId": {
+          "type": "string",
+          "description": "Identifier for this saved quote."
+        },
+        "provider": {
+          "$ref": "#/definitions/v1FiatOnRampProvider",
+          "description": "Provider that produced this quote."
+        },
+        "serviceProvider": {
+          "type": "string",
+          "description": "Underlying provider when provider aggregates several."
+        },
+        "fiatAmount": {
+          "$ref": "#/definitions/v1FiatOnRampAmount",
+          "description": "Fiat the user receives, in atomic units of fiat_currency_code. For USD, 100 dollars is \"10000\"."
+        },
+        "fiatCurrencyCode": {
+          "$ref": "#/definitions/v1FiatOnRampCurrency",
+          "description": "Fiat currency of fiat_amount and total_fee."
+        },
+        "cryptoAmount": {
+          "$ref": "#/definitions/v1FiatOnRampAmount",
+          "description": "Cryptocurrency the user would sell, in atomic units. Not locked in the session."
+        },
+        "caip19": {
+          "type": "string",
+          "enum": [
+            "eip155:1/slip44:60",
+            "eip155:10/slip44:60",
+            "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+            "eip155:8453/slip44:60",
+            "eip155:42161/slip44:60",
+            "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+            "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+            "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          ],
+          "description": "CAIP-19 asset of crypto_amount. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp."
+        },
+        "paymentMethod": {
+          "$ref": "#/definitions/v1FiatOnRampPaymentMethod",
+          "description": "Payout method this quote was priced for. Bank transfers are not included."
+        },
+        "totalFee": {
+          "$ref": "#/definitions/v1FiatOnRampAmount",
+          "description": "Total fee in atomic units of fiat_currency_code."
+        },
+        "expiresAt": {
+          "type": "string",
+          "description": "Quote expiration as a millisecond epoch string. Empty when the provider does not send one."
+        }
+      },
+      "required": [
+        "quoteId",
+        "provider",
+        "fiatAmount",
+        "fiatCurrencyCode",
+        "cryptoAmount",
+        "caip19",
+        "paymentMethod",
+        "totalFee"
+      ]
+    },
     "v1FiatOnRampAmount": {
       "type": "object",
       "properties": {
@@ -14015,6 +14172,73 @@
         }
       },
       "required": ["status"]
+    },
+    "v1GetFiatOffRampQuotesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "cryptoAmount": {
+          "type": "string",
+          "description": "Crypto amount the user wants to sell, in major units of the caip19 asset. For example, \"0.05\" for 0.05 ETH. The wallet address is not part of this query."
+        },
+        "fiatCurrencyCode": {
+          "$ref": "#/definitions/v1FiatOnRampCurrency",
+          "description": "Fiat currency the user receives, for example USD."
+        },
+        "caip19": {
+          "type": "string",
+          "enum": [
+            "eip155:1/slip44:60",
+            "eip155:10/slip44:60",
+            "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+            "eip155:8453/slip44:60",
+            "eip155:42161/slip44:60",
+            "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+            "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+            "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          ],
+          "description": "CAIP-19 asset to sell. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp."
+        },
+        "countryCode": {
+          "type": "string",
+          "description": "ISO 3166-1 alpha-2 country code of the selling user, for example US. When omitted, the country is taken from the location of the request."
+        },
+        "countrySubdivisionCode": {
+          "type": "string",
+          "description": "ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request."
+        },
+        "sandboxMode": {
+          "type": "boolean",
+          "description": "Quote sandbox credentials when true. Defaults to false."
+        }
+      },
+      "required": [
+        "organizationId",
+        "cryptoAmount",
+        "fiatCurrencyCode",
+        "caip19"
+      ]
+    },
+    "v1GetFiatOffRampQuotesResponse": {
+      "type": "object",
+      "properties": {
+        "quotes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1FiatOffRampQuote"
+          },
+          "description": "One quote per provider and payment method that can serve this route. Empty when none can."
+        }
+      },
+      "required": ["quotes"]
     },
     "v1GetFiatOnRampQuotesRequest": {
       "type": "object",

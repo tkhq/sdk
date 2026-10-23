@@ -35,6 +35,7 @@ import type {
   HandleImportPrivateKeyParams,
   HandleImportWalletParams,
   HandleLoginParams,
+  HandleOffRampParams,
   HandleOnRampParams,
   HandleRemoveOauthProviderParams,
   HandleRemovePasskeyParams,
@@ -779,6 +780,30 @@ export interface ClientContextType
    * @throws {TurnkeyError} If initialization fails, polling fails, or the user cancels the process.
    */
   handleOnRamp: (params: HandleOnRampParams) => Promise<void>;
+
+  /**
+   * Opens the fiat off-ramp modal so the user can sell crypto for cash.
+   *
+   * - Asks for a payout method, crypto amount, token, and fiat currency.
+   * - Quotes enabled providers with `getFiatOffRampQuotes` and opens the selected provider widget.
+   * - Polls transaction status until the sale completes or the user closes the modal.
+   *
+   * @param params.walletAccount - wallet account whose address is sent with the sell session.
+   * @param params.lockedCaip2 - optional CAIP-2 that limits the token list to one chain.
+   * @param params.lockedCaip19 - optional CAIP-19 that locks the token being sold.
+   * @param params.fiatCurrencyCode - optional fiat currency the user receives.
+   * @param params.defaultCryptoAmount - optional crypto amount, in major units, to prefill.
+   * @param params.countryCode - optional ISO 3166-1 alpha-2 country code.
+   * @param params.countrySubdivisionCode - optional ISO 3166-2 subdivision code, e.g., NY.
+   * @param params.sandboxMode - optional flag to use sandbox (test) mode (default: true).
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.successPageDuration - optional duration (in ms) for the success page after the sale completes (default: 2000ms).
+   * @param params.openInNewTab - optional boolean on whether to open the offramp URL in a new browser tab or popup.
+   * @returns A promise that resolves when the offramp flow completes successfully.
+   * @throws {TurnkeyError} If initialization fails, polling fails, or the user cancels the process.
+   */
+  handleOffRamp: (params: HandleOffRampParams) => Promise<void>;
 
   /**
    * Handles signing and sending an EVM or Solana transaction.
