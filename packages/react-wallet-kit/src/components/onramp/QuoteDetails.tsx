@@ -4,7 +4,7 @@ import type { v1FiatOnRampQuote } from "@turnkey/core";
 import clsx from "clsx";
 import { BaseButton } from "../design/Buttons";
 import { useModal } from "../../providers/modal/Hook";
-import { QuoteSummary } from "./QuoteOption";
+import { QuoteSummary, type QuoteAmountBasis } from "./QuoteOption";
 import { QuotePicker } from "./QuotePicker";
 
 function SkeletonLine() {
@@ -26,12 +26,15 @@ export type QuoteDetailsProps = {
   quote?: v1FiatOnRampQuote | undefined;
   quotes: v1FiatOnRampQuote[];
   amount?: string | undefined;
+  amountBasis?: QuoteAmountBasis | undefined;
+  yieldOn?: "crypto" | "fiat" | undefined;
   loading?: boolean;
   onSelect: (quote: v1FiatOnRampQuote) => void;
 };
 
 export function QuoteDetails(props: QuoteDetailsProps) {
-  const { quote, quotes, amount, loading, onSelect } = props;
+  const { quote, quotes, amount, amountBasis, yieldOn, loading, onSelect } =
+    props;
   const { openSheet, closeSheet } = useModal();
   const canPick = !loading && !!quote && quotes.length > 1;
   const entered = Number(amount);
@@ -85,7 +88,12 @@ export function QuoteDetails(props: QuoteDetailsProps) {
   }
 
   const details = (
-    <QuoteSummary quote={quote} amount={amount} showChevron={canPick} />
+    <QuoteSummary
+      quote={quote}
+      amount={amount}
+      amountBasis={amountBasis}
+      showChevron={canPick}
+    />
   );
 
   if (!canPick) {
@@ -104,6 +112,8 @@ export function QuoteDetails(props: QuoteDetailsProps) {
             <QuotePicker
               quotes={quotes}
               amount={amount}
+              amountBasis={amountBasis}
+              yieldOn={yieldOn}
               onSelect={(next) => {
                 onSelect(next);
                 closeSheet();

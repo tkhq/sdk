@@ -1,11 +1,21 @@
 import type { v1FiatOnRampAmount, v1FiatOnRampQuote } from "@turnkey/core";
 
-export type QuoteRankLabel = "Lowest fees" | "Highest crypto yield";
+export type QuoteRankLabel =
+  | "Lowest fees"
+  | "Highest crypto yield"
+  | "Highest fiat received";
 
-export function rankQuotes(quotes: v1FiatOnRampQuote[]): {
+export function rankQuotes(
+  quotes: v1FiatOnRampQuote[],
+  yieldOn: "crypto" | "fiat" = "crypto",
+): {
   quote: v1FiatOnRampQuote;
   labels: QuoteRankLabel[];
 }[] {
+  const yieldAmount = (quote: v1FiatOnRampQuote) =>
+    yieldOn === "fiat" ? quote.fiatAmount : quote.cryptoAmount;
+  const yieldLabel: QuoteRankLabel =
+    yieldOn === "fiat" ? "Highest fiat received" : "Highest crypto yield";
   const lowestFees = quotes.reduce<v1FiatOnRampQuote | undefined>(
     (best, quote) =>
       !best || compareAmounts(quote.totalFee, best.totalFee) < 0 ? quote : best,
@@ -13,7 +23,7 @@ export function rankQuotes(quotes: v1FiatOnRampQuote[]): {
   );
   const highestYield = quotes.reduce<v1FiatOnRampQuote | undefined>(
     (best, quote) =>
-      !best || compareAmounts(quote.cryptoAmount, best.cryptoAmount) > 0
+      !best || compareAmounts(yieldAmount(quote), yieldAmount(best)) > 0
         ? quote
         : best,
     undefined,
@@ -31,7 +41,7 @@ export function rankQuotes(quotes: v1FiatOnRampQuote[]): {
         ? (["Lowest fees"] as const)
         : []),
       ...(quote.quoteId === highestYield?.quoteId
-        ? (["Highest crypto yield"] as const)
+        ? ([yieldLabel] as const)
         : []),
     ],
   }));
