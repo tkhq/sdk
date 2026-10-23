@@ -1,5 +1,45 @@
 # with-x402
 
+## 0.1.25
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/viem@0.14.38
+  - @turnkey/react-wallet-kit@2.4.2
+
+## 0.1.24
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@2.4.1
+  - @turnkey/viem@0.14.37
+
+## 0.1.23
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900), [`e9ae3e6`](https://github.com/tkhq/sdk/commit/e9ae3e6e8db3423df143cac4c1b1e7fdc1e757e0)]:
+  - @turnkey/react-wallet-kit@2.4.0
+  - @turnkey/viem@0.14.36
+
+## 0.1.22
+
+### Patch Changes
+
+- Updated dependencies [[`751b8fe`](https://github.com/tkhq/sdk/commit/751b8fe0132e21ab388f045227306ed8ebef4cc4)]:
+  - @turnkey/react-wallet-kit@2.3.2
+  - @turnkey/viem@0.14.35
+
+## 0.1.21
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/viem@0.14.34
+  - @turnkey/react-wallet-kit@2.3.1
+
 ## 0.1.20
 
 ### Patch Changes

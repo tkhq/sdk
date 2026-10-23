@@ -1,5 +1,113 @@
 # @turnkey/spark
 
+## 0.3.16
+
+### Patch Changes
+
+- Updated dependencies [[`634ad6c`](https://github.com/tkhq/sdk/commit/634ad6c6134381ca669c6e9dc483418b42a09b75), [`8424905`](https://github.com/tkhq/sdk/commit/84249058b34836f0677af732885e3bed56dee8d8)]:
+  - @turnkey/core@2.13.1
+  - @turnkey/sdk-server@8.7.1
+
+## 0.3.15
+
+### Patch Changes
+
+- Updated dependencies [[`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3)]:
+  - @turnkey/sdk-server@8.7.0
+  - @turnkey/core@2.13.0
+
+## 0.3.14
+
+### Patch Changes
+
+- Updated dependencies [[`f4d6892`](https://github.com/tkhq/sdk/commit/f4d6892970d30cf03df63f2d5aba72b2cbb4b397)]:
+  - @turnkey/core@2.12.2
+
+## 0.3.13
+
+### Patch Changes
+
+- Updated dependencies [[`6a255dd`](https://github.com/tkhq/sdk/commit/6a255dd81c97fc894f9458436d2cc4497fe1e43d), [`6e0e723`](https://github.com/tkhq/sdk/commit/6e0e72323d08b1577895082ac5ff6bfd8cbb7623)]:
+  - @turnkey/core@2.12.1
+
+## 0.3.12
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-server@8.6.0
+  - @turnkey/core@2.12.0
+
+## 0.3.11
+
+### Patch Changes
+
+- Updated dependencies [[`dd45068`](https://github.com/tkhq/sdk/commit/dd45068934e148fc17d96857dc049ac697477c77), [`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312)]:
+  - @turnkey/core@2.11.0
+  - @turnkey/sdk-server@8.5.1
+
+## 0.3.10
+
+### Patch Changes
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434), [`304d4a8`](https://github.com/tkhq/sdk/commit/304d4a83e4ba8fe6e8bed8fcd7e57505e7c25b52)]:
+  - @turnkey/core@2.10.0
+  - @turnkey/sdk-server@8.5.0
+
+## 0.3.9
+
+### Patch Changes
+
+- Updated dependencies [[`8e25b38`](https://github.com/tkhq/sdk/commit/8e25b3886c4cb8d9646fdf8473735e96ebed556f)]:
+  - @turnkey/core@2.9.0
+  - @turnkey/sdk-server@8.4.0
+
+## 0.3.8
+
+### Patch Changes
+
+- Updated dependencies [[`67ba5a3`](https://github.com/tkhq/sdk/commit/67ba5a3cf559b10b4b16ba0545bcf8e6efe8db7d)]:
+  - @turnkey/core@2.8.1
+
+## 0.3.7
+
+### Patch Changes
+
+- Updated dependencies [[`3af9589`](https://github.com/tkhq/sdk/commit/3af958959c2827d3404525fd22d73be5e306111c), [`35f9cce`](https://github.com/tkhq/sdk/commit/35f9cce418b3704d8e77840c0d76b325079982cb), [`22a6682`](https://github.com/tkhq/sdk/commit/22a6682a3a7c5ad7b192cb46ffc599e073802ccf)]:
+  - @turnkey/sdk-server@8.3.0
+  - @turnkey/core@2.8.0
+
+## 0.3.6
+
+### Patch Changes
+
+- Updated dependencies [[`9fe6ceb`](https://github.com/tkhq/sdk/commit/9fe6cebf0047a22b8106f4cd79568ca1da429da7)]:
+  - @turnkey/core@2.7.1
+
+## 0.3.5
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900)]:
+  - @turnkey/core@2.7.0
+  - @turnkey/sdk-server@8.2.1
+
+## 0.3.4
+
+### Patch Changes
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a)]:
+  - @turnkey/sdk-server@8.2.0
+  - @turnkey/core@2.6.0
+
+## 0.3.3
+
+### Patch Changes
+
+- Updated dependencies [[`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47)]:
+  - @turnkey/sdk-server@8.1.0
+  - @turnkey/core@2.5.0
+
 ## 0.3.2
 
 ### Patch Changes

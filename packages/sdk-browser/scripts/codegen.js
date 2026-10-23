@@ -41,7 +41,52 @@ const VERSIONED_ACTIVITY_TYPES = {
     "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
   ACTIVITY_TYPE_ETH_SEND_TRANSACTION: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2",
   ACTIVITY_TYPE_SOL_SEND_TRANSACTION: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2",
+  ACTIVITY_TYPE_CREATE_SWAP_QUOTE: {
+    activityType: "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3",
+    intentType: "v1CreateSwapQuoteIntentV3",
+  },
+  ACTIVITY_TYPE_EXECUTE_SWAP: {
+    activityType: "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
+    intentType: "v1ExecuteSwapIntentV3",
+  },
 };
+
+/**
+ * @param {string | { activityType: string, intentType?: string } | undefined} entry
+ * @returns {{ activityType: string | undefined, intentType: string | undefined }}
+ */
+function resolveVersionedActivity(entry) {
+  if (!entry) return { activityType: undefined, intentType: undefined };
+  if (typeof entry === "string") {
+    return { activityType: entry, intentType: undefined };
+  }
+  return entry;
+}
+
+/**
+ * Extracts the activity type string from a request definition's `type.enum` field.
+ * e.g. for v1EthUndelegate7702Request, returns "ACTIVITY_TYPE_ETH_UNDELEGATE_7702"
+ *
+ * @param {object} definitions - The swagger spec definitions
+ * @param {object} operation - The swagger operation object for the endpoint
+ * @returns {string | null}
+ */
+function getActivityTypeFromRequestDef(definitions, operation) {
+  const bodyParam = operation.parameters?.find((p) => p.in === "body");
+  if (!bodyParam?.schema?.$ref) return null;
+  const defName = bodyParam.schema.$ref.replace("#/definitions/", "");
+  const def = definitions[defName];
+  return def?.properties?.type?.enum?.[0] ?? null;
+}
+
+/**
+ * Strips a trailing version suffix (e.g. _V2, _V8) from an activity type string.
+ * @param {string} activityType
+ * @returns {string}
+ */
+function stripActivityTypeVersion(activityType) {
+  return activityType.replace(/_V\d+$/, "");
+}
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "getActivities",
@@ -173,6 +218,17 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
     }
 
     const parameterList = operation["parameters"] ?? [];
+    // Pull the activity type directly from the request definition's type enum
+    const rawActivityType = getActivityTypeFromRequestDef(
+      swaggerSpec.definitions,
+      operation,
+    );
+    const unversionedActivityType = rawActivityType
+      ? stripActivityTypeVersion(rawActivityType)
+      : null;
+    const { intentType: versionedIntentType } = resolveVersionedActivity(
+      VERSIONED_ACTIVITY_TYPES[unversionedActivityType],
+    );
 
     let responseValue = "void";
     if (methodType === "command") {
@@ -195,7 +251,9 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
 
     let bodyValue = "{}";
     if (["activityDecision", "command"].includes(methodType)) {
-      bodyValue = `operations["${operationId}"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams`;
+      bodyValue = versionedIntentType
+        ? `definitions["${versionedIntentType}"] & commandOverrideParams`
+        : `operations["${operationId}"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams`;
     } else if (methodType === "query") {
       bodyValue = `Omit<operations["${operationId}"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams`;
     }
@@ -437,11 +495,21 @@ export class TurnkeySDKClientBase {
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 
-    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-      .toUpperCase()}`;
-    const versionedActivityType =
-      VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
+    // Pull the activity type directly from the request definition's type enum
+    const rawActivityType = getActivityTypeFromRequestDef(
+      swaggerSpec.definitions,
+      operation,
+    );
+    const unversionedActivityType = rawActivityType
+      ? stripActivityTypeVersion(rawActivityType)
+      : null;
+    const { activityType: versionedActivityType } = resolveVersionedActivity(
+      VERSIONED_ACTIVITY_TYPES[unversionedActivityType],
+    );
+    // Use the capped version if one exists, otherwise use the raw swagger value
+    const activityType = unversionedActivityType
+      ? (versionedActivityType ?? rawActivityType)
+      : null;
 
     if (methodType === "query") {
       codeBuffer.push(
@@ -472,7 +540,7 @@ export class TurnkeySDKClientBase {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "${versionedActivityType ?? unversionedActivityType}"
+      type: "${activityType}"
     }, "${versionedMethodName}");
   }`,
       );
@@ -488,9 +556,7 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_${operationNameWithoutNamespace
-          .replace(/([a-z])([A-Z])/g, "$1_$2")
-          .toUpperCase()}"
+        type: "${activityType}"
       });
   }`,
       );
@@ -542,7 +608,7 @@ export class TurnkeySDKClientBase {
       parameters,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "${versionedActivityType ?? unversionedActivityType}"
+      type: "${activityType}"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

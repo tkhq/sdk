@@ -12,12 +12,12 @@ import {
   hpkeDecrypt,
   hpkeEncrypt,
   decryptExportBundle,
-  hpkeAuthEncrypt,
   formatHpkeBuf,
   verifyStampSignature,
   verifySessionJwtSignature,
   verifyOtpVerificationToken,
   fromDerSignature,
+  computeActivityFingerprint,
 } from "../";
 
 // Mock data for testing
@@ -29,8 +29,7 @@ const mockCredentialBundle =
   "w99a5xV6A75TfoAUkZn869fVyDYvgVsKrawMALZXmrauZd8hEv66EkPU1Z42CUaHESQjcA5bqd8dynTGBMLWB9ewtXWPEVbZvocB4Tw2K1vQVp7uwjf";
 
 describe("HPKE Encryption and Decryption", () => {
-  test("hpkeAuthEncrypt and hpkeDecrypt - end-to-end encryption and decryption", () => {
-    const senderKeyPair = generateP256KeyPair();
+  test("hpkeEncrypt and hpkeDecrypt - end-to-end encryption and decryption", () => {
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(
       uint8ArrayFromHexString(receiverKeyPair.publicKey),
@@ -41,10 +40,9 @@ describe("HPKE Encryption and Decryption", () => {
     const plainText = "Hello, this is a secure message!";
     const plainTextBuf = textEncoder.encode(plainText);
     // Encrypt
-    const encryptedDataBuf = hpkeAuthEncrypt({
+    const encryptedDataBuf = hpkeEncrypt({
       plainTextBuf: plainTextBuf,
       targetKeyBuf: receiverPublicKeyUncompressed,
-      senderPriv: senderKeyPair.privateKey,
     });
     const encryptedData = formatHpkeBuf(encryptedDataBuf);
     // Extract the encapsulated key buffer and the ciphertext
@@ -61,49 +59,6 @@ describe("HPKE Encryption and Decryption", () => {
 
     // Expect the decrypted text to equal the original plaintext
     expect(decryptedText).toEqual(plainText);
-  });
-});
-
-describe("HPKE Standard Encryption and Decryption", () => {
-  test("hpkeEncrypt and hpkeDecrypt - standard mode (ephemeral sender key)", async () => {
-    // Generate a receiver key pair
-    const receiverKeyPair = generateP256KeyPair();
-    const receiverPublicKeyUncompressed = uncompressRawPublicKey(
-      uint8ArrayFromHexString(receiverKeyPair.publicKey),
-    );
-
-    // Prepare the plaintext
-    const textEncoder = new TextEncoder();
-    const plainText =
-      "6ab33bd6e4bdc73017233da0554f9616fe10ede5c3ce001e81b321d5a74199b7";
-    const plainTextBuf = textEncoder.encode(plainText);
-
-    // Encrypt using standard mode (no sender private key provided)
-    const encryptedDataBuf = hpkeEncrypt({
-      plainTextBuf: plainTextBuf,
-      targetKeyBuf: receiverPublicKeyUncompressed,
-      // No senderPriv provided, so it will use an ephemeral key
-    });
-    const encryptedData = formatHpkeBuf(encryptedDataBuf);
-    // Parse the encrypted data
-    const data = JSON.parse(encryptedData);
-    // Decrypt the message
-    const decryptedData = hpkeDecrypt({
-      ciphertextBuf: uint8ArrayFromHexString(data.ciphertext),
-      encappedKeyBuf: uint8ArrayFromHexString(data.encappedPublic),
-      receiverPriv: receiverKeyPair.privateKey,
-    });
-
-    // Convert decrypted data back to string
-    const decryptedText = new TextDecoder().decode(decryptedData);
-
-    // Verify that the decrypted text matches the original plaintext
-    expect(decryptedText).toEqual(plainText);
-
-    // Additional checks to ensure standard mode behavior
-    const encappedPublicKey = uint8ArrayFromHexString(data.encappedPublic);
-    expect(encappedPublicKey.length).toBe(65); // Uncompressed public key length
-    expect(encappedPublicKey[0]).toBe(0x04); // Uncompressed public key prefix
   });
 });
 
@@ -446,6 +401,46 @@ describe("Turnkey Crypto Primitives", () => {
         /invalid tag for s/,
       );
     });
+  });
+});
+
+describe("computeActivityFingerprint", () => {
+  test("matches sha256: + hex digest of the exact request bytes", () => {
+    const body = JSON.stringify({
+      type: "ACTIVITY_TYPE_EXPORT_SECRETS",
+      timestampMs: "1700000000000",
+      organizationId: "9c4dfaa6-fd39-4b40-8ec8-2e0d5ac0a1cb",
+    });
+
+    const expected = `sha256:${Buffer.from(
+      sha256(new TextEncoder().encode(body)),
+    ).toString("hex")}`;
+
+    expect(computeActivityFingerprint(body)).toBe(expected);
+  });
+
+  test("is stable and 71 characters of lowercase hex", () => {
+    const body = '{"type":"ACTIVITY_TYPE_EXPORT_SECRETS"}';
+    const fingerprint = computeActivityFingerprint(body);
+
+    expect(fingerprint).toBe(computeActivityFingerprint(body));
+    expect(fingerprint).toMatch(/^sha256:[0-9a-f]{64}$/);
+  });
+
+  test("is byte-sensitive: whitespace changes the fingerprint", () => {
+    expect(computeActivityFingerprint('{"a":1}')).not.toBe(
+      computeActivityFingerprint('{"a": 1}'),
+    );
+  });
+
+  test("hashes UTF-8 bytes, not UTF-16 code units", () => {
+    // "é" is two bytes in UTF-8; a code-unit hash would differ from this.
+    const body = '{"name":"café"}';
+    const expected = `sha256:${Buffer.from(
+      sha256(new TextEncoder().encode(body)),
+    ).toString("hex")}`;
+
+    expect(computeActivityFingerprint(body)).toBe(expected);
   });
 });
 

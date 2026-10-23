@@ -1,5 +1,68 @@
 # @turnkey/api-key-stamper
 
+## 0.6.18
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/crypto@2.13.3
+
+## 0.6.17
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/crypto@2.13.2
+
+## 0.6.16
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/crypto@2.13.1
+
+## 0.6.15
+
+### Patch Changes
+
+- Updated dependencies [[`66f2acd`](https://github.com/tkhq/sdk/commit/66f2acda2fc99534316eba8a1e6e9aff674fb621), [`a68b73a`](https://github.com/tkhq/sdk/commit/a68b73a6c2b3d76ef94f9447ec3a9f3794eda857)]:
+  - @turnkey/crypto@2.13.0
+
+## 0.6.14
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/crypto@2.12.1
+
+## 0.6.13
+
+### Patch Changes
+
+- Updated dependencies [[`3af9589`](https://github.com/tkhq/sdk/commit/3af958959c2827d3404525fd22d73be5e306111c), [`35f9cce`](https://github.com/tkhq/sdk/commit/35f9cce418b3704d8e77840c0d76b325079982cb)]:
+  - @turnkey/crypto@2.12.0
+
+## 0.6.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/crypto@2.11.3
+
+## 0.6.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/crypto@2.11.2
+
+## 0.6.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/crypto@2.11.1
+
 ## 0.6.9
 
 ### Patch Changes

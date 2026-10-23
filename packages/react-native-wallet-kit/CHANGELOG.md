@@ -1,5 +1,171 @@
 # @turnkey/react-native-wallet-kit
 
+## 2.5.0
+
+### Minor Changes
+
+- [#1612](https://github.com/tkhq/sdk/pull/1612) [`634ad6c`](https://github.com/tkhq/sdk/commit/634ad6c6134381ca669c6e9dc483418b42a09b75) Author [@moeodeh3](https://github.com/moeodeh3) - - Added external wallet support via WalletConnect. Pass a `walletConfig` to `TurnkeyProvider` to log in or sign up with an external wallet (Ethereum and Solana), or connect one to an existing account
+  - Added `walletProviders`, `connectWalletAccount`, `disconnectWalletAccount`, `loginOrSignupWithWallet` and the other wallet methods to `useTurnkey()`
+  - Added `createSuborgParams.walletAuth` to customize sub-orgs created through wallet signup
+  - Added `buildWalletConnectAppEntries`, which returns the WalletConnect wallet apps that can be opened on mobile
+  - Activity errors are now rethrown as is instead of being wrapped in a generic `TurnkeyError`, matching `@turnkey/react-wallet-kit`
+
+### Patch Changes
+
+- Updated dependencies [[`634ad6c`](https://github.com/tkhq/sdk/commit/634ad6c6134381ca669c6e9dc483418b42a09b75)]:
+  - @turnkey/core@2.13.1
+
+## 2.4.0
+
+### Minor Changes
+
+- [#1601](https://github.com/tkhq/sdk/pull/1601) [`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Sync generated clients and types with mono `main` (2026-10-15).
+  - Add `upsertSwapFeeSponsorshipLimitConfig`, `upsertSwapFixedRateLimitConfig`, and `getSwapSponsorshipUsage` (plus `stamp*` variants).
+  - `createSwapQuote` now sends `ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3`. V3 accepts the optional `feeSponsorship` and `fixedRate` flags (both default to false, matching V2), and quotes include `feeSponsorship`, `fixedRate`, and `estimatedFixedRateAdjustmentUsd`.
+  - `@turnkey/http`: add `getFiatOnRampQuote` and `createFiatOnRampSession`. `deleteVelocityControl` is renamed to `deleteVelocityControls` to match the API.
+  - Earn intents take `caip2` instead of `chainCaip2`, matching the API rename.
+  - `FiatOnRampBlockchainNetwork.BITCOIN` is removed because the API no longer accepts it. `react-wallet-kit`'s `handleOnRamp` now throws for Bitcoin wallet accounts instead of sending a request the API rejects.
+
+### Patch Changes
+
+- Updated dependencies [[`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3)]:
+  - @turnkey/sdk-types@1.11.0
+  - @turnkey/core@2.13.0
+  - @turnkey/react-native-passkey-stamper@1.2.27
+  - @turnkey/crypto@2.13.3
+
+## 2.3.9
+
+### Patch Changes
+
+- [#1584](https://github.com/tkhq/sdk/pull/1584) [`f77e273`](https://github.com/tkhq/sdk/commit/f77e273abb58f5af015c9b1a2023024fd01bf705) Author [@radusandor](https://github.com/radusandor) - Internal state refreshes no longer inherit the caller's `stampWith`. When a valid session exists, the refresh that follows a write is now stamped with the session's API key, so passing `stampWith: StamperType.Passkey` to methods like `addPasskey`, `updateUserName`, `createWallet` or `exportWallet` no longer costs an extra passkey prompt for each request the refresh makes. With no valid session the caller's stamper is still used, so setups without a session are unaffected.
+
+- Updated dependencies [[`f4d6892`](https://github.com/tkhq/sdk/commit/f4d6892970d30cf03df63f2d5aba72b2cbb4b397)]:
+  - @turnkey/core@2.12.2
+
+## 2.3.8
+
+### Patch Changes
+
+- Updated dependencies [[`6a255dd`](https://github.com/tkhq/sdk/commit/6a255dd81c97fc894f9458436d2cc4497fe1e43d), [`6e0e723`](https://github.com/tkhq/sdk/commit/6e0e72323d08b1577895082ac5ff6bfd8cbb7623)]:
+  - @turnkey/core@2.12.1
+
+## 2.3.7
+
+### Patch Changes
+
+- [#1535](https://github.com/tkhq/sdk/pull/1535) [`e72c314`](https://github.com/tkhq/sdk/commit/e72c3145aa46f55d493a0a13123108a68576b416) Thanks [@t-vila](https://github.com/t-vila)! - Surface config fetch failures through `onError`
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-types@1.10.0
+  - @turnkey/core@2.12.0
+  - @turnkey/crypto@2.13.2
+  - @turnkey/react-native-passkey-stamper@1.2.26
+
+## 2.3.6
+
+### Patch Changes
+
+- [#1533](https://github.com/tkhq/sdk/pull/1533) [`dd45068`](https://github.com/tkhq/sdk/commit/dd45068934e148fc17d96857dc049ac697477c77) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `sessionExpirationSeconds` from the auth proxy config being ignored in the OTP and OAuth `signUp`/`complete` flows. These now auto-populate `expirationSeconds` from the config
+
+  Added an optional `expirationSeconds` param to `completeOtp`, `signUpWithOtp`, `completeOauth`, and `signUpWithOauth`
+
+- Updated dependencies [[`dd45068`](https://github.com/tkhq/sdk/commit/dd45068934e148fc17d96857dc049ac697477c77), [`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312)]:
+  - @turnkey/core@2.11.0
+  - @turnkey/sdk-types@1.9.0
+  - @turnkey/crypto@2.13.1
+  - @turnkey/react-native-passkey-stamper@1.2.25
+
+## 2.3.5
+
+### Patch Changes
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434), [`304d4a8`](https://github.com/tkhq/sdk/commit/304d4a83e4ba8fe6e8bed8fcd7e57505e7c25b52), [`66f2acd`](https://github.com/tkhq/sdk/commit/66f2acda2fc99534316eba8a1e6e9aff674fb621), [`a68b73a`](https://github.com/tkhq/sdk/commit/a68b73a6c2b3d76ef94f9447ec3a9f3794eda857)]:
+  - @turnkey/core@2.10.0
+  - @turnkey/sdk-types@1.8.0
+  - @turnkey/crypto@2.13.0
+  - @turnkey/react-native-passkey-stamper@1.2.24
+
+## 2.3.4
+
+### Patch Changes
+
+- Updated dependencies [[`8e25b38`](https://github.com/tkhq/sdk/commit/8e25b3886c4cb8d9646fdf8473735e96ebed556f)]:
+  - @turnkey/core@2.9.0
+  - @turnkey/sdk-types@1.7.0
+  - @turnkey/crypto@2.12.1
+  - @turnkey/react-native-passkey-stamper@1.2.23
+
+## 2.3.3
+
+### Patch Changes
+
+- [#1504](https://github.com/tkhq/sdk/pull/1504) [`67ba5a3`](https://github.com/tkhq/sdk/commit/67ba5a3cf559b10b4b16ba0545bcf8e6efe8db7d) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed an OAuth and OTP login issue where users with multiple verified sub-organizations could not authenticate
+
+- Updated dependencies [[`67ba5a3`](https://github.com/tkhq/sdk/commit/67ba5a3cf559b10b4b16ba0545bcf8e6efe8db7d)]:
+  - @turnkey/core@2.8.1
+
+## 2.3.2
+
+### Patch Changes
+
+- Updated dependencies [[`3af9589`](https://github.com/tkhq/sdk/commit/3af958959c2827d3404525fd22d73be5e306111c), [`35f9cce`](https://github.com/tkhq/sdk/commit/35f9cce418b3704d8e77840c0d76b325079982cb), [`22a6682`](https://github.com/tkhq/sdk/commit/22a6682a3a7c5ad7b192cb46ffc599e073802ccf)]:
+  - @turnkey/crypto@2.12.0
+  - @turnkey/sdk-types@1.6.0
+  - @turnkey/core@2.8.0
+  - @turnkey/react-native-passkey-stamper@1.2.22
+
+## 2.3.1
+
+### Patch Changes
+
+- Updated dependencies [[`9fe6ceb`](https://github.com/tkhq/sdk/commit/9fe6cebf0047a22b8106f4cd79568ca1da429da7)]:
+  - @turnkey/core@2.7.1
+
+## 2.3.0
+
+### Minor Changes
+
+- [#1240](https://github.com/tkhq/sdk/pull/1240) [`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900) Author [@amircheikh](https://github.com/amircheikh) - ### Attested stamping
+
+  Add attested stamping support. Expose `overrideAttestedStamper()` on the provider context. OTP verification and OAuth flows now automatically configure the attested stamper with the verification token or OIDC token. OTP and OAuth login flows use `stampLogin` with an attested stamp (`X-Stamp-Attested`) instead of the proxy-specific `proxyOtpLoginV2` / `proxyOAuthLogin` endpoints.
+
+  ### Session profiles
+
+  Add session profile support for creating scoped sessions. Auth methods now accept an optional `sessionProfileId` parameter to restrict a session's permissions to those defined by the profile: `loginWithPasskey`, `signUpWithPasskey`, `buildWalletLoginRequest`, `loginWithWallet`, `signUpWithWallet`, `loginOrSignupWithWallet`, `loginWithOtp`, `signUpWithOtp`, `completeOtp`, `loginWithOauth`, `signUpWithOauth`, and `completeOauth`.
+
+  ### MFA handling
+
+  Add MFA support. Expose `setMfaHandler` on the provider context, a ref-based function that lets you register or clear a custom MFA handler at any point during the component lifecycle. When set, the handler is invoked with an `MfaContext` whenever an activity requires multi-factor approval (`ACTIVITY_STATUS_AUTHENTICATORS_NEEDED` or `ACTIVITY_STATUS_CONSENSUS_NEEDED`). The client automatically fetches MFA statuses via `getMfaStatus` and re-polls for completion after the handler resolves. Pass `undefined` to clear the handler and restore the default behavior.
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900), [`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900)]:
+  - @turnkey/sdk-types@1.5.1
+  - @turnkey/core@2.7.0
+  - @turnkey/crypto@2.11.3
+  - @turnkey/react-native-passkey-stamper@1.2.21
+
+## 2.2.2
+
+### Patch Changes
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a)]:
+  - @turnkey/sdk-types@1.5.0
+  - @turnkey/core@2.6.0
+  - @turnkey/crypto@2.11.2
+  - @turnkey/react-native-passkey-stamper@1.2.20
+
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47)]:
+  - @turnkey/sdk-types@1.4.0
+  - @turnkey/core@2.5.0
+  - @turnkey/crypto@2.11.1
+  - @turnkey/react-native-passkey-stamper@1.2.19
+
 ## 2.2.0
 
 ### Minor Changes

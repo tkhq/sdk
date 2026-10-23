@@ -1,7 +1,10 @@
 import type {
   TurnkeySDKClientBase,
   TurnkeyClientMethods,
+  MfaContext,
   Wallet,
+  WalletAccount,
+  WalletProvider,
   StamperType,
   ExportBundle,
 } from "@turnkey/core";
@@ -41,20 +44,25 @@ import type {
 export interface ClientContextType
   extends Omit<
     TurnkeyClientMethods,
-    | "connectWalletAccount"
-    | "fetchWalletProviders"
-    | "disconnectWalletAccount"
-    | "switchWalletAccountChain"
-    | "loginWithWallet"
-    | "signUpWithWallet"
-    | "loginOrSignupWithWallet"
     | "exportWallet"
     | "exportPrivateKey"
     | "exportWalletAccount"
     | "importWallet"
     | "importPrivateKey"
-    | "buildWalletLoginRequest"
+    | "connectWalletAccount"
   > {
+  /**
+   * Connects the specified wallet account.
+   *
+   * - Requires the wallet manager and its connector to be initialized.
+   * - Refreshes the wallets state so the newly connected wallet is included.
+   *
+   * @param provider - wallet provider to connect.
+   * @returns A promise that resolves with the connected wallet account.
+   * @throws {TurnkeyError} If the wallet manager is uninitialized or the connection fails.
+   */
+  connectWalletAccount(provider: WalletProvider): Promise<WalletAccount>;
+
   /** @internal */
   httpClient: TurnkeySDKClientBase | undefined;
   /** @internal */
@@ -71,6 +79,8 @@ export interface ClientContextType
   user: v1User | undefined;
   /** @internal */
   wallets: Wallet[];
+  /** @internal */
+  walletProviders: WalletProvider[];
 
   /**
    * Export a wallet. Optionally decrypt and return the mnemonic directly.
@@ -293,6 +303,23 @@ export interface ClientContextType
    * @throws {TurnkeyError} If the TurnkeyProvider is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
   handleFacebookOauth: (params?: HandleFacebookOauthParams) => Promise<void>;
+
+  /**
+   * Registers a custom MFA handler that will be invoked when an activity
+   * requires multi-factor approval (`ACTIVITY_STATUS_AUTHENTICATORS_NEEDED`).
+   *
+   * The handler receives a {@link MfaContext} with activity details
+   * (fingerprint, activityId, organizationId, activityType, status).
+   *
+   * Use the `httpClient` from `useTurnkey()` to approve or reject the activity.
+   *
+   * If no custom handler is set, a built-in MFA handler will be used.
+   *
+   * @param handler - Async function to handle MFA approval. Pass `undefined` to restore the default handler.
+   */
+  setMfaHandler: (
+    handler: ((context: MfaContext) => Promise<void>) | undefined,
+  ) => void;
 }
 
 /** @internal */

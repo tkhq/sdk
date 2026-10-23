@@ -1,5 +1,44 @@
 # with-export-and-sign-escrow
 
+## 0.1.16
+
+### Patch Changes
+
+- Updated dependencies [[`35f9cce`](https://github.com/tkhq/sdk/commit/35f9cce418b3704d8e77840c0d76b325079982cb), [`22a6682`](https://github.com/tkhq/sdk/commit/22a6682a3a7c5ad7b192cb46ffc599e073802ccf)]:
+  - @turnkey/sdk-types@1.6.0
+  - @turnkey/react-wallet-kit@2.4.2
+
+## 0.1.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@2.4.1
+
+## 0.1.14
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900), [`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900), [`e9ae3e6`](https://github.com/tkhq/sdk/commit/e9ae3e6e8db3423df143cac4c1b1e7fdc1e757e0)]:
+  - @turnkey/react-wallet-kit@2.4.0
+  - @turnkey/sdk-types@1.5.1
+
+## 0.1.13
+
+### Patch Changes
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a), [`751b8fe`](https://github.com/tkhq/sdk/commit/751b8fe0132e21ab388f045227306ed8ebef4cc4)]:
+  - @turnkey/sdk-types@1.5.0
+  - @turnkey/react-wallet-kit@2.3.2
+
+## 0.1.12
+
+### Patch Changes
+
+- Updated dependencies [[`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47)]:
+  - @turnkey/sdk-types@1.4.0
+  - @turnkey/react-wallet-kit@2.3.1
+
 ## 0.1.11
 
 ### Patch Changes

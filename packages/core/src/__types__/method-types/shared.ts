@@ -21,6 +21,7 @@ import type {
 } from "@turnkey/sdk-types";
 import type {
   CreateSubOrgParams,
+  MfaContext,
   OtpType,
   StamperType,
   SwitchableChain,
@@ -36,6 +37,7 @@ export type CreateHttpClientParams = {
   authProxyUrl?: string | undefined;
   authProxyConfigId?: string | undefined;
   defaultStamperType?: StamperType | undefined;
+  onMfaRequired?: ((context: MfaContext) => Promise<void>) | undefined;
 };
 
 export type OverrideApiKeyStamperParams = {
@@ -44,6 +46,12 @@ export type OverrideApiKeyStamperParams = {
 
 export type OverridePasskeyStamperParams = {
   config: TPasskeyStamperConfig;
+};
+
+export type OverrideAttestedStamperParams = {
+  verificationToken?: string | undefined;
+  oidcToken?: string | undefined;
+  publicKey?: string | undefined;
 };
 
 export type CreatePasskeyParams = {
@@ -68,6 +76,7 @@ export type LoginWithPasskeyParams = {
   expirationSeconds?: string;
   organizationId?: string;
   allowCredentials?: PublicKeyCredentialDescriptor[];
+  sessionProfileId?: string;
 };
 
 export type SignUpWithPasskeyParams = {
@@ -76,6 +85,7 @@ export type SignUpWithPasskeyParams = {
   passkeyDisplayName?: string;
   expirationSeconds?: string;
   challenge?: string;
+  sessionProfileId?: string;
   captchaToken?: string;
 };
 
@@ -89,6 +99,7 @@ export type BuildWalletLoginRequestParams = {
   walletProvider: WalletProvider;
   publicKey?: string;
   expirationSeconds?: string;
+  sessionProfileId?: string;
 };
 
 export type BuildWalletLoginRequestResult = {
@@ -102,6 +113,7 @@ export type LoginWithWalletParams = {
   sessionKey?: string;
   expirationSeconds?: string;
   organizationId?: string;
+  sessionProfileId?: string;
 };
 
 export type SignUpWithWalletParams = {
@@ -109,6 +121,7 @@ export type SignUpWithWalletParams = {
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
   expirationSeconds?: string;
+  sessionProfileId?: string;
   captchaToken?: string;
 };
 
@@ -118,6 +131,7 @@ export type LoginOrSignupWithWalletParams = {
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
   expirationSeconds?: string;
+  sessionProfileId?: string;
   captchaToken?: string;
 };
 
@@ -149,6 +163,8 @@ export type LoginWithOtpParams = {
   organizationId?: string;
   invalidateExisting?: boolean;
   sessionKey?: string;
+  expirationSeconds?: string;
+  sessionProfileId?: string;
 };
 
 export type SignUpWithOtpParams = {
@@ -158,6 +174,8 @@ export type SignUpWithOtpParams = {
   createSubOrgParams?: CreateSubOrgParams;
   invalidateExisting?: boolean;
   sessionKey?: string;
+  expirationSeconds?: string;
+  sessionProfileId?: string;
   captchaToken?: string;
 };
 
@@ -170,7 +188,9 @@ export type CompleteOtpParams = {
   publicKey?: string;
   invalidateExisting?: boolean;
   sessionKey?: string;
+  expirationSeconds?: string;
   createSubOrgParams?: CreateSubOrgParams;
+  sessionProfileId?: string;
   captchaToken?: string;
 };
 
@@ -179,8 +199,10 @@ export type CompleteOauthParams = {
   publicKey: string;
   providerName?: string;
   sessionKey?: string;
+  expirationSeconds?: string;
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
+  sessionProfileId?: string;
   captchaToken?: string;
 };
 
@@ -188,8 +210,11 @@ export type LoginWithOauthParams = {
   oidcToken: string;
   publicKey: string;
   organizationId?: string;
+  requiresSocialLinking?: boolean;
   invalidateExisting?: boolean;
   sessionKey?: string;
+  expirationSeconds?: string;
+  sessionProfileId?: string;
 };
 
 export type SignUpWithOauthParams = {
@@ -199,6 +224,8 @@ export type SignUpWithOauthParams = {
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
+  expirationSeconds?: string;
+  sessionProfileId?: string;
   captchaToken?: string;
 };
 

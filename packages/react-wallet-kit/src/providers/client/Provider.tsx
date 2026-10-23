@@ -16,6 +16,8 @@ import {
   getProviderIcon,
   completePKCEFlow,
   hasPKCEVerifier,
+  isExpectedOAuthRedirectUrl,
+  OAUTH_PROVIDER_CONFIGS,
   OAUTH_INTENT_ADD_PROVIDER,
   openOAuthPopup,
   parseOAuthResponse,
@@ -28,6 +30,7 @@ import {
 import {
   isValidSession,
   mergeWalletsWithoutDuplicates,
+  resolveRefreshStamper,
   SESSION_WARNING_THRESHOLD_MS,
   useDebouncedCallback,
   useWalletProviderState,
@@ -46,6 +49,7 @@ import {
   getClientParams,
   Chain,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+  type MfaContext,
   OtpType,
   StamperType,
   TurnkeyClient,
@@ -123,6 +127,7 @@ import {
   type SolanaTransaction,
   type OverridePasskeyStamperParams,
   type OverrideApiKeyStamperParams,
+  type OverrideAttestedStamperParams,
   type DeleteApiKeyPairParams,
   buildSecondaryOauthProviders,
   buildSecondaryOidcClaims,
@@ -297,6 +302,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const clientParamsRef = useRef<ProxyTGetWalletKitClientParamsResponse | null>(
     null,
   );
+  // Stores the developer's custom MFA handler set via setMfaHandler.
+  // When unset, the default httpClient MFA behavior is used (no onMfaRequired callback).
+  const mfaHandlerRef = useRef<
+    ((context: MfaContext) => Promise<void>) | undefined
+  >(undefined);
 
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
@@ -1072,7 +1082,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * - Solana: listens for disconnect via Wallet Standard `change` events to trigger a refresh.
    * - WalletConnect:
    *    - listens for disconnect and other state changes via its unified `change` event
-   *    - additionally listens for `pairingExpired` events (proposal expiration), in which
+   *    - additionally listens for `proposalExpired` events (proposal expiration), in which
    *      case we re-fetch providers to refresh the pairing URI for the UI.
    *
    * Notes:
@@ -1193,7 +1203,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           const unsubscribe = standardEvents.on("change", async (evt: any) => {
             // if the event is a proposalExpired, we want to re-fetch the providers
             // to refresh the uri, there is no need to refresh the wallets state
-            if (evt?.type === "pairingExpired") {
+            if (evt?.type === "proposalExpired") {
               debouncedFetchWalletProviders();
               return;
             }
@@ -1215,7 +1225,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             if (evt?.type === "initialized") {
               // this updates our walletProvider state
-              const providers = await debouncedFetchWalletProviders();
+              const providers = await fetchWalletProviders();
 
               // if we have an active session, we need to restore any possibly connected
               // WalletConnect wallets since its now initialized
@@ -1456,6 +1466,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client],
   );
 
+  const overrideAttestedStamper = useCallback(
+    (params: OverrideAttestedStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overrideAttestedStamper(params);
+    },
+    [client],
+  );
+
   const getActiveSessionKey = useCallback(async (): Promise<
     string | undefined
   > => {
@@ -1650,15 +1673,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    *
    * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @param params.userId - user ID to fetch specific user details (defaults to the current session's userId).
-   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.stampWith - fallback stamper, only used when there is no valid session.
    * @returns A promise that resolves when the user is refreshed, or does nothing if auto-refresh is disabled
    */
   const maybeRefreshUser = useCallback(
     async (params?: RefreshUserParams): Promise<v1User | undefined> => {
       if (!masterConfig?.autoRefreshManagedState) return undefined;
-      return refreshUser(params);
+
+      const activeSession = await getSession();
+      const stampWith = resolveRefreshStamper(activeSession, params?.stampWith);
+
+      return refreshUser({
+        ...params,
+        stampWith,
+      });
     },
-    [masterConfig, refreshUser],
+    [masterConfig, refreshUser, getSession],
   );
 
   const refreshWallets = useCallback(
@@ -1671,18 +1701,24 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
 
-      const walletProviders = await withTurnkeyErrorHandling(
-        () => fetchWalletProviders(),
-        undefined,
-        callbacks,
-        "Failed to refresh wallets",
-      );
+      // we refresh the wallet providers first so that the walletProviders state
+      // stays in sync (e.g. a fresh WalletConnect uri after a disconnect)
+      const walletProviders =
+        masterConfig?.walletConfig?.features?.auth ||
+        masterConfig?.walletConfig?.features?.connecting
+          ? await withTurnkeyErrorHandling(
+              () => fetchWalletProviders(),
+              undefined,
+              callbacks,
+              "Failed to refresh wallets",
+            )
+          : undefined;
 
       const wallets = await withTurnkeyErrorHandling(
         () =>
           fetchWallets({
             stampWith,
-            walletProviders,
+            ...(walletProviders && { walletProviders }),
             ...(organizationId && { organizationId }),
             ...(userId && { userId }),
           }),
@@ -1697,7 +1733,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       return wallets;
     },
-    [client, callbacks, fetchWalletProviders, fetchWallets, logout],
+    [
+      client,
+      callbacks,
+      fetchWalletProviders,
+      fetchWallets,
+      logout,
+      masterConfig,
+    ],
   );
 
   /**
@@ -1706,15 +1749,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    *
    * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @param params.userId - user ID to fetch specific user details (defaults to the current session's userId).
-   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.stampWith - fallback stamper, only used when there is no valid session.
    * @returns A promise that resolves to an array of wallets, or an empty array if auto-refresh is disabled
    */
   const maybeRefreshWallets = useCallback(
     async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
       if (!masterConfig?.autoRefreshManagedState) return [];
-      return refreshWallets(params);
+
+      const activeSession = await getSession();
+      const stampWith = resolveRefreshStamper(activeSession, params?.stampWith);
+
+      return refreshWallets({
+        ...params,
+        stampWith,
+      });
     },
-    [masterConfig, refreshWallets],
+    [masterConfig, refreshWallets, getSession],
   );
 
   const clearSession = useCallback(
@@ -2325,12 +2375,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       }
-      return withTurnkeyErrorHandling(
+      const res = await withTurnkeyErrorHandling(
         () => client.verifyOtp(params),
         undefined,
         callbacks,
         "Failed to verify OTP",
       );
+      // Automatically override the attested stamper with the verification token
+      await client.overrideAttestedStamper({
+        verificationToken: res.verificationToken,
+        publicKey: res.publicKey,
+      });
+      return res;
     },
     [client, callbacks],
   );
@@ -2344,8 +2400,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
-        () => client.loginWithOtp(params),
+        () => client.loginWithOtp({ ...params, expirationSeconds }),
         undefined,
         callbacks,
         "Failed to login with OTP",
@@ -2360,7 +2420,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks, handlePostAuth],
+    [client, callbacks, masterConfig, handlePostAuth],
   );
 
   const signUpWithOtp = useCallback(
@@ -2392,8 +2452,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ? { ...params, createSubOrgParams }
           : { ...params };
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
       const res = await withTurnkeyErrorHandling(
-        () => client.signUpWithOtp(params),
+        () => client.signUpWithOtp({ ...params, expirationSeconds }),
         undefined,
         callbacks,
         "Failed to sign up with OTP",
@@ -2445,8 +2510,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ? { ...params, createSubOrgParams }
           : { ...params };
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
       const res = await withTurnkeyErrorHandling(
-        () => client.completeOtp(params),
+        () => client.completeOtp({ ...params, expirationSeconds }),
         undefined,
         callbacks,
         "Failed to complete OTP",
@@ -2473,8 +2543,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
-        () => client.loginWithOauth(params),
+        () => client.loginWithOauth({ ...params, expirationSeconds }),
         undefined,
         callbacks,
         "Failed to login with OAuth",
@@ -2489,7 +2563,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks, handlePostAuth],
+    [client, callbacks, masterConfig, handlePostAuth],
   );
 
   const signUpWithOauth = useCallback(
@@ -2515,8 +2589,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ? { ...params, createSubOrgParams }
           : { ...params };
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
       const res = await withTurnkeyErrorHandling(
-        () => client.signUpWithOauth(params),
+        () => client.signUpWithOauth({ ...params, expirationSeconds }),
         undefined,
         callbacks,
         "Failed to sign up with OAuth",
@@ -2561,8 +2640,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ? { ...params, createSubOrgParams }
           : { ...params };
 
+      const expirationSeconds =
+        params?.expirationSeconds ??
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
       const res = await withTurnkeyErrorHandling(
-        () => client.completeOauth(params),
+        () => client.completeOauth({ ...params, expirationSeconds }),
         undefined,
         callbacks,
         "Failed to complete OAuth",
@@ -3342,13 +3426,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-      const session = await withTurnkeyErrorHandling(
-        () => client.getSession({ sessionKey: params.sessionKey }),
-        () => logout(),
-        callbacks,
-        "Failed to get session",
-      );
-      const s = await getSession();
+      const s = await getSession({ sessionKey: params.sessionKey });
       if (!s) {
         throw new TurnkeyError(
           "Session not found.",
@@ -3506,6 +3584,24 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks, logout],
   );
 
+  const setMfaHandler = useCallback(
+    (handler: ((context: MfaContext) => Promise<void>) | undefined) => {
+      mfaHandlerRef.current = handler;
+
+      // Apply immediately if the client is ready.
+      // When a custom handler is set, route the httpClient's MFA callback to it.
+      // When cleared, restore the default httpClient behavior (no onMfaRequired callback).
+      if (client) {
+        client.httpClient.config.onMfaRequired = handler
+          ? async (ctx) => {
+              await handler(ctx);
+            }
+          : undefined;
+      }
+    },
+    [client],
+  );
+
   const handleDiscordOauth = useCallback(
     async (params?: HandleDiscordOauthParams): Promise<void> => {
       const {
@@ -3588,7 +3684,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -3597,7 +3693,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             const url = authWindow.location.href || "";
-            if (url.startsWith(window.location.origin)) {
+            if (
+              isExpectedOAuthRedirectUrl(
+                url,
+                redirectUri,
+                OAUTH_PROVIDER_CONFIGS[provider].expectedResponseMode,
+              )
+            ) {
               const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
@@ -3642,7 +3744,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         clientId,
                         nonce,
                       });
-                    return resp?.oidcToken ?? "";
+                    const oidcToken = resp?.oidcToken ?? "";
+                    // Set the attested stamper with the oidcToken
+                    if (oidcToken) {
+                      await client?.overrideAttestedStamper({
+                        oidcToken,
+                        publicKey,
+                      });
+                    }
+                    return oidcToken;
                   },
                 })
                   .then(() => resolve())
@@ -3743,7 +3853,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -3752,7 +3862,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             const url = authWindow.location.href || "";
-            if (url.startsWith(window.location.origin)) {
+            if (
+              isExpectedOAuthRedirectUrl(
+                url,
+                redirectUri,
+                OAUTH_PROVIDER_CONFIGS[provider].expectedResponseMode,
+              )
+            ) {
               const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
@@ -3797,7 +3913,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         clientId,
                         nonce,
                       });
-                    return resp?.oidcToken ?? "";
+                    const oidcToken = resp?.oidcToken ?? "";
+                    // Set the attested stamper with the oidcToken
+                    if (oidcToken) {
+                      await client?.overrideAttestedStamper({
+                        oidcToken,
+                        publicKey,
+                      });
+                    }
+                    return oidcToken;
                   },
                 })
                   .then(() => resolve())
@@ -3896,7 +4020,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -3905,11 +4029,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             const url = authWindow.location.href || "";
-            if (url.startsWith(window.location.origin)) {
+            if (
+              isExpectedOAuthRedirectUrl(
+                url,
+                redirectUri,
+                OAUTH_PROVIDER_CONFIGS[provider].expectedResponseMode,
+              )
+            ) {
               const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
+
+                // Set the attested stamper with the oidcToken
+                if (result.idToken) {
+                  await client?.overrideAttestedStamper({
+                    oidcToken: result.idToken,
+                    publicKey,
+                  });
+                }
 
                 completeOAuthPopup({
                   provider,
@@ -4036,7 +4174,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -4045,11 +4183,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             const url = authWindow.location.href || "";
-            if (url.startsWith(window.location.origin)) {
+            if (
+              isExpectedOAuthRedirectUrl(
+                url,
+                redirectUri,
+                OAUTH_PROVIDER_CONFIGS[provider].expectedResponseMode,
+              )
+            ) {
               const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
+
+                // Set the attested stamper with the oidcToken
+                if (result.idToken) {
+                  await client?.overrideAttestedStamper({
+                    oidcToken: result.idToken,
+                    publicKey,
+                  });
+                }
 
                 completeOAuthPopup({
                   provider,
@@ -4180,7 +4332,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise<void>((resolve, reject) => {
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
           try {
             if (authWindow.closed) {
               clearInterval(interval);
@@ -4189,7 +4341,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             const url = authWindow.location.href || "";
-            if (url.startsWith(window.location.origin)) {
+            if (
+              isExpectedOAuthRedirectUrl(
+                url,
+                redirectUri,
+                OAUTH_PROVIDER_CONFIGS[provider].expectedResponseMode,
+              )
+            ) {
               const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
@@ -4231,7 +4389,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       result.authCode!,
                       codeVerifier,
                     );
-                    return tokenData.id_token;
+                    const oidcToken = tokenData.id_token;
+                    // Set the attested stamper with the oidcToken
+                    if (oidcToken) {
+                      await client?.overrideAttestedStamper({
+                        oidcToken,
+                        publicKey,
+                      });
+                    }
+                    return oidcToken;
                   },
                 })
                   .then(() => resolve())
@@ -6001,9 +6167,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           break;
 
         case walletAccount.addressFormat?.includes("ADDRESS_FORMAT_BITCOIN"):
-          cryptoCurrencyCode = FiatOnRampCryptoCurrency.BITCOIN;
-          network = FiatOnRampBlockchainNetwork.BITCOIN;
-          break;
+          throw new TurnkeyError(
+            "Fiat on-ramp does not support Bitcoin wallet accounts.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
 
         case walletAccount.addressFormat === "ADDRESS_FORMAT_SOLANA":
           cryptoCurrencyCode = FiatOnRampCryptoCurrency.SOLANA;
@@ -6278,8 +6445,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }
 
         setMasterConfig(buildConfig(proxyAuthConfig, clientParams));
-      } catch {
+      } catch (error) {
         setClientState(ClientState.Error);
+        // Without this the failure is silent: the provider goes to Error, every
+        // guarded method then throws "Config is not ready yet!", and the cause
+        // never reaches the integrator.
+        if (
+          error instanceof TurnkeyError ||
+          error instanceof TurnkeyNetworkError
+        ) {
+          callbacks?.onError?.(error);
+        } else {
+          callbacks?.onError?.(
+            new TurnkeyError(
+              `Failed to fetch the wallet kit configuration`,
+              TurnkeyErrorCodes.INITIALIZE_CLIENT_ERROR,
+              error,
+            ),
+          );
+        }
       }
     };
 
@@ -6373,8 +6557,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }, [session]);
 
   useEffect(() => {
-    // This will handle any redirect based oAuth. It then initializes the session. This is the last step before client is considered "ready"
     if (!client || !masterConfig) return;
+
+    // This will handle any redirect based oAuth. It then initializes the session. This is the last step before client is considered "ready"
     completeRedirectOauth().finally(() => {
       clearSessionTimeouts();
 
@@ -6392,6 +6577,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         setClientState(ClientState.Ready);
       });
     });
+
+    // Only set the onMfaRequired handler if we have a mfaHandler set.
+    const mfaHandler = mfaHandlerRef.current;
+    if (mfaHandler) {
+      client.httpClient.config.onMfaRequired = async (ctx) => {
+        await mfaHandler(ctx);
+      };
+    }
 
     return () => {
       clearSessionTimeouts();
@@ -6413,6 +6606,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         createHttpClient,
         overrideApiKeyStamper,
         overridePasskeyStamper,
+        overrideAttestedStamper,
         createPasskey,
         logout,
         loginWithPasskey,
@@ -6508,6 +6702,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleOnRamp,
         handleSendTransaction,
         handleSendErc20Transfer,
+        setMfaHandler,
         getTurnstileToken,
         setTurnstileToken,
       }}

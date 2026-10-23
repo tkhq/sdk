@@ -17,6 +17,8 @@ export type Session = {
   expirationSeconds?: string | undefined;
   token: string;
   publicKey?: string | undefined;
+  sessionProfileId?: string | undefined;
+  scope?: string | undefined;
 };
 
 export type SessionResponse = {
@@ -89,6 +91,9 @@ export enum TurnkeyErrorCodes {
   EXPORT_PRIVATE_KEY_ERROR = "EXPORT_PRIVATE_KEY_ERROR",
   EXPORT_WALLET_ACCOUNT_ERROR = "EXPORT_WALLET_ACCOUNT_ERROR",
   IMPORT_WALLET_ERROR = "IMPORT_WALLET_ERROR",
+  IMPORT_SECRET_ERROR = "IMPORT_SECRET_ERROR",
+  EXPORT_SECRET_ERROR = "EXPORT_SECRET_ERROR",
+  EXPORT_SECRET_CONSENSUS_NEEDED = "EXPORT_SECRET_CONSENSUS_NEEDED",
   DELETE_SUB_ORGANIZATION_ERROR = "DELETE_SUB_ORGANIZATION_ERROR",
   CREATE_SUB_ORGANIZATION_ERROR = "CREATE_SUB_ORGANIZATION_ERROR",
   CREATE_USERS_ERROR = "CREATE_USERS_ERROR",
@@ -106,6 +111,8 @@ export enum TurnkeyErrorCodes {
   GET_ACTIVE_SESSION_KEY_ERROR = "GET_ACTIVE_SESSION_KEY_ERROR",
   CLEAR_UNUSED_KEY_PAIRS_ERROR = "CLEAR_UNUSED_KEY_PAIRS_ERROR",
   CREATE_API_KEY_PAIR_ERROR = "CREATE_API_KEY_PAIR_ERROR",
+  // The key pair was generated, but the device refused to store it.
+  API_KEY_STORAGE_UNAVAILABLE = "API_KEY_STORAGE_UNAVAILABLE",
   DELETE_API_KEY_PAIR_ERROR = "DELETE_API_KEY_PAIR_ERROR",
   GET_PROXY_AUTH_CONFIG_ERROR = "GET_PROXY_AUTH_CONFIG_ERROR",
   UPDATE_USER_EMAIL_ERROR = "UPDATE_USER_EMAIL_ERROR",
@@ -238,7 +245,6 @@ export enum FiatOnRampCurrency {
 }
 
 export enum FiatOnRampBlockchainNetwork {
-  BITCOIN = "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN", // bitcoin
   ETHEREUM = "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM", // ethereum
   SOLANA = "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA", // solana
   BASE = "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BASE", // base
@@ -284,6 +290,23 @@ export type VerificationToken = {
   organization_id: string;
 };
 
+export enum ActivityStatus {
+  CREATED = "ACTIVITY_STATUS_CREATED",
+  PENDING = "ACTIVITY_STATUS_PENDING",
+  COMPLETED = "ACTIVITY_STATUS_COMPLETED",
+  FAILED = "ACTIVITY_STATUS_FAILED",
+  CONSENSUS_NEEDED = "ACTIVITY_STATUS_CONSENSUS_NEEDED",
+  REJECTED = "ACTIVITY_STATUS_REJECTED",
+  AUTHENTICATORS_NEEDED = "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED",
+}
+
+// If we ever add a new activity status, this guarantees an error if the enum is not updated.
+type _AssertExtends<A extends B, B> = A;
+/** @internal */
+export type _AssertActivityStatusInSync =
+  | _AssertExtends<`${ActivityStatus}`, v1ActivityStatus>
+  | _AssertExtends<v1ActivityStatus, `${ActivityStatus}`>;
+
 /** @internal */
 export type TActivityStatus = v1ActivityStatus;
 
@@ -299,9 +322,10 @@ export type TSignedRequest = {
 
 /** @internal */
 export const TERMINAL_ACTIVITY_STATUSES: TActivityStatus[] = [
-  "ACTIVITY_STATUS_COMPLETED",
-  "ACTIVITY_STATUS_FAILED",
-  "ACTIVITY_STATUS_REJECTED",
+  ActivityStatus.COMPLETED,
+  ActivityStatus.FAILED,
+  ActivityStatus.REJECTED,
+  ActivityStatus.AUTHENTICATORS_NEEDED,
 ];
 
 export type TStamp = {

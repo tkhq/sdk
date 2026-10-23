@@ -7,6 +7,8 @@ export * from "./types/method-types";
 // Re-export selected values from @turnkey/core
 export {
   TurnkeyClient,
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
   type TurnkeyClientMethods,
   type TurnkeySDKClientBase,
   isEthereumProvider,
@@ -16,6 +18,7 @@ export {
   getClientSignatureMessageForSignup,
   buildSecondaryOidcClaims,
   buildSecondaryOauthProviders,
+  buildWalletConnectAppEntries,
 } from "@turnkey/core";
 
 // Re-export all types from @turnkey/core

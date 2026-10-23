@@ -82,6 +82,11 @@ function RootLayout({ children }: RootLayoutProps) {
               },
             },
           }}
+          callbacks={{
+            onError: (error) => {
+              console.error("TurnkeyProvider error:", error);
+            },
+          }}
         >
           {children}
         </TurnkeyProvider>

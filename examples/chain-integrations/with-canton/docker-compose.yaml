@@ -14,9 +14,11 @@ services:
         "-C",
         "canton.participants.sandbox.http-ledger-api.address=0.0.0.0",
       ]
+    # Host ports can be changed so the sandbox can run next to another one,
+    # for example the dpm service container in CI.
     ports:
-      - 6864:6864
-      - 6865:6865
+      - ${CANTON_SANDBOX_HTTP_PORT:-6864}:6864
+      - ${CANTON_SANDBOX_GRPC_PORT:-6865}:6865
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6864/livez"]
       interval: 3s

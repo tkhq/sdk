@@ -1,5 +1,196 @@
 # @turnkey/sdk-browser
 
+## 8.7.1
+
+### Patch Changes
+
+- [#1614](https://github.com/tkhq/sdk/pull/1614) [`8424905`](https://github.com/tkhq/sdk/commit/84249058b34836f0677af732885e3bed56dee8d8) Author [@radusandor](https://github.com/radusandor) - - Fixed `ethUndelegate7702()` and `stampEthUndelegate7702()` sending the invalid activity type `ACTIVITY_TYPE_ETH_UNDELEGATE7702`, which the API rejected with "Invalid activity type". They now send `ACTIVITY_TYPE_ETH_UNDELEGATE_7702`, matching `@turnkey/core`. The codegen now reads activity types from the API spec instead of deriving them from the method name
+
+## 8.7.0
+
+### Minor Changes
+
+- [#1601](https://github.com/tkhq/sdk/pull/1601) [`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Sync generated clients and types with mono `main` (2026-10-15).
+  - Add `upsertSwapFeeSponsorshipLimitConfig`, `upsertSwapFixedRateLimitConfig`, and `getSwapSponsorshipUsage` (plus `stamp*` variants).
+  - `createSwapQuote` now sends `ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3`. V3 accepts the optional `feeSponsorship` and `fixedRate` flags (both default to false, matching V2), and quotes include `feeSponsorship`, `fixedRate`, and `estimatedFixedRateAdjustmentUsd`.
+  - `@turnkey/http`: add `getFiatOnRampQuote` and `createFiatOnRampSession`. `deleteVelocityControl` is renamed to `deleteVelocityControls` to match the API.
+  - Earn intents take `caip2` instead of `chainCaip2`, matching the API rename.
+  - `FiatOnRampBlockchainNetwork.BITCOIN` is removed because the API no longer accepts it. `react-wallet-kit`'s `handleOnRamp` now throws for Bitcoin wallet accounts instead of sending a request the API rejects.
+
+### Patch Changes
+
+- Updated dependencies [[`b7d42d2`](https://github.com/tkhq/sdk/commit/b7d42d2f7a045c21bc236a8cf2da2974548df415), [`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3)]:
+  - @turnkey/http@6.7.0
+  - @turnkey/sdk-types@1.11.0
+  - @turnkey/wallet-stamper@1.1.30
+  - @turnkey/crypto@2.13.3
+  - @turnkey/indexed-db-stamper@1.3.12
+  - @turnkey/api-key-stamper@0.6.18
+
+## 8.6.0
+
+### Minor Changes
+
+- [`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2) Author [@ericvelazquez](https://github.com/ericvelazquez) - Add Earn rewards: listEarnRewards, earnClaimRewards, getEarnClaimRewardsStatus
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-types@1.10.0
+  - @turnkey/http@6.6.0
+  - @turnkey/crypto@2.13.2
+  - @turnkey/indexed-db-stamper@1.3.11
+  - @turnkey/wallet-stamper@1.1.29
+  - @turnkey/api-key-stamper@0.6.17
+
+## 8.5.1
+
+### Patch Changes
+
+- Updated dependencies [[`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312)]:
+  - @turnkey/sdk-types@1.9.0
+  - @turnkey/crypto@2.13.1
+  - @turnkey/indexed-db-stamper@1.3.10
+  - @turnkey/api-key-stamper@0.6.16
+  - @turnkey/wallet-stamper@1.1.28
+  - @turnkey/http@6.5.1
+
+## 8.5.0
+
+### Minor Changes
+
+- [#1525](https://github.com/tkhq/sdk/pull/1525) [`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434) Thanks [@moe-dev](https://github.com/moe-dev)! - Update as per mono v2026.9.4
+
+### Patch Changes
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434), [`66f2acd`](https://github.com/tkhq/sdk/commit/66f2acda2fc99534316eba8a1e6e9aff674fb621), [`a68b73a`](https://github.com/tkhq/sdk/commit/a68b73a6c2b3d76ef94f9447ec3a9f3794eda857)]:
+  - @turnkey/http@6.5.0
+  - @turnkey/sdk-types@1.8.0
+  - @turnkey/crypto@2.13.0
+  - @turnkey/wallet-stamper@1.1.27
+  - @turnkey/indexed-db-stamper@1.3.9
+  - @turnkey/api-key-stamper@0.6.15
+
+## 8.4.0
+
+### Minor Changes
+
+- [#1506](https://github.com/tkhq/sdk/pull/1506) [`8e25b38`](https://github.com/tkhq/sdk/commit/8e25b3886c4cb8d9646fdf8473735e96ebed556f) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Use the latest public swap activities. `createSwapQuote` now submits V2, and `executeSwap` now submits V3. Both inputs support an optional `destinationAddress` for cross-protocol swaps. Also sync the public API types from mono v2026.8.4.
+
+### Patch Changes
+
+- Updated dependencies [[`8e25b38`](https://github.com/tkhq/sdk/commit/8e25b3886c4cb8d9646fdf8473735e96ebed556f)]:
+  - @turnkey/sdk-types@1.7.0
+  - @turnkey/http@6.4.0
+  - @turnkey/crypto@2.12.1
+  - @turnkey/indexed-db-stamper@1.3.8
+  - @turnkey/wallet-stamper@1.1.26
+  - @turnkey/api-key-stamper@0.6.14
+
+## 8.3.0
+
+### Minor Changes
+
+- [#1458](https://github.com/tkhq/sdk/pull/1458) [`22a6682`](https://github.com/tkhq/sdk/commit/22a6682a3a7c5ad7b192cb46ffc599e073802ccf) Author [@besler613](https://github.com/besler613) - Sync transaction history API types with the latest public API swagger.
+
+  ### Transaction history query endpoints
+  - `listEthTransactionHistory` (`POST /public/v1/query/list_eth_transaction_history`) — paginated EVM transaction history for a wallet or private-key address on a supported CAIP-2 chain.
+  - `listSolTransactionHistory` (`POST /public/v1/query/list_sol_transaction_history`) — paginated Solana transaction history for a wallet or private-key address on a supported CAIP-2 chain.
+
+  ### Pagination type update
+
+  Transaction history pagination now uses the shared `v1Pagination` / `v1PageInfo` types instead of transaction-history-specific `v1TransactionHistoryPaginationOptions` / `v1TransactionHistoryPaginationCursors`.
+
+  **Before:**
+
+  ```ts
+  const response = await client.listEthTransactionHistory({ ... });
+  const after = response.paginationCursors.after;
+  ```
+
+  **After:**
+
+  ```ts
+  const response = await client.listEthTransactionHistory({ ... });
+  const after = response.pageInfo?.endCursor;
+  ```
+
+  These surfaces are generated into `@turnkey/http`, `@turnkey/sdk-types`, `@turnkey/sdk-browser`, `@turnkey/sdk-server`, and `@turnkey/core`.
+
+### Patch Changes
+
+- Updated dependencies [[`3af9589`](https://github.com/tkhq/sdk/commit/3af958959c2827d3404525fd22d73be5e306111c), [`35f9cce`](https://github.com/tkhq/sdk/commit/35f9cce418b3704d8e77840c0d76b325079982cb), [`22a6682`](https://github.com/tkhq/sdk/commit/22a6682a3a7c5ad7b192cb46ffc599e073802ccf)]:
+  - @turnkey/crypto@2.12.0
+  - @turnkey/sdk-types@1.6.0
+  - @turnkey/http@6.3.0
+  - @turnkey/api-key-stamper@0.6.13
+  - @turnkey/wallet-stamper@1.1.25
+  - @turnkey/indexed-db-stamper@1.3.7
+
+## 8.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900)]:
+  - @turnkey/sdk-types@1.5.1
+  - @turnkey/crypto@2.11.3
+  - @turnkey/indexed-db-stamper@1.3.6
+  - @turnkey/api-key-stamper@0.6.12
+  - @turnkey/wallet-stamper@1.1.24
+  - @turnkey/http@6.2.1
+
+## 8.2.0
+
+### Minor Changes
+
+- [#1480](https://github.com/tkhq/sdk/pull/1480) [`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a) Thanks [@moe-dev](https://github.com/moe-dev)! - Expose `createSwapQuote` (`ACTIVITY_TYPE_CREATE_SWAP_QUOTE`) and `executeSwap` (`ACTIVITY_TYPE_EXECUTE_SWAP_V2`) on the high-level SDK clients. `createSwapQuote` takes `signWith`, CAIP-19 tokens, amount, and optional `slippageBps`, and returns provider quotes. `executeSwap` is quote-bound: pass `quoteId` plus the exact quoted amounts (`quotedOutputAmount`, `minOutputAmount`, `sponsor`); the signer is derived from the quote. Poll with `getSwapStatus` using the returned `swapRequestId`.
+
+  Also align transaction-history list responses with standard pagination (`v1Pagination` / `pageInfo`) instead of the previous transaction-history-specific cursor types.
+
+### Patch Changes
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a)]:
+  - @turnkey/sdk-types@1.5.0
+  - @turnkey/http@6.2.0
+  - @turnkey/crypto@2.11.2
+  - @turnkey/indexed-db-stamper@1.3.5
+  - @turnkey/wallet-stamper@1.1.23
+  - @turnkey/api-key-stamper@0.6.11
+
+## 8.1.0
+
+### Minor Changes
+
+- [#1475](https://github.com/tkhq/sdk/pull/1475) [`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47) Thanks [@moe-dev](https://github.com/moe-dev)! - Sync generated API clients and types with the latest public API swagger.
+
+  ### New query endpoints
+  - `getClaimEarnFeesStatus` (`POST /public/v1/query/get_claim_earn_fees_status`) — poll Earn fee-claim status by the `claimRequestId` returned from `ClaimEarnFees`. Response status is `PENDING` | `COMPLETED` | `FAILED`, with optional `claimTxHash` / `error`.
+  - `getSwapStatus` (`POST /public/v1/query/get_swap_status`) — poll swap status by the `swapRequestId` returned from `ExecuteSwap`. Covers same-chain and cross-chain swaps, and returns provider, input/output tokens and amounts, origin/destination tx hashes, optional refund info on failure, and normalized error details.
+
+  ### New submit endpoints / activities
+  - `claimSwapFees` (`POST /public/v1/submit/claim_swap_fees`, `ACTIVITY_TYPE_CLAIM_SWAP_FEES`) — claim swap fees through the activity pipeline; result includes a Relay `requestId`.
+  - `ethUndelegate7702` (`POST /public/v1/submit/eth_undelegate_7702`, `ACTIVITY_TYPE_ETH_UNDELEGATE_7702`) — submit an EIP-7702 undelegation for a wallet/private-key address on a supported CAIP-2 chain. Optional nonce / gas / fee fields; result returns a `sendTransactionStatusId` for polling.
+  - `upsertSwapConfig` (`POST /public/v1/submit/upsert_swap_config`, `ACTIVITY_TYPE_UPSERT_SWAP_CONFIG`) — enable or update org swap config (`feeReceiverWalletAddress`, `feeBps`, and Enterprise-only `stableFeeBps` for stablecoin pairs).
+  - `createSwapQuote` (`ACTIVITY_TYPE_CREATE_SWAP_QUOTE`) — request provider quotes for a swap (`signWith`, CAIP-19 `inputToken` / `outputToken`, `inputAmount`, optional `slippageBps`). Returns one or more `v1SwapQuote` values; pass `quoteId` into execute-swap v2.
+
+  ### Related activity / type updates
+  - `ACTIVITY_TYPE_EXECUTE_SWAP_V2` / `v1ExecuteSwapIntentV2` — quote-bound swap execution. Takes `quoteId` plus the exact quoted amounts (`inputAmount`, `quotedOutputAmount`, `minOutputAmount`, `sponsor`), with optional `evmNonce` / `recentBlockhash` / `gasStationNonce`. Signer is derived from the quote and must not be resupplied. Result still exposes `swapRequestId` for `getSwapStatus`.
+  - `ACTIVITY_TYPE_UPDATE_WALLET_ACCOUNT_NAME` / `v1UpdateWalletAccountNameIntent` — rename a wallet account by `walletAccountId`.
+  - Supporting swap types: `v1SwapQuote`, `v1SwapError`, `v1SwapRefund`.
+  - CAIP-2 enums used by transaction intents (including undelegation) now include `eip155:143`.
+
+  These surfaces are generated into `@turnkey/http`, `@turnkey/sdk-types`, `@turnkey/sdk-browser`, `@turnkey/sdk-server`, and `@turnkey/core`.
+
+### Patch Changes
+
+- Updated dependencies [[`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47)]:
+  - @turnkey/sdk-types@1.4.0
+  - @turnkey/http@6.1.0
+  - @turnkey/crypto@2.11.1
+  - @turnkey/indexed-db-stamper@1.3.4
+  - @turnkey/wallet-stamper@1.1.22
+  - @turnkey/api-key-stamper@0.6.10
+
 ## 8.0.0
 
 ### Major Changes

@@ -1,5 +1,82 @@
 # @turnkey/crypto
 
+## 2.13.3
+
+### Patch Changes
+
+- Updated dependencies [[`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3)]:
+  - @turnkey/sdk-types@1.11.0
+
+## 2.13.2
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-types@1.10.0
+
+## 2.13.1
+
+### Patch Changes
+
+- Updated dependencies [[`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312)]:
+  - @turnkey/sdk-types@1.9.0
+
+## 2.13.0
+
+### Minor Changes
+
+- [#1515](https://github.com/tkhq/sdk/pull/1515) [`66f2acd`](https://github.com/tkhq/sdk/commit/66f2acda2fc99534316eba8a1e6e9aff674fb621) Author [@moeodeh3](https://github.com/moeodeh3) - We removed `hpkeAuthEncrypt` because it was designed to be used with a newly generated, one-time sender key, but its API also allowed callers to provide a long-lived `senderPriv`.
+
+  Using the same long-lived sender key for multiple encryptions with the same recipient deterministically reused the AES-GCM key and nonce. Reusing an AES-GCM key and nonce can reveal relationships between plaintexts and compromise message authentication. If you used `hpkeAuthEncrypt` with a long-lived sender key, rotate that key and use `hpkeEncrypt({ plainTextBuf, targetKeyBuf })` instead. It provides the same encryption behavior while generating a fresh ephemeral sender key for each encryption, so callers do not need to generate, manage, or pass `senderPriv` manually.
+
+- [#1512](https://github.com/tkhq/sdk/pull/1512) [`a68b73a`](https://github.com/tkhq/sdk/commit/a68b73a6c2b3d76ef94f9447ec3a9f3794eda857) Author [@emostov](https://github.com/emostov) - Add policy-aware QOS proof verification and manifest commitment PCR helpers.
+
+### Patch Changes
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434)]:
+  - @turnkey/sdk-types@1.8.0
+
+## 2.12.1
+
+### Patch Changes
+
+- Updated dependencies [[`8e25b38`](https://github.com/tkhq/sdk/commit/8e25b3886c4cb8d9646fdf8473735e96ebed556f)]:
+  - @turnkey/sdk-types@1.7.0
+
+## 2.12.0
+
+### Minor Changes
+
+- [#1497](https://github.com/tkhq/sdk/pull/1497) [`3af9589`](https://github.com/tkhq/sdk/commit/3af958959c2827d3404525fd22d73be5e306111c) Author [@emostov](https://github.com/emostov) - Add `computeActivityFingerprint` to `@turnkey/crypto`, deriving the `sha256:<hex>` activity fingerprint from a request body. `createExportSecretsProposal` now uses it instead of building the string inline.
+
+- [#1479](https://github.com/tkhq/sdk/pull/1479) [`35f9cce`](https://github.com/tkhq/sdk/commit/35f9cce418b3704d8e77840c0d76b325079982cb) Author [@emostov](https://github.com/emostov) - Add Secrets API support: `importSecret`, `exportSecret`, `getSecrets`, and the multi-party export proposal API (`createExportSecretsProposal`, `submitExportSecrets`, `awaitExportedSecrets`) on the server client, plus `encryptSecretToBundle` and `decryptSecretBundle` crypto helpers
+
+### Patch Changes
+
+- Updated dependencies [[`35f9cce`](https://github.com/tkhq/sdk/commit/35f9cce418b3704d8e77840c0d76b325079982cb), [`22a6682`](https://github.com/tkhq/sdk/commit/22a6682a3a7c5ad7b192cb46ffc599e073802ccf)]:
+  - @turnkey/sdk-types@1.6.0
+
+## 2.11.3
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900)]:
+  - @turnkey/sdk-types@1.5.1
+
+## 2.11.2
+
+### Patch Changes
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a)]:
+  - @turnkey/sdk-types@1.5.0
+
+## 2.11.1
+
+### Patch Changes
+
+- Updated dependencies [[`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47)]:
+  - @turnkey/sdk-types@1.4.0
+
 ## 2.11.0
 
 ### Minor Changes

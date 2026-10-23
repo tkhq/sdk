@@ -1,0 +1,11 @@
+{
+  "description": "QOS manifest commitment PCR vectors from qos_nsm.",
+  "vectors": [
+    {
+      "manifestHashHex": "236c8d75986a34aba49fa81e036d505b6f320aaa2a248372b9d812fa1ab6c057",
+      "ephemeralPublicKeyHex": "0496848b9bf1b6f71ffc50a7d25e61c719bbd77b37e7c716f96a16a09a8bf13b7579cbfb3165cef350b4b1220e478e5eb404f0edae0e6cd773bb596a2466b4bb4b04a5cb16405c3b50b241f599bf7bf53efd2a8cf10840617c11553de535c8a3d5609d18c49431f4ddf3014b88811187d7603ed8d8e3181a81bd000eda510654903e",
+      "pcr16Hex": "193c914ff046620e5037b1c3cb05f2e808d659b05b221bc7e155cc159b11af4edf6f05f7728a26b5f9b67b77397f80df",
+      "pcr17Hex": "7ac4f8872adb818deb0d887d671dcbf53c2f9b4a7d503682cd6c2d3ab6306852384b45c5979a604d1553c0f8b0cd3654"
+    }
+  ]
+}

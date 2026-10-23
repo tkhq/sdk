@@ -1,5 +1,48 @@
 # with-x
 
+## 0.1.41
+
+### Patch Changes
+
+- Updated dependencies [[`3af9589`](https://github.com/tkhq/sdk/commit/3af958959c2827d3404525fd22d73be5e306111c), [`35f9cce`](https://github.com/tkhq/sdk/commit/35f9cce418b3704d8e77840c0d76b325079982cb), [`22a6682`](https://github.com/tkhq/sdk/commit/22a6682a3a7c5ad7b192cb46ffc599e073802ccf)]:
+  - @turnkey/crypto@2.12.0
+  - @turnkey/sdk-server@8.3.0
+  - @turnkey/react-wallet-kit@2.4.2
+
+## 0.1.40
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@2.4.1
+
+## 0.1.39
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900), [`e9ae3e6`](https://github.com/tkhq/sdk/commit/e9ae3e6e8db3423df143cac4c1b1e7fdc1e757e0)]:
+  - @turnkey/react-wallet-kit@2.4.0
+  - @turnkey/crypto@2.11.3
+  - @turnkey/sdk-server@8.2.1
+
+## 0.1.38
+
+### Patch Changes
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a), [`751b8fe`](https://github.com/tkhq/sdk/commit/751b8fe0132e21ab388f045227306ed8ebef4cc4)]:
+  - @turnkey/sdk-server@8.2.0
+  - @turnkey/react-wallet-kit@2.3.2
+  - @turnkey/crypto@2.11.2
+
+## 0.1.37
+
+### Patch Changes
+
+- Updated dependencies [[`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47)]:
+  - @turnkey/sdk-server@8.1.0
+  - @turnkey/crypto@2.11.1
+  - @turnkey/react-wallet-kit@2.3.1
+
 ## 0.1.36
 
 ### Patch Changes

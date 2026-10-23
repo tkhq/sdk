@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-server",
-  "version": "8.0.0",
+  "version": "8.7.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/crypto": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",

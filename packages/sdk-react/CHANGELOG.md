@@ -1,5 +1,116 @@
 # @turnkey/sdk-react
 
+## 6.0.14
+
+### Patch Changes
+
+- Updated dependencies [[`8424905`](https://github.com/tkhq/sdk/commit/84249058b34836f0677af732885e3bed56dee8d8)]:
+  - @turnkey/sdk-server@8.7.1
+  - @turnkey/sdk-browser@8.7.1
+
+## 6.0.13
+
+### Patch Changes
+
+- Updated dependencies [[`818c954`](https://github.com/tkhq/sdk/commit/818c954da605daa1c5b9a9b8ac5128d1a9cd11f3)]:
+  - @turnkey/sdk-types@1.11.0
+  - @turnkey/sdk-server@8.7.0
+  - @turnkey/sdk-browser@8.7.0
+  - @turnkey/wallet-stamper@1.1.30
+  - @turnkey/crypto@2.13.3
+
+## 6.0.12
+
+### Patch Changes
+
+- Updated dependencies [[`bbbd9d7`](https://github.com/tkhq/sdk/commit/bbbd9d79a6b71cf9b78b99bca48cc140470c34a2)]:
+  - @turnkey/sdk-browser@8.6.0
+  - @turnkey/sdk-server@8.6.0
+  - @turnkey/sdk-types@1.10.0
+  - @turnkey/crypto@2.13.2
+  - @turnkey/wallet-stamper@1.1.29
+
+## 6.0.11
+
+### Patch Changes
+
+- Updated dependencies [[`4066714`](https://github.com/tkhq/sdk/commit/406671483c664b009df94f6487589dc35fd4b312)]:
+  - @turnkey/sdk-types@1.9.0
+  - @turnkey/crypto@2.13.1
+  - @turnkey/sdk-browser@8.5.1
+  - @turnkey/sdk-server@8.5.1
+  - @turnkey/wallet-stamper@1.1.28
+
+## 6.0.10
+
+### Patch Changes
+
+- [#1518](https://github.com/tkhq/sdk/pull/1518) [`ef05f11`](https://github.com/tkhq/sdk/commit/ef05f1172adbaaa5b5ea1c52c0b3b385f626b9b6) Author [@arawal](https://github.com/arawal) - Bumped `next` to 15.5.24 to pick up the fixes for GHSA-2xp9-vwfh-vxw4 and GHSA-p293-qw3h-jr36
+
+- Updated dependencies [[`78533a0`](https://github.com/tkhq/sdk/commit/78533a0acb604d47da211fedd26136c2538b2434), [`66f2acd`](https://github.com/tkhq/sdk/commit/66f2acda2fc99534316eba8a1e6e9aff674fb621), [`a68b73a`](https://github.com/tkhq/sdk/commit/a68b73a6c2b3d76ef94f9447ec3a9f3794eda857)]:
+  - @turnkey/sdk-browser@8.5.0
+  - @turnkey/sdk-server@8.5.0
+  - @turnkey/sdk-types@1.8.0
+  - @turnkey/crypto@2.13.0
+  - @turnkey/wallet-stamper@1.1.27
+
+## 6.0.9
+
+### Patch Changes
+
+- [#1509](https://github.com/tkhq/sdk/pull/1509) [`2511465`](https://github.com/tkhq/sdk/commit/25114656b9a4024f5dcbcb8819b3833b4100e8b5) Author [@truham](https://github.com/truham) - Add United Arab Emirates (+971) to the supported phone country codes.
+
+- Updated dependencies [[`8e25b38`](https://github.com/tkhq/sdk/commit/8e25b3886c4cb8d9646fdf8473735e96ebed556f)]:
+  - @turnkey/sdk-browser@8.4.0
+  - @turnkey/sdk-server@8.4.0
+  - @turnkey/sdk-types@1.7.0
+  - @turnkey/crypto@2.12.1
+  - @turnkey/wallet-stamper@1.1.26
+
+## 6.0.8
+
+### Patch Changes
+
+- Updated dependencies [[`3af9589`](https://github.com/tkhq/sdk/commit/3af958959c2827d3404525fd22d73be5e306111c), [`35f9cce`](https://github.com/tkhq/sdk/commit/35f9cce418b3704d8e77840c0d76b325079982cb), [`22a6682`](https://github.com/tkhq/sdk/commit/22a6682a3a7c5ad7b192cb46ffc599e073802ccf)]:
+  - @turnkey/crypto@2.12.0
+  - @turnkey/sdk-server@8.3.0
+  - @turnkey/sdk-types@1.6.0
+  - @turnkey/sdk-browser@8.3.0
+  - @turnkey/wallet-stamper@1.1.25
+
+## 6.0.7
+
+### Patch Changes
+
+- Updated dependencies [[`e1fdcb1`](https://github.com/tkhq/sdk/commit/e1fdcb16444e6902f220612bea002a7313607900)]:
+  - @turnkey/sdk-types@1.5.1
+  - @turnkey/crypto@2.11.3
+  - @turnkey/sdk-browser@8.2.1
+  - @turnkey/sdk-server@8.2.1
+  - @turnkey/wallet-stamper@1.1.24
+
+## 6.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`f191ad9`](https://github.com/tkhq/sdk/commit/f191ad98d5bd194a12045d9b0c562abccb07169a)]:
+  - @turnkey/sdk-browser@8.2.0
+  - @turnkey/sdk-server@8.2.0
+  - @turnkey/sdk-types@1.5.0
+  - @turnkey/crypto@2.11.2
+  - @turnkey/wallet-stamper@1.1.23
+
+## 6.0.5
+
+### Patch Changes
+
+- Updated dependencies [[`4a20057`](https://github.com/tkhq/sdk/commit/4a20057b37d6081c0c38c0a4840affcd16140d47)]:
+  - @turnkey/sdk-browser@8.1.0
+  - @turnkey/sdk-server@8.1.0
+  - @turnkey/sdk-types@1.4.0
+  - @turnkey/crypto@2.11.1
+  - @turnkey/wallet-stamper@1.1.22
+
 ## 6.0.4
 
 ### Patch Changes

@@ -3,6 +3,7 @@
 import type {
   TurnkeySDKClientBase,
   TurnkeyClientMethods,
+  MfaContext,
   Wallet,
   WalletProvider,
   WalletAccount,
@@ -795,6 +796,8 @@ export interface ClientContextType
    * @param params.icon - Optional icon to display in the transaction modal.
    *
    * @returns A promise that resolves when the transaction reaches a terminal state.
+   * @throws {TurnkeyActivityConsensusNeededError} If the send activity requires consensus.
+   * @throws {TurnkeyActivityError} If the send activity fails or is rejected.
    * @throws {TurnkeyError} If submission fails, polling fails, or the user cancels the flow.
    */
   handleSendTransaction: (params: HandleSendTransactionParams) => Promise<void>;
@@ -821,8 +824,26 @@ export interface ClientContextType
     params: HandleSendErc20TransferParams,
   ) => Promise<void>;
 
+  /**
+   * Registers a custom MFA handler that will be invoked when an activity
+   * requires multi-factor approval (`ACTIVITY_STATUS_AUTHENTICATORS_NEEDED`).
+   *
+   * The handler receives a {@link MfaContext} with activity details
+   * (fingerprint, activityId, organizationId, activityType, status).
+   *
+   * Use the `httpClient` from `useTurnkey()` to approve or reject the activity.
+   *
+   * If no custom handler is set, a built-in MFA modal will be shown.
+   *
+   * @param handler - Async function to handle MFA approval. Pass `undefined` to restore the default handler.
+   */
+  setMfaHandler: (
+    handler: ((context: MfaContext) => Promise<void>) | undefined,
+  ) => void;
+
   /** @internal Get the current Turnstile captcha token */
   getTurnstileToken: () => string | null;
+
   /** @internal Set the Turnstile captcha token (used by the auth component when interactive challenge completes) */
   setTurnstileToken: (token: string | null) => void;
 }

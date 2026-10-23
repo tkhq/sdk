@@ -81,6 +81,9 @@ export type {
 
 export * from "@turnkey/sdk-types";
 
+// Secrets API convenience types (see ./secrets)
+export * from "./secrets";
+
 // Functions
 export {
   fetch,
