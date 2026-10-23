@@ -56,10 +56,6 @@ export type paths = {
     /** Poll the status of a withdrawal by its withdraw_request_id. */
     post: operations["PublicApiService_GetEarnWithdrawStatus"];
   };
-  "/public/v1/query/get_fiat_on_ramp_quote": {
-    /** Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted. */
-    post: operations["PublicApiService_GetFiatOnRampQuote"];
-  };
   "/public/v1/query/get_gas_usage": {
     /** Get gas usage and gas limits for either the parent organization or a sub-organization. */
     post: operations["PublicApiService_GetGasUsage"];
@@ -216,9 +212,17 @@ export type paths = {
     /** List Ethereum transaction history for a wallet address on the specified network. */
     post: operations["PublicApiService_ListEthTransactionHistory"];
   };
+  "/public/v1/query/list_fiat_off_ramp_quotes": {
+    /** Quote enabled fiat off-ramp providers for a sell. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted. */
+    post: operations["PublicApiService_GetFiatOffRampQuotes"];
+  };
   "/public/v1/query/list_fiat_on_ramp_credentials": {
     /** List all fiat on ramp provider credentials within an organization. */
     post: operations["PublicApiService_ListFiatOnRampCredentials"];
+  };
+  "/public/v1/query/list_fiat_on_ramp_quotes": {
+    /** Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted. */
+    post: operations["PublicApiService_GetFiatOnRampQuotes"];
   };
   "/public/v1/query/list_oauth2_credentials": {
     /** List all OAuth 2.0 credentials within an organization. */
@@ -332,6 +336,10 @@ export type paths = {
     /** Create authenticators to authenticate requests to Turnkey. */
     post: operations["PublicApiService_CreateAuthenticators"];
   };
+  "/public/v1/submit/create_fiat_off_ramp_session": {
+    /** Open a fiat off-ramp session for a saved quote. */
+    post: operations["PublicApiService_CreateFiatOffRampSession"];
+  };
   "/public/v1/submit/create_fiat_on_ramp_credential": {
     /** Create a fiat on ramp provider credential. */
     post: operations["PublicApiService_CreateFiatOnRampCredential"];
@@ -389,11 +397,11 @@ export type paths = {
     post: operations["PublicApiService_CreateSmartContractInterface"];
   };
   "/public/v1/submit/create_sub_organization": {
-    /** Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS). */
+    /** Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, a wallet authenticator, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS). */
     post: operations["PublicApiService_CreateSubOrganization"];
   };
   "/public/v1/submit/create_swap_quote": {
-    /** Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3. */
+    /** Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3, which returns its quotes in createSwapQuoteResultV2. */
     post: operations["PublicApiService_CreateSwapQuote"];
   };
   "/public/v1/submit/create_tvc_app": {
@@ -1200,9 +1208,11 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_SECRETS"
     | "ACTIVITY_TYPE_EARN_CLAIM_REWARDS"
     | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3"
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V9"
     | "ACTIVITY_TYPE_UPSERT_SWAP_FEE_SPONSORSHIP_LIMIT_CONFIG"
     | "ACTIVITY_TYPE_UPSERT_SWAP_FIXED_RATE_LIMIT_CONFIG"
-    | "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION";
+    | "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION"
+    | "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1388,7 +1398,8 @@ export type definitions = {
     | "AUTHENTICATION_TYPE_PASSKEY"
     | "AUTHENTICATION_TYPE_API_KEY"
     | "AUTHENTICATION_TYPE_OAUTH"
-    | "AUTHENTICATION_TYPE_SESSION";
+    | "AUTHENTICATION_TYPE_SESSION"
+    | "AUTHENTICATION_TYPE_WALLET";
   v1Authenticator: {
     /** @description Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
     transports: definitions["v1AuthenticatorTransport"][];
@@ -1580,6 +1591,30 @@ export type definitions = {
     /** @description A list of Authenticator IDs. */
     authenticatorIds: string[];
   };
+  v1CreateFiatOffRampSessionIntent: {
+    /** @description Identifier of a saved fiat off-ramp quote. Returned by GetFiatOffRampQuotes. */
+    quoteId: string;
+    /** @description Wallet address for this sale. Coinbase uses it as the source address. MoonPay uses it as the refund address; the user deposits the crypto to MoonPay separately. */
+    walletAddress: string;
+    /** @description URL Coinbase redirects to after the user submits the sell. Required when the saved quote is from Coinbase. Coinbase buy does not use this field. MoonPay ignores it. */
+    redirectUrl?: string;
+  };
+  v1CreateFiatOffRampSessionRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateFiatOffRampSessionIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1CreateFiatOffRampSessionResult: {
+    /** @description URL of the fiat off-ramp session for the saved quote. */
+    offRampUrl: string;
+    /** @description Unique identifier used to retrieve transaction statuses for a given fiat off-ramp flow. */
+    offRampTransactionId: string;
+  };
   v1CreateFiatOnRampCredentialIntent: {
     /** @description The fiat on-ramp provider */
     onrampProvider: definitions["v1FiatOnRampProvider"];
@@ -1609,7 +1644,7 @@ export type definitions = {
     fiatOnRampCredentialId: string;
   };
   v1CreateFiatOnRampSessionIntent: {
-    /** @description Identifier of a saved fiat on-ramp quote. Returned by GetFiatOnRampQuote. */
+    /** @description Identifier of a saved fiat on-ramp quote. Returned by GetFiatOnRampQuotes. */
     quoteId: string;
     /** @description Destination wallet address for the buy transaction. */
     walletAddress: string;
@@ -2135,6 +2170,31 @@ export type definitions = {
     /** @description Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
     clientSignature?: definitions["v1ClientSignature"];
   };
+  v1CreateSubOrganizationIntentV9: {
+    /** @description Name for this sub-organization */
+    subOrganizationName: string;
+    /** @description Root users to create within this sub-organization */
+    rootUsers: definitions["v1RootUserParamsV6"][];
+    /**
+     * Format: int32
+     * @description The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users
+     */
+    rootQuorumThreshold: number;
+    /** @description The wallet to create for the sub-organization */
+    wallet?: definitions["v1WalletParams"];
+    /** @description Disable email recovery for the sub-organization */
+    disableEmailRecovery?: boolean;
+    /** @description Disable email auth for the sub-organization */
+    disableEmailAuth?: boolean;
+    /** @description Disable OTP SMS auth for the sub-organization */
+    disableSmsAuth?: boolean;
+    /** @description Disable OTP email auth for the sub-organization */
+    disableOtpEmailAuth?: boolean;
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    verificationToken?: string;
+    /** @description Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
+    clientSignature?: definitions["v1ClientSignature"];
+  };
   v1CreateSubOrganizationRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8";
@@ -2176,6 +2236,11 @@ export type definitions = {
     rootUserIds?: string[];
   };
   v1CreateSubOrganizationResultV8: {
+    subOrganizationId: string;
+    wallet?: definitions["v1WalletResult"];
+    rootUserIds?: string[];
+  };
+  v1CreateSubOrganizationResultV9: {
     subOrganizationId: string;
     wallet?: definitions["v1WalletResult"];
     rootUserIds?: string[];
@@ -3985,6 +4050,43 @@ export type definitions = {
     | "FEATURE_NAME_EARN_CONFIG"
     | "FEATURE_NAME_SWAP_FEE_SPONSORSHIP"
     | "FEATURE_NAME_SWAP_FIXED_RATE";
+  v1FiatOffRampQuote: {
+    /** @description Identifier for this saved quote. */
+    quoteId: string;
+    /** @description Provider that produced this quote. */
+    provider: definitions["v1FiatOnRampProvider"];
+    /** @description Underlying provider when provider aggregates several. */
+    serviceProvider?: string;
+    /** @description Fiat the user receives, in atomic units of fiat_currency_code. For USD, 100 dollars is "10000". */
+    fiatAmount: definitions["v1FiatOnRampAmount"];
+    /** @description Fiat currency of fiat_amount and total_fee. */
+    fiatCurrencyCode: definitions["v1FiatOnRampCurrency"];
+    /** @description Cryptocurrency the user would sell, in atomic units. Not locked in the session. */
+    cryptoAmount: definitions["v1FiatOnRampAmount"];
+    /**
+     * @description CAIP-19 asset of crypto_amount. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp.
+     * @enum {string}
+     */
+    caip19:
+      | "eip155:1/slip44:60"
+      | "eip155:10/slip44:60"
+      | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+      | "eip155:8453/slip44:60"
+      | "eip155:42161/slip44:60"
+      | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+      | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+      | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+      | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+    /** @description Payout method this quote was priced for. Bank transfers are not included. */
+    paymentMethod: definitions["v1FiatOnRampPaymentMethod"];
+    /** @description Total fee in atomic units of fiat_currency_code. */
+    totalFee: definitions["v1FiatOnRampAmount"];
+    /** @description Quote expiration as a millisecond epoch string. Empty when the provider does not send one. */
+    expiresAt?: string;
+  };
   v1FiatOnRampAmount: {
     /** @description Amount in atomic units. Use this to compare quotes. Do not use display. */
     amount: string;
@@ -4302,7 +4404,42 @@ export type definitions = {
     /** @description Reason the withdrawal transaction failed, when status is FAILED. */
     error?: string;
   };
-  v1GetFiatOnRampQuoteRequest: {
+  v1GetFiatOffRampQuotesRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Crypto amount the user wants to sell, in major units of the caip19 asset. For example, "0.05" for 0.05 ETH. The wallet address is not part of this query. */
+    cryptoAmount: string;
+    /** @description Fiat currency the user receives, for example USD. */
+    fiatCurrencyCode: definitions["v1FiatOnRampCurrency"];
+    /**
+     * @description CAIP-19 asset to sell. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp.
+     * @enum {string}
+     */
+    caip19:
+      | "eip155:1/slip44:60"
+      | "eip155:10/slip44:60"
+      | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+      | "eip155:8453/slip44:60"
+      | "eip155:42161/slip44:60"
+      | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+      | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+      | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+      | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+    /** @description ISO 3166-1 alpha-2 country code of the selling user, for example US. When omitted, the country is taken from the location of the request. */
+    countryCode?: string;
+    /** @description ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request. */
+    countrySubdivisionCode?: string;
+    /** @description Quote sandbox credentials when true. Defaults to false. */
+    sandboxMode?: boolean;
+  };
+  v1GetFiatOffRampQuotesResponse: {
+    /** @description One quote per provider and payment method that can serve this route. Empty when none can. */
+    quotes: definitions["v1FiatOffRampQuote"][];
+  };
+  v1GetFiatOnRampQuotesRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     /** @description Fiat amount the user wants to spend, in major units of fiat_currency_code. For example, "100" for 100 USD. */
@@ -4326,14 +4463,14 @@ export type definitions = {
       | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
       | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
       | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
-    /** @description ISO 3166-1 alpha-2 country code of the purchasing user, for example US. */
-    countryCode: string;
-    /** @description ISO 3166-2 subdivision code, for example NY. Only required if you have Coinbase enabled as a provider and country_code is US. */
+    /** @description ISO 3166-1 alpha-2 country code of the purchasing user, for example US. When omitted, the country is taken from the location of the request. */
+    countryCode?: string;
+    /** @description ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request. */
     countrySubdivisionCode?: string;
     /** @description Quote sandbox credentials when true. Defaults to false. */
     sandboxMode?: boolean;
   };
-  v1GetFiatOnRampQuoteResponse: {
+  v1GetFiatOnRampQuotesResponse: {
     /** @description One quote per provider and payment method that can serve this route. Empty when none can. */
     quotes: definitions["v1FiatOnRampQuote"][];
   };
@@ -5491,9 +5628,11 @@ export type definitions = {
     deleteSecretsIntent?: definitions["v1DeleteSecretsIntent"];
     earnClaimRewardsIntent?: definitions["v1EarnClaimRewardsIntent"];
     createSwapQuoteIntentV3?: definitions["v1CreateSwapQuoteIntentV3"];
+    createSubOrganizationIntentV9?: definitions["v1CreateSubOrganizationIntentV9"];
     upsertSwapFeeSponsorshipLimitConfigIntent?: definitions["v1UpsertSwapFeeSponsorshipLimitConfigIntent"];
     upsertSwapFixedRateLimitConfigIntent?: definitions["v1UpsertSwapFixedRateLimitConfigIntent"];
     createFiatOnRampSessionIntent?: definitions["v1CreateFiatOnRampSessionIntent"];
+    createFiatOffRampSessionIntent?: definitions["v1CreateFiatOffRampSessionIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -6472,9 +6611,11 @@ export type definitions = {
     deleteSecretsResult?: definitions["v1DeleteSecretsResult"];
     earnClaimRewardsResult?: definitions["v1EarnClaimRewardsResult"];
     createSwapQuoteResultV2?: definitions["v1CreateSwapQuoteResultV2"];
+    createSubOrganizationResultV9?: definitions["v1CreateSubOrganizationResultV9"];
     upsertSwapFeeSponsorshipLimitConfigResult?: definitions["v1UpsertSwapFeeSponsorshipLimitConfigResult"];
     upsertSwapFixedRateLimitConfigResult?: definitions["v1UpsertSwapFixedRateLimitConfigResult"];
     createFiatOnRampSessionResult?: definitions["v1CreateFiatOnRampSessionResult"];
+    createFiatOffRampSessionResult?: definitions["v1CreateFiatOffRampSessionResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -6551,6 +6692,22 @@ export type definitions = {
     authenticators: definitions["v1AuthenticatorParamsV2"][];
     /** @description A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
     oauthProviders: definitions["v1OauthProviderParamsV2"][];
+  };
+  v1RootUserParamsV6: {
+    /** @description Human-readable name for a User. */
+    userName: string;
+    /** @description The user's email address. */
+    userEmail?: string;
+    /** @description The user's phone number in E.164 format e.g. +13214567890 */
+    userPhoneNumber?: string;
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
+    apiKeys: definitions["v1ApiKeyParamsV2"][];
+    /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
+    authenticators: definitions["v1AuthenticatorParamsV2"][];
+    /** @description A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
+    oauthProviders: definitions["v1OauthProviderParamsV2"][];
+    /** @description A list of wallet authenticators. This field, if not needed, should be an empty array in your request body. */
+    walletAuthenticators: definitions["v1WalletAuthenticatorParams"][];
   };
   v1SecretMetadata: {
     /** @description Unique identifier for the secret. */
@@ -6737,6 +6894,14 @@ export type definitions = {
     apiKeys?: definitions["v1ApiKeyParamsV2"][];
     authenticators?: definitions["v1AuthenticatorParamsV2"][];
     oauthProviders?: definitions["v1OauthProviderParamsV2"][];
+  };
+  v1SignupUsageV3: {
+    email?: string;
+    phoneNumber?: string;
+    apiKeys?: definitions["v1ApiKeyParamsV2"][];
+    authenticators?: definitions["v1AuthenticatorParamsV2"][];
+    oauthProviders?: definitions["v1OauthProviderParamsV2"][];
+    walletAuthenticators?: definitions["v1WalletAuthenticatorParams"][];
   };
   v1SimpleClientExtensionResults: {
     appid?: boolean;
@@ -7196,7 +7361,7 @@ export type definitions = {
     subOrgWindowLimitUsd?: string;
   };
   v1SwapSponsorshipFeature: {
-    /** @description Whether the billing parent holds this feature's signed permission. Quotes can use the feature only when it is permitted and its window is enabled. */
+    /** @description Whether the billing parent holds this feature's signed permission, which enabling its spending window grants. Quotes can use the feature only when it is permitted and its window is enabled. */
     permitted: boolean;
     /** @description Absent until the billing parent saves a spending window. */
     window?: definitions["v1SwapSpendingWindow"];
@@ -7223,6 +7388,7 @@ export type definitions = {
     signup?: definitions["v1SignupUsage"];
     login?: definitions["v1LoginUsage"];
     signupV2?: definitions["v1SignupUsageV2"];
+    signupV3?: definitions["v1SignupUsageV3"];
   };
   v1TransactionHistoryAsset: {
     /** @description The CAIP-19 asset identifier. */
@@ -7979,7 +8145,7 @@ export type definitions = {
     subOrgWindowLimitUsd: string;
     /** @description Positive rolling window duration in minutes, at most 153722867. */
     windowDurationMinutes: string;
-    /** @description Whether this spending window permits new swaps. Setting false only turns the saved window off and keeps its limits; it doesn't require the signed permission. This does not grant or remove the signed organization permission. */
+    /** @description Whether this spending window permits new swaps. True also grants the billing parent's signed permission for the feature. False turns the saved window off, keeps its limits, and removes the permission. Granting or removing the permission needs root quorum. */
     enabled: boolean;
   };
   v1UpsertSwapFeeSponsorshipLimitConfigRequest: {
@@ -8002,7 +8168,7 @@ export type definitions = {
     subOrgWindowLimitUsd: string;
     /** @description Positive rolling window duration in minutes, at most 153722867. */
     windowDurationMinutes: string;
-    /** @description Whether this spending window permits new swaps. Setting false only turns the saved window off and keeps its limits; it doesn't require the signed permission. This does not grant or remove the signed organization permission. */
+    /** @description Whether this spending window permits new swaps. True also grants the billing parent's signed permission for the feature. False turns the saved window off, keeps its limits, and removes the permission. Granting or removing the permission needs root quorum. */
     enabled: boolean;
   };
   v1UpsertSwapFixedRateLimitConfigRequest: {
@@ -8041,6 +8207,8 @@ export type definitions = {
     updatedAt: definitions["externaldatav1Timestamp"];
     /** @description A list of MFA Policies that define multi-factor authentication requirements for this user. */
     mfaPolicies: definitions["v1MfaPolicy"][];
+    /** @description A list of wallet authenticators (externally-owned Ethereum or Solana accounts used to authenticate). If not needed, this should be an empty array. */
+    walletAuthenticators: definitions["v1WalletAuthenticator"][];
   };
   v1UserParams: {
     /** @description Human-readable name for a User. */
@@ -8134,7 +8302,7 @@ export type definitions = {
     method: definitions["v1VelocityControlAggregationMethod"];
     /** @description Comparison between the aggregate and the threshold. */
     operator: definitions["v1VelocityControlAggregationOperator"];
-    /** @description Non-negative base-10 decimal string with at most 38 total digits and 18 fractional digits. */
+    /** @description Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits. */
     threshold: string;
     /** @description Time window for the aggregation. */
     window: definitions["v1VelocityControlAggregationWindow"];
@@ -8204,7 +8372,7 @@ export type definitions = {
     caip19: string;
     /**
      * Format: int64
-     * @description Integer between 0 and 255 (inclusive) that specifies the number of decimal places for the asset.
+     * @description Integer between 0 and 32 (inclusive) that specifies the number of decimal places for the asset.
      */
     decimals: number;
   };
@@ -8329,6 +8497,30 @@ export type definitions = {
     /** @description Optional human-readable name for the account. */
     name?: string;
   };
+  v1WalletAuthenticator: {
+    /** @description Unique identifier for a wallet authenticator. */
+    walletAuthenticatorId: string;
+    /** @description Network this authenticator belongs to. */
+    type: definitions["v1WalletAuthenticatorType"];
+    /** @description Normalized account address. */
+    address: string;
+    /** @description SIWE/SIWS domain this authenticator is bound to. */
+    domain: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1WalletAuthenticatorParams: {
+    /** @description Network this authenticator belongs to. */
+    type: definitions["v1WalletAuthenticatorType"];
+    /** @description Account address. Ethereum addresses are stored lowercase with a 0x prefix. Solana addresses are canonical base58. */
+    address: string;
+    /** @description SIWE/SIWS domain this authenticator is bound to. Host only, lowercased. */
+    domain: string;
+  };
+  /** @enum {string} */
+  v1WalletAuthenticatorType:
+    | "WALLET_AUTHENTICATOR_TYPE_ETHEREUM"
+    | "WALLET_AUTHENTICATOR_TYPE_SOLANA";
   v1WalletKitSettingsParams: {
     /**
      * Enabled Social Providers
@@ -8624,24 +8816,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetEarnWithdrawStatusResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted. */
-  PublicApiService_GetFiatOnRampQuote: {
-    parameters: {
-      body: {
-        body: definitions["v1GetFiatOnRampQuoteRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetFiatOnRampQuoteResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -9351,6 +9525,24 @@ export type operations = {
       };
     };
   };
+  /** Quote enabled fiat off-ramp providers for a sell. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted. */
+  PublicApiService_GetFiatOffRampQuotes: {
+    parameters: {
+      body: {
+        body: definitions["v1GetFiatOffRampQuotesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetFiatOffRampQuotesResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** List all fiat on ramp provider credentials within an organization. */
   PublicApiService_ListFiatOnRampCredentials: {
     parameters: {
@@ -9362,6 +9554,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ListFiatOnRampCredentialsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted. */
+  PublicApiService_GetFiatOnRampQuotes: {
+    parameters: {
+      body: {
+        body: definitions["v1GetFiatOnRampQuotesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetFiatOnRampQuotesResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -9873,6 +10083,24 @@ export type operations = {
       };
     };
   };
+  /** Open a fiat off-ramp session for a saved quote. */
+  PublicApiService_CreateFiatOffRampSession: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateFiatOffRampSessionRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create a fiat on ramp provider credential. */
   PublicApiService_CreateFiatOnRampCredential: {
     parameters: {
@@ -10125,7 +10353,7 @@ export type operations = {
       };
     };
   };
-  /** Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS). */
+  /** Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, a wallet authenticator, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS). */
   PublicApiService_CreateSubOrganization: {
     parameters: {
       body: {
@@ -10143,7 +10371,7 @@ export type operations = {
       };
     };
   };
-  /** Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3. */
+  /** Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3, which returns its quotes in createSwapQuoteResultV2. */
   PublicApiService_CreateSwapQuote: {
     parameters: {
       body: {

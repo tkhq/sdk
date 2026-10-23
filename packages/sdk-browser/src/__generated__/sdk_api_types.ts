@@ -579,6 +579,17 @@ export type TListEthTransactionHistoryBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetFiatOffRampQuotesResponse =
+  operations["PublicApiService_GetFiatOffRampQuotes"]["responses"]["200"]["schema"];
+
+export type TGetFiatOffRampQuotesInput = { body: TGetFiatOffRampQuotesBody };
+
+export type TGetFiatOffRampQuotesBody = Omit<
+  operations["PublicApiService_GetFiatOffRampQuotes"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TListFiatOnRampCredentialsResponse =
   operations["PublicApiService_ListFiatOnRampCredentials"]["responses"]["200"]["schema"];
 
@@ -588,6 +599,17 @@ export type TListFiatOnRampCredentialsInput = {
 
 export type TListFiatOnRampCredentialsBody = Omit<
   operations["PublicApiService_ListFiatOnRampCredentials"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetFiatOnRampQuotesResponse =
+  operations["PublicApiService_GetFiatOnRampQuotes"]["responses"]["200"]["schema"];
+
+export type TGetFiatOnRampQuotesInput = { body: TGetFiatOnRampQuotesBody };
+
+export type TGetFiatOnRampQuotesBody = Omit<
+  operations["PublicApiService_GetFiatOnRampQuotes"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -877,6 +899,18 @@ export type TCreateAuthenticatorsBody =
   operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateFiatOffRampSessionResponse =
+  operations["PublicApiService_CreateFiatOffRampSession"]["responses"]["200"]["schema"]["activity"]["result"]["createFiatOffRampSessionResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateFiatOffRampSessionInput = {
+  body: TCreateFiatOffRampSessionBody;
+};
+
+export type TCreateFiatOffRampSessionBody =
+  operations["PublicApiService_CreateFiatOffRampSession"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateFiatOnRampCredentialResponse =
   operations["PublicApiService_CreateFiatOnRampCredential"]["responses"]["200"]["schema"]["activity"]["result"]["createFiatOnRampCredentialResult"] &
     definitions["v1ActivityResponse"];
@@ -887,6 +921,18 @@ export type TCreateFiatOnRampCredentialInput = {
 
 export type TCreateFiatOnRampCredentialBody =
   operations["PublicApiService_CreateFiatOnRampCredential"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateFiatOnRampSessionResponse =
+  operations["PublicApiService_CreateFiatOnRampSession"]["responses"]["200"]["schema"]["activity"]["result"]["createFiatOnRampSessionResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateFiatOnRampSessionInput = {
+  body: TCreateFiatOnRampSessionBody;
+};
+
+export type TCreateFiatOnRampSessionBody =
+  operations["PublicApiService_CreateFiatOnRampSession"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateInvitationsResponse =
@@ -1016,7 +1062,7 @@ export type TCreateSmartContractInterfaceBody =
     commandOverrideParams;
 
 export type TCreateSubOrganizationResponse =
-  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV8"] &
+  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV9"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };

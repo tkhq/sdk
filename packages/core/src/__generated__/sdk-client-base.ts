@@ -2778,6 +2778,53 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getFiatOffRampQuotes = async (
+    input: SdkTypes.TGetFiatOffRampQuotesBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetFiatOffRampQuotesResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_fiat_off_ramp_quotes",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetFiatOffRampQuotes = async (
+    input: SdkTypes.TGetFiatOffRampQuotesBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_fiat_off_ramp_quotes";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   listFiatOnRampCredentials = async (
     input: SdkTypes.TListFiatOnRampCredentialsBody,
     stampWith?: StamperType,
@@ -2808,6 +2855,53 @@ export class TurnkeySDKClientBase {
     const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getFiatOnRampQuotes = async (
+    input: SdkTypes.TGetFiatOnRampQuotesBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetFiatOnRampQuotesResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_fiat_on_ramp_quotes",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetFiatOnRampQuotes = async (
+    input: SdkTypes.TGetFiatOnRampQuotesBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_quotes";
     const body = {
       ...input,
       organizationId:
@@ -4091,6 +4185,64 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  createFiatOffRampSession = async (
+    input: SdkTypes.TCreateFiatOffRampSessionBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TCreateFiatOffRampSessionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/create_fiat_off_ramp_session",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION",
+      },
+      "createFiatOffRampSessionResult",
+      stampWith,
+    );
+  };
+
+  stampCreateFiatOffRampSession = async (
+    input: SdkTypes.TCreateFiatOffRampSessionBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_fiat_off_ramp_session";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   createFiatOnRampCredential = async (
     input: SdkTypes.TCreateFiatOnRampCredentialBody,
     stampWith?: StamperType,
@@ -4139,6 +4291,64 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createFiatOnRampSession = async (
+    input: SdkTypes.TCreateFiatOnRampSessionBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TCreateFiatOnRampSessionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/create_fiat_on_ramp_session",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION",
+      },
+      "createFiatOnRampSessionResult",
+      stampWith,
+    );
+  };
+
+  stampCreateFiatOnRampSession = async (
+    input: SdkTypes.TCreateFiatOnRampSessionBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_fiat_on_ramp_session";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4868,7 +5078,7 @@ export class TurnkeySDKClientBase {
         generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
       },
-      "createSubOrganizationResultV8",
+      "createSubOrganizationResultV9",
       stampWith,
     );
   };

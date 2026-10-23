@@ -245,13 +245,37 @@ export default function AuthPage() {
       }
 
       await turnkey.handleOnRamp({
-        onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
         walletAccount: evmAccount,
-        cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
         sandboxMode: true,
+        defaultFiatCurrencyAmount: "100",
       });
     } catch (err) {
       console.error("Fiat OnRamp failed:", err);
+    }
+  };
+  const handleOffRamp = async () => {
+    try {
+      if (!wallets.length || !wallets[0]?.accounts?.length) {
+        console.error("No wallets available for offramp");
+        return;
+      }
+
+      const evmAccount: WalletAccount | undefined = wallets[0].accounts.find(
+        (a) => a.addressFormat === "ADDRESS_FORMAT_ETHEREUM",
+      );
+
+      if (!evmAccount) {
+        console.error("No EVM-compatible account found for offramp");
+        return;
+      }
+
+      await turnkey.handleOffRamp({
+        walletAccount: evmAccount,
+        sandboxMode: true,
+        defaultCryptoAmount: "0.05",
+      });
+    } catch (err) {
+      console.error("Fiat OffRamp failed:", err);
     }
   };
 
@@ -1400,6 +1424,18 @@ export default function AuthPage() {
                 }}
               >
                 Onramp
+              </button>
+              <button
+                data-testid="show-offramp-modal"
+                onClick={handleOffRamp}
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Offramp
               </button>
             </>
           )}
