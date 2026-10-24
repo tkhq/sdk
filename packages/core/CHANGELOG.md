@@ -1,5 +1,11 @@
 # @turnkey/core
 
+## 2.13.2
+
+### Patch Changes
+
+- [#1618](https://github.com/tkhq/sdk/pull/1618) [`a1a9403`](https://github.com/tkhq/sdk/commit/a1a9403797d5ee6c543f9401d9c0d6fd0b23b3d0) Thanks [@t-vila](https://github.com/t-vila)! - Activity polling now queries the organization the activity belongs to. Previously `get_activity` fell back to the session's organization, or to `config.organizationId` when there was no session, so polling a sub-organization activity before a session existed (for example the re-poll after `onMfaRequired` during an SMS-MFA login) hit the parent organization and failed with `ATTESTED_IDENTITY_NOT_FOUND`. Reported by @elenamik in #1617.
+
 ## 2.13.1
 
 ### Patch Changes

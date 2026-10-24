@@ -1,5 +1,11 @@
 # @turnkey/sdk-server
 
+## 8.8.0
+
+### Minor Changes
+
+- [#1577](https://github.com/tkhq/sdk/pull/1577) [`196389b`](https://github.com/tkhq/sdk/commit/196389b40332cacfb0cc2746bdf8b7b47ac8eee6) Author [@emostov](https://github.com/emostov) - `exportSecret` and `createExportSecretsProposal` now accept a per-secret `requestContext`, which is bound into the signed request for policy and audit. Entries are serialized sorted by key, so the same context always produces the same signed body and fingerprint. Bodies without context are unchanged.
+
 ## 8.7.1
 
 ### Patch Changes
