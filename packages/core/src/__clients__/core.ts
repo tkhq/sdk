@@ -2,6 +2,7 @@ import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import {
   type TDeleteSubOrganizationResponse,
   type Session,
+  type TStampLoginBody,
   type TStampLoginResponse,
   type v1Attestation,
   type v1SignRawPayloadResult,
@@ -115,6 +116,7 @@ import {
   type OverridePasskeyStamperParams,
   type OverrideAttestedStamperParams,
   type DeleteApiKeyPairParams,
+  type TurnkeyHttpClientConfig,
 } from "../__types__";
 import {
   TurnkeyActivityConsensusNeededError,
@@ -164,7 +166,11 @@ import { toUtf8Bytes } from "ethers";
 import { verify } from "@turnkey/crypto";
 import { SignatureFormat } from "@turnkey/api-key-stamper";
 import { encodeFunctionData } from "viem";
-import { AttestedScheme, AttestedStamper } from "../__stampers__/attested/base";
+import {
+  type AttestedConfig,
+  AttestedScheme,
+  AttestedStamper,
+} from "../__stampers__/attested/base";
 
 /**
  * @internal
@@ -1595,6 +1601,29 @@ export class TurnkeyClient {
     );
   };
 
+  // Per-login stamper, so concurrent logins cannot change this login's identity.
+  private stampLoginWithAttestedConfig = async (
+    attestedConfig: AttestedConfig,
+    input: TStampLoginBody,
+  ): Promise<TStampLoginResponse> => {
+    if (!this.apiKeyStamper) {
+      throw new TurnkeyError(
+        "API key stamper is not initialized",
+        TurnkeyErrorCodes.INTERNAL_ERROR,
+      );
+    }
+
+    const attestedStamper = new AttestedStamper(this.apiKeyStamper);
+    attestedStamper.configure(attestedConfig);
+
+    // Inherit from httpClient.config so later changes to it (such as onMfaRequired) still apply.
+    return new TurnkeySDKClientBase(
+      Object.create(this.httpClient.config, {
+        attestedStamper: { value: attestedStamper, enumerable: true },
+      }) as TurnkeyHttpClientConfig,
+    ).stampLogin(input, StamperType.Attested);
+  };
+
   /**
    * Logs in a user using an OTP verification token.
    *
@@ -1636,14 +1665,19 @@ export class TurnkeyClient {
           );
         }
 
-        // We override the attested stamper with the verification token so the stampLogin request can be stamped with it.
+        // We override the shared attested stamper with the verification token, for callers that use it after login.
         await this.overrideAttestedStamper({
           verificationToken,
           publicKey: verificationPublicKey,
         });
 
         // the verification token's public key is also used as the session public key for login
-        const loginRes = await this.httpClient.stampLogin(
+        const loginRes = await this.stampLoginWithAttestedConfig(
+          {
+            attestedIdentity: verificationToken,
+            publicKey: verificationPublicKey,
+            scheme: AttestedScheme.P256_VERIFICATION_TOKEN,
+          },
           {
             publicKey: verificationPublicKey,
             expirationSeconds,
@@ -1651,7 +1685,6 @@ export class TurnkeyClient {
             ...(organizationId && { organizationId }),
             ...(sessionProfileId && { sessionProfileId }),
           },
-          StamperType.Attested,
         );
 
         if (!loginRes) {
@@ -2120,13 +2153,18 @@ export class TurnkeyClient {
           return { sessionToken: proxyRes.session };
         }
 
-        // We override the attested stamper with the oidcToken so the stampLogin request can be stamped with it.
+        // We override the shared attested stamper with the oidcToken, for callers that use it after login.
         await this.overrideAttestedStamper({
           oidcToken,
           publicKey,
         });
 
-        const loginRes = await this.httpClient.stampLogin(
+        const loginRes = await this.stampLoginWithAttestedConfig(
+          {
+            attestedIdentity: oidcToken,
+            publicKey,
+            scheme: AttestedScheme.P256_OIDC,
+          },
           {
             publicKey,
             expirationSeconds,
@@ -2134,7 +2172,6 @@ export class TurnkeyClient {
             ...(organizationId && { organizationId }),
             ...(sessionProfileId && { sessionProfileId }),
           },
-          StamperType.Attested,
         );
 
         if (!loginRes) {
