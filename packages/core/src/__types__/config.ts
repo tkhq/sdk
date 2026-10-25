@@ -126,7 +126,7 @@ export interface TurnkeySDKClientConfig {
  * @property timeout - timeout value in milliseconds. Defaults to 5 minutes.
  * @property userVerification - override for UV flag. Defaults to "preferred".
  * @property allowCredentials - list of credentials to pass. Defaults to empty.
- * @property rpName - name for the Relying Party (RP). This is used in the passkey creation flow on mobile.
+ * @property rpName - name for the Relying Party (RP). This is used in the passkey creation flow on web and mobile.
  * @property withSecurityKey - option to force security passkeys on native platforms.
  * @property withPlatformKey - option to force platform passkeys on native platforms.
  * @property extensions - optional extensions. Defaults to empty.
