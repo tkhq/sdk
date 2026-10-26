@@ -4,6 +4,7 @@ export {
   createActivityPoller,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
+  TurnkeyActivityConsensusNeededError,
   TurnkeyActivityError,
   TurnkeyApi,
   TurnkeyRequestError,
