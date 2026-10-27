@@ -119,7 +119,7 @@ export class TronSave {
         "Content-Type": "application/json",
         ...(init.apiKey ? { apikey: this.apiKey } : {}),
       },
-      body: init.body === undefined ? undefined : JSON.stringify(init.body),
+      ...(init.body === undefined ? {} : { body: JSON.stringify(init.body) }),
       signal: AbortSignal.timeout(15_000),
     });
     let json: Envelope<T> | undefined;

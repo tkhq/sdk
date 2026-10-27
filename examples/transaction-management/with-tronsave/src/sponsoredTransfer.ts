@@ -35,7 +35,8 @@ async function main() {
 
   const user = process.env.USER_ADDRESS!;
   const recipient = process.env.RECIPIENT_ADDRESS!;
-  const token = process.env.TOKEN_ADDRESS ?? "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"; // USDT on Nile
+  const token =
+    process.env.TOKEN_ADDRESS ?? "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"; // USDT on Nile
   const amount = process.env.TOKEN_AMOUNT ?? "1000000";
 
   const transferParams = [
@@ -78,7 +79,8 @@ async function main() {
     );
     const deadline = Date.now() + 60_000;
     while ((await availableEnergy(tronWeb, user)) < energyNeeded) {
-      if (Date.now() > deadline) throw new Error("delegation not visible in time");
+      if (Date.now() > deadline)
+        throw new Error("delegation not visible in time");
       await new Promise((resolve) => setTimeout(resolve, 3000));
     }
   } else {
@@ -98,7 +100,9 @@ async function main() {
     user,
   );
   if (!wrapper.result.result) {
-    throw new Error(`failed to build transfer: ${JSON.stringify(wrapper.result)}`);
+    throw new Error(
+      `failed to build transfer: ${JSON.stringify(wrapper.result)}`,
+    );
   }
   const signedTransfer = await signTronTransaction(
     turnkeyClient,

@@ -74,7 +74,9 @@ export async function waitForConfirmation(
       const detail = info.resMessage
         ? Buffer.from(info.resMessage, "hex").toString()
         : "";
-      throw new Error(`tx ${txid} failed on-chain: ${receipt ?? "FAILED"} ${detail}`);
+      throw new Error(
+        `tx ${txid} failed on-chain: ${receipt ?? "FAILED"} ${detail}`,
+      );
     }
     return;
   }

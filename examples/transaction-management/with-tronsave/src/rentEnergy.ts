@@ -33,11 +33,14 @@ async function main() {
     DURATION_SEC,
     MAX_PRICE_SUN,
   );
-  console.log(`Order ${order.orderId} placed at ${order.unitPriceSun} sun/energy`);
+  console.log(
+    `Order ${order.orderId} placed at ${order.unitPriceSun} sun/energy`,
+  );
 
   const deadline = Date.now() + 60_000;
   while ((await availableEnergy(tronWeb, receiver)) < before + ENERGY_AMOUNT) {
-    if (Date.now() > deadline) throw new Error("delegation not visible in time");
+    if (Date.now() > deadline)
+      throw new Error("delegation not visible in time");
     await new Promise((resolve) => setTimeout(resolve, 3000));
   }
   console.log(
