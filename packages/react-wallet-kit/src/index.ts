@@ -18,6 +18,7 @@ export {
   getClientSignatureMessageForSignup,
   buildSecondaryOidcClaims,
   buildSecondaryOauthProviders,
+  buildWalletConnectAppEntries,
 } from "@turnkey/core";
 
 // Re-export all types from @turnkey/core

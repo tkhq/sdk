@@ -1082,7 +1082,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * - Solana: listens for disconnect via Wallet Standard `change` events to trigger a refresh.
    * - WalletConnect:
    *    - listens for disconnect and other state changes via its unified `change` event
-   *    - additionally listens for `pairingExpired` events (proposal expiration), in which
+   *    - additionally listens for `proposalExpired` events (proposal expiration), in which
    *      case we re-fetch providers to refresh the pairing URI for the UI.
    *
    * Notes:
@@ -1203,7 +1203,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           const unsubscribe = standardEvents.on("change", async (evt: any) => {
             // if the event is a proposalExpired, we want to re-fetch the providers
             // to refresh the uri, there is no need to refresh the wallets state
-            if (evt?.type === "pairingExpired") {
+            if (evt?.type === "proposalExpired") {
               debouncedFetchWalletProviders();
               return;
             }
@@ -1225,7 +1225,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             if (evt?.type === "initialized") {
               // this updates our walletProvider state
-              const providers = await debouncedFetchWalletProviders();
+              const providers = await fetchWalletProviders();
 
               // if we have an active session, we need to restore any possibly connected
               // WalletConnect wallets since its now initialized
@@ -1701,18 +1701,24 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
 
-      const walletProviders = await withTurnkeyErrorHandling(
-        () => fetchWalletProviders(),
-        undefined,
-        callbacks,
-        "Failed to refresh wallets",
-      );
+      // we refresh the wallet providers first so that the walletProviders state
+      // stays in sync (e.g. a fresh WalletConnect uri after a disconnect)
+      const walletProviders =
+        masterConfig?.walletConfig?.features?.auth ||
+        masterConfig?.walletConfig?.features?.connecting
+          ? await withTurnkeyErrorHandling(
+              () => fetchWalletProviders(),
+              undefined,
+              callbacks,
+              "Failed to refresh wallets",
+            )
+          : undefined;
 
       const wallets = await withTurnkeyErrorHandling(
         () =>
           fetchWallets({
             stampWith,
-            walletProviders,
+            ...(walletProviders && { walletProviders }),
             ...(organizationId && { organizationId }),
             ...(userId && { userId }),
           }),
@@ -1727,7 +1733,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       return wallets;
     },
-    [client, callbacks, fetchWalletProviders, fetchWallets, logout],
+    [
+      client,
+      callbacks,
+      fetchWalletProviders,
+      fetchWallets,
+      logout,
+      masterConfig,
+    ],
   );
 
   /**
