@@ -12,7 +12,10 @@ export const signWithApiKey = async (input: {
   // Public key in the usual 02 or 03 + 64 hex digits
   const publicKeyString = uint8ArrayToHexString(publicKey);
 
-  if (publicKeyString != input.publicKey) {
+  // Hex is case-insensitive, and `uint8ArrayToHexString` always emits
+  // lowercase, so compare case-insensitively rather than rejecting a valid
+  // key that happens to be written in upper or mixed case.
+  if (publicKeyString.toLowerCase() !== input.publicKey.toLowerCase()) {
     throw new Error(
       `Bad API key. Expected to get public key ${input.publicKey}, got ${publicKeyString}`,
     );
