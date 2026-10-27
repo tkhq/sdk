@@ -350,7 +350,14 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
     const { privateKey, publicKeyUncompressed } = generateP256KeyPair();
 
     const proposal = this.createExportSecretsProposal({
-      secrets: [{ secretId: params.secretId }],
+      secrets: [
+        {
+          secretId: params.secretId,
+          ...(params.requestContext
+            ? { requestContext: params.requestContext }
+            : {}),
+        },
+      ],
       targetPublicKey: publicKeyUncompressed,
       organizationId,
       timestampMs: params.timestampMs ?? String(Date.now()),
@@ -413,11 +420,27 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
       timestampMs: params.timestampMs,
       organizationId,
       parameters: {
-        secrets: params.secrets.map((secret) => ({
-          secretId: secret.secretId,
-          targetPublicKey: params.targetPublicKey,
-          encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1,
-        })),
+        secrets: params.secrets.map(({ secretId, requestContext }) => {
+          // Sorted by key so co-signers building the same context in any key
+          // order produce identical bytes, and so one fingerprint. Omitted
+          // when empty so context-free bodies keep their prior bytes.
+          const entries = Object.entries(requestContext ?? {}).sort(
+            ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0),
+          );
+          return {
+            secretId,
+            targetPublicKey: params.targetPublicKey,
+            encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1,
+            ...(entries.length > 0
+              ? {
+                  requestContext: entries.map(([key, value]) => ({
+                    key,
+                    value,
+                  })),
+                }
+              : {}),
+          };
+        }),
       },
     };
     const body = JSON.stringify(request);

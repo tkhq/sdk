@@ -1,5 +1,17 @@
 # @turnkey/sdk-server
 
+## 8.8.0
+
+### Minor Changes
+
+- [#1577](https://github.com/tkhq/sdk/pull/1577) [`196389b`](https://github.com/tkhq/sdk/commit/196389b40332cacfb0cc2746bdf8b7b47ac8eee6) Author [@emostov](https://github.com/emostov) - `exportSecret` and `createExportSecretsProposal` now accept a per-secret `requestContext`, which is bound into the signed request for policy and audit. Entries are serialized sorted by key, so the same context always produces the same signed body and fingerprint. Bodies without context are unchanged.
+
+## 8.7.1
+
+### Patch Changes
+
+- [#1614](https://github.com/tkhq/sdk/pull/1614) [`8424905`](https://github.com/tkhq/sdk/commit/84249058b34836f0677af732885e3bed56dee8d8) Author [@radusandor](https://github.com/radusandor) - - Fixed `ethUndelegate7702()` and `stampEthUndelegate7702()` sending the invalid activity type `ACTIVITY_TYPE_ETH_UNDELEGATE7702`, which the API rejected with "Invalid activity type". They now send `ACTIVITY_TYPE_ETH_UNDELEGATE_7702`, matching `@turnkey/core`. The codegen now reads activity types from the API spec instead of deriving them from the method name
+
 ## 8.7.0
 
 ### Minor Changes
