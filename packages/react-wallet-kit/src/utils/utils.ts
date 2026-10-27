@@ -192,7 +192,8 @@ export function useWalletProviderState(initialState: WalletProvider[] = []) {
         .sort()
         .join(",");
       const uri = provider.uri || "";
-      return `${namespace}|${interfaceType}|${name}|${connectedAddresses}|${uri}`;
+      const isLoading = provider.isLoading ? "1" : "0";
+      return `${namespace}|${interfaceType}|${name}|${connectedAddresses}|${uri}|${isLoading}`;
     };
 
     const A = a.map(key).sort();
