@@ -1,0 +1,19 @@
+{
+  "name": "@turnkey/example-with-tronsave",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "rentEnergy": "tsx src/rentEnergy.ts",
+    "sponsoredTransfer": "tsx src/sponsoredTransfer.ts",
+    "clean": "rimraf ./dist ./.cache"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "workspace:*",
+    "dotenv": "^16.0.3",
+    "tronweb": "^6.0.3"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "5.4.3"
+  }
+}
