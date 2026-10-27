@@ -45,8 +45,17 @@ export type SecretMetadata = {
   createdAtUnixMs: string;
 };
 
-export type ExportSecretParams = {
+export type ExportSecretItem = {
   secretId: string;
+  /**
+   * Claims bound into the signed request for this secret only, for policy and
+   * audit. Serialized sorted by key, so the same context always produces the
+   * same body and fingerprint.
+   */
+  requestContext?: Record<string, string>;
+};
+
+export type ExportSecretParams = ExportSecretItem & {
   organizationId?: string;
   timestampMs?: string;
   /** How long to wait for the activity to reach a terminal status. Defaults to 60s. */
@@ -58,7 +67,7 @@ export type ExportSecretParams = {
 };
 
 export type CreateExportSecretsProposalParams = {
-  secrets: { secretId: string }[];
+  secrets: ExportSecretItem[];
   /** Recipient's ephemeral P-256 public key (65-byte uncompressed hex, e.g. `generateP256KeyPair().publicKeyUncompressed`). Only the holder of the private half can decrypt the export. */
   targetPublicKey: string;
   organizationId?: string;

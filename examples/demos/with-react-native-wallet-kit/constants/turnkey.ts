@@ -10,6 +10,8 @@ const AUTH_PROXY_CONFIG_ID =
   process.env.EXPO_PUBLIC_TURNKEY_AUTH_PROXY_CONFIG_ID;
 const PASSKEY_RP_ID = process.env.EXPO_PUBLIC_TURNKEY_RPID || "";
 const APP_SCHEME = process.env.EXPO_PUBLIC_APP_SCHEME || "";
+const WALLETCONNECT_PROJECT_ID =
+  process.env.EXPO_PUBLIC_WALLETCONNECT_PROJECT_ID || "";
 
 export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
   organizationId: ORGANIZATION_ID,
@@ -19,6 +21,30 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
   passkeyConfig: {
     rpId: PASSKEY_RP_ID,
   },
+  ...(WALLETCONNECT_PROJECT_ID
+    ? {
+        walletConfig: {
+          features: { auth: true, connecting: true },
+          chains: {
+            ethereum: { walletConnectNamespaces: ["eip155:1"] },
+            solana: {
+              walletConnectNamespaces: [
+                "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+              ],
+            },
+          },
+          walletConnect: {
+            projectId: WALLETCONNECT_PROJECT_ID,
+            appMetadata: {
+              name: "Turnkey RN Wallet Kit",
+              description: "Turnkey React Native Wallet Kit Demo",
+              url: "https://turnkey.com",
+              icons: ["https://turnkey.com/favicon.svg"],
+            },
+          },
+        },
+      }
+    : {}),
   auth: {
     otp: {
       email: true,
