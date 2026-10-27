@@ -1,5 +1,26 @@
 # @turnkey/react-wallet-kit
 
+## 2.7.1
+
+### Patch Changes
+
+- Updated dependencies [[`a1a9403`](https://github.com/tkhq/sdk/commit/a1a9403797d5ee6c543f9401d9c0d6fd0b23b3d0)]:
+  - @turnkey/core@2.13.2
+
+## 2.7.0
+
+### Minor Changes
+
+- [#1612](https://github.com/tkhq/sdk/pull/1612) [`e6cddb2`](https://github.com/tkhq/sdk/commit/e6cddb2a2120498f598d3cbc0acd121f667a849d) Author [@moeodeh3](https://github.com/moeodeh3) - - Added `buildWalletConnectAppEntries` to the package exports, so apps building their own wallet UI can get the list of WalletConnect wallet apps
+
+### Patch Changes
+
+- [#1612](https://github.com/tkhq/sdk/pull/1612) [`d01831b`](https://github.com/tkhq/sdk/commit/d01831bddddd1718117a8852293dd941a0c71c7e) Author [@moeodeh3](https://github.com/moeodeh3) - - Fixed the WalletConnect listener checking for a `pairingExpired` event that is never emitted. When a pairing link expires or a connection is rejected, only the wallet providers are refreshed now instead of every wallet, matching `@turnkey/react-native-wallet-kit`
+  - Fixed restoring connected wallets after WalletConnect initializes. Only WalletConnect wallets are checked now instead of every connected wallet, matching `@turnkey/react-native-wallet-kit`
+  - `refreshWallets` no longer fails when both wallet auth and wallet connecting are disabled, matching `@turnkey/react-native-wallet-kit`
+- Updated dependencies [[`634ad6c`](https://github.com/tkhq/sdk/commit/634ad6c6134381ca669c6e9dc483418b42a09b75)]:
+  - @turnkey/core@2.13.1
+
 ## 2.6.0
 
 ### Minor Changes
