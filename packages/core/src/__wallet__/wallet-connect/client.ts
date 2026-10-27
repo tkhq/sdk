@@ -1,4 +1,4 @@
-import SignClient from "@walletconnect/sign-client";
+import { SignClient } from "@walletconnect/sign-client";
 import type {
   CoreTypes,
   ProposalTypes,
@@ -13,7 +13,7 @@ import type {
  * - Exposes a minimal API for lifecycle control; higher-level logic lives in `WalletConnectWallet`.
  */
 export class WalletConnectClient {
-  private client!: SignClient;
+  private client!: InstanceType<typeof SignClient>;
 
   // tracks the pending approval callback returned from `connect()`
   private pendingApproval: (() => Promise<SessionTypes.Struct>) | null = null;

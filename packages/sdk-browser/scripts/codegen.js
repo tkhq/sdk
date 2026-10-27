@@ -63,6 +63,31 @@ function resolveVersionedActivity(entry) {
   return entry;
 }
 
+/**
+ * Extracts the activity type string from a request definition's `type.enum` field.
+ * e.g. for v1EthUndelegate7702Request, returns "ACTIVITY_TYPE_ETH_UNDELEGATE_7702"
+ *
+ * @param {object} definitions - The swagger spec definitions
+ * @param {object} operation - The swagger operation object for the endpoint
+ * @returns {string | null}
+ */
+function getActivityTypeFromRequestDef(definitions, operation) {
+  const bodyParam = operation.parameters?.find((p) => p.in === "body");
+  if (!bodyParam?.schema?.$ref) return null;
+  const defName = bodyParam.schema.$ref.replace("#/definitions/", "");
+  const def = definitions[defName];
+  return def?.properties?.type?.enum?.[0] ?? null;
+}
+
+/**
+ * Strips a trailing version suffix (e.g. _V2, _V8) from an activity type string.
+ * @param {string} activityType
+ * @returns {string}
+ */
+function stripActivityTypeVersion(activityType) {
+  return activityType.replace(/_V\d+$/, "");
+}
+
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "getActivities",
   "getApiKeys",
@@ -193,9 +218,14 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
     }
 
     const parameterList = operation["parameters"] ?? [];
-    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-      .toUpperCase()}`;
+    // Pull the activity type directly from the request definition's type enum
+    const rawActivityType = getActivityTypeFromRequestDef(
+      swaggerSpec.definitions,
+      operation,
+    );
+    const unversionedActivityType = rawActivityType
+      ? stripActivityTypeVersion(rawActivityType)
+      : null;
     const { intentType: versionedIntentType } = resolveVersionedActivity(
       VERSIONED_ACTIVITY_TYPES[unversionedActivityType],
     );
@@ -465,12 +495,21 @@ export class TurnkeySDKClientBase {
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 
-    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-      .toUpperCase()}`;
+    // Pull the activity type directly from the request definition's type enum
+    const rawActivityType = getActivityTypeFromRequestDef(
+      swaggerSpec.definitions,
+      operation,
+    );
+    const unversionedActivityType = rawActivityType
+      ? stripActivityTypeVersion(rawActivityType)
+      : null;
     const { activityType: versionedActivityType } = resolveVersionedActivity(
       VERSIONED_ACTIVITY_TYPES[unversionedActivityType],
     );
+    // Use the capped version if one exists, otherwise use the raw swagger value
+    const activityType = unversionedActivityType
+      ? (versionedActivityType ?? rawActivityType)
+      : null;
 
     if (methodType === "query") {
       codeBuffer.push(
@@ -501,7 +540,7 @@ export class TurnkeySDKClientBase {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "${versionedActivityType ?? unversionedActivityType}"
+      type: "${activityType}"
     }, "${versionedMethodName}");
   }`,
       );
@@ -517,9 +556,7 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_${operationNameWithoutNamespace
-          .replace(/([a-z])([A-Z])/g, "$1_$2")
-          .toUpperCase()}"
+        type: "${activityType}"
       });
   }`,
       );
@@ -571,7 +608,7 @@ export class TurnkeySDKClientBase {
       parameters,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "${versionedActivityType ?? unversionedActivityType}"
+      type: "${activityType}"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
