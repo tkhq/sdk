@@ -1264,6 +1264,38 @@
         "tags": ["TVC"]
       }
     },
+    "/public/v1/query/get_tvc_manifest_generation_info": {
+      "post": {
+        "summary": "Get TVC manifest generation info",
+        "description": "Get default values for creating a QOS manifest. Relevant for client manifest generation.",
+        "operationId": "PublicApiService_GetTvcManifestGenerationInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcManifestGenerationInfoResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcManifestGenerationInfoRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
     "/public/v1/query/get_tvc_qos_versions": {
       "post": {
         "summary": "Get TVC QOS versions",
@@ -9792,6 +9824,11 @@
           "type": "integer",
           "format": "int64",
           "description": "Optional desired instance memory size in GiB."
+        },
+        "qosManifest": {
+          "type": "string",
+          "format": "byte",
+          "description": "Optional client-generated QOS manifest."
         }
       },
       "required": [
@@ -13682,7 +13719,8 @@
       "type": "string",
       "enum": [
         "FIAT_ON_RAMP_PROVIDER_COINBASE",
-        "FIAT_ON_RAMP_PROVIDER_MOONPAY"
+        "FIAT_ON_RAMP_PROVIDER_MOONPAY",
+        "FIAT_ON_RAMP_PROVIDER_MELD"
       ]
     },
     "v1FiatOnRampQuote": {
@@ -15192,6 +15230,64 @@
         }
       },
       "required": ["tvcDeployment"]
+    },
+    "v1GetTvcManifestGenerationInfoRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "appId": {
+          "type": "string"
+        },
+        "qosVersion": {
+          "type": "string",
+          "description": "QOS version of the deployment. Defaults to the latest recommended TVC QOS version."
+        }
+      },
+      "required": ["organizationId", "appId"]
+    },
+    "v1GetTvcManifestGenerationInfoResponse": {
+      "type": "object",
+      "properties": {
+        "nonce": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "pcr0": {
+          "type": "string"
+        },
+        "pcr1": {
+          "type": "string"
+        },
+        "pcr2": {
+          "type": "string"
+        },
+        "pcr3": {
+          "type": "string"
+        },
+        "qosVersion": {
+          "type": "string"
+        },
+        "defaultDnsResolvers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "nonce",
+        "namespace",
+        "pcr0",
+        "pcr1",
+        "pcr2",
+        "pcr3",
+        "qosVersion"
+      ]
     },
     "v1GetTvcOperatorsRequest": {
       "type": "object",
@@ -21459,7 +21555,7 @@
         },
         "publicDomain": {
           "type": "string",
-          "description": "The public domain for ingress to this TVC App (in the format \"app-\u003cID\u003e.turnkey.cloud\")."
+          "description": "The public domain for ingress to this TVC App (in the format \"app-\u003cID\u003e.app.turnkey.cloud\"). May contain multiple comma-separated hostnames."
         },
         "enableDebugModeDeployments": {
           "type": "boolean",

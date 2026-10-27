@@ -63,6 +63,10 @@ import type {
   TGetGasUsageResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetIndicativeSwapQuoteBody,
+  TGetIndicativeSwapQuoteResponse,
+} from "./public_api.fetcher";
+import type {
   TGetIpAllowlistBody,
   TGetIpAllowlistResponse,
 } from "./public_api.fetcher";
@@ -148,6 +152,10 @@ import type {
 import type {
   TGetTvcDeploymentProvisioningDetailsBody,
   TGetTvcDeploymentProvisioningDetailsResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetTvcManifestGenerationInfoBody,
+  TGetTvcManifestGenerationInfoResponse,
 } from "./public_api.fetcher";
 import type {
   TGetTvcQosVersionsBody,
@@ -1269,6 +1277,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Preview the provider's current price for a swap without creating an activity. The quote is not binding and has no quote ID: a market swap executed later fetches its own quote, so its price can differ.
+   *
+   * Sign the provided `TGetIndicativeSwapQuoteBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_indicative_swap_quote).
+   *
+   * See also {@link stampGetIndicativeSwapQuote}.
+   */
+  getIndicativeSwapQuote = async (
+    input: TGetIndicativeSwapQuoteBody,
+  ): Promise<TGetIndicativeSwapQuoteResponse> => {
+    return this.request("/public/v1/query/get_indicative_swap_quote", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetIndicativeSwapQuoteBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetIndicativeSwapQuote}.
+   */
+  stampGetIndicativeSwapQuote = async (
+    input: TGetIndicativeSwapQuoteBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_indicative_swap_quote";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Get IP allowlist and rules for an organization.
    *
    * Sign the provided `TGetIpAllowlistBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_ip_allowlist).
@@ -2014,6 +2054,41 @@ export class TurnkeyClient {
     const fullUrl =
       this.config.baseUrl +
       "/public/v1/query/get_tvc_deployment_provisioning_details";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get default values for creating a QOS manifest. Relevant for client manifest generation.
+   *
+   * Sign the provided `TGetTvcManifestGenerationInfoBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_tvc_manifest_generation_info).
+   *
+   * See also {@link stampGetTvcManifestGenerationInfo}.
+   */
+  getTvcManifestGenerationInfo = async (
+    input: TGetTvcManifestGenerationInfoBody,
+  ): Promise<TGetTvcManifestGenerationInfoResponse> => {
+    return this.request(
+      "/public/v1/query/get_tvc_manifest_generation_info",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetTvcManifestGenerationInfoBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetTvcManifestGenerationInfo}.
+   */
+  stampGetTvcManifestGenerationInfo = async (
+    input: TGetTvcManifestGenerationInfoBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_tvc_manifest_generation_info";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

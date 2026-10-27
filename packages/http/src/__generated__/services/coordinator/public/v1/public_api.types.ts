@@ -60,6 +60,10 @@ export type paths = {
     /** Get gas usage and gas limits for either the parent organization or a sub-organization. */
     post: operations["PublicApiService_GetGasUsage"];
   };
+  "/public/v1/query/get_indicative_swap_quote": {
+    /** Preview the provider's current price for a swap without creating an activity. The quote is not binding and has no quote ID: a market swap executed later fetches its own quote, so its price can differ. */
+    post: operations["PublicApiService_GetIndicativeSwapQuote"];
+  };
   "/public/v1/query/get_ip_allowlist": {
     /** Get IP allowlist and rules for an organization. */
     post: operations["PublicApiService_GetIpAllowlist"];
@@ -155,6 +159,10 @@ export type paths = {
   "/public/v1/query/get_tvc_deployment_provisioning_details": {
     /** Get the attestation document and manifest envelope of the provisioning enclave for a TVC deployment. */
     post: operations["PublicApiService_GetTvcDeploymentProvisioningDetails"];
+  };
+  "/public/v1/query/get_tvc_manifest_generation_info": {
+    /** Get default values for creating a QOS manifest. Relevant for client manifest generation. */
+    post: operations["PublicApiService_GetTvcManifestGenerationInfo"];
   };
   "/public/v1/query/get_tvc_qos_versions": {
     /** List QOS versions supported for new TVC deployments and the latest recommended QOS version. */
@@ -2405,6 +2413,11 @@ export type definitions = {
      * @description Optional desired instance memory size in GiB.
      */
     instanceSizeRam?: number;
+    /**
+     * Format: byte
+     * @description Optional client-generated QOS manifest.
+     */
+    qosManifest?: string;
   };
   v1CreateTvcDeploymentRequest: {
     /** @enum {string} */
@@ -4183,7 +4196,8 @@ export type definitions = {
   /** @enum {string} */
   v1FiatOnRampProvider:
     | "FIAT_ON_RAMP_PROVIDER_COINBASE"
-    | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
+    | "FIAT_ON_RAMP_PROVIDER_MOONPAY"
+    | "FIAT_ON_RAMP_PROVIDER_MELD";
   v1FiatOnRampQuote: {
     /** @description Identifier for this saved quote. Pass this to the create on ramp session activity. */
     quoteId: string;
@@ -4488,6 +4502,46 @@ export type definitions = {
     windowLimitUsd: string;
     /** @description The total gas usage (in USD) of all sponsored transactions processed over the last `window_duration_minutes` */
     usageUsd: string;
+  };
+  v1GetIndicativeSwapQuoteRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Wallet account address that would send the input asset. It must belong to the organization. */
+    signWith: string;
+    /** @description CAIP-19 asset ID for the input asset. */
+    inputToken: string;
+    /** @description CAIP-19 asset ID for the output asset. */
+    outputToken: string;
+    /** @description Exact base-unit amount of the input asset. */
+    inputAmount: string;
+    /** @description Maximum allowed slippage in basis points, at most 5000. When omitted, the provider chooses the slippage. */
+    slippageBps?: string;
+    /** @description Raw public address that would receive the output asset. Required for cross-protocol swaps and rejected otherwise. */
+    destinationAddress?: string;
+    /** @description Preview the price with Turnkey paying the provider fees. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
+    feeSponsorship?: boolean;
+    /** @description Preview a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false. */
+    fixedRate?: boolean;
+  };
+  v1GetIndicativeSwapQuoteResponse: {
+    /** @description Swap provider that produced this quote. */
+    provider: string;
+    /** @description Estimated base-unit amount of the output asset. */
+    outputAmount: string;
+    /** @description Minimum base-unit amount of the output asset after slippage. */
+    minOutputAmount: string;
+    /** @description Slippage tolerance in basis points the provider applied. */
+    slippageBps?: string;
+    /** @description Client app fee in basis points included in this quote. "0" when no client fee applies. */
+    clientFeeBps: string;
+    /** @description Provider's estimated time to complete the swap, in seconds. */
+    estimatedTimeSeconds?: string;
+    /** @description Whether this quote has Turnkey paying the provider fees. */
+    feeSponsorship: boolean;
+    /** @description Whether this quote uses a 1:1 fixed rate. */
+    fixedRate: boolean;
+    /** @description Estimated fixed-rate adjustment in USD from the customer's side: positive is a cost, negative an earning. Present only for fixed-rate quotes the provider priced. */
+    estimatedFixedRateAdjustmentUsd?: string;
   };
   v1GetIpAllowlistRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -4866,6 +4920,23 @@ export type definitions = {
   v1GetTvcDeploymentResponse: {
     /** @description Details about a single TVC Deployment */
     tvcDeployment: definitions["v1TvcDeployment"];
+  };
+  v1GetTvcManifestGenerationInfoRequest: {
+    organizationId: string;
+    appId: string;
+    /** @description QOS version of the deployment. Defaults to the latest recommended TVC QOS version. */
+    qosVersion?: string;
+  };
+  v1GetTvcManifestGenerationInfoResponse: {
+    /** Format: int64 */
+    nonce: number;
+    namespace: string;
+    pcr0: string;
+    pcr1: string;
+    pcr2: string;
+    pcr3: string;
+    qosVersion: string;
+    defaultDnsResolvers?: string[];
   };
   v1GetTvcOperatorsRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -7477,7 +7548,7 @@ export type definitions = {
     updatedAt: definitions["externaldatav1Timestamp"];
     /** @description The deployment currently designated to receive traffic. Null if no deployment for this app is deployed. */
     liveDeploymentId?: string;
-    /** @description The public domain for ingress to this TVC App (in the format "app-<ID>.turnkey.cloud"). */
+    /** @description The public domain for ingress to this TVC App (in the format "app-<ID>.app.turnkey.cloud"). May contain multiple comma-separated hostnames. */
     publicDomain: string;
     /** @description Whether this app permits debug-mode deployments. Set at app creation via CreateTvcAppIntent.enable_debug_mode_deployments and never updated thereafter. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. The app's quorum key is therefore considered permanently insecure once enabled — a new app with a fresh quorum key must be created to return to a secure posture. */
     enableDebugModeDeployments: boolean;
@@ -8841,6 +8912,24 @@ export type operations = {
       };
     };
   };
+  /** Preview the provider's current price for a swap without creating an activity. The quote is not binding and has no quote ID: a market swap executed later fetches its own quote, so its price can differ. */
+  PublicApiService_GetIndicativeSwapQuote: {
+    parameters: {
+      body: {
+        body: definitions["v1GetIndicativeSwapQuoteRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetIndicativeSwapQuoteResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get IP allowlist and rules for an organization. */
   PublicApiService_GetIpAllowlist: {
     parameters: {
@@ -9266,6 +9355,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetTvcDeploymentProvisioningDetailsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get default values for creating a QOS manifest. Relevant for client manifest generation. */
+  PublicApiService_GetTvcManifestGenerationInfo: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcManifestGenerationInfoRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcManifestGenerationInfoResponse"];
       };
       /** An unexpected error response. */
       default: {

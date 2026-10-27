@@ -2171,6 +2171,54 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getTvcManifestGenerationInfo = async (
+    input: SdkTypes.TGetTvcManifestGenerationInfoBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetTvcManifestGenerationInfoResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_tvc_manifest_generation_info",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetTvcManifestGenerationInfo = async (
+    input: SdkTypes.TGetTvcManifestGenerationInfoBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/query/get_tvc_manifest_generation_info";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getTvcQosVersions = async (
     input: SdkTypes.TGetTvcQosVersionsBody,
     stampWith?: StamperType,
