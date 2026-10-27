@@ -29,8 +29,9 @@ export class TronSave implements EnergyProvider {
     private readonly apiKey: string,
     /** Refuse rentals above this market price, in SUN per energy. */
     private readonly maxPriceSun: number = 150,
-    // The dev API delegates on the Nile testnet.
-    private readonly baseUrl: string = "https://api-dev.tronsave.io/v2",
+    // Mainnet API. The dev API (https://api-dev.tronsave.io/v2) delegates on
+    // the Nile testnet instead.
+    private readonly baseUrl: string = "https://api.tronsave.io/v2",
   ) {}
 
   async rent(

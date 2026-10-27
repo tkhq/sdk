@@ -16,7 +16,7 @@ The example defines a two-method `EnergyProvider` interface (`rent`, then `relea
 | Typical cost | market rate (tens of SUN per energy), zero on-chain legs            | higher for short rentals: occupation fee + refundable deposit (min 40 TRX) |
 | Settlement   | none — `release()` is a no-op                                       | `returnResource()` required to reclaim the deposit, or risk liquidation    |
 | Counterparty | an off-chain operator and your prepaid float                        | none beyond the contract itself                                            |
-| Networks     | mainnet + Nile (dev API)                                            | mainnet only (no known testnet deployment)                                 |
+| Networks     | mainnet (Nile via the dev API)                                      | mainnet only (no known testnet deployment)                                 |
 
 The practical production shape is a **priority-ordered chain** behind this same interface: a marketplace first for price, JustLend as the fallback that no API outage or operator can take away, and burning TRX as a last, alert-raising resort. The `energyProviderFromEnv` factory in `src/providers/` is the seam to build that on.
 
@@ -46,12 +46,14 @@ $ cd examples/transaction-management/with-tron-energy/
 $ cp .env.local.example .env.local
 ```
 
-Fill in `.env.local`:
+Fill in `.env.local` (the example defaults to **mainnet**):
 
 - Turnkey credentials (`API_PUBLIC_KEY`, `API_PRIVATE_KEY`, `ORGANIZATION_ID`) — see the [Quickstart](https://docs.turnkey.com/getting-started/quickstart).
-- `USER_ADDRESS`: a Turnkey Tron address (create one with the [`with-tron`](../../chain-integrations/with-tron/) example) holding Nile USDT but no TRX. Get Nile TRX/USDT from a [faucet](https://nileex.io/join/getJoinPage); the address must be activated (have received something) before a delegation can target it.
-- **TronSave path (works on Nile):** `TRONSAVE_API_KEY` from [tronsave.io](https://tronsave.io); the default base URL is their dev API, which delegates on Nile. Top up the prepaid account by sending TRX to the deposit address returned by `GET /user-info`.
-- **JustLend path (mainnet only):** `ENERGY_PROVIDER=justlend`, `SPONSOR_ADDRESS` (a Turnkey wallet holding TRX for the prepay), `TRON_FULL_HOST=https://api.trongrid.io` and a `TRONGRID_API_KEY`. Prepay is computed from the live on-chain `_rentalRate` with a deliberate overestimate — unused prepay and the security deposit come back on `returnResource()`. Start with a small rental to observe one full rent/return cycle before sizing up.
+- `USER_ADDRESS`: a Turnkey Tron address (create one with the [`with-tron`](../../chain-integrations/with-tron/) example) holding a little USDT but no TRX. The address must be activated (have received something) before a delegation can target it.
+- `TRONGRID_API_KEY` from [trongrid.io](https://www.trongrid.io) — TronGrid throttles anonymous mainnet traffic.
+- **TronSave path (default):** `TRONSAVE_API_KEY` from [tronsave.io](https://tronsave.io). Top up the prepaid account by sending TRX to the deposit address returned by `GET /user-info`; a single ~65k-energy rental costs a few TRX at market rates.
+- **JustLend path:** `ENERGY_PROVIDER=justlend`, `SPONSOR_ADDRESS` (a Turnkey wallet holding TRX for the prepay). Prepay is computed from the live on-chain `_rentalRate` with a deliberate overestimate — unused prepay and the security deposit come back on `returnResource()`. Start with a small rental to observe one full rent/return cycle before sizing up.
+- **Nile instead of mainnet (TronSave only):** `TRON_FULL_HOST=https://nile.trongrid.io`, `TRONSAVE_API_BASE_URL=https://api-dev.tronsave.io/v2`, Nile USDT `TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf`, funded from a [faucet](https://nileex.io/join/getJoinPage).
 
 ```bash
 $ pnpm run rentEnergy          # rent → watch the delegation land → settle

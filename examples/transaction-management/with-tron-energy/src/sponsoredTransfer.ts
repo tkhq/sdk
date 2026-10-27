@@ -5,6 +5,7 @@ import { energyProviderFromEnv } from "./providers";
 import {
   availableEnergy,
   broadcast,
+  explorerTxUrl,
   initTronWeb,
   initTurnkey,
   signTronTransaction,
@@ -36,7 +37,7 @@ async function main() {
   const user = process.env.USER_ADDRESS!;
   const recipient = process.env.RECIPIENT_ADDRESS!;
   const token =
-    process.env.TOKEN_ADDRESS ?? "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"; // USDT on Nile
+    process.env.TOKEN_ADDRESS ?? "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"; // USDT on mainnet
   const amount = process.env.TOKEN_AMOUNT ?? "1000000";
 
   const transferParams = [
@@ -104,7 +105,7 @@ async function main() {
     const transferTxid = await broadcast(tronWeb, signedTransfer);
     console.log("Sponsored TRC-20 transfer sent:", transferTxid);
     await waitForConfirmation(tronWeb, transferTxid);
-    console.log("https://nile.tronscan.org/#/transaction/" + transferTxid);
+    console.log(explorerTxUrl(transferTxid));
   } finally {
     // 4. Settle the rental whether or not the transfer succeeded: a no-op for
     // marketplace delegations that expire on their own, deposit recovery for

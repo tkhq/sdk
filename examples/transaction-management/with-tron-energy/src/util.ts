@@ -23,14 +23,24 @@ export function initTurnkey(): Turnkey {
 }
 
 export function initTronWeb(): TronWeb {
-  // Defaults to Nile. For mainnet (required for the JustLend provider) set
-  // TRON_FULL_HOST=https://api.trongrid.io and a TRONGRID_API_KEY — TronGrid
-  // rejects anonymous mainnet traffic.
+  // Defaults to mainnet; set a TRONGRID_API_KEY — TronGrid throttles
+  // anonymous mainnet traffic hard. For the Nile testnet set
+  // TRON_FULL_HOST=https://nile.trongrid.io (TronSave only, via its dev API;
+  // JustLend has no testnet deployment).
   const apiKey = process.env.TRONGRID_API_KEY;
   return new TronWeb({
-    fullHost: process.env.TRON_FULL_HOST ?? "https://nile.trongrid.io/",
+    fullHost: process.env.TRON_FULL_HOST ?? "https://api.trongrid.io",
     ...(apiKey ? { headers: { "TRON-PRO-API-KEY": apiKey } } : {}),
   });
+}
+
+/** Explorer link for a transaction, matching the configured network. */
+export function explorerTxUrl(txid: string): string {
+  const host = process.env.TRON_FULL_HOST ?? "";
+  const base = host.includes("nile")
+    ? "https://nile.tronscan.org"
+    : "https://tronscan.org";
+  return `${base}/#/transaction/${txid}`;
 }
 
 /**
