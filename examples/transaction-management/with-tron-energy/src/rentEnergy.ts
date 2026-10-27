@@ -1,40 +1,27 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
 
-import { tronSaveFromEnv } from "./tronsave";
-import { availableEnergy, initTronWeb } from "./util";
+import { energyProviderFromEnv } from "./providers";
+import { availableEnergy, initTronWeb, initTurnkey } from "./util";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-// Rent energy for any (activated) address and watch the delegation land.
+// Rent energy for any (activated) address through the configured provider,
+// watch the delegation land on-chain, then settle the rental.
 
 const ENERGY_AMOUNT = Number(process.env.ENERGY_AMOUNT ?? 66_000);
 const DURATION_SEC = Number(process.env.RENT_DURATION_SEC ?? 3600);
-const MAX_PRICE_SUN = Number(process.env.MAX_PRICE_SUN ?? 150);
 
 async function main() {
-  const tronSave = tronSaveFromEnv();
   const tronWeb = initTronWeb();
+  const provider = energyProviderFromEnv(tronWeb, initTurnkey());
   const receiver = process.env.USER_ADDRESS!;
 
-  console.log("Prepaid balance:", await tronSave.getBalanceSun(), "SUN");
-
-  const quote = await tronSave.estimate(receiver, ENERGY_AMOUNT, DURATION_SEC);
-  console.log(
-    `Quote: ${quote.unitPriceSun} sun/energy, ~${quote.costSun / 1_000_000} TRX total, ` +
-      `${quote.availableResource} energy fillable now`,
-  );
-
   const before = await availableEnergy(tronWeb, receiver);
-  const order = await tronSave.rentEnergy(
-    receiver,
-    ENERGY_AMOUNT,
-    DURATION_SEC,
-    MAX_PRICE_SUN,
-  );
+  const rental = await provider.rent(receiver, ENERGY_AMOUNT, DURATION_SEC);
   console.log(
-    `Order ${order.orderId} placed at ${order.unitPriceSun} sun/energy`,
+    `Rented via ${rental.provider}, est. cost ${rental.costSun / 1_000_000} TRX`,
   );
 
   const deadline = Date.now() + 60_000;
@@ -46,6 +33,10 @@ async function main() {
   console.log(
     `Delegation landed: ${receiver} now has ${await availableEnergy(tronWeb, receiver)} energy`,
   );
+
+  // Settle immediately for demo purposes (JustLend deposit recovery; no-op
+  // for marketplace rentals).
+  await rental.release();
 }
 
 main().catch((error) => {

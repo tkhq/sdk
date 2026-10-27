@@ -4622,7 +4622,7 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/transaction-management/with-tronsave:
+  examples/transaction-management/with-tron-energy:
     dependencies:
       '@turnkey/sdk-server':
         specifier: workspace:*

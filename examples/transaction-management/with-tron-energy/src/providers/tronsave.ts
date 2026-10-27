@@ -3,7 +3,9 @@
 // from a prepaid internal account tied to the API key — top it up by sending
 // TRX to the deposit address shown by GET /user-info — so a rental is a
 // single HTTP call with no on-chain payment leg. Delegations expire on their
-// own; there is nothing to undelegate.
+// own; there is nothing to undelegate, so release() is a no-op.
+
+import type { EnergyProvider, EnergyRental } from "./types";
 
 export interface TronSaveEstimate {
   /** Market price in SUN per unit of energy. */
@@ -20,12 +22,39 @@ interface Envelope<T> {
   data?: T;
 }
 
-export class TronSave {
+export class TronSave implements EnergyProvider {
+  readonly name = "tronsave";
+
   constructor(
     private readonly apiKey: string,
+    /** Refuse rentals above this market price, in SUN per energy. */
+    private readonly maxPriceSun: number = 150,
     // The dev API delegates on the Nile testnet.
     private readonly baseUrl: string = "https://api-dev.tronsave.io/v2",
   ) {}
+
+  async rent(
+    receiver: string,
+    energy: number,
+    durationSec: number,
+  ): Promise<EnergyRental> {
+    const order = await this.placeOrder(
+      receiver,
+      energy,
+      durationSec,
+      this.maxPriceSun,
+    );
+    console.log(
+      `[tronsave] order ${order.orderId} filled at ${order.unitPriceSun} sun/energy ` +
+        `(~${order.costSun / 1_000_000} TRX)`,
+    );
+    // The delegation expires on its own — nothing to settle.
+    return {
+      provider: this.name,
+      costSun: order.costSun,
+      release: async () => {},
+    };
+  }
 
   async estimate(
     receiver: string,
@@ -59,7 +88,7 @@ export class TronSave {
    * right after the delegation lands, so a partial or deferred fill is
    * useless.
    */
-  async rentEnergy(
+  async placeOrder(
     receiver: string,
     energyAmount: number,
     durationSec: number,
@@ -140,5 +169,9 @@ export class TronSave {
 export function tronSaveFromEnv(): TronSave {
   const apiKey = process.env.TRONSAVE_API_KEY;
   if (!apiKey) throw new Error("TRONSAVE_API_KEY is not set");
-  return new TronSave(apiKey, process.env.TRONSAVE_API_BASE_URL || undefined);
+  return new TronSave(
+    apiKey,
+    Number(process.env.MAX_PRICE_SUN ?? 150),
+    process.env.TRONSAVE_API_BASE_URL || undefined,
+  );
 }

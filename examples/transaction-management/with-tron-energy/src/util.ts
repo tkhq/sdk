@@ -23,9 +23,34 @@ export function initTurnkey(): Turnkey {
 }
 
 export function initTronWeb(): TronWeb {
+  // Defaults to Nile. For mainnet (required for the JustLend provider) set
+  // TRON_FULL_HOST=https://api.trongrid.io and a TRONGRID_API_KEY — TronGrid
+  // rejects anonymous mainnet traffic.
+  const apiKey = process.env.TRONGRID_API_KEY;
   return new TronWeb({
-    fullHost: "https://nile.trongrid.io/", // Testnet
+    fullHost: process.env.TRON_FULL_HOST ?? "https://nile.trongrid.io/",
+    ...(apiKey ? { headers: { "TRON-PRO-API-KEY": apiKey } } : {}),
   });
+}
+
+/**
+ * Convert an energy amount into the SUN of staked TRX that currently yields
+ * it. Delegations (and JustLend rentals) are denominated in staked balance,
+ * not energy, and the ratio (TotalEnergyLimit / TotalEnergyWeight) floats
+ * with network-wide stake, so it must be read live rather than hardcoded.
+ */
+export async function energyToDelegatableSun(
+  tronWeb: TronWeb,
+  energy: number,
+  refAddress: string,
+): Promise<number> {
+  const resources = await tronWeb.trx.getAccountResources(refAddress);
+  const energyPerStakedTrx =
+    (resources.TotalEnergyLimit ?? 0) / (resources.TotalEnergyWeight ?? 1);
+  if (!Number.isFinite(energyPerStakedTrx) || energyPerStakedTrx <= 0) {
+    throw new Error("could not read the network energy/stake ratio");
+  }
+  return Math.ceil(energy / energyPerStakedTrx) * 1_000_000;
 }
 
 export async function signTronTransaction<T extends TronTransaction>(
