@@ -1931,6 +1931,8 @@ export type v1CreateTvcDeploymentIntent = {
   instanceSizeCpus?: number;
   /** Optional desired instance memory size in GiB. */
   instanceSizeRam?: number;
+  /** Optional client-generated QOS manifest. */
+  qosManifest?: string;
 };
 
 export type v1CreateTvcDeploymentRequest = {
@@ -3759,7 +3761,8 @@ export type v1FiatOnRampPaymentMethod =
 
 export type v1FiatOnRampProvider =
   | "FIAT_ON_RAMP_PROVIDER_COINBASE"
-  | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
+  | "FIAT_ON_RAMP_PROVIDER_MOONPAY"
+  | "FIAT_ON_RAMP_PROVIDER_MELD";
 
 export type v1FiatOnRampQuote = {
   /** Identifier for this saved quote. Pass this to the create on ramp session activity. */
@@ -4475,6 +4478,24 @@ export type v1GetTvcDeploymentRequest = {
 export type v1GetTvcDeploymentResponse = {
   /** Details about a single TVC Deployment */
   tvcDeployment: v1TvcDeployment;
+};
+
+export type v1GetTvcManifestGenerationInfoRequest = {
+  organizationId: string;
+  appId: string;
+  /** QOS version of the deployment. Defaults to the latest recommended TVC QOS version. */
+  qosVersion?: string;
+};
+
+export type v1GetTvcManifestGenerationInfoResponse = {
+  nonce: number;
+  namespace: string;
+  pcr0: string;
+  pcr1: string;
+  pcr2: string;
+  pcr3: string;
+  qosVersion: string;
+  defaultDnsResolvers?: string[];
 };
 
 export type v1GetTvcOperatorsRequest = {
@@ -7093,7 +7114,7 @@ export type v1TvcApp = {
   updatedAt: externaldatav1Timestamp;
   /** The deployment currently designated to receive traffic. Null if no deployment for this app is deployed. */
   liveDeploymentId?: string;
-  /** The public domain for ingress to this TVC App (in the format "app-<ID>.turnkey.cloud"). */
+  /** The public domain for ingress to this TVC App (in the format "app-<ID>.app.turnkey.cloud"). May contain multiple comma-separated hostnames. */
   publicDomain: string;
   /** Whether this app permits debug-mode deployments. Set at app creation via CreateTvcAppIntent.enable_debug_mode_deployments and never updated thereafter. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. The app's quorum key is therefore considered permanently insecure once enabled — a new app with a fresh quorum key must be created to return to a secure posture. */
   enableDebugModeDeployments: boolean;
@@ -8760,6 +8781,28 @@ export type TGetTvcDeploymentProvisioningDetailsInput = {
   body: TGetTvcDeploymentProvisioningDetailsBody;
 };
 
+export type TGetTvcManifestGenerationInfoResponse = {
+  nonce: number;
+  namespace: string;
+  pcr0: string;
+  pcr1: string;
+  pcr2: string;
+  pcr3: string;
+  qosVersion: string;
+  defaultDnsResolvers?: string[];
+};
+
+export type TGetTvcManifestGenerationInfoBody = {
+  organizationId?: string;
+  appId: string;
+  /** QOS version of the deployment. Defaults to the latest recommended TVC QOS version. */
+  qosVersion?: string;
+};
+
+export type TGetTvcManifestGenerationInfoInput = {
+  body: TGetTvcManifestGenerationInfoBody;
+};
+
 export type TGetTvcQosVersionsResponse = {
   /** QOS versions supported for new TVC deployments. */
   availableVersions: string[];
@@ -9951,6 +9994,8 @@ export type TCreateTvcDeploymentBody = {
   instanceSizeCpus?: number;
   /** Optional desired instance memory size in GiB. */
   instanceSizeRam?: number;
+  /** Optional client-generated QOS manifest. */
+  qosManifest?: string;
 };
 
 export type TCreateTvcDeploymentInput = { body: TCreateTvcDeploymentBody };

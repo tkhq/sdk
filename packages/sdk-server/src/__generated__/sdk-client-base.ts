@@ -1317,6 +1317,39 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getTvcManifestGenerationInfo = async (
+    input: SdkApiTypes.TGetTvcManifestGenerationInfoBody,
+  ): Promise<SdkApiTypes.TGetTvcManifestGenerationInfoResponse> => {
+    return this.request("/public/v1/query/get_tvc_manifest_generation_info", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetTvcManifestGenerationInfo = async (
+    input: SdkApiTypes.TGetTvcManifestGenerationInfoBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/query/get_tvc_manifest_generation_info";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getTvcQosVersions = async (
     input: SdkApiTypes.TGetTvcQosVersionsBody,
   ): Promise<SdkApiTypes.TGetTvcQosVersionsResponse> => {

@@ -432,6 +432,19 @@ export type TGetTvcDeploymentProvisioningDetailsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetTvcManifestGenerationInfoResponse =
+  operations["PublicApiService_GetTvcManifestGenerationInfo"]["responses"]["200"]["schema"];
+
+export type TGetTvcManifestGenerationInfoInput = {
+  body: TGetTvcManifestGenerationInfoBody;
+};
+
+export type TGetTvcManifestGenerationInfoBody = Omit<
+  operations["PublicApiService_GetTvcManifestGenerationInfo"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetTvcQosVersionsResponse =
   operations["PublicApiService_GetTvcQosVersions"]["responses"]["200"]["schema"];
 
