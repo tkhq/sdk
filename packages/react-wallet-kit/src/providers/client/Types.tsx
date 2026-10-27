@@ -26,6 +26,7 @@ import type {
   HandleAddPhoneNumberParams,
   HandleAppleOauthParams,
   HandleConnectExternalWalletParams,
+  HandleConnectExternalWalletResult,
   HandleDiscordOauthParams,
   HandleExportPrivateKeyParams,
   HandleExportWalletAccountParams,
@@ -690,10 +691,7 @@ export interface ClientContextType
    */
   handleConnectExternalWallet: (
     params?: HandleConnectExternalWalletParams,
-  ) => Promise<{
-    type: "connect" | "disconnect";
-    account: WalletAccount;
-  }> | void;
+  ) => Promise<HandleConnectExternalWalletResult> | void;
 
   /**
    * Handles the removal of a user's email address from their Turnkey account.
