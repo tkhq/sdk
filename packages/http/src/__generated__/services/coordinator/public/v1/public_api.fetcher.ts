@@ -706,6 +706,60 @@ export const signGetGasUsage = (
   });
 
 /**
+ * `POST /public/v1/query/get_indicative_swap_quote`
+ */
+export type TGetIndicativeSwapQuoteResponse =
+  operations["PublicApiService_GetIndicativeSwapQuote"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_indicative_swap_quote`
+ */
+export type TGetIndicativeSwapQuoteInput = {
+  body: TGetIndicativeSwapQuoteBody;
+};
+
+/**
+ * `POST /public/v1/query/get_indicative_swap_quote`
+ */
+export type TGetIndicativeSwapQuoteBody =
+  operations["PublicApiService_GetIndicativeSwapQuote"]["parameters"]["body"]["body"];
+
+/**
+ * Get indicative swap quote
+ *
+ * Preview the provider's current price for a swap without creating an activity. The quote is not binding and has no quote ID: a market swap executed later fetches its own quote, so its price can differ.
+ *
+ * `POST /public/v1/query/get_indicative_swap_quote`
+ */
+export const getIndicativeSwapQuote = (input: TGetIndicativeSwapQuoteInput) =>
+  request<
+    TGetIndicativeSwapQuoteResponse,
+    TGetIndicativeSwapQuoteBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_indicative_swap_quote",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetIndicativeSwapQuote` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetIndicativeSwapQuote}
+ */
+export const signGetIndicativeSwapQuote = (
+  input: TGetIndicativeSwapQuoteInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetIndicativeSwapQuoteBody, never, never>({
+    uri: "/public/v1/query/get_indicative_swap_quote",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_ip_allowlist`
  */
 export type TGetIpAllowlistResponse =
@@ -1913,6 +1967,62 @@ export const signGetTvcDeploymentProvisioningDetails = (
 ) =>
   signedRequest<TGetTvcDeploymentProvisioningDetailsBody, never, never>({
     uri: "/public/v1/query/get_tvc_deployment_provisioning_details",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_tvc_manifest_generation_info`
+ */
+export type TGetTvcManifestGenerationInfoResponse =
+  operations["PublicApiService_GetTvcManifestGenerationInfo"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_tvc_manifest_generation_info`
+ */
+export type TGetTvcManifestGenerationInfoInput = {
+  body: TGetTvcManifestGenerationInfoBody;
+};
+
+/**
+ * `POST /public/v1/query/get_tvc_manifest_generation_info`
+ */
+export type TGetTvcManifestGenerationInfoBody =
+  operations["PublicApiService_GetTvcManifestGenerationInfo"]["parameters"]["body"]["body"];
+
+/**
+ * Get TVC manifest generation info
+ *
+ * Get default values for creating a QOS manifest. Relevant for client manifest generation.
+ *
+ * `POST /public/v1/query/get_tvc_manifest_generation_info`
+ */
+export const getTvcManifestGenerationInfo = (
+  input: TGetTvcManifestGenerationInfoInput,
+) =>
+  request<
+    TGetTvcManifestGenerationInfoResponse,
+    TGetTvcManifestGenerationInfoBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_tvc_manifest_generation_info",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetTvcManifestGenerationInfo` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetTvcManifestGenerationInfo}
+ */
+export const signGetTvcManifestGenerationInfo = (
+  input: TGetTvcManifestGenerationInfoInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetTvcManifestGenerationInfoBody, never, never>({
+    uri: "/public/v1/query/get_tvc_manifest_generation_info",
     body: input.body,
     options,
   });

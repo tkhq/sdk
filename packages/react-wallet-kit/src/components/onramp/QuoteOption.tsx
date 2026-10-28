@@ -10,22 +10,29 @@ import type {
   v1FiatOnRampQuote,
 } from "@turnkey/core";
 import { BaseButton } from "../design/Buttons";
-import { CoinbaseLogo, MoonPayLogo } from "../design/Svg";
+import { CoinbaseLogo, MeldLogo, MoonPayLogo } from "../design/Svg";
 import { useSupportedAssets } from "../../providers/SupportedAssetsProvider";
 import { tokenSymbol } from "../../utils/onramp";
 
 const providerNames = {
   FIAT_ON_RAMP_PROVIDER_COINBASE: "Coinbase",
   FIAT_ON_RAMP_PROVIDER_MOONPAY: "MoonPay",
+  FIAT_ON_RAMP_PROVIDER_MELD: "Meld",
 } as const satisfies Record<v1FiatOnRampProvider, string>;
 
 const providerLogos = {
   FIAT_ON_RAMP_PROVIDER_COINBASE: CoinbaseLogo,
   FIAT_ON_RAMP_PROVIDER_MOONPAY: MoonPayLogo,
+  FIAT_ON_RAMP_PROVIDER_MELD: MeldLogo,
 } as const satisfies Record<v1FiatOnRampProvider, typeof CoinbaseLogo>;
 
 export function providerName(provider: v1FiatOnRampProvider) {
   return providerNames[provider];
+}
+
+function capitalize(value: string) {
+  const lower = value.toLowerCase();
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
 }
 
 export type QuoteAmountBasis = "fiat" | "crypto";
@@ -69,6 +76,12 @@ export function QuoteSummary(props: {
         );
   const warning = compared ? `${compared} than input amount` : undefined;
   const ProviderLogo = providerLogos[quote.onrampProvider];
+  const name = providerName(quote.onrampProvider);
+  const label =
+    quote.onrampProvider === "FIAT_ON_RAMP_PROVIDER_MELD" &&
+    quote.serviceProvider
+      ? `${capitalize(quote.serviceProvider)} (${name})`
+      : name;
 
   return (
     <>
@@ -87,8 +100,8 @@ export function QuoteSummary(props: {
         value={formatFiat(quote.totalFee, quote.fiatCurrencyCode)}
       />
       <div className="mt-1 flex items-center justify-center gap-1.5 border-t border-modal-background-dark/15 pt-2 text-xs text-icon-text-light dark:border-modal-background-light/15 dark:text-icon-text-dark">
-        <ProviderLogo className="size-4 shrink-0" />
-        <span>{providerName(quote.onrampProvider)}</span>
+        {ProviderLogo && <ProviderLogo className="size-4 shrink-0" />}
+        <span>{label}</span>
         {showChevron && (
           <FontAwesomeIcon icon={faChevronRight} className="size-3" />
         )}

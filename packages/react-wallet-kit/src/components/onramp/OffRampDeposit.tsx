@@ -1,33 +1,43 @@
 import { faCheck, faCopy } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { encodeFunctionData, type Hex } from "viem";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
+  WalletSource,
   type EthTransaction,
   type OnRampCaip19,
+  type OnRampCaip2,
   type SolanaTransaction,
   type StamperType,
   type v1FiatOnRampProvider,
   type WalletAccount,
+  type WalletRpcProvider,
 } from "@turnkey/core";
 import { useTurnkey } from "../../providers/client/Hook";
 import { useModal } from "../../providers/modal/Hook";
 import { useSupportedAssets } from "../../providers/SupportedAssetsProvider";
 import {
+  buildUnsignedOnRampTransaction,
   buildUnsignedSolanaTransaction,
   caip2Of,
+  evmChainId,
+  isUserRejected,
+  switchSelectedEthereumChain,
   tokenSymbol,
   type OnRampCryptoTransfer,
 } from "../../utils/onramp";
 import { ActionButton } from "../design/Buttons";
+import { OnRampCryptoStatus } from "./OnRampCryptoStatus";
 import { providerName } from "./QuoteOption";
 import {
+  ackOffRampReturn,
   clearOffRampHandoff,
   isOffRampDepositMessage,
   moonPayDeposit,
+  subscribeOffRampReturn,
   type MoonPayDeposit,
 } from "./offRampRedirect";
 
@@ -80,8 +90,13 @@ export function OffRampDeposit(props: OffRampDepositProps) {
     initialTag,
     onSuccess,
   } = props;
-  const { handleSendTransaction } = useTurnkey();
-  const { isMobile } = useModal();
+  const {
+    handleSendTransaction,
+    signAndSendTransaction,
+    walletProviders,
+    wallets,
+  } = useTurnkey();
+  const { isMobile, pushPage } = useModal();
   const { assetsByCaip2 } = useSupportedAssets();
   const [destination, setDestination] = useState(initialAddress ?? "");
   const [returnedAmount, setReturnedAmount] = useState<string | undefined>(
@@ -96,6 +111,22 @@ export function OffRampDeposit(props: OffRampDepositProps) {
       : undefined,
   );
   const providerLabel = providerName(provider);
+  const sender =
+    wallets
+      .flatMap((wallet) => wallet.accounts)
+      .find(
+        (account) =>
+          account.address.toLowerCase() === walletAccount.address.toLowerCase(),
+      ) ?? walletAccount;
+  const senderName = wallets.find((wallet) =>
+    wallet.accounts.some(
+      (account) =>
+        account.address.toLowerCase() === sender.address.toLowerCase(),
+    ),
+  )?.walletName;
+  const fromLabel = senderName
+    ? `${senderName} ${truncateAddress(sender.address)}`
+    : truncateAddress(sender.address);
   const plan = applyReturnedAmount(
     depositPlan({
       token,
@@ -121,35 +152,66 @@ export function OffRampDeposit(props: OffRampDepositProps) {
     if (deposit.amount) setReturnedAmount(deposit.amount);
   };
 
+  const widgetRef = useRef(widget);
+  widgetRef.current = widget;
+  const acceptDepositRef = useRef(acceptDeposit);
+  acceptDepositRef.current = acceptDeposit;
+
   useEffect(() => {
     if (provider !== "FIAT_ON_RAMP_PROVIDER_MOONPAY") return;
+    const seen = new Set<string>();
+    let filled = false;
+
+    const take = (deposit: MoonPayDeposit, id?: string) => {
+      if (id && !seen.has(id)) {
+        seen.add(id);
+        ackOffRampReturn(id);
+      }
+      if (filled) return;
+      filled = true;
+      acceptDepositRef.current(deposit);
+      const popup = widgetRef.current;
+      try {
+        if (popup && !popup.closed) popup.close();
+      } catch {
+        // MoonPay can sever the handle. The return window closes itself.
+      }
+      try {
+        window.focus();
+      } catch {
+        // Ignore focus failures.
+      }
+    };
+
+    const unsubscribe = subscribeOffRampReturn(({ id, deposit }) =>
+      take(deposit, id),
+    );
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       if (!isOffRampDepositMessage(event.data)) return;
-      acceptDeposit(event.data.deposit);
+      take(event.data.deposit, event.data.id);
     };
     window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
-  }, [provider, widget]);
 
-  useEffect(() => {
-    if (provider !== "FIAT_ON_RAMP_PROVIDER_MOONPAY" || !widget) return;
     const timer = window.setInterval(() => {
+      const popup = widgetRef.current;
+      if (!popup) return;
       try {
-        if (widget.closed) {
-          window.clearInterval(timer);
-          return;
-        }
-        const deposit = moonPayDeposit(widget.location.href);
+        if (popup.closed) return;
+        const deposit = moonPayDeposit(popup.location.href);
         if (!deposit) return;
-        window.clearInterval(timer);
-        acceptDeposit(deposit);
+        take(deposit);
       } catch {
         // The window is still on MoonPay. location is readable after it returns here.
       }
     }, 250);
-    return () => window.clearInterval(timer);
-  }, [provider, widget]);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener("message", onMessage);
+      window.clearInterval(timer);
+    };
+  }, [provider]);
 
   const address = destination.trim();
   const canSend =
@@ -157,27 +219,86 @@ export function OffRampDeposit(props: OffRampDepositProps) {
     isDepositAddress(plan.caip2, address) &&
     positiveAtomic(plan.atomicAmount);
 
-  const paste = async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      setDestination(text.trim());
-      setFilledFromProvider(false);
-      setError(undefined);
-    } catch {
-      setError("Allow clipboard access, or paste the address into the field.");
-    }
-  };
-
   const send = async () => {
-    if (!walletAccount.address || plan.mode !== "send" || !canSend) return;
+    if (!sender.address || plan.mode !== "send" || !canSend) return;
     setSending(true);
     setError(undefined);
     try {
+      if (sender.source === WalletSource.Connected) {
+        const walletProvider = walletProviders.find((provider) =>
+          provider.connectedAddresses.some(
+            (connected) =>
+              connected.toLowerCase() === sender.address.toLowerCase(),
+          ),
+        );
+        if (!walletProvider) {
+          throw new TurnkeyError(
+            "Reconnect this wallet and try the send again.",
+            TurnkeyErrorCodes.NO_WALLET_FOUND,
+          );
+        }
+        const transfer = connectedTransfer({
+          caip2: plan.caip2,
+          asset: plan.asset,
+          quotedToken: token,
+          from: sender.address,
+          to: address,
+          atomicAmount: plan.atomicAmount,
+        });
+        if (transfer.transactionType === "TRANSACTION_TYPE_ETHEREUM") {
+          const chainId = Number(plan.caip2.slice("eip155:".length));
+          if (evmChainId(walletProvider.chainInfo) !== chainId) {
+            await ensureEthereumChain(walletProvider.provider, chainId);
+          }
+        }
+        const unsignedTransaction = await buildUnsignedOnRampTransaction({
+          transfer,
+          provider: walletProvider.provider,
+          rpcUrl: plan.rpcUrl,
+        });
+        const transactionId = await signAndSendTransaction({
+          walletAccount: sender,
+          unsignedTransaction,
+          transactionType: transfer.transactionType,
+          ...(plan.rpcUrl ? { rpcUrl: plan.rpcUrl } : {}),
+          ...(organizationId ? { organizationId } : {}),
+          ...(stampWith ? { stampWith } : {}),
+        });
+        clearOffRampHandoff();
+        pushPage({
+          key: "Sending",
+          showTitle: false,
+          content: (
+            <OnRampCryptoStatus
+              chain={
+                transfer.transactionType === "TRANSACTION_TYPE_SOLANA"
+                  ? "solana"
+                  : "ethereum"
+              }
+              caip2={plan.caip2}
+              transactionId={transactionId}
+              provider={walletProvider.provider}
+              rpcUrl={plan.rpcUrl}
+              iconUrl={walletProvider.info.icon}
+              onSuccess={() => onSuccess?.()}
+              onError={(caught) =>
+                setError(
+                  caught instanceof Error
+                    ? caught.message
+                    : "Unable to send this transfer.",
+                )
+              }
+            />
+          ),
+        });
+        return;
+      }
+
       const transaction = await depositTransaction({
         caip2: plan.caip2,
         asset: plan.asset,
         quotedToken: token,
-        from: walletAccount.address,
+        from: sender.address,
         to: address,
         atomicAmount: plan.atomicAmount,
         rpcUrl: plan.rpcUrl,
@@ -192,8 +313,9 @@ export function OffRampDeposit(props: OffRampDepositProps) {
       onSuccess?.();
     } catch (caught) {
       if (
-        caught instanceof TurnkeyError &&
-        caught.code === TurnkeyErrorCodes.USER_CANCELED
+        (caught instanceof TurnkeyError &&
+          caught.code === TurnkeyErrorCodes.USER_CANCELED) ||
+        isUserRejected(caught)
       ) {
         setSending(false);
         return;
@@ -222,7 +344,7 @@ export function OffRampDeposit(props: OffRampDepositProps) {
             {plan.amount}
           </p>
           <p className="text-sm text-icon-text-light dark:text-icon-text-dark">
-            {plan.symbol} on {plan.network}
+            {plan.symbol} on {plan.network} from {fromLabel}
           </p>
         </div>
       ) : (
@@ -241,30 +363,10 @@ export function OffRampDeposit(props: OffRampDepositProps) {
           {lockedAddress ? (
             <LockedDepositAddress address={address} provider={providerLabel} />
           ) : (
-            <>
-              <div className="w-full min-w-0">
-                <input
-                  data-testid="offramp-deposit-address"
-                  size={1}
-                  value={destination}
-                  placeholder="Deposit address"
-                  autoComplete="off"
-                  spellCheck={false}
-                  onChange={(event) => {
-                    setDestination(event.target.value);
-                    setFilledFromProvider(false);
-                  }}
-                  className="box-border w-full min-w-0 rounded-md border border-modal-background-dark/20 bg-button-light px-3 py-2 text-left font-mono text-xs text-inherit placeholder-icon-text-light focus:outline-[1px] focus:outline-primary-light dark:border-modal-background-light/20 dark:bg-button-dark dark:placeholder-icon-text-dark focus:dark:outline-primary-dark"
-                />
-              </div>
-              <ActionButton
-                name="offramp-paste-address"
-                onClick={() => void paste()}
-                className="w-full bg-button-light text-inherit dark:bg-button-dark"
-              >
-                Paste address
-              </ActionButton>
-            </>
+            <p className="text-sm text-icon-text-light dark:text-icon-text-dark">
+              Waiting for {providerLabel} to return the deposit address. Sending
+              from {fromLabel}.
+            </p>
           )}
           <ActionButton
             name="offramp-send-deposit"
@@ -488,9 +590,9 @@ function depositInstructions(
   detail: string,
 ) {
   if (provider === "FIAT_ON_RAMP_PROVIDER_MOONPAY") {
-    return `Finish the sale in MoonPay, then click Send with. The deposit address fills in here. You can paste it instead. ${detail}`;
+    return `Finish the sale in MoonPay. The deposit address fills in here when MoonPay sends you back. ${detail}`;
   }
-  return `Finish the sale in ${providerLabel}, then paste the deposit address and send the crypto. ${detail}`;
+  return `Finish the sale in ${providerLabel}. The deposit address fills in here when you are sent back. ${detail}`;
 }
 
 function applyReturnedAmount(
@@ -573,6 +675,99 @@ function toAtomicAmount(value: string, decimals: number) {
 
 function positiveAtomic(value: string) {
   return /^\d+$/.test(value) && BigInt(value) > 0n;
+}
+
+function connectedTransfer(params: {
+  caip2: string;
+  asset: string;
+  quotedToken: OnRampCaip19;
+  from: string;
+  to: string;
+  atomicAmount: string;
+}): OnRampCryptoTransfer {
+  const { caip2, asset, quotedToken, from, to, atomicAmount } = params;
+  const chain = caip2 as OnRampCaip2;
+  const base = {
+    from,
+    to,
+    caip2: chain,
+    caip19: quotedToken,
+    amount: atomicAmount,
+  };
+  if (caip2.startsWith("solana:")) {
+    if (asset.startsWith("token:")) {
+      return {
+        ...base,
+        kind: "spl",
+        transactionType: "TRANSACTION_TYPE_SOLANA",
+        mintAddress: asset.slice("token:".length),
+      };
+    }
+    return {
+      ...base,
+      kind: "native",
+      transactionType: "TRANSACTION_TYPE_SOLANA",
+    };
+  }
+  if (asset.startsWith("erc20:")) {
+    return {
+      ...base,
+      kind: "erc20",
+      transactionType: "TRANSACTION_TYPE_ETHEREUM",
+      tokenAddress: asset.slice("erc20:".length) as Hex,
+      data: encodeFunctionData({
+        abi: ERC20_TRANSFER_ABI,
+        functionName: "transfer",
+        args: [to as Hex, BigInt(atomicAmount)],
+      }),
+    };
+  }
+  if (asset !== "slip44:60") {
+    throw new TurnkeyError(
+      "This token cannot be transferred.",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+  return {
+    ...base,
+    kind: "native",
+    transactionType: "TRANSACTION_TYPE_ETHEREUM",
+  };
+}
+
+async function ensureEthereumChain(
+  provider: WalletRpcProvider,
+  chainId: number,
+) {
+  const hexChainId = `0x${chainId.toString(16)}`;
+  try {
+    await switchSelectedEthereumChain(provider, hexChainId);
+  } catch (caught) {
+    const code = (caught as { code?: number }).code;
+    if (code !== 4902) throw caught;
+    const request = (provider as { request?: unknown }).request;
+    if (typeof request !== "function") throw caught;
+    await (
+      request as (args: {
+        method: string;
+        params?: unknown[];
+      }) => Promise<unknown>
+    ).call(provider, {
+      method: "wallet_addEthereumChain",
+      params: [
+        {
+          chainId: hexChainId,
+          chainName: chainId === 11155111 ? "Sepolia" : `Chain ${chainId}`,
+          nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+          rpcUrls: [
+            chainId === 11155111
+              ? "https://rpc.sepolia.org"
+              : "https://cloudflare-eth.com",
+          ],
+        },
+      ],
+    });
+  }
 }
 
 async function depositTransaction(params: {

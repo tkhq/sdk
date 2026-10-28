@@ -33,8 +33,6 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
         fiatCurrencyCode: FiatOnRampCurrency.USD,
         fiatCurrencyAmount: "10",
         paymentMethod: FiatOnRampPaymentMethod.CREDIT_DEBIT_CARD,
-        countryCode: "US",
-        countrySubdivisionCode: "ME",
         sandboxMode: true,
       });
 

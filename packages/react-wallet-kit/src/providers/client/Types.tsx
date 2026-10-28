@@ -786,7 +786,7 @@ export interface ClientContextType
    *
    * - Asks for Card, ACH transfer, or a fiat account, then a crypto amount, token, and fiat currency. A fiat account matches Coinbase's fiat wallet and MoonPay's balance.
    * - Quotes enabled providers with `getFiatOffRampQuotes` and opens the provider widget.
-   * - MoonPay can return the deposit address when the user clicks Send with. Otherwise the user pastes it. The wallet then sends on the network that provider settles.
+   * - MoonPay returns the deposit address when the user clicks Send with. The wallet passed to `handleOffRamp` sends on the network that provider settles.
    *   Live sends the quoted asset on its own network. MoonPay sandbox sends Sepolia ETH, Sepolia MoonPayToken, or Solana devnet SOL. Coinbase offramp is omitted in sandbox mode.
    *
    * @param params.walletAccount - wallet account whose address is sent with the sell session.

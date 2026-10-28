@@ -127,8 +127,6 @@ export default function DemoPanel() {
         walletAccount: selectedWalletAccount!,
         sandboxMode: true,
         defaultCryptoAmount: "0.05",
-        countryCode: "US",
-        countrySubdivisionCode: "OR",
       });
     } catch (error) {
       handleError(error);

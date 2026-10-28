@@ -255,26 +255,15 @@ export default function AuthPage() {
   };
   const handleOffRamp = async () => {
     try {
-      if (!wallets.length || !wallets[0]?.accounts?.length) {
-        console.error("No wallets available for offramp");
-        return;
-      }
-
-      const evmAccount: WalletAccount | undefined = wallets[0].accounts.find(
-        (a) => a.addressFormat === "ADDRESS_FORMAT_ETHEREUM",
-      );
-
-      if (!evmAccount) {
-        console.error("No EVM-compatible account found for offramp");
+      if (!activeWalletAccount) {
+        console.error("No active wallet selected for offramp");
         return;
       }
 
       await turnkey.handleOffRamp({
-        walletAccount: evmAccount,
+        walletAccount: activeWalletAccount,
         sandboxMode: true,
         defaultCryptoAmount: "0.05",
-        countryCode: "US",
-        countrySubdivisionCode: "OR",
       });
     } catch (err) {
       console.error("Fiat OffRamp failed:", err);

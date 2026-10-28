@@ -8,7 +8,7 @@ import {
 import { useTurnkey } from "../../providers/client/Hook";
 import { useModal } from "../../providers/modal/Hook";
 import { ActionPage } from "../auth/Action";
-import { CoinbaseLogo, MoonPayLogo } from "../design/Svg";
+import { CoinbaseLogo, MeldLogo, MoonPayLogo } from "../design/Svg";
 import { SuccessPage } from "../design/Success";
 import { providerName } from "./QuoteOption";
 
@@ -17,6 +17,7 @@ const POLL_INTERVAL_MS = 1000;
 const providerLogos = {
   FIAT_ON_RAMP_PROVIDER_COINBASE: CoinbaseLogo,
   FIAT_ON_RAMP_PROVIDER_MOONPAY: MoonPayLogo,
+  FIAT_ON_RAMP_PROVIDER_MELD: MeldLogo,
 } as const satisfies Record<v1FiatOnRampProvider, typeof CoinbaseLogo>;
 
 export type OnRampStatusPageProps = {
@@ -135,7 +136,9 @@ export function OnRampStatusPage(props: OnRampStatusPageProps) {
     <ActionPage
       title="Completing Payment"
       subtitle={`Use the ${providerName(provider)} ${openedInNewTab ? "tab" : "popup"} to complete the payment.`}
-      icon={<ProviderLogo className="size-10" />}
+      icon={
+        ProviderLogo ? <ProviderLogo className="size-10" /> : undefined
+      }
     />
   );
 }

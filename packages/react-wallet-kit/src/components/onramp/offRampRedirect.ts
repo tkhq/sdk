@@ -7,8 +7,12 @@ import type {
 
 export const OFFRAMP_POPUP_NAME = "turnkey-offramp";
 export const OFFRAMP_DEPOSIT_MESSAGE = "turnkey:offramp-deposit";
+export const OFFRAMP_ACK_MESSAGE = "turnkey:offramp-ack";
+export const OFFRAMP_CHANNEL = "tk-offramp";
 
 const STORAGE_KEY = "tk-offramp-deposit";
+const RETURN_KEY = "tk-offramp-return";
+const ACK_KEY = "tk-offramp-return-ack";
 const MOONPAY_PARAMS = [
   "transactionId",
   "baseCurrencyCode",
@@ -27,6 +31,12 @@ export type MoonPayDeposit = {
 
 export type OffRampDepositMessage = {
   type: typeof OFFRAMP_DEPOSIT_MESSAGE;
+  deposit: MoonPayDeposit;
+  id?: string;
+};
+
+export type OffRampReturnPayload = {
+  id: string;
   deposit: MoonPayDeposit;
 };
 
@@ -87,8 +97,95 @@ export function isOffRampDepositMessage(
     message.type === OFFRAMP_DEPOSIT_MESSAGE &&
     !!message.deposit &&
     typeof message.deposit.address === "string" &&
-    message.deposit.address.length > 0
+    message.deposit.address.length > 0 &&
+    (message.id === undefined || typeof message.id === "string")
   );
+}
+
+export function newOffRampReturnId() {
+  return `${Date.now().toString(36)}-${Math.random().toString(16).slice(2)}`;
+}
+
+export function publishOffRampReturn(id: string, deposit: MoonPayDeposit) {
+  const payload = JSON.stringify({ id, deposit });
+  try {
+    localStorage.setItem(RETURN_KEY, payload);
+  } catch {
+    // The original window can still hear the channel below.
+  }
+  try {
+    const channel = new BroadcastChannel(OFFRAMP_CHANNEL);
+    channel.postMessage({ type: OFFRAMP_DEPOSIT_MESSAGE, id, deposit });
+    channel.close();
+  } catch {
+    // The storage write is the fallback when channels are unavailable.
+  }
+}
+
+export function ackOffRampReturn(id: string) {
+  try {
+    localStorage.setItem(ACK_KEY, id);
+  } catch {
+    // The channel message below still lets the return window close.
+  }
+  try {
+    const channel = new BroadcastChannel(OFFRAMP_CHANNEL);
+    channel.postMessage({ type: OFFRAMP_ACK_MESSAGE, id });
+    channel.close();
+  } catch {
+    // The return window also polls the ack key.
+  }
+}
+
+export function readOffRampReturnAck(): string | null {
+  try {
+    return localStorage.getItem(ACK_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function parseOffRampReturn(value: string): OffRampReturnPayload | undefined {
+  try {
+    const parsed = JSON.parse(value) as Partial<OffRampReturnPayload>;
+    if (!parsed.id || !parsed.deposit?.address) return undefined;
+    return { id: parsed.id, deposit: parsed.deposit };
+  } catch {
+    return undefined;
+  }
+}
+
+// MoonPay often opens redirectUrl in a new window and drops window.opener.
+// The sell screen listens here, then closes that window.
+export function subscribeOffRampReturn(
+  onDeposit: (payload: OffRampReturnPayload) => void,
+): () => void {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key !== RETURN_KEY || !event.newValue) return;
+    const payload = parseOffRampReturn(event.newValue);
+    if (payload) onDeposit(payload);
+  };
+  window.addEventListener("storage", onStorage);
+
+  let channel: BroadcastChannel | undefined;
+  try {
+    channel = new BroadcastChannel(OFFRAMP_CHANNEL);
+    channel.onmessage = (event: MessageEvent) => {
+      const data = event.data as Partial<OffRampReturnPayload> & {
+        type?: string;
+      };
+      if (data?.type !== OFFRAMP_DEPOSIT_MESSAGE) return;
+      if (!data.id || !data.deposit?.address) return;
+      onDeposit({ id: data.id, deposit: data.deposit });
+    };
+  } catch {
+    // Storage events cover browsers without BroadcastChannel.
+  }
+
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    channel?.close();
+  };
 }
 
 function persistHandoff(value: string) {
@@ -97,7 +194,7 @@ function persistHandoff(value: string) {
   try {
     localStorage.setItem(STORAGE_KEY, value);
   } catch {
-    // The return page falls back to the paste field when storage is blocked.
+    // The return page cannot open the deposit step when storage is blocked.
   }
   try {
     sessionStorage.setItem(STORAGE_KEY, value);
@@ -121,6 +218,16 @@ function storedHandoff(): string | null {
 }
 
 export function saveOffRampHandoff(handoff: OffRampHandoff) {
+  try {
+    localStorage.removeItem(RETURN_KEY);
+  } catch {
+    // Ignore storage failures.
+  }
+  try {
+    localStorage.removeItem(ACK_KEY);
+  } catch {
+    // Ignore storage failures.
+  }
   const account = handoff.walletAccount;
   const stored: OffRampHandoff = {
     ...handoff,

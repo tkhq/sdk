@@ -6133,30 +6133,29 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   const handleOnRamp = useCallback(
     async (params: HandleOnRampParams): Promise<void> => {
-      // const {
-      //   walletAccount,
-      //   fiatCurrencyAmount,
-      //   fiatCurrencyCode,
-      //   paymentMethod,
-      //   countrySubdivisionCode,
-      //   urlForSignature,
-      //   countryCode,
-      //   onrampProvider = "FIAT_ON_RAMP_PROVIDER_MOONPAY",
-      //   sandboxMode = true,
-      //   successPageDuration = 2000,
-      //   openInNewTab = false,
-      // } = params;
+      const {
+        walletAccount,
+        lockedCaip2,
+        lockedCaip19,
+        fiatCurrencyCode,
+        defaultFiatCurrencyAmount,
+        countryCode,
+        countrySubdivisionCode,
+        sandboxMode = true,
+        stampWith,
+        successPageDuration,
+        openInNewTab,
+        rpcUrl,
+      } = params;
 
       const s = await getSession();
-      const organizationId = params?.organizationId || s?.organizationId;
+      const organizationId = params.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
           TurnkeyErrorCodes.INVALID_REQUEST,
         );
       }
-
-      const sandboxMode = params.sandboxMode ?? true;
 
       return new Promise((resolve, reject) => {
         let settled = false;
@@ -6175,19 +6174,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           key: "Fund",
           content: (
             <OnRampPage
-              lockedCaip2={params.lockedCaip2}
-              lockedCaip19={params.lockedCaip19}
-              walletAccount={params.walletAccount}
+              lockedCaip2={lockedCaip2}
+              lockedCaip19={lockedCaip19}
+              walletAccount={walletAccount}
               sandboxMode={sandboxMode}
               organizationId={organizationId}
-              stampWith={params.stampWith}
-              fiatCurrencyCode={params.fiatCurrencyCode}
-              defaultFiatCurrencyAmount={params.defaultFiatCurrencyAmount}
-              countryCode={params.countryCode}
-              countrySubdivisionCode={params.countrySubdivisionCode}
-              openInNewTab={params.openInNewTab}
-              successPageDuration={params.successPageDuration}
-              rpcUrl={params.rpcUrl}
+              stampWith={stampWith}
+              fiatCurrencyCode={fiatCurrencyCode}
+              defaultFiatCurrencyAmount={defaultFiatCurrencyAmount}
+              countryCode={countryCode}
+              countrySubdivisionCode={countrySubdivisionCode}
+              openInNewTab={openInNewTab}
+              successPageDuration={successPageDuration}
+              rpcUrl={rpcUrl}
               onSuccess={resolveOnce}
               onError={rejectOnce}
             />
@@ -6209,16 +6208,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   const handleOffRamp = useCallback(
     async (params: HandleOffRampParams): Promise<void> => {
+      const {
+        walletAccount,
+        lockedCaip2,
+        lockedCaip19,
+        fiatCurrencyCode,
+        defaultCryptoAmount,
+        countryCode,
+        countrySubdivisionCode,
+        sandboxMode = true,
+        stampWith,
+        successPageDuration,
+        openInNewTab,
+      } = params;
+
       const s = await getSession();
-      const organizationId = params?.organizationId || s?.organizationId;
+      const organizationId = params.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
           TurnkeyErrorCodes.INVALID_REQUEST,
         );
       }
-
-      const sandboxMode = params.sandboxMode ?? true;
 
       return new Promise((resolve, reject) => {
         let settled = false;
@@ -6237,9 +6248,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           key: "Cash out",
           content: (
             <OffRampPage
-              lockedCaip2={params.lockedCaip2}
-              lockedCaip19={params.lockedCaip19}
-              walletAccount={params.walletAccount}
+              lockedCaip2={lockedCaip2}
+              lockedCaip19={lockedCaip19}
+              walletAccount={walletAccount}
               sandboxMode={sandboxMode}
               organizationId={organizationId}
               stampWith={params.stampWith}

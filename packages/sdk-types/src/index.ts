@@ -199,6 +199,7 @@ export class TurnkeyNetworkError extends TurnkeyError {
 export enum FiatOnRampProvider {
   COINBASE = "FIAT_ON_RAMP_PROVIDER_COINBASE",
   MOONPAY = "FIAT_ON_RAMP_PROVIDER_MOONPAY",
+  MELD = "FIAT_ON_RAMP_PROVIDER_MELD",
 }
 
 export enum FiatOnRampCryptoCurrency {
