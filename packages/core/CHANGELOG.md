@@ -1,5 +1,20 @@
 # @turnkey/core
 
+## 2.13.2
+
+### Patch Changes
+
+- [#1618](https://github.com/tkhq/sdk/pull/1618) [`a1a9403`](https://github.com/tkhq/sdk/commit/a1a9403797d5ee6c543f9401d9c0d6fd0b23b3d0) Thanks [@t-vila](https://github.com/t-vila)! - Activity polling now queries the organization the activity belongs to. Previously `get_activity` fell back to the session's organization, or to `config.organizationId` when there was no session, so polling a sub-organization activity before a session existed (for example the re-poll after `onMfaRequired` during an SMS-MFA login) hit the parent organization and failed with `ATTESTED_IDENTITY_NOT_FOUND`. Reported by @elenamik in #1617.
+
+## 2.13.1
+
+### Patch Changes
+
+- [#1612](https://github.com/tkhq/sdk/pull/1612) [`634ad6c`](https://github.com/tkhq/sdk/commit/634ad6c6134381ca669c6e9dc483418b42a09b75) Author [@moeodeh3](https://github.com/moeodeh3) - - Fixed WalletConnect failing to start in React Native (`SignClient.init is not a function`)
+  - Fixed WalletConnect getting stuck after a rejected/failed connection or after the wallet disconnects. A new pairing link is now created so the next connection attempt works without restarting the app
+  - WalletConnect now initializes in the background in React Native, matching web, so it no longer delays client initialization
+  - `disconnectWalletAccount` no longer throws when the wallet was disconnected but a new pairing link couldn't be created
+
 ## 2.13.0
 
 ### Minor Changes
