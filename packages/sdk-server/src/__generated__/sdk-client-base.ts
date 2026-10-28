@@ -4863,7 +4863,7 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_ETH_UNDELEGATE7702",
+        type: "ACTIVITY_TYPE_ETH_UNDELEGATE_7702",
       },
       "ethUndelegate7702Result",
     );
@@ -4883,7 +4883,7 @@ export class TurnkeySDKClientBase {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_ETH_UNDELEGATE7702",
+      type: "ACTIVITY_TYPE_ETH_UNDELEGATE_7702",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

@@ -9,6 +9,7 @@ import {
 } from "../../__types__";
 import { WalletConnectClient } from "../wallet-connect/client";
 import { WalletConnectWallet } from "../wallet-connect/base";
+import { withTimeout } from "@utils";
 
 export class MobileWalletManager {
   // queue of async initialization functions
@@ -52,15 +53,26 @@ export class MobileWalletManager {
 
     if (cfg.walletConnect && enableWalletConnect) {
       this.wcClient = new WalletConnectClient();
-      const wcUnified = new WalletConnectWallet(this.wcClient, undefined, {
-        ethereumNamespaces,
-        solanaNamespaces,
-      });
+      const wcUnified = new WalletConnectWallet(
+        this.wcClient,
+        () => this.ensureWalletConnectReady(),
+        { ethereumNamespaces, solanaNamespaces },
+      );
 
       this.wallets[WalletInterfaceType.WalletConnect] = wcUnified;
 
       // add async init step to the initializer queue
-      this.initializers.push(() => wcUnified.init());
+      this.initializers.push(() =>
+        withTimeout(wcUnified.init(), 15000, "WalletConnect wallet").catch(
+          (err) => {
+            // WalletConnect can be a bit unreliable, we don't want to load forever
+            // so we limit the initialization time to 15 seconds. After that we emit a
+            // failure event and remove WalletConnect from the available wallets
+            wcUnified.abortInit(err);
+            this.removeWalletInterface(WalletInterfaceType.WalletConnect);
+          },
+        ),
+      );
 
       // register WalletConnect as a wallet interface for each enabled chain
       if (enableWalletConnectEvm) {
@@ -83,22 +95,48 @@ export class MobileWalletManager {
     }
   }
 
+  // promise that resolves when WalletConnect is fully initialized
+  private wcInitPromise?: Promise<void>;
+
   /**
    * Initializes WalletConnect components and any registered wallet interfaces.
    *
-   * - First initializes the low-level WalletConnect client with the provided config.
-   * - Then initializes higher-level wallet interface `WalletConnectWallet` using registered async initializers.
+   * - Initializes the low-level WalletConnect client with the provided config.
+   * - Runs any registered async wallet initializers (currently only `WalletConnectWallet`).
+   * - WalletConnect initialization happens in the background and does not block this method.
    *
    * @param cfg - Wallet manager configuration used for initializing the WalletConnect client.
    */
   async init(cfg: TWalletManagerConfig): Promise<void> {
     if (this.wcClient) {
-      await this.wcClient.init(cfg.walletConnect!);
+      // we start WalletConnect initialization in the background (this is non-blocking)
+      this.wcInitPromise = (async () => {
+        try {
+          await this.wcClient!.init(cfg.walletConnect!);
+          // initialize the high-level WalletConnectWallet after client is ready
+          await Promise.all(this.initializers.map((fn) => fn()));
+        } catch (error) {
+          // WalletConnect can be a bit unreliable, so instead of throwing an error
+          // we handle failures silently to avoid blocking the rest of the client
+          // from initializing. If setup fails, we also remove WalletConnect
+          // from the available wallets list
+          console.error("Failed to initialize WalletConnect", error);
+          this.removeWalletInterface(WalletInterfaceType.WalletConnect);
+        }
+      })();
     }
+  }
 
-    // we initialize the high-level WalletConnectWallet
-    // we do this because we can't init this inside the constructor since it's async
-    await Promise.all(this.initializers.map((fn) => fn()));
+  /**
+   * Ensures WalletConnect is fully initialized before proceeding.
+   * This should be called before any WalletConnect operations.
+   *
+   * @returns A promise that resolves when WalletConnect is ready.
+   */
+  async ensureWalletConnectReady(): Promise<void> {
+    if (this.wcInitPromise) {
+      await this.wcInitPromise;
+    }
   }
 
   /**
@@ -153,4 +191,29 @@ export class MobileWalletManager {
     if (!this.chainToInterfaces[chain]) this.chainToInterfaces[chain] = [];
     this.chainToInterfaces[chain]!.push(interfaceType);
   };
+
+  /**
+   * Removes a wallet interface from the manager.
+   *
+   * - Deletes the wallet instance from the wallets map.
+   * - Cleans up references to the wallet interface in chainToInterfaces.
+   * - Removes the chain entry entirely if no interfaces remain.
+   *
+   * @param type - The WalletInterfaceType to remove.
+   */
+  private removeWalletInterface(type: WalletInterfaceType) {
+    delete this.wallets[type];
+
+    for (const chain of Object.keys(this.chainToInterfaces) as Chain[]) {
+      const filtered = (this.chainToInterfaces[chain] ?? []).filter(
+        (interfaceType) => interfaceType !== type,
+      );
+
+      if (filtered.length > 0) {
+        this.chainToInterfaces[chain] = filtered;
+      } else {
+        delete this.chainToInterfaces[chain];
+      }
+    }
+  }
 }

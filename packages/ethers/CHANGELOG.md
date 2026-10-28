@@ -1,5 +1,22 @@
 # @turnkey/ethers
 
+## 1.3.48
+
+### Patch Changes
+
+- Updated dependencies [[`196389b`](https://github.com/tkhq/sdk/commit/196389b40332cacfb0cc2746bdf8b7b47ac8eee6), [`a1a9403`](https://github.com/tkhq/sdk/commit/a1a9403797d5ee6c543f9401d9c0d6fd0b23b3d0)]:
+  - @turnkey/sdk-server@8.8.0
+  - @turnkey/core@2.13.2
+
+## 1.3.47
+
+### Patch Changes
+
+- Updated dependencies [[`634ad6c`](https://github.com/tkhq/sdk/commit/634ad6c6134381ca669c6e9dc483418b42a09b75), [`8424905`](https://github.com/tkhq/sdk/commit/84249058b34836f0677af732885e3bed56dee8d8)]:
+  - @turnkey/core@2.13.1
+  - @turnkey/sdk-server@8.7.1
+  - @turnkey/sdk-browser@8.7.1
+
 ## 1.3.46
 
 ### Patch Changes
