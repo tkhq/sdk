@@ -9,7 +9,6 @@ import {
   type TGetFiatOffRampQuotesBody,
   type v1FiatOffRampQuote,
   type v1FiatOnRampCurrency,
-  type v1FiatOnRampPaymentMethod,
   type v1FiatOnRampQuote,
   type WalletAccount,
 } from "@turnkey/core";
@@ -19,15 +18,25 @@ import { onRampTokensForAccount, rankQuotes } from "../../utils/onramp";
 import { ActionButton } from "../design/Buttons";
 import { CryptoAmountInput } from "./CryptoAmountInput";
 import { CurrencyDropdown } from "./CurrencyDropdown";
-import { OnRampStatusPage } from "./OnRampStatus";
-import { PaymentMethodSelect } from "./PaymentMethods";
+import { OffRampDeposit } from "./OffRampDeposit";
+import {
+  OFFRAMP_POPUP_NAME,
+  clearOffRampHandoff,
+  offrampRedirectUrl,
+  saveOffRampHandoff,
+} from "./offRampRedirect";
+import {
+  OffRampPayoutSelect,
+  offRampPayoutMethods,
+  type OffRampPayoutId,
+} from "./PaymentMethods";
 import { QuoteDetails } from "./QuoteDetails";
 
 export type OffRampAmountProps = {
   lockedCaip19?: OnRampCaip19 | undefined;
   lockedCaip2?: OnRampCaip2 | undefined;
   walletAccount?: WalletAccount | undefined;
-  paymentMethod?: v1FiatOnRampPaymentMethod | undefined;
+  payout?: OffRampPayoutId | undefined;
   fiatCurrencyCode?: v1FiatOnRampCurrency | undefined;
   defaultCryptoAmount?: string | undefined;
   countryCode?: string | undefined;
@@ -36,6 +45,7 @@ export type OffRampAmountProps = {
   organizationId?: string | undefined;
   stampWith?: StamperType | undefined;
   openInNewTab?: boolean | undefined;
+  rpcUrl?: string | undefined;
   successPageDuration?: number | undefined;
   onSuccess?: (() => void) | undefined;
   onError?: ((error: unknown) => void) | undefined;
@@ -46,7 +56,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
     lockedCaip19,
     lockedCaip2,
     walletAccount,
-    paymentMethod: initialPaymentMethod,
+    payout: initialPayout,
     fiatCurrencyCode,
     defaultCryptoAmount,
     countryCode,
@@ -55,13 +65,14 @@ export function OffRampAmount(props: OffRampAmountProps) {
     organizationId,
     stampWith,
     openInNewTab,
+    rpcUrl,
     successPageDuration,
     onSuccess,
     onError,
   } = props;
   const { httpClient } = useTurnkey();
   const { isMobile, pushPage } = useModal();
-  const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethod);
+  const [payout, setPayout] = useState(initialPayout);
   const [currency, setCurrency] = useState<v1FiatOnRampCurrency>(
     fiatCurrencyCode ?? "FIAT_ON_RAMP_CURRENCY_USD",
   );
@@ -133,12 +144,18 @@ export function OffRampAmount(props: OffRampAmountProps) {
       pending
         .then((response) => {
           if (!active) return;
+          const methods = offRampPayoutMethods(payout);
           const ranked = rankQuotes(
             response.quotes
-              .filter(
-                (quote) =>
-                  !paymentMethod || quote.paymentMethod === paymentMethod,
-              )
+              .filter((quote) => {
+                if (
+                  sandboxMode &&
+                  quote.provider === "FIAT_ON_RAMP_PROVIDER_COINBASE"
+                ) {
+                  return false;
+                }
+                return !methods || methods.includes(quote.paymentMethod);
+              })
               .map(asOnRampQuote),
             "fiat",
           );
@@ -167,7 +184,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
     currency,
     httpClient,
     organizationId,
-    paymentMethod,
+    payout,
     sandboxMode,
     stampWith,
     token,
@@ -178,7 +195,22 @@ export function OffRampAmount(props: OffRampAmountProps) {
   }, [amount, token, selectedQuote]);
 
   const handleContinue = async () => {
-    if (!httpClient || !selectedQuote || !walletAccount) return;
+    if (!httpClient || !selectedQuote || !walletAccount || !token) return;
+
+    // Saved before the popup opens so that window can read it on the way back.
+    // A popup only inherits sessionStorage from the moment it is opened.
+    saveOffRampHandoff({
+      token,
+      amount: selectedQuote.cryptoAmount.display || amount,
+      atomicAmount: selectedQuote.cryptoAmount.amount,
+      provider: selectedQuote.onrampProvider,
+      walletAccount,
+      ...(organizationId ? { organizationId } : {}),
+      ...(stampWith ? { stampWith } : {}),
+      ...(rpcUrl ? { rpcUrl } : {}),
+      sandboxMode: sandboxMode ?? false,
+      ...(successPageDuration !== undefined ? { successPageDuration } : {}),
+    });
 
     // Open during the click. A window opened after the session request is
     // treated as unsolicited and blocked.
@@ -191,6 +223,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
         : "popup,width=500,height=700,scrollbars=yes,resizable=yes",
     );
     if (!widget) {
+      clearOffRampHandoff();
       setError(true);
       setShaking(true);
       setTimeout(() => setShaking(false), 250);
@@ -202,43 +235,51 @@ export function OffRampAmount(props: OffRampAmountProps) {
       );
       return;
     }
+    widget.name = OFFRAMP_POPUP_NAME;
 
     setCreatingSession(true);
     setError(false);
     try {
+      const redirectUrl = offrampRedirectUrl({
+        provider: selectedQuote.onrampProvider,
+      });
       const request = {
         quoteId: selectedQuote.quoteId,
         walletAddress: walletAccount.address,
-        ...(typeof window === "undefined"
-          ? {}
-          : { redirectUrl: window.location.href }),
+        ...(redirectUrl ? { redirectUrl } : {}),
         ...(organizationId ? { organizationId } : {}),
       };
       const result = stampWith
         ? await httpClient.createFiatOffRampSession(request, stampWith)
         : await httpClient.createFiatOffRampSession(request);
-      if (widget.closed) return;
+      if (widget.closed) {
+        clearOffRampHandoff();
+        return;
+      }
       widget.location.href = result.offRampUrl;
 
       pushPage({
         key: "Sell",
         showTitle: false,
         content: (
-          <OnRampStatusPage
-            transactionId={result.offRampTransactionId}
+          <OffRampDeposit
+            token={token}
+            amount={selectedQuote.cryptoAmount.display || amount}
+            atomicAmount={selectedQuote.cryptoAmount.amount}
+            walletAccount={walletAccount}
+            provider={selectedQuote.onrampProvider}
             organizationId={organizationId}
             stampWith={stampWith}
-            provider={selectedQuote.onrampProvider}
-            openedInNewTab={openedInNewTab}
+            rpcUrl={rpcUrl}
+            sandboxMode={sandboxMode ?? false}
             successPageDuration={successPageDuration}
-            successText="Sale complete"
-            statusLabel="Offramp"
+            widget={widget}
             onSuccess={() => onSuccess?.()}
-            onError={(caught) => onError?.(caught)}
           />
         ),
       });
     } catch (caught) {
+      clearOffRampHandoff();
       widget.close();
       setError(true);
       setShaking(true);
@@ -282,10 +323,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
           loading={fetchingQuotes}
           onSelect={setSelectedQuote}
         />
-        <PaymentMethodSelect
-          value={paymentMethod}
-          onChange={setPaymentMethod}
-        />
+        <OffRampPayoutSelect value={payout} onChange={setPayout} />
       </div>
 
       <div className="flex w-full flex-col items-center gap-2">
@@ -315,7 +353,8 @@ export function OffRampAmount(props: OffRampAmountProps) {
         </p>
         {sandboxMode && (
           <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
-            Sandbox mode enabled. No real funds will be used.
+            Sandbox mode. MoonPay deposits use Sepolia or Solana devnet.
+            Coinbase offramp is live only.
           </span>
         )}
       </div>

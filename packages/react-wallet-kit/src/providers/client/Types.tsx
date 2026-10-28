@@ -784,9 +784,10 @@ export interface ClientContextType
   /**
    * Opens the fiat off-ramp modal so the user can sell crypto for cash.
    *
-   * - Asks for a payout method, crypto amount, token, and fiat currency.
-   * - Quotes enabled providers with `getFiatOffRampQuotes` and opens the selected provider widget.
-   * - Polls transaction status until the sale completes or the user closes the modal.
+   * - Asks for Card, ACH transfer, or a fiat account, then a crypto amount, token, and fiat currency. A fiat account matches Coinbase's fiat wallet and MoonPay's balance.
+   * - Quotes enabled providers with `getFiatOffRampQuotes` and opens the provider widget.
+   * - MoonPay returns the deposit address when the user clicks Send with. The wallet passed to `handleOffRamp` sends on the network that provider settles.
+   *   Live sends the quoted asset on its own network. MoonPay sandbox sends Sepolia ETH, Sepolia MoonPayToken, or Solana devnet SOL. Coinbase offramp is omitted in sandbox mode.
    *
    * @param params.walletAccount - wallet account whose address is sent with the sell session.
    * @param params.lockedCaip2 - optional CAIP-2 that limits the token list to one chain.
@@ -795,11 +796,12 @@ export interface ClientContextType
    * @param params.defaultCryptoAmount - optional crypto amount, in major units, to prefill.
    * @param params.countryCode - optional ISO 3166-1 alpha-2 country code.
    * @param params.countrySubdivisionCode - optional ISO 3166-2 subdivision code, e.g., NY.
-   * @param params.sandboxMode - optional flag to use sandbox (test) mode (default: true).
+   * @param params.sandboxMode - optional flag to use sandbox (test) mode (default: true). This chooses the MoonPay deposit network, not only the provider credentials. Coinbase offramp quotes are omitted when this is true.
    * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @param params.successPageDuration - optional duration (in ms) for the success page after the sale completes (default: 2000ms).
    * @param params.openInNewTab - optional boolean on whether to open the offramp URL in a new browser tab or popup.
+   * @param params.rpcUrl - Solana RPC used to build the transfer. Live Solana requires it. MoonPay sandbox SOL uses `https://api.devnet.solana.com` when this is omitted. A value passed during MoonPay sandbox must be a devnet endpoint.
    * @returns A promise that resolves when the offramp flow completes successfully.
    * @throws {TurnkeyError} If initialization fails, polling fails, or the user cancels the process.
    */
