@@ -9,7 +9,7 @@ import type {
   OnRampCaip19,
   OnRampCaip2,
   v1Curve,
-  v1FiatOnRampCurrency,
+  v1FiatRampCurrency,
   v1HashFunction,
   v1PayloadEncoding,
   v1WalletAccountParams,
@@ -279,16 +279,15 @@ export type HandleVerifyAppProofsParams = {
 };
 
 export type HandleOnRampParams = {
-  walletAccount?: WalletAccount;
+  walletAccount: WalletAccount;
   lockedCaip2?: OnRampCaip2;
   lockedCaip19?: OnRampCaip19;
-  fiatCurrencyCode?: v1FiatOnRampCurrency;
+  fiatCurrencyCode?: v1FiatRampCurrency;
   defaultFiatCurrencyAmount?: string;
   countryCode?: string;
   countrySubdivisionCode?: string;
   sandboxMode?: boolean;
   organizationId?: string;
-  userId?: string;
   stampWith?: StamperType;
   successPageDuration?: number;
   openInNewTab?: boolean;
@@ -296,16 +295,15 @@ export type HandleOnRampParams = {
 };
 
 export type HandleOffRampParams = {
-  walletAccount?: WalletAccount;
+  walletAccount: WalletAccount;
   lockedCaip2?: OnRampCaip2;
   lockedCaip19?: OnRampCaip19;
-  fiatCurrencyCode?: v1FiatOnRampCurrency;
+  fiatCurrencyCode?: v1FiatRampCurrency;
   defaultCryptoAmount?: string;
   countryCode?: string;
   countrySubdivisionCode?: string;
   sandboxMode?: boolean;
   organizationId?: string;
-  userId?: string;
   stampWith?: StamperType;
   successPageDuration?: number;
   openInNewTab?: boolean;

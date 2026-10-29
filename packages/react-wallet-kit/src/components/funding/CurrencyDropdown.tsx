@@ -6,7 +6,7 @@ import {
   ListboxOption,
   ListboxOptions,
 } from "@headlessui/react";
-import type { v1FiatOnRampCurrency } from "@turnkey/core";
+import type { v1FiatRampCurrency } from "@turnkey/core";
 import clsx from "clsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FlagImage as OriginalFlagImage } from "react-international-phone";
@@ -14,50 +14,50 @@ import { useScreenSize } from "../../utils/utils";
 
 const FlagImage = OriginalFlagImage as React.ElementType;
 
-const CURRENCY_CODE_PREFIX = "FIAT_ON_RAMP_CURRENCY_";
+const CURRENCY_CODE_PREFIX = "FIAT_RAMP_CURRENCY_";
 
 const currencyFlagIso2 = {
-  FIAT_ON_RAMP_CURRENCY_AUD: "au",
-  FIAT_ON_RAMP_CURRENCY_BGN: "bg",
-  FIAT_ON_RAMP_CURRENCY_BRL: "br",
-  FIAT_ON_RAMP_CURRENCY_CAD: "ca",
-  FIAT_ON_RAMP_CURRENCY_CHF: "ch",
-  FIAT_ON_RAMP_CURRENCY_COP: "co",
-  FIAT_ON_RAMP_CURRENCY_CZK: "cz",
-  FIAT_ON_RAMP_CURRENCY_DKK: "dk",
-  FIAT_ON_RAMP_CURRENCY_DOP: "do",
-  FIAT_ON_RAMP_CURRENCY_EGP: "eg",
-  FIAT_ON_RAMP_CURRENCY_EUR: "eu",
-  FIAT_ON_RAMP_CURRENCY_GBP: "gb",
-  FIAT_ON_RAMP_CURRENCY_HKD: "hk",
-  FIAT_ON_RAMP_CURRENCY_IDR: "id",
-  FIAT_ON_RAMP_CURRENCY_ILS: "il",
-  FIAT_ON_RAMP_CURRENCY_JOD: "jo",
-  FIAT_ON_RAMP_CURRENCY_KES: "ke",
-  FIAT_ON_RAMP_CURRENCY_KWD: "kw",
-  FIAT_ON_RAMP_CURRENCY_LKR: "lk",
-  FIAT_ON_RAMP_CURRENCY_MXN: "mx",
-  FIAT_ON_RAMP_CURRENCY_NGN: "ng",
-  FIAT_ON_RAMP_CURRENCY_NOK: "no",
-  FIAT_ON_RAMP_CURRENCY_NZD: "nz",
-  FIAT_ON_RAMP_CURRENCY_OMR: "om",
-  FIAT_ON_RAMP_CURRENCY_PEN: "pe",
-  FIAT_ON_RAMP_CURRENCY_PLN: "pl",
-  FIAT_ON_RAMP_CURRENCY_RON: "ro",
-  FIAT_ON_RAMP_CURRENCY_SEK: "se",
-  FIAT_ON_RAMP_CURRENCY_THB: "th",
-  FIAT_ON_RAMP_CURRENCY_TRY: "tr",
-  FIAT_ON_RAMP_CURRENCY_TWD: "tw",
-  FIAT_ON_RAMP_CURRENCY_USD: "us",
-  FIAT_ON_RAMP_CURRENCY_VND: "vn",
-  FIAT_ON_RAMP_CURRENCY_ZAR: "za",
-} as const satisfies Record<v1FiatOnRampCurrency, string>;
+  FIAT_RAMP_CURRENCY_AUD: "au",
+  FIAT_RAMP_CURRENCY_BGN: "bg",
+  FIAT_RAMP_CURRENCY_BRL: "br",
+  FIAT_RAMP_CURRENCY_CAD: "ca",
+  FIAT_RAMP_CURRENCY_CHF: "ch",
+  FIAT_RAMP_CURRENCY_COP: "co",
+  FIAT_RAMP_CURRENCY_CZK: "cz",
+  FIAT_RAMP_CURRENCY_DKK: "dk",
+  FIAT_RAMP_CURRENCY_DOP: "do",
+  FIAT_RAMP_CURRENCY_EGP: "eg",
+  FIAT_RAMP_CURRENCY_EUR: "eu",
+  FIAT_RAMP_CURRENCY_GBP: "gb",
+  FIAT_RAMP_CURRENCY_HKD: "hk",
+  FIAT_RAMP_CURRENCY_IDR: "id",
+  FIAT_RAMP_CURRENCY_ILS: "il",
+  FIAT_RAMP_CURRENCY_JOD: "jo",
+  FIAT_RAMP_CURRENCY_KES: "ke",
+  FIAT_RAMP_CURRENCY_KWD: "kw",
+  FIAT_RAMP_CURRENCY_LKR: "lk",
+  FIAT_RAMP_CURRENCY_MXN: "mx",
+  FIAT_RAMP_CURRENCY_NGN: "ng",
+  FIAT_RAMP_CURRENCY_NOK: "no",
+  FIAT_RAMP_CURRENCY_NZD: "nz",
+  FIAT_RAMP_CURRENCY_OMR: "om",
+  FIAT_RAMP_CURRENCY_PEN: "pe",
+  FIAT_RAMP_CURRENCY_PLN: "pl",
+  FIAT_RAMP_CURRENCY_RON: "ro",
+  FIAT_RAMP_CURRENCY_SEK: "se",
+  FIAT_RAMP_CURRENCY_THB: "th",
+  FIAT_RAMP_CURRENCY_TRY: "tr",
+  FIAT_RAMP_CURRENCY_TWD: "tw",
+  FIAT_RAMP_CURRENCY_USD: "us",
+  FIAT_RAMP_CURRENCY_VND: "vn",
+  FIAT_RAMP_CURRENCY_ZAR: "za",
+} as const satisfies Record<v1FiatRampCurrency, string>;
 
 const fiatOnRampCurrencies = Object.keys(
   currencyFlagIso2,
-) as v1FiatOnRampCurrency[];
+) as v1FiatRampCurrency[];
 
-function currencyCode(currency: v1FiatOnRampCurrency) {
+function currencyCode(currency: v1FiatRampCurrency) {
   return currency.slice(CURRENCY_CODE_PREFIX.length);
 }
 
@@ -65,8 +65,8 @@ type Placement = "top start" | "bottom start";
 const desiredPanelHeight = 288;
 
 export type CurrencyDropdownProps = {
-  value?: v1FiatOnRampCurrency | undefined;
-  onChange: (currency: v1FiatOnRampCurrency) => void;
+  value?: v1FiatRampCurrency | undefined;
+  onChange: (currency: v1FiatRampCurrency) => void;
   disabled?: boolean;
 };
 
@@ -97,7 +97,7 @@ export function CurrencyDropdown(props: CurrencyDropdownProps) {
   }, [update, height]);
 
   return (
-    <Listbox<"div", v1FiatOnRampCurrency | undefined>
+    <Listbox<"div", v1FiatRampCurrency | undefined>
       as="div"
       value={value}
       onChange={(currency) => {
@@ -132,10 +132,10 @@ export function CurrencyDropdown(props: CurrencyDropdownProps) {
             <ListboxOption
               key={currency}
               value={currency}
-              className={({ active }) =>
+              className={({ focus }) =>
                 clsx(
                   "cursor-pointer select-none py-2 px-3 bg-button-light dark:bg-button-dark flex items-center gap-2",
-                  active &&
+                  focus &&
                     "bg-modal-background-light dark:bg-modal-background-dark",
                 )
               }
@@ -149,7 +149,7 @@ export function CurrencyDropdown(props: CurrencyDropdownProps) {
   );
 }
 
-function CurrencyOptionContent(props: { currency: v1FiatOnRampCurrency }) {
+function CurrencyOptionContent(props: { currency: v1FiatRampCurrency }) {
   const { currency } = props;
 
   return (

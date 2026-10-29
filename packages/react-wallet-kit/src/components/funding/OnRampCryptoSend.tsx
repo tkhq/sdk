@@ -20,12 +20,16 @@ import {
   buildOnRampCryptoTransfer,
   buildUnsignedOnRampTransaction,
   caip2Of,
+  chainLabel,
   evmChainId,
   isUserRejected,
+  sendErrorMessage,
+  solanaRpcUrl,
   onRampTokensForAccount,
   switchSelectedEthereumChain,
   tokenDecimals,
-} from "../../utils/onramp";
+} from "../../utils/funding";
+import { truncateAddress } from "../../utils/utils";
 import { ActionButton } from "../design/Buttons";
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
 import { CryptoAmountInput } from "./CryptoAmountInput";
@@ -35,7 +39,7 @@ const partyLabelClassName =
   "px-1 text-xs font-medium text-icon-text-light dark:text-icon-text-dark";
 
 export type OnRampCryptoSendProps = {
-  destination?: WalletAccount | undefined;
+  destination: WalletAccount;
   externalWallet: WalletProvider;
   externalAccount: WalletAccount;
   lockedCaip19?: OnRampCaip19 | undefined;
@@ -55,6 +59,7 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
     lockedCaip19,
     lockedCaip2,
     rpcUrl,
+    successPageDuration,
     onSuccess,
     onError,
     onChangeWallet,
@@ -99,7 +104,7 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
     ? SolanaLogo
     : EthereumLogo;
   const preparedTransfer = useMemo(() => {
-    if (!token || !destination) return undefined;
+    if (!token) return undefined;
     try {
       return buildOnRampCryptoTransfer({
         token,
@@ -129,16 +134,20 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
         }
       }
 
+      const resolvedRpcUrl =
+        preparedTransfer.transactionType === "TRANSACTION_TYPE_SOLANA"
+          ? solanaRpcUrl(preparedTransfer.caip2, rpcUrl)
+          : rpcUrl;
       const unsignedTransaction = await buildUnsignedOnRampTransaction({
         transfer: preparedTransfer,
         provider,
-        rpcUrl,
+        rpcUrl: resolvedRpcUrl,
       });
       const transactionId = await signAndSendTransaction({
         walletAccount: externalAccount,
         unsignedTransaction,
         transactionType: preparedTransfer.transactionType,
-        ...(rpcUrl ? { rpcUrl } : {}),
+        ...(resolvedRpcUrl ? { rpcUrl: resolvedRpcUrl } : {}),
       });
 
       pushPage({
@@ -154,7 +163,8 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
             caip2={preparedTransfer.caip2}
             transactionId={transactionId}
             provider={provider}
-            rpcUrl={rpcUrl}
+            rpcUrl={resolvedRpcUrl}
+            successPageDuration={successPageDuration}
             iconUrl={externalWallet.info.icon}
             onSuccess={onSuccess ?? (() => undefined)}
             onError={onError ?? (() => undefined)}
@@ -181,14 +191,19 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
       )}
     >
       {token && (
-        <CryptoAmountInput
-          value={amount}
-          onChange={setAmount}
-          token={token}
-          tokens={tokens}
-          onTokenChange={setToken}
-          locked={!!lockedCaip19}
-        />
+        <div className="flex w-full flex-col items-center">
+          <CryptoAmountInput
+            value={amount}
+            onChange={setAmount}
+            token={token}
+            tokens={tokens}
+            onTokenChange={setToken}
+            locked={!!lockedCaip19}
+          />
+          <p className="-mt-2 text-sm text-icon-text-light dark:text-icon-text-dark">
+            on {chainLabel(caip2Of(token))}
+          </p>
+        </div>
       )}
 
       <div className="flex w-full flex-col gap-2 text-left">
@@ -298,7 +313,7 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
       <p
         data-testid="onramp-crypto-error"
         className={clsx(
-          "text-sm text-red-500 transition-opacity delay-75 line-clamp-2 w-full",
+          "text-sm text-danger-light dark:text-danger-dark transition-opacity delay-75 line-clamp-2 w-full",
           error
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none absolute",
@@ -308,35 +323,6 @@ export function OnRampCryptoSend(props: OnRampCryptoSendProps) {
       </p>
     </div>
   );
-}
-
-function sendErrorMessage(error: unknown) {
-  const messages: string[] = [];
-  const seen = new Set<unknown>();
-  let current: unknown = error;
-  while (current && typeof current === "object" && !seen.has(current)) {
-    seen.add(current);
-    const record = current as { message?: unknown; cause?: unknown };
-    if (typeof record.message === "string" && record.message.trim()) {
-      messages.push(record.message.trim());
-    }
-    current = record.cause;
-  }
-
-  if (
-    messages.some((message) => /insufficient|out\s*of\s*funds/i.test(message))
-  ) {
-    return "Insufficient funds.";
-  }
-
-  const specific = [...messages]
-    .reverse()
-    .find((message) => !/^failed to /i.test(message));
-  return specific ?? "Unable to send this transfer.";
-}
-
-function truncateAddress(address: string) {
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
 }
 
 function isSolanaChain(

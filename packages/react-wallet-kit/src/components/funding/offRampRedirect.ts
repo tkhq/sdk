@@ -1,7 +1,7 @@
 import type {
   OnRampCaip19,
   StamperType,
-  v1FiatOnRampProvider,
+  v1FiatRampProvider,
   WalletAccount,
 } from "@turnkey/core";
 
@@ -44,7 +44,7 @@ export type OffRampHandoff = {
   token: OnRampCaip19;
   amount: string;
   atomicAmount: string;
-  provider: v1FiatOnRampProvider;
+  provider: v1FiatRampProvider;
   organizationId?: string;
   stampWith?: StamperType;
   rpcUrl?: string;
@@ -54,7 +54,7 @@ export type OffRampHandoff = {
 };
 
 export function offrampRedirectUrl(options?: {
-  provider?: v1FiatOnRampProvider;
+  provider?: v1FiatRampProvider;
 }): string | undefined {
   if (typeof window === "undefined") return undefined;
   const url = new URL(window.location.href);
@@ -63,7 +63,7 @@ export function offrampRedirectUrl(options?: {
 
   // Coinbase checks this host against the CDP domain allowlist. Send the
   // origin only so the allowlist entry is the site, not a path or query.
-  if (options?.provider === "FIAT_ON_RAMP_PROVIDER_COINBASE") {
+  if (options?.provider === "FIAT_RAMP_PROVIDER_COINBASE") {
     return url.origin;
   }
 
@@ -217,7 +217,42 @@ function storedHandoff(): string | null {
   }
 }
 
+type RememberedOffRampDeposit = {
+  address: string;
+  amount?: string;
+  tag?: string;
+  error?: string;
+};
+
+// The sell screen unmounts while a send page is open. Keep the deposit here
+// so an error can return to the send step instead of the provider handoff.
+let rememberedOffRampDeposit: RememberedOffRampDeposit | undefined;
+
+export function rememberOffRampDeposit(deposit: MoonPayDeposit) {
+  rememberedOffRampDeposit = {
+    address: deposit.address,
+    ...(deposit.amount ? { amount: deposit.amount } : {}),
+    ...(deposit.tag ? { tag: deposit.tag } : {}),
+  };
+}
+
+export function rememberOffRampSendError(message: string) {
+  if (!rememberedOffRampDeposit?.address) return;
+  rememberedOffRampDeposit = { ...rememberedOffRampDeposit, error: message };
+}
+
+export function readRememberedOffRampDeposit():
+  | RememberedOffRampDeposit
+  | undefined {
+  return rememberedOffRampDeposit;
+}
+
+function clearRememberedOffRampDeposit() {
+  rememberedOffRampDeposit = undefined;
+}
+
 export function saveOffRampHandoff(handoff: OffRampHandoff) {
+  clearRememberedOffRampDeposit();
   try {
     localStorage.removeItem(RETURN_KEY);
   } catch {
@@ -255,6 +290,7 @@ export function readOffRampHandoff(): OffRampHandoff | undefined {
 }
 
 export function clearOffRampHandoff() {
+  clearRememberedOffRampDeposit();
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch {

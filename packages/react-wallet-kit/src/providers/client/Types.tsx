@@ -753,36 +753,35 @@ export interface ClientContextType
   handleVerifyAppProofs: (params: HandleVerifyAppProofsParams) => Promise<void>;
 
   /**
-   * Handles the fiat onramp process for converting fiat currency into crypto and funding a wallet.
+   * Opens the fiat onramp modal so the user can buy crypto with cash or transfer existing crypto.
    *
-   * - Initializes a fiat onramp transaction with a specified provider (e.g., Coinbase or MoonPay).
-   * - Opens the provider flow in a new window and polls the transaction status until completion.
+   * - Prompts the user to select between cash payment or crypto transfers to fund their wallet.
+   * - Crypto funding is transfered from the user's external (browser) wallet to the destination wallet.
+   * - Cash funding quotes enabled onramp providers, allowing users to select a payment method and route.
+   * - Opens the provider widget in a new window or tab and polls the transaction status until completion.
    * - Displays a modal to show progress and success state.
    * - Supports both sandbox and production modes.
    *
    * @param params.walletAccount - destination wallet account for the buy transaction.
    * @param params.lockedCaip2 - optional CAIP-2 chain. When set, the token selector only lists assets on that chain.
    * @param params.lockedCaip19 - optional CAIP-19 asset to buy. When set, the token cannot be changed.
-   * @param params.fiatCurrencyCode - optional fiat currency to use, e.g., FIAT_ON_RAMP_CURRENCY_ETH.
-   * @param params.fiatCurrencyAmount - optional preset fiat amount, e.g., '100'.
-   * @param params.onrampProvider - optional onramp provider, e.g., FIAT_ON_RAMP_PROVIDER_COINBASE or FIAT_ON_RAMP_PROVIDER_MOONPAY, defaults to FIAT_ON_RAMP_PROVIDER_MOONPAY.
-   * @param params.paymentMethod - optional payment method, e.g., FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD.
+   * @param params.fiatCurrencyCode - optional fiat currency to use, e.g., FIAT_RAMP_CURRENCY_USD.
+   * @param params.defaultFiatCurrencyAmount - optional preset fiat amount, e.g., '100'.
    * @param params.countryCode - optional ISO 3166-1 country code.
    * @param params.countrySubdivisionCode - optional ISO 3166-2 subdivision code, e.g., NY.
    * @param params.sandboxMode - optional flag to use sandbox (test) mode (default: true).
-   * @param params.urlForSignature - optional MoonPay Widget URL to sign.
    * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @param params.successPageDuration - optional duration (in ms) for the success page after connecting (default: 2000ms).
+   * @param params.openInNewTab - optional boolean on whether to open the onramp URL in a new browser tab or popup.
    * @param params.rpcUrl - only needed for Solana. Connected Solana wallets use it to broadcast and confirm the transfer.
-   * @param params.openInNewTab: optional boolean on whether to open the onramp URL in a new browser tab or popup
    * @returns A promise that resolves when the onramp flow completes successfully.
    * @throws {TurnkeyError} If initialization fails, polling fails, or the user cancels the process.
    */
   handleOnRamp: (params: HandleOnRampParams) => Promise<void>;
 
   /**
-   * Opens the fiat off-ramp modal so the user can sell crypto for cash.
+   * Opens the fiat offramp modal so the user can sell crypto for cash.
    *
    * - Asks for Card, ACH transfer, or a fiat account, then a crypto amount, token, and fiat currency. A fiat account matches Coinbase's fiat wallet and MoonPay's balance.
    * - Quotes enabled providers with `getFiatOffRampQuotes` and opens the provider widget.
@@ -801,7 +800,7 @@ export interface ClientContextType
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @param params.successPageDuration - optional duration (in ms) for the success page after the sale completes (default: 2000ms).
    * @param params.openInNewTab - optional boolean on whether to open the offramp URL in a new browser tab or popup.
-   * @param params.rpcUrl - Solana RPC used to build the transfer. Live Solana requires it. MoonPay sandbox SOL uses `https://api.devnet.solana.com` when this is omitted. A value passed during MoonPay sandbox must be a devnet endpoint.
+   * @param params.rpcUrl - Solana RPC used to build the transfer. Live Solana requires it. Solana devnet, including MoonPay sandbox SOL, uses the public devnet RPC when this is omitted. A value passed for devnet must be a devnet endpoint.
    * @returns A promise that resolves when the offramp flow completes successfully.
    * @throws {TurnkeyError} If initialization fails, polling fails, or the user cancels the process.
    */

@@ -7,7 +7,7 @@ import {
 import { faApple, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import type { v1FiatOnRampPaymentMethod } from "@turnkey/core";
+import type { v1FiatRampPaymentMethod } from "@turnkey/core";
 import clsx from "clsx";
 import { forwardRef, useState } from "react";
 import { useModal } from "../../providers/modal/Hook";
@@ -21,25 +21,25 @@ type PayoutOption = {
 };
 
 const paymentMethods: (PayoutOption & {
-  method: v1FiatOnRampPaymentMethod;
+  method: v1FiatRampPaymentMethod;
 })[] = [
   {
-    id: "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD",
-    method: "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD",
+    id: "FIAT_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD",
+    method: "FIAT_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD",
     label: "Card",
     description: "Directly enter your debit or credit card details",
     icon: faCreditCard,
   },
   {
-    id: "FIAT_ON_RAMP_PAYMENT_METHOD_APPLE_PAY",
-    method: "FIAT_ON_RAMP_PAYMENT_METHOD_APPLE_PAY",
+    id: "FIAT_RAMP_PAYMENT_METHOD_APPLE_PAY",
+    method: "FIAT_RAMP_PAYMENT_METHOD_APPLE_PAY",
     label: "Apple Pay",
     description: "Use your Apple Wallet to pay",
     icon: faApple,
   },
   {
-    id: "FIAT_ON_RAMP_PAYMENT_METHOD_GOOGLE_PAY",
-    method: "FIAT_ON_RAMP_PAYMENT_METHOD_GOOGLE_PAY",
+    id: "FIAT_RAMP_PAYMENT_METHOD_GOOGLE_PAY",
+    method: "FIAT_RAMP_PAYMENT_METHOD_GOOGLE_PAY",
     label: "Google Pay",
     description: "Use your Google Wallet to pay",
     icon: faGoogle,
@@ -86,7 +86,7 @@ function PaymentMethodButton(props: {
 }
 
 export type PaymentMethodListProps = {
-  onSelect: (method: v1FiatOnRampPaymentMethod) => void;
+  onSelect: (method: v1FiatRampPaymentMethod) => void;
   className?: string;
 };
 
@@ -110,8 +110,8 @@ export const PaymentMethodList = forwardRef<
 });
 
 export function PaymentMethodSelect(props: {
-  value?: v1FiatOnRampPaymentMethod | undefined;
-  onChange: (method: v1FiatOnRampPaymentMethod) => void;
+  value?: v1FiatRampPaymentMethod | undefined;
+  onChange: (method: v1FiatRampPaymentMethod) => void;
 }) {
   const { value, onChange } = props;
   const { openSheet, closeSheet } = useModal();
@@ -144,30 +144,30 @@ export type OffRampPayoutId = "card" | "ach" | "fiat-account";
 
 export const offRampPayouts: (PayoutOption & {
   id: OffRampPayoutId;
-  methods: v1FiatOnRampPaymentMethod[];
+  methods: v1FiatRampPaymentMethod[];
 })[] = [
   {
     id: "card",
     label: "Card",
     description: "Receive the sale on a debit card",
     icon: faCreditCard,
-    methods: ["FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD"],
+    methods: ["FIAT_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD"],
   },
   {
     id: "ach",
     label: "ACH transfer",
     description: "Receive the sale in a US bank account",
     icon: faBuildingColumns,
-    methods: ["FIAT_ON_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT"],
+    methods: ["FIAT_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT"],
   },
   {
     id: "fiat-account",
     label: "Fiat account",
-    description: "Receive the sale in a MoonPay or Coinbase balance",
+    description: "Receive the sale in a fiat balance",
     icon: faWallet,
     methods: [
-      "FIAT_ON_RAMP_PAYMENT_METHOD_FIAT_WALLET",
-      "FIAT_ON_RAMP_PAYMENT_METHOD_MOONPAY_BALANCE",
+      "FIAT_RAMP_PAYMENT_METHOD_FIAT_WALLET",
+      "FIAT_RAMP_PAYMENT_METHOD_MOONPAY_BALANCE",
     ],
   },
 ];

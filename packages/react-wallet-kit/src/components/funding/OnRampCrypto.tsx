@@ -18,7 +18,7 @@ import { ActionButton } from "../design/Buttons";
 import { OnRampExternalWallet } from "./OnRampExternalWallet";
 
 export function OnRampCrypto(props: {
-  walletAccount?: WalletAccount | undefined;
+  walletAccount: WalletAccount;
   lockedCaip19?: OnRampCaip19 | undefined;
   lockedCaip2?: OnRampCaip2 | undefined;
   rpcUrl?: string | undefined;

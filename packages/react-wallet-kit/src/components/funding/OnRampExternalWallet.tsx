@@ -22,7 +22,7 @@ import {
 import { OnRampCryptoSend } from "./OnRampCryptoSend";
 
 export type OnRampExternalWalletProps = {
-  walletAccount?: WalletAccount | undefined;
+  walletAccount: WalletAccount;
   lockedCaip19?: OnRampCaip19 | undefined;
   lockedCaip2?: OnRampCaip2 | undefined;
   rpcUrl?: string | undefined;
@@ -78,7 +78,7 @@ export function OnRampExternalWallet(props: OnRampExternalWalletProps) {
     externalWallet: WalletProvider,
     externalAccount: WalletAccount,
   ) => {
-    popToPage("Fund");
+    popToPage("Deposit");
     pushPage({
       key: "Send",
       showTitle: false,

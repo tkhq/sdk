@@ -176,6 +176,10 @@ import type {
   TGetWalletAddressBalancesResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetWalletAuthenticatorsBody,
+  TGetWalletAuthenticatorsResponse,
+} from "./public_api.fetcher";
+import type {
   TGetActivitiesBody,
   TGetActivitiesResponse,
 } from "./public_api.fetcher";
@@ -326,6 +330,10 @@ import type {
   TCreateAuthenticatorsResponse,
 } from "./public_api.fetcher";
 import type {
+  TCreateExternalSignerBody,
+  TCreateExternalSignerResponse,
+} from "./public_api.fetcher";
+import type {
   TCreateFiatOffRampSessionBody,
   TCreateFiatOffRampSessionResponse,
 } from "./public_api.fetcher";
@@ -336,6 +344,10 @@ import type {
 import type {
   TCreateFiatOnRampSessionBody,
   TCreateFiatOnRampSessionResponse,
+} from "./public_api.fetcher";
+import type {
+  TCreateFiatRampCredentialBody,
+  TCreateFiatRampCredentialResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateInvitationsBody,
@@ -434,6 +446,10 @@ import type {
   TCreateWalletAccountsResponse,
 } from "./public_api.fetcher";
 import type {
+  TCreateWalletAuthenticatorsBody,
+  TCreateWalletAuthenticatorsResponse,
+} from "./public_api.fetcher";
+import type {
   TCreateWebhookEndpointBody,
   TCreateWebhookEndpointResponse,
 } from "./public_api.fetcher";
@@ -444,6 +460,10 @@ import type {
 import type {
   TDeleteAuthenticatorsBody,
   TDeleteAuthenticatorsResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteExternalSignerBody,
+  TDeleteExternalSignerResponse,
 } from "./public_api.fetcher";
 import type {
   TDeleteFiatOnRampCredentialBody,
@@ -516,6 +536,10 @@ import type {
 import type {
   TDeleteWalletAccountsBody,
   TDeleteWalletAccountsResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteWalletAuthenticatorsBody,
+  TDeleteWalletAuthenticatorsResponse,
 } from "./public_api.fetcher";
 import type {
   TDeleteWalletsBody,
@@ -707,6 +731,10 @@ import type {
   TUpdateFiatOnRampCredentialResponse,
 } from "./public_api.fetcher";
 import type {
+  TUpdateFiatRampCredentialBody,
+  TUpdateFiatRampCredentialResponse,
+} from "./public_api.fetcher";
+import type {
   TUpdateMfaPolicyBody,
   TUpdateMfaPolicyResponse,
 } from "./public_api.fetcher";
@@ -771,6 +799,10 @@ import type {
   TUpsertSwapFixedRateLimitConfigResponse,
 } from "./public_api.fetcher";
 import type { TVerifyOtpBody, TVerifyOtpResponse } from "./public_api.fetcher";
+import type {
+  TVerifyWalletAuthenticatorBody,
+  TVerifyWalletAuthenticatorResponse,
+} from "./public_api.fetcher";
 import type {
   TRefreshFeatureFlagsBody,
   TRefreshFeatureFlagsResponse,
@@ -2280,6 +2312,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Get wallet authenticators for a user.
+   *
+   * Sign the provided `TGetWalletAuthenticatorsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_wallet_authenticators).
+   *
+   * See also {@link stampGetWalletAuthenticators}.
+   */
+  getWalletAuthenticators = async (
+    input: TGetWalletAuthenticatorsBody,
+  ): Promise<TGetWalletAuthenticatorsResponse> => {
+    return this.request("/public/v1/query/get_wallet_authenticators", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetWalletAuthenticatorsBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetWalletAuthenticators}.
+   */
+  stampGetWalletAuthenticators = async (
+    input: TGetWalletAuthenticatorsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_wallet_authenticators";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * List all activities within an organization.
    *
    * Sign the provided `TGetActivitiesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_activities).
@@ -3498,6 +3562,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Register an external signer with the organization.
+   *
+   * Sign the provided `TCreateExternalSignerBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_external_signer).
+   *
+   * See also {@link stampCreateExternalSigner}.
+   */
+  createExternalSigner = async (
+    input: TCreateExternalSignerBody,
+  ): Promise<TCreateExternalSignerResponse> => {
+    return this.request("/public/v1/submit/create_external_signer", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateExternalSignerBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateExternalSigner}.
+   */
+  stampCreateExternalSigner = async (
+    input: TCreateExternalSignerBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_external_signer";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Open a fiat off-ramp session for a saved quote.
    *
    * Sign the provided `TCreateFiatOffRampSessionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_fiat_off_ramp_session).
@@ -3533,11 +3629,13 @@ export class TurnkeyClient {
   };
 
   /**
-   * Create a fiat on ramp provider credential.
+   * Deprecated: use CreateFiatRampCredential.
    *
    * Sign the provided `TCreateFiatOnRampCredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_fiat_on_ramp_credential).
    *
    * See also {@link stampCreateFiatOnRampCredential}.
+   *
+   * @deprecated
    */
   createFiatOnRampCredential = async (
     input: TCreateFiatOnRampCredentialBody,
@@ -3552,6 +3650,8 @@ export class TurnkeyClient {
    * Produce a `SignedRequest` from `TCreateFiatOnRampCredentialBody` by using the client's `stamp` function.
    *
    * See also {@link CreateFiatOnRampCredential}.
+   *
+   * @deprecated
    */
   stampCreateFiatOnRampCredential = async (
     input: TCreateFiatOnRampCredentialBody,
@@ -3590,6 +3690,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_fiat_on_ramp_session";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create a fiat ramp provider credential.
+   *
+   * Sign the provided `TCreateFiatRampCredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_fiat_ramp_credential).
+   *
+   * See also {@link stampCreateFiatRampCredential}.
+   */
+  createFiatRampCredential = async (
+    input: TCreateFiatRampCredentialBody,
+  ): Promise<TCreateFiatRampCredentialResponse> => {
+    return this.request("/public/v1/submit/create_fiat_ramp_credential", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateFiatRampCredentialBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateFiatRampCredential}.
+   */
+  stampCreateFiatRampCredential = async (
+    input: TCreateFiatRampCredentialBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_fiat_ramp_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -4366,6 +4498,41 @@ export class TurnkeyClient {
   };
 
   /**
+   * Add wallet authenticators to an existing user. Omit verification_token to attach unverified.
+   *
+   * Sign the provided `TCreateWalletAuthenticatorsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_wallet_authenticators).
+   *
+   * See also {@link stampCreateWalletAuthenticators}.
+   */
+  createWalletAuthenticators = async (
+    input: TCreateWalletAuthenticatorsBody,
+  ): Promise<TCreateWalletAuthenticatorsResponse> => {
+    return this.request(
+      "/public/v1/submit/create_wallet_authenticators",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateWalletAuthenticatorsBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateWalletAuthenticators}.
+   */
+  stampCreateWalletAuthenticators = async (
+    input: TCreateWalletAuthenticatorsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_wallet_authenticators";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Create a webhook endpoint for an organization.
    *
    * Sign the provided `TCreateWebhookEndpointBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_webhook_endpoint).
@@ -4451,6 +4618,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_authenticators";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Remove an external signer from the organization by its public key.
+   *
+   * Sign the provided `TDeleteExternalSignerBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_external_signer).
+   *
+   * See also {@link stampDeleteExternalSigner}.
+   */
+  deleteExternalSigner = async (
+    input: TDeleteExternalSignerBody,
+  ): Promise<TDeleteExternalSignerResponse> => {
+    return this.request("/public/v1/submit/delete_external_signer", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteExternalSignerBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteExternalSigner}.
+   */
+  stampDeleteExternalSigner = async (
+    input: TDeleteExternalSignerBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_external_signer";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -5029,6 +5228,41 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_wallet_accounts";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Remove wallet authenticators from a user.
+   *
+   * Sign the provided `TDeleteWalletAuthenticatorsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_wallet_authenticators).
+   *
+   * See also {@link stampDeleteWalletAuthenticators}.
+   */
+  deleteWalletAuthenticators = async (
+    input: TDeleteWalletAuthenticatorsBody,
+  ): Promise<TDeleteWalletAuthenticatorsResponse> => {
+    return this.request(
+      "/public/v1/submit/delete_wallet_authenticators",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteWalletAuthenticatorsBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteWalletAuthenticators}.
+   */
+  stampDeleteWalletAuthenticators = async (
+    input: TDeleteWalletAuthenticatorsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_wallet_authenticators";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -5634,11 +5868,13 @@ export class TurnkeyClient {
   };
 
   /**
-   * Initiate a fiat on ramp flow.
+   * Deprecated: use CreateFiatOnRampSession with a quote from GetFiatOnRampQuotes.
    *
    * Sign the provided `TInitFiatOnRampBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_fiat_on_ramp).
    *
    * See also {@link stampInitFiatOnRamp}.
+   *
+   * @deprecated
    */
   initFiatOnRamp = async (
     input: TInitFiatOnRampBody,
@@ -5650,6 +5886,8 @@ export class TurnkeyClient {
    * Produce a `SignedRequest` from `TInitFiatOnRampBody` by using the client's `stamp` function.
    *
    * See also {@link InitFiatOnRamp}.
+   *
+   * @deprecated
    */
   stampInitFiatOnRamp = async (
     input: TInitFiatOnRampBody,
@@ -6593,11 +6831,13 @@ export class TurnkeyClient {
   };
 
   /**
-   * Update a fiat on ramp provider credential.
+   * Deprecated: use UpdateFiatRampCredential.
    *
    * Sign the provided `TUpdateFiatOnRampCredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_fiat_on_ramp_credential).
    *
    * See also {@link stampUpdateFiatOnRampCredential}.
+   *
+   * @deprecated
    */
   updateFiatOnRampCredential = async (
     input: TUpdateFiatOnRampCredentialBody,
@@ -6612,12 +6852,46 @@ export class TurnkeyClient {
    * Produce a `SignedRequest` from `TUpdateFiatOnRampCredentialBody` by using the client's `stamp` function.
    *
    * See also {@link UpdateFiatOnRampCredential}.
+   *
+   * @deprecated
    */
   stampUpdateFiatOnRampCredential = async (
     input: TUpdateFiatOnRampCredentialBody,
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/update_fiat_on_ramp_credential";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Update a fiat ramp provider credential.
+   *
+   * Sign the provided `TUpdateFiatRampCredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_fiat_ramp_credential).
+   *
+   * See also {@link stampUpdateFiatRampCredential}.
+   */
+  updateFiatRampCredential = async (
+    input: TUpdateFiatRampCredentialBody,
+  ): Promise<TUpdateFiatRampCredentialResponse> => {
+    return this.request("/public/v1/submit/update_fiat_ramp_credential", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateFiatRampCredentialBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateFiatRampCredential}.
+   */
+  stampUpdateFiatRampCredential = async (
+    input: TUpdateFiatRampCredentialBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/update_fiat_ramp_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -7154,6 +7428,38 @@ export class TurnkeyClient {
    */
   stampVerifyOtp = async (input: TVerifyOtpBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/verify_otp";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Verify a SIWE or SIWS login and return an enclave-signed wallet verification token.
+   *
+   * Sign the provided `TVerifyWalletAuthenticatorBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/verify_wallet_authenticator).
+   *
+   * See also {@link stampVerifyWalletAuthenticator}.
+   */
+  verifyWalletAuthenticator = async (
+    input: TVerifyWalletAuthenticatorBody,
+  ): Promise<TVerifyWalletAuthenticatorResponse> => {
+    return this.request("/public/v1/submit/verify_wallet_authenticator", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TVerifyWalletAuthenticatorBody` by using the client's `stamp` function.
+   *
+   * See also {@link VerifyWalletAuthenticator}.
+   */
+  stampVerifyWalletAuthenticator = async (
+    input: TVerifyWalletAuthenticatorBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/verify_wallet_authenticator";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

@@ -8,13 +8,13 @@ import {
   type StamperType,
   type TGetFiatOffRampQuotesBody,
   type v1FiatOffRampQuote,
-  type v1FiatOnRampCurrency,
+  type v1FiatRampCurrency,
   type v1FiatOnRampQuote,
   type WalletAccount,
 } from "@turnkey/core";
 import { useTurnkey } from "../../providers/client/Hook";
 import { useModal } from "../../providers/modal/Hook";
-import { onRampTokensForAccount, rankQuotes } from "../../utils/onramp";
+import { onRampTokensForAccount, rankQuotes } from "../../utils/funding";
 import { ActionButton } from "../design/Buttons";
 import { CryptoAmountInput } from "./CryptoAmountInput";
 import { CurrencyDropdown } from "./CurrencyDropdown";
@@ -35,9 +35,9 @@ import { QuoteDetails } from "./QuoteDetails";
 export type OffRampAmountProps = {
   lockedCaip19?: OnRampCaip19 | undefined;
   lockedCaip2?: OnRampCaip2 | undefined;
-  walletAccount?: WalletAccount | undefined;
+  walletAccount: WalletAccount;
   payout?: OffRampPayoutId | undefined;
-  fiatCurrencyCode?: v1FiatOnRampCurrency | undefined;
+  fiatCurrencyCode?: v1FiatRampCurrency | undefined;
   defaultCryptoAmount?: string | undefined;
   countryCode?: string | undefined;
   countrySubdivisionCode?: string | undefined;
@@ -73,8 +73,8 @@ export function OffRampAmount(props: OffRampAmountProps) {
   const { httpClient } = useTurnkey();
   const { isMobile, pushPage } = useModal();
   const [payout, setPayout] = useState(initialPayout);
-  const [currency, setCurrency] = useState<v1FiatOnRampCurrency>(
-    fiatCurrencyCode ?? "FIAT_ON_RAMP_CURRENCY_USD",
+  const [currency, setCurrency] = useState<v1FiatRampCurrency>(
+    fiatCurrencyCode ?? "FIAT_RAMP_CURRENCY_USD",
   );
   const [amount, setAmount] = useState(defaultCryptoAmount ?? "0");
   const [quotes, setQuotes] = useState<v1FiatOnRampQuote[]>([]);
@@ -150,7 +150,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
               .filter((quote) => {
                 if (
                   sandboxMode &&
-                  quote.provider === "FIAT_ON_RAMP_PROVIDER_COINBASE"
+                  quote.provider === "FIAT_RAMP_PROVIDER_COINBASE"
                 ) {
                   return false;
                 }
@@ -195,7 +195,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
   }, [amount, token, selectedQuote]);
 
   const handleContinue = async () => {
-    if (!httpClient || !selectedQuote || !walletAccount || !token) return;
+    if (!httpClient || !selectedQuote || !token) return;
 
     // Saved before the popup opens so that window can read it on the way back.
     // A popup only inherits sessionStorage from the moment it is opened.
@@ -203,7 +203,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
       token,
       amount: selectedQuote.cryptoAmount.display || amount,
       atomicAmount: selectedQuote.cryptoAmount.amount,
-      provider: selectedQuote.onrampProvider,
+      provider: selectedQuote.provider,
       walletAccount,
       ...(organizationId ? { organizationId } : {}),
       ...(stampWith ? { stampWith } : {}),
@@ -241,7 +241,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
     setError(false);
     try {
       const redirectUrl = offrampRedirectUrl({
-        provider: selectedQuote.onrampProvider,
+        provider: selectedQuote.provider,
       });
       const request = {
         quoteId: selectedQuote.quoteId,
@@ -267,7 +267,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
             amount={selectedQuote.cryptoAmount.display || amount}
             atomicAmount={selectedQuote.cryptoAmount.amount}
             walletAccount={walletAccount}
-            provider={selectedQuote.onrampProvider}
+            provider={selectedQuote.provider}
             organizationId={organizationId}
             stampWith={stampWith}
             rpcUrl={rpcUrl}
@@ -330,7 +330,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
         <ActionButton
           name="offramp-continue"
           onClick={handleContinue}
-          disabled={fetchingQuotes || !selectedQuote || !walletAccount}
+          disabled={fetchingQuotes || !selectedQuote}
           loading={creatingSession}
           className={clsx(
             "w-full bg-primary-light text-primary-text-light dark:bg-primary-dark dark:text-primary-text-dark",
@@ -343,7 +343,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
         <p
           data-testid="offramp-error"
           className={clsx(
-            "text-sm text-red-500 transition-opacity delay-75 line-clamp-2 w-full",
+            "text-sm text-danger-light dark:text-danger-dark transition-opacity delay-75 line-clamp-2 w-full",
             error
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none absolute",
@@ -353,8 +353,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
         </p>
         {sandboxMode && (
           <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
-            Sandbox mode. MoonPay deposits use Sepolia or Solana devnet.
-            Coinbase offramp is live only.
+            Sandbox mode. Sepolia or Solana devnet tokens will be used.
           </span>
         )}
       </div>
@@ -365,7 +364,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
 function asOnRampQuote(quote: v1FiatOffRampQuote): v1FiatOnRampQuote {
   return {
     quoteId: quote.quoteId,
-    onrampProvider: quote.provider,
+    provider: quote.provider,
     ...(quote.serviceProvider
       ? { serviceProvider: quote.serviceProvider }
       : {}),

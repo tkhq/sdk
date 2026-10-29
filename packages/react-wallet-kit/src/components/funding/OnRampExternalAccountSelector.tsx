@@ -10,6 +10,7 @@ import {
 } from "@turnkey/core";
 import { useTurnkey } from "../../providers/client/Hook";
 import { useModal } from "../../providers/modal/Hook";
+import { truncateAddress } from "../../utils/utils";
 import { ActionButton } from "../design/Buttons";
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
 
@@ -87,9 +88,7 @@ function AccountButton(props: {
       className="relative flex w-full items-center justify-start gap-2 overflow-hidden bg-button-light text-inherit dark:bg-button-dark"
     >
       <ChainLogo className="size-5" />
-      <span>
-        {account.address.slice(0, 4)}...{account.address.slice(-3)}
-      </span>
+      <span>{truncateAddress(account.address, 4, 3)}</span>
       <FontAwesomeIcon
         className={clsx(
           "absolute text-icon-text-light transition-all duration-200 dark:text-icon-text-dark",

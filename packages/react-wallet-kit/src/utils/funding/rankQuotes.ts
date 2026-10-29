@@ -1,4 +1,4 @@
-import type { v1FiatOnRampAmount, v1FiatOnRampQuote } from "@turnkey/core";
+import type { v1FiatRampAmount, v1FiatOnRampQuote } from "@turnkey/core";
 
 export type QuoteRankLabel =
   | "Lowest fees"
@@ -47,7 +47,7 @@ export function rankQuotes(
   }));
 }
 
-function compareAmounts(a: v1FiatOnRampAmount, b: v1FiatOnRampAmount): number {
+function compareAmounts(a: v1FiatRampAmount, b: v1FiatRampAmount): number {
   const scale = Math.max(a.decimals, b.decimals);
   const left = scaleAmount(a, scale);
   const right = scaleAmount(b, scale);
@@ -56,7 +56,7 @@ function compareAmounts(a: v1FiatOnRampAmount, b: v1FiatOnRampAmount): number {
   return 0;
 }
 
-function scaleAmount(amount: v1FiatOnRampAmount, decimals: number): bigint {
+function scaleAmount(amount: v1FiatRampAmount, decimals: number): bigint {
   let value: bigint;
   try {
     value = BigInt(amount.amount);

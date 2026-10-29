@@ -2,7 +2,7 @@ import { Input } from "@headlessui/react";
 import type { OnRampCaip19 } from "@turnkey/core";
 import { useEffect, useMemo, useRef } from "react";
 import { useSupportedAssets } from "../../providers/SupportedAssetsProvider";
-import { caip2Of, tokenDecimals } from "../../utils/onramp";
+import { caip2Of, tokenDecimals } from "../../utils/funding";
 import { sanitizeAmount } from "./FiatAmountInput";
 import { TokenLogo, TokenSelect } from "./TokenSelect";
 

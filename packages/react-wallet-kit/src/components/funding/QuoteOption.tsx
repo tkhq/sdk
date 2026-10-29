@@ -4,29 +4,29 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type {
-  v1FiatOnRampAmount,
-  v1FiatOnRampCurrency,
-  v1FiatOnRampProvider,
+  v1FiatRampAmount,
+  v1FiatRampCurrency,
+  v1FiatRampProvider,
   v1FiatOnRampQuote,
 } from "@turnkey/core";
 import { BaseButton } from "../design/Buttons";
 import { CoinbaseLogo, MeldLogo, MoonPayLogo } from "../design/Svg";
 import { useSupportedAssets } from "../../providers/SupportedAssetsProvider";
-import { tokenSymbol } from "../../utils/onramp";
+import { tokenSymbol } from "../../utils/funding";
 
 const providerNames = {
-  FIAT_ON_RAMP_PROVIDER_COINBASE: "Coinbase",
-  FIAT_ON_RAMP_PROVIDER_MOONPAY: "MoonPay",
-  FIAT_ON_RAMP_PROVIDER_MELD: "Meld",
-} as const satisfies Record<v1FiatOnRampProvider, string>;
+  FIAT_RAMP_PROVIDER_COINBASE: "Coinbase",
+  FIAT_RAMP_PROVIDER_MOONPAY: "MoonPay",
+  FIAT_RAMP_PROVIDER_MELD: "Meld",
+} as const satisfies Record<v1FiatRampProvider, string>;
 
-const providerLogos = {
-  FIAT_ON_RAMP_PROVIDER_COINBASE: CoinbaseLogo,
-  FIAT_ON_RAMP_PROVIDER_MOONPAY: MoonPayLogo,
-  FIAT_ON_RAMP_PROVIDER_MELD: MeldLogo,
-} as const satisfies Record<v1FiatOnRampProvider, typeof CoinbaseLogo>;
+export const providerLogos = {
+  FIAT_RAMP_PROVIDER_COINBASE: CoinbaseLogo,
+  FIAT_RAMP_PROVIDER_MOONPAY: MoonPayLogo,
+  FIAT_RAMP_PROVIDER_MELD: MeldLogo,
+} as const satisfies Record<v1FiatRampProvider, typeof CoinbaseLogo>;
 
-export function providerName(provider: v1FiatOnRampProvider) {
+export function providerName(provider: v1FiatRampProvider) {
   return providerNames[provider];
 }
 
@@ -75,11 +75,10 @@ export function QuoteSummary(props: {
           amount,
         );
   const warning = compared ? `${compared} than input amount` : undefined;
-  const ProviderLogo = providerLogos[quote.onrampProvider];
-  const name = providerName(quote.onrampProvider);
+  const ProviderLogo = providerLogos[quote.provider];
+  const name = providerName(quote.provider);
   const label =
-    quote.onrampProvider === "FIAT_ON_RAMP_PROVIDER_MELD" &&
-    quote.serviceProvider
+    quote.provider === "FIAT_RAMP_PROVIDER_MELD" && quote.serviceProvider
       ? `${capitalize(quote.serviceProvider)} (${name})`
       : name;
 
@@ -140,11 +139,8 @@ function QuoteRow(props: {
   );
 }
 
-function formatFiat(
-  amount: v1FiatOnRampAmount,
-  currency: v1FiatOnRampCurrency,
-) {
-  const code = currency.slice("FIAT_ON_RAMP_CURRENCY_".length);
+function formatFiat(amount: v1FiatRampAmount, currency: v1FiatRampCurrency) {
+  const code = currency.slice("FIAT_RAMP_CURRENCY_".length);
   const value = Number(amount.display);
   if (!Number.isFinite(value)) return amount.display;
 
@@ -156,7 +152,7 @@ function formatFiat(
 }
 
 function compareFiatAmount(
-  quoted: v1FiatOnRampAmount,
+  quoted: v1FiatRampAmount,
   input: string,
 ): "Higher" | "Lower" | undefined {
   const quotedAtomic = toAtomic(quoted.display, quoted.decimals);

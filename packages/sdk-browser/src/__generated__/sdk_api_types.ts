@@ -502,6 +502,19 @@ export type TGetWalletAddressBalancesBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetWalletAuthenticatorsResponse =
+  operations["PublicApiService_GetWalletAuthenticators"]["responses"]["200"]["schema"];
+
+export type TGetWalletAuthenticatorsInput = {
+  body: TGetWalletAuthenticatorsBody;
+};
+
+export type TGetWalletAuthenticatorsBody = Omit<
+  operations["PublicApiService_GetWalletAuthenticators"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetActivitiesResponse =
   operations["PublicApiService_GetActivities"]["responses"]["200"]["schema"];
 
@@ -912,6 +925,16 @@ export type TCreateAuthenticatorsBody =
   operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateExternalSignerResponse =
+  operations["PublicApiService_CreateExternalSigner"]["responses"]["200"]["schema"]["activity"]["result"]["createExternalSignerResultV1"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateExternalSignerInput = { body: TCreateExternalSignerBody };
+
+export type TCreateExternalSignerBody =
+  operations["PublicApiService_CreateExternalSigner"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateFiatOffRampSessionResponse =
   operations["PublicApiService_CreateFiatOffRampSession"]["responses"]["200"]["schema"]["activity"]["result"]["createFiatOffRampSessionResult"] &
     definitions["v1ActivityResponse"];
@@ -946,6 +969,18 @@ export type TCreateFiatOnRampSessionInput = {
 
 export type TCreateFiatOnRampSessionBody =
   operations["PublicApiService_CreateFiatOnRampSession"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateFiatRampCredentialResponse =
+  operations["PublicApiService_CreateFiatRampCredential"]["responses"]["200"]["schema"]["activity"]["result"]["createFiatRampCredentialResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateFiatRampCredentialInput = {
+  body: TCreateFiatRampCredentialBody;
+};
+
+export type TCreateFiatRampCredentialBody =
+  operations["PublicApiService_CreateFiatRampCredential"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateInvitationsResponse =
@@ -1185,6 +1220,18 @@ export type TCreateWalletAccountsBody =
   operations["PublicApiService_CreateWalletAccounts"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateWalletAuthenticatorsResponse =
+  operations["PublicApiService_CreateWalletAuthenticators"]["responses"]["200"]["schema"]["activity"]["result"]["createWalletAuthenticatorsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateWalletAuthenticatorsInput = {
+  body: TCreateWalletAuthenticatorsBody;
+};
+
+export type TCreateWalletAuthenticatorsBody =
+  operations["PublicApiService_CreateWalletAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateWebhookEndpointResponse =
   operations["PublicApiService_CreateWebhookEndpoint"]["responses"]["200"]["schema"]["activity"]["result"]["createWebhookEndpointResult"] &
     definitions["v1ActivityResponse"];
@@ -1213,6 +1260,16 @@ export type TDeleteAuthenticatorsInput = { body: TDeleteAuthenticatorsBody };
 
 export type TDeleteAuthenticatorsBody =
   operations["PublicApiService_DeleteAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TDeleteExternalSignerResponse =
+  operations["PublicApiService_DeleteExternalSigner"]["responses"]["200"]["schema"]["activity"]["result"]["deleteExternalSignerResultV1"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteExternalSignerInput = { body: TDeleteExternalSignerBody };
+
+export type TDeleteExternalSignerBody =
+  operations["PublicApiService_DeleteExternalSigner"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TDeleteFiatOnRampCredentialResponse =
@@ -1391,6 +1448,18 @@ export type TDeleteWalletAccountsInput = { body: TDeleteWalletAccountsBody };
 
 export type TDeleteWalletAccountsBody =
   operations["PublicApiService_DeleteWalletAccounts"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TDeleteWalletAuthenticatorsResponse =
+  operations["PublicApiService_DeleteWalletAuthenticators"]["responses"]["200"]["schema"]["activity"]["result"]["deleteWalletAuthenticatorsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteWalletAuthenticatorsInput = {
+  body: TDeleteWalletAuthenticatorsBody;
+};
+
+export type TDeleteWalletAuthenticatorsBody =
+  operations["PublicApiService_DeleteWalletAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TDeleteWalletsResponse =
@@ -1904,6 +1973,18 @@ export type TUpdateFiatOnRampCredentialBody =
   operations["PublicApiService_UpdateFiatOnRampCredential"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TUpdateFiatRampCredentialResponse =
+  operations["PublicApiService_UpdateFiatRampCredential"]["responses"]["200"]["schema"]["activity"]["result"]["updateFiatRampCredentialResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateFiatRampCredentialInput = {
+  body: TUpdateFiatRampCredentialBody;
+};
+
+export type TUpdateFiatRampCredentialBody =
+  operations["PublicApiService_UpdateFiatRampCredential"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TUpdateMfaPolicyResponse =
   operations["PublicApiService_UpdateMfaPolicy"]["responses"]["200"]["schema"]["activity"]["result"]["updateMfaPolicyResult"] &
     definitions["v1ActivityResponse"];
@@ -2080,6 +2161,18 @@ export type TVerifyOtpInput = { body: TVerifyOtpBody };
 
 export type TVerifyOtpBody =
   operations["PublicApiService_VerifyOtp"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TVerifyWalletAuthenticatorResponse =
+  operations["PublicApiService_VerifyWalletAuthenticator"]["responses"]["200"]["schema"]["activity"]["result"]["verifyWalletAuthenticatorResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TVerifyWalletAuthenticatorInput = {
+  body: TVerifyWalletAuthenticatorBody;
+};
+
+export type TVerifyWalletAuthenticatorBody =
+  operations["PublicApiService_VerifyWalletAuthenticator"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TNOOPCodegenAnchorResponse =

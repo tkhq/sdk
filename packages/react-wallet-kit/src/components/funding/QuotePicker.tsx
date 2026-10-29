@@ -2,7 +2,7 @@ import type { v1FiatOnRampQuote } from "@turnkey/core";
 import clsx from "clsx";
 import { forwardRef } from "react";
 import { SupportedAssetsProvider } from "../../providers/SupportedAssetsProvider";
-import { rankQuotes } from "../../utils/onramp";
+import { rankQuotes } from "../../utils/funding";
 import { QuoteOption, type QuoteAmountBasis } from "./QuoteOption";
 
 export type QuotePickerProps = {

@@ -3,7 +3,7 @@ import {
   TurnkeyError,
   TurnkeyErrorCodes,
   type StamperType,
-  type v1FiatOnRampProvider,
+  type v1FiatRampProvider,
 } from "@turnkey/core";
 import { useTurnkey } from "../../providers/client/Hook";
 import { useModal } from "../../providers/modal/Hook";
@@ -15,16 +15,16 @@ import { providerName } from "./QuoteOption";
 const POLL_INTERVAL_MS = 1000;
 
 const providerLogos = {
-  FIAT_ON_RAMP_PROVIDER_COINBASE: CoinbaseLogo,
-  FIAT_ON_RAMP_PROVIDER_MOONPAY: MoonPayLogo,
-  FIAT_ON_RAMP_PROVIDER_MELD: MeldLogo,
-} as const satisfies Record<v1FiatOnRampProvider, typeof CoinbaseLogo>;
+  FIAT_RAMP_PROVIDER_COINBASE: CoinbaseLogo,
+  FIAT_RAMP_PROVIDER_MOONPAY: MoonPayLogo,
+  FIAT_RAMP_PROVIDER_MELD: MeldLogo,
+} as const satisfies Record<v1FiatRampProvider, typeof CoinbaseLogo>;
 
 export type OnRampStatusPageProps = {
   transactionId: string;
   organizationId?: string | undefined;
   stampWith?: StamperType | undefined;
-  provider: v1FiatOnRampProvider;
+  provider: v1FiatRampProvider;
   openedInNewTab: boolean;
   successPageDuration?: number | undefined;
   successText?: string | undefined;
@@ -136,9 +136,7 @@ export function OnRampStatusPage(props: OnRampStatusPageProps) {
     <ActionPage
       title="Completing Payment"
       subtitle={`Use the ${providerName(provider)} ${openedInNewTab ? "tab" : "popup"} to complete the payment.`}
-      icon={
-        ProviderLogo ? <ProviderLogo className="size-10" /> : undefined
-      }
+      icon={ProviderLogo ? <ProviderLogo className="size-10" /> : undefined}
     />
   );
 }

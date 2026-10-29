@@ -4,6 +4,10 @@ export function caip2Of(token: OnRampCaip19): OnRampCaip2 {
   return token.slice(0, token.indexOf("/")) as OnRampCaip2;
 }
 
+export function assetOf(token: string) {
+  return token.slice(token.indexOf("/") + 1);
+}
+
 function fallbackTokenSymbol(token: OnRampCaip19): string {
   if (token.endsWith("slip44:60")) return "ETH";
   if (token.endsWith("slip44:501")) return "SOL";

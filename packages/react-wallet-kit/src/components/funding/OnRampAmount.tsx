@@ -7,14 +7,14 @@ import {
   type OnRampCaip19,
   type OnRampCaip2,
   type StamperType,
-  type v1FiatOnRampCurrency,
-  type v1FiatOnRampPaymentMethod,
+  type v1FiatRampCurrency,
+  type v1FiatRampPaymentMethod,
   type v1FiatOnRampQuote,
   type WalletAccount,
 } from "@turnkey/core";
 import { useTurnkey } from "../../providers/client/Hook";
 import { useModal } from "../../providers/modal/Hook";
-import { onRampTokensForAccount, rankQuotes } from "../../utils/onramp";
+import { onRampTokensForAccount, rankQuotes } from "../../utils/funding";
 import { ActionButton } from "../design/Buttons";
 import { FiatAmountInput } from "./FiatAmountInput";
 import { PaymentMethodSelect } from "./PaymentMethods";
@@ -25,9 +25,9 @@ import { TokenSelect } from "./TokenSelect";
 export type OnRampAmountProps = {
   lockedCaip19?: OnRampCaip19 | undefined;
   lockedCaip2?: OnRampCaip2 | undefined;
-  walletAccount?: WalletAccount | undefined;
-  paymentMethod?: v1FiatOnRampPaymentMethod | undefined;
-  fiatCurrencyCode?: v1FiatOnRampCurrency | undefined;
+  walletAccount: WalletAccount;
+  paymentMethod?: v1FiatRampPaymentMethod | undefined;
+  fiatCurrencyCode?: v1FiatRampCurrency | undefined;
   defaultFiatCurrencyAmount?: string | undefined;
   countryCode?: string | undefined;
   countrySubdivisionCode?: string | undefined;
@@ -62,8 +62,8 @@ export function OnRampAmount(props: OnRampAmountProps) {
   const { httpClient } = useTurnkey();
   const { isMobile, pushPage } = useModal();
   const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethod);
-  const [currency, setCurrency] = useState<v1FiatOnRampCurrency>(
-    fiatCurrencyCode ?? "FIAT_ON_RAMP_CURRENCY_USD",
+  const [currency, setCurrency] = useState<v1FiatRampCurrency>(
+    fiatCurrencyCode ?? "FIAT_RAMP_CURRENCY_USD",
   );
   const [amount, setAmount] = useState(defaultFiatCurrencyAmount ?? "0");
   const [quotes, setQuotes] = useState<v1FiatOnRampQuote[]>([]);
@@ -179,7 +179,7 @@ export function OnRampAmount(props: OnRampAmountProps) {
       : undefined;
 
   const handleContinue = async () => {
-    if (!httpClient || !selectedQuote || !walletAccount) return;
+    if (!httpClient || !selectedQuote) return;
 
     // Open during the click. A window opened after the session request is
     // treated as unsolicited and blocked.
@@ -226,7 +226,7 @@ export function OnRampAmount(props: OnRampAmountProps) {
             transactionId={result.onRampTransactionId}
             organizationId={organizationId}
             stampWith={stampWith}
-            provider={selectedQuote.onrampProvider}
+            provider={selectedQuote.provider}
             openedInNewTab={openedInNewTab}
             successPageDuration={successPageDuration}
             onSuccess={() => onSuccess?.()}
@@ -287,7 +287,7 @@ export function OnRampAmount(props: OnRampAmountProps) {
         <ActionButton
           name="onramp-continue"
           onClick={handleContinue}
-          disabled={fetchingQuotes || !selectedQuote || !walletAccount}
+          disabled={fetchingQuotes || !selectedQuote}
           loading={creatingSession}
           className={clsx(
             "w-full bg-primary-light text-primary-text-light dark:bg-primary-dark dark:text-primary-text-dark",
@@ -300,7 +300,7 @@ export function OnRampAmount(props: OnRampAmountProps) {
         <p
           data-testid="onramp-error"
           className={clsx(
-            "text-sm text-red-500 transition-opacity delay-75 line-clamp-2 w-full",
+            "text-sm text-danger-light dark:text-danger-dark transition-opacity delay-75 line-clamp-2 w-full",
             error
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none absolute",

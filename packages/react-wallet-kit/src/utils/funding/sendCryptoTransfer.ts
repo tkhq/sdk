@@ -21,11 +21,34 @@ import {
   Chain,
   TurnkeyError,
   TurnkeyErrorCodes,
+  type EthTransaction,
+  type OnRampCaip19,
+  type SolanaTransaction,
   type WalletProvider,
   type WalletRpcProvider,
 } from "@turnkey/core";
 import { numberToHex, serializeTransaction, type Hex } from "viem";
-import type { OnRampCryptoTransfer } from "./buildCryptoTransfer";
+import {
+  transferFromAsset,
+  type OnRampCryptoTransfer,
+} from "./buildCryptoTransfer";
+
+export const SOLANA_DEVNET_RPC = "https://api.devnet.solana.com";
+
+export function isSolanaDevnet(caip2: string) {
+  return (
+    caip2.startsWith("solana:") &&
+    (caip2.includes("devnet") ||
+      caip2.includes("EtWTRABZaYq6iMfeYKouRu166VU2xqa1"))
+  );
+}
+
+// Public devnet endpoint used when a caller does not pass rpcUrl.
+export function solanaRpcUrl(caip2: string, rpcUrl?: string | undefined) {
+  if (rpcUrl) return rpcUrl;
+  if (isSolanaDevnet(caip2)) return SOLANA_DEVNET_RPC;
+  return undefined;
+}
 
 export async function buildUnsignedOnRampTransaction(params: {
   transfer: OnRampCryptoTransfer;
@@ -43,6 +66,31 @@ export async function buildUnsignedOnRampTransaction(params: {
     return buildUnsignedSolanaTransaction(transfer, rpcUrl);
   }
   return buildUnsignedEthereumTransaction(transfer, provider);
+}
+
+export function sendErrorMessage(error: unknown) {
+  const messages: string[] = [];
+  const seen = new Set<unknown>();
+  let current: unknown = error;
+  while (current && typeof current === "object" && !seen.has(current)) {
+    seen.add(current);
+    const record = current as { message?: unknown; cause?: unknown };
+    if (typeof record.message === "string" && record.message.trim()) {
+      messages.push(record.message.trim());
+    }
+    current = record.cause;
+  }
+
+  if (
+    messages.some((message) => /insufficient|out\s*of\s*funds/i.test(message))
+  ) {
+    return "Insufficient funds.";
+  }
+
+  const specific = [...messages]
+    .reverse()
+    .find((message) => !/^failed to /i.test(message));
+  return specific ?? "Unable to send this transfer.";
 }
 
 export function isUserRejected(error: unknown): boolean {
@@ -240,6 +288,86 @@ export function switchSelectedEthereumChain(
   return evmRequest(provider, "wallet_switchEthereumChain", [
     { chainId: hexChainId },
   ]);
+}
+
+export async function ensureEthereumChain(
+  provider: WalletRpcProvider,
+  chainId: number,
+) {
+  const hexChainId = `0x${chainId.toString(16)}`;
+  try {
+    await switchSelectedEthereumChain(provider, hexChainId);
+  } catch (caught) {
+    const code = (caught as { code?: number }).code;
+    if (code !== 4902) throw caught;
+    await evmRequest(provider, "wallet_addEthereumChain", [
+      {
+        chainId: hexChainId,
+        chainName: chainId === 11155111 ? "Sepolia" : `Chain ${chainId}`,
+        nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+        rpcUrls: [
+          chainId === 11155111
+            ? "https://rpc.sepolia.org"
+            : "https://cloudflare-eth.com",
+        ],
+      },
+    ]);
+  }
+}
+
+export async function embeddedDepositTransaction(params: {
+  caip2: string;
+  asset: string;
+  quotedToken: OnRampCaip19;
+  from: string;
+  to: string;
+  atomicAmount: string;
+  rpcUrl?: string | undefined;
+}): Promise<EthTransaction | SolanaTransaction> {
+  const { caip2, asset, quotedToken, from, to, atomicAmount, rpcUrl } = params;
+  const transfer = transferFromAsset({
+    caip2,
+    asset,
+    quotedToken,
+    from,
+    to,
+    atomicAmount,
+  });
+
+  if (transfer.transactionType === "TRANSACTION_TYPE_SOLANA") {
+    if (!rpcUrl) {
+      throw new TurnkeyError(
+        "A Solana RPC URL is required to send this asset. Pass rpcUrl to handleOffRamp.",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
+    const unsignedTransaction = await buildUnsignedSolanaTransaction(
+      transfer,
+      rpcUrl,
+    );
+    return {
+      unsignedTransaction,
+      signWith: from,
+      caip2,
+    } as SolanaTransaction;
+  }
+
+  if (transfer.kind === "erc20") {
+    return {
+      from,
+      to: transfer.tokenAddress,
+      caip2,
+      value: "0",
+      data: transfer.data,
+    } as EthTransaction;
+  }
+
+  return {
+    from,
+    to,
+    caip2,
+    value: atomicAmount,
+  } as EthTransaction;
 }
 
 function evmRequest(

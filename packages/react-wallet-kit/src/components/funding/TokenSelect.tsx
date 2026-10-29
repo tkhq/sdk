@@ -11,25 +11,12 @@ import clsx from "clsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSupportedAssets } from "../../providers/SupportedAssetsProvider";
 import { useScreenSize } from "../../utils/utils";
-import { caip2Of, tokenSymbol } from "../../utils/onramp";
+import { caip2Of, chainLabel, tokenSymbol } from "../../utils/funding";
 
 type Placement = "top start" | "bottom start";
 const desiredPanelHeight = 288;
 
 export type TokenSelectTrigger = "row" | "symbol";
-
-const chainLabels: Record<string, string> = {
-  "eip155:1": "Ethereum",
-  "eip155:10": "Optimism",
-  "eip155:137": "Polygon",
-  "eip155:8453": "Base",
-  "eip155:42161": "Arbitrum",
-  "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp": "Solana",
-};
-
-function chainLabel(caip2: string): string {
-  return chainLabels[caip2] ?? caip2;
-}
 
 function groupOnRampTokens(tokens: OnRampCaip19[]) {
   const order: string[] = [];
@@ -180,10 +167,10 @@ function SelectableToken(props: {
                 <ListboxOption
                   key={token}
                   value={token}
-                  className={({ active }) =>
+                  className={({ focus }) =>
                     clsx(
                       "cursor-pointer select-none py-2 px-3 bg-button-light dark:bg-button-dark flex items-center gap-2",
-                      active &&
+                      focus &&
                         "bg-modal-background-light dark:bg-modal-background-dark",
                     )
                   }

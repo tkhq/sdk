@@ -6,7 +6,7 @@ import {
   type WalletAccount,
 } from "@turnkey/core";
 import { encodeFunctionData, type Hex } from "viem";
-import { caip2Of } from "./tokenSymbol";
+import { assetOf, caip2Of } from "./tokenSymbol";
 
 const ERC20_TRANSFER_ABI = [
   {
@@ -77,58 +77,88 @@ export function buildOnRampCryptoTransfer(params: {
     );
   }
 
-  const caip2 = caip2Of(token);
-  const asset = token.slice(token.indexOf("/") + 1);
-  const base = {
+  return transferFromAsset({
+    caip2: caip2Of(token),
+    asset: assetOf(token),
+    quotedToken: token,
     from: from.address,
     to: to.address,
-    caip2,
-    caip19: token,
-    amount: atomic.toString(),
+    atomicAmount: atomic.toString(),
+  });
+}
+
+// The sent asset can differ from the quoted token. Sandbox offramp rewrites both.
+export function transferFromAsset(params: {
+  caip2: string;
+  asset: string;
+  quotedToken: OnRampCaip19;
+  from: string;
+  to: string;
+  atomicAmount: string;
+}): OnRampCryptoTransfer {
+  const { caip2, asset, quotedToken, from, to, atomicAmount } = params;
+  const base = {
+    from,
+    to,
+    caip2: caip2 as OnRampCaip2,
+    caip19: quotedToken,
+    amount: atomicAmount,
   };
 
-  if (asset === "slip44:60" || asset === "slip44:501") {
+  if (caip2.startsWith("solana:")) {
+    if (asset.startsWith("token:")) {
+      return {
+        ...base,
+        kind: "spl",
+        transactionType: "TRANSACTION_TYPE_SOLANA",
+        mintAddress: asset.slice("token:".length),
+      };
+    }
+    if (asset !== "slip44:501") {
+      throw new TurnkeyError(
+        "This token cannot be transferred.",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
     return {
       ...base,
       kind: "native",
-      transactionType:
-        chain === "solana"
-          ? "TRANSACTION_TYPE_SOLANA"
-          : "TRANSACTION_TYPE_ETHEREUM",
+      transactionType: "TRANSACTION_TYPE_SOLANA",
     };
   }
 
   if (asset.startsWith("erc20:")) {
-    const tokenAddress = asset.slice("erc20:".length) as Hex;
     return {
       ...base,
       kind: "erc20",
       transactionType: "TRANSACTION_TYPE_ETHEREUM",
-      tokenAddress,
+      tokenAddress: asset.slice("erc20:".length) as Hex,
       data: encodeFunctionData({
         abi: ERC20_TRANSFER_ABI,
         functionName: "transfer",
-        args: [to.address as Hex, atomic],
+        args: [to as Hex, BigInt(atomicAmount)],
       }),
     };
   }
 
-  if (asset.startsWith("token:")) {
-    return {
-      ...base,
-      kind: "spl",
-      transactionType: "TRANSACTION_TYPE_SOLANA",
-      mintAddress: asset.slice("token:".length),
-    };
+  if (asset !== "slip44:60") {
+    throw new TurnkeyError(
+      "This token cannot be transferred.",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
   }
 
-  throw new TurnkeyError(
-    "This token cannot be transferred.",
-    TurnkeyErrorCodes.INVALID_REQUEST,
-  );
+  return {
+    ...base,
+    kind: "native",
+    transactionType: "TRANSACTION_TYPE_ETHEREUM",
+  };
 }
 
-function toAtomicAmount(value: string, decimals: number): bigint | undefined {
+export function toAtomicAmount(
+  value: string,
+  decimals: number,
+): bigint | undefined {
   const trimmed = value.trim();
   if (!/^\d+(\.\d+)?$/.test(trimmed)) return undefined;
 

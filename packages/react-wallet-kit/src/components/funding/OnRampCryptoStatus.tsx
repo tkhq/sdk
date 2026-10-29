@@ -21,6 +21,7 @@ export type OnRampCryptoStatusProps = {
   transactionId: string;
   provider: WalletRpcProvider;
   rpcUrl?: string | undefined;
+  successPageDuration?: number | undefined;
   iconUrl?: string | undefined;
   onSuccess: () => void;
   onError: (error: unknown) => void;
@@ -33,6 +34,7 @@ export function OnRampCryptoStatus(props: OnRampCryptoStatusProps) {
     transactionId,
     provider,
     rpcUrl,
+    successPageDuration = 2000,
     iconUrl,
     onSuccess,
     onError,
@@ -64,10 +66,7 @@ export function OnRampCryptoStatus(props: OnRampCryptoStatusProps) {
             : await pollEthereum(transactionId, provider);
         if (!active || status === "pending") return;
         if (status === "success") {
-          finish(() => {
-            onSuccess();
-            setCompleted(true);
-          });
+          finish(() => setCompleted(true));
           return;
         }
         finish(() => {
@@ -111,7 +110,14 @@ export function OnRampCryptoStatus(props: OnRampCryptoStatusProps) {
           isMobile ? "w-full" : "w-96",
         )}
       >
-        <SuccessPage text="Transfer complete" />
+        <SuccessPage
+          text="Transfer complete"
+          duration={successPageDuration}
+          onComplete={() => {
+            onSuccess();
+            closeModal();
+          }}
+        />
         <ActionButton
           name="onramp-view-explorer"
           onClick={() => {

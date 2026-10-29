@@ -1,4 +1,4 @@
-import type { v1FiatOnRampPaymentMethod } from "@turnkey/core";
+import type { v1FiatRampPaymentMethod } from "@turnkey/core";
 import { useModal } from "../../providers/modal/Hook";
 import { OnRampAmount, type OnRampAmountProps } from "./OnRampAmount";
 import { PaymentMethodList } from "./PaymentMethods";
@@ -6,7 +6,7 @@ import { PaymentMethodList } from "./PaymentMethods";
 export function OnRampCash(props: OnRampAmountProps) {
   const { pushPage } = useModal();
 
-  const openAmount = (method: v1FiatOnRampPaymentMethod) =>
+  const openAmount = (method: v1FiatRampPaymentMethod) =>
     pushPage({
       key: "Buy",
       showTitle: false,

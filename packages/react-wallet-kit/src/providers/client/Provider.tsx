@@ -218,8 +218,8 @@ import type {
   RefreshWalletsParams,
 } from "../../types/method-types";
 import { VerifyPage } from "../../components/verify/Verify";
-import { OffRampPage } from "../../components/onramp/OffRamp";
-import { OnRampPage, OnRampProviders } from "../../components/onramp/OnRamp";
+import { OffRampPage } from "../../components/funding/OffRamp";
+import { OnRampPage, OnRampProviders } from "../../components/funding/OnRamp";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
 import { getChainLogo } from "../../components/send-transaction/helpers";
 import { Turnstile } from "../../components/auth/Turnstile";
@@ -6171,7 +6171,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         };
 
         pushPage({
-          key: "Fund",
+          key: "Deposit",
           content: (
             <OnRampPage
               lockedCaip2={lockedCaip2}
@@ -6220,6 +6220,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         stampWith,
         successPageDuration,
         openInNewTab,
+        rpcUrl,
       } = params;
 
       const s = await getSession();
@@ -6245,7 +6246,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         };
 
         pushPage({
-          key: "Cash out",
+          key: "Withdraw",
           content: (
             <OffRampPage
               lockedCaip2={lockedCaip2}
@@ -6253,14 +6254,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               walletAccount={walletAccount}
               sandboxMode={sandboxMode}
               organizationId={organizationId}
-              stampWith={params.stampWith}
-              fiatCurrencyCode={params.fiatCurrencyCode}
-              defaultCryptoAmount={params.defaultCryptoAmount}
-              countryCode={params.countryCode}
-              countrySubdivisionCode={params.countrySubdivisionCode}
-              openInNewTab={params.openInNewTab}
-              successPageDuration={params.successPageDuration}
-              rpcUrl={params.rpcUrl}
+              stampWith={stampWith}
+              fiatCurrencyCode={fiatCurrencyCode}
+              defaultCryptoAmount={defaultCryptoAmount}
+              countryCode={countryCode}
+              countrySubdivisionCode={countrySubdivisionCode}
+              openInNewTab={openInNewTab}
+              successPageDuration={successPageDuration}
+              rpcUrl={rpcUrl}
               onSuccess={resolveOnce}
               onError={rejectOnce}
             />

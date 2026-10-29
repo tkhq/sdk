@@ -14,6 +14,7 @@ import { useModal } from "../../../providers/modal/Hook";
 import { useTurnkey } from "../../../providers/client/Hook";
 import {
   findWalletConnectProvider,
+  truncateAddress,
   useDebouncedCallback,
 } from "../../../utils/utils";
 import { QRCodeDisplay } from "./QRCodeDisplay";
@@ -176,10 +177,7 @@ export function DesktopWalletConnectScreen(
                 />
               </div>
 
-              <span>
-                {connectedAccount?.slice(0, 3)}...
-                {connectedAccount?.slice(-3)}
-              </span>
+              <span>{truncateAddress(connectedAccount, 3, 3)}</span>
             </div>
 
             <div

@@ -1,10 +1,10 @@
 import { Input } from "@headlessui/react";
-import type { v1FiatOnRampCurrency } from "@turnkey/core";
+import type { v1FiatRampCurrency } from "@turnkey/core";
 import clsx from "clsx";
 import { useEffect, useMemo, useRef } from "react";
 import { CurrencyDropdown } from "./CurrencyDropdown";
 
-const CURRENCY_CODE_PREFIX = "FIAT_ON_RAMP_CURRENCY_";
+const CURRENCY_CODE_PREFIX = "FIAT_RAMP_CURRENCY_";
 const MAX_WHOLE_DIGITS = 7;
 
 type CurrencyFormat = {
@@ -13,7 +13,7 @@ type CurrencyFormat = {
 };
 
 function currencyFormat(
-  currency: v1FiatOnRampCurrency | undefined,
+  currency: v1FiatRampCurrency | undefined,
 ): CurrencyFormat {
   const code = currency ? currency.slice(CURRENCY_CODE_PREFIX.length) : "USD";
   const format = new Intl.NumberFormat("en", {
@@ -60,8 +60,8 @@ export function sanitizeAmount(raw: string, decimals: number) {
 export type FiatAmountInputProps = {
   value: string;
   onChange: (value: string) => void;
-  currency?: v1FiatOnRampCurrency | undefined;
-  onCurrencyChange?: (currency: v1FiatOnRampCurrency) => void;
+  currency?: v1FiatRampCurrency | undefined;
+  onCurrencyChange?: (currency: v1FiatRampCurrency) => void;
   disabled?: boolean;
 };
 
