@@ -51,11 +51,11 @@
     "access": "public"
   },
   "dependencies": {
-    "viem": "2.7.19",
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/core": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
-    "@turnkey/core": "workspace:*"
+    "viem": "2.57.10"
   },
   "devDependencies": {
     "hardhat": "^2.22.2",

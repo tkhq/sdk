@@ -17,7 +17,6 @@ import {
   MethodNotSupportedRpcError,
   RpcRequestError,
 } from "viem";
-import { foundry } from "viem/chains";
 import {
   beforeAll,
   beforeEach,
@@ -59,6 +58,7 @@ const {
 
 const RECEIVER_ADDRESS: Address = "0x6f85Eb534E14D605d4e82bF97ddF59c18F686699";
 const ANVIL_RPC_URL = "http://127.0.0.1:8545";
+const ANVIL_CHAIN_ID = 31337;
 const EXPECTED_ADDRESS_DEFAULT_BALANCE_ETH = "100"; //ETH
 const anvilPublicClient = getHttpRpcClient(ANVIL_RPC_URL);
 
@@ -106,8 +106,8 @@ describe("Test Turnkey EIP-1193 Provider", () => {
   const walletId: UUID = WALLET_ID;
   const organizationId = ORGANIZATION_ID;
   const foundryChain = {
-    chainName: foundry.name,
-    chainId: numberToHex(foundry.id),
+    chainName: "Foundry",
+    chainId: numberToHex(ANVIL_CHAIN_ID),
     rpcUrls: [ANVIL_RPC_URL],
   };
 
@@ -378,7 +378,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
                   from,
                   to,
                   value: numberToHex(parseEther("0.001")),
-                  chainId: numberToHex(foundry.id),
+                  chainId: numberToHex(ANVIL_CHAIN_ID),
                   nonce: numberToHex(0),
                   gas: numberToHex(21000n),
                   maxFeePerGas: numberToHex(parseGwei("20")),
@@ -397,7 +397,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             const from = expectedWalletAddress;
             const to = RECEIVER_ADDRESS;
             const value = numberToHex(parseEther("0.001"));
-            const chainId = numberToHex(foundry.id);
+            const chainId = numberToHex(ANVIL_CHAIN_ID);
             const gas = numberToHex(21000n);
             const maxFeePerGas = numberToHex(parseGwei("20"));
             const maxPriorityFeePerGas = numberToHex(parseGwei("2"));
@@ -499,7 +499,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             });
             expect(chainId).not.toBeUndefined();
             expect(chainId).toMatch(/^0x.*$/);
-            expect(parseInt(chainId!, 16)).toBe(foundry.id);
+            expect(parseInt(chainId!, 16)).toBe(ANVIL_CHAIN_ID);
           });
         });
         describe("eth_getBalance", () => {
