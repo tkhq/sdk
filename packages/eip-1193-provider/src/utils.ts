@@ -1,12 +1,13 @@
 import {
   AddEthereumChainParameter,
   Chain,
+  Hex,
   RpcTransactionRequest,
   TransactionSerializable,
   serializeTransaction,
 } from "viem";
 
-import type { WalletAddEthereumChain, TransactionType } from "./types";
+import type { WalletAddEthereumChain } from "./types";
 import {
   BlockExplorerUrlError,
   RpcUrlsRequiredError,
@@ -19,10 +20,9 @@ import {
 
 const DEV_ENVS = ["test", "development"];
 
-export const preprocessTransaction = ({
-  from,
-  ...transaction
-}: RpcTransactionRequest) => {
+export const preprocessTransaction = (
+  transaction: RpcTransactionRequest & { chainId?: Hex | undefined },
+) => {
   // Helper function to handle undefined values and conversion
   const convertValue = <T>(
     value: string | number | undefined,
@@ -30,27 +30,18 @@ export const preprocessTransaction = ({
     defaultValue: T,
   ): T => (value !== undefined ? converter(value) : defaultValue);
 
-  const typeMapping: { [key: string]: TransactionType } = {
-    "0x0": "legacy",
-    "0x1": "eip2930",
-    "0x2": "eip1559",
-    // TODO: enable these once ready
-    // "0x3": "eip4844",
-    // "0x4": "eip7702",
-  };
+  const gasPrice = convertValue(transaction.gasPrice, BigInt, 0n);
+  const maxFeePerGas = convertValue(transaction.maxFeePerGas, BigInt, 0n);
+  const maxPriorityFeePerGas = convertValue(
+    transaction.maxPriorityFeePerGas,
+    BigInt,
+    0n,
+  );
 
-  const processedTransaction: TransactionSerializable = {
-    ...transaction,
-    // @ts-ignore
-    chainId: parseInt(transaction.chainId, 16),
-    type: (transaction.type && typeMapping[transaction.type]) || "eip1559",
-    maxPriorityFeePerGas: convertValue(
-      transaction.maxPriorityFeePerGas,
-      BigInt,
-      0n,
-    ),
-    maxFeePerGas: convertValue(transaction.maxFeePerGas, BigInt, 0n),
-    gasPrice: convertValue(transaction.gasPrice, BigInt, 0n),
+  const commonTransaction = {
+    chainId: parseInt(transaction.chainId ?? "", 16),
+    to: transaction.to,
+    data: transaction.data,
     value: convertValue(transaction.value, BigInt, 0n),
     nonce: convertValue(
       transaction.nonce,
@@ -60,6 +51,31 @@ export const preprocessTransaction = ({
 
     gas: convertValue(transaction.gas, BigInt, 0n),
   };
+
+  // TODO: enable these once ready
+  // "0x3": "eip4844",
+  // "0x4": "eip7702",
+  const processedTransaction: TransactionSerializable =
+    transaction.type === "0x0"
+      ? {
+          ...commonTransaction,
+          type: "legacy",
+          gasPrice,
+        }
+      : transaction.type === "0x1"
+        ? {
+            ...commonTransaction,
+            type: "eip2930",
+            gasPrice,
+            accessList: transaction.accessList,
+          }
+        : {
+            ...commonTransaction,
+            type: "eip1559",
+            maxFeePerGas,
+            maxPriorityFeePerGas,
+            accessList: transaction.accessList,
+          };
 
   const serializedTransaction = serializeTransaction(processedTransaction);
 
