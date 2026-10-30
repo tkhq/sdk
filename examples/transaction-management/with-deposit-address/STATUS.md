@@ -54,7 +54,7 @@ key (`X-Turnkey-Event-Id` is stable across retries).
 | Day | Slice                                        | State |
 | --- | -------------------------------------------- | ----- |
 | 1   | Copy base, enable button, policy, QR code    | Done  |
-| 2   | Webhook registration, verified webhook route | -     |
+| 2   | Webhook registration, verified webhook route | Done  |
 | 3   | Sponsored sweep, de-duplication              | -     |
 | 4   | User-signed withdraw, `pnpm validate`        | -     |
 | 5   | README, PR                                   | -     |
@@ -67,6 +67,15 @@ key (`X-Turnkey-Event-Id` is stable across retries).
 - The dashboard shows the address and a QR code, and checks the sub-org live:
   root quorum is the user alone, the delegated user is not root, and there is
   exactly one policy.
+- `pnpm register-webhook` subscribes the parent org's
+  `BALANCE_CONFIRMED_UPDATES` to `/api/webhooks/balances`; running it twice
+  reuses the existing subscription.
+- The webhook route verifies the signature against the JWKS, drops repeated
+  event ids, and maps the address to its sub-org through
+  `data/deposit-addresses.json`. Checked offline against a local JWKS with
+  signed deliveries: valid (200, logged with sub-org), repeated event id
+  (ignored), tampered body (401), stale timestamp (401), unsigned (401),
+  unknown address (ignored), sub-org mismatch (ignored, not swept).
 
 ## Blocked
 
