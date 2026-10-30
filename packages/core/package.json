@@ -50,7 +50,7 @@
     "ethers": "^6.10.0",
     "jwt-decode": "4.0.0",
     "uuid": "^11.1.1",
-    "viem": "^2.33.1"
+    "viem": "2.57.10"
   },
   "devDependencies": {
     "glob": "^8.0.3",
