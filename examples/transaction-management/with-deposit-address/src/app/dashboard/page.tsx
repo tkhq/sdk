@@ -1,52 +1,36 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  useTurnkey,
-  AuthState,
-  WalletSource,
-  type Wallet,
-  type WalletAccount,
-} from "@turnkey/react-wallet-kit";
+import { QRCodeSVG } from "qrcode.react";
+import { useTurnkey, AuthState, WalletSource } from "@turnkey/react-wallet-kit";
 
-import { serializeTransaction, parseGwei } from "viem";
-import { validatePolicyAction } from "@/server/actions/validatePolicy";
+import { buildSweepPolicy, parseAddress } from "@/lib/deposit";
 
-type AccountsBlock = {
-  walletId: string;
-  walletName: string;
-  accounts: WalletAccount[];
+const DA_PUBLIC_KEY = process.env.NEXT_PUBLIC_DA_PUBLIC_KEY?.trim() ?? "";
+const TREASURY = parseAddress(process.env.NEXT_PUBLIC_TREASURY_ADDRESS);
+
+// The fields of the sub-organization this page reads.
+type OrgUser = {
+  userId: string;
+  userName: string;
+  apiKeys: { credential: { publicKey: string } }[];
+};
+type OrgPolicy = {
+  policyId: string;
+  policyName: string;
+  effect: string;
+  consensus: string;
+  condition: string;
+};
+type OrgState = {
+  users: OrgUser[];
+  rootUserIds: string[];
+  policies: OrgPolicy[];
 };
 
-// Build a raw unsigned legacy Ethereum tx
-function buildUnsignedLegacyRaw({
-  chainId = 1,
-  nonce = 0,
-  gas = BigInt(21000),
-  gasPriceGwei = 1,
-  to,
-  value = BigInt(0),
-}: {
-  chainId?: number;
-  nonce?: number;
-  gas?: bigint;
-  gasPriceGwei?: number;
-  to: `0x${string}` | string;
-  value?: bigint;
-}) {
-  const tx = {
-    chainId,
-    nonce,
-    to: to as `0x${string}`,
-    gas,
-    gasPrice: parseGwei(String(gasPriceGwei)),
-    value,
-    data: "0x" as `0x${string}`,
-    type: "legacy" as const,
-  };
-
-  return serializeTransaction(tx);
+function errorMessage(e: unknown, fallback: string) {
+  return e instanceof Error ? e.message : fallback;
 }
 
 export default function Dashboard() {
@@ -55,50 +39,17 @@ export default function Dashboard() {
     user,
     session,
     logout,
-    fetchOrCreateP256ApiKeyUser,
-    fetchOrCreatePolicies,
     wallets,
     httpClient,
+    fetchOrCreateP256ApiKeyUser,
+    fetchOrCreatePolicies,
   } = useTurnkey();
-
   const router = useRouter();
 
-  const [daUser, setDaUser] = useState<any | null>(null);
-
-  // Public key input (default to .env)
-  const [daPublicKey, setDaPublicKey] = useState<string>(
-    process.env.NEXT_PUBLIC_DA_PUBLIC_KEY || "",
-  );
-  const [publicKeyErr, setPublicKeyErr] = useState<string | null>(null);
-
-  // Policy state — prefill recipient from .env
-  const [recipientAddress, setRecipientAddress] = useState<string>(
-    process.env.NEXT_PUBLIC_RECIPIENT_ADDRESS || "",
-  );
-  const [recipientErr, setRecipientErr] = useState<string | null>(null);
-  const [policyJson, setPolicyJson] = useState<string>("[]");
-  const [policyResult, setPolicyResult] = useState<any | null>(null);
-  const [policyError, setPolicyError] = useState<string | null>(null);
-  const [submittingPolicy, setSubmittingPolicy] = useState(false);
-
-  // Validation demo state (recipients -> unsigned raw hex)
-  const [signWithAddress, setSignWithAddress] = useState<string>("");
-  const [toAllowed, setToAllowed] = useState<string>(recipientAddress);
-  const [toDenied, setToDenied] = useState<string>("");
-
-  const [unsignedAllowHex, setUnsignedAllowHex] = useState<string>("");
-  const [unsignedDenyHex, setUnsignedDenyHex] = useState<string>("");
-
-  const [valResult, setValResult] = useState<any | null>(null);
-  const [valLoading, setValLoading] = useState(false);
-  const [valError, setValError] = useState<string | null>(null);
-
-  // Live Sub-Org State
-  const [orgUsers, setOrgUsers] = useState<any[] | null>(null);
-  const [orgPolicies, setOrgPolicies] = useState<any[] | null>(null);
-  const [orgRootQuorum, setOrgRootQuorum] = useState<any | null>(null);
-  const [orgMetaLoading, setOrgMetaLoading] = useState(false);
-  const [orgMetaError, setOrgMetaError] = useState<string | null>(null);
+  const [org, setOrg] = useState<OrgState | null>(null);
+  const [orgError, setOrgError] = useState<string | null>(null);
+  const [enabling, setEnabling] = useState(false);
+  const [enableError, setEnableError] = useState<string | null>(null);
 
   useEffect(() => {
     if (authState === AuthState.Unauthenticated) {
@@ -106,224 +57,119 @@ export default function Dashboard() {
     }
   }, [authState, router]);
 
-  // Wallet accounts
-  const accountsData = useMemo(() => {
-    const list = (wallets ?? []).filter(
-      (w: Wallet) => w.source === WalletSource.Embedded,
-    );
-    return list.map((w: Wallet) => ({
-      walletId: w.walletId,
-      walletName: w.walletName,
-      accounts: (w as any).accounts ?? [],
-    })) as AccountsBlock[];
+  // The deposit address is the first Ethereum account of the embedded wallet
+  // created at sign-up.
+  const depositAddress = useMemo(() => {
+    for (const wallet of wallets ?? []) {
+      if (wallet.source !== WalletSource.Embedded) continue;
+      const account = wallet.accounts.find(
+        (a) => a.addressFormat === "ADDRESS_FORMAT_ETHEREUM",
+      );
+      const address = parseAddress(account?.address);
+      if (address) return address;
+    }
+    return null;
   }, [wallets]);
 
-  // Auto-pick first embedded EVM account address for `signWith`
-  const firstEmbeddedAddress = useMemo(() => {
-    const a = accountsData?.[0]?.accounts?.[0];
-    return (a as any)?.address || "";
-  }, [accountsData]);
+  const subOrgId = session?.organizationId;
+
+  const loadOrg = useCallback(async () => {
+    if (!httpClient || !subOrgId) return;
+    try {
+      setOrgError(null);
+      const [usersRes, policiesRes, configsRes] = await Promise.all([
+        httpClient.getUsers({ organizationId: subOrgId }),
+        httpClient.getPolicies({ organizationId: subOrgId }),
+        httpClient.getOrganizationConfigs({ organizationId: subOrgId }),
+      ]);
+      setOrg({
+        users: usersRes.users,
+        rootUserIds: configsRes.configs.quorum?.userIds ?? [],
+        policies: policiesRes.policies,
+      });
+    } catch (e) {
+      setOrgError(errorMessage(e, "Failed to load sub-organization."));
+    }
+  }, [httpClient, subOrgId]);
 
   useEffect(() => {
-    if (!signWithAddress && firstEmbeddedAddress) {
-      setSignWithAddress(firstEmbeddedAddress);
-    }
-  }, [firstEmbeddedAddress, signWithAddress]);
+    if (authState === AuthState.Authenticated) void loadOrg();
+  }, [authState, loadOrg]);
 
-  const isEthAddress = (addr: string) =>
-    /^0x[a-fA-F0-9]{40}$/.test(addr.trim());
+  // Derive "enabled" from the sub-org itself, so a page reload or a second
+  // device shows the same state without any app-side storage.
+  const delegatedUser = useMemo(
+    () =>
+      org?.users.find((u) =>
+        u.apiKeys.some((k) => k.credential.publicKey === DA_PUBLIC_KEY),
+      ) ?? null,
+    [org],
+  );
 
-  const isHexCompressedPubKey = (key: string) =>
-    /^[0-9a-fA-F]{66}$/.test(key.trim());
+  const sweepPolicy = useMemo(() => {
+    if (!delegatedUser || !TREASURY || !org) return null;
+    const expected = buildSweepPolicy(delegatedUser.userId, TREASURY);
+    return (
+      org.policies.find(
+        (p) =>
+          p.condition === expected.condition &&
+          p.consensus === expected.consensus,
+      ) ?? null
+    );
+  }, [delegatedUser, org]);
 
-  // Delegated Access setup
-  const handleDaSetup = async () => {
-    if (!isHexCompressedPubKey(daPublicKey)) {
-      setPublicKeyErr(
-        "Public key must be a 66-hex-character compressed key (no 0x prefix).",
-      );
-      return;
-    }
-    setPublicKeyErr(null);
+  const enabled = Boolean(delegatedUser && sweepPolicy);
 
+  const handleEnable = async () => {
+    setEnableError(null);
+    setEnabling(true);
     try {
-      const res = await fetchOrCreateP256ApiKeyUser({
-        publicKey: daPublicKey,
+      if (!DA_PUBLIC_KEY) {
+        throw new Error("NEXT_PUBLIC_DA_PUBLIC_KEY is not set.");
+      }
+      if (!TREASURY) {
+        throw new Error("NEXT_PUBLIC_TREASURY_ADDRESS is missing or invalid.");
+      }
+      if (!depositAddress) {
+        throw new Error("No embedded Ethereum account found for this user.");
+      }
+
+      // Both calls are stamped by the user's session, and both are idempotent.
+      // `createUsers` never adds a user to the root quorum, so the delegated
+      // user is non-root from the moment it exists.
+      const daUser = await fetchOrCreateP256ApiKeyUser({
+        publicKey: DA_PUBLIC_KEY,
         createParams: {
-          userName: "Delegated Access",
-          apiKeyName: "Delegated User API Key",
+          userName: "Deposit sweeper",
+          apiKeyName: "Deposit sweeper key",
         },
       });
-      setDaUser(res);
-    } catch (err) {
-      console.error("Error setting up DA user:", err);
-      setDaUser({ error: "Failed to set up DA user." });
-    }
-  };
+      await fetchOrCreatePolicies({
+        policies: [buildSweepPolicy(daUser.userId, TREASURY)],
+      });
 
-  // Build policy JSON from current DA user + recipient address
-  const handleBuildPolicyTemplate = () => {
-    if (!daUser?.userId) {
-      setPolicyError("Set up the Delegated Access user first.");
-      return;
-    }
-    if (!isEthAddress(recipientAddress)) {
-      setRecipientErr("Enter a valid 0x-prefixed, 40-hex Ethereum address.");
-      return;
-    }
-    setRecipientErr(null);
-    setPolicyError(null);
-
-    const template = [
-      {
-        policyName: `Allow user ${daUser.userId} to sign only to ${recipientAddress}`,
-        effect: "EFFECT_ALLOW",
-        consensus: `approvers.any(user, user.id == '${daUser.userId}')`,
-        condition: `eth.tx.to == '${recipientAddress}'`,
-        notes:
-          "Allow Delegated Access user to sign Ethereum transactions only to the specified recipient",
-      },
-    ];
-    setPolicyJson(JSON.stringify(template, null, 2));
-  };
-
-  // Keep in sync setToAllowed if recipientAddress changes manually
-  useEffect(() => {
-    if (recipientAddress) {
-      setToAllowed(recipientAddress);
-    }
-  }, [recipientAddress]);
-
-  const handleSubmitPolicies = async () => {
-    setPolicyError(null);
-    setPolicyResult(null);
-    setSubmittingPolicy(true);
-    try {
-      const parsed = JSON.parse(policyJson);
-      if (!Array.isArray(parsed)) {
-        throw new Error("JSON must be an array of policy objects.");
-      }
-      const res = await fetchOrCreatePolicies({ policies: parsed });
-      setPolicyResult(res);
-    } catch (e: any) {
-      setPolicyError(e?.message || "Failed to submit policies.");
+      await loadOrg();
+    } catch (e) {
+      setEnableError(errorMessage(e, "Failed to enable the deposit address."));
     } finally {
-      setSubmittingPolicy(false);
+      setEnabling(false);
     }
   };
-
-  // Generate raw unsigned hex whenever the "to" fields change
-  useEffect(() => {
-    if (isEthAddress(toAllowed)) {
-      setUnsignedAllowHex(
-        buildUnsignedLegacyRaw({
-          to: toAllowed.trim(),
-          chainId: 1,
-          nonce: 0,
-          gas: BigInt(21000),
-          gasPriceGwei: 1,
-          value: BigInt(0),
-        }),
-      );
-    } else {
-      setUnsignedAllowHex("");
-    }
-  }, [toAllowed]);
-
-  useEffect(() => {
-    if (isEthAddress(toDenied)) {
-      setUnsignedDenyHex(
-        buildUnsignedLegacyRaw({
-          to: toDenied.trim(),
-          chainId: 1,
-          nonce: 0,
-          gas: BigInt(21000),
-          gasPriceGwei: 1,
-          value: BigInt(0),
-        }),
-      );
-    } else {
-      setUnsignedDenyHex("");
-    }
-  }, [toDenied]);
-
-  // Run the policy validation
-  async function runValidationDemo() {
-    setValLoading(true);
-    setValError(null);
-    setValResult(null);
-    try {
-      const subOrgId = session?.organizationId!;
-      if (!isEthAddress(signWithAddress)) {
-        throw new Error(
-          "The signer address must be a valid 0x-prefixed, 40-hex Ethereum address.",
-        );
-      }
-      if (!unsignedAllowHex || !unsignedDenyHex) {
-        throw new Error(
-          "Fill both Tx To fields with valid 0x addresses to generate raw unsigned tx.",
-        );
-      }
-
-      const res = await validatePolicyAction(subOrgId, signWithAddress, [
-        { label: "Policy Tx Allowed", unsignedTx: unsignedAllowHex },
-        { label: "Policy Tx Denied", unsignedTx: unsignedDenyHex },
-      ]);
-      setValResult(res);
-    } catch (e: any) {
-      setValError(e?.message || "Validation failed");
-    } finally {
-      setValLoading(false);
-    }
-  }
-
-  // Load users, rootQuorum and policies via httpClient
-  useEffect(() => {
-    const loadOrgMeta = async () => {
-      if (authState !== AuthState.Authenticated) return;
-      if (!session?.organizationId) return;
-      if (!httpClient) return;
-
-      try {
-        setOrgMetaLoading(true);
-        setOrgMetaError(null);
-
-        const orgId = session.organizationId;
-
-        // Fetch in parallel
-        const [usersRes, policiesRes, configsRes] = await Promise.all([
-          httpClient.getUsers({ organizationId: orgId }),
-          httpClient.getPolicies({ organizationId: orgId }),
-          httpClient.getOrganizationConfigs({ organizationId: orgId }),
-        ]);
-
-        // Users
-        setOrgUsers((usersRes as any)?.users ?? []);
-
-        // Policies
-        setOrgPolicies((policiesRes as any)?.policies ?? []);
-
-        // Root quorum (in configs -> quorum)
-        const quorum = (configsRes as any)?.configs?.quorum ?? null;
-
-        setOrgRootQuorum(quorum);
-      } catch (e: any) {
-        setOrgMetaError(e?.message ?? "Failed to load sub-organization data.");
-      } finally {
-        setOrgMetaLoading(false);
-      }
-    };
-
-    loadOrgMeta();
-  }, [authState, session?.organizationId, httpClient, daUser, policyResult]);
 
   if (authState !== AuthState.Authenticated) {
-    return <p>Loading...</p>;
+    return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   }
+
+  const rootIsUserOnly =
+    !!org &&
+    !!user &&
+    org.rootUserIds.length === 1 &&
+    org.rootUserIds[0] === user.userId;
+  const delegatedIsNonRoot =
+    !!delegatedUser && !org?.rootUserIds.includes(delegatedUser.userId);
 
   return (
     <main className="relative min-h-screen p-4 sm:p-6">
-      {/* Logout button */}
       <button
         type="button"
         onClick={async () => {
@@ -335,388 +181,136 @@ export default function Dashboard() {
         Log out
       </button>
 
-      <div className="mt-12 mx-auto max-w-screen-xl xl:max-w-screen-2xl 2xl:max-w-[1600px] px-2 sm:px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 xl:gap-6">
-          {/* LEFT: Setup Panel + Policy Validation */}
+      <div className="mt-12 mx-auto max-w-screen-xl px-2 sm:px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
+          {/* LEFT: deposit address */}
           <div className="lg:col-span-5 space-y-4 lg:space-y-5">
-            {/* Setup Panel */}
             <section className="rounded-xl border border-gray-200 bg-white p-4 lg:p-5 shadow-sm">
-              <h2 className="text-xs sm:text-sm lg:text-base font-semibold text-gray-700 mb-2 lg:mb-3">
-                Setup Panel
+              <h2 className="text-sm lg:text-base font-semibold text-gray-700 mb-3">
+                Deposit address
               </h2>
 
-              {/* Delegated Access User */}
-              <div className="flex flex-col gap-3">
-                <h3 className="text-sm lg:text-base font-medium">
-                  Delegated Access User
-                </h3>
-                <div className="flex flex-col gap-2 max-w-xl">
-                  <label className="text-xs sm:text-sm font-medium">
-                    Add the Delegated Access P256 public key
-                  </label>
-                  <input
-                    type="text"
-                    value={daPublicKey}
-                    onChange={(e) => setDaPublicKey(e.target.value)}
-                    placeholder="Compressed P-256 public key (no 0x), 66 hex chars"
-                    className="w-full p-2 lg:p-2.5 border rounded font-mono text-[11px] lg:text-xs"
-                    spellCheck={false}
-                  />
-                  {publicKeyErr && (
-                    <div className="text-xs text-red-600">{publicKeyErr}</div>
-                  )}
-                </div>
-
-                <div>
-                  <button
-                    type="button"
-                    onClick={handleDaSetup}
-                    className="rounded bg-blue-600 px-3 py-1.5 lg:px-4 lg:py-2 text-white text-xs lg:text-sm hover:bg-blue-700"
-                  >
-                    Setup User
-                  </button>
-                </div>
-
-                {daUser && (
-                  <div className="p-3 border rounded bg-gray-50 text-left overflow-x-auto">
-                    <h4 className="font-semibold mb-2 text-xs lg:text-sm">
-                      User Response:
-                    </h4>
-                    <pre
-                      className="font-mono"
-                      style={{ fontSize: "var(--mono-size)", lineHeight: 1.35 }}
+              {!enabled && (
+                <div className="flex flex-col gap-3">
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    Enabling adds a non-root API key user to your
+                    sub-organization and one policy that lets it send ETH and
+                    USDC only to the treasury{" "}
+                    <span className="font-mono break-all">{TREASURY}</span>. You
+                    stay the only root user.
+                  </p>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={handleEnable}
+                      disabled={enabling}
+                      className="rounded bg-blue-600 px-4 py-2 text-white text-sm hover:bg-blue-700 disabled:opacity-50"
                     >
-                      {JSON.stringify(daUser, null, 2)}
-                    </pre>
+                      {enabling ? "Enabling…" : "Enable deposit address"}
+                    </button>
                   </div>
-                )}
-              </div>
-
-              {/* Policy: recipient input -> build template -> submit */}
-              <div className="flex flex-col gap-3 mt-5">
-                <h3 className="text-sm lg:text-base font-medium">
-                  Delegated Access User Policy
-                </h3>
-
-                <div className="flex flex-col gap-2 max-w-xl">
-                  <label className="text-xs sm:text-sm font-medium">
-                    Add the Ethereum recipient address
-                  </label>
-                  <input
-                    type="text"
-                    value={recipientAddress}
-                    onChange={(e) => setRecipientAddress(e.target.value)}
-                    placeholder="0xabc123…"
-                    className="w-full p-2 lg:p-2.5 border rounded font-mono text-[11px] lg:text-xs"
-                    spellCheck={false}
-                  />
-                  {recipientErr && (
-                    <div className="text-xs text-red-600">{recipientErr}</div>
-                  )}
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={handleBuildPolicyTemplate}
-                    className="rounded bg-slate-600 px-3 py-1.5 lg:px-4 lg:py-2 text-white text-xs lg:text-sm hover:bg-slate-700"
-                  >
-                    Build Policy Template
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSubmitPolicies}
-                    disabled={submittingPolicy}
-                    className="rounded bg-indigo-600 px-3 py-1.5 lg:px-4 lg:py-2 text-white text-xs lg:text-sm hover:bg-indigo-700 disabled:opacity-50"
-                  >
-                    {submittingPolicy ? "Submitting…" : "Submit Policy"}
-                  </button>
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium mb-2">
-                    Policies JSON
-                  </label>
-                  <div className="p-0.5 border rounded">
-                    <textarea
-                      value={policyJson}
-                      onChange={(e) => setPolicyJson(e.target.value)}
-                      spellCheck={false}
-                      className="w-full min-h-[220px] max-h-[60vh] p-3 rounded font-mono text-[11px] lg:text-xs"
-                    />
-                  </div>
-                </div>
-
-                {policyError && (
-                  <div className="p-3 border border-red-300 bg-red-50 rounded text-red-700 text-xs">
-                    {policyError}
-                  </div>
-                )}
-                {policyResult && (
-                  <div className="p-3 border rounded bg-gray-50 text-left overflow-x-auto">
-                    <h4 className="font-semibold mb-2 text-xs lg:text-sm">
-                      Policy Result:
-                    </h4>
-                    <pre
-                      className="font-mono"
-                      style={{ fontSize: "var(--mono-size)", lineHeight: 1.35 }}
-                    >
-                      {JSON.stringify(policyResult, null, 2)}
-                    </pre>
-                  </div>
-                )}
-              </div>
-            </section>
-
-            {/* Policy Validation (Demo) */}
-            <section className="rounded-xl border border-gray-200 bg-white p-4 lg:p-5 shadow-sm">
-              <h2 className="text-xs sm:text-sm lg:text-base font-semibold text-gray-700 mb-1">
-                Policy Validation (Demo)
-              </h2>
-              <p className="text-[11px] sm:text-xs text-gray-600 mb-4">
-                Builds two raw unsigned legacy transactions (one to an allowed
-                recipient, one to a denied recipient) and asks Turnkey to sign
-                them with the Delegated Access user—so you can verify your
-                policy logic quickly.
-              </p>
-
-              {/* signWith address */}
-              <div className="flex flex-col gap-2 max-w-xl">
-                <label className="text-xs sm:text-sm font-medium">
-                  Sign With (EVM address)
-                </label>
-                <input
-                  type="text"
-                  value={signWithAddress}
-                  onChange={(e) => setSignWithAddress(e.target.value)}
-                  placeholder="0x… (first embedded account auto-selected)"
-                  className="w-full p-2 lg:p-2.5 border rounded font-mono text-[11px] lg:text-xs"
-                  spellCheck={false}
-                />
-                {!/^0x[a-fA-F0-9]{40}$/.test(signWithAddress.trim()) &&
-                  !!signWithAddress && (
-                    <div className="text-xs text-red-600">
-                      Enter a valid 0x-prefixed, 40-hex Ethereum address.
-                    </div>
-                  )}
-              </div>
-
-              {/* Tx-To fields */}
-              <div className="flex flex-col gap-2 max-w-2xl mt-4">
-                <label className="text-xs sm:text-sm font-medium">
-                  Tx To (Allowed)
-                </label>
-                <input
-                  type="text"
-                  value={toAllowed}
-                  onChange={(e) => setToAllowed(e.target.value)}
-                  placeholder="0x recipient to ALLOW"
-                  className="w-full p-2 lg:p-2.5 border rounded font-mono text-[11px] lg:text-xs"
-                  spellCheck={false}
-                />
-                {!/^0x[a-fA-F0-9]{40}$/.test(toAllowed.trim()) &&
-                  !!toAllowed && (
-                    <div className="text-xs text-red-600">
-                      Enter a valid 0x-prefixed, 40-hex Ethereum address.
-                    </div>
-                  )}
-
-                <label className="text-xs sm:text-sm font-medium mt-4">
-                  Tx To (Denied) - fill in other Ethereum address
-                </label>
-                <input
-                  type="text"
-                  value={toDenied}
-                  onChange={(e) => setToDenied(e.target.value)}
-                  placeholder="0x recipient to DENY"
-                  className="w-full p-2 lg:p-2.5 border rounded font-mono text-[11px] lg:text-xs"
-                  spellCheck={false}
-                />
-                {!/^0x[a-fA-F0-9]{40}$/.test(toDenied.trim()) && !!toDenied && (
-                  <div className="text-xs text-red-600">
-                    Enter a valid 0x-prefixed, 40-hex Ethereum address.
-                  </div>
-                )}
-
-                {unsignedAllowHex && (
-                  <div className="p-3 border rounded bg-gray-50 overflow-x-auto">
-                    <div className="text-[11px] font-medium mb-1">
-                      Generated Unsigned (Allow — raw RLP)
-                    </div>
-                    <pre
-                      className="font-mono"
-                      style={{ fontSize: "var(--mono-size)", lineHeight: 1.35 }}
-                    >
-                      {unsignedAllowHex}
-                    </pre>
-                  </div>
-                )}
-
-                {unsignedDenyHex && (
-                  <div className="p-3 border rounded bg-gray-50 overflow-x-auto">
-                    <div className="text-[11px] font-medium mb-1">
-                      Generated Unsigned (Deny — raw RLP)
-                    </div>
-                    <pre
-                      className="font-mono"
-                      style={{ fontSize: "var(--mono-size)", lineHeight: 1.35 }}
-                    >
-                      {unsignedDenyHex}
-                    </pre>
-                  </div>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={runValidationDemo}
-                disabled={valLoading}
-                className="mt-4 rounded bg-emerald-600 px-3 py-1.5 lg:px-4 lg:py-2 text-white text-xs lg:text-sm hover:bg-emerald-700 disabled:opacity-50"
-              >
-                {valLoading ? "Validating..." : "Run Validation"}
-              </button>
-
-              {valError && (
-                <div className="mt-3 p-3 border border-red-300 bg-red-50 rounded text-red-700 text-xs">
-                  {valError}
                 </div>
               )}
-              {valResult && (
-                <div className="mt-3 p-3 border rounded bg-gray-50 text-left overflow-x-auto">
-                  <h3 className="font-semibold mb-2 text-xs lg:text-sm">
-                    Validation Result:
-                  </h3>
-                  <pre
-                    className="font-mono"
-                    style={{ fontSize: "var(--mono-size)", lineHeight: 1.35 }}
-                  >
-                    {JSON.stringify(valResult, null, 2)}
-                  </pre>
+
+              {enabled && depositAddress && (
+                <div className="flex flex-col items-start gap-3">
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    Send ETH or USDC on <strong>Base Sepolia</strong> to this
+                    address. Deposits are swept to the treasury automatically.
+                  </p>
+                  <div className="rounded border border-gray-200 bg-white p-3">
+                    <QRCodeSVG value={depositAddress} size={168} />
+                  </div>
+                  <code className="font-mono text-xs break-all">
+                    {depositAddress}
+                  </code>
+                </div>
+              )}
+
+              {enableError && (
+                <div className="mt-3 p-3 border border-red-300 bg-red-50 rounded text-red-700 text-xs">
+                  {enableError}
                 </div>
               )}
             </section>
           </div>
 
-          {/* RIGHT: Live Sub-Org State */}
+          {/* RIGHT: live sub-org state */}
           <div className="lg:col-span-7 space-y-4 lg:space-y-5">
             <section className="rounded-xl border border-gray-200 bg-gray-50/60 p-4 lg:p-5 shadow-sm">
-              <h2 className="text-xs sm:text-sm lg:text-base font-semibold text-gray-700 mb-3 lg:mb-4">
-                Live Sub-Org State
-              </h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm lg:text-base font-semibold text-gray-700">
+                  Live sub-org state
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => void loadOrg()}
+                  className="text-xs text-blue-700 hover:underline"
+                >
+                  Refresh
+                </button>
+              </div>
 
-              <div className="mb-3 text-[11px] sm:text-xs text-gray-700">
+              <div className="mb-3 text-xs text-gray-700 space-y-0.5">
                 <div>
-                  <span className="font-medium">Welcome back,</span>{" "}
-                  {user?.userName}!
+                  <span className="font-medium">Signed in as:</span>{" "}
+                  {user?.userName}
                 </div>
                 <div>
-                  <span className="font-medium">Your sub-organization id:</span>{" "}
-                  <span className="font-mono">
-                    {session?.organizationId ?? "Not found"}
-                  </span>
+                  <span className="font-medium">Sub-organization:</span>{" "}
+                  <span className="font-mono">{subOrgId ?? "Not found"}</span>
                 </div>
               </div>
 
-              {/* Users */}
-              <section className="flex flex-col gap-2 mb-4">
-                <h3 className="font-semibold text-gray-900 text-sm lg:text-base">
-                  Users
-                </h3>
-                <div className="p-3 border rounded bg-white border-gray-200 shadow-sm text-left overflow-x-auto">
-                  {orgMetaLoading ? (
-                    <div className="text-xs text-gray-600">Loading users…</div>
-                  ) : orgMetaError ? (
-                    <div className="text-xs text-red-600">{orgMetaError}</div>
-                  ) : (
-                    <pre
-                      className="font-mono"
-                      style={{
-                        fontSize: "var(--mono-size)",
-                        lineHeight: 1.35,
-                        minWidth: "60ch",
-                      }}
-                    >
-                      {JSON.stringify(orgUsers ?? [], null, 2)}
-                    </pre>
-                  )}
-                </div>
-              </section>
+              {orgError && (
+                <div className="mb-3 text-xs text-red-600">{orgError}</div>
+              )}
 
-              {/* Root Quorum */}
-              <section className="flex flex-col gap-2 mb-4">
-                <h3 className="font-semibold text-gray-900 text-sm lg:text-base">
-                  Root Quorum
-                </h3>
-                <div className="p-3 border rounded bg-white border-gray-200 shadow-sm text-left overflow-x-auto">
-                  {orgMetaLoading ? (
-                    <div className="text-xs text-gray-600">Loading quorum…</div>
-                  ) : orgMetaError ? (
-                    <div className="text-xs text-red-600">{orgMetaError}</div>
-                  ) : (
-                    <pre
-                      className="font-mono"
-                      style={{
-                        fontSize: "var(--mono-size)",
-                        lineHeight: 1.35,
-                        minWidth: "60ch",
-                      }}
-                    >
-                      {JSON.stringify(orgRootQuorum ?? {}, null, 2)}
-                    </pre>
-                  )}
-                </div>
-              </section>
+              {org && (
+                <>
+                  <ul className="mb-4 text-xs space-y-1">
+                    <Check ok={rootIsUserOnly}>Root quorum is you alone</Check>
+                    <Check ok={delegatedIsNonRoot}>
+                      Delegated user exists and is not root
+                    </Check>
+                    <Check ok={org.policies.length === 1 && !!sweepPolicy}>
+                      Exactly one policy, scoped to the treasury
+                    </Check>
+                  </ul>
 
-              {/* Policies */}
-              <section className="flex flex-col gap-2 mb-4">
-                <h3 className="font-semibold text-gray-900 text-sm lg:text-base">
-                  Policies
-                </h3>
-                <div className="p-3 border rounded bg-white border-gray-200 shadow-sm text-left overflow-x-auto">
-                  {orgMetaLoading ? (
-                    <div className="text-xs text-gray-600">
-                      Loading policies…
-                    </div>
-                  ) : orgMetaError ? (
-                    <div className="text-xs text-red-600">{orgMetaError}</div>
-                  ) : (
-                    <pre
-                      className="font-mono"
-                      style={{
-                        fontSize: "var(--mono-size)",
-                        lineHeight: 1.35,
-                        minWidth: "60ch",
-                      }}
-                    >
-                      {JSON.stringify(orgPolicies ?? [], null, 2)}
-                    </pre>
-                  )}
-                </div>
-              </section>
-
-              {/* Wallet Accounts */}
-              <section className="flex flex-col gap-2">
-                <h3 className="font-semibold text-gray-900 text-sm lg:text-base">
-                  Wallet Accounts
-                </h3>
-                <div className="p-3 border rounded bg-white border-gray-200 shadow-sm text-left overflow-x-auto">
-                  <pre
-                    className="font-mono"
-                    style={{
-                      fontSize: "var(--mono-size)",
-                      lineHeight: 1.35,
-                      minWidth: "60ch",
-                    }}
-                  >
-                    {JSON.stringify(accountsData ?? [], null, 2)}
-                  </pre>
-                </div>
-              </section>
+                  <RawJson title="Users" value={org.users} />
+                  <RawJson
+                    title="Root quorum user IDs"
+                    value={org.rootUserIds}
+                  />
+                  <RawJson title="Policies" value={org.policies} />
+                </>
+              )}
             </section>
           </div>
         </div>
       </div>
     </main>
+  );
+}
+
+function Check({ ok, children }: { ok: boolean; children: React.ReactNode }) {
+  return (
+    <li className={ok ? "text-emerald-700" : "text-gray-500"}>
+      {ok ? "✓" : "○"} {children}
+    </li>
+  );
+}
+
+function RawJson({ title, value }: { title: string; value: unknown }) {
+  return (
+    <details className="mb-2">
+      <summary className="cursor-pointer text-sm font-semibold text-gray-900">
+        {title}
+      </summary>
+      <pre className="mt-2 p-3 border rounded bg-white border-gray-200 overflow-x-auto font-mono text-[11px] leading-snug">
+        {JSON.stringify(value, null, 2)}
+      </pre>
+    </details>
   );
 }

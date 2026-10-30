@@ -4566,6 +4566,9 @@ importers:
       next:
         specifier: 15.5.27
         version: 15.5.27(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.56.1)(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      qrcode.react:
+        specifier: 4.2.0
+        version: 4.2.0(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -44462,6 +44465,10 @@ snapshots:
       prop-types: 15.8.1
       qr.js: 0.0.0
       react: 18.3.1
+
+  qrcode.react@4.2.0(react@18.2.0):
+    dependencies:
+      react: 18.2.0
 
   qrcode.react@4.2.0(react@18.3.1):
     dependencies:
