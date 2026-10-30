@@ -21,6 +21,16 @@ export function parseAddress(value: string | undefined): Address | null {
   return isAddress(lower) ? lower : null;
 }
 
+// Classifies a CAIP-19 asset id on Base Sepolia. Tokens are matched by
+// contract address, never by symbol, so a look-alike "USDC" is ignored.
+export function sweepAssetOf(caip19: string): SweepAsset | null {
+  const id = caip19.toLowerCase();
+  if (!id.startsWith(`${BASE_SEPOLIA_CAIP2}/`)) return null;
+  if (id === `${BASE_SEPOLIA_CAIP2}/erc20:${USDC_ADDRESS}`) return "USDC";
+  if (id === `${BASE_SEPOLIA_CAIP2}/slip44:60`) return "ETH";
+  return null;
+}
+
 // The single policy that turns the API key user into a delegated sweeper.
 // It allows exactly two shapes of Ethereum transaction:
 //   1. anything sent to the treasury (native ETH sends)

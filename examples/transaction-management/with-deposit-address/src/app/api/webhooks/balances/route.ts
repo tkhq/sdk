@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { BASE_SEPOLIA_CAIP2 } from "@/lib/deposit";
+import { BASE_SEPOLIA_CAIP2, sweepAssetOf } from "@/lib/deposit";
+import { serverEnv } from "@/server/env";
 import { findDepositAddress } from "@/server/registry";
+import { queueSweep } from "@/server/sweep";
 import {
   firstDelivery,
   parseConfirmedDeposit,
@@ -62,5 +64,22 @@ export async function POST(request: Request) {
       `to ${entry.address} (sub-org ${entry.subOrgId}) tx ${deposit.txHash}`,
   );
 
-  return NextResponse.json({ ok: true });
+  const asset = sweepAssetOf(deposit.caip19);
+  if (!asset) {
+    console.log(`[webhook] ${verified.eventId} ${deposit.caip19} not swept`);
+    return NextResponse.json({ ok: true, ignored: "unsupported asset" });
+  }
+  if (!serverEnv.sweepEnabled) {
+    console.log(`[webhook] ${verified.eventId} SWEEP_ENABLED=false, left`);
+    return NextResponse.json({ ok: true, ignored: "sweeps paused" });
+  }
+
+  // Runs in the background so Turnkey gets its 2xx right away.
+  queueSweep({
+    eventId: verified.eventId,
+    entry,
+    asset,
+    depositTxHash: deposit.txHash,
+  });
+  return NextResponse.json({ ok: true, sweep: "queued" });
 }
