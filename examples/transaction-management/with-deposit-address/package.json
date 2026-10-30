@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "register-webhook": "tsx scripts/register-webhook.ts"
+    "register-webhook": "NODE_NO_WARNINGS=1 tsx scripts/register-webhook.ts",
+    "validate": "NODE_NO_WARNINGS=1 tsx scripts/validate.ts"
   },
   "dependencies": {
     "@tailwindcss/postcss": "4.1.13",

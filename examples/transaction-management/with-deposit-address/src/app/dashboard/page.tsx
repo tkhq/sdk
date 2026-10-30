@@ -7,6 +7,7 @@ import { useTurnkey, AuthState, WalletSource } from "@turnkey/react-wallet-kit";
 
 import { buildSweepPolicy, parseAddress } from "@/lib/deposit";
 import { SweepHistory } from "./SweepHistory";
+import { WithdrawPanel } from "./WithdrawPanel";
 import {
   registerDepositAddress,
   type RegisterResult,
@@ -273,6 +274,19 @@ export default function Dashboard() {
                   Sweeps to treasury
                 </h2>
                 <SweepHistory address={depositAddress} />
+              </section>
+            )}
+
+            {depositAddress && subOrgId && (
+              <section className="rounded-xl border border-gray-200 bg-white p-4 lg:p-5 shadow-sm">
+                <h2 className="text-sm lg:text-base font-semibold text-gray-700 mb-1">
+                  Withdraw
+                </h2>
+                <p className="text-xs text-gray-600 mb-3">
+                  Signed with your own login. The platform&apos;s key is not
+                  involved and cannot stop it.
+                </p>
+                <WithdrawPanel subOrgId={subOrgId} address={depositAddress} />
               </section>
             )}
           </div>
