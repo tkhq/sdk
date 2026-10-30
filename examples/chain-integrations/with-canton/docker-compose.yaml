@@ -21,9 +21,10 @@ services:
       - ${CANTON_SANDBOX_GRPC_PORT:-6865}:6865
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6864/livez"]
-      interval: 3s
+      interval: 5s
       timeout: 10s
-      retries: 5
+      retries: 24
+      start_period: 90s
 
   # Builds the DAR archive from the daml sources
   build:

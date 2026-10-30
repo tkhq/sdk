@@ -22,6 +22,7 @@ interface MobileWalletConnectScreenProps {
   onConnect: (provider: WalletProvider) => Promise<void>;
   onSign?: ((provider: WalletProvider) => Promise<void>) | undefined;
   onSelectQRCode: (chain?: Chain | undefined) => Promise<void>;
+  closeOnComplete?: boolean;
 }
 export function MobileWalletConnectScreen(
   props: MobileWalletConnectScreenProps,
@@ -32,6 +33,7 @@ export function MobileWalletConnectScreen(
     onSign,
     onSelectQRCode,
     successPageDuration,
+    closeOnComplete = true,
   } = props;
 
   const { pushPage, popPages, closeModal, isMobile } = useModal();
@@ -97,6 +99,7 @@ export function MobileWalletConnectScreen(
 
       try {
         await onConnect(targetProvider);
+        if (!closeOnComplete) return;
         if (onSign) {
           setCanSign(true);
         } else {

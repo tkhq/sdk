@@ -496,38 +496,6 @@
         "tags": ["Earn"]
       }
     },
-    "/public/v1/query/get_fiat_on_ramp_quote": {
-      "post": {
-        "summary": "Get a Fiat On Ramp quote",
-        "description": "Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.",
-        "operationId": "PublicApiService_GetFiatOnRampQuote",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetFiatOnRampQuoteResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetFiatOnRampQuoteRequest"
-            }
-          }
-        ],
-        "tags": ["On Ramp"]
-      }
-    },
     "/public/v1/query/get_gas_usage": {
       "post": {
         "summary": "Get gas usage",
@@ -558,6 +526,38 @@
           }
         ],
         "tags": ["Broadcasting"]
+      }
+    },
+    "/public/v1/query/get_indicative_swap_quote": {
+      "post": {
+        "summary": "Get indicative swap quote",
+        "description": "Preview the provider's current price for a swap without creating an activity. The quote is not binding and has no quote ID: a market swap executed later fetches its own quote, so its price can differ.",
+        "operationId": "PublicApiService_GetIndicativeSwapQuote",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetIndicativeSwapQuoteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetIndicativeSwapQuoteRequest"
+            }
+          }
+        ],
+        "tags": ["Swaps"]
       }
     },
     "/public/v1/query/get_ip_allowlist": {
@@ -1328,6 +1328,38 @@
         "tags": ["TVC"]
       }
     },
+    "/public/v1/query/get_tvc_manifest_generation_info": {
+      "post": {
+        "summary": "Get TVC manifest generation info",
+        "description": "Get default values for creating a QOS manifest. Relevant for client manifest generation.",
+        "operationId": "PublicApiService_GetTvcManifestGenerationInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcManifestGenerationInfoResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcManifestGenerationInfoRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
     "/public/v1/query/get_tvc_qos_versions": {
       "post": {
         "summary": "Get TVC QOS versions",
@@ -1518,6 +1550,38 @@
           }
         ],
         "tags": ["Wallets"]
+      }
+    },
+    "/public/v1/query/get_wallet_authenticators": {
+      "post": {
+        "summary": "Get wallet authenticators",
+        "description": "Get wallet authenticators for a user.",
+        "operationId": "PublicApiService_GetWalletAuthenticators",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletAuthenticatorsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletAuthenticatorsRequest"
+            }
+          }
+        ],
+        "tags": ["Wallet Authenticators"]
       }
     },
     "/public/v1/query/list_activities": {
@@ -1776,6 +1840,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/query/list_fiat_off_ramp_quotes": {
+      "post": {
+        "summary": "List Fiat Off Ramp quotes",
+        "description": "Quote enabled fiat off-ramp providers for a sell. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.",
+        "operationId": "PublicApiService_GetFiatOffRampQuotes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetFiatOffRampQuotesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetFiatOffRampQuotesRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
+      }
+    },
     "/public/v1/query/list_fiat_on_ramp_credentials": {
       "post": {
         "summary": "List Fiat On Ramp credentials",
@@ -1802,6 +1898,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1ListFiatOnRampCredentialsRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
+      }
+    },
+    "/public/v1/query/list_fiat_on_ramp_quotes": {
+      "post": {
+        "summary": "List Fiat On Ramp quotes",
+        "description": "Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.",
+        "operationId": "PublicApiService_GetFiatOnRampQuotes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetFiatOnRampQuotesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetFiatOnRampQuotesRequest"
             }
           }
         ],
@@ -2704,10 +2832,74 @@
         "tags": ["Authenticators"]
       }
     },
+    "/public/v1/submit/create_external_signer": {
+      "post": {
+        "summary": "Create external signer",
+        "description": "Register an external signer with the organization.",
+        "operationId": "PublicApiService_CreateExternalSigner",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateExternalSignerRequest"
+            }
+          }
+        ],
+        "tags": ["External Signers"]
+      }
+    },
+    "/public/v1/submit/create_fiat_off_ramp_session": {
+      "post": {
+        "summary": "Create Fiat Off Ramp Session",
+        "description": "Open a fiat off-ramp session for a saved quote.",
+        "operationId": "PublicApiService_CreateFiatOffRampSession",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateFiatOffRampSessionRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
+      }
+    },
     "/public/v1/submit/create_fiat_on_ramp_credential": {
       "post": {
         "summary": "Create a Fiat On Ramp credential",
-        "description": "Create a fiat on ramp provider credential.",
+        "description": "Deprecated: use CreateFiatRampCredential.",
         "operationId": "PublicApiService_CreateFiatOnRampCredential",
         "responses": {
           "200": {
@@ -2733,7 +2925,8 @@
             }
           }
         ],
-        "tags": ["On Ramp"]
+        "tags": ["On Ramp"],
+        "deprecated": true
       }
     },
     "/public/v1/submit/create_fiat_on_ramp_session": {
@@ -2762,6 +2955,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1CreateFiatOnRampSessionRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
+      }
+    },
+    "/public/v1/submit/create_fiat_ramp_credential": {
+      "post": {
+        "summary": "Create a Fiat Ramp credential",
+        "description": "Create a fiat ramp provider credential.",
+        "operationId": "PublicApiService_CreateFiatRampCredential",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateFiatRampCredentialRequest"
             }
           }
         ],
@@ -3155,7 +3380,7 @@
     "/public/v1/submit/create_sub_organization": {
       "post": {
         "summary": "Create sub-organization",
-        "description": "Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS).",
+        "description": "Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, a wallet authenticator, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS).",
         "operationId": "PublicApiService_CreateSubOrganization",
         "responses": {
           "200": {
@@ -3187,7 +3412,7 @@
     "/public/v1/submit/create_swap_quote": {
       "post": {
         "summary": "Create Swap quote",
-        "description": "Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3.",
+        "description": "Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3, which returns its quotes in createSwapQuoteResultV2.",
         "operationId": "PublicApiService_CreateSwapQuote",
         "responses": {
           "200": {
@@ -3536,6 +3761,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/submit/create_wallet_authenticators": {
+      "post": {
+        "summary": "Create wallet authenticators",
+        "description": "Add wallet authenticators to an existing user. Omit verification_token to attach unverified.",
+        "operationId": "PublicApiService_CreateWalletAuthenticators",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateWalletAuthenticatorsRequest"
+            }
+          }
+        ],
+        "tags": ["Wallet Authenticators"]
+      }
+    },
     "/public/v1/submit/create_webhook_endpoint": {
       "post": {
         "summary": "Create webhook endpoint",
@@ -3630,6 +3887,38 @@
           }
         ],
         "tags": ["Authenticators"]
+      }
+    },
+    "/public/v1/submit/delete_external_signer": {
+      "post": {
+        "summary": "Delete external signer",
+        "description": "Remove an external signer from the organization by its public key.",
+        "operationId": "PublicApiService_DeleteExternalSigner",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteExternalSignerRequest"
+            }
+          }
+        ],
+        "tags": ["External Signers"]
       }
     },
     "/public/v1/submit/delete_fiat_on_ramp_credential": {
@@ -4206,6 +4495,38 @@
           }
         ],
         "tags": ["Wallets"]
+      }
+    },
+    "/public/v1/submit/delete_wallet_authenticators": {
+      "post": {
+        "summary": "Delete wallet authenticators",
+        "description": "Remove wallet authenticators from a user.",
+        "operationId": "PublicApiService_DeleteWalletAuthenticators",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteWalletAuthenticatorsRequest"
+            }
+          }
+        ],
+        "tags": ["Wallet Authenticators"]
       }
     },
     "/public/v1/submit/delete_wallets": {
@@ -4819,7 +5140,7 @@
     "/public/v1/submit/init_fiat_on_ramp": {
       "post": {
         "summary": "Init Fiat On Ramp",
-        "description": "Initiate a fiat on ramp flow.",
+        "description": "Deprecated: use CreateFiatOnRampSession with a quote from GetFiatOnRampQuotes.",
         "operationId": "PublicApiService_InitFiatOnRamp",
         "responses": {
           "200": {
@@ -4845,7 +5166,8 @@
             }
           }
         ],
-        "tags": ["On Ramp"]
+        "tags": ["On Ramp"],
+        "deprecated": true
       }
     },
     "/public/v1/submit/init_import_private_key": {
@@ -5811,7 +6133,7 @@
     "/public/v1/submit/update_fiat_on_ramp_credential": {
       "post": {
         "summary": "Update a Fiat On Ramp credential",
-        "description": "Update a fiat on ramp provider credential.",
+        "description": "Deprecated: use UpdateFiatRampCredential.",
         "operationId": "PublicApiService_UpdateFiatOnRampCredential",
         "responses": {
           "200": {
@@ -5834,6 +6156,39 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1UpdateFiatOnRampCredentialRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"],
+        "deprecated": true
+      }
+    },
+    "/public/v1/submit/update_fiat_ramp_credential": {
+      "post": {
+        "summary": "Update a Fiat Ramp credential",
+        "description": "Update a fiat ramp provider credential.",
+        "operationId": "PublicApiService_UpdateFiatRampCredential",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateFiatRampCredentialRequest"
             }
           }
         ],
@@ -6378,6 +6733,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1VerifyOtpRequest"
+            }
+          }
+        ],
+        "tags": ["User Verification"]
+      }
+    },
+    "/public/v1/submit/verify_wallet_authenticator": {
+      "post": {
+        "summary": "Verify wallet authenticator",
+        "description": "Verify a SIWE or SIWS login and return an enclave-signed wallet verification token.",
+        "operationId": "PublicApiService_VerifyWalletAuthenticator",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1VerifyWalletAuthenticatorRequest"
             }
           }
         ],
@@ -7205,9 +7592,21 @@
         "ACTIVITY_TYPE_DELETE_SECRETS",
         "ACTIVITY_TYPE_EARN_CLAIM_REWARDS",
         "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3",
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V9",
+        "ACTIVITY_TYPE_VERIFY_WALLET_AUTHENTICATOR",
         "ACTIVITY_TYPE_UPSERT_SWAP_FEE_SPONSORSHIP_LIMIT_CONFIG",
         "ACTIVITY_TYPE_UPSERT_SWAP_FIXED_RATE_LIMIT_CONFIG",
-        "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION"
+        "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION",
+        "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION",
+        "ACTIVITY_TYPE_ENABLE_SMS_FOR_COUNTRIES",
+        "ACTIVITY_TYPE_DISABLE_SMS_FOR_COUNTRIES",
+        "ACTIVITY_TYPE_EXECUTE_SWAP_V4",
+        "ACTIVITY_TYPE_CREATE_WALLET_AUTHENTICATORS",
+        "ACTIVITY_TYPE_DELETE_WALLET_AUTHENTICATORS",
+        "ACTIVITY_TYPE_CREATE_FIAT_RAMP_CREDENTIAL",
+        "ACTIVITY_TYPE_UPDATE_FIAT_RAMP_CREDENTIAL",
+        "ACTIVITY_TYPE_CREATE_EXTERNAL_SIGNER_V1",
+        "ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1"
       ]
     },
     "v1AddressFormat": {
@@ -7575,7 +7974,8 @@
         "AUTHENTICATION_TYPE_PASSKEY",
         "AUTHENTICATION_TYPE_API_KEY",
         "AUTHENTICATION_TYPE_OAUTH",
-        "AUTHENTICATION_TYPE_SESSION"
+        "AUTHENTICATION_TYPE_SESSION",
+        "AUTHENTICATION_TYPE_WALLET"
       ]
     },
     "v1Authenticator": {
@@ -7704,7 +8104,8 @@
         "AUTHENTICATOR_TRANSPORT_INTERNAL",
         "AUTHENTICATOR_TRANSPORT_NFC",
         "AUTHENTICATOR_TRANSPORT_USB",
-        "AUTHENTICATOR_TRANSPORT_HYBRID"
+        "AUTHENTICATOR_TRANSPORT_HYBRID",
+        "AUTHENTICATOR_TRANSPORT_SMART_CARD"
       ]
     },
     "v1BootProof": {
@@ -8085,6 +8486,107 @@
       },
       "required": ["authenticatorIds"]
     },
+    "v1CreateExternalSignerIntentV1": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the external signer. Must be between 1 and 256 characters."
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Hex-encoded public key of the external signer."
+        }
+      },
+      "required": ["name", "publicKey"]
+    },
+    "v1CreateExternalSignerRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_EXTERNAL_SIGNER_V1"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateExternalSignerIntentV1"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateExternalSignerResultV1": {
+      "type": "object",
+      "properties": {
+        "publicKey": {
+          "type": "string",
+          "description": "Hex-encoded public key of the created external signer."
+        }
+      },
+      "required": ["publicKey"]
+    },
+    "v1CreateFiatOffRampSessionIntent": {
+      "type": "object",
+      "properties": {
+        "quoteId": {
+          "type": "string",
+          "description": "Identifier of a saved fiat off-ramp quote. Returned by GetFiatOffRampQuotes."
+        },
+        "walletAddress": {
+          "type": "string",
+          "description": "Wallet address for this sale. Coinbase uses it as the source address. MoonPay uses it as the refund address; the user deposits the crypto to MoonPay separately."
+        },
+        "redirectUrl": {
+          "type": "string",
+          "description": "URL the provider redirects to after the user submits the sell. Required when the saved quote is from Coinbase. When set for MoonPay, it is included in the signed sell URL so MoonPay can append the deposit address."
+        }
+      },
+      "required": ["quoteId", "walletAddress"]
+    },
+    "v1CreateFiatOffRampSessionRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateFiatOffRampSessionIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateFiatOffRampSessionResult": {
+      "type": "object",
+      "properties": {
+        "offRampUrl": {
+          "type": "string",
+          "description": "URL of the fiat off-ramp session for the saved quote."
+        },
+        "offRampTransactionId": {
+          "type": "string",
+          "description": "Unique identifier used to retrieve transaction statuses for a given fiat off-ramp flow."
+        }
+      },
+      "required": ["offRampUrl", "offRampTransactionId"]
+    },
     "v1CreateFiatOnRampCredentialIntent": {
       "type": "object",
       "properties": {
@@ -8158,7 +8660,7 @@
       "properties": {
         "quoteId": {
           "type": "string",
-          "description": "Identifier of a saved fiat on-ramp quote. Returned by GetFiatOnRampQuote."
+          "description": "Identifier of a saved fiat on-ramp quote. Returned by GetFiatOnRampQuotes."
         },
         "walletAddress": {
           "type": "string",
@@ -8204,6 +8706,62 @@
         }
       },
       "required": ["onRampUrl", "onRampTransactionId"]
+    },
+    "v1CreateFiatRampCredentialIntent": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "$ref": "#/definitions/v1FiatRampProvider",
+          "description": "The fiat ramp provider"
+        },
+        "apiKey": {
+          "type": "string",
+          "description": "Non-secret half of the provider credential. MoonPay: publishable key (pk_test_ or pk_live_). Coinbase: CDP API key ID"
+        },
+        "encryptedSecret": {
+          "type": "string",
+          "description": "Secret half of the provider credential, encrypted to our on-ramp encryption public key. MoonPay: secret key (sk_test_ or sk_live_). Coinbase: Ed25519 private key"
+        },
+        "sandboxMode": {
+          "type": "boolean",
+          "description": "If the credential is a sandbox credential"
+        }
+      },
+      "required": ["provider", "apiKey", "encryptedSecret"]
+    },
+    "v1CreateFiatRampCredentialRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_FIAT_RAMP_CREDENTIAL"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateFiatRampCredentialIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateFiatRampCredentialResult": {
+      "type": "object",
+      "properties": {
+        "credentialId": {
+          "type": "string",
+          "description": "Unique identifier of the fiat ramp credential that was created"
+        }
+      },
+      "required": ["credentialId"]
     },
     "v1CreateInvitationsIntent": {
       "type": "object",
@@ -8770,7 +9328,11 @@
         },
         "externalSignerPubkey": {
           "type": "string",
-          "description": "The public key of the external signer to use for creating the private keys."
+          "description": "The public key of the external signer to use for creating the private keys. Only needed for external signer requests."
+        },
+        "externalSignerWrappingKeyId": {
+          "type": "string",
+          "description": "The object ID of the wrapping key the external signer will use when creating the private keys. Only needed for external signer requests."
         }
       },
       "required": ["privateKeys"]
@@ -9434,6 +9996,57 @@
       },
       "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
     },
+    "v1CreateSubOrganizationIntentV9": {
+      "type": "object",
+      "properties": {
+        "subOrganizationName": {
+          "type": "string",
+          "description": "Name for this sub-organization"
+        },
+        "rootUsers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RootUserParamsV6"
+          },
+          "description": "Root users to create within this sub-organization"
+        },
+        "rootQuorumThreshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users"
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletParams",
+          "description": "The wallet to create for the sub-organization"
+        },
+        "disableEmailRecovery": {
+          "type": "boolean",
+          "description": "Disable email recovery for the sub-organization"
+        },
+        "disableEmailAuth": {
+          "type": "boolean",
+          "description": "Disable email auth for the sub-organization"
+        },
+        "disableSmsAuth": {
+          "type": "boolean",
+          "description": "Disable OTP SMS auth for the sub-organization"
+        },
+        "disableOtpEmailAuth": {
+          "type": "boolean",
+          "description": "Disable OTP email auth for the sub-organization"
+        },
+        "verificationToken": {
+          "type": "string",
+          "description": "Signed JWT containing a unique id, expiry, verification type, contact"
+        },
+        "clientSignature": {
+          "$ref": "#/definitions/v1ClientSignature",
+          "description": "Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step."
+        }
+      },
+      "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
+    },
     "v1CreateSubOrganizationRequest": {
       "type": "object",
       "properties": {
@@ -9569,6 +10182,24 @@
       "required": ["subOrganizationId"]
     },
     "v1CreateSubOrganizationResultV8": {
+      "type": "object",
+      "properties": {
+        "subOrganizationId": {
+          "type": "string"
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletResult"
+        },
+        "rootUserIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["subOrganizationId"]
+    },
+    "v1CreateSubOrganizationResultV9": {
       "type": "object",
       "properties": {
         "subOrganizationId": {
@@ -9766,6 +10397,10 @@
         "enableDebugModeDeployments": {
           "type": "boolean",
           "description": "When true, this app may create deployments in debug-mode. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. Cannot be changed after app creation. Setting this true means the app's quorum key is considered permanently insecure, and a new app with a fresh quorum key must be created. Default if not provided: false."
+        },
+        "region": {
+          "type": "string",
+          "description": "AWS region in which to place this TVC application. Allowed values: us-east-1, ap-southeast-1. Default if not provided: us-east-1."
         }
       },
       "required": ["name", "quorumPublicKey"]
@@ -9912,6 +10547,11 @@
           "type": "integer",
           "format": "int64",
           "description": "Optional desired instance memory size in GiB."
+        },
+        "qosManifest": {
+          "type": "string",
+          "format": "byte",
+          "description": "Optional client-generated QOS manifest."
         }
       },
       "required": [
@@ -10414,6 +11054,61 @@
       },
       "required": ["addresses"]
     },
+    "v1CreateWalletAuthenticatorsIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User to add wallet authenticators to."
+        },
+        "walletAuthenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WalletAuthenticatorParams"
+          },
+          "description": "Wallet authenticators to add. Each entry is a type, address, and domain. verification_token is optional."
+        }
+      },
+      "required": ["userId", "walletAuthenticators"]
+    },
+    "v1CreateWalletAuthenticatorsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_WALLET_AUTHENTICATORS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateWalletAuthenticatorsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateWalletAuthenticatorsResult": {
+      "type": "object",
+      "properties": {
+        "walletAuthenticatorIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of the wallet authenticators created."
+        }
+      },
+      "required": ["walletAuthenticatorIds"]
+    },
     "v1CreateWalletIntent": {
       "type": "object",
       "properties": {
@@ -10686,6 +11381,47 @@
         }
       },
       "required": ["authenticatorIds"]
+    },
+    "v1DeleteExternalSignerIntentV1": {
+      "type": "object",
+      "properties": {
+        "publicKey": {
+          "type": "string",
+          "description": "Hex-encoded public key of the external signer to delete. The external signer must belong to the organization."
+        }
+      },
+      "required": ["publicKey"]
+    },
+    "v1DeleteExternalSignerRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteExternalSignerIntentV1"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteExternalSignerResultV1": {
+      "type": "object",
+      "properties": {
+        "publicKey": {
+          "type": "string",
+          "description": "Hex-encoded public key of the deleted external signer."
+        }
+      },
+      "required": ["publicKey"]
     },
     "v1DeleteFiatOnRampCredentialIntent": {
       "type": "object",
@@ -11576,6 +12312,60 @@
       },
       "required": ["walletAccountIds"]
     },
+    "v1DeleteWalletAuthenticatorsIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User to remove wallet authenticators from."
+        },
+        "walletAuthenticatorIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of the wallet authenticators to delete."
+        }
+      },
+      "required": ["userId", "walletAuthenticatorIds"]
+    },
+    "v1DeleteWalletAuthenticatorsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_WALLET_AUTHENTICATORS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteWalletAuthenticatorsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteWalletAuthenticatorsResult": {
+      "type": "object",
+      "properties": {
+        "walletAuthenticatorIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of the wallet authenticators deleted."
+        }
+      },
+      "required": ["walletAuthenticatorIds"]
+    },
     "v1DeleteWalletsIntent": {
       "type": "object",
       "properties": {
@@ -11733,6 +12523,22 @@
         }
       },
       "required": ["privateKeyId"]
+    },
+    "v1DisableSmsForCountriesIntent": {
+      "type": "object",
+      "properties": {
+        "isoCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "ISO 3166-1 alpha-2 country codes to remove from the SMS allowlist, such as US or CA. Must contain between 1 and 300 codes. This activity only removes countries."
+        }
+      },
+      "required": ["isoCodes"]
+    },
+    "v1DisableSmsForCountriesResult": {
+      "type": "object"
     },
     "v1EarnClaimRewardsIntent": {
       "type": "object",
@@ -12750,6 +13556,22 @@
       },
       "required": ["userId"]
     },
+    "v1EnableSmsForCountriesIntent": {
+      "type": "object",
+      "properties": {
+        "isoCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "ISO 3166-1 alpha-2 country codes to allow for SMS, such as US or CA. Must contain between 1 and 300 codes. This activity only adds countries."
+        }
+      },
+      "required": ["isoCodes"]
+    },
+    "v1EnableSmsForCountriesResult": {
+      "type": "object"
+    },
     "v1EthCallParams": {
       "type": "object",
       "properties": {
@@ -13195,6 +14017,24 @@
       },
       "required": ["sendTransactionStatusId"]
     },
+    "v1ExecuteSwapBoundQuote": {
+      "type": "object",
+      "properties": {
+        "quoteId": {
+          "type": "string",
+          "description": "Quote identifier returned by create_swap_quote. Execution is bound to this quote; the signer is derived from the quote and must not be resupplied."
+        },
+        "quotedOutputAmount": {
+          "type": "string",
+          "description": "Exact quoted base-unit output amount committed by the quote."
+        },
+        "minOutputAmount": {
+          "type": "string",
+          "description": "Exact minimum base-unit output committed by the quote."
+        }
+      },
+      "required": ["quoteId", "quotedOutputAmount", "minOutputAmount"]
+    },
     "v1ExecuteSwapIntent": {
       "type": "object",
       "properties": {
@@ -13351,6 +14191,78 @@
         "sponsor"
       ]
     },
+    "v1ExecuteSwapIntentV4": {
+      "type": "object",
+      "properties": {
+        "inputToken": {
+          "type": "string",
+          "description": "CAIP-19 asset ID for the input asset."
+        },
+        "inputAmount": {
+          "type": "string",
+          "description": "Exact base-unit amount of the input asset."
+        },
+        "outputToken": {
+          "type": "string",
+          "description": "CAIP-19 asset ID for the output asset."
+        },
+        "sponsor": {
+          "type": "boolean",
+          "description": "Whether the swap transaction is gas sponsored."
+        },
+        "destinationAddress": {
+          "type": "string",
+          "description": "Raw public address that receives the output asset. Required for cross-protocol swaps and rejected otherwise. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported."
+        },
+        "evmNonce": {
+          "type": "string",
+          "description": "Exact EVM sender (EOA account) nonce. Valid only for a non-sponsored EVM swap. Honored for already-delegated (Type-2) batch swaps and single-call swaps; ignored for not-yet-delegated EIP-7702 (Type-4) batches where the outer nonce is derived from the authorization. Prefer gas_station_nonce for batch replay protection and use the nonces endpoint to fetch it. Omit to auto-fetch."
+        },
+        "recentBlockhash": {
+          "type": "string",
+          "description": "Exact Solana recent blockhash. Valid only for a Solana swap, including sponsored swaps. Omit to auto-fetch."
+        },
+        "gasStationNonce": {
+          "type": "string",
+          "description": "Exact gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored EVM swaps and non-sponsored EVM swaps that execute as a multi-call batch (for example ERC-20 approve + swap). This is the replay-protection nonce for gas-station batches; use the nonces endpoint to fetch it. Omit to auto-fetch."
+        },
+        "boundQuote": {
+          "$ref": "#/definitions/v1ExecuteSwapBoundQuote",
+          "description": "Execute a quote returned by create_swap_quote at its exact terms."
+        },
+        "market": {
+          "$ref": "#/definitions/v1ExecuteSwapMarketTerms",
+          "description": "Execute at the provider's price when the activity is approved, within the signed slippage and optional price floor."
+        }
+      },
+      "required": ["inputToken", "inputAmount", "outputToken", "sponsor"]
+    },
+    "v1ExecuteSwapMarketTerms": {
+      "type": "object",
+      "properties": {
+        "signWith": {
+          "type": "string",
+          "description": "Wallet account address that sends the input asset. Private Key identifiers are not supported."
+        },
+        "slippageBps": {
+          "type": "string",
+          "description": "Maximum allowed slippage in basis points, at most 5000. When omitted, the provider chooses the slippage. The swap executes at the provider's price when the activity is approved, so the slippage and min_output_amount are its only price protection."
+        },
+        "minOutputAmount": {
+          "type": "string",
+          "description": "Optional price floor in base units of the output asset. When set, the swap fails unless the provider's minimum output after slippage is at least this amount."
+        },
+        "feeSponsorship": {
+          "type": "boolean",
+          "description": "When true, Turnkey pays the provider fees for this swap and invoices them to the billing parent organization. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false."
+        },
+        "fixedRate": {
+          "type": "boolean",
+          "description": "When true, requests a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false."
+        }
+      },
+      "required": ["signWith"]
+    },
     "v1ExecuteSwapRequest": {
       "type": "object",
       "properties": {
@@ -13389,6 +14301,22 @@
         "quoteId": {
           "type": "string",
           "description": "Quote identifier used for execution, if any."
+        },
+        "outputAmount": {
+          "type": "string",
+          "description": "Quoted base-unit amount of the output asset. Set by execute_swap V4."
+        },
+        "minOutputAmount": {
+          "type": "string",
+          "description": "Minimum base-unit amount of the output asset after slippage. Set by execute_swap V4."
+        },
+        "feeSponsorship": {
+          "type": "boolean",
+          "description": "Whether Turnkey paid the provider fees for this swap. Set by execute_swap V4."
+        },
+        "fixedRate": {
+          "type": "boolean",
+          "description": "Whether this swap used a 1:1 fixed rate. Set by execute_swap V4."
         }
       },
       "required": ["swapRequestId"]
@@ -13656,24 +14584,74 @@
         "FEATURE_NAME_SWAP_FIXED_RATE"
       ]
     },
-    "v1FiatOnRampAmount": {
+    "v1FiatOffRampQuote": {
       "type": "object",
       "properties": {
-        "amount": {
+        "quoteId": {
           "type": "string",
-          "description": "Amount in atomic units. Use this to compare quotes. Do not use display."
+          "description": "Identifier for this saved quote."
         },
-        "decimals": {
-          "type": "integer",
-          "format": "int32",
-          "description": "Decimal places for this amount. Asset decimals for cryptocurrency, atomic-unit decimals for fiat (2 for USD)."
+        "provider": {
+          "$ref": "#/definitions/v1FiatRampProvider",
+          "description": "Provider that produced this quote."
         },
-        "display": {
+        "serviceProvider": {
           "type": "string",
-          "description": "Decimal representation in standard currency units."
+          "description": "Underlying provider when provider aggregates several."
+        },
+        "fiatAmount": {
+          "$ref": "#/definitions/v1FiatRampAmount",
+          "description": "Fiat the user receives, in atomic units of fiat_currency_code. For USD, 100 dollars is \"10000\"."
+        },
+        "fiatCurrencyCode": {
+          "$ref": "#/definitions/v1FiatRampCurrency",
+          "description": "Fiat currency of fiat_amount and total_fee."
+        },
+        "cryptoAmount": {
+          "$ref": "#/definitions/v1FiatRampAmount",
+          "description": "Cryptocurrency the user would sell, in atomic units. Not locked in the session."
+        },
+        "caip19": {
+          "type": "string",
+          "enum": [
+            "eip155:1/slip44:60",
+            "eip155:10/slip44:60",
+            "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+            "eip155:8453/slip44:60",
+            "eip155:42161/slip44:60",
+            "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+            "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+            "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          ],
+          "description": "CAIP-19 asset of crypto_amount. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp."
+        },
+        "paymentMethod": {
+          "$ref": "#/definitions/v1FiatRampPaymentMethod",
+          "description": "Payout method this quote was priced for."
+        },
+        "totalFee": {
+          "$ref": "#/definitions/v1FiatRampAmount",
+          "description": "Total fee in atomic units of fiat_currency_code."
+        },
+        "expiresAt": {
+          "type": "string",
+          "description": "Quote expiration as a millisecond epoch string. Empty when the provider does not send one."
         }
       },
-      "required": ["amount", "decimals", "display"]
+      "required": [
+        "quoteId",
+        "provider",
+        "fiatAmount",
+        "fiatCurrencyCode",
+        "cryptoAmount",
+        "caip19",
+        "paymentMethod",
+        "totalFee"
+      ]
     },
     "v1FiatOnRampBlockchainNetwork": {
       "type": "string",
@@ -13686,33 +14664,25 @@
     "v1FiatOnRampCredential": {
       "type": "object",
       "properties": {
-        "fiatOnrampCredentialId": {
+        "credentialId": {
           "type": "string",
-          "description": "Unique identifier for a given Fiat On-Ramp Credential."
+          "description": "Unique identifier for a given fiat ramp credential."
         },
         "organizationId": {
           "type": "string",
           "description": "Unique identifier for an Organization."
         },
-        "onrampProvider": {
-          "$ref": "#/definitions/v1FiatOnRampProvider",
-          "description": "The fiat on-ramp provider."
+        "provider": {
+          "$ref": "#/definitions/v1FiatRampProvider",
+          "description": "The fiat ramp provider."
         },
-        "projectId": {
+        "apiKey": {
           "type": "string",
-          "description": "Project ID for the on-ramp provider. Some providers, like Coinbase, require this additional identifier."
+          "description": "Non-secret half of the provider credential. MoonPay: publishable key (pk_test_ or pk_live_). Coinbase: CDP API key ID."
         },
-        "publishableApiKey": {
+        "encryptedSecret": {
           "type": "string",
-          "description": "Publishable API key for the on-ramp provider."
-        },
-        "encryptedSecretApiKey": {
-          "type": "string",
-          "description": "Secret API key for the on-ramp provider encrypted to our on-ramp encryption public key."
-        },
-        "encryptedPrivateApiKey": {
-          "type": "string",
-          "description": "Private API key for the on-ramp provider encrypted to our on-ramp encryption public key. Some providers, like Coinbase, require this additional key."
+          "description": "Secret half of the provider credential, encrypted to our on-ramp encryption public key. MoonPay: secret key (sk_test_ or sk_live_). Coinbase: Ed25519 private key."
         },
         "sandboxMode": {
           "type": "boolean",
@@ -13726,11 +14696,11 @@
         }
       },
       "required": [
-        "fiatOnrampCredentialId",
+        "credentialId",
         "organizationId",
-        "onrampProvider",
-        "publishableApiKey",
-        "encryptedSecretApiKey",
+        "provider",
+        "apiKey",
+        "encryptedSecret",
         "createdAt",
         "updatedAt"
       ]
@@ -13815,24 +14785,24 @@
           "type": "string",
           "description": "Identifier for this saved quote. Pass this to the create on ramp session activity."
         },
-        "onrampProvider": {
-          "$ref": "#/definitions/v1FiatOnRampProvider",
+        "provider": {
+          "$ref": "#/definitions/v1FiatRampProvider",
           "description": "Provider that produced this quote."
         },
         "serviceProvider": {
           "type": "string",
-          "description": "Underlying provider when onramp_provider aggregates several."
+          "description": "Underlying provider when provider aggregates several."
         },
         "fiatAmount": {
-          "$ref": "#/definitions/v1FiatOnRampAmount",
+          "$ref": "#/definitions/v1FiatRampAmount",
           "description": "Fiat the user pays, in atomic units of fiat_currency_code. For USD, 100 dollars is \"10000\"."
         },
         "fiatCurrencyCode": {
-          "$ref": "#/definitions/v1FiatOnRampCurrency",
+          "$ref": "#/definitions/v1FiatRampCurrency",
           "description": "Fiat currency of fiat_amount and total_fee."
         },
         "cryptoAmount": {
-          "$ref": "#/definitions/v1FiatOnRampAmount",
+          "$ref": "#/definitions/v1FiatRampAmount",
           "description": "Cryptocurrency the user would receive, in atomic units. Not locked in the session."
         },
         "caip19": {
@@ -13854,11 +14824,11 @@
           "description": "CAIP-19 asset of crypto_amount."
         },
         "paymentMethod": {
-          "$ref": "#/definitions/v1FiatOnRampPaymentMethod",
+          "$ref": "#/definitions/v1FiatRampPaymentMethod",
           "description": "Payment method this quote was priced for. Bank transfers are not included."
         },
         "totalFee": {
-          "$ref": "#/definitions/v1FiatOnRampAmount",
+          "$ref": "#/definitions/v1FiatRampAmount",
           "description": "Total fee in atomic units of fiat_currency_code."
         },
         "expiresAt": {
@@ -13868,13 +14838,91 @@
       },
       "required": [
         "quoteId",
-        "onrampProvider",
+        "provider",
         "fiatAmount",
         "fiatCurrencyCode",
         "cryptoAmount",
         "caip19",
         "paymentMethod",
         "totalFee"
+      ]
+    },
+    "v1FiatRampAmount": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "string",
+          "description": "Amount in atomic units. Use this to compare quotes. Do not use display."
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Decimal places for this amount. Asset decimals for cryptocurrency, atomic-unit decimals for fiat (2 for USD)."
+        },
+        "display": {
+          "type": "string",
+          "description": "Decimal representation in standard currency units."
+        }
+      },
+      "required": ["amount", "decimals", "display"]
+    },
+    "v1FiatRampCurrency": {
+      "type": "string",
+      "enum": [
+        "FIAT_RAMP_CURRENCY_AUD",
+        "FIAT_RAMP_CURRENCY_BGN",
+        "FIAT_RAMP_CURRENCY_BRL",
+        "FIAT_RAMP_CURRENCY_CAD",
+        "FIAT_RAMP_CURRENCY_CHF",
+        "FIAT_RAMP_CURRENCY_COP",
+        "FIAT_RAMP_CURRENCY_CZK",
+        "FIAT_RAMP_CURRENCY_DKK",
+        "FIAT_RAMP_CURRENCY_DOP",
+        "FIAT_RAMP_CURRENCY_EGP",
+        "FIAT_RAMP_CURRENCY_EUR",
+        "FIAT_RAMP_CURRENCY_GBP",
+        "FIAT_RAMP_CURRENCY_HKD",
+        "FIAT_RAMP_CURRENCY_IDR",
+        "FIAT_RAMP_CURRENCY_ILS",
+        "FIAT_RAMP_CURRENCY_JOD",
+        "FIAT_RAMP_CURRENCY_KES",
+        "FIAT_RAMP_CURRENCY_KWD",
+        "FIAT_RAMP_CURRENCY_LKR",
+        "FIAT_RAMP_CURRENCY_MXN",
+        "FIAT_RAMP_CURRENCY_NGN",
+        "FIAT_RAMP_CURRENCY_NOK",
+        "FIAT_RAMP_CURRENCY_NZD",
+        "FIAT_RAMP_CURRENCY_OMR",
+        "FIAT_RAMP_CURRENCY_PEN",
+        "FIAT_RAMP_CURRENCY_PLN",
+        "FIAT_RAMP_CURRENCY_RON",
+        "FIAT_RAMP_CURRENCY_SEK",
+        "FIAT_RAMP_CURRENCY_THB",
+        "FIAT_RAMP_CURRENCY_TRY",
+        "FIAT_RAMP_CURRENCY_TWD",
+        "FIAT_RAMP_CURRENCY_USD",
+        "FIAT_RAMP_CURRENCY_VND",
+        "FIAT_RAMP_CURRENCY_ZAR"
+      ]
+    },
+    "v1FiatRampPaymentMethod": {
+      "type": "string",
+      "enum": [
+        "FIAT_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD",
+        "FIAT_RAMP_PAYMENT_METHOD_APPLE_PAY",
+        "FIAT_RAMP_PAYMENT_METHOD_GOOGLE_PAY",
+        "FIAT_RAMP_PAYMENT_METHOD_PAYPAL",
+        "FIAT_RAMP_PAYMENT_METHOD_MOONPAY_BALANCE",
+        "FIAT_RAMP_PAYMENT_METHOD_FIAT_WALLET",
+        "FIAT_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT"
+      ]
+    },
+    "v1FiatRampProvider": {
+      "type": "string",
+      "enum": [
+        "FIAT_RAMP_PROVIDER_COINBASE",
+        "FIAT_RAMP_PROVIDER_MOONPAY",
+        "FIAT_RAMP_PROVIDER_MELD"
       ]
     },
     "v1GetActivePoliciesRequest": {
@@ -14296,7 +15344,74 @@
       },
       "required": ["status"]
     },
-    "v1GetFiatOnRampQuoteRequest": {
+    "v1GetFiatOffRampQuotesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "cryptoAmount": {
+          "type": "string",
+          "description": "Crypto amount the user wants to sell, in major units of the caip19 asset. For example, \"0.05\" for 0.05 ETH. The wallet address is not part of this query."
+        },
+        "fiatCurrencyCode": {
+          "$ref": "#/definitions/v1FiatRampCurrency",
+          "description": "Fiat currency the user receives, for example USD."
+        },
+        "caip19": {
+          "type": "string",
+          "enum": [
+            "eip155:1/slip44:60",
+            "eip155:10/slip44:60",
+            "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+            "eip155:8453/slip44:60",
+            "eip155:42161/slip44:60",
+            "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+            "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+            "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          ],
+          "description": "CAIP-19 asset to sell. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp."
+        },
+        "countryCode": {
+          "type": "string",
+          "description": "ISO 3166-1 alpha-2 country code of the selling user, for example US. When omitted, the country is taken from the location of the request."
+        },
+        "countrySubdivisionCode": {
+          "type": "string",
+          "description": "ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request."
+        },
+        "sandboxMode": {
+          "type": "boolean",
+          "description": "Quote sandbox credentials when true. Defaults to false."
+        }
+      },
+      "required": [
+        "organizationId",
+        "cryptoAmount",
+        "fiatCurrencyCode",
+        "caip19"
+      ]
+    },
+    "v1GetFiatOffRampQuotesResponse": {
+      "type": "object",
+      "properties": {
+        "quotes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1FiatOffRampQuote"
+          },
+          "description": "One quote per provider and payment method that can serve this route. Empty when none can."
+        }
+      },
+      "required": ["quotes"]
+    },
+    "v1GetFiatOnRampQuotesRequest": {
       "type": "object",
       "properties": {
         "organizationId": {
@@ -14308,7 +15423,7 @@
           "description": "Fiat amount the user wants to spend, in major units of fiat_currency_code. For example, \"100\" for 100 USD."
         },
         "fiatCurrencyCode": {
-          "$ref": "#/definitions/v1FiatOnRampCurrency",
+          "$ref": "#/definitions/v1FiatRampCurrency",
           "description": "Fiat currency for fiat_amount, for example USD."
         },
         "caip19": {
@@ -14331,26 +15446,20 @@
         },
         "countryCode": {
           "type": "string",
-          "description": "ISO 3166-1 alpha-2 country code of the purchasing user, for example US."
+          "description": "ISO 3166-1 alpha-2 country code of the purchasing user, for example US. When omitted, the country is taken from the location of the request."
         },
         "countrySubdivisionCode": {
           "type": "string",
-          "description": "ISO 3166-2 subdivision code, for example NY. Only required if you have Coinbase enabled as a provider and country_code is US."
+          "description": "ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request."
         },
         "sandboxMode": {
           "type": "boolean",
           "description": "Quote sandbox credentials when true. Defaults to false."
         }
       },
-      "required": [
-        "organizationId",
-        "fiatAmount",
-        "fiatCurrencyCode",
-        "caip19",
-        "countryCode"
-      ]
+      "required": ["organizationId", "fiatAmount", "fiatCurrencyCode", "caip19"]
     },
-    "v1GetFiatOnRampQuoteResponse": {
+    "v1GetFiatOnRampQuotesResponse": {
       "type": "object",
       "properties": {
         "quotes": {
@@ -14392,6 +15501,103 @@
         }
       },
       "required": ["windowDurationMinutes", "windowLimitUsd", "usageUsd"]
+    },
+    "v1GetIndicativeSwapQuoteRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "signWith": {
+          "type": "string",
+          "description": "Wallet account address that would send the input asset. It must belong to the organization."
+        },
+        "inputToken": {
+          "type": "string",
+          "description": "CAIP-19 asset ID for the input asset."
+        },
+        "outputToken": {
+          "type": "string",
+          "description": "CAIP-19 asset ID for the output asset."
+        },
+        "inputAmount": {
+          "type": "string",
+          "description": "Exact base-unit amount of the input asset."
+        },
+        "slippageBps": {
+          "type": "string",
+          "description": "Maximum allowed slippage in basis points, at most 5000. When omitted, the provider chooses the slippage."
+        },
+        "destinationAddress": {
+          "type": "string",
+          "description": "Raw public address that would receive the output asset. Required for cross-protocol swaps and rejected otherwise."
+        },
+        "feeSponsorship": {
+          "type": "boolean",
+          "description": "Preview the price with Turnkey paying the provider fees. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false."
+        },
+        "fixedRate": {
+          "type": "boolean",
+          "description": "Preview a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false."
+        }
+      },
+      "required": [
+        "organizationId",
+        "signWith",
+        "inputToken",
+        "outputToken",
+        "inputAmount"
+      ]
+    },
+    "v1GetIndicativeSwapQuoteResponse": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "description": "Swap provider that produced this quote."
+        },
+        "outputAmount": {
+          "type": "string",
+          "description": "Estimated base-unit amount of the output asset."
+        },
+        "minOutputAmount": {
+          "type": "string",
+          "description": "Minimum base-unit amount of the output asset after slippage."
+        },
+        "slippageBps": {
+          "type": "string",
+          "description": "Slippage tolerance in basis points the provider applied."
+        },
+        "clientFeeBps": {
+          "type": "string",
+          "description": "Client app fee in basis points included in this quote. \"0\" when no client fee applies."
+        },
+        "estimatedTimeSeconds": {
+          "type": "string",
+          "description": "Provider's estimated time to complete the swap, in seconds."
+        },
+        "feeSponsorship": {
+          "type": "boolean",
+          "description": "Whether this quote has Turnkey paying the provider fees."
+        },
+        "fixedRate": {
+          "type": "boolean",
+          "description": "Whether this quote uses a 1:1 fixed rate."
+        },
+        "estimatedFixedRateAdjustmentUsd": {
+          "type": "string",
+          "description": "Estimated fixed-rate adjustment in USD from the customer's side: positive is a cost, negative an earning. Present only for fixed-rate quotes the provider priced."
+        }
+      },
+      "required": [
+        "provider",
+        "outputAmount",
+        "minOutputAmount",
+        "clientFeeBps",
+        "feeSponsorship",
+        "fixedRate"
+      ]
     },
     "v1GetIpAllowlistRequest": {
       "type": "object",
@@ -14968,7 +16174,7 @@
         },
         "filterType": {
           "type": "string",
-          "description": "Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'WALLET_ACCOUNT_ADDRESS' or 'PUBLIC_KEY'"
+          "description": "Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'OAUTH_CLAIM', 'WALLET_ACCOUNT_ADDRESS', 'WALLET_AUTH_TOKEN', or 'PUBLIC_KEY'"
         },
         "filterValue": {
           "type": "string",
@@ -15275,6 +16481,64 @@
       },
       "required": ["tvcDeployment"]
     },
+    "v1GetTvcManifestGenerationInfoRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "appId": {
+          "type": "string"
+        },
+        "qosVersion": {
+          "type": "string",
+          "description": "QOS version of the deployment. Defaults to the latest recommended TVC QOS version."
+        }
+      },
+      "required": ["organizationId", "appId"]
+    },
+    "v1GetTvcManifestGenerationInfoResponse": {
+      "type": "object",
+      "properties": {
+        "nonce": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "pcr0": {
+          "type": "string"
+        },
+        "pcr1": {
+          "type": "string"
+        },
+        "pcr2": {
+          "type": "string"
+        },
+        "pcr3": {
+          "type": "string"
+        },
+        "qosVersion": {
+          "type": "string"
+        },
+        "defaultDnsResolvers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "nonce",
+        "namespace",
+        "pcr0",
+        "pcr1",
+        "pcr2",
+        "pcr3",
+        "qosVersion"
+      ]
+    },
     "v1GetTvcOperatorsRequest": {
       "type": "object",
       "properties": {
@@ -15426,7 +16690,7 @@
         },
         "filterType": {
           "type": "string",
-          "description": "Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'OAUTH_CLAIM', or 'PUBLIC_KEY'"
+          "description": "Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'OAUTH_CLAIM', 'PUBLIC_KEY', or 'WALLET_AUTH_TOKEN'."
         },
         "filterValue": {
           "type": "string",
@@ -15574,6 +16838,34 @@
           "description": "List of asset balances"
         }
       }
+    },
+    "v1GetWalletAuthenticatorsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given user."
+        }
+      },
+      "required": ["organizationId", "userId"]
+    },
+    "v1GetWalletAuthenticatorsResponse": {
+      "type": "object",
+      "properties": {
+        "walletAuthenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WalletAuthenticator"
+          },
+          "description": "A list of wallet authenticators."
+        }
+      },
+      "required": ["walletAuthenticators"]
     },
     "v1GetWalletRequest": {
       "type": "object",
@@ -17128,6 +18420,12 @@
         "createSwapQuoteIntentV3": {
           "$ref": "#/definitions/v1CreateSwapQuoteIntentV3"
         },
+        "createSubOrganizationIntentV9": {
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV9"
+        },
+        "verifyWalletAuthenticatorIntent": {
+          "$ref": "#/definitions/v1VerifyWalletAuthenticatorIntent"
+        },
         "upsertSwapFeeSponsorshipLimitConfigIntent": {
           "$ref": "#/definitions/v1UpsertSwapFeeSponsorshipLimitConfigIntent"
         },
@@ -17136,6 +18434,36 @@
         },
         "createFiatOnRampSessionIntent": {
           "$ref": "#/definitions/v1CreateFiatOnRampSessionIntent"
+        },
+        "createFiatOffRampSessionIntent": {
+          "$ref": "#/definitions/v1CreateFiatOffRampSessionIntent"
+        },
+        "executeSwapIntentV4": {
+          "$ref": "#/definitions/v1ExecuteSwapIntentV4"
+        },
+        "createWalletAuthenticatorsIntent": {
+          "$ref": "#/definitions/v1CreateWalletAuthenticatorsIntent"
+        },
+        "deleteWalletAuthenticatorsIntent": {
+          "$ref": "#/definitions/v1DeleteWalletAuthenticatorsIntent"
+        },
+        "enableSmsForCountriesIntent": {
+          "$ref": "#/definitions/v1EnableSmsForCountriesIntent"
+        },
+        "disableSmsForCountriesIntent": {
+          "$ref": "#/definitions/v1DisableSmsForCountriesIntent"
+        },
+        "createFiatRampCredentialIntent": {
+          "$ref": "#/definitions/v1CreateFiatRampCredentialIntent"
+        },
+        "updateFiatRampCredentialIntent": {
+          "$ref": "#/definitions/v1UpdateFiatRampCredentialIntent"
+        },
+        "createExternalSignerIntentV1": {
+          "$ref": "#/definitions/v1CreateExternalSignerIntentV1"
+        },
+        "deleteExternalSignerIntentV1": {
+          "$ref": "#/definitions/v1DeleteExternalSignerIntentV1"
         }
       }
     },
@@ -19624,6 +20952,12 @@
         "createSwapQuoteResultV2": {
           "$ref": "#/definitions/v1CreateSwapQuoteResultV2"
         },
+        "createSubOrganizationResultV9": {
+          "$ref": "#/definitions/v1CreateSubOrganizationResultV9"
+        },
+        "verifyWalletAuthenticatorResult": {
+          "$ref": "#/definitions/v1VerifyWalletAuthenticatorResult"
+        },
         "upsertSwapFeeSponsorshipLimitConfigResult": {
           "$ref": "#/definitions/v1UpsertSwapFeeSponsorshipLimitConfigResult"
         },
@@ -19632,6 +20966,33 @@
         },
         "createFiatOnRampSessionResult": {
           "$ref": "#/definitions/v1CreateFiatOnRampSessionResult"
+        },
+        "createFiatOffRampSessionResult": {
+          "$ref": "#/definitions/v1CreateFiatOffRampSessionResult"
+        },
+        "createWalletAuthenticatorsResult": {
+          "$ref": "#/definitions/v1CreateWalletAuthenticatorsResult"
+        },
+        "deleteWalletAuthenticatorsResult": {
+          "$ref": "#/definitions/v1DeleteWalletAuthenticatorsResult"
+        },
+        "enableSmsForCountriesResult": {
+          "$ref": "#/definitions/v1EnableSmsForCountriesResult"
+        },
+        "disableSmsForCountriesResult": {
+          "$ref": "#/definitions/v1DisableSmsForCountriesResult"
+        },
+        "createFiatRampCredentialResult": {
+          "$ref": "#/definitions/v1CreateFiatRampCredentialResult"
+        },
+        "updateFiatRampCredentialResult": {
+          "$ref": "#/definitions/v1UpdateFiatRampCredentialResult"
+        },
+        "createExternalSignerResultV1": {
+          "$ref": "#/definitions/v1CreateExternalSignerResultV1"
+        },
+        "deleteExternalSignerResultV1": {
+          "$ref": "#/definitions/v1DeleteExternalSignerResultV1"
         }
       }
     },
@@ -19854,6 +21215,62 @@
       },
       "required": ["userName", "apiKeys", "authenticators", "oauthProviders"]
     },
+    "v1RootUserParamsV6": {
+      "type": "object",
+      "properties": {
+        "userName": {
+          "type": "string",
+          "description": "Human-readable name for a User."
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "The user's email address."
+        },
+        "userPhoneNumber": {
+          "type": "string",
+          "description": "The user's phone number in E.164 format e.g. +13214567890"
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ApiKeyParamsV2"
+          },
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          },
+          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
+        },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProviderParamsV2"
+          },
+          "description": "A list of Oauth providers. This field, if not needed, should be an empty array in your request body."
+        },
+        "walletAuthenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WalletAuthenticatorParams"
+          },
+          "description": "A list of wallet authenticators. This field, if not needed, should be an empty array in your request body."
+        }
+      },
+      "required": [
+        "userName",
+        "apiKeys",
+        "authenticators",
+        "oauthProviders",
+        "walletAuthenticators"
+      ]
+    },
     "v1SecretMetadata": {
       "type": "object",
       "properties": {
@@ -20014,7 +21431,7 @@
           "description": "Optional value for the feature. Will override existing values if feature is already set."
         }
       },
-      "required": ["name", "value"]
+      "required": ["name"]
     },
     "v1SetOrganizationFeatureRequest": {
       "type": "object",
@@ -20097,7 +21514,7 @@
         },
         "externalSignerPubkey": {
           "type": "string",
-          "description": "The public key of the external signer to use for signing the payload."
+          "description": "The public key of the external signer to use for signing the payload. Only needed for external signer requests."
         }
       },
       "required": ["signWith", "payload", "encoding", "hashFunction"]
@@ -20168,7 +21585,7 @@
         },
         "externalSignerPubkey": {
           "type": "string",
-          "description": "The public key of the external signer to use for signing the payloads."
+          "description": "The public key of the external signer to use for signing the payloads. Only needed for external signer requests."
         }
       },
       "required": ["signWith", "payloads", "encoding", "hashFunction"]
@@ -20242,7 +21659,7 @@
         },
         "externalSignerPubkey": {
           "type": "string",
-          "description": "The public key of the external signer to use for signing this transaction."
+          "description": "The public key of the external signer to use for signing this transaction. Only needed for external signer requests."
         }
       },
       "required": ["signWith", "unsignedTransaction", "type"]
@@ -20340,6 +21757,45 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1OauthProviderParamsV2"
+          }
+        }
+      }
+    },
+    "v1SignupUsageV3": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ApiKeyParamsV2"
+          }
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          }
+        },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProviderParamsV2"
+          }
+        },
+        "walletAuthenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WalletAuthenticatorParams"
           }
         }
       }
@@ -21424,7 +22880,7 @@
       "properties": {
         "permitted": {
           "type": "boolean",
-          "description": "Whether the billing parent holds this feature's signed permission. Quotes can use the feature only when it is permitted and its window is enabled."
+          "description": "Whether the billing parent holds this feature's signed permission, which enabling its spending window grants. Quotes can use the feature only when it is permitted and its window is enabled."
         },
         "window": {
           "$ref": "#/definitions/v1SwapSpendingWindow",
@@ -21478,6 +22934,9 @@
         },
         "signupV2": {
           "$ref": "#/definitions/v1SignupUsageV2"
+        },
+        "signupV3": {
+          "$ref": "#/definitions/v1SignupUsageV3"
         }
       },
       "required": ["type", "tokenId"]
@@ -21653,11 +23112,15 @@
         },
         "publicDomain": {
           "type": "string",
-          "description": "The public domain for ingress to this TVC App (in the format \"app-\u003cID\u003e.turnkey.cloud\")."
+          "description": "The public domain for ingress to this TVC App (in the format \"app-\u003cID\u003e.app.turnkey.cloud\"). May contain multiple comma-separated hostnames."
         },
         "enableDebugModeDeployments": {
           "type": "boolean",
           "description": "Whether this app permits debug-mode deployments. Set at app creation via CreateTvcAppIntent.enable_debug_mode_deployments and never updated thereafter. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. The app's quorum key is therefore considered permanently insecure once enabled — a new app with a fresh quorum key must be created to return to a secure posture."
+        },
+        "region": {
+          "type": "string",
+          "description": "region this TVC App is deployed in, e.g. us-east-1 or ap-southeast-1. Set at app creation."
         }
       },
       "required": [
@@ -21671,7 +23134,8 @@
         "createdAt",
         "updatedAt",
         "publicDomain",
-        "enableDebugModeDeployments"
+        "enableDebugModeDeployments",
+        "region"
       ]
     },
     "v1TvcContainerSpec": {
@@ -22283,6 +23747,62 @@
         }
       },
       "required": ["fiatOnRampCredentialId"]
+    },
+    "v1UpdateFiatRampCredentialIntent": {
+      "type": "object",
+      "properties": {
+        "credentialId": {
+          "type": "string",
+          "description": "The ID of the fiat ramp credential to update"
+        },
+        "provider": {
+          "$ref": "#/definitions/v1FiatRampProvider",
+          "description": "The fiat ramp provider"
+        },
+        "apiKey": {
+          "type": "string",
+          "description": "Non-secret half of the provider credential. MoonPay: publishable key (pk_test_ or pk_live_). Coinbase: CDP API key ID"
+        },
+        "encryptedSecret": {
+          "type": "string",
+          "description": "Secret half of the provider credential, encrypted to our on-ramp encryption public key. MoonPay: secret key (sk_test_ or sk_live_). Coinbase: Ed25519 private key"
+        }
+      },
+      "required": ["credentialId", "provider", "apiKey", "encryptedSecret"]
+    },
+    "v1UpdateFiatRampCredentialRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_FIAT_RAMP_CREDENTIAL"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateFiatRampCredentialIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateFiatRampCredentialResult": {
+      "type": "object",
+      "properties": {
+        "credentialId": {
+          "type": "string",
+          "description": "Unique identifier of the fiat ramp credential that was updated"
+        }
+      },
+      "required": ["credentialId"]
     },
     "v1UpdateMfaPolicyIntent": {
       "type": "object",
@@ -23236,7 +24756,7 @@
         },
         "enabled": {
           "type": "boolean",
-          "description": "Whether this spending window permits new swaps. Setting false only turns the saved window off and keeps its limits; it doesn't require the signed permission. This does not grant or remove the signed organization permission."
+          "description": "Whether this spending window permits new swaps. True also grants the billing parent's signed permission for the feature. False turns the saved window off, keeps its limits, and removes the permission. Granting or removing the permission needs root quorum."
         }
       },
       "required": [
@@ -23294,7 +24814,7 @@
         },
         "enabled": {
           "type": "boolean",
-          "description": "Whether this spending window permits new swaps. Setting false only turns the saved window off and keeps its limits; it doesn't require the signed permission. This does not grant or remove the signed organization permission."
+          "description": "Whether this spending window permits new swaps. True also grants the billing parent's signed permission for the feature. False turns the saved window off, keeps its limits, and removes the permission. Granting or removing the permission needs root quorum."
         }
       },
       "required": [
@@ -23402,6 +24922,14 @@
             "$ref": "#/definitions/v1MfaPolicy"
           },
           "description": "A list of MFA Policies that define multi-factor authentication requirements for this user."
+        },
+        "walletAuthenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WalletAuthenticator"
+          },
+          "description": "A list of wallet authenticators (externally-owned Ethereum or Solana accounts used to authenticate). If not needed, this should be an empty array."
         }
       },
       "required": [
@@ -23413,7 +24941,8 @@
         "oauthProviders",
         "createdAt",
         "updatedAt",
-        "mfaPolicies"
+        "mfaPolicies",
+        "walletAuthenticators"
       ]
     },
     "v1UserParams": {
@@ -23659,6 +25188,10 @@
           "$ref": "#/definitions/v1VelocityControlAggregation",
           "description": "Aggregation expression that the Velocity Control evaluates."
         },
+        "appliesTo": {
+          "$ref": "#/definitions/v1VelocityControlScope",
+          "description": "Scope of the velocity control. Defines the boundaries within which the Velocity Control operates."
+        },
         "createdAt": {
           "$ref": "#/definitions/externaldatav1Timestamp",
           "description": "Time when the Velocity Control was created."
@@ -23696,7 +25229,7 @@
         },
         "threshold": {
           "type": "string",
-          "description": "Non-negative base-10 decimal string with at most 38 total digits and 18 fractional digits."
+          "description": "Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits."
         },
         "window": {
           "$ref": "#/definitions/v1VelocityControlAggregationWindow",
@@ -23846,7 +25379,8 @@
         "decimals": {
           "type": "integer",
           "format": "int64",
-          "description": "Integer between 0 and 255 (inclusive) that specifies the number of decimal places for the asset."
+          "description": "Integer between 0 and 32 (inclusive) that specifies the number of decimal places for the asset.",
+          "maximum": 32
         }
       },
       "required": ["caip19", "decimals"]
@@ -23892,6 +25426,62 @@
     },
     "v1VelocityControlDataSourcePhaseSubmission": {
       "type": "object"
+    },
+    "v1VelocityControlScope": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/v1VelocityControlScopeUser",
+          "description": "Limits the scope of the velocity control to particular Users."
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1VelocityControlScopeWallet",
+          "description": "Limits the scope of the velocity control to particular Wallets."
+        },
+        "walletAccount": {
+          "$ref": "#/definitions/v1VelocityControlScopeWalletAccount",
+          "description": "Limits the scope of the velocity control to particular Wallet Accounts."
+        }
+      }
+    },
+    "v1VelocityControlScopeUser": {
+      "type": "object",
+      "properties": {
+        "userIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of the users for which the velocity control will capture the usage."
+        }
+      },
+      "required": ["userIds"]
+    },
+    "v1VelocityControlScopeWallet": {
+      "type": "object",
+      "properties": {
+        "walletIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of the wallets for which the velocity control will capture the usage."
+        }
+      },
+      "required": ["walletIds"]
+    },
+    "v1VelocityControlScopeWalletAccount": {
+      "type": "object",
+      "properties": {
+        "walletAccountIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of the wallet accounts for which the velocity control will capture the usage."
+        }
+      },
+      "required": ["walletAccountIds"]
     },
     "v1VerifyOtpIntent": {
       "type": "object",
@@ -23963,6 +25553,58 @@
         "verificationToken": {
           "type": "string",
           "description": "Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)"
+        }
+      },
+      "required": ["verificationToken"]
+    },
+    "v1VerifyWalletAuthenticatorIntent": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "SIWE or SIWS message. Ump accepts only the Turnkey supported login template."
+        },
+        "signature": {
+          "type": "string",
+          "description": "Wallet signature over the message. Ethereum: 65-byte hex personal_sign (r || s || v). Solana: 64-byte hex ed25519 signature."
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Wallet public key that signed the message. Ethereum: sec1 secp256k1 hex, compressed or uncompressed. Solana: 32-byte ed25519 hex."
+        }
+      },
+      "required": ["message", "signature", "publicKey"]
+    },
+    "v1VerifyWalletAuthenticatorRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_VERIFY_WALLET_AUTHENTICATOR"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1VerifyWalletAuthenticatorIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1VerifyWalletAuthenticatorResult": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string",
+          "description": "Enclave-signed JWT binding the wallet, the wallet public key, and the ephemeral P-256 session key."
         }
       },
       "required": ["verificationToken"]
@@ -24154,6 +25796,70 @@
         }
       },
       "required": ["curve", "pathFormat", "path", "addressFormat"]
+    },
+    "v1WalletAuthenticator": {
+      "type": "object",
+      "properties": {
+        "walletAuthenticatorId": {
+          "type": "string",
+          "description": "Unique identifier for a wallet authenticator."
+        },
+        "type": {
+          "$ref": "#/definitions/v1WalletAuthenticatorType",
+          "description": "Network this authenticator belongs to."
+        },
+        "address": {
+          "type": "string",
+          "description": "Normalized account address."
+        },
+        "domain": {
+          "type": "string",
+          "description": "SIWE/SIWS domain this authenticator is bound to."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "walletAuthenticatorId",
+        "type",
+        "address",
+        "domain",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1WalletAuthenticatorParams": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1WalletAuthenticatorType",
+          "description": "Network this authenticator belongs to."
+        },
+        "address": {
+          "type": "string",
+          "description": "Account address. Ethereum addresses are stored lowercase with a 0x prefix. Solana addresses are canonical base58."
+        },
+        "domain": {
+          "type": "string",
+          "description": "SIWE/SIWS domain this authenticator is bound to. Host only, lowercased."
+        },
+        "verificationToken": {
+          "type": "string",
+          "description": "Wallet verification JWT for this claim. Omit to attach the authenticator unverified."
+        }
+      },
+      "required": ["type", "address", "domain"]
+    },
+    "v1WalletAuthenticatorType": {
+      "type": "string",
+      "enum": [
+        "WALLET_AUTHENTICATOR_TYPE_ETHEREUM",
+        "WALLET_AUTHENTICATOR_TYPE_SOLANA"
+      ]
     },
     "v1WalletKitSettingsParams": {
       "type": "object",
