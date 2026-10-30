@@ -40,3 +40,6 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# deposit address registry (demo storage)
+/data/

@@ -6,6 +6,10 @@ import { QRCodeSVG } from "qrcode.react";
 import { useTurnkey, AuthState, WalletSource } from "@turnkey/react-wallet-kit";
 
 import { buildSweepPolicy, parseAddress } from "@/lib/deposit";
+import {
+  registerDepositAddress,
+  type RegisterResult,
+} from "@/server/actions/registerDepositAddress";
 
 const DA_PUBLIC_KEY = process.env.NEXT_PUBLIC_DA_PUBLIC_KEY?.trim() ?? "";
 const TREASURY = parseAddress(process.env.NEXT_PUBLIC_TREASURY_ADDRESS);
@@ -120,6 +124,21 @@ export default function Dashboard() {
 
   const enabled = Boolean(delegatedUser && sweepPolicy);
 
+  // Tell the server which sub-org owns the address so the webhook can route
+  // deposits. Runs whenever the sub-org shows the address as enabled, which
+  // also repairs the mapping after a server restart or a wiped registry.
+  const [registration, setRegistration] = useState<RegisterResult | null>(null);
+  useEffect(() => {
+    if (!enabled || !depositAddress || !subOrgId) return;
+    let cancelled = false;
+    registerDepositAddress(subOrgId, depositAddress).then((res) => {
+      if (!cancelled) setRegistration(res);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled, depositAddress, subOrgId]);
+
   const handleEnable = async () => {
     setEnableError(null);
     setEnabling(true);
@@ -224,6 +243,19 @@ export default function Dashboard() {
                   <code className="font-mono text-xs break-all">
                     {depositAddress}
                   </code>
+                  <p className="text-xs text-gray-500">
+                    {registration === null
+                      ? "Registering with the server…"
+                      : registration.ok
+                        ? "Watching for deposits."
+                        : ""}
+                  </p>
+                </div>
+              )}
+
+              {registration && !registration.ok && (
+                <div className="mt-3 p-3 border border-red-300 bg-red-50 rounded text-red-700 text-xs">
+                  Not watching this address: {registration.error}
                 </div>
               )}
 

@@ -4545,6 +4545,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: 4.1.13
         version: 4.1.13
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
         version: link:../../../packages/react-wallet-kit
@@ -4582,6 +4585,9 @@ importers:
         specifier: 2.37.9
         version: 2.37.9(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
     devDependencies:
+      tsx:
+        specifier: 3.12.7
+        version: 3.12.7
       typescript:
         specifier: 5.4.3
         version: 5.4.3
