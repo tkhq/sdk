@@ -735,6 +735,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getIndicativeSwapQuote = async (
+    input: SdkApiTypes.TGetIndicativeSwapQuoteBody,
+  ): Promise<SdkApiTypes.TGetIndicativeSwapQuoteResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/get_indicative_swap_quote", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetIndicativeSwapQuote = async (
+    input: SdkApiTypes.TGetIndicativeSwapQuoteBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_indicative_swap_quote";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getIpAllowlist = async (
     input: SdkApiTypes.TGetIpAllowlistBody,
   ): Promise<SdkApiTypes.TGetIpAllowlistResponse> => {
@@ -6763,7 +6805,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
+        type: "ACTIVITY_TYPE_EXECUTE_SWAP_V4",
       },
       "executeSwapResult",
     );
@@ -6786,7 +6828,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
+      type: "ACTIVITY_TYPE_EXECUTE_SWAP_V4",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -7509,6 +7551,57 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  mintJwt = async (
+    input: SdkApiTypes.TMintJwtBody,
+  ): Promise<SdkApiTypes.TMintJwtResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/mint_jwt",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_MINT_JWT",
+      },
+      "mintJwtResult",
+    );
+  };
+
+  stampMintJwt = async (
+    input: SdkApiTypes.TMintJwtBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/mint_jwt";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_MINT_JWT",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

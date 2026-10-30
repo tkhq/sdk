@@ -1096,6 +1096,53 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getIndicativeSwapQuote = async (
+    input: SdkTypes.TGetIndicativeSwapQuoteBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetIndicativeSwapQuoteResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_indicative_swap_quote",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetIndicativeSwapQuote = async (
+    input: SdkTypes.TGetIndicativeSwapQuoteBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_indicative_swap_quote";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getIpAllowlist = async (
     input: SdkTypes.TGetIpAllowlistBody,
     stampWith?: StamperType,
@@ -7775,7 +7822,7 @@ export class TurnkeySDKClientBase {
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
         generateAppProofs: generateAppProofs ?? false,
-        type: "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
+        type: "ACTIVITY_TYPE_EXECUTE_SWAP_V4",
       },
       "executeSwapResult",
       stampWith,
@@ -7800,7 +7847,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
+      type: "ACTIVITY_TYPE_EXECUTE_SWAP_V4",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -8607,6 +8654,63 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  mintJwt = async (
+    input: SdkTypes.TMintJwtBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TMintJwtResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/mint_jwt",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_MINT_JWT",
+      },
+      "mintJwtResult",
+      stampWith,
+    );
+  };
+
+  stampMintJwt = async (
+    input: SdkTypes.TMintJwtBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/mint_jwt";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_MINT_JWT",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

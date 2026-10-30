@@ -165,6 +165,19 @@ export type TGetGasUsageBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetIndicativeSwapQuoteResponse =
+  operations["PublicApiService_GetIndicativeSwapQuote"]["responses"]["200"]["schema"];
+
+export type TGetIndicativeSwapQuoteInput = {
+  body: TGetIndicativeSwapQuoteBody;
+};
+
+export type TGetIndicativeSwapQuoteBody = Omit<
+  operations["PublicApiService_GetIndicativeSwapQuote"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetIpAllowlistResponse =
   operations["PublicApiService_GetIpAllowlist"]["responses"]["200"]["schema"];
 
@@ -1568,7 +1581,7 @@ export type TExecuteSwapResponse =
 
 export type TExecuteSwapInput = { body: TExecuteSwapBody };
 
-export type TExecuteSwapBody = definitions["v1ExecuteSwapIntentV3"] &
+export type TExecuteSwapBody = definitions["v1ExecuteSwapIntentV4"] &
   commandOverrideParams;
 
 export type TExportPrivateKeyResponse =
@@ -1709,6 +1722,16 @@ export type TInitUserEmailRecoveryInput = { body: TInitUserEmailRecoveryBody };
 
 export type TInitUserEmailRecoveryBody =
   operations["PublicApiService_InitUserEmailRecovery"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TMintJwtResponse =
+  operations["PublicApiService_MintJwt"]["responses"]["200"]["schema"]["activity"]["result"]["mintJwtResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TMintJwtInput = { body: TMintJwtBody };
+
+export type TMintJwtBody =
+  operations["PublicApiService_MintJwt"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TOauthResponse =

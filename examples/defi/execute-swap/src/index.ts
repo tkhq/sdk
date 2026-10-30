@@ -70,17 +70,19 @@ export async function main() {
     );
   }
   console.log(
-    `\nExecuting quote ${selectedQuote.quoteId} via EXECUTE_SWAP_V3...\n`,
+    `\nExecuting quote ${selectedQuote.quoteId} via EXECUTE_SWAP_V4...\n`,
   );
 
   const executeResponse = await apiClient.executeSwap({
     organizationId,
-    quoteId: selectedQuote.quoteId,
     inputToken,
     inputAmount,
     outputToken,
-    quotedOutputAmount: selectedQuote.outputAmount,
-    minOutputAmount: selectedQuote.minOutputAmount,
+    boundQuote: {
+      quoteId: selectedQuote.quoteId,
+      quotedOutputAmount: selectedQuote.outputAmount,
+      minOutputAmount: selectedQuote.minOutputAmount,
+    },
     sponsor: sponsored,
     ...(destinationAddress ? { destinationAddress } : {}),
   });
