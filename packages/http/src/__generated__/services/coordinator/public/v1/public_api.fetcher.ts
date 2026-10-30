@@ -660,58 +660,6 @@ export const signGetEarnWithdrawStatus = (
   });
 
 /**
- * `POST /public/v1/query/get_fiat_on_ramp_quote`
- */
-export type TGetFiatOnRampQuoteResponse =
-  operations["PublicApiService_GetFiatOnRampQuote"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/get_fiat_on_ramp_quote`
- */
-export type TGetFiatOnRampQuoteInput = { body: TGetFiatOnRampQuoteBody };
-
-/**
- * `POST /public/v1/query/get_fiat_on_ramp_quote`
- */
-export type TGetFiatOnRampQuoteBody =
-  operations["PublicApiService_GetFiatOnRampQuote"]["parameters"]["body"]["body"];
-
-/**
- * Get a Fiat On Ramp quote
- *
- * Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.
- *
- * `POST /public/v1/query/get_fiat_on_ramp_quote`
- */
-export const getFiatOnRampQuote = (input: TGetFiatOnRampQuoteInput) =>
-  request<
-    TGetFiatOnRampQuoteResponse,
-    TGetFiatOnRampQuoteBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/query/get_fiat_on_ramp_quote",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetFiatOnRampQuote` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetFiatOnRampQuote}
- */
-export const signGetFiatOnRampQuote = (
-  input: TGetFiatOnRampQuoteInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetFiatOnRampQuoteBody, never, never>({
-    uri: "/public/v1/query/get_fiat_on_ramp_quote",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/query/get_gas_usage`
  */
 export type TGetGasUsageResponse =
@@ -753,6 +701,60 @@ export const signGetGasUsage = (
 ) =>
   signedRequest<TGetGasUsageBody, never, never>({
     uri: "/public/v1/query/get_gas_usage",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_indicative_swap_quote`
+ */
+export type TGetIndicativeSwapQuoteResponse =
+  operations["PublicApiService_GetIndicativeSwapQuote"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_indicative_swap_quote`
+ */
+export type TGetIndicativeSwapQuoteInput = {
+  body: TGetIndicativeSwapQuoteBody;
+};
+
+/**
+ * `POST /public/v1/query/get_indicative_swap_quote`
+ */
+export type TGetIndicativeSwapQuoteBody =
+  operations["PublicApiService_GetIndicativeSwapQuote"]["parameters"]["body"]["body"];
+
+/**
+ * Get indicative swap quote
+ *
+ * Preview the provider's current price for a swap without creating an activity. The quote is not binding and has no quote ID: a market swap executed later fetches its own quote, so its price can differ.
+ *
+ * `POST /public/v1/query/get_indicative_swap_quote`
+ */
+export const getIndicativeSwapQuote = (input: TGetIndicativeSwapQuoteInput) =>
+  request<
+    TGetIndicativeSwapQuoteResponse,
+    TGetIndicativeSwapQuoteBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_indicative_swap_quote",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetIndicativeSwapQuote` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetIndicativeSwapQuote}
+ */
+export const signGetIndicativeSwapQuote = (
+  input: TGetIndicativeSwapQuoteInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetIndicativeSwapQuoteBody, never, never>({
+    uri: "/public/v1/query/get_indicative_swap_quote",
     body: input.body,
     options,
   });
@@ -1970,6 +1972,62 @@ export const signGetTvcDeploymentProvisioningDetails = (
   });
 
 /**
+ * `POST /public/v1/query/get_tvc_manifest_generation_info`
+ */
+export type TGetTvcManifestGenerationInfoResponse =
+  operations["PublicApiService_GetTvcManifestGenerationInfo"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_tvc_manifest_generation_info`
+ */
+export type TGetTvcManifestGenerationInfoInput = {
+  body: TGetTvcManifestGenerationInfoBody;
+};
+
+/**
+ * `POST /public/v1/query/get_tvc_manifest_generation_info`
+ */
+export type TGetTvcManifestGenerationInfoBody =
+  operations["PublicApiService_GetTvcManifestGenerationInfo"]["parameters"]["body"]["body"];
+
+/**
+ * Get TVC manifest generation info
+ *
+ * Get default values for creating a QOS manifest. Relevant for client manifest generation.
+ *
+ * `POST /public/v1/query/get_tvc_manifest_generation_info`
+ */
+export const getTvcManifestGenerationInfo = (
+  input: TGetTvcManifestGenerationInfoInput,
+) =>
+  request<
+    TGetTvcManifestGenerationInfoResponse,
+    TGetTvcManifestGenerationInfoBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_tvc_manifest_generation_info",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetTvcManifestGenerationInfo` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetTvcManifestGenerationInfo}
+ */
+export const signGetTvcManifestGenerationInfo = (
+  input: TGetTvcManifestGenerationInfoInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetTvcManifestGenerationInfoBody, never, never>({
+    uri: "/public/v1/query/get_tvc_manifest_generation_info",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_tvc_qos_versions`
  */
 export type TGetTvcQosVersionsResponse =
@@ -2269,6 +2327,60 @@ export const signGetWalletAddressBalances = (
 ) =>
   signedRequest<TGetWalletAddressBalancesBody, never, never>({
     uri: "/public/v1/query/get_wallet_address_balances",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_wallet_authenticators`
+ */
+export type TGetWalletAuthenticatorsResponse =
+  operations["PublicApiService_GetWalletAuthenticators"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_wallet_authenticators`
+ */
+export type TGetWalletAuthenticatorsInput = {
+  body: TGetWalletAuthenticatorsBody;
+};
+
+/**
+ * `POST /public/v1/query/get_wallet_authenticators`
+ */
+export type TGetWalletAuthenticatorsBody =
+  operations["PublicApiService_GetWalletAuthenticators"]["parameters"]["body"]["body"];
+
+/**
+ * Get wallet authenticators
+ *
+ * Get wallet authenticators for a user.
+ *
+ * `POST /public/v1/query/get_wallet_authenticators`
+ */
+export const getWalletAuthenticators = (input: TGetWalletAuthenticatorsInput) =>
+  request<
+    TGetWalletAuthenticatorsResponse,
+    TGetWalletAuthenticatorsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_wallet_authenticators",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetWalletAuthenticators` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetWalletAuthenticators}
+ */
+export const signGetWalletAuthenticators = (
+  input: TGetWalletAuthenticatorsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetWalletAuthenticatorsBody, never, never>({
+    uri: "/public/v1/query/get_wallet_authenticators",
     body: input.body,
     options,
   });
@@ -2664,6 +2776,58 @@ export const signListEthTransactionHistory = (
   });
 
 /**
+ * `POST /public/v1/query/list_fiat_off_ramp_quotes`
+ */
+export type TGetFiatOffRampQuotesResponse =
+  operations["PublicApiService_GetFiatOffRampQuotes"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_fiat_off_ramp_quotes`
+ */
+export type TGetFiatOffRampQuotesInput = { body: TGetFiatOffRampQuotesBody };
+
+/**
+ * `POST /public/v1/query/list_fiat_off_ramp_quotes`
+ */
+export type TGetFiatOffRampQuotesBody =
+  operations["PublicApiService_GetFiatOffRampQuotes"]["parameters"]["body"]["body"];
+
+/**
+ * List Fiat Off Ramp quotes
+ *
+ * Quote enabled fiat off-ramp providers for a sell. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.
+ *
+ * `POST /public/v1/query/list_fiat_off_ramp_quotes`
+ */
+export const getFiatOffRampQuotes = (input: TGetFiatOffRampQuotesInput) =>
+  request<
+    TGetFiatOffRampQuotesResponse,
+    TGetFiatOffRampQuotesBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_fiat_off_ramp_quotes",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetFiatOffRampQuotes` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetFiatOffRampQuotes}
+ */
+export const signGetFiatOffRampQuotes = (
+  input: TGetFiatOffRampQuotesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetFiatOffRampQuotesBody, never, never>({
+    uri: "/public/v1/query/list_fiat_off_ramp_quotes",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_fiat_on_ramp_credentials`
  */
 export type TListFiatOnRampCredentialsResponse =
@@ -2715,6 +2879,58 @@ export const signListFiatOnRampCredentials = (
 ) =>
   signedRequest<TListFiatOnRampCredentialsBody, never, never>({
     uri: "/public/v1/query/list_fiat_on_ramp_credentials",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_fiat_on_ramp_quotes`
+ */
+export type TGetFiatOnRampQuotesResponse =
+  operations["PublicApiService_GetFiatOnRampQuotes"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_fiat_on_ramp_quotes`
+ */
+export type TGetFiatOnRampQuotesInput = { body: TGetFiatOnRampQuotesBody };
+
+/**
+ * `POST /public/v1/query/list_fiat_on_ramp_quotes`
+ */
+export type TGetFiatOnRampQuotesBody =
+  operations["PublicApiService_GetFiatOnRampQuotes"]["parameters"]["body"]["body"];
+
+/**
+ * List Fiat On Ramp quotes
+ *
+ * Quote enabled fiat on-ramp providers for a buy. Returns one quote per payment method the provider can offer for this route. Providers and methods that cannot serve the route are omitted.
+ *
+ * `POST /public/v1/query/list_fiat_on_ramp_quotes`
+ */
+export const getFiatOnRampQuotes = (input: TGetFiatOnRampQuotesInput) =>
+  request<
+    TGetFiatOnRampQuotesResponse,
+    TGetFiatOnRampQuotesBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_fiat_on_ramp_quotes",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetFiatOnRampQuotes` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetFiatOnRampQuotes}
+ */
+export const signGetFiatOnRampQuotes = (
+  input: TGetFiatOnRampQuotesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetFiatOnRampQuotesBody, never, never>({
+    uri: "/public/v1/query/list_fiat_on_ramp_quotes",
     body: input.body,
     options,
   });
@@ -4100,13 +4316,125 @@ export const signCreateAuthenticators = (
   });
 
 /**
+ * `POST /public/v1/submit/create_external_signer`
+ */
+export type TCreateExternalSignerResponse =
+  operations["PublicApiService_CreateExternalSigner"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_external_signer`
+ */
+export type TCreateExternalSignerInput = { body: TCreateExternalSignerBody };
+
+/**
+ * `POST /public/v1/submit/create_external_signer`
+ */
+export type TCreateExternalSignerBody =
+  operations["PublicApiService_CreateExternalSigner"]["parameters"]["body"]["body"];
+
+/**
+ * Create external signer
+ *
+ * Register an external signer with the organization.
+ *
+ * `POST /public/v1/submit/create_external_signer`
+ */
+export const createExternalSigner = (input: TCreateExternalSignerInput) =>
+  request<
+    TCreateExternalSignerResponse,
+    TCreateExternalSignerBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_external_signer",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateExternalSigner` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateExternalSigner}
+ */
+export const signCreateExternalSigner = (
+  input: TCreateExternalSignerInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateExternalSignerBody, never, never>({
+    uri: "/public/v1/submit/create_external_signer",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_fiat_off_ramp_session`
+ */
+export type TCreateFiatOffRampSessionResponse =
+  operations["PublicApiService_CreateFiatOffRampSession"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_fiat_off_ramp_session`
+ */
+export type TCreateFiatOffRampSessionInput = {
+  body: TCreateFiatOffRampSessionBody;
+};
+
+/**
+ * `POST /public/v1/submit/create_fiat_off_ramp_session`
+ */
+export type TCreateFiatOffRampSessionBody =
+  operations["PublicApiService_CreateFiatOffRampSession"]["parameters"]["body"]["body"];
+
+/**
+ * Create Fiat Off Ramp Session
+ *
+ * Open a fiat off-ramp session for a saved quote.
+ *
+ * `POST /public/v1/submit/create_fiat_off_ramp_session`
+ */
+export const createFiatOffRampSession = (
+  input: TCreateFiatOffRampSessionInput,
+) =>
+  request<
+    TCreateFiatOffRampSessionResponse,
+    TCreateFiatOffRampSessionBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_fiat_off_ramp_session",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateFiatOffRampSession` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateFiatOffRampSession}
+ */
+export const signCreateFiatOffRampSession = (
+  input: TCreateFiatOffRampSessionInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateFiatOffRampSessionBody, never, never>({
+    uri: "/public/v1/submit/create_fiat_off_ramp_session",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/create_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TCreateFiatOnRampCredentialResponse =
   operations["PublicApiService_CreateFiatOnRampCredential"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TCreateFiatOnRampCredentialInput = {
   body: TCreateFiatOnRampCredentialBody;
@@ -4114,6 +4442,8 @@ export type TCreateFiatOnRampCredentialInput = {
 
 /**
  * `POST /public/v1/submit/create_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TCreateFiatOnRampCredentialBody =
   operations["PublicApiService_CreateFiatOnRampCredential"]["parameters"]["body"]["body"];
@@ -4121,9 +4451,11 @@ export type TCreateFiatOnRampCredentialBody =
 /**
  * Create a Fiat On Ramp credential
  *
- * Create a fiat on ramp provider credential.
+ * Deprecated: use CreateFiatRampCredential.
  *
  * `POST /public/v1/submit/create_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export const createFiatOnRampCredential = (
   input: TCreateFiatOnRampCredentialInput,
@@ -4144,6 +4476,8 @@ export const createFiatOnRampCredential = (
  * Request a WebAuthn assertion and return a signed `CreateFiatOnRampCredential` request, ready to be POSTed to Turnkey.
  *
  * See {@link CreateFiatOnRampCredential}
+ *
+ * @deprecated
  */
 export const signCreateFiatOnRampCredential = (
   input: TCreateFiatOnRampCredentialInput,
@@ -4205,6 +4539,62 @@ export const signCreateFiatOnRampSession = (
 ) =>
   signedRequest<TCreateFiatOnRampSessionBody, never, never>({
     uri: "/public/v1/submit/create_fiat_on_ramp_session",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_fiat_ramp_credential`
+ */
+export type TCreateFiatRampCredentialResponse =
+  operations["PublicApiService_CreateFiatRampCredential"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_fiat_ramp_credential`
+ */
+export type TCreateFiatRampCredentialInput = {
+  body: TCreateFiatRampCredentialBody;
+};
+
+/**
+ * `POST /public/v1/submit/create_fiat_ramp_credential`
+ */
+export type TCreateFiatRampCredentialBody =
+  operations["PublicApiService_CreateFiatRampCredential"]["parameters"]["body"]["body"];
+
+/**
+ * Create a Fiat Ramp credential
+ *
+ * Create a fiat ramp provider credential.
+ *
+ * `POST /public/v1/submit/create_fiat_ramp_credential`
+ */
+export const createFiatRampCredential = (
+  input: TCreateFiatRampCredentialInput,
+) =>
+  request<
+    TCreateFiatRampCredentialResponse,
+    TCreateFiatRampCredentialBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_fiat_ramp_credential",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateFiatRampCredential` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateFiatRampCredential}
+ */
+export const signCreateFiatRampCredential = (
+  input: TCreateFiatRampCredentialInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateFiatRampCredentialBody, never, never>({
+    uri: "/public/v1/submit/create_fiat_ramp_credential",
     body: input.body,
     options,
   });
@@ -4843,7 +5233,7 @@ export type TCreateSubOrganizationBody =
 /**
  * Create sub-organization
  *
- * Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS).
+ * Create a new sub-organization. Each root user must have at least one valid credential: an API key, an authenticator, an OAuth provider, a wallet authenticator, or an email or phone number with a login method enabled on the sub-organization (email, email OTP, or SMS).
  *
  * `POST /public/v1/submit/create_sub_organization`
  */
@@ -4895,7 +5285,7 @@ export type TCreateSwapQuoteBody =
 /**
  * Create Swap quote
  *
- * Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3.
+ * Create a swap quote. Asset chains are derived from CAIP-19 asset IDs; cross-chain quotes are supported. Requests must use ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3, which returns its quotes in createSwapQuoteResultV2.
  *
  * `POST /public/v1/submit/create_swap_quote`
  */
@@ -5422,6 +5812,62 @@ export const signCreateWalletAccounts = (
   });
 
 /**
+ * `POST /public/v1/submit/create_wallet_authenticators`
+ */
+export type TCreateWalletAuthenticatorsResponse =
+  operations["PublicApiService_CreateWalletAuthenticators"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_wallet_authenticators`
+ */
+export type TCreateWalletAuthenticatorsInput = {
+  body: TCreateWalletAuthenticatorsBody;
+};
+
+/**
+ * `POST /public/v1/submit/create_wallet_authenticators`
+ */
+export type TCreateWalletAuthenticatorsBody =
+  operations["PublicApiService_CreateWalletAuthenticators"]["parameters"]["body"]["body"];
+
+/**
+ * Create wallet authenticators
+ *
+ * Add wallet authenticators to an existing user. Omit verification_token to attach unverified.
+ *
+ * `POST /public/v1/submit/create_wallet_authenticators`
+ */
+export const createWalletAuthenticators = (
+  input: TCreateWalletAuthenticatorsInput,
+) =>
+  request<
+    TCreateWalletAuthenticatorsResponse,
+    TCreateWalletAuthenticatorsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_wallet_authenticators",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateWalletAuthenticators` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateWalletAuthenticators}
+ */
+export const signCreateWalletAuthenticators = (
+  input: TCreateWalletAuthenticatorsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateWalletAuthenticatorsBody, never, never>({
+    uri: "/public/v1/submit/create_wallet_authenticators",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/create_webhook_endpoint`
  */
 export type TCreateWebhookEndpointResponse =
@@ -5567,6 +6013,58 @@ export const signDeleteAuthenticators = (
 ) =>
   signedRequest<TDeleteAuthenticatorsBody, never, never>({
     uri: "/public/v1/submit/delete_authenticators",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_external_signer`
+ */
+export type TDeleteExternalSignerResponse =
+  operations["PublicApiService_DeleteExternalSigner"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_external_signer`
+ */
+export type TDeleteExternalSignerInput = { body: TDeleteExternalSignerBody };
+
+/**
+ * `POST /public/v1/submit/delete_external_signer`
+ */
+export type TDeleteExternalSignerBody =
+  operations["PublicApiService_DeleteExternalSigner"]["parameters"]["body"]["body"];
+
+/**
+ * Delete external signer
+ *
+ * Remove an external signer from the organization by its public key.
+ *
+ * `POST /public/v1/submit/delete_external_signer`
+ */
+export const deleteExternalSigner = (input: TDeleteExternalSignerInput) =>
+  request<
+    TDeleteExternalSignerResponse,
+    TDeleteExternalSignerBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_external_signer",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteExternalSigner` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteExternalSigner}
+ */
+export const signDeleteExternalSigner = (
+  input: TDeleteExternalSignerInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteExternalSignerBody, never, never>({
+    uri: "/public/v1/submit/delete_external_signer",
     body: input.body,
     options,
   });
@@ -6483,6 +6981,62 @@ export const signDeleteWalletAccounts = (
 ) =>
   signedRequest<TDeleteWalletAccountsBody, never, never>({
     uri: "/public/v1/submit/delete_wallet_accounts",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_wallet_authenticators`
+ */
+export type TDeleteWalletAuthenticatorsResponse =
+  operations["PublicApiService_DeleteWalletAuthenticators"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_wallet_authenticators`
+ */
+export type TDeleteWalletAuthenticatorsInput = {
+  body: TDeleteWalletAuthenticatorsBody;
+};
+
+/**
+ * `POST /public/v1/submit/delete_wallet_authenticators`
+ */
+export type TDeleteWalletAuthenticatorsBody =
+  operations["PublicApiService_DeleteWalletAuthenticators"]["parameters"]["body"]["body"];
+
+/**
+ * Delete wallet authenticators
+ *
+ * Remove wallet authenticators from a user.
+ *
+ * `POST /public/v1/submit/delete_wallet_authenticators`
+ */
+export const deleteWalletAuthenticators = (
+  input: TDeleteWalletAuthenticatorsInput,
+) =>
+  request<
+    TDeleteWalletAuthenticatorsResponse,
+    TDeleteWalletAuthenticatorsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_wallet_authenticators",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteWalletAuthenticators` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteWalletAuthenticators}
+ */
+export const signDeleteWalletAuthenticators = (
+  input: TDeleteWalletAuthenticatorsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteWalletAuthenticatorsBody, never, never>({
+    uri: "/public/v1/submit/delete_wallet_authenticators",
     body: input.body,
     options,
   });
@@ -7423,17 +7977,23 @@ export const signImportWallet = (
 
 /**
  * `POST /public/v1/submit/init_fiat_on_ramp`
+ *
+ * @deprecated
  */
 export type TInitFiatOnRampResponse =
   operations["PublicApiService_InitFiatOnRamp"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/init_fiat_on_ramp`
+ *
+ * @deprecated
  */
 export type TInitFiatOnRampInput = { body: TInitFiatOnRampBody };
 
 /**
  * `POST /public/v1/submit/init_fiat_on_ramp`
+ *
+ * @deprecated
  */
 export type TInitFiatOnRampBody =
   operations["PublicApiService_InitFiatOnRamp"]["parameters"]["body"]["body"];
@@ -7441,9 +8001,11 @@ export type TInitFiatOnRampBody =
 /**
  * Init Fiat On Ramp
  *
- * Initiate a fiat on ramp flow.
+ * Deprecated: use CreateFiatOnRampSession with a quote from GetFiatOnRampQuotes.
  *
  * `POST /public/v1/submit/init_fiat_on_ramp`
+ *
+ * @deprecated
  */
 export const initFiatOnRamp = (input: TInitFiatOnRampInput) =>
   request<TInitFiatOnRampResponse, TInitFiatOnRampBody, never, never, never>({
@@ -7456,6 +8018,8 @@ export const initFiatOnRamp = (input: TInitFiatOnRampInput) =>
  * Request a WebAuthn assertion and return a signed `InitFiatOnRamp` request, ready to be POSTed to Turnkey.
  *
  * See {@link InitFiatOnRamp}
+ *
+ * @deprecated
  */
 export const signInitFiatOnRamp = (
   input: TInitFiatOnRampInput,
@@ -8963,12 +9527,16 @@ export const signStampLogin = (
 
 /**
  * `POST /public/v1/submit/update_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TUpdateFiatOnRampCredentialResponse =
   operations["PublicApiService_UpdateFiatOnRampCredential"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/update_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TUpdateFiatOnRampCredentialInput = {
   body: TUpdateFiatOnRampCredentialBody;
@@ -8976,6 +9544,8 @@ export type TUpdateFiatOnRampCredentialInput = {
 
 /**
  * `POST /public/v1/submit/update_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TUpdateFiatOnRampCredentialBody =
   operations["PublicApiService_UpdateFiatOnRampCredential"]["parameters"]["body"]["body"];
@@ -8983,9 +9553,11 @@ export type TUpdateFiatOnRampCredentialBody =
 /**
  * Update a Fiat On Ramp credential
  *
- * Update a fiat on ramp provider credential.
+ * Deprecated: use UpdateFiatRampCredential.
  *
  * `POST /public/v1/submit/update_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export const updateFiatOnRampCredential = (
   input: TUpdateFiatOnRampCredentialInput,
@@ -9006,6 +9578,8 @@ export const updateFiatOnRampCredential = (
  * Request a WebAuthn assertion and return a signed `UpdateFiatOnRampCredential` request, ready to be POSTed to Turnkey.
  *
  * See {@link UpdateFiatOnRampCredential}
+ *
+ * @deprecated
  */
 export const signUpdateFiatOnRampCredential = (
   input: TUpdateFiatOnRampCredentialInput,
@@ -9013,6 +9587,62 @@ export const signUpdateFiatOnRampCredential = (
 ) =>
   signedRequest<TUpdateFiatOnRampCredentialBody, never, never>({
     uri: "/public/v1/submit/update_fiat_on_ramp_credential",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/update_fiat_ramp_credential`
+ */
+export type TUpdateFiatRampCredentialResponse =
+  operations["PublicApiService_UpdateFiatRampCredential"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_fiat_ramp_credential`
+ */
+export type TUpdateFiatRampCredentialInput = {
+  body: TUpdateFiatRampCredentialBody;
+};
+
+/**
+ * `POST /public/v1/submit/update_fiat_ramp_credential`
+ */
+export type TUpdateFiatRampCredentialBody =
+  operations["PublicApiService_UpdateFiatRampCredential"]["parameters"]["body"]["body"];
+
+/**
+ * Update a Fiat Ramp credential
+ *
+ * Update a fiat ramp provider credential.
+ *
+ * `POST /public/v1/submit/update_fiat_ramp_credential`
+ */
+export const updateFiatRampCredential = (
+  input: TUpdateFiatRampCredentialInput,
+) =>
+  request<
+    TUpdateFiatRampCredentialResponse,
+    TUpdateFiatRampCredentialBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_fiat_ramp_credential",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateFiatRampCredential` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateFiatRampCredential}
+ */
+export const signUpdateFiatRampCredential = (
+  input: TUpdateFiatRampCredentialInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateFiatRampCredentialBody, never, never>({
+    uri: "/public/v1/submit/update_fiat_ramp_credential",
     body: input.body,
     options,
   });
@@ -9861,6 +10491,62 @@ export const signVerifyOtp = (
 ) =>
   signedRequest<TVerifyOtpBody, never, never>({
     uri: "/public/v1/submit/verify_otp",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/verify_wallet_authenticator`
+ */
+export type TVerifyWalletAuthenticatorResponse =
+  operations["PublicApiService_VerifyWalletAuthenticator"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/verify_wallet_authenticator`
+ */
+export type TVerifyWalletAuthenticatorInput = {
+  body: TVerifyWalletAuthenticatorBody;
+};
+
+/**
+ * `POST /public/v1/submit/verify_wallet_authenticator`
+ */
+export type TVerifyWalletAuthenticatorBody =
+  operations["PublicApiService_VerifyWalletAuthenticator"]["parameters"]["body"]["body"];
+
+/**
+ * Verify wallet authenticator
+ *
+ * Verify a SIWE or SIWS login and return an enclave-signed wallet verification token.
+ *
+ * `POST /public/v1/submit/verify_wallet_authenticator`
+ */
+export const verifyWalletAuthenticator = (
+  input: TVerifyWalletAuthenticatorInput,
+) =>
+  request<
+    TVerifyWalletAuthenticatorResponse,
+    TVerifyWalletAuthenticatorBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/verify_wallet_authenticator",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `VerifyWalletAuthenticator` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link VerifyWalletAuthenticator}
+ */
+export const signVerifyWalletAuthenticator = (
+  input: TVerifyWalletAuthenticatorInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TVerifyWalletAuthenticatorBody, never, never>({
+    uri: "/public/v1/submit/verify_wallet_authenticator",
     body: input.body,
     options,
   });

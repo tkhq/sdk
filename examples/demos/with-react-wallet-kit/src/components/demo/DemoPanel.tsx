@@ -51,6 +51,7 @@ export default function DemoPanel() {
     handleConnectExternalWallet,
     fetchWalletProviders,
     handleOnRamp,
+    handleOffRamp,
   } = useTurnkey();
 
   const { pushPage } = useModal();
@@ -108,12 +109,24 @@ export default function DemoPanel() {
     }
   }, [wallets]);
 
-  const handleAddFunds = async () => {
+  const handleDepositFunds = async () => {
     try {
       await handleOnRamp({
-        onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
         walletAccount: selectedWalletAccount!,
         sandboxMode: true,
+        defaultFiatCurrencyAmount: "40",
+      });
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const handleWithdrawFunds = async () => {
+    try {
+      await handleOffRamp({
+        walletAccount: selectedWalletAccount!,
+        sandboxMode: true,
+        defaultCryptoAmount: "0.05",
       });
     } catch (error) {
       handleError(error);
@@ -396,12 +409,20 @@ export default function DemoPanel() {
             Sign Message
           </Button>
 
-          <Button
-            className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
-            onClick={handleAddFunds}
-          >
-            Add Funds
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              className="flex w-full items-center justify-center bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
+              onClick={handleDepositFunds}
+            >
+              Deposit Funds
+            </Button>
+            <Button
+              className="flex w-full items-center justify-center bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
+              onClick={handleWithdrawFunds}
+            >
+              Withdraw Funds
+            </Button>
+          </div>
           {selectedWallet?.source === WalletSource.Embedded && (
             <>
               <hr className="border-draggable-background-light dark:border-draggable-background-dark" />

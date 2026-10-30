@@ -1,7 +1,7 @@
 import { WalletStamper, type WalletInterface } from "@turnkey/wallet-stamper";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
-import type { Session } from "@turnkey/sdk-types";
+import type { Session, v1Attestation } from "@turnkey/sdk-types";
 
 import WindowWrapper from "@polyfills/window";
 
@@ -45,18 +45,7 @@ export interface ApiKey {
 export interface Authenticator {
   authenticatorName: string;
   challenge: string;
-  attestation: {
-    credentialId: string;
-    clientDataJson: string;
-    attestationObject: string;
-    transports: (
-      | "AUTHENTICATOR_TRANSPORT_BLE"
-      | "AUTHENTICATOR_TRANSPORT_INTERNAL"
-      | "AUTHENTICATOR_TRANSPORT_NFC"
-      | "AUTHENTICATOR_TRANSPORT_USB"
-      | "AUTHENTICATOR_TRANSPORT_HYBRID"
-    )[];
-  };
+  attestation: v1Attestation;
 }
 
 export class TurnkeyBrowserSDK {

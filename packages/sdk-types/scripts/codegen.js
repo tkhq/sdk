@@ -784,8 +784,31 @@ function main() {
   output += generateApiTypes(swaggerMain);
   output += generateOverrideApiTypes(swaggerMain.definitions);
   output += generateApiTypes(swaggerAuthProxy, "Proxy");
+  output += generateOnRampCaip19Values(swaggerMain);
 
   fs.writeFileSync(outputPath, output);
+}
+
+// CAIP-19 ids are not valid TypeScript enum keys, so codegen keeps the swagger
+// enum as a const array. The union on TGetFiatOnRampQuotesBody has no runtime value.
+function generateOnRampCaip19Values(swagger) {
+  const values =
+    swagger.definitions?.v1GetFiatOnRampQuotesRequest?.properties?.caip19
+      ?.enum ?? [];
+  if (values.length === 0) return "";
+
+  const entries = values.map((value) => `  "${value}",`).join("\n");
+  return `
+export const OnRampCaip19Values = [
+${entries}
+] as const satisfies readonly TGetFiatOnRampQuotesBody["caip19"][];
+
+type _AssertExtends<A extends B, B> = A;
+export type _AssertOnRampCaip19ValuesInSync = _AssertExtends<
+  TGetFiatOnRampQuotesBody["caip19"],
+  (typeof OnRampCaip19Values)[number]
+>;
+`;
 }
 
 main();

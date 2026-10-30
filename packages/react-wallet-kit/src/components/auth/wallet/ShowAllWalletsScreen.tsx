@@ -29,10 +29,11 @@ const sameRange = (a: RowRange, b: RowRange) =>
 interface ShowAllWalletsScreenProps {
   onSelect: (provider: WalletProvider) => Promise<void>;
   onSelectQRCode: () => Promise<void>;
+  chain?: Chain | undefined;
 }
 
 export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
-  const { onSelect, onSelectQRCode } = props;
+  const { onSelect, onSelectQRCode, chain } = props;
   const { walletProviders, disconnectWalletAccount } = useTurnkey();
   const { walletConnectApps, isLoadingApps } = useWalletConnect();
   const { isMobile, pushPage, popPage } = useModal();
@@ -56,13 +57,14 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
     () =>
       walletConnectApps.reduce<Record<string, WalletConnectAppEntry[]>>(
         (acc, app) => {
+          if (chain && app.chain !== chain) return acc;
           if (!acc[app.id]) acc[app.id] = [];
           acc[app.id]!.push(app);
           return acc;
         },
         {},
       ),
-    [walletConnectApps],
+    [chain, walletConnectApps],
   );
 
   // Filter by search query
@@ -273,10 +275,14 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
                   </div>
                 }
                 name="Scan QR Code"
-                chains={[
-                  { namespace: Chain.Ethereum, isConnected: false },
-                  { namespace: Chain.Solana, isConnected: false },
-                ]}
+                chains={
+                  chain
+                    ? [{ namespace: chain, isConnected: false }]
+                    : [
+                        { namespace: Chain.Ethereum, isConnected: false },
+                        { namespace: Chain.Solana, isConnected: false },
+                      ]
+                }
                 onClick={onSelectQRCode}
                 isMobile={isMobile}
               />

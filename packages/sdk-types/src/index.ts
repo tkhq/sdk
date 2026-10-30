@@ -1,4 +1,5 @@
 import type {
+  TGetFiatOnRampQuotesBody,
   v1ActivityResponse,
   v1ActivityStatus,
   v1AppProof,
@@ -198,6 +199,7 @@ export class TurnkeyNetworkError extends TurnkeyError {
 export enum FiatOnRampProvider {
   COINBASE = "FIAT_ON_RAMP_PROVIDER_COINBASE",
   MOONPAY = "FIAT_ON_RAMP_PROVIDER_MOONPAY",
+  MELD = "FIAT_ON_RAMP_PROVIDER_MELD",
 }
 
 export enum FiatOnRampCryptoCurrency {
@@ -306,6 +308,12 @@ type _AssertExtends<A extends B, B> = A;
 export type _AssertActivityStatusInSync =
   | _AssertExtends<`${ActivityStatus}`, v1ActivityStatus>
   | _AssertExtends<v1ActivityStatus, `${ActivityStatus}`>;
+
+export type OnRampCaip19 = TGetFiatOnRampQuotesBody["caip19"];
+
+type ChainOf<T> = T extends `${infer Chain}/${string}` ? Chain : never;
+
+export type OnRampCaip2 = ChainOf<OnRampCaip19>;
 
 /** @internal */
 export type TActivityStatus = v1ActivityStatus;

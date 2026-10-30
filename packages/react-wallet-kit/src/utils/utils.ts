@@ -216,6 +216,15 @@ export function useWalletProviderState(initialState: WalletProvider[] = []) {
   return [walletProviders, updateWalletProviders] as const;
 }
 
+export function truncateAddress(
+  address: string | null | undefined,
+  prefix = 4,
+  suffix = 4,
+) {
+  if (!address || address.length <= prefix + suffix) return address ?? "";
+  return `${address.slice(0, prefix)}...${address.slice(-suffix)}`;
+}
+
 export function mergeWalletsWithoutDuplicates(
   existingWallets: Wallet[],
   newWallets: Wallet[],
