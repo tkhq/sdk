@@ -22,6 +22,7 @@ import { OffRampDeposit } from "./OffRampDeposit";
 import {
   OFFRAMP_POPUP_NAME,
   clearOffRampHandoff,
+  newOffRampReturnId,
   offrampRedirectUrl,
   saveOffRampHandoff,
 } from "./offRampRedirect";
@@ -199,12 +200,15 @@ export function OffRampAmount(props: OffRampAmountProps) {
 
     // Saved before the popup opens so that window can read it on the way back.
     // A popup only inherits sessionStorage from the moment it is opened.
+    const returnNonce = newOffRampReturnId();
     saveOffRampHandoff({
       token,
       amount: selectedQuote.cryptoAmount.display || amount,
       atomicAmount: selectedQuote.cryptoAmount.amount,
       provider: selectedQuote.provider,
       walletAccount,
+      nonce: returnNonce,
+      cryptoDecimals: selectedQuote.cryptoAmount.decimals,
       ...(organizationId ? { organizationId } : {}),
       ...(stampWith ? { stampWith } : {}),
       ...(rpcUrl ? { rpcUrl } : {}),
@@ -242,6 +246,7 @@ export function OffRampAmount(props: OffRampAmountProps) {
     try {
       const redirectUrl = offrampRedirectUrl({
         provider: selectedQuote.provider,
+        nonce: returnNonce,
       });
       const request = {
         quoteId: selectedQuote.quoteId,
@@ -273,6 +278,8 @@ export function OffRampAmount(props: OffRampAmountProps) {
             rpcUrl={rpcUrl}
             sandboxMode={sandboxMode ?? false}
             successPageDuration={successPageDuration}
+            cryptoDecimals={selectedQuote.cryptoAmount.decimals}
+            returnNonce={returnNonce}
             widget={widget}
             onSuccess={() => onSuccess?.()}
           />

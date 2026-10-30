@@ -112,9 +112,17 @@ export function depositPlan(params: {
 export function applyReturnedAmount(
   plan: DepositPlan,
   returned: string | undefined,
+  quoteDecimals: number,
+  quotedAsset: string,
 ): DepositPlan {
   if (plan.mode !== "send" || !returned) return plan;
-  const atomic = toAtomicAmount(returned, decimalsForAsset(plan.asset));
+  // MoonPay's baseCurrencyAmount is a display amount of the quoted asset.
+  // A sandbox plan can send a different asset, and that asset keeps its own decimals.
+  const decimals =
+    plan.asset.toLowerCase() === quotedAsset.toLowerCase()
+      ? quoteDecimals
+      : decimalsForAsset(plan.asset);
+  const atomic = toAtomicAmount(returned, decimals);
   if (atomic === undefined || atomic <= 0n) return plan;
   return sendPlan({
     caip2: plan.caip2,

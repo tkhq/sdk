@@ -27,7 +27,8 @@ export function OffRampReturn() {
 
   useLayoutEffect(() => {
     const deposit = moonPayDeposit(window.location.href);
-    if (!deposit) return;
+    const handoff = readOffRampHandoff();
+    if (!deposit?.nonce || !handoff || handoff.nonce !== deposit.nonce) return;
 
     let cancelled = false;
     let acked = false;
@@ -84,7 +85,7 @@ export function OffRampReturn() {
     const openHere = () => {
       if (cancelled || acked) return;
       const handoff = readOffRampHandoff();
-      if (!handoff) {
+      if (!handoff || handoff.nonce !== deposit.nonce) {
         if (attempts < 20) {
           attempts += 1;
           window.setTimeout(openHere, 50);
@@ -111,6 +112,8 @@ export function OffRampReturn() {
             rpcUrl={handoff.rpcUrl}
             sandboxMode={handoff.sandboxMode}
             successPageDuration={handoff.successPageDuration}
+            cryptoDecimals={handoff.cryptoDecimals}
+            returnNonce={handoff.nonce}
             initialAddress={deposit.address}
             initialAmount={deposit.amount}
             initialTag={deposit.tag}

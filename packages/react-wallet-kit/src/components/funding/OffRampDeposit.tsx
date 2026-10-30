@@ -16,6 +16,7 @@ import { useModal } from "../../providers/modal/Hook";
 import { useSupportedAssets } from "../../providers/SupportedAssetsProvider";
 import {
   applyReturnedAmount,
+  assetOf,
   buildUnsignedOnRampTransaction,
   chainLabel,
   depositPlan,
@@ -59,6 +60,8 @@ export type OffRampDepositProps = {
   rpcUrl?: string | undefined;
   sandboxMode?: boolean | undefined;
   successPageDuration?: number | undefined;
+  cryptoDecimals: number;
+  returnNonce: string;
   widget?: Window | undefined;
   initialAddress?: string | undefined;
   initialAmount?: string | undefined;
@@ -78,6 +81,8 @@ export function OffRampDeposit(props: OffRampDepositProps) {
     rpcUrl,
     sandboxMode,
     successPageDuration,
+    cryptoDecimals,
+    returnNonce,
     widget,
     initialAddress,
     initialAmount,
@@ -122,6 +127,8 @@ export function OffRampDeposit(props: OffRampDepositProps) {
       symbol: tokenSymbol(token, assetsByCaip2),
     }),
     returnedAmount,
+    cryptoDecimals,
+    assetOf(token),
   );
 
   const acceptDeposit = (deposit: MoonPayDeposit) => {
@@ -146,7 +153,14 @@ export function OffRampDeposit(props: OffRampDepositProps) {
     const seen = new Set<string>();
     let filled = false;
 
-    const take = (deposit: MoonPayDeposit, id?: string) => {
+    const take = (
+      deposit: MoonPayDeposit,
+      source: "widget" | "return",
+      id?: string,
+    ) => {
+      // The popup this screen opened is trusted. Any other return must carry
+      // the nonce from this sale's redirect URL.
+      if (source === "return" && deposit.nonce !== returnNonce) return;
       if (id && !seen.has(id)) {
         seen.add(id);
         ackOffRampReturn(id);
@@ -168,12 +182,12 @@ export function OffRampDeposit(props: OffRampDepositProps) {
     };
 
     const unsubscribe = subscribeOffRampReturn(({ id, deposit }) =>
-      take(deposit, id),
+      take(deposit, "return", id),
     );
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       if (!isOffRampDepositMessage(event.data)) return;
-      take(event.data.deposit, event.data.id);
+      take(event.data.deposit, "return", event.data.id);
     };
     window.addEventListener("message", onMessage);
 
@@ -184,7 +198,7 @@ export function OffRampDeposit(props: OffRampDepositProps) {
         if (popup.closed) return;
         const deposit = moonPayDeposit(popup.location.href);
         if (!deposit) return;
-        take(deposit);
+        take(deposit, "widget");
       } catch {
         // The window is still on MoonPay. location is readable after it returns here.
       }
@@ -195,7 +209,7 @@ export function OffRampDeposit(props: OffRampDepositProps) {
       window.removeEventListener("message", onMessage);
       window.clearInterval(timer);
     };
-  }, [provider]);
+  }, [provider, returnNonce]);
 
   const address = destination.trim();
   const canSend =

@@ -299,17 +299,15 @@ export async function ensureEthereumChain(
     await switchSelectedEthereumChain(provider, hexChainId);
   } catch (caught) {
     const code = (caught as { code?: number }).code;
-    if (code !== 4902) throw caught;
+    // 4902 means the wallet does not know this chain. Only Sepolia has a
+    // known RPC here. Other chains keep the wallet's own add-network error.
+    if (code !== 4902 || chainId !== 11155111) throw caught;
     await evmRequest(provider, "wallet_addEthereumChain", [
       {
         chainId: hexChainId,
-        chainName: chainId === 11155111 ? "Sepolia" : `Chain ${chainId}`,
+        chainName: "Sepolia",
         nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-        rpcUrls: [
-          chainId === 11155111
-            ? "https://rpc.sepolia.org"
-            : "https://cloudflare-eth.com",
-        ],
+        rpcUrls: ["https://rpc.sepolia.org"],
       },
     ]);
   }

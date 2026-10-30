@@ -9,6 +9,7 @@ export const OFFRAMP_POPUP_NAME = "turnkey-offramp";
 export const OFFRAMP_DEPOSIT_MESSAGE = "turnkey:offramp-deposit";
 export const OFFRAMP_ACK_MESSAGE = "turnkey:offramp-ack";
 export const OFFRAMP_CHANNEL = "tk-offramp";
+export const OFFRAMP_NONCE_PARAM = "tk_offramp_nonce";
 
 const STORAGE_KEY = "tk-offramp-deposit";
 const RETURN_KEY = "tk-offramp-return";
@@ -27,6 +28,7 @@ export type MoonPayDeposit = {
   address: string;
   amount?: string;
   tag?: string;
+  nonce?: string;
 };
 
 export type OffRampDepositMessage = {
@@ -51,15 +53,19 @@ export type OffRampHandoff = {
   sandboxMode?: boolean;
   successPageDuration?: number;
   walletAccount: WalletAccount;
+  nonce: string;
+  cryptoDecimals: number;
 };
 
 export function offrampRedirectUrl(options?: {
   provider?: v1FiatRampProvider;
+  nonce?: string;
 }): string | undefined {
   if (typeof window === "undefined") return undefined;
   const url = new URL(window.location.href);
   url.hash = "";
   for (const key of MOONPAY_PARAMS) url.searchParams.delete(key);
+  url.searchParams.delete(OFFRAMP_NONCE_PARAM);
 
   // Coinbase checks this host against the CDP domain allowlist. Send the
   // origin only so the allowlist entry is the site, not a path or query.
@@ -67,6 +73,7 @@ export function offrampRedirectUrl(options?: {
     return url.origin;
   }
 
+  if (options?.nonce) url.searchParams.set(OFFRAMP_NONCE_PARAM, options.nonce);
   return url.toString();
 }
 
@@ -81,10 +88,12 @@ export function moonPayDeposit(href: string): MoonPayDeposit | undefined {
   if (!address) return undefined;
   const amount = url.searchParams.get("baseCurrencyAmount")?.trim();
   const tag = url.searchParams.get("depositWalletAddressTag")?.trim();
+  const nonce = url.searchParams.get(OFFRAMP_NONCE_PARAM)?.trim();
   return {
     address,
     ...(amount ? { amount } : {}),
     ...(tag ? { tag } : {}),
+    ...(nonce ? { nonce } : {}),
   };
 }
 
@@ -280,7 +289,13 @@ export function readOffRampHandoff(): OffRampHandoff | undefined {
     const raw = storedHandoff();
     if (!raw) return undefined;
     const parsed = JSON.parse(raw) as Partial<OffRampHandoff>;
-    if (!parsed.token || !parsed.walletAccount?.address || !parsed.provider) {
+    if (
+      !parsed.token ||
+      !parsed.walletAccount?.address ||
+      !parsed.provider ||
+      !parsed.nonce ||
+      typeof parsed.cryptoDecimals !== "number"
+    ) {
       return undefined;
     }
     return parsed as OffRampHandoff;
@@ -306,7 +321,7 @@ export function clearOffRampHandoff() {
 export function stripMoonPayReturnParams() {
   const url = new URL(window.location.href);
   let changed = false;
-  for (const key of MOONPAY_PARAMS) {
+  for (const key of [...MOONPAY_PARAMS, OFFRAMP_NONCE_PARAM]) {
     if (!url.searchParams.has(key)) continue;
     url.searchParams.delete(key);
     changed = true;
