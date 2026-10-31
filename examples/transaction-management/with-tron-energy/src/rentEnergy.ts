@@ -21,9 +21,6 @@ async function main() {
   const before = await availableEnergy(tronWeb, receiver);
   const rental = await provider.rent(receiver, ENERGY_AMOUNT, DURATION_SEC);
 
-  // Everything after rent() runs inside the try: a deposit may already be
-  // committed on-chain, so the visibility timeout below must still reach
-  // release().
   try {
     console.log(
       `Rented via ${rental.provider}, est. cost ${rental.costSun / 1_000_000} TRX`,

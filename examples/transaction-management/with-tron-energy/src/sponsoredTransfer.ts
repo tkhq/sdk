@@ -27,11 +27,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 // storage slot and costs roughly twice the energy — the live estimate below
 // handles both cases; this is only the safety margin on top of it.
 const ENERGY_MARGIN = 1.05;
-// The shortest useful *hold*, not a cheaper one: a sub-day TronSave rental is
-// billed `amount x unitPrice` with no proration, and a one-day rental costs the
-// same. Raising this past a day multiplies the bill by the number of started
-// days — which a per-unit price cap cannot see.
-// https://docs.tronsave.io/concepts/pricing-and-apy
+// Past a day, TronSave bills per started day — see pricing in the README.
 const RENT_DURATION_SEC = 3600;
 const FEE_LIMIT_SUN = 20_000_000; // 20 TRX backstop; see README
 
@@ -69,9 +65,6 @@ async function main() {
       `energy estimate failed: ${estimate?.result?.message ?? "unknown"}`,
     );
   }
-  // A successful `result.result` only means the call round-tripped; it does not
-  // guarantee energy_used came back. Defaulting a missing estimate to zero
-  // would rent nothing and then try to burn TRX the wallet does not hold.
   if (typeof estimate.energy_used !== "number") {
     throw new Error("energy estimate returned no energy_used");
   }
@@ -81,11 +74,6 @@ async function main() {
   // 2. Rent the shortfall via the configured provider, then — regardless of
   // what the provider reported — verify the energy is actually visible on the
   // account before broadcasting. Never trust the order of events.
-  //
-  // The rental and the wait both sit inside the try: once rent() returns, a
-  // deposit may already be committed on-chain, so every path from here on —
-  // including the visibility timeout below, the likeliest failure in this
-  // script — has to reach the release() in the finally.
   const deficit = energyNeeded - (await availableEnergy(tronWeb, user));
   let rental: EnergyRental | null = null;
   try {
