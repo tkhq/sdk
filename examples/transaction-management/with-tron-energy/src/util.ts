@@ -78,6 +78,15 @@ export async function signTronTransaction<T extends TronTransaction>(
   return { ...transaction, signature: [r + s + v] };
 }
 
+/** Node error messages come back hex-encoded. */
+function decodeNodeMessage(message: string | undefined): string {
+  if (!message) return "";
+  if (message.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(message)) {
+    return message;
+  }
+  return Buffer.from(message, "hex").toString();
+}
+
 export async function broadcast(
   tronWeb: TronWeb,
   signed: SignedTronTransaction,
@@ -85,9 +94,21 @@ export async function broadcast(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result = await tronWeb.trx.sendRawTransaction(signed as any);
   if (!result.result) {
-    throw new Error(`broadcast failed: ${result.message ?? result.code}`);
+    const detail = decodeNodeMessage(result.message) || result.code;
+    throw new Error(`broadcast failed: ${detail}`);
   }
   return result.txid ?? signed.txID;
+}
+
+/** Positive number from the environment, rejecting values that parse to NaN. */
+export function numberFromEnv(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (raw === undefined || raw.trim() === "") return fallback;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new Error(`${name} must be a positive number, got "${raw}"`);
+  }
+  return value;
 }
 
 // Broadcast acceptance is not execution: a transaction can be included and
@@ -102,15 +123,19 @@ export async function waitForConfirmation(
   while (Date.now() < deadline) {
     await new Promise((resolve) => setTimeout(resolve, 3000));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const info = (await tronWeb.trx.getTransactionInfo(txid)) as any;
+    let info: any;
+    try {
+      info = await tronWeb.trx.getTransactionInfo(txid);
+    } catch {
+      // A transient node error must not abort the poll: the caller may hold an
+      // unsettled rental whose only release path is this function returning.
+      continue;
+    }
     if (!info?.id) continue; // not included yet
     const receipt = info.receipt?.result;
     if (info.result === "FAILED" || (receipt && receipt !== "SUCCESS")) {
-      const detail = info.resMessage
-        ? Buffer.from(info.resMessage, "hex").toString()
-        : "";
       throw new Error(
-        `tx ${txid} failed on-chain: ${receipt ?? "FAILED"} ${detail}`,
+        `tx ${txid} failed on-chain: ${receipt ?? "FAILED"} ${decodeNodeMessage(info.resMessage)}`,
       );
     }
     return;
@@ -125,4 +150,19 @@ export async function availableEnergy(
 ): Promise<number> {
   const resources = await tronWeb.trx.getAccountResources(address);
   return (resources.EnergyLimit ?? 0) - (resources.EnergyUsed ?? 0);
+}
+
+/**
+ * Bandwidth the account can spend right now. Energy providers delegate energy
+ * only; bandwidth is a separate resource, and the free allowance (600/day)
+ * covers roughly one TRC-20 transfer.
+ */
+export async function availableBandwidth(
+  tronWeb: TronWeb,
+  address: string,
+): Promise<number> {
+  const resources = await tronWeb.trx.getAccountResources(address);
+  const free = (resources.freeNetLimit ?? 0) - (resources.freeNetUsed ?? 0);
+  const staked = (resources.NetLimit ?? 0) - (resources.NetUsed ?? 0);
+  return free + staked;
 }

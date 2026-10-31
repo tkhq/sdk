@@ -9,29 +9,36 @@ import {
 } from "../util";
 import type { EnergyProvider, EnergyRental } from "./types";
 
-// JustLend DAO's EnergyRental contract (https://justlend.org) — the on-chain
-// alternative to marketplace APIs: no API key, no prepaid account, no
-// off-chain counterparty. A sponsor wallet calls rentResource() with a TRX
-// prepay (occupation fee + a refundable security deposit, min 40 TRX) and the
-// contract delegates energy to the receiver. The deposit comes back when
-// returnResource() is called — skip it past expiry and the order can be
-// liquidated, forfeiting the deposit. That second transaction plus the
-// deposit float is the price of having no off-chain dependency; for short
-// rentals JustLend is typically several times costlier than a marketplace,
-// which is why it belongs in the fallback tier, not the primary one.
+// JustLend DAO's EnergyRental contract — the on-chain alternative to
+// marketplace APIs: no API key, no prepaid account, no off-chain counterparty.
+// A sponsor wallet calls rentResource() with a TRX prepay and the contract
+// delegates energy to the receiver; returnResource() settles it. That second
+// transaction plus the prepay float is the price of having no off-chain
+// dependency, which is why this belongs in the fallback tier.
 //
-// MAINNET ONLY: no public testnet deployment is known. Rentals are priced
-// from the live on-chain _rentalRate; prepay overestimates are refunded
-// proportionally on return, so the margin below errs high on purpose.
-// Constraints: the receiver must be an activated, non-contract address.
+// Prepay has three documented components
+// (https://docs.justlend.org/getting_started/concepts/energy_rental/):
+//
+//   Energy Fee         = amount x unit price x duration
+//   Security Deposit   = amount x daily price  (i.e. one day's energy fee)
+//   Liquidation Penalty = max(delegated TRX x 0.008%, 20 TRX)
+//
+// Only part of that is a real cost. The penalty and any unused energy fee are
+// refunded on return, but 0.75 days of the security deposit is deducted once
+// the rented energy has actually been consumed — the normal case here — so the
+// net cost is the energy fee plus that deduction. An order left past expiry is
+// liquidated and the penalty is forfeited to the liquidator.
+//
+// MAINNET ONLY: no public testnet deployment is known. Rentals are priced from
+// the live on-chain _rentalRate, a per-SUN-per-second rate scaled by 1e18. The
+// receiver must be an activated, non-contract address.
 
 const JUSTLEND_ENERGY_RENTAL_MAINNET = "TU2MJ5Veik1LRAgjeSzEdvmDYx7mefJZvd";
 const RESOURCE_TYPE_ENERGY = 1;
-const SECURITY_DEPOSIT_MIN_SUN = 40_000_000; // 40 TRX
-const SECURITY_DEPOSIT_RATE = 0.05;
-// Prepay must cover the rental duration plus the protocol's settlement
-// buffer; one extra day on top is refunded pro-rata, so err high.
-const PREPAY_BUFFER_SEC = 2 * 86_400;
+const SECONDS_PER_DAY = 86_400;
+const MAX_DURATION_SEC = 30 * SECONDS_PER_DAY;
+const LIQUIDATION_PENALTY_RATE = 0.00008; // 0.008% of delegated TRX
+const LIQUIDATION_PENALTY_MIN_SUN = 20_000_000; // 20 TRX
 
 export class JustLendEnergyRental implements EnergyProvider {
   readonly name = "justlend";
@@ -49,6 +56,11 @@ export class JustLendEnergyRental implements EnergyProvider {
     energy: number,
     durationSec: number,
   ): Promise<EnergyRental> {
+    if (durationSec > MAX_DURATION_SEC) {
+      throw new Error(
+        `JustLend rentals are capped at 30 days; got ${durationSec}s`,
+      );
+    }
     // The contract denominates rentals in delegated stake (SUN), not energy.
     const trxSun = await energyToDelegatableSun(
       this.tronWeb,
@@ -74,46 +86,60 @@ export class JustLendEnergyRental implements EnergyProvider {
       throw new Error("JustLend _rentalRate read failed");
     }
     const rate = BigInt(`0x${rateHex}`);
+    const feeForSeconds = (seconds: number) =>
+      (BigInt(trxSun) * rate * BigInt(seconds)) / 10n ** 18n;
 
-    const occupationSun =
-      (BigInt(trxSun) * rate * BigInt(durationSec + PREPAY_BUFFER_SEC)) /
-      10n ** 18n;
-    const depositSun = BigInt(
+    const energyFeeSun = feeForSeconds(durationSec);
+    const securityDepositSun = feeForSeconds(SECONDS_PER_DAY);
+    const liquidationPenaltySun = BigInt(
       Math.max(
-        SECURITY_DEPOSIT_MIN_SUN,
-        Math.ceil(trxSun * SECURITY_DEPOSIT_RATE),
+        LIQUIDATION_PENALTY_MIN_SUN,
+        Math.ceil(trxSun * LIQUIDATION_PENALTY_RATE),
       ),
     );
-    const prepaySun = Number(occupationSun + depositSun);
-
-    const txid = await this.trigger(
-      "rentResource(address,uint256,uint256)",
-      receiver,
-      trxSun,
-      prepaySun,
+    const prepaySun = Number(
+      energyFeeSun + securityDepositSun + liquidationPenaltySun,
     );
-    console.log(
-      `[justlend] rented ${trxSun / 1_000_000} TRX of energy for ${receiver} ` +
-        `(prepay ~${prepaySun / 1_000_000} TRX, deposit refunds on return): ${txid}`,
-    );
+    // What the rental actually costs once refunds settle, as distinct from the
+    // prepay that has to be funded up front.
+    const netCostSun = Number(energyFeeSun + (securityDepositSun * 3n) / 4n);
 
-    return {
-      provider: this.name,
-      costSun: prepaySun,
-      // Reclaims the unused prepay and the security deposit. Not optional:
-      // orders left past expiry can be liquidated.
-      release: async () => {
-        const returnTxid = await this.trigger(
-          "returnResource(address,uint256,uint256)",
-          receiver,
-          trxSun,
-          0,
-        );
-        console.log(
-          `[justlend] returned delegation, deposit reclaimed: ${returnTxid}`,
-        );
-      },
+    // Reclaims the penalty and the unconsumed prepay. Not optional: an order
+    // left past expiry is liquidated.
+    const release = async () => {
+      const returnTxid = await this.trigger(
+        "returnResource(address,uint256,uint256)",
+        receiver,
+        trxSun,
+        0,
+      );
+      console.log(`[justlend] returned delegation: ${returnTxid}`);
     };
+
+    let txid: string;
+    try {
+      txid = await this.trigger(
+        "rentResource(address,uint256,uint256)",
+        receiver,
+        trxSun,
+        prepaySun,
+      );
+    } catch (rentError) {
+      // The rental may have executed even though this call failed to confirm,
+      // in which case the prepay is already committed on-chain. Attempt to
+      // return it rather than leave it to be liquidated; a return that reverts
+      // because nothing was rented is the harmless case.
+      await release().catch(() => {});
+      throw rentError;
+    }
+
+    console.log(
+      `[justlend] rented ${trxSun / 1_000_000} TRX of stake for ${receiver}: ` +
+        `prepay ${prepaySun / 1_000_000} TRX, net cost after refunds ` +
+        `~${netCostSun / 1_000_000} TRX: ${txid}`,
+    );
+
+    return { provider: this.name, costSun: netCostSun, release };
   }
 
   private async trigger(

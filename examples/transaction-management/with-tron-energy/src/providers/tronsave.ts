@@ -5,6 +5,7 @@
 // single HTTP call with no on-chain payment leg. Delegations expire on their
 // own; there is nothing to undelegate, so release() is a no-op.
 
+import { numberFromEnv } from "../util";
 import type { EnergyProvider, EnergyRental } from "./types";
 
 export interface TronSaveEstimate {
@@ -107,6 +108,14 @@ export class TronSave implements EnergyProvider {
         `TronSave market can only fill ${quote.availableResource}/${energyAmount} energy right now`,
       );
     }
+    const balanceSun = await this.getBalanceSun();
+    if (balanceSun < BigInt(quote.costSun)) {
+      throw new Error(
+        `TronSave prepaid balance is ${Number(balanceSun) / 1_000_000} TRX, ` +
+          `below the ${quote.costSun / 1_000_000} TRX this order needs — top up the ` +
+          `deposit address from GET /user-info`,
+      );
+    }
     const data = await this.request<{ orderId: string }>("/buy-resource", {
       method: "POST",
       apiKey: true,
@@ -173,7 +182,7 @@ export function tronSaveFromEnv(): TronSave {
   if (!apiKey) throw new Error("TRONSAVE_API_KEY is not set");
   return new TronSave(
     apiKey,
-    Number(process.env.MAX_PRICE_SUN ?? 150),
+    numberFromEnv("MAX_PRICE_SUN", 150),
     process.env.TRONSAVE_API_BASE_URL || undefined,
   );
 }

@@ -4,6 +4,7 @@ import * as path from "path";
 import { energyProviderFromEnv } from "./providers";
 import type { EnergyRental } from "./providers";
 import {
+  availableBandwidth,
   availableEnergy,
   broadcast,
   explorerTxUrl,
@@ -30,6 +31,7 @@ const ENERGY_MARGIN = 1.05;
 // Past a day, TronSave bills per started day — see pricing in the README.
 const RENT_DURATION_SEC = 3600;
 const FEE_LIMIT_SUN = 20_000_000; // 20 TRX backstop; see README
+const TRANSFER_BANDWIDTH = 345; // free allowance is 600/day
 
 type ConstantContractResult = {
   result?: { result?: boolean; message?: string };
@@ -74,6 +76,18 @@ async function main() {
   // 2. Rent the shortfall via the configured provider, then — regardless of
   // what the provider reported — verify the energy is actually visible on the
   // account before broadcasting. Never trust the order of events.
+  //
+  // Providers delegate energy, not bandwidth — so check bandwidth first rather
+  // than pay for a rental this wallet cannot broadcast against.
+  const bandwidth = await availableBandwidth(tronWeb, user);
+  if (bandwidth < TRANSFER_BANDWIDTH) {
+    throw new Error(
+      `${user} has ${bandwidth} bandwidth but needs ~${TRANSFER_BANDWIDTH}. The free ` +
+        `600/day allowance covers about one transfer, and a wallet with no TRX cannot ` +
+        `burn the shortfall: delegate bandwidth to it, or leave it a little TRX.`,
+    );
+  }
+
   const deficit = energyNeeded - (await availableEnergy(tronWeb, user));
   let rental: EnergyRental | null = null;
   try {
@@ -118,8 +132,18 @@ async function main() {
   } finally {
     // 4. Settle the rental whether or not the transfer succeeded: a no-op for
     // marketplace delegations that expire on their own, deposit recovery for
-    // JustLend.
-    await rental?.release();
+    // JustLend. A failure here must not replace the error that caused it.
+    if (rental) {
+      try {
+        await rental.release();
+      } catch (releaseError) {
+        console.error(
+          `WARNING: rental for ${user} was not settled. An on-chain deposit may ` +
+            `still be outstanding, and is forfeited if left past expiry.`,
+          releaseError,
+        );
+      }
+    }
   }
 }
 

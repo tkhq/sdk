@@ -2,7 +2,12 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 
 import { energyProviderFromEnv } from "./providers";
-import { availableEnergy, initTronWeb, initTurnkey } from "./util";
+import {
+  availableEnergy,
+  initTronWeb,
+  initTurnkey,
+  numberFromEnv,
+} from "./util";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -10,8 +15,8 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 // Rent energy for any (activated) address through the configured provider,
 // watch the delegation land on-chain, then settle the rental.
 
-const ENERGY_AMOUNT = Number(process.env.ENERGY_AMOUNT ?? 66_000);
-const DURATION_SEC = Number(process.env.RENT_DURATION_SEC ?? 3600);
+const ENERGY_AMOUNT = numberFromEnv("ENERGY_AMOUNT", 66_000);
+const DURATION_SEC = numberFromEnv("RENT_DURATION_SEC", 3600);
 
 async function main() {
   const tronWeb = initTronWeb();
@@ -41,7 +46,15 @@ async function main() {
   } finally {
     // Settle immediately for demo purposes (JustLend deposit recovery; no-op
     // for marketplace rentals).
-    await rental.release();
+    try {
+      await rental.release();
+    } catch (releaseError) {
+      console.error(
+        `WARNING: rental for ${receiver} was not settled. An on-chain deposit may ` +
+          `still be outstanding, and is forfeited if left past expiry.`,
+        releaseError,
+      );
+    }
   }
 }
 
