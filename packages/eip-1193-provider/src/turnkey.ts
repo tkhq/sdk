@@ -7,7 +7,6 @@ import type {
 import type { definitions } from "@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.types";
 
 import { signatureToHex } from "viem";
-import { pad } from "viem/utils";
 
 import { TURNKEY_ERROR_CODE } from "./constants";
 import type { TurnkeySDKClientBase } from "@turnkey/core";
@@ -37,6 +36,14 @@ export function unwrapActivityResult<
   }
 }
 
+/**
+ * Signs an already hashed message with `signWith`.
+ *
+ * `message` must be the 32 byte digest that should be signed, e.g. the
+ * EIP-191 hash for `personal_sign`/`eth_sign` or the EIP-712 hash for
+ * `eth_signTypedData_v4`. It is forwarded to Turnkey with
+ * `HASH_FUNCTION_NO_OP`, so nothing hashes it on the way.
+ */
 export async function signMessage({
   client,
   message,
@@ -56,7 +63,7 @@ export async function signMessage({
       organizationId,
       parameters: {
         signWith,
-        payload: pad(message),
+        payload: message,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
       },
