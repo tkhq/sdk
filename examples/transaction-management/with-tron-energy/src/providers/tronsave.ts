@@ -23,6 +23,24 @@ interface Envelope<T> {
   data?: T;
 }
 
+// Wire shapes below use TronSave's own field names; everything this module
+// returns is renamed to carry its unit, so `estimateTrx` stops being load
+// bearing past this boundary.
+
+interface EstimateBuyResourceResponse {
+  /** Market unit price, in SUN per unit of energy. */
+  unitPrice: number;
+  /** Total order cost, in SUN — not TRX, despite the name. */
+  estimateTrx: number;
+  /** Energy the market can delegate instantly right now. */
+  availableResource: number;
+}
+
+interface UserInfoResponse {
+  /** Internal prepaid account balance, in SUN. */
+  balance: string;
+}
+
 export class TronSave implements EnergyProvider {
   readonly name = "tronsave";
 
@@ -63,23 +81,21 @@ export class TronSave implements EnergyProvider {
     energyAmount: number,
     durationSec: number,
   ): Promise<TronSaveEstimate> {
-    const data = await this.request<{
-      unitPrice: number;
-      estimateTrx: number;
-      availableResource: number;
-    }>("/estimate-buy-resource", {
-      method: "POST",
-      body: {
-        resourceType: "ENERGY",
-        receiver,
-        resourceAmount: energyAmount,
-        durationSec,
-        unitPrice: "MEDIUM",
+    const data = await this.request<EstimateBuyResourceResponse>(
+      "/estimate-buy-resource",
+      {
+        method: "POST",
+        body: {
+          resourceType: "ENERGY",
+          receiver,
+          resourceAmount: energyAmount,
+          durationSec,
+          unitPrice: "MEDIUM",
+        },
       },
-    });
+    );
     return {
       unitPriceSun: data.unitPrice,
-      // `estimateTrx` is denominated in SUN despite the name.
       costSun: Math.ceil(data.estimateTrx),
       availableResource: data.availableResource,
     };
@@ -142,7 +158,7 @@ export class TronSave implements EnergyProvider {
 
   /** Prepaid internal-account balance, in SUN. */
   async getBalanceSun(): Promise<bigint> {
-    const data = await this.request<{ balance: string }>("/user-info", {
+    const data = await this.request<UserInfoResponse>("/user-info", {
       method: "GET",
       apiKey: true,
     });
