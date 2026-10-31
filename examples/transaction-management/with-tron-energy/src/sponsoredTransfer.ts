@@ -14,24 +14,16 @@ import {
   waitForConfirmation,
 } from "./util";
 
-// Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-// A fee-sponsored TRC-20 transfer: the user wallet holds the token and ZERO
-// TRX. Energy arrives as a delegation from the configured provider (TronSave
-// marketplace or JustLend on-chain), the user signs its own transfer via
-// Turnkey riding on that energy plus the account's free daily bandwidth, and
-// the rental is settled afterwards. No TRX is ever burned from the user
-// wallet.
+// A fee-sponsored TRC-20 transfer: the sending wallet holds the token and zero
+// TRX, and rides a rented energy delegation plus its free daily bandwidth.
 
-// If the recipient's token balance is zero the transfer writes a fresh
-// storage slot and costs roughly twice the energy — the live estimate below
-// handles both cases; this is only the safety margin on top of it.
 const ENERGY_MARGIN = 1.05;
-// Past a day, TronSave bills per started day — see pricing in the README.
+// Past a day, TronSave bills per started day — see the README on pricing.
 const RENT_DURATION_SEC = 3600;
-const FEE_LIMIT_SUN = 20_000_000; // 20 TRX backstop; see README
-const TRANSFER_BANDWIDTH = 345; // free allowance is 600/day
+const FEE_LIMIT_SUN = 20_000_000;
+const TRANSFER_BANDWIDTH = 345;
 
 type ConstantContractResult = {
   result?: { result?: boolean; message?: string };
@@ -46,7 +38,7 @@ async function main() {
   const user = process.env.USER_ADDRESS!;
   const recipient = process.env.RECIPIENT_ADDRESS!;
   const token =
-    process.env.TOKEN_ADDRESS ?? "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"; // USDT on mainnet
+    process.env.TOKEN_ADDRESS ?? "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
   const amount = process.env.TOKEN_AMOUNT ?? "1000000";
 
   const transferParams = [
@@ -54,7 +46,8 @@ async function main() {
     { type: "uint256", value: amount },
   ];
 
-  // 1. Estimate the transfer's energy with a constant (free, unsigned) call.
+  // A recipient holding no tokens writes a fresh storage slot and costs about
+  // twice the energy; the live estimate covers both cases.
   const estimate = (await tronWeb.transactionBuilder.triggerConstantContract(
     token,
     "transfer(address,uint256)",
@@ -73,12 +66,7 @@ async function main() {
   const energyNeeded = Math.ceil(estimate.energy_used * ENERGY_MARGIN);
   console.log(`Transfer needs ~${energyNeeded} energy`);
 
-  // 2. Rent the shortfall via the configured provider, then — regardless of
-  // what the provider reported — verify the energy is actually visible on the
-  // account before broadcasting. Never trust the order of events.
-  //
-  // Providers delegate energy, not bandwidth — so check bandwidth first rather
-  // than pay for a rental this wallet cannot broadcast against.
+  // Bandwidth is never delegated, so check it before paying for energy.
   const bandwidth = await availableBandwidth(tronWeb, user);
   if (bandwidth < TRANSFER_BANDWIDTH) {
     throw new Error(
@@ -93,21 +81,20 @@ async function main() {
   try {
     if (deficit > 0) {
       rental = await provider.rent(user, deficit, RENT_DURATION_SEC);
+      // An accepted order is not a delegation: wait for it on-chain.
       const deadline = Date.now() + 60_000;
       while ((await availableEnergy(tronWeb, user)) < energyNeeded) {
-        if (Date.now() > deadline)
+        if (Date.now() > deadline) {
           throw new Error("delegation not visible in time");
+        }
         await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     } else {
       console.log("User already has enough energy; skipping rental");
     }
 
-    // 3. The user signs and broadcasts its own transfer. The feeLimit must
-    // still cover the energy cost: the node caps a call's energy at
-    // min(available, feeLimit / energyPrice), so a tiny feeLimit would
-    // silently disable the delegated energy. With enough delegated energy, no
-    // TRX is burned and the user wallet needs none.
+    // feeLimit caps a call's energy at min(available, feeLimit / energyPrice),
+    // so too small a limit silently disables the delegated energy.
     const wrapper = await tronWeb.transactionBuilder.triggerSmartContract(
       token,
       "transfer(address,uint256)",
@@ -130,13 +117,11 @@ async function main() {
     await waitForConfirmation(tronWeb, transferTxid);
     console.log(explorerTxUrl(transferTxid));
   } finally {
-    // 4. Settle the rental whether or not the transfer succeeded: a no-op for
-    // marketplace delegations that expire on their own, deposit recovery for
-    // JustLend. A failure here must not replace the error that caused it.
     if (rental) {
       try {
         await rental.release();
       } catch (releaseError) {
+        // Never let this replace the error that brought us here.
         console.error(
           `WARNING: rental for ${user} was not settled. An on-chain deposit may ` +
             `still be outstanding, and is forfeited if left past expiry.`,

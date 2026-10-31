@@ -1,9 +1,6 @@
 import { Turnkey } from "@turnkey/sdk-server";
 import { TronWeb } from "tronweb";
 
-// Tron's signing digest is sha256(raw_data). Turnkey hashes the raw_data_hex
-// payload with HASH_FUNCTION_SHA256 and signs the result with the secp256k1
-// key behind `signWith`, so no key material ever leaves Turnkey.
 export type TronTransaction = {
   txID: string;
   raw_data: unknown;
@@ -23,10 +20,7 @@ export function initTurnkey(): Turnkey {
 }
 
 export function initTronWeb(): TronWeb {
-  // Defaults to mainnet; set a TRONGRID_API_KEY — TronGrid throttles
-  // anonymous mainnet traffic hard. For the Nile testnet set
-  // TRON_FULL_HOST=https://nile.trongrid.io (TronSave only, via its dev API;
-  // JustLend has no testnet deployment).
+  // TronGrid throttles anonymous mainnet traffic; set TRONGRID_API_KEY.
   const apiKey = process.env.TRONGRID_API_KEY;
   return new TronWeb({
     fullHost: process.env.TRON_FULL_HOST ?? "https://api.trongrid.io",
@@ -34,7 +28,6 @@ export function initTronWeb(): TronWeb {
   });
 }
 
-/** Explorer link for a transaction, matching the configured network. */
 export function explorerTxUrl(txid: string): string {
   const host = process.env.TRON_FULL_HOST ?? "";
   const base = host.includes("nile")
@@ -44,10 +37,9 @@ export function explorerTxUrl(txid: string): string {
 }
 
 /**
- * Convert an energy amount into the SUN of staked TRX that currently yields
- * it. Delegations (and JustLend rentals) are denominated in staked balance,
- * not energy, and the ratio (TotalEnergyLimit / TotalEnergyWeight) floats
- * with network-wide stake, so it must be read live rather than hardcoded.
+ * Energy expressed as the staked TRX (in SUN) that currently yields it.
+ * Delegations are denominated in stake, not energy, and the ratio floats with
+ * network-wide stake — so read it live rather than hardcoding it.
  */
 export async function energyToDelegatableSun(
   tronWeb: TronWeb,
@@ -68,6 +60,7 @@ export async function signTronTransaction<T extends TronTransaction>(
   signWith: string,
   transaction: T,
 ): Promise<T & { signature: string[] }> {
+  // Tron's signing digest is sha256(raw_data).
   const { r, s, v } = await turnkeyClient.apiClient().signRawPayload({
     organizationId: process.env.ORGANIZATION_ID!,
     signWith,
@@ -94,8 +87,9 @@ export async function broadcast(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result = await tronWeb.trx.sendRawTransaction(signed as any);
   if (!result.result) {
-    const detail = decodeNodeMessage(result.message) || result.code;
-    throw new Error(`broadcast failed: ${detail}`);
+    throw new Error(
+      `broadcast failed: ${decodeNodeMessage(result.message) || result.code}`,
+    );
   }
   return result.txid ?? signed.txID;
 }
@@ -111,9 +105,7 @@ export function numberFromEnv(name: string, fallback: number): number {
   return value;
 }
 
-// Broadcast acceptance is not execution: a transaction can be included and
-// still fail on-chain (e.g. OUT_OF_ENERGY). Poll the receipt and surface the
-// on-chain failure reason.
+/** A transaction can be included and still fail on-chain (e.g. OUT_OF_ENERGY). */
 export async function waitForConfirmation(
   tronWeb: TronWeb,
   txid: string,
@@ -127,9 +119,7 @@ export async function waitForConfirmation(
     try {
       info = await tronWeb.trx.getTransactionInfo(txid);
     } catch {
-      // A transient node error must not abort the poll: the caller may hold an
-      // unsettled rental whose only release path is this function returning.
-      continue;
+      continue; // transient node error; a caller may be holding a rental open
     }
     if (!info?.id) continue; // not included yet
     const receipt = info.receipt?.result;
@@ -143,7 +133,7 @@ export async function waitForConfirmation(
   throw new Error(`tx ${txid} not confirmed within ${timeoutMs / 1000}s`);
 }
 
-/** Energy the account can spend right now (own stake + delegations), net of usage. */
+/** Spendable energy: own stake plus delegations, net of usage. */
 export async function availableEnergy(
   tronWeb: TronWeb,
   address: string,
@@ -153,9 +143,8 @@ export async function availableEnergy(
 }
 
 /**
- * Bandwidth the account can spend right now. Energy providers delegate energy
- * only; bandwidth is a separate resource, and the free allowance (600/day)
- * covers roughly one TRC-20 transfer.
+ * Spendable bandwidth. Energy providers delegate energy only; bandwidth is a
+ * separate resource whose free allowance (600/day) covers about one transfer.
  */
 export async function availableBandwidth(
   tronWeb: TronWeb,

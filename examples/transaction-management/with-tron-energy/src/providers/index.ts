@@ -9,12 +9,7 @@ export type { EnergyProvider, EnergyRental } from "./types";
 export { TronSave, tronSaveFromEnv } from "./tronsave";
 export { JustLendEnergyRental } from "./justlend";
 
-/**
- * Resolve the provider named by ENERGY_PROVIDER (default: tronsave). In
- * production the natural shape is a priority-ordered chain behind this same
- * interface — marketplace first for price, JustLend as the API-independent
- * fallback, TRX burn as a last, alerting resort.
- */
+/** Resolve the provider named by ENERGY_PROVIDER (default: tronsave). */
 export function energyProviderFromEnv(
   tronWeb: TronWeb,
   turnkeyClient: Turnkey,
@@ -23,8 +18,9 @@ export function energyProviderFromEnv(
   if (name === "tronsave") return tronSaveFromEnv();
   if (name === "justlend") {
     const sponsor = process.env.SPONSOR_ADDRESS;
-    if (!sponsor)
+    if (!sponsor) {
       throw new Error("ENERGY_PROVIDER=justlend requires SPONSOR_ADDRESS");
+    }
     return new JustLendEnergyRental(
       tronWeb,
       turnkeyClient,

@@ -1,27 +1,17 @@
-// A source of delegated Tron energy. Implementations differ in where the
-// energy comes from (a rental marketplace, an on-chain protocol, your own
-// stake) but expose the same two-step contract: rent, then release.
-
 export interface EnergyRental {
   provider: string;
-  /** Estimated total cost in SUN (marketplace fee or on-chain prepay). */
+  /** Expected net cost in SUN, after any refund the provider owes back. */
   costSun: number;
-  /**
-   * Settle the rental after the sponsored transaction confirms. For
-   * marketplace rentals that expire on their own this is a no-op; for
-   * JustLend it submits returnResource to reclaim the refundable deposit
-   * (skipping it eventually forfeits the deposit to liquidation).
-   */
+  /** No-op where the delegation expires on its own; on-chain settlement otherwise. */
   release(): Promise<void>;
 }
 
 export interface EnergyProvider {
   readonly name: string;
   /**
-   * Acquire `energy` for `receiver` for roughly `durationSec`. Resolves once
-   * the order/transaction is accepted — callers must still verify the
-   * delegation is visible on the receiver via getAccountResources before
-   * broadcasting anything that depends on it.
+   * Acquire `energy` for `receiver`. Resolves once the order is accepted —
+   * callers must still confirm the delegation is visible on the receiver
+   * before broadcasting anything that depends on it.
    */
   rent(
     receiver: string,

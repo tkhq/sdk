@@ -1,9 +1,7 @@
-// Minimal TronSave client (https://docs.tronsave.io). TronSave rents staked
-// energy as a short-lived on-chain delegation to any address. Orders are paid
-// from a prepaid internal account tied to the API key — top it up by sending
-// TRX to the deposit address shown by GET /user-info — so a rental is a
-// single HTTP call with no on-chain payment leg. Delegations expire on their
-// own; there is nothing to undelegate, so release() is a no-op.
+// Minimal TronSave client (https://docs.tronsave.io): staked energy rented as
+// a short-lived delegation, paid from a prepaid account tied to the API key, so
+// a rental is one HTTP call with no on-chain leg. Delegations expire on their
+// own, so release() is a no-op.
 
 import { numberFromEnv } from "../util";
 import type { EnergyProvider, EnergyRental } from "./types";
@@ -11,7 +9,7 @@ import type { EnergyProvider, EnergyRental } from "./types";
 export interface TronSaveEstimate {
   /** Market price in SUN per unit of energy. */
   unitPriceSun: number;
-  /** Estimated total cost in SUN. */
+  /** Total cost in SUN. */
   costSun: number;
   /** Energy the market can delegate instantly right now. */
   availableResource: number;
@@ -23,9 +21,8 @@ interface Envelope<T> {
   data?: T;
 }
 
-// Wire shapes below use TronSave's own field names; everything this module
-// returns is renamed to carry its unit, so `estimateTrx` stops being load
-// bearing past this boundary.
+// Wire shapes keep TronSave's own field names; everything returned from here
+// carries its unit instead.
 
 interface EstimateBuyResourceResponse {
   /** Market unit price, in SUN per unit of energy. */
@@ -48,8 +45,7 @@ export class TronSave implements EnergyProvider {
     private readonly apiKey: string,
     /** Refuse rentals above this unit price, in SUN per energy. */
     private readonly maxPriceSun: number = 150,
-    // Mainnet API. The dev API (https://api-dev.tronsave.io/v2) delegates on
-    // the Nile testnet instead.
+    // https://api-dev.tronsave.io/v2 delegates on Nile instead.
     private readonly baseUrl: string = "https://api.tronsave.io/v2",
   ) {}
 
@@ -68,7 +64,6 @@ export class TronSave implements EnergyProvider {
       `[tronsave] order ${order.orderId} filled at ${order.unitPriceSun} sun/energy ` +
         `(~${order.costSun / 1_000_000} TRX)`,
     );
-    // The delegation expires on its own — nothing to settle.
     return {
       provider: this.name,
       costSun: order.costSun,
@@ -102,10 +97,8 @@ export class TronSave implements EnergyProvider {
   }
 
   /**
-   * Buy the delegation. `maxPriceSun` caps the accepted market price, and the
-   * order settings make it fill-or-fail: a sweep-style caller broadcasts
-   * right after the delegation lands, so a partial or deferred fill is
-   * useless.
+   * Buy the delegation, fill-or-fail: a caller that broadcasts as soon as the
+   * delegation lands has no use for a partial or deferred fill.
    */
   async placeOrder(
     receiver: string,
@@ -182,7 +175,7 @@ export class TronSave implements EnergyProvider {
     try {
       json = (await response.json()) as Envelope<T>;
     } catch {
-      // fall through to the status-based error below
+      // Schema-validation errors return no envelope; the status check covers it.
     }
     if (!response.ok || !json || json.error || json.data === undefined) {
       throw new Error(

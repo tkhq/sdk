@@ -9,11 +9,9 @@ import {
   numberFromEnv,
 } from "./util";
 
-// Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-// Rent energy for any (activated) address through the configured provider,
-// watch the delegation land on-chain, then settle the rental.
+// Rent energy for an activated address, watch the delegation land, settle.
 
 const ENERGY_AMOUNT = numberFromEnv("ENERGY_AMOUNT", 66_000);
 const DURATION_SEC = numberFromEnv("RENT_DURATION_SEC", 3600);
@@ -36,16 +34,15 @@ async function main() {
       (await availableEnergy(tronWeb, receiver)) <
       before + ENERGY_AMOUNT
     ) {
-      if (Date.now() > deadline)
+      if (Date.now() > deadline) {
         throw new Error("delegation not visible in time");
+      }
       await new Promise((resolve) => setTimeout(resolve, 3000));
     }
     console.log(
       `Delegation landed: ${receiver} now has ${await availableEnergy(tronWeb, receiver)} energy`,
     );
   } finally {
-    // Settle immediately for demo purposes (JustLend deposit recovery; no-op
-    // for marketplace rentals).
     try {
       await rental.release();
     } catch (releaseError) {
