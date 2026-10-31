@@ -2,6 +2,7 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 
 import { energyProviderFromEnv } from "./providers";
+import type { EnergyRental } from "./providers";
 import {
   availableEnergy,
   broadcast,
@@ -26,8 +27,18 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 // storage slot and costs roughly twice the energy — the live estimate below
 // handles both cases; this is only the safety margin on top of it.
 const ENERGY_MARGIN = 1.05;
-const RENT_DURATION_SEC = 3600; // shortest useful block; we broadcast right away
+// The shortest useful *hold*, not a cheaper one: a sub-day TronSave rental is
+// billed `amount x unitPrice` with no proration, and a one-day rental costs the
+// same. Raising this past a day multiplies the bill by the number of started
+// days — which a per-unit price cap cannot see.
+// https://docs.tronsave.io/concepts/pricing-and-apy
+const RENT_DURATION_SEC = 3600;
 const FEE_LIMIT_SUN = 20_000_000; // 20 TRX backstop; see README
+
+type ConstantContractResult = {
+  result?: { result?: boolean; message?: string };
+  energy_used?: number;
+};
 
 async function main() {
   const turnkeyClient = initTurnkey();
@@ -46,40 +57,50 @@ async function main() {
   ];
 
   // 1. Estimate the transfer's energy with a constant (free, unsigned) call.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const estimate = (await tronWeb.transactionBuilder.triggerConstantContract(
     token,
     "transfer(address,uint256)",
     {},
     transferParams,
     user,
-  )) as any;
+  )) as ConstantContractResult;
   if (!estimate?.result?.result) {
     throw new Error(
       `energy estimate failed: ${estimate?.result?.message ?? "unknown"}`,
     );
   }
-  const energyNeeded = Math.ceil((estimate.energy_used ?? 0) * ENERGY_MARGIN);
+  // A successful `result.result` only means the call round-tripped; it does not
+  // guarantee energy_used came back. Defaulting a missing estimate to zero
+  // would rent nothing and then try to burn TRX the wallet does not hold.
+  if (typeof estimate.energy_used !== "number") {
+    throw new Error("energy estimate returned no energy_used");
+  }
+  const energyNeeded = Math.ceil(estimate.energy_used * ENERGY_MARGIN);
   console.log(`Transfer needs ~${energyNeeded} energy`);
 
   // 2. Rent the shortfall via the configured provider, then — regardless of
   // what the provider reported — verify the energy is actually visible on the
   // account before broadcasting. Never trust the order of events.
+  //
+  // The rental and the wait both sit inside the try: once rent() returns, a
+  // deposit may already be committed on-chain, so every path from here on —
+  // including the visibility timeout below, the likeliest failure in this
+  // script — has to reach the release() in the finally.
   const deficit = energyNeeded - (await availableEnergy(tronWeb, user));
-  let rental = null;
-  if (deficit > 0) {
-    rental = await provider.rent(user, deficit, RENT_DURATION_SEC);
-    const deadline = Date.now() + 60_000;
-    while ((await availableEnergy(tronWeb, user)) < energyNeeded) {
-      if (Date.now() > deadline)
-        throw new Error("delegation not visible in time");
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-    }
-  } else {
-    console.log("User already has enough energy; skipping rental");
-  }
-
+  let rental: EnergyRental | null = null;
   try {
+    if (deficit > 0) {
+      rental = await provider.rent(user, deficit, RENT_DURATION_SEC);
+      const deadline = Date.now() + 60_000;
+      while ((await availableEnergy(tronWeb, user)) < energyNeeded) {
+        if (Date.now() > deadline)
+          throw new Error("delegation not visible in time");
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+    } else {
+      console.log("User already has enough energy; skipping rental");
+    }
+
     // 3. The user signs and broadcasts its own transfer. The feeLimit must
     // still cover the energy cost: the node caps a call's energy at
     // min(available, feeLimit / energyPrice), so a tiny feeLimit would

@@ -27,7 +27,13 @@ export class TronSave implements EnergyProvider {
 
   constructor(
     private readonly apiKey: string,
-    /** Refuse rentals above this market price, in SUN per energy. */
+    /**
+     * Refuse rentals above this market price, in SUN per unit of energy. This
+     * caps the *unit* price, not the order total: a rental of a day or more is
+     * billed per started day, so a long `durationSec` multiplies the bill
+     * without moving the unit price. See
+     * https://docs.tronsave.io/concepts/pricing-and-apy
+     */
     private readonly maxPriceSun: number = 150,
     // Mainnet API. The dev API (https://api-dev.tronsave.io/v2) delegates on
     // the Nile testnet instead.
@@ -78,6 +84,10 @@ export class TronSave implements EnergyProvider {
     });
     return {
       unitPriceSun: data.unitPrice,
+      // Despite the name, `estimateTrx` is denominated in SUN, so it needs no
+      // conversion: "The estimateTrx value is returned in SUN (1 TRX =
+      // 1,000,000 SUN)."
+      // https://docs.tronsave.io/developers/api-reference/buy-resources/api-key/estimate-trx
       costSun: Math.ceil(data.estimateTrx),
       availableResource: data.availableResource,
     };

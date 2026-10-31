@@ -20,23 +20,32 @@ async function main() {
 
   const before = await availableEnergy(tronWeb, receiver);
   const rental = await provider.rent(receiver, ENERGY_AMOUNT, DURATION_SEC);
-  console.log(
-    `Rented via ${rental.provider}, est. cost ${rental.costSun / 1_000_000} TRX`,
-  );
 
-  const deadline = Date.now() + 60_000;
-  while ((await availableEnergy(tronWeb, receiver)) < before + ENERGY_AMOUNT) {
-    if (Date.now() > deadline)
-      throw new Error("delegation not visible in time");
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+  // Everything after rent() runs inside the try: a deposit may already be
+  // committed on-chain, so the visibility timeout below must still reach
+  // release().
+  try {
+    console.log(
+      `Rented via ${rental.provider}, est. cost ${rental.costSun / 1_000_000} TRX`,
+    );
+
+    const deadline = Date.now() + 60_000;
+    while (
+      (await availableEnergy(tronWeb, receiver)) <
+      before + ENERGY_AMOUNT
+    ) {
+      if (Date.now() > deadline)
+        throw new Error("delegation not visible in time");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+    }
+    console.log(
+      `Delegation landed: ${receiver} now has ${await availableEnergy(tronWeb, receiver)} energy`,
+    );
+  } finally {
+    // Settle immediately for demo purposes (JustLend deposit recovery; no-op
+    // for marketplace rentals).
+    await rental.release();
   }
-  console.log(
-    `Delegation landed: ${receiver} now has ${await availableEnergy(tronWeb, receiver)} energy`,
-  );
-
-  // Settle immediately for demo purposes (JustLend deposit recovery; no-op
-  // for marketplace rentals).
-  await rental.release();
 }
 
 main().catch((error) => {

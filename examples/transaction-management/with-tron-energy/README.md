@@ -30,9 +30,9 @@ The practical production shape is a **priority-ordered chain** behind this same 
 1. **The order acknowledgement is not the delegation.** Always confirm energy is visible on the receiving account before broadcasting the transaction that depends on it.
 2. **`feeLimit` must cover the energy cost even when the energy is delegated.** The node caps a call's energy at `min(available, feeLimit / energyPrice)`, so a tiny feeLimit silently disables rented energy and the transaction fails `OUT_OF_ENERGY`.
 3. **Broadcast acceptance is not execution.** A transaction can be included and still fail on-chain; poll `getTransactionInfo` and surface the receipt result.
-4. **On-chain rentals must be returned.** JustLend's deposit is only refunded via `returnResource()`; orders left past expiry can be liquidated. The example settles in a `finally` block so a failed transfer still recovers the deposit.
+4. **On-chain rentals must be returned.** JustLend's deposit is only refunded via `returnResource()`; orders left past expiry can be liquidated. Both scripts open the `try` _before_ renting, so every path after the deposit is committed — a failed transfer, or a delegation that never becomes visible — still reaches `release()` in the `finally`.
 
-Two sizing notes: delegations are denominated in **staked TRX, not energy**, and the conversion ratio (`TotalEnergyLimit / TotalEnergyWeight`) floats with network-wide stake — read it live, never hardcode it. Same for the energy price and the per-token energy cost: estimate per transfer.
+Three sizing notes: delegations are denominated in **staked TRX, not energy**, and the conversion ratio (`TotalEnergyLimit / TotalEnergyWeight`) floats with network-wide stake — read it live, never hardcode it. Same for the energy price and the per-token energy cost: estimate per transfer. And a marketplace price cap bounds the **unit** price, not the order total — TronSave bills a rental of a day or more per started day ([pricing](https://docs.tronsave.io/concepts/pricing-and-apy)), so a long `durationSec` multiplies the bill without ever tripping the cap.
 
 ## Getting started
 
