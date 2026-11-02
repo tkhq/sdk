@@ -528,6 +528,38 @@
         "tags": ["Broadcasting"]
       }
     },
+    "/public/v1/query/get_indicative_swap_quote": {
+      "post": {
+        "summary": "Get indicative swap quote",
+        "description": "Preview the provider's current price for a swap without creating an activity. The quote is not binding and has no quote ID: a market swap executed later fetches its own quote, so its price can differ.",
+        "operationId": "PublicApiService_GetIndicativeSwapQuote",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetIndicativeSwapQuoteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetIndicativeSwapQuoteRequest"
+            }
+          }
+        ],
+        "tags": ["Swaps"]
+      }
+    },
     "/public/v1/query/get_ip_allowlist": {
       "post": {
         "summary": "Get IP Allowlist",
@@ -4628,7 +4660,7 @@
     "/public/v1/submit/execute_swap": {
       "post": {
         "summary": "Execute Swap",
-        "description": "Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V3.",
+        "description": "Execute a swap through the activity pipeline and Turnkey broadcasting. With bound_quote, execution is bound to the quote create_swap_quote returned. With market, the swap executes at the provider's price when the activity is approved, within slippage_bps and min_output_amount; use get_indicative_swap_quote to preview that price. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V4.",
         "operationId": "PublicApiService_ExecuteSwap",
         "responses": {
           "200": {
@@ -5104,6 +5136,38 @@
           }
         ],
         "tags": ["User Recovery"]
+      }
+    },
+    "/public/v1/submit/mint_jwt": {
+      "post": {
+        "summary": "Mint JWT",
+        "description": "Mint a Turnkey-signed JWT with a given profile. JWT semantics switch on profile.",
+        "operationId": "PublicApiService_MintJwt",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1MintJwtRequest"
+            }
+          }
+        ],
+        "tags": ["Sessions"]
       }
     },
     "/public/v1/submit/oauth": {
@@ -7264,8 +7328,8 @@
         "ACTIVITY_TYPE_CREATE_SWAP_QUOTE",
         "ACTIVITY_TYPE_IMPORT_SECRETS",
         "ACTIVITY_TYPE_EXPORT_SECRETS",
-        "ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL",
-        "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROLS",
+        "ACTIVITY_TYPE_CREATE_USAGE_CONTROL",
+        "ACTIVITY_TYPE_DELETE_USAGE_CONTROLS",
         "ACTIVITY_TYPE_UPDATE_PAYMENT_METHOD",
         "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2",
         "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
@@ -7286,7 +7350,8 @@
         "ACTIVITY_TYPE_CREATE_FIAT_RAMP_CREDENTIAL",
         "ACTIVITY_TYPE_UPDATE_FIAT_RAMP_CREDENTIAL",
         "ACTIVITY_TYPE_CREATE_EXTERNAL_SIGNER_V1",
-        "ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1"
+        "ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1",
+        "ACTIVITY_TYPE_MINT_JWT"
       ]
     },
     "v1AddressFormat": {
@@ -9958,7 +10023,7 @@
         },
         "feeSponsorship": {
           "type": "boolean",
-          "description": "When true, Turnkey pays the provider fees for this swap and invoices them to the billing parent organization. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false."
+          "description": "When true, Turnkey pays the execution costs for this swap and invoices them to the billing parent organization as Swap Execution. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false."
         },
         "fixedRate": {
           "type": "boolean",
@@ -10445,6 +10510,37 @@
       },
       "required": ["quorumKeyId", "quorumPublicKey", "shareIds"]
     },
+    "v1CreateUsageControlIntent": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the Usage Control."
+        },
+        "dataSource": {
+          "$ref": "#/definitions/v1UsageControlDataSource",
+          "description": "Data source for the Usage Control."
+        },
+        "aggregation": {
+          "$ref": "#/definitions/v1UsageControlAggregation",
+          "description": "Aggregation expression that the Usage Control evaluates."
+        },
+        "identifier": {
+          "type": "string",
+          "description": "Identifier for the Usage Control. Policies reference it as `controls.\u003cidentifier\u003e`. It must be unique within the Organization."
+        }
+      },
+      "required": ["name", "dataSource", "aggregation", "identifier"]
+    },
+    "v1CreateUsageControlResult": {
+      "type": "object",
+      "properties": {
+        "usageControlId": {
+          "type": "string"
+        }
+      },
+      "required": ["usageControlId"]
+    },
     "v1CreateUserTagIntent": {
       "type": "object",
       "properties": {
@@ -10595,37 +10691,6 @@
         }
       },
       "required": ["userIds"]
-    },
-    "v1CreateVelocityControlIntent": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Human-readable name for the Velocity Control."
-        },
-        "dataSource": {
-          "$ref": "#/definitions/v1VelocityControlDataSource",
-          "description": "Data source for the Velocity Control."
-        },
-        "aggregation": {
-          "$ref": "#/definitions/v1VelocityControlAggregation",
-          "description": "Aggregation expression that the Velocity Control evaluates."
-        },
-        "identifier": {
-          "type": "string",
-          "description": "Identifier for the Velocity Control. Policies reference it as `controls.\u003cidentifier\u003e`. It must be unique within the Organization."
-        }
-      },
-      "required": ["name", "dataSource", "aggregation", "identifier"]
-    },
-    "v1CreateVelocityControlResult": {
-      "type": "object",
-      "properties": {
-        "velocityControlId": {
-          "type": "string"
-        }
-      },
-      "required": ["velocityControlId"]
     },
     "v1CreateWalletAccountsIntent": {
       "type": "object",
@@ -11733,6 +11798,32 @@
       },
       "required": ["deploymentId"]
     },
+    "v1DeleteUsageControlsIntent": {
+      "type": "object",
+      "properties": {
+        "usageControlIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of 1 to 32 unique identifiers for Usage Controls within an Organization."
+        }
+      },
+      "required": ["usageControlIds"]
+    },
+    "v1DeleteUsageControlsResult": {
+      "type": "object",
+      "properties": {
+        "usageControlIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of unique identifiers for the deleted Usage Controls."
+        }
+      },
+      "required": ["usageControlIds"]
+    },
     "v1DeleteUserTagsIntent": {
       "type": "object",
       "properties": {
@@ -11839,32 +11930,6 @@
         }
       },
       "required": ["userIds"]
-    },
-    "v1DeleteVelocityControlsIntent": {
-      "type": "object",
-      "properties": {
-        "velocityControlIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "List of 1 to 32 unique identifiers for Velocity Controls within an Organization."
-        }
-      },
-      "required": ["velocityControlIds"]
-    },
-    "v1DeleteVelocityControlsResult": {
-      "type": "object",
-      "properties": {
-        "velocityControlIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "A list of unique identifiers for the deleted Velocity Controls."
-        }
-      },
-      "required": ["velocityControlIds"]
     },
     "v1DeleteWalletAccountsIntent": {
       "type": "object",
@@ -13838,7 +13903,7 @@
         },
         "feeSponsorship": {
           "type": "boolean",
-          "description": "When true, Turnkey pays the provider fees for this swap and invoices them to the billing parent organization. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false."
+          "description": "When true, Turnkey pays the execution costs for this swap and invoices them to the billing parent organization as Swap Execution. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false."
         },
         "fixedRate": {
           "type": "boolean",
@@ -13852,7 +13917,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_EXECUTE_SWAP_V3"]
+          "enum": ["ACTIVITY_TYPE_EXECUTE_SWAP_V4"]
         },
         "timestampMs": {
           "type": "string",
@@ -13863,7 +13928,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1ExecuteSwapIntentV3"
+          "$ref": "#/definitions/v1ExecuteSwapIntentV4"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -13896,11 +13961,15 @@
         },
         "feeSponsorship": {
           "type": "boolean",
-          "description": "Whether Turnkey paid the provider fees for this swap. Set by execute_swap V4."
+          "description": "Whether Turnkey paid the execution costs for this swap. Set by execute_swap V4."
         },
         "fixedRate": {
           "type": "boolean",
           "description": "Whether this swap used a 1:1 fixed rate. Set by execute_swap V4."
+        },
+        "estimatedCharges": {
+          "$ref": "#/definitions/v1SwapCharges",
+          "description": "Estimated charges this swap adds to your invoice, one field per swap line item, from the executed quote. Present when fee_sponsorship or fixed_rate is true. Informational; the final amounts are settled after execution and reported by get_swap_status. Set by execute_swap V4."
         }
       },
       "required": ["swapRequestId"]
@@ -15086,6 +15155,107 @@
       },
       "required": ["windowDurationMinutes", "windowLimitUsd", "usageUsd"]
     },
+    "v1GetIndicativeSwapQuoteRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "signWith": {
+          "type": "string",
+          "description": "Wallet account address that would send the input asset. It must belong to the organization."
+        },
+        "inputToken": {
+          "type": "string",
+          "description": "CAIP-19 asset ID for the input asset."
+        },
+        "outputToken": {
+          "type": "string",
+          "description": "CAIP-19 asset ID for the output asset."
+        },
+        "inputAmount": {
+          "type": "string",
+          "description": "Exact base-unit amount of the input asset."
+        },
+        "slippageBps": {
+          "type": "string",
+          "description": "Maximum allowed slippage in basis points, at most 5000. When omitted, the provider chooses the slippage."
+        },
+        "destinationAddress": {
+          "type": "string",
+          "description": "Raw public address that would receive the output asset. Required for cross-protocol swaps and rejected otherwise."
+        },
+        "feeSponsorship": {
+          "type": "boolean",
+          "description": "Preview the price with Turnkey paying the provider fees. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false."
+        },
+        "fixedRate": {
+          "type": "boolean",
+          "description": "Preview a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false."
+        }
+      },
+      "required": [
+        "organizationId",
+        "signWith",
+        "inputToken",
+        "outputToken",
+        "inputAmount"
+      ]
+    },
+    "v1GetIndicativeSwapQuoteResponse": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "description": "Swap provider that produced this quote."
+        },
+        "outputAmount": {
+          "type": "string",
+          "description": "Estimated base-unit amount of the output asset."
+        },
+        "minOutputAmount": {
+          "type": "string",
+          "description": "Minimum base-unit amount of the output asset after slippage."
+        },
+        "slippageBps": {
+          "type": "string",
+          "description": "Slippage tolerance in basis points the provider applied."
+        },
+        "clientFeeBps": {
+          "type": "string",
+          "description": "Client app fee in basis points included in this quote. \"0\" when no client fee applies."
+        },
+        "estimatedTimeSeconds": {
+          "type": "string",
+          "description": "Provider's estimated time to complete the swap, in seconds."
+        },
+        "feeSponsorship": {
+          "type": "boolean",
+          "description": "Whether this quote has Turnkey paying the execution costs."
+        },
+        "fixedRate": {
+          "type": "boolean",
+          "description": "Whether this quote uses a 1:1 fixed rate."
+        },
+        "estimatedFixedRateAdjustmentUsd": {
+          "type": "string",
+          "description": "Deprecated: use estimated_charges.fixed_rate_adjustment_usd. Estimated fixed-rate adjustment in USD from the customer's side: positive is a cost, negative an earning. Present only for fixed-rate quotes the provider priced."
+        },
+        "estimatedCharges": {
+          "$ref": "#/definitions/v1SwapCharges",
+          "description": "Estimated charges this swap would add to your invoice, one field per swap line item. Present when fee_sponsorship or fixed_rate is true."
+        }
+      },
+      "required": [
+        "provider",
+        "outputAmount",
+        "minOutputAmount",
+        "clientFeeBps",
+        "feeSponsorship",
+        "fixedRate"
+      ]
+    },
     "v1GetIpAllowlistRequest": {
       "type": "object",
       "properties": {
@@ -15760,6 +15930,10 @@
         "destinationAddress": {
           "type": "string",
           "description": "Address that receives the output asset."
+        },
+        "charges": {
+          "$ref": "#/definitions/v1SwapCharges",
+          "description": "Final charges this swap added to your invoice, one field per swap line item. Present once a fee-sponsored or fixed-rate swap's costs are settled; a swap that failed or was refunded settles at zero."
         }
       },
       "required": [
@@ -16400,6 +16574,61 @@
         "HASH_FUNCTION_SHA256",
         "HASH_FUNCTION_KECCAK256",
         "HASH_FUNCTION_NOT_APPLICABLE"
+      ]
+    },
+    "v1HttpAuthzV1Inputs": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "description": "HTTP method of the bound request. One of `GET`, `HEAD`, `POST`, `PUT`, `PATCH`, or `DELETE`."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path of the bound request, starting with `/`."
+        },
+        "query": {
+          "type": "string",
+          "description": "Query of the bound request without the leading `?`, or empty for no query."
+        },
+        "headerNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Lowercase names of the bound request headers, in order. At most 32 unique names of at most 64 characters each. Cannot include `authorization` or hop-by-hop headers (`proxy-authorization`, `connection`, `keep-alive`, `proxy-connection`, `te`, `transfer-encoding`, `upgrade`)."
+        },
+        "headerDigest": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "SHA-256 digest of each bound header value, as `sha-256=:\u003cbase64\u003e:`. One entry per entry in `header_names`."
+        },
+        "bodyDigest": {
+          "type": "string",
+          "description": "SHA-256 digest of the bound request body, as `sha-256=:\u003cbase64\u003e:`. For a request with no body, the digest of empty content."
+        },
+        "subject": {
+          "type": "string",
+          "description": "ID of a user in the organization, as a lowercase UUID. Becomes the `sub` claim."
+        },
+        "timeToLiveSeconds": {
+          "type": "string",
+          "description": "Lifetime of the JWT in seconds, from 1 to 300. `exp` is `issued_at + time_to_live_seconds`."
+        },
+        "issuedAt": {
+          "type": "string",
+          "description": "Unix time in seconds. Becomes the `iat` claim."
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "bodyDigest",
+        "subject",
+        "timeToLiveSeconds",
+        "issuedAt"
       ]
     },
     "v1ImportPrivateKeyIntent": {
@@ -17842,11 +18071,11 @@
         "exportSecretsIntent": {
           "$ref": "#/definitions/v1ExportSecretsIntent"
         },
-        "createVelocityControlIntent": {
-          "$ref": "#/definitions/v1CreateVelocityControlIntent"
+        "createUsageControlIntent": {
+          "$ref": "#/definitions/v1CreateUsageControlIntent"
         },
-        "deleteVelocityControlsIntent": {
-          "$ref": "#/definitions/v1DeleteVelocityControlsIntent"
+        "deleteUsageControlsIntent": {
+          "$ref": "#/definitions/v1DeleteUsageControlsIntent"
         },
         "updatePaymentMethodIntent": {
           "$ref": "#/definitions/billingUpdatePaymentMethodIntent"
@@ -17910,6 +18139,9 @@
         },
         "deleteExternalSignerIntentV1": {
           "$ref": "#/definitions/v1DeleteExternalSignerIntentV1"
+        },
+        "mintJwtIntent": {
+          "$ref": "#/definitions/v1MintJwtIntent"
         }
       }
     },
@@ -18009,6 +18241,10 @@
         }
       },
       "required": ["cidr"]
+    },
+    "v1JwtProfile": {
+      "type": "string",
+      "enum": ["JWT_PROFILE_HTTP_AUTHZ_V1"]
     },
     "v1KeyValue": {
       "type": "object",
@@ -18599,6 +18835,59 @@
         "satisfiedMethods",
         "requiredMethods"
       ]
+    },
+    "v1MintJwtIntent": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/v1JwtProfile",
+          "description": "Profile that defines which claims the JWT binds. Must match the set `profile_inputs` case."
+        },
+        "audience": {
+          "type": "string",
+          "description": "Origin of the receiving service, as `https://\u003clowercase host\u003e[:port]` with no default port, path, query, or fragment. At most 256 characters. Becomes the `aud` claim."
+        },
+        "httpAuthzV1": {
+          "$ref": "#/definitions/v1HttpAuthzV1Inputs",
+          "description": "Inputs for the `turnkey.io/http-authz/v1` profile."
+        }
+      },
+      "required": ["profile", "audience"]
+    },
+    "v1MintJwtRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_MINT_JWT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1MintJwtIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1MintJwtResult": {
+      "type": "object",
+      "properties": {
+        "jwt": {
+          "type": "string",
+          "description": "Signed JWT in JWS compact serialization."
+        },
+        "signingKeyJwk": {
+          "type": "string",
+          "description": "Public JWK of the key that signed the JWT. Verifiers should pin this key or fetch it from the issuer's JWKS, not trust it from this response."
+        }
+      },
+      "required": ["jwt", "signingKeyJwk"]
     },
     "v1MnemonicLanguage": {
       "type": "string",
@@ -20215,11 +20504,11 @@
         "exportSecretsResult": {
           "$ref": "#/definitions/v1ExportSecretsResult"
         },
-        "createVelocityControlResult": {
-          "$ref": "#/definitions/v1CreateVelocityControlResult"
+        "createUsageControlResult": {
+          "$ref": "#/definitions/v1CreateUsageControlResult"
         },
-        "deleteVelocityControlsResult": {
-          "$ref": "#/definitions/v1DeleteVelocityControlsResult"
+        "deleteUsageControlsResult": {
+          "$ref": "#/definitions/v1DeleteUsageControlsResult"
         },
         "updatePaymentMethodResult": {
           "$ref": "#/definitions/billingUpdatePaymentMethodResult"
@@ -20274,6 +20563,9 @@
         },
         "deleteExternalSignerResultV1": {
           "$ref": "#/definitions/v1DeleteExternalSignerResultV1"
+        },
+        "mintJwtResult": {
+          "$ref": "#/definitions/v1MintJwtResult"
         }
       }
     },
@@ -21961,6 +22253,23 @@
       },
       "required": ["session"]
     },
+    "v1SwapCharges": {
+      "type": "object",
+      "properties": {
+        "executionUsd": {
+          "type": "string",
+          "description": "Swap Execution: the provider's execution costs Turnkey pays, including DEX fees and price impact, the provider's fixed cost, destination gas, and provider fees. Present when fee_sponsorship is true."
+        },
+        "turnkeyFeeUsd": {
+          "type": "string",
+          "description": "Swap Turnkey Fee: Turnkey's fee for a fee-sponsored swap. Present when fee_sponsorship is true."
+        },
+        "fixedRateAdjustmentUsd": {
+          "type": "string",
+          "description": "Swap Fixed Rate: the difference between the 1:1 rate and the market rate. Positive is a cost billed to you; negative is an earning credited against your transaction management charges at the end of the billing period. Present when fixed_rate is true."
+        }
+      }
+    },
     "v1SwapError": {
       "type": "object",
       "properties": {
@@ -22065,7 +22374,7 @@
         },
         "feeSponsorship": {
           "type": "boolean",
-          "description": "Whether Turnkey pays the provider fees for this quote."
+          "description": "Whether Turnkey pays the execution costs for this quote."
         },
         "fixedRate": {
           "type": "boolean",
@@ -22073,7 +22382,11 @@
         },
         "estimatedFixedRateAdjustmentUsd": {
           "type": "string",
-          "description": "Estimated USD adjustment for the fixed rate. Present only for fixed-rate quotes. Positive is a cost billed to you; negative is an earning credited against your transaction management charges at the end of the billing period. Informational; the final amount is settled after execution."
+          "description": "Deprecated: use estimated_charges.fixed_rate_adjustment_usd. Estimated USD adjustment for the fixed rate. Present only for fixed-rate quotes. Positive is a cost billed to you; negative is an earning credited against your transaction management charges at the end of the billing period. Informational; the final amount is settled after execution."
+        },
+        "estimatedCharges": {
+          "$ref": "#/definitions/v1SwapCharges",
+          "description": "Estimated charges this swap adds to your invoice, one field per swap line item. Present when fee_sponsorship or fixed_rate is true. Informational; the final amounts are settled after execution and reported by get_swap_status."
         }
       },
       "required": [
@@ -24100,6 +24413,217 @@
       },
       "required": ["organizationId"]
     },
+    "v1UsageControlAggregation": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "$ref": "#/definitions/v1UsageControlAggregationMethod",
+          "description": "Method that aggregates matching data points."
+        },
+        "operator": {
+          "$ref": "#/definitions/v1UsageControlAggregationOperator",
+          "description": "Comparison between the aggregate and the threshold."
+        },
+        "threshold": {
+          "type": "string",
+          "description": "Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits."
+        },
+        "window": {
+          "$ref": "#/definitions/v1UsageControlAggregationWindow",
+          "description": "Time window for the aggregation."
+        },
+        "groupBy": {
+          "$ref": "#/definitions/v1UsageControlAggregationGroupBy",
+          "description": "Scope that partitions matching data before aggregation."
+        }
+      },
+      "required": ["method", "operator", "threshold", "window", "groupBy"]
+    },
+    "v1UsageControlAggregationGroupBy": {
+      "type": "object",
+      "properties": {
+        "organization": {
+          "$ref": "#/definitions/v1UsageControlAggregationGroupByOrganization",
+          "description": "Uses one shared bucket for the Organization."
+        },
+        "user": {
+          "$ref": "#/definitions/v1UsageControlAggregationGroupByUser",
+          "description": "Uses one bucket for each User."
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1UsageControlAggregationGroupByWallet",
+          "description": "Uses one bucket for each Wallet."
+        }
+      }
+    },
+    "v1UsageControlAggregationGroupByOrganization": {
+      "type": "object"
+    },
+    "v1UsageControlAggregationGroupByUser": {
+      "type": "object"
+    },
+    "v1UsageControlAggregationGroupByWallet": {
+      "type": "object"
+    },
+    "v1UsageControlAggregationMethod": {
+      "type": "string",
+      "enum": [
+        "USAGE_CONTROL_AGGREGATION_METHOD_SUM",
+        "USAGE_CONTROL_AGGREGATION_METHOD_COUNT"
+      ]
+    },
+    "v1UsageControlAggregationOperator": {
+      "type": "string",
+      "enum": [
+        "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN",
+        "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL",
+        "USAGE_CONTROL_AGGREGATION_OPERATOR_EQUAL",
+        "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL",
+        "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN"
+      ]
+    },
+    "v1UsageControlAggregationWindow": {
+      "type": "object",
+      "properties": {
+        "rolling": {
+          "$ref": "#/definitions/v1UsageControlAggregationWindowRolling",
+          "description": "Uses a rolling time window."
+        },
+        "infinite": {
+          "$ref": "#/definitions/v1UsageControlAggregationWindowInfinite",
+          "description": "Uses all matching data without a time limit."
+        }
+      }
+    },
+    "v1UsageControlAggregationWindowInfinite": {
+      "type": "object"
+    },
+    "v1UsageControlAggregationWindowRolling": {
+      "type": "object",
+      "properties": {
+        "duration": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Duration of the rolling window, in seconds."
+        }
+      },
+      "required": ["duration"]
+    },
+    "v1UsageControlDataSource": {
+      "type": "object",
+      "properties": {
+        "chainAssetTransfer": {
+          "$ref": "#/definitions/v1UsageControlDataSourceChainAssetTransfer",
+          "description": "Uses transfers of the listed on-chain assets as input data."
+        },
+        "activityExecution": {
+          "$ref": "#/definitions/v1UsageControlDataSourceActivityExecution",
+          "description": "Uses executed Turnkey activities as input data."
+        }
+      }
+    },
+    "v1UsageControlDataSourceActivityExecution": {
+      "type": "object",
+      "properties": {
+        "filter": {
+          "$ref": "#/definitions/v1UsageControlDataSourceActivityExecutionFilter",
+          "description": "Filters activity executions by type."
+        }
+      }
+    },
+    "v1UsageControlDataSourceActivityExecutionFilter": {
+      "type": "object",
+      "properties": {
+        "activity": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1UsageControlDataSourceFilterActivity"
+          },
+          "description": "Activity types whose executions are included."
+        }
+      }
+    },
+    "v1UsageControlDataSourceChainAssetTransfer": {
+      "type": "object",
+      "properties": {
+        "definition": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1UsageControlDataSourceChainAssetTransferDefinition"
+          },
+          "description": "Assets whose transfers are included in the data source."
+        },
+        "filter": {
+          "$ref": "#/definitions/v1UsageControlDataSourceChainAssetTransferFilter",
+          "description": "Filters asset transfers by activity type."
+        },
+        "phase": {
+          "$ref": "#/definitions/v1UsageControlDataSourcePhase",
+          "description": "Selects when to measure an asset transfer."
+        }
+      },
+      "required": ["definition"]
+    },
+    "v1UsageControlDataSourceChainAssetTransferDefinition": {
+      "type": "object",
+      "properties": {
+        "caip19": {
+          "type": "string",
+          "description": "CAIP-19 identifier for the asset."
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Integer between 0 and 32 (inclusive) that specifies the number of decimal places for the asset.",
+          "maximum": 32
+        }
+      },
+      "required": ["caip19", "decimals"]
+    },
+    "v1UsageControlDataSourceChainAssetTransferFilter": {
+      "type": "object",
+      "properties": {
+        "activity": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1UsageControlDataSourceFilterActivity"
+          },
+          "description": "Activity types whose asset transfers are included."
+        }
+      }
+    },
+    "v1UsageControlDataSourceFilterActivity": {
+      "type": "object",
+      "properties": {
+        "activityType": {
+          "type": "string",
+          "description": "Name of an activity type to include, such as `ACTIVITY_TYPE_SOL_SEND_TRANSACTION`."
+        }
+      },
+      "required": ["activityType"]
+    },
+    "v1UsageControlDataSourcePhase": {
+      "type": "object",
+      "properties": {
+        "signature": {
+          "$ref": "#/definitions/v1UsageControlDataSourcePhaseSignature",
+          "description": "Measures the transfer when Turnkey signs the transaction and returns it to the user."
+        },
+        "submission": {
+          "$ref": "#/definitions/v1UsageControlDataSourcePhaseSubmission",
+          "description": "Reserved for future use. Measures the transfer after the transaction lands on chain."
+        }
+      }
+    },
+    "v1UsageControlDataSourcePhaseSignature": {
+      "type": "object"
+    },
+    "v1UsageControlDataSourcePhaseSubmission": {
+      "type": "object"
+    },
     "v1UsageType": {
       "type": "string",
       "enum": ["USAGE_TYPE_SIGNUP", "USAGE_TYPE_LOGIN"]
@@ -24409,217 +24933,6 @@
           "type": "string"
         }
       }
-    },
-    "v1VelocityControlAggregation": {
-      "type": "object",
-      "properties": {
-        "method": {
-          "$ref": "#/definitions/v1VelocityControlAggregationMethod",
-          "description": "Method that aggregates matching data points."
-        },
-        "operator": {
-          "$ref": "#/definitions/v1VelocityControlAggregationOperator",
-          "description": "Comparison between the aggregate and the threshold."
-        },
-        "threshold": {
-          "type": "string",
-          "description": "Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits."
-        },
-        "window": {
-          "$ref": "#/definitions/v1VelocityControlAggregationWindow",
-          "description": "Time window for the aggregation."
-        },
-        "groupBy": {
-          "$ref": "#/definitions/v1VelocityControlAggregationGroupBy",
-          "description": "Scope that partitions matching data before aggregation."
-        }
-      },
-      "required": ["method", "operator", "threshold", "window", "groupBy"]
-    },
-    "v1VelocityControlAggregationGroupBy": {
-      "type": "object",
-      "properties": {
-        "organization": {
-          "$ref": "#/definitions/v1VelocityControlAggregationGroupByOrganization",
-          "description": "Uses one shared bucket for the Organization."
-        },
-        "user": {
-          "$ref": "#/definitions/v1VelocityControlAggregationGroupByUser",
-          "description": "Uses one bucket for each User."
-        },
-        "wallet": {
-          "$ref": "#/definitions/v1VelocityControlAggregationGroupByWallet",
-          "description": "Uses one bucket for each Wallet."
-        }
-      }
-    },
-    "v1VelocityControlAggregationGroupByOrganization": {
-      "type": "object"
-    },
-    "v1VelocityControlAggregationGroupByUser": {
-      "type": "object"
-    },
-    "v1VelocityControlAggregationGroupByWallet": {
-      "type": "object"
-    },
-    "v1VelocityControlAggregationMethod": {
-      "type": "string",
-      "enum": [
-        "VELOCITY_CONTROL_AGGREGATION_METHOD_SUM",
-        "VELOCITY_CONTROL_AGGREGATION_METHOD_COUNT"
-      ]
-    },
-    "v1VelocityControlAggregationOperator": {
-      "type": "string",
-      "enum": [
-        "VELOCITY_CONTROL_AGGREGATION_OPERATOR_LESS_THAN",
-        "VELOCITY_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL",
-        "VELOCITY_CONTROL_AGGREGATION_OPERATOR_EQUAL",
-        "VELOCITY_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL",
-        "VELOCITY_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN"
-      ]
-    },
-    "v1VelocityControlAggregationWindow": {
-      "type": "object",
-      "properties": {
-        "rolling": {
-          "$ref": "#/definitions/v1VelocityControlAggregationWindowRolling",
-          "description": "Uses a rolling time window."
-        },
-        "infinite": {
-          "$ref": "#/definitions/v1VelocityControlAggregationWindowInfinite",
-          "description": "Uses all matching data without a time limit."
-        }
-      }
-    },
-    "v1VelocityControlAggregationWindowInfinite": {
-      "type": "object"
-    },
-    "v1VelocityControlAggregationWindowRolling": {
-      "type": "object",
-      "properties": {
-        "duration": {
-          "type": "integer",
-          "format": "int64",
-          "description": "Duration of the rolling window, in seconds."
-        }
-      },
-      "required": ["duration"]
-    },
-    "v1VelocityControlDataSource": {
-      "type": "object",
-      "properties": {
-        "chainAssetTransfer": {
-          "$ref": "#/definitions/v1VelocityControlDataSourceChainAssetTransfer",
-          "description": "Uses transfers of the listed on-chain assets as input data."
-        },
-        "activityExecution": {
-          "$ref": "#/definitions/v1VelocityControlDataSourceActivityExecution",
-          "description": "Uses executed Turnkey activities as input data."
-        }
-      }
-    },
-    "v1VelocityControlDataSourceActivityExecution": {
-      "type": "object",
-      "properties": {
-        "filter": {
-          "$ref": "#/definitions/v1VelocityControlDataSourceActivityExecutionFilter",
-          "description": "Filters activity executions by type."
-        }
-      }
-    },
-    "v1VelocityControlDataSourceActivityExecutionFilter": {
-      "type": "object",
-      "properties": {
-        "activity": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1VelocityControlDataSourceFilterActivity"
-          },
-          "description": "Activity types whose executions are included."
-        }
-      }
-    },
-    "v1VelocityControlDataSourceChainAssetTransfer": {
-      "type": "object",
-      "properties": {
-        "definition": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1VelocityControlDataSourceChainAssetTransferDefinition"
-          },
-          "description": "Assets whose transfers are included in the data source."
-        },
-        "filter": {
-          "$ref": "#/definitions/v1VelocityControlDataSourceChainAssetTransferFilter",
-          "description": "Filters asset transfers by activity type."
-        },
-        "phase": {
-          "$ref": "#/definitions/v1VelocityControlDataSourcePhase",
-          "description": "Selects when to measure an asset transfer."
-        }
-      },
-      "required": ["definition"]
-    },
-    "v1VelocityControlDataSourceChainAssetTransferDefinition": {
-      "type": "object",
-      "properties": {
-        "caip19": {
-          "type": "string",
-          "description": "CAIP-19 identifier for the asset."
-        },
-        "decimals": {
-          "type": "integer",
-          "format": "int64",
-          "description": "Integer between 0 and 32 (inclusive) that specifies the number of decimal places for the asset.",
-          "maximum": 32
-        }
-      },
-      "required": ["caip19", "decimals"]
-    },
-    "v1VelocityControlDataSourceChainAssetTransferFilter": {
-      "type": "object",
-      "properties": {
-        "activity": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1VelocityControlDataSourceFilterActivity"
-          },
-          "description": "Activity types whose asset transfers are included."
-        }
-      }
-    },
-    "v1VelocityControlDataSourceFilterActivity": {
-      "type": "object",
-      "properties": {
-        "activityType": {
-          "type": "string",
-          "description": "Name of an activity type to include, such as `ACTIVITY_TYPE_SOL_SEND_TRANSACTION`."
-        }
-      },
-      "required": ["activityType"]
-    },
-    "v1VelocityControlDataSourcePhase": {
-      "type": "object",
-      "properties": {
-        "signature": {
-          "$ref": "#/definitions/v1VelocityControlDataSourcePhaseSignature",
-          "description": "Measures the transfer when Turnkey signs the transaction and returns it to the user."
-        },
-        "submission": {
-          "$ref": "#/definitions/v1VelocityControlDataSourcePhaseSubmission",
-          "description": "Reserved for future use. Measures the transfer after the transaction lands on chain."
-        }
-      }
-    },
-    "v1VelocityControlDataSourcePhaseSignature": {
-      "type": "object"
-    },
-    "v1VelocityControlDataSourcePhaseSubmission": {
-      "type": "object"
     },
     "v1VerifyOtpIntent": {
       "type": "object",

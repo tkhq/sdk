@@ -120,8 +120,8 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1CreateSwapQuoteResultV2",
   ],
   ACTIVITY_TYPE_EXECUTE_SWAP: [
-    "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
-    "v1ExecuteSwapIntentV3",
+    "ACTIVITY_TYPE_EXECUTE_SWAP_V4",
+    "v1ExecuteSwapIntentV4",
     "v1ExecuteSwapResult",
   ],
 };

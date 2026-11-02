@@ -168,13 +168,13 @@ export type paths = {
     /** List QOS versions supported for new TVC deployments and the latest recommended QOS version. */
     post: operations["PublicApiService_GetTvcQosVersions"];
   };
+  "/public/v1/query/get_usage_control": {
+    /** Get details about a usage control. */
+    post: operations["PublicApiService_GetUsageControl"];
+  };
   "/public/v1/query/get_user": {
     /** Get details about a user. */
     post: operations["PublicApiService_GetUser"];
-  };
-  "/public/v1/query/get_velocity_control": {
-    /** Get details about a velocity control. */
-    post: operations["PublicApiService_GetVelocityControl"];
   };
   "/public/v1/query/get_wallet": {
     /** Get details about a wallet. */
@@ -288,6 +288,10 @@ export type paths = {
     /** List all hosted TVC Quorum Keys within an organization, newest first. */
     post: operations["PublicApiService_GetTvcQuorumKeys"];
   };
+  "/public/v1/query/list_usage_controls": {
+    /** List all usage controls within an organization. */
+    post: operations["PublicApiService_ListUsageControls"];
+  };
   "/public/v1/query/list_user_tags": {
     /** List all user tags within an organization. */
     post: operations["PublicApiService_ListUserTags"];
@@ -295,10 +299,6 @@ export type paths = {
   "/public/v1/query/list_users": {
     /** List all users within an organization. */
     post: operations["PublicApiService_GetUsers"];
-  };
-  "/public/v1/query/list_velocity_controls": {
-    /** List all velocity controls within an organization. */
-    post: operations["PublicApiService_ListVelocityControls"];
   };
   "/public/v1/query/list_verified_suborgs": {
     /** Get all verified suborg IDs associated with a given parent organization ID and an optional filter. */
@@ -444,6 +444,10 @@ export type paths = {
     /** Create a hosted TVC Quorum Key and encrypted shares. */
     post: operations["PublicApiService_CreateTvcQuorumKey"];
   };
+  "/public/v1/submit/create_usage_control": {
+    /** Create a new usage control. */
+    post: operations["PublicApiService_CreateUsageControl"];
+  };
   "/public/v1/submit/create_user_tag": {
     /** Create a user tag and add it to users. */
     post: operations["PublicApiService_CreateUserTag"];
@@ -451,10 +455,6 @@ export type paths = {
   "/public/v1/submit/create_users": {
     /** Create users in an existing organization. Each user must have at least one valid credential: an API key, an authenticator, an OAuth provider, or an email or phone number with a login method enabled on the organization (email, email OTP, or SMS). */
     post: operations["PublicApiService_CreateUsers"];
-  };
-  "/public/v1/submit/create_velocity_control": {
-    /** Create a new velocity control. */
-    post: operations["PublicApiService_CreateVelocityControl"];
   };
   "/public/v1/submit/create_wallet": {
     /** Create a wallet and derive addresses. */
@@ -540,6 +540,10 @@ export type paths = {
     /** Delete a TVC deployment. */
     post: operations["PublicApiService_DeleteTvcDeployment"];
   };
+  "/public/v1/submit/delete_usage_controls": {
+    /** Delete existing usage controls. */
+    post: operations["PublicApiService_DeleteUsageControls"];
+  };
   "/public/v1/submit/delete_user_tags": {
     /** Delete user tags within an organization. */
     post: operations["PublicApiService_DeleteUserTags"];
@@ -547,10 +551,6 @@ export type paths = {
   "/public/v1/submit/delete_users": {
     /** Delete users within an organization. */
     post: operations["PublicApiService_DeleteUsers"];
-  };
-  "/public/v1/submit/delete_velocity_controls": {
-    /** Delete existing velocity controls. */
-    post: operations["PublicApiService_DeleteVelocityControls"];
   };
   "/public/v1/submit/delete_wallet_accounts": {
     /** Delete wallet accounts for an organization. */
@@ -605,7 +605,7 @@ export type paths = {
     post: operations["PublicApiService_EthUndelegate7702"];
   };
   "/public/v1/submit/execute_swap": {
-    /** Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V3. */
+    /** Execute a swap through the activity pipeline and Turnkey broadcasting. With bound_quote, execution is bound to the quote create_swap_quote returned. With market, the swap executes at the provider's price when the activity is approved, within slippage_bps and min_output_amount; use get_indicative_swap_quote to preview that price. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V4. */
     post: operations["PublicApiService_ExecuteSwap"];
   };
   "/public/v1/submit/export_private_key": {
@@ -663,6 +663,10 @@ export type paths = {
   "/public/v1/submit/init_user_email_recovery": {
     /** Initialize a new email recovery. */
     post: operations["PublicApiService_InitUserEmailRecovery"];
+  };
+  "/public/v1/submit/mint_jwt": {
+    /** Mint a Turnkey-signed JWT with a given profile. JWT semantics switch on profile. */
+    post: operations["PublicApiService_MintJwt"];
   };
   "/public/v1/submit/oauth": {
     /** Authenticate a user with an OIDC token (Oauth). */
@@ -1240,8 +1244,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE"
     | "ACTIVITY_TYPE_IMPORT_SECRETS"
     | "ACTIVITY_TYPE_EXPORT_SECRETS"
-    | "ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL"
-    | "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROLS"
+    | "ACTIVITY_TYPE_CREATE_USAGE_CONTROL"
+    | "ACTIVITY_TYPE_DELETE_USAGE_CONTROLS"
     | "ACTIVITY_TYPE_UPDATE_PAYMENT_METHOD"
     | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2"
     | "ACTIVITY_TYPE_EXECUTE_SWAP_V3"
@@ -1262,7 +1266,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_FIAT_RAMP_CREDENTIAL"
     | "ACTIVITY_TYPE_UPDATE_FIAT_RAMP_CREDENTIAL"
     | "ACTIVITY_TYPE_CREATE_EXTERNAL_SIGNER_V1"
-    | "ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1";
+    | "ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1"
+    | "ACTIVITY_TYPE_MINT_JWT";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -2380,7 +2385,7 @@ export type definitions = {
     slippageBps?: string;
     /** @description Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported. */
     destinationAddress?: string;
-    /** @description When true, Turnkey pays the provider fees for this swap and invoices them to the billing parent organization. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
+    /** @description When true, Turnkey pays the execution costs for this swap and invoices them to the billing parent organization as Swap Execution. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
     feeSponsorship?: boolean;
     /** @description When true, requests a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false. */
     fixedRate?: boolean;
@@ -2600,6 +2605,29 @@ export type definitions = {
     /** @description The unique identifier(s) for the generated TVC quorum key shares */
     shareIds: string[];
   };
+  v1CreateUsageControlIntent: {
+    /** @description Human-readable name for the Usage Control. */
+    name: string;
+    /** @description Data source for the Usage Control. */
+    dataSource: definitions["v1UsageControlDataSource"];
+    /** @description Aggregation expression that the Usage Control evaluates. */
+    aggregation: definitions["v1UsageControlAggregation"];
+    /** @description Identifier for the Usage Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
+    identifier: string;
+  };
+  v1CreateUsageControlRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_USAGE_CONTROL";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateUsageControlIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1CreateUsageControlResult: {
+    usageControlId: string;
+  };
   v1CreateUserTagIntent: {
     /** @description Human-readable name for a User Tag. */
     userTagName: string;
@@ -2651,29 +2679,6 @@ export type definitions = {
   v1CreateUsersResult: {
     /** @description A list of User IDs. */
     userIds: string[];
-  };
-  v1CreateVelocityControlIntent: {
-    /** @description Human-readable name for the Velocity Control. */
-    name: string;
-    /** @description Data source for the Velocity Control. */
-    dataSource: definitions["v1VelocityControlDataSource"];
-    /** @description Aggregation expression that the Velocity Control evaluates. */
-    aggregation: definitions["v1VelocityControlAggregation"];
-    /** @description Identifier for the Velocity Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
-    identifier: string;
-  };
-  v1CreateVelocityControlRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1CreateVelocityControlIntent"];
-    generateAppProofs?: boolean;
-  };
-  v1CreateVelocityControlResult: {
-    velocityControlId: string;
   };
   v1CreateWalletAccountsIntent: {
     /** @description Unique identifier for a given Wallet. */
@@ -3114,6 +3119,24 @@ export type definitions = {
     /** @description The unique identifier of the deleted TVC deployment. */
     deploymentId: string;
   };
+  v1DeleteUsageControlsIntent: {
+    /** @description List of 1 to 32 unique identifiers for Usage Controls within an Organization. */
+    usageControlIds: string[];
+  };
+  v1DeleteUsageControlsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_USAGE_CONTROLS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteUsageControlsIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1DeleteUsageControlsResult: {
+    /** @description A list of unique identifiers for the deleted Usage Controls. */
+    usageControlIds: string[];
+  };
   v1DeleteUserTagsIntent: {
     /** @description A list of User Tag IDs. */
     userTagIds: string[];
@@ -3151,24 +3174,6 @@ export type definitions = {
   v1DeleteUsersResult: {
     /** @description A list of User IDs. */
     userIds: string[];
-  };
-  v1DeleteVelocityControlsIntent: {
-    /** @description List of 1 to 32 unique identifiers for Velocity Controls within an Organization. */
-    velocityControlIds: string[];
-  };
-  v1DeleteVelocityControlsRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROLS";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1DeleteVelocityControlsIntent"];
-    generateAppProofs?: boolean;
-  };
-  v1DeleteVelocityControlsResult: {
-    /** @description A list of unique identifiers for the deleted Velocity Controls. */
-    velocityControlIds: string[];
   };
   v1DeleteWalletAccountsIntent: {
     /** @description List of unique identifiers for wallet accounts within an organization */
@@ -4125,19 +4130,19 @@ export type definitions = {
     slippageBps?: string;
     /** @description Optional price floor in base units of the output asset. When set, the swap fails unless the provider's minimum output after slippage is at least this amount. */
     minOutputAmount?: string;
-    /** @description When true, Turnkey pays the provider fees for this swap and invoices them to the billing parent organization. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
+    /** @description When true, Turnkey pays the execution costs for this swap and invoices them to the billing parent organization as Swap Execution. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
     feeSponsorship?: boolean;
     /** @description When true, requests a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false. */
     fixedRate?: boolean;
   };
   v1ExecuteSwapRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_EXECUTE_SWAP_V3";
+    type: "ACTIVITY_TYPE_EXECUTE_SWAP_V4";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1ExecuteSwapIntentV3"];
+    parameters: definitions["v1ExecuteSwapIntentV4"];
     generateAppProofs?: boolean;
   };
   v1ExecuteSwapResult: {
@@ -4151,10 +4156,12 @@ export type definitions = {
     outputAmount?: string;
     /** @description Minimum base-unit amount of the output asset after slippage. Set by execute_swap V4. */
     minOutputAmount?: string;
-    /** @description Whether Turnkey paid the provider fees for this swap. Set by execute_swap V4. */
+    /** @description Whether Turnkey paid the execution costs for this swap. Set by execute_swap V4. */
     feeSponsorship?: boolean;
     /** @description Whether this swap used a 1:1 fixed rate. Set by execute_swap V4. */
     fixedRate?: boolean;
+    /** @description Estimated charges this swap adds to your invoice, one field per swap line item, from the executed quote. Present when fee_sponsorship or fixed_rate is true. Informational; the final amounts are settled after execution and reported by get_swap_status. Set by execute_swap V4. */
+    estimatedCharges?: definitions["v1SwapCharges"];
   };
   v1ExportPrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
@@ -4788,12 +4795,14 @@ export type definitions = {
     clientFeeBps: string;
     /** @description Provider's estimated time to complete the swap, in seconds. */
     estimatedTimeSeconds?: string;
-    /** @description Whether this quote has Turnkey paying the provider fees. */
+    /** @description Whether this quote has Turnkey paying the execution costs. */
     feeSponsorship: boolean;
     /** @description Whether this quote uses a 1:1 fixed rate. */
     fixedRate: boolean;
-    /** @description Estimated fixed-rate adjustment in USD from the customer's side: positive is a cost, negative an earning. Present only for fixed-rate quotes the provider priced. */
+    /** @description Deprecated: use estimated_charges.fixed_rate_adjustment_usd. Estimated fixed-rate adjustment in USD from the customer's side: positive is a cost, negative an earning. Present only for fixed-rate quotes the provider priced. */
     estimatedFixedRateAdjustmentUsd?: string;
+    /** @description Estimated charges this swap would add to your invoice, one field per swap line item. Present when fee_sponsorship or fixed_rate is true. */
+    estimatedCharges?: definitions["v1SwapCharges"];
   };
   v1GetIpAllowlistRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -5092,6 +5101,8 @@ export type definitions = {
     error?: definitions["v1SwapError"];
     /** @description Address that receives the output asset. */
     destinationAddress?: string;
+    /** @description Final charges this swap added to your invoice, one field per swap line item. Present once a fee-sponsored or fixed-rate swap's costs are settled; a swap that failed or was refunded settles at zero. */
+    charges?: definitions["v1SwapCharges"];
   };
   v1GetTvcAppDeploymentsRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -5214,6 +5225,13 @@ export type definitions = {
   v1GetTvcQuorumKeysResponse: {
     tvcQuorumKeys: definitions["v1TvcQuorumKey"][];
   };
+  v1GetUsageControlRequest: {
+    organizationId: string;
+    usageControlId: string;
+  };
+  v1GetUsageControlResponse: {
+    usageControl: definitions["v1UsageControl"];
+  };
   v1GetUserRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -5231,13 +5249,6 @@ export type definitions = {
   v1GetUsersResponse: {
     /** @description A list of users. */
     users: definitions["v1User"][];
-  };
-  v1GetVelocityControlRequest: {
-    organizationId: string;
-    velocityControlId: string;
-  };
-  v1GetVelocityControlResponse: {
-    velocityControl: definitions["v1VelocityControl"];
   };
   v1GetVerifiedSubOrgIdsRequest: {
     /** @description Unique identifier for the parent organization. This is used to find sub-organizations within it. */
@@ -5366,6 +5377,26 @@ export type definitions = {
     | "HASH_FUNCTION_SHA256"
     | "HASH_FUNCTION_KECCAK256"
     | "HASH_FUNCTION_NOT_APPLICABLE";
+  v1HttpAuthzV1Inputs: {
+    /** @description HTTP method of the bound request. One of `GET`, `HEAD`, `POST`, `PUT`, `PATCH`, or `DELETE`. */
+    method: string;
+    /** @description Path of the bound request, starting with `/`. */
+    path: string;
+    /** @description Query of the bound request without the leading `?`, or empty for no query. */
+    query?: string;
+    /** @description Lowercase names of the bound request headers, in order. At most 32 unique names of at most 64 characters each. Cannot include `authorization` or hop-by-hop headers (`proxy-authorization`, `connection`, `keep-alive`, `proxy-connection`, `te`, `transfer-encoding`, `upgrade`). */
+    headerNames?: string[];
+    /** @description SHA-256 digest of each bound header value, as `sha-256=:<base64>:`. One entry per entry in `header_names`. */
+    headerDigest?: string[];
+    /** @description SHA-256 digest of the bound request body, as `sha-256=:<base64>:`. For a request with no body, the digest of empty content. */
+    bodyDigest: string;
+    /** @description ID of a user in the organization, as a lowercase UUID. Becomes the `sub` claim. */
+    subject: string;
+    /** @description Lifetime of the JWT in seconds, from 1 to 300. `exp` is `issued_at + time_to_live_seconds`. */
+    timeToLiveSeconds: string;
+    /** @description Unix time in seconds. Becomes the `iat` claim. */
+    issuedAt: string;
+  };
   v1ImportPrivateKeyIntent: {
     /** @description The ID of the User importing a Private Key. */
     userId: string;
@@ -5953,8 +5984,8 @@ export type definitions = {
     createSwapQuoteIntent?: definitions["v1CreateSwapQuoteIntent"];
     importSecretsIntent?: definitions["v1ImportSecretsIntent"];
     exportSecretsIntent?: definitions["v1ExportSecretsIntent"];
-    createVelocityControlIntent?: definitions["v1CreateVelocityControlIntent"];
-    deleteVelocityControlsIntent?: definitions["v1DeleteVelocityControlsIntent"];
+    createUsageControlIntent?: definitions["v1CreateUsageControlIntent"];
+    deleteUsageControlsIntent?: definitions["v1DeleteUsageControlsIntent"];
     updatePaymentMethodIntent?: definitions["billingUpdatePaymentMethodIntent"];
     createSwapQuoteIntentV2?: definitions["v1CreateSwapQuoteIntentV2"];
     executeSwapIntentV3?: definitions["v1ExecuteSwapIntentV3"];
@@ -5976,6 +6007,7 @@ export type definitions = {
     updateFiatRampCredentialIntent?: definitions["v1UpdateFiatRampCredentialIntent"];
     createExternalSignerIntentV1?: definitions["v1CreateExternalSignerIntentV1"];
     deleteExternalSignerIntentV1?: definitions["v1DeleteExternalSignerIntentV1"];
+    mintJwtIntent?: definitions["v1MintJwtIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -6038,6 +6070,8 @@ export type definitions = {
     /** @description Creation timestamp as millisecond epoch string. */
     createdAt?: string;
   };
+  /** @enum {string} */
+  v1JwtProfile: "JWT_PROFILE_HTTP_AUTHZ_V1";
   v1KeyValue: {
     key?: string;
     value?: string;
@@ -6231,6 +6265,14 @@ export type definitions = {
     /** @description List of asset metadata */
     assets?: definitions["v1AssetMetadata"][];
   };
+  v1ListUsageControlsRequest: {
+    organizationId: string;
+    paginationOptions?: definitions["v1Pagination"];
+  };
+  v1ListUsageControlsResponse: {
+    usageControls: definitions["v1UsageControl"][];
+    pageInfo: definitions["v1PageInfo"];
+  };
   v1ListUserTagsRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -6238,14 +6280,6 @@ export type definitions = {
   v1ListUserTagsResponse: {
     /** @description A list of user tags. */
     userTags: definitions["datav1Tag"][];
-  };
-  v1ListVelocityControlsRequest: {
-    organizationId: string;
-    paginationOptions?: definitions["v1Pagination"];
-  };
-  v1ListVelocityControlsResponse: {
-    velocityControls: definitions["v1VelocityControl"][];
-    pageInfo: definitions["v1PageInfo"];
   };
   v1ListWebhookEndpointsRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -6294,6 +6328,29 @@ export type definitions = {
     satisfiedMethods: definitions["v1AuthenticationMethod"][];
     /** @description An ordered list of authentication requirements needed to satisfy this MFA policy. */
     requiredMethods: definitions["v1RequiredAuthenticationMethod"][];
+  };
+  v1MintJwtIntent: {
+    /** @description Profile that defines which claims the JWT binds. Must match the set `profile_inputs` case. */
+    profile: definitions["v1JwtProfile"];
+    /** @description Origin of the receiving service, as `https://<lowercase host>[:port]` with no default port, path, query, or fragment. At most 256 characters. Becomes the `aud` claim. */
+    audience: string;
+    /** @description Inputs for the `turnkey.io/http-authz/v1` profile. */
+    httpAuthzV1?: definitions["v1HttpAuthzV1Inputs"];
+  };
+  v1MintJwtRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_MINT_JWT";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1MintJwtIntent"];
+  };
+  v1MintJwtResult: {
+    /** @description Signed JWT in JWS compact serialization. */
+    jwt: string;
+    /** @description Public JWK of the key that signed the JWT. Verifiers should pin this key or fetch it from the issuer's JWKS, not trust it from this response. */
+    signingKeyJwk: string;
   };
   /** @enum {string} */
   v1MnemonicLanguage:
@@ -6948,8 +7005,8 @@ export type definitions = {
     createSwapQuoteResult?: definitions["v1CreateSwapQuoteResult"];
     importSecretsResult?: definitions["v1ImportSecretsResult"];
     exportSecretsResult?: definitions["v1ExportSecretsResult"];
-    createVelocityControlResult?: definitions["v1CreateVelocityControlResult"];
-    deleteVelocityControlsResult?: definitions["v1DeleteVelocityControlsResult"];
+    createUsageControlResult?: definitions["v1CreateUsageControlResult"];
+    deleteUsageControlsResult?: definitions["v1DeleteUsageControlsResult"];
     updatePaymentMethodResult?: definitions["billingUpdatePaymentMethodResult"];
     deleteSecretsResult?: definitions["v1DeleteSecretsResult"];
     earnClaimRewardsResult?: definitions["v1EarnClaimRewardsResult"];
@@ -6968,6 +7025,7 @@ export type definitions = {
     updateFiatRampCredentialResult?: definitions["v1UpdateFiatRampCredentialResult"];
     createExternalSignerResultV1?: definitions["v1CreateExternalSignerResultV1"];
     deleteExternalSignerResultV1?: definitions["v1DeleteExternalSignerResultV1"];
+    mintJwtResult?: definitions["v1MintJwtResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -7635,6 +7693,14 @@ export type definitions = {
     /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
     session: string;
   };
+  v1SwapCharges: {
+    /** @description Swap Execution: the provider's execution costs Turnkey pays, including DEX fees and price impact, the provider's fixed cost, destination gas, and provider fees. Present when fee_sponsorship is true. */
+    executionUsd?: string;
+    /** @description Swap Turnkey Fee: Turnkey's fee for a fee-sponsored swap. Present when fee_sponsorship is true. */
+    turnkeyFeeUsd?: string;
+    /** @description Swap Fixed Rate: the difference between the 1:1 rate and the market rate. Positive is a cost billed to you; negative is an earning credited against your transaction management charges at the end of the billing period. Present when fixed_rate is true. */
+    fixedRateAdjustmentUsd?: string;
+  };
   v1SwapError: {
     /** @description Stable machine-readable failure reason. One of ORIGIN_TRANSACTION_FAILED or PROVIDER_FILL_FAILED. */
     reason: string;
@@ -7680,12 +7746,14 @@ export type definitions = {
     clientFeeBps: string;
     /** @description Provider-estimated completion time in seconds, when available. */
     estimatedTimeSeconds?: string;
-    /** @description Whether Turnkey pays the provider fees for this quote. */
+    /** @description Whether Turnkey pays the execution costs for this quote. */
     feeSponsorship: boolean;
     /** @description Whether this quote uses a 1:1 fixed rate. */
     fixedRate: boolean;
-    /** @description Estimated USD adjustment for the fixed rate. Present only for fixed-rate quotes. Positive is a cost billed to you; negative is an earning credited against your transaction management charges at the end of the billing period. Informational; the final amount is settled after execution. */
+    /** @description Deprecated: use estimated_charges.fixed_rate_adjustment_usd. Estimated USD adjustment for the fixed rate. Present only for fixed-rate quotes. Positive is a cost billed to you; negative is an earning credited against your transaction management charges at the end of the billing period. Informational; the final amount is settled after execution. */
     estimatedFixedRateAdjustmentUsd?: string;
+    /** @description Estimated charges this swap adds to your invoice, one field per swap line item. Present when fee_sponsorship or fixed_rate is true. Informational; the final amounts are settled after execution and reported by get_swap_status. */
+    estimatedCharges?: definitions["v1SwapCharges"];
   };
   v1SwapRefund: {
     /** @description CAIP-19 asset returned by the swap provider after a failed cross-chain fill. */
@@ -8562,6 +8630,141 @@ export type definitions = {
     /** @description Unique identifier of the organization the limit config was saved for. */
     organizationId: string;
   };
+  v1UsageControl: {
+    /** @description Unique identifier for the Usage Control. */
+    usageControlId: string;
+    /** @description Identifier of the Organization that owns the Usage Control. */
+    organizationId: string;
+    /** @description Human-readable name for the Usage Control. */
+    name: string;
+    /** @description Data source for the Usage Control. */
+    dataSource: definitions["v1UsageControlDataSource"];
+    /** @description Aggregation expression that the Usage Control evaluates. */
+    aggregation: definitions["v1UsageControlAggregation"];
+    /** @description Scope of the usage control. Defines the boundaries within which the Usage Control operates. */
+    appliesTo?: definitions["v1UsageControlScope"];
+    /** @description Time when the Usage Control was created. */
+    createdAt: definitions["externaldatav1Timestamp"];
+    /** @description Time when the Usage Control was last updated. */
+    updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description Identifier for the Usage Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
+    identifier: string;
+  };
+  v1UsageControlAggregation: {
+    /** @description Method that aggregates matching data points. */
+    method: definitions["v1UsageControlAggregationMethod"];
+    /** @description Comparison between the aggregate and the threshold. */
+    operator: definitions["v1UsageControlAggregationOperator"];
+    /** @description Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits. */
+    threshold: string;
+    /** @description Time window for the aggregation. */
+    window: definitions["v1UsageControlAggregationWindow"];
+    /** @description Scope that partitions matching data before aggregation. */
+    groupBy: definitions["v1UsageControlAggregationGroupBy"];
+  };
+  v1UsageControlAggregationGroupBy: {
+    /** @description Uses one shared bucket for the Organization. */
+    organization?: definitions["v1UsageControlAggregationGroupByOrganization"];
+    /** @description Uses one bucket for each User. */
+    user?: definitions["v1UsageControlAggregationGroupByUser"];
+    /** @description Uses one bucket for each Wallet. */
+    wallet?: definitions["v1UsageControlAggregationGroupByWallet"];
+  };
+  v1UsageControlAggregationGroupByOrganization: { [key: string]: unknown };
+  v1UsageControlAggregationGroupByUser: { [key: string]: unknown };
+  v1UsageControlAggregationGroupByWallet: { [key: string]: unknown };
+  /** @enum {string} */
+  v1UsageControlAggregationMethod:
+    | "USAGE_CONTROL_AGGREGATION_METHOD_SUM"
+    | "USAGE_CONTROL_AGGREGATION_METHOD_COUNT";
+  /** @enum {string} */
+  v1UsageControlAggregationOperator:
+    | "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN"
+    | "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL"
+    | "USAGE_CONTROL_AGGREGATION_OPERATOR_EQUAL"
+    | "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL"
+    | "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN";
+  v1UsageControlAggregationWindow: {
+    /** @description Uses a rolling time window. */
+    rolling?: definitions["v1UsageControlAggregationWindowRolling"];
+    /** @description Uses all matching data without a time limit. */
+    infinite?: definitions["v1UsageControlAggregationWindowInfinite"];
+  };
+  v1UsageControlAggregationWindowInfinite: { [key: string]: unknown };
+  v1UsageControlAggregationWindowRolling: {
+    /**
+     * Format: int64
+     * @description Duration of the rolling window, in seconds.
+     */
+    duration: number;
+  };
+  v1UsageControlDataSource: {
+    /** @description Uses transfers of the listed on-chain assets as input data. */
+    chainAssetTransfer?: definitions["v1UsageControlDataSourceChainAssetTransfer"];
+    /** @description Uses executed Turnkey activities as input data. */
+    activityExecution?: definitions["v1UsageControlDataSourceActivityExecution"];
+  };
+  v1UsageControlDataSourceActivityExecution: {
+    /** @description Filters activity executions by type. */
+    filter?: definitions["v1UsageControlDataSourceActivityExecutionFilter"];
+  };
+  v1UsageControlDataSourceActivityExecutionFilter: {
+    /** @description Activity types whose executions are included. */
+    activity?: definitions["v1UsageControlDataSourceFilterActivity"][];
+  };
+  v1UsageControlDataSourceChainAssetTransfer: {
+    /** @description Assets whose transfers are included in the data source. */
+    definition: definitions["v1UsageControlDataSourceChainAssetTransferDefinition"][];
+    /** @description Filters asset transfers by activity type. */
+    filter?: definitions["v1UsageControlDataSourceChainAssetTransferFilter"];
+    /** @description Selects when to measure an asset transfer. */
+    phase?: definitions["v1UsageControlDataSourcePhase"];
+  };
+  v1UsageControlDataSourceChainAssetTransferDefinition: {
+    /** @description CAIP-19 identifier for the asset. */
+    caip19: string;
+    /**
+     * Format: int64
+     * @description Integer between 0 and 32 (inclusive) that specifies the number of decimal places for the asset.
+     */
+    decimals: number;
+  };
+  v1UsageControlDataSourceChainAssetTransferFilter: {
+    /** @description Activity types whose asset transfers are included. */
+    activity?: definitions["v1UsageControlDataSourceFilterActivity"][];
+  };
+  v1UsageControlDataSourceFilterActivity: {
+    /** @description Name of an activity type to include, such as `ACTIVITY_TYPE_SOL_SEND_TRANSACTION`. */
+    activityType: string;
+  };
+  v1UsageControlDataSourcePhase: {
+    /** @description Measures the transfer when Turnkey signs the transaction and returns it to the user. */
+    signature?: definitions["v1UsageControlDataSourcePhaseSignature"];
+    /** @description Reserved for future use. Measures the transfer after the transaction lands on chain. */
+    submission?: definitions["v1UsageControlDataSourcePhaseSubmission"];
+  };
+  v1UsageControlDataSourcePhaseSignature: { [key: string]: unknown };
+  v1UsageControlDataSourcePhaseSubmission: { [key: string]: unknown };
+  v1UsageControlScope: {
+    /** @description Limits the scope of the usage control to particular Users. */
+    user?: definitions["v1UsageControlScopeUser"];
+    /** @description Limits the scope of the usage control to particular Wallets. */
+    wallet?: definitions["v1UsageControlScopeWallet"];
+    /** @description Limits the scope of the usage control to particular Wallet Accounts. */
+    walletAccount?: definitions["v1UsageControlScopeWalletAccount"];
+  };
+  v1UsageControlScopeUser: {
+    /** @description IDs of the users for which the usage control will capture the usage. */
+    userIds: string[];
+  };
+  v1UsageControlScopeWallet: {
+    /** @description IDs of the wallets for which the usage control will capture the usage. */
+    walletIds: string[];
+  };
+  v1UsageControlScopeWalletAccount: {
+    /** @description IDs of the wallet accounts for which the usage control will capture the usage. */
+    walletAccountIds: string[];
+  };
   /** @enum {string} */
   v1UsageType: "USAGE_TYPE_SIGNUP" | "USAGE_TYPE_LOGIN";
   v1User: {
@@ -8656,141 +8859,6 @@ export type definitions = {
   };
   v1ValidateTvcImageResponse: {
     resolvedImageDigest?: string;
-  };
-  v1VelocityControl: {
-    /** @description Unique identifier for the Velocity Control. */
-    velocityControlId: string;
-    /** @description Identifier of the Organization that owns the Velocity Control. */
-    organizationId: string;
-    /** @description Human-readable name for the Velocity Control. */
-    name: string;
-    /** @description Data source for the Velocity Control. */
-    dataSource: definitions["v1VelocityControlDataSource"];
-    /** @description Aggregation expression that the Velocity Control evaluates. */
-    aggregation: definitions["v1VelocityControlAggregation"];
-    /** @description Scope of the velocity control. Defines the boundaries within which the Velocity Control operates. */
-    appliesTo?: definitions["v1VelocityControlScope"];
-    /** @description Time when the Velocity Control was created. */
-    createdAt: definitions["externaldatav1Timestamp"];
-    /** @description Time when the Velocity Control was last updated. */
-    updatedAt: definitions["externaldatav1Timestamp"];
-    /** @description Identifier for the Velocity Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
-    identifier: string;
-  };
-  v1VelocityControlAggregation: {
-    /** @description Method that aggregates matching data points. */
-    method: definitions["v1VelocityControlAggregationMethod"];
-    /** @description Comparison between the aggregate and the threshold. */
-    operator: definitions["v1VelocityControlAggregationOperator"];
-    /** @description Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits. */
-    threshold: string;
-    /** @description Time window for the aggregation. */
-    window: definitions["v1VelocityControlAggregationWindow"];
-    /** @description Scope that partitions matching data before aggregation. */
-    groupBy: definitions["v1VelocityControlAggregationGroupBy"];
-  };
-  v1VelocityControlAggregationGroupBy: {
-    /** @description Uses one shared bucket for the Organization. */
-    organization?: definitions["v1VelocityControlAggregationGroupByOrganization"];
-    /** @description Uses one bucket for each User. */
-    user?: definitions["v1VelocityControlAggregationGroupByUser"];
-    /** @description Uses one bucket for each Wallet. */
-    wallet?: definitions["v1VelocityControlAggregationGroupByWallet"];
-  };
-  v1VelocityControlAggregationGroupByOrganization: { [key: string]: unknown };
-  v1VelocityControlAggregationGroupByUser: { [key: string]: unknown };
-  v1VelocityControlAggregationGroupByWallet: { [key: string]: unknown };
-  /** @enum {string} */
-  v1VelocityControlAggregationMethod:
-    | "VELOCITY_CONTROL_AGGREGATION_METHOD_SUM"
-    | "VELOCITY_CONTROL_AGGREGATION_METHOD_COUNT";
-  /** @enum {string} */
-  v1VelocityControlAggregationOperator:
-    | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_LESS_THAN"
-    | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL"
-    | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_EQUAL"
-    | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL"
-    | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN";
-  v1VelocityControlAggregationWindow: {
-    /** @description Uses a rolling time window. */
-    rolling?: definitions["v1VelocityControlAggregationWindowRolling"];
-    /** @description Uses all matching data without a time limit. */
-    infinite?: definitions["v1VelocityControlAggregationWindowInfinite"];
-  };
-  v1VelocityControlAggregationWindowInfinite: { [key: string]: unknown };
-  v1VelocityControlAggregationWindowRolling: {
-    /**
-     * Format: int64
-     * @description Duration of the rolling window, in seconds.
-     */
-    duration: number;
-  };
-  v1VelocityControlDataSource: {
-    /** @description Uses transfers of the listed on-chain assets as input data. */
-    chainAssetTransfer?: definitions["v1VelocityControlDataSourceChainAssetTransfer"];
-    /** @description Uses executed Turnkey activities as input data. */
-    activityExecution?: definitions["v1VelocityControlDataSourceActivityExecution"];
-  };
-  v1VelocityControlDataSourceActivityExecution: {
-    /** @description Filters activity executions by type. */
-    filter?: definitions["v1VelocityControlDataSourceActivityExecutionFilter"];
-  };
-  v1VelocityControlDataSourceActivityExecutionFilter: {
-    /** @description Activity types whose executions are included. */
-    activity?: definitions["v1VelocityControlDataSourceFilterActivity"][];
-  };
-  v1VelocityControlDataSourceChainAssetTransfer: {
-    /** @description Assets whose transfers are included in the data source. */
-    definition: definitions["v1VelocityControlDataSourceChainAssetTransferDefinition"][];
-    /** @description Filters asset transfers by activity type. */
-    filter?: definitions["v1VelocityControlDataSourceChainAssetTransferFilter"];
-    /** @description Selects when to measure an asset transfer. */
-    phase?: definitions["v1VelocityControlDataSourcePhase"];
-  };
-  v1VelocityControlDataSourceChainAssetTransferDefinition: {
-    /** @description CAIP-19 identifier for the asset. */
-    caip19: string;
-    /**
-     * Format: int64
-     * @description Integer between 0 and 32 (inclusive) that specifies the number of decimal places for the asset.
-     */
-    decimals: number;
-  };
-  v1VelocityControlDataSourceChainAssetTransferFilter: {
-    /** @description Activity types whose asset transfers are included. */
-    activity?: definitions["v1VelocityControlDataSourceFilterActivity"][];
-  };
-  v1VelocityControlDataSourceFilterActivity: {
-    /** @description Name of an activity type to include, such as `ACTIVITY_TYPE_SOL_SEND_TRANSACTION`. */
-    activityType: string;
-  };
-  v1VelocityControlDataSourcePhase: {
-    /** @description Measures the transfer when Turnkey signs the transaction and returns it to the user. */
-    signature?: definitions["v1VelocityControlDataSourcePhaseSignature"];
-    /** @description Reserved for future use. Measures the transfer after the transaction lands on chain. */
-    submission?: definitions["v1VelocityControlDataSourcePhaseSubmission"];
-  };
-  v1VelocityControlDataSourcePhaseSignature: { [key: string]: unknown };
-  v1VelocityControlDataSourcePhaseSubmission: { [key: string]: unknown };
-  v1VelocityControlScope: {
-    /** @description Limits the scope of the velocity control to particular Users. */
-    user?: definitions["v1VelocityControlScopeUser"];
-    /** @description Limits the scope of the velocity control to particular Wallets. */
-    wallet?: definitions["v1VelocityControlScopeWallet"];
-    /** @description Limits the scope of the velocity control to particular Wallet Accounts. */
-    walletAccount?: definitions["v1VelocityControlScopeWalletAccount"];
-  };
-  v1VelocityControlScopeUser: {
-    /** @description IDs of the users for which the velocity control will capture the usage. */
-    userIds: string[];
-  };
-  v1VelocityControlScopeWallet: {
-    /** @description IDs of the wallets for which the velocity control will capture the usage. */
-    walletIds: string[];
-  };
-  v1VelocityControlScopeWalletAccount: {
-    /** @description IDs of the wallet accounts for which the velocity control will capture the usage. */
-    walletAccountIds: string[];
   };
   v1VerifyOtpIntent: {
     /** @description ID representing the result of an init OTP activity. */
@@ -9751,6 +9819,24 @@ export type operations = {
       };
     };
   };
+  /** Get details about a usage control. */
+  PublicApiService_GetUsageControl: {
+    parameters: {
+      body: {
+        body: definitions["v1GetUsageControlRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetUsageControlResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get details about a user. */
   PublicApiService_GetUser: {
     parameters: {
@@ -9762,24 +9848,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetUserResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get details about a velocity control. */
-  PublicApiService_GetVelocityControl: {
-    parameters: {
-      body: {
-        body: definitions["v1GetVelocityControlRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetVelocityControlResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -10291,6 +10359,24 @@ export type operations = {
       };
     };
   };
+  /** List all usage controls within an organization. */
+  PublicApiService_ListUsageControls: {
+    parameters: {
+      body: {
+        body: definitions["v1ListUsageControlsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListUsageControlsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** List all user tags within an organization. */
   PublicApiService_ListUserTags: {
     parameters: {
@@ -10320,24 +10406,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetUsersResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** List all velocity controls within an organization. */
-  PublicApiService_ListVelocityControls: {
-    parameters: {
-      body: {
-        body: definitions["v1ListVelocityControlsRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ListVelocityControlsResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -10993,6 +11061,24 @@ export type operations = {
       };
     };
   };
+  /** Create a new usage control. */
+  PublicApiService_CreateUsageControl: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateUsageControlRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create a user tag and add it to users. */
   PublicApiService_CreateUserTag: {
     parameters: {
@@ -11016,24 +11102,6 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreateUsersRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Create a new velocity control. */
-  PublicApiService_CreateVelocityControl: {
-    parameters: {
-      body: {
-        body: definitions["v1CreateVelocityControlRequest"];
       };
     };
     responses: {
@@ -11425,6 +11493,24 @@ export type operations = {
       };
     };
   };
+  /** Delete existing usage controls. */
+  PublicApiService_DeleteUsageControls: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteUsageControlsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Delete user tags within an organization. */
   PublicApiService_DeleteUserTags: {
     parameters: {
@@ -11448,24 +11534,6 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1DeleteUsersRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Delete existing velocity controls. */
-  PublicApiService_DeleteVelocityControls: {
-    parameters: {
-      body: {
-        body: definitions["v1DeleteVelocityControlsRequest"];
       };
     };
     responses: {
@@ -11713,7 +11781,7 @@ export type operations = {
       };
     };
   };
-  /** Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V3. */
+  /** Execute a swap through the activity pipeline and Turnkey broadcasting. With bound_quote, execution is bound to the quote create_swap_quote returned. With market, the swap executes at the provider's price when the activity is approved, within slippage_bps and min_output_amount; use get_indicative_swap_quote to preview that price. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V4. */
   PublicApiService_ExecuteSwap: {
     parameters: {
       body: {
@@ -11970,6 +12038,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1InitUserEmailRecoveryRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Mint a Turnkey-signed JWT with a given profile. JWT semantics switch on profile. */
+  PublicApiService_MintJwt: {
+    parameters: {
+      body: {
+        body: definitions["v1MintJwtRequest"];
       };
     };
     responses: {

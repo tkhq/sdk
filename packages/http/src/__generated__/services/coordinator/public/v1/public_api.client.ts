@@ -161,11 +161,11 @@ import type {
   TGetTvcQosVersionsBody,
   TGetTvcQosVersionsResponse,
 } from "./public_api.fetcher";
-import type { TGetUserBody, TGetUserResponse } from "./public_api.fetcher";
 import type {
-  TGetVelocityControlBody,
-  TGetVelocityControlResponse,
+  TGetUsageControlBody,
+  TGetUsageControlResponse,
 } from "./public_api.fetcher";
+import type { TGetUserBody, TGetUserResponse } from "./public_api.fetcher";
 import type { TGetWalletBody, TGetWalletResponse } from "./public_api.fetcher";
 import type {
   TGetWalletAccountBody,
@@ -276,14 +276,14 @@ import type {
   TGetTvcQuorumKeysResponse,
 } from "./public_api.fetcher";
 import type {
+  TListUsageControlsBody,
+  TListUsageControlsResponse,
+} from "./public_api.fetcher";
+import type {
   TListUserTagsBody,
   TListUserTagsResponse,
 } from "./public_api.fetcher";
 import type { TGetUsersBody, TGetUsersResponse } from "./public_api.fetcher";
-import type {
-  TListVelocityControlsBody,
-  TListVelocityControlsResponse,
-} from "./public_api.fetcher";
 import type {
   TGetVerifiedSubOrgIdsBody,
   TGetVerifiedSubOrgIdsResponse,
@@ -426,16 +426,16 @@ import type {
   TCreateTvcQuorumKeyResponse,
 } from "./public_api.fetcher";
 import type {
+  TCreateUsageControlBody,
+  TCreateUsageControlResponse,
+} from "./public_api.fetcher";
+import type {
   TCreateUserTagBody,
   TCreateUserTagResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateUsersBody,
   TCreateUsersResponse,
-} from "./public_api.fetcher";
-import type {
-  TCreateVelocityControlBody,
-  TCreateVelocityControlResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateWalletBody,
@@ -522,16 +522,16 @@ import type {
   TDeleteTvcDeploymentResponse,
 } from "./public_api.fetcher";
 import type {
+  TDeleteUsageControlsBody,
+  TDeleteUsageControlsResponse,
+} from "./public_api.fetcher";
+import type {
   TDeleteUserTagsBody,
   TDeleteUserTagsResponse,
 } from "./public_api.fetcher";
 import type {
   TDeleteUsersBody,
   TDeleteUsersResponse,
-} from "./public_api.fetcher";
-import type {
-  TDeleteVelocityControlsBody,
-  TDeleteVelocityControlsResponse,
 } from "./public_api.fetcher";
 import type {
   TDeleteWalletAccountsBody,
@@ -639,6 +639,7 @@ import type {
   TInitUserEmailRecoveryBody,
   TInitUserEmailRecoveryResponse,
 } from "./public_api.fetcher";
+import type { TMintJwtBody, TMintJwtResponse } from "./public_api.fetcher";
 import type { TOauthBody, TOauthResponse } from "./public_api.fetcher";
 import type {
   TOauth2AuthenticateBody,
@@ -2163,6 +2164,37 @@ export class TurnkeyClient {
   };
 
   /**
+   * Get details about a usage control.
+   *
+   * Sign the provided `TGetUsageControlBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_usage_control).
+   *
+   * See also {@link stampGetUsageControl}.
+   */
+  getUsageControl = async (
+    input: TGetUsageControlBody,
+  ): Promise<TGetUsageControlResponse> => {
+    return this.request("/public/v1/query/get_usage_control", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetUsageControlBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetUsageControl}.
+   */
+  stampGetUsageControl = async (
+    input: TGetUsageControlBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_usage_control";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Get details about a user.
    *
    * Sign the provided `TGetUserBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_user).
@@ -2180,38 +2212,6 @@ export class TurnkeyClient {
    */
   stampGetUser = async (input: TGetUserBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_user";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Get details about a velocity control.
-   *
-   * Sign the provided `TGetVelocityControlBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_velocity_control).
-   *
-   * See also {@link stampGetVelocityControl}.
-   */
-  getVelocityControl = async (
-    input: TGetVelocityControlBody,
-  ): Promise<TGetVelocityControlResponse> => {
-    return this.request("/public/v1/query/get_velocity_control", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TGetVelocityControlBody` by using the client's `stamp` function.
-   *
-   * See also {@link GetVelocityControl}.
-   */
-  stampGetVelocityControl = async (
-    input: TGetVelocityControlBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/query/get_velocity_control";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -3103,6 +3103,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * List all usage controls within an organization.
+   *
+   * Sign the provided `TListUsageControlsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_usage_controls).
+   *
+   * See also {@link stampListUsageControls}.
+   */
+  listUsageControls = async (
+    input: TListUsageControlsBody,
+  ): Promise<TListUsageControlsResponse> => {
+    return this.request("/public/v1/query/list_usage_controls", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListUsageControlsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListUsageControls}.
+   */
+  stampListUsageControls = async (
+    input: TListUsageControlsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_usage_controls";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * List all user tags within an organization.
    *
    * Sign the provided `TListUserTagsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_user_tags).
@@ -3151,38 +3183,6 @@ export class TurnkeyClient {
    */
   stampGetUsers = async (input: TGetUsersBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_users";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * List all velocity controls within an organization.
-   *
-   * Sign the provided `TListVelocityControlsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_velocity_controls).
-   *
-   * See also {@link stampListVelocityControls}.
-   */
-  listVelocityControls = async (
-    input: TListVelocityControlsBody,
-  ): Promise<TListVelocityControlsResponse> => {
-    return this.request("/public/v1/query/list_velocity_controls", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TListVelocityControlsBody` by using the client's `stamp` function.
-   *
-   * See also {@link ListVelocityControls}.
-   */
-  stampListVelocityControls = async (
-    input: TListVelocityControlsBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/query/list_velocity_controls";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -4341,6 +4341,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Create a new usage control.
+   *
+   * Sign the provided `TCreateUsageControlBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_usage_control).
+   *
+   * See also {@link stampCreateUsageControl}.
+   */
+  createUsageControl = async (
+    input: TCreateUsageControlBody,
+  ): Promise<TCreateUsageControlResponse> => {
+    return this.request("/public/v1/submit/create_usage_control", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateUsageControlBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateUsageControl}.
+   */
+  stampCreateUsageControl = async (
+    input: TCreateUsageControlBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_usage_control";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Create a user tag and add it to users.
    *
    * Sign the provided `TCreateUserTagBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_user_tag).
@@ -4393,38 +4425,6 @@ export class TurnkeyClient {
     input: TCreateUsersBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_users";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Create a new velocity control.
-   *
-   * Sign the provided `TCreateVelocityControlBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_velocity_control).
-   *
-   * See also {@link stampCreateVelocityControl}.
-   */
-  createVelocityControl = async (
-    input: TCreateVelocityControlBody,
-  ): Promise<TCreateVelocityControlResponse> => {
-    return this.request("/public/v1/submit/create_velocity_control", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TCreateVelocityControlBody` by using the client's `stamp` function.
-   *
-   * See also {@link CreateVelocityControl}.
-   */
-  stampCreateVelocityControl = async (
-    input: TCreateVelocityControlBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/create_velocity_control";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -5112,6 +5112,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Delete existing usage controls.
+   *
+   * Sign the provided `TDeleteUsageControlsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_usage_controls).
+   *
+   * See also {@link stampDeleteUsageControls}.
+   */
+  deleteUsageControls = async (
+    input: TDeleteUsageControlsBody,
+  ): Promise<TDeleteUsageControlsResponse> => {
+    return this.request("/public/v1/submit/delete_usage_controls", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteUsageControlsBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteUsageControls}.
+   */
+  stampDeleteUsageControls = async (
+    input: TDeleteUsageControlsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_usage_controls";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Delete user tags within an organization.
    *
    * Sign the provided `TDeleteUserTagsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_user_tags).
@@ -5164,38 +5196,6 @@ export class TurnkeyClient {
     input: TDeleteUsersBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_users";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Delete existing velocity controls.
-   *
-   * Sign the provided `TDeleteVelocityControlsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_velocity_controls).
-   *
-   * See also {@link stampDeleteVelocityControls}.
-   */
-  deleteVelocityControls = async (
-    input: TDeleteVelocityControlsBody,
-  ): Promise<TDeleteVelocityControlsResponse> => {
-    return this.request("/public/v1/submit/delete_velocity_controls", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TDeleteVelocityControlsBody` by using the client's `stamp` function.
-   *
-   * See also {@link DeleteVelocityControls}.
-   */
-  stampDeleteVelocityControls = async (
-    input: TDeleteVelocityControlsBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/delete_velocity_controls";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -5617,7 +5617,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V3.
+   * Execute a swap through the activity pipeline and Turnkey broadcasting. With bound_quote, execution is bound to the quote create_swap_quote returned. With market, the swap executes at the provider's price when the activity is approved, within slippage_bps and min_output_amount; use get_indicative_swap_quote to preview that price. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V4.
    *
    * Sign the provided `TExecuteSwapBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/execute_swap).
    *
@@ -6079,6 +6079,33 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/init_user_email_recovery";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Mint a Turnkey-signed JWT with a given profile. JWT semantics switch on profile.
+   *
+   * Sign the provided `TMintJwtBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/mint_jwt).
+   *
+   * See also {@link stampMintJwt}.
+   */
+  mintJwt = async (input: TMintJwtBody): Promise<TMintJwtResponse> => {
+    return this.request("/public/v1/submit/mint_jwt", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TMintJwtBody` by using the client's `stamp` function.
+   *
+   * See also {@link MintJwt}.
+   */
+  stampMintJwt = async (input: TMintJwtBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/mint_jwt";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
