@@ -1,5 +1,32 @@
 # @turnkey/core
 
+## 2.14.0
+
+### Minor Changes
+
+- [#1598](https://github.com/tkhq/sdk/pull/1598) [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f) Author [@amircheikh](https://github.com/amircheikh) - - Add auth proxy `proxySignupV3` (`POST /v1/signup_v3`) and `proxyVerifyWalletAuthenticator` (`POST /v1/verify_wallet_authenticator`).
+
+- [#1598](https://github.com/tkhq/sdk/pull/1598) [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f) Author [@amircheikh](https://github.com/amircheikh) - Sync generated clients and types with the latest public API.
+  - Add `getWalletAuthenticators` (`POST /public/v1/query/get_wallet_authenticators`), `createWalletAuthenticators`, `deleteWalletAuthenticators`, and `verifyWalletAuthenticator` (plus `stamp*` variants). `v1WalletAuthenticatorParams` accepts an optional `verificationToken`.
+  - Add `createExternalSigner` and `deleteExternalSigner` (plus `stamp*` variants). `createPrivateKeys` accepts an optional `externalSignerWrappingKeyId`.
+  - Add `createFiatRampCredential` and `updateFiatRampCredential` (plus `stamp*` variants).
+  - Fiat quotes and credentials now use the shared ramp types. `v1FiatOnRampAmount` is `v1FiatRampAmount`. On-ramp quote `onrampProvider` is `provider` (`v1FiatRampProvider`, which includes Meld). Quote `fiatCurrencyCode` and `paymentMethod` use `v1FiatRampCurrency` and `v1FiatRampPaymentMethod`. Credential `fiatOnrampCredentialId` is `credentialId`, and `publishableApiKey` / `encryptedSecretApiKey` are `apiKey` / `encryptedSecret`. `projectId` and `encryptedPrivateApiKey` are removed. `FIAT_ON_RAMP_PROVIDER_MELD` is removed from `v1FiatOnRampProvider`.
+  - Generated activity types include `ACTIVITY_TYPE_EXECUTE_SWAP_V4` (`v1ExecuteSwapIntentV4`), `ACTIVITY_TYPE_ENABLE_SMS_FOR_COUNTRIES`, and `ACTIVITY_TYPE_DISABLE_SMS_FOR_COUNTRIES`. `executeSwap` results include optional `outputAmount`, `minOutputAmount`, `feeSponsorship`, and `fixedRate`. `setOrganizationFeature` `value` is optional. `AUTHENTICATOR_TRANSPORT_SMART_CARD` is added.
+  - `@turnkey/core`: add auth proxy `proxySignupV3` (`POST /v1/signup_v3`) and `proxyVerifyWalletAuthenticator` (`POST /v1/verify_wallet_authenticator`).
+
+### Patch Changes
+
+- [#1619](https://github.com/tkhq/sdk/pull/1619) [`0ff574a`](https://github.com/tkhq/sdk/commit/0ff574a37b8ba83f140daa7abc042b6e09206de5) Author [@justinformentin](https://github.com/justinformentin) - `loginWithOtp` and `loginWithOauth` now stamp their `stampLogin` request, activity polling and MFA status requests with an attested stamper that only that login uses. A concurrent login or `overrideAttestedStamper` call no longer changes the identity these requests are stamped with. Both methods still configure the shared attested stamper, as before. `AttestedStamper.stamp()` now reads its configuration once, before it signs. Logins use a separate client built from a copy of `client.httpClient.config` taken when the login starts, so `onMfaRequired` changes made during a login do not apply to it, and spies or wrappers on `client.httpClient.stampLogin` no longer see these logins.
+
+- [#1631](https://github.com/tkhq/sdk/pull/1631) [`19191df`](https://github.com/tkhq/sdk/commit/19191df238abbb71f83803eb9855785f6ea76a1c) Author [@actype](https://github.com/actype) - Upgrade viem to 2.57.10.
+
+- Updated dependencies [[`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f)]:
+  - @turnkey/http@6.8.0
+  - @turnkey/sdk-types@1.12.0
+  - @turnkey/react-native-passkey-stamper@1.2.28
+  - @turnkey/crypto@2.13.4
+  - @turnkey/api-key-stamper@0.6.19
+
 ## 2.13.2
 
 ### Patch Changes

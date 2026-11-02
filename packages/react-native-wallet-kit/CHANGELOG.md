@@ -1,5 +1,27 @@
 # @turnkey/react-native-wallet-kit
 
+## 2.6.0
+
+### Minor Changes
+
+- [#1598](https://github.com/tkhq/sdk/pull/1598) [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f) Author [@amircheikh](https://github.com/amircheikh) - - Add auth proxy `proxySignupV3` (`POST /v1/signup_v3`) and `proxyVerifyWalletAuthenticator` (`POST /v1/verify_wallet_authenticator`).
+
+- [#1598](https://github.com/tkhq/sdk/pull/1598) [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f) Author [@amircheikh](https://github.com/amircheikh) - Sync generated clients and types with the latest public API.
+  - Add `getWalletAuthenticators` (`POST /public/v1/query/get_wallet_authenticators`), `createWalletAuthenticators`, `deleteWalletAuthenticators`, and `verifyWalletAuthenticator` (plus `stamp*` variants). `v1WalletAuthenticatorParams` accepts an optional `verificationToken`.
+  - Add `createExternalSigner` and `deleteExternalSigner` (plus `stamp*` variants). `createPrivateKeys` accepts an optional `externalSignerWrappingKeyId`.
+  - Add `createFiatRampCredential` and `updateFiatRampCredential` (plus `stamp*` variants).
+  - Fiat quotes and credentials now use the shared ramp types. `v1FiatOnRampAmount` is `v1FiatRampAmount`. On-ramp quote `onrampProvider` is `provider` (`v1FiatRampProvider`, which includes Meld). Quote `fiatCurrencyCode` and `paymentMethod` use `v1FiatRampCurrency` and `v1FiatRampPaymentMethod`. Credential `fiatOnrampCredentialId` is `credentialId`, and `publishableApiKey` / `encryptedSecretApiKey` are `apiKey` / `encryptedSecret`. `projectId` and `encryptedPrivateApiKey` are removed. `FIAT_ON_RAMP_PROVIDER_MELD` is removed from `v1FiatOnRampProvider`.
+  - Generated activity types include `ACTIVITY_TYPE_EXECUTE_SWAP_V4` (`v1ExecuteSwapIntentV4`), `ACTIVITY_TYPE_ENABLE_SMS_FOR_COUNTRIES`, and `ACTIVITY_TYPE_DISABLE_SMS_FOR_COUNTRIES`. `executeSwap` results include optional `outputAmount`, `minOutputAmount`, `feeSponsorship`, and `fixedRate`. `setOrganizationFeature` `value` is optional. `AUTHENTICATOR_TRANSPORT_SMART_CARD` is added.
+  - `@turnkey/core`: add auth proxy `proxySignupV3` (`POST /v1/signup_v3`) and `proxyVerifyWalletAuthenticator` (`POST /v1/verify_wallet_authenticator`).
+
+### Patch Changes
+
+- Updated dependencies [[`0ff574a`](https://github.com/tkhq/sdk/commit/0ff574a37b8ba83f140daa7abc042b6e09206de5), [`19191df`](https://github.com/tkhq/sdk/commit/19191df238abbb71f83803eb9855785f6ea76a1c), [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f), [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f)]:
+  - @turnkey/core@2.14.0
+  - @turnkey/sdk-types@1.12.0
+  - @turnkey/react-native-passkey-stamper@1.2.28
+  - @turnkey/crypto@2.13.4
+
 ## 2.5.1
 
 ### Patch Changes

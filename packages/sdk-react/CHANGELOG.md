@@ -1,5 +1,18 @@
 # @turnkey/sdk-react
 
+## 6.0.16
+
+### Patch Changes
+
+- [#1626](https://github.com/tkhq/sdk/pull/1626) [`03d9fd3`](https://github.com/tkhq/sdk/commit/03d9fd37cad4120a6c764f23da7928477183edf7) Author [@justinformentin](https://github.com/justinformentin) - Remove unused `next` runtime dependency.
+
+- Updated dependencies [[`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f)]:
+  - @turnkey/sdk-browser@8.8.0
+  - @turnkey/sdk-server@8.9.0
+  - @turnkey/sdk-types@1.12.0
+  - @turnkey/wallet-stamper@1.1.31
+  - @turnkey/crypto@2.13.4
+
 ## 6.0.15
 
 ### Patch Changes
