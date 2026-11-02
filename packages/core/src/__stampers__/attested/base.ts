@@ -38,17 +38,14 @@ export class AttestedStamper implements TStamper {
   }
 
   async stamp(payload: string): Promise<TStamp> {
-    // Copy before awaiting so a concurrent configure() or clear() cannot change the stamp.
-    const { attestedIdentity, publicKey, scheme } = this;
-
-    if (!attestedIdentity) {
+    if (!this.attestedIdentity) {
       throw new TurnkeyError(
         "Attested identity not set. Please call setAttestedIdentity() before stamping.",
         TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
 
-    if (!publicKey) {
+    if (!this.publicKey) {
       throw new TurnkeyError(
         "Attested public key not set. Please call setPublicKey() before stamping.",
         TurnkeyErrorCodes.INVALID_REQUEST,
@@ -58,13 +55,13 @@ export class AttestedStamper implements TStamper {
     const signature = await this.apiKeyStamper.sign(
       payload,
       SignatureFormat.Der,
-      publicKey,
+      this.publicKey,
     );
 
     const stamp = {
-      publicKeyAttestation: attestedIdentity,
-      scheme,
-      publicKey,
+      publicKeyAttestation: this.attestedIdentity,
+      scheme: this.scheme,
+      publicKey: this.publicKey,
       signature,
     };
 

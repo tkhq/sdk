@@ -2,7 +2,6 @@ import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import {
   type TDeleteSubOrganizationResponse,
   type Session,
-  type TStampLoginBody,
   type TStampLoginResponse,
   type v1Attestation,
   type v1SignRawPayloadResult,
@@ -165,11 +164,7 @@ import { toUtf8Bytes } from "ethers";
 import { verify } from "@turnkey/crypto";
 import { SignatureFormat } from "@turnkey/api-key-stamper";
 import { encodeFunctionData } from "viem";
-import {
-  type AttestedConfig,
-  AttestedScheme,
-  AttestedStamper,
-} from "../__stampers__/attested/base";
+import { AttestedScheme, AttestedStamper } from "../__stampers__/attested/base";
 
 /**
  * @internal
@@ -221,6 +216,19 @@ export class TurnkeyClient {
   private attestedStamper?: AttestedStamper | undefined;
   private walletManager?: WalletManagerBase | undefined;
   private storageManager!: StorageBase;
+
+  // Session storage and the shared attested stamper are not safe under concurrent logins.
+  private loginQueue: Promise<void> = Promise.resolve();
+
+  // Nested auth flows call private unlocked implementations while holding this lock.
+  private withLoginLock<T>(login: () => Promise<T>): Promise<T> {
+    const result = this.loginQueue.then(login);
+    this.loginQueue = result.then(
+      () => {},
+      () => {},
+    );
+    return result;
+  }
 
   constructor(
     config: TurnkeySDKClientConfig,
@@ -626,6 +634,12 @@ export class TurnkeyClient {
   loginWithPasskey = async (
     params?: LoginWithPasskeyParams,
   ): Promise<PasskeyAuthResult> => {
+    return this.withLoginLock(() => this.loginWithPasskeyUnlocked(params));
+  };
+
+  private loginWithPasskeyUnlocked = async (
+    params?: LoginWithPasskeyParams,
+  ): Promise<PasskeyAuthResult> => {
     const shouldOverrideConfig =
       params?.allowCredentials && this.passkeyStamper;
 
@@ -764,6 +778,12 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is an error during passkey creation, sub-organization creation, or session storage.
    */
   signUpWithPasskey = async (
+    params?: SignUpWithPasskeyParams,
+  ): Promise<PasskeyAuthResult> => {
+    return this.withLoginLock(() => this.signUpWithPasskeyUnlocked(params));
+  };
+
+  private signUpWithPasskeyUnlocked = async (
     params?: SignUpWithPasskeyParams,
   ): Promise<PasskeyAuthResult> => {
     const {
@@ -1203,6 +1223,12 @@ export class TurnkeyClient {
   loginWithWallet = async (
     params: LoginWithWalletParams,
   ): Promise<WalletAuthResult> => {
+    return this.withLoginLock(() => this.loginWithWalletUnlocked(params));
+  };
+
+  private loginWithWalletUnlocked = async (
+    params: LoginWithWalletParams,
+  ): Promise<WalletAuthResult> => {
     const { walletProvider, sessionKey = SessionKey.DefaultSessionkey } =
       params;
 
@@ -1265,6 +1291,12 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, session storage, or cleanup.
    */
   signUpWithWallet = async (
+    params: SignUpWithWalletParams,
+  ): Promise<WalletAuthResult> => {
+    return this.withLoginLock(() => this.signUpWithWalletUnlocked(params));
+  };
+
+  private signUpWithWalletUnlocked = async (
     params: SignUpWithWalletParams,
   ): Promise<WalletAuthResult> => {
     const {
@@ -1362,6 +1394,14 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, or session storage.
    */
   loginOrSignupWithWallet = async (
+    params: LoginOrSignupWithWalletParams,
+  ): Promise<WalletAuthResult & { action: AuthAction }> => {
+    return this.withLoginLock(() =>
+      this.loginOrSignupWithWalletUnlocked(params),
+    );
+  };
+
+  private loginOrSignupWithWalletUnlocked = async (
     params: LoginOrSignupWithWalletParams,
   ): Promise<WalletAuthResult & { action: AuthAction }> => {
     const {
@@ -1600,28 +1640,6 @@ export class TurnkeyClient {
     );
   };
 
-  // Per-login stamper, so concurrent logins cannot change this login's identity.
-  private stampLoginWithAttestedConfig = async (
-    attestedConfig: AttestedConfig,
-    input: TStampLoginBody,
-  ): Promise<TStampLoginResponse> => {
-    if (!this.apiKeyStamper) {
-      throw new TurnkeyError(
-        "API key stamper is not initialized",
-        TurnkeyErrorCodes.INTERNAL_ERROR,
-      );
-    }
-
-    const attestedStamper = new AttestedStamper(this.apiKeyStamper);
-    attestedStamper.configure(attestedConfig);
-
-    // Copies httpClient.config when the login starts, so onMfaRequired is read once per login.
-    return new TurnkeySDKClientBase({
-      ...this.httpClient.config,
-      attestedStamper,
-    }).stampLogin(input, StamperType.Attested);
-  };
-
   /**
    * Logs in a user using an OTP verification token.
    *
@@ -1640,6 +1658,12 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is an error during the OTP login process or if key pair cleanup fails.
    */
   loginWithOtp = async (
+    params: LoginWithOtpParams,
+  ): Promise<BaseAuthResult> => {
+    return this.withLoginLock(() => this.loginWithOtpUnlocked(params));
+  };
+
+  private loginWithOtpUnlocked = async (
     params: LoginWithOtpParams,
   ): Promise<BaseAuthResult> => {
     const {
@@ -1663,19 +1687,14 @@ export class TurnkeyClient {
           );
         }
 
-        // We override the shared attested stamper with the verification token, for callers that use it after login.
+        // We override the attested stamper with the verification token so the stampLogin request can be stamped with it.
         await this.overrideAttestedStamper({
           verificationToken,
           publicKey: verificationPublicKey,
         });
 
         // the verification token's public key is also used as the session public key for login
-        const loginRes = await this.stampLoginWithAttestedConfig(
-          {
-            attestedIdentity: verificationToken,
-            publicKey: verificationPublicKey,
-            scheme: AttestedScheme.P256_VERIFICATION_TOKEN,
-          },
+        const loginRes = await this.httpClient.stampLogin(
           {
             publicKey: verificationPublicKey,
             expirationSeconds,
@@ -1683,6 +1702,7 @@ export class TurnkeyClient {
             ...(organizationId && { organizationId }),
             ...(sessionProfileId && { sessionProfileId }),
           },
+          StamperType.Attested,
         );
 
         if (!loginRes) {
@@ -1737,6 +1757,12 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is an error during the OTP sign-up process or session storage.
    */
   signUpWithOtp = async (
+    params: SignUpWithOtpParams,
+  ): Promise<BaseAuthResult> => {
+    return this.withLoginLock(() => this.signUpWithOtpUnlocked(params));
+  };
+
+  private signUpWithOtpUnlocked = async (
     params: SignUpWithOtpParams,
   ): Promise<BaseAuthResult> => {
     const {
@@ -1820,7 +1846,7 @@ export class TurnkeyClient {
           );
         }
 
-        const otpRes = await this.loginWithOtp({
+        const otpRes = await this.loginWithOtpUnlocked({
           verificationToken,
           organizationId: subOrganizationId,
           ...(invalidateExisting && { invalidateExisting }),
@@ -1869,6 +1895,14 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is an error during OTP verification, sign-up, or login.
    */
   completeOtp = async (
+    params: CompleteOtpParams,
+  ): Promise<
+    BaseAuthResult & { verificationToken: string; action: AuthAction }
+  > => {
+    return this.withLoginLock(() => this.completeOtpUnlocked(params));
+  };
+
+  private completeOtpUnlocked = async (
     params: CompleteOtpParams,
   ): Promise<
     BaseAuthResult & { verificationToken: string; action: AuthAction }
@@ -1928,7 +1962,7 @@ export class TurnkeyClient {
         const subOrganizationId = accountRes.organizationId;
 
         if (!subOrganizationId) {
-          const signUpRes = await this.signUpWithOtp({
+          const signUpRes = await this.signUpWithOtpUnlocked({
             verificationToken,
             contact,
             otpType,
@@ -1946,7 +1980,7 @@ export class TurnkeyClient {
             action: AuthAction.SIGNUP,
           };
         } else {
-          const loginRes = await this.loginWithOtp({
+          const loginRes = await this.loginWithOtpUnlocked({
             verificationToken,
             organizationId: subOrganizationId,
             ...(invalidateExisting && { invalidateExisting }),
@@ -2008,6 +2042,12 @@ export class TurnkeyClient {
   completeOauth = async (
     params: CompleteOauthParams,
   ): Promise<BaseAuthResult & { action: AuthAction }> => {
+    return this.withLoginLock(() => this.completeOauthUnlocked(params));
+  };
+
+  private completeOauthUnlocked = async (
+    params: CompleteOauthParams,
+  ): Promise<BaseAuthResult & { action: AuthAction }> => {
     const {
       oidcToken,
       publicKey,
@@ -2037,7 +2077,7 @@ export class TurnkeyClient {
         const { organizationId: subOrganizationId, requiresSocialLinking } =
           accountRes;
         if (subOrganizationId) {
-          const loginRes = await this.loginWithOauth({
+          const loginRes = await this.loginWithOauthUnlocked({
             oidcToken,
             publicKey,
             organizationId: subOrganizationId,
@@ -2053,7 +2093,7 @@ export class TurnkeyClient {
             action: AuthAction.LOGIN,
           };
         } else {
-          const signUpRes = await this.signUpWithOauth({
+          const signUpRes = await this.signUpWithOauthUnlocked({
             oidcToken,
             publicKey,
             ...(providerName && {
@@ -2104,6 +2144,12 @@ export class TurnkeyClient {
   loginWithOauth = async (
     params: LoginWithOauthParams,
   ): Promise<BaseAuthResult> => {
+    return this.withLoginLock(() => this.loginWithOauthUnlocked(params));
+  };
+
+  private loginWithOauthUnlocked = async (
+    params: LoginWithOauthParams,
+  ): Promise<BaseAuthResult> => {
     const {
       oidcToken,
       publicKey,
@@ -2151,18 +2197,13 @@ export class TurnkeyClient {
           return { sessionToken: proxyRes.session };
         }
 
-        // We override the shared attested stamper with the oidcToken, for callers that use it after login.
+        // We override the attested stamper with the oidcToken so the stampLogin request can be stamped with it.
         await this.overrideAttestedStamper({
           oidcToken,
           publicKey,
         });
 
-        const loginRes = await this.stampLoginWithAttestedConfig(
-          {
-            attestedIdentity: oidcToken,
-            publicKey,
-            scheme: AttestedScheme.P256_OIDC,
-          },
+        const loginRes = await this.httpClient.stampLogin(
           {
             publicKey,
             expirationSeconds,
@@ -2170,6 +2211,7 @@ export class TurnkeyClient {
             ...(organizationId && { organizationId }),
             ...(sessionProfileId && { sessionProfileId }),
           },
+          StamperType.Attested,
         );
 
         if (!loginRes) {
@@ -2243,6 +2285,12 @@ export class TurnkeyClient {
   signUpWithOauth = async (
     params: SignUpWithOauthParams,
   ): Promise<BaseAuthResult> => {
+    return this.withLoginLock(() => this.signUpWithOauthUnlocked(params));
+  };
+
+  private signUpWithOauthUnlocked = async (
+    params: SignUpWithOauthParams,
+  ): Promise<BaseAuthResult> => {
     const {
       oidcToken,
       publicKey,
@@ -2289,7 +2337,7 @@ export class TurnkeyClient {
           );
         }
 
-        const oauthRes = await this.loginWithOauth({
+        const oauthRes = await this.loginWithOauthUnlocked({
           oidcToken,
           publicKey: publicKey!,
           organizationId: subOrganizationId,
@@ -5206,6 +5254,12 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If the session key does not exist, if there is no active session, or if there is an error refreshing the session.
    */
   refreshSession = async (
+    params?: RefreshSessionParams,
+  ): Promise<TStampLoginResponse | undefined> => {
+    return this.withLoginLock(() => this.refreshSessionUnlocked(params));
+  };
+
+  private refreshSessionUnlocked = async (
     params?: RefreshSessionParams,
   ): Promise<TStampLoginResponse | undefined> => {
     const {
