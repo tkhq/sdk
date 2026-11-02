@@ -26,7 +26,7 @@
     "@solana/wallet-adapter-react-ui": "^0.9.35",
     "@solana/wallet-adapter-wallets": "^0.19.32",
     "@solana/web3.js": "^1.95.8",
-    "@t3-oss/env-nextjs": "^0.11.0",
+    "@t3-oss/env-nextjs": "^0.13.11",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
@@ -45,7 +45,7 @@
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
     "viem": "^2.18.0",
-    "zod": "^3.23.8"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@types/node": "^20",

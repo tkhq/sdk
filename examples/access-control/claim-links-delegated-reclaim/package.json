@@ -11,7 +11,7 @@
     "generate-encryption-key": "node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
   },
   "dependencies": {
-    "@t3-oss/env-nextjs": "0.11.1",
+    "@t3-oss/env-nextjs": "0.13.11",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/react-wallet-kit": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
@@ -20,7 +20,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "viem": "2.31.7",
-    "zod": "3.23.8"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/node": "20.17.6",
