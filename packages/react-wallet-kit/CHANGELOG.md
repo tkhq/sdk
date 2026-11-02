@@ -1,5 +1,71 @@
 # @turnkey/react-wallet-kit
 
+## 2.8.0
+
+### Minor Changes
+
+- [#1633](https://github.com/tkhq/sdk/pull/1633) [`d03117c`](https://github.com/tkhq/sdk/commit/d03117c190960aa80dedca55f34bef978d33e297) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Sync with the latest public API. `executeSwap` now uses `ACTIVITY_TYPE_EXECUTE_SWAP_V4`, which adds market swaps, and `getIndicativeSwapQuote` previews a price without creating an activity. Also adds `mintJwt`, adds swap charges to swap quotes, results and status, and renames velocity controls to usage controls.
+
+  **Breaking:** `executeSwap` moves the quote fields into `boundQuote`.
+
+  Before:
+
+  ```ts
+  await client.executeSwap({
+    quoteId,
+    quotedOutputAmount,
+    minOutputAmount,
+    inputToken,
+    inputAmount,
+    outputToken,
+    sponsor,
+  });
+  ```
+
+  After:
+
+  ```ts
+  await client.executeSwap({
+    boundQuote: { quoteId, quotedOutputAmount, minOutputAmount },
+    inputToken,
+    inputAmount,
+    outputToken,
+    sponsor,
+  });
+  ```
+
+  For a market swap, pass `market` instead of `boundQuote`.
+
+- [#1598](https://github.com/tkhq/sdk/pull/1598) [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f) Author [@amircheikh](https://github.com/amircheikh) - - Add auth proxy `proxySignupV3` (`POST /v1/signup_v3`) and `proxyVerifyWalletAuthenticator` (`POST /v1/verify_wallet_authenticator`).
+
+- [#1598](https://github.com/tkhq/sdk/pull/1598) [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f) Author [@amircheikh](https://github.com/amircheikh) - Sync generated clients and types with the latest public API.
+  - Add `getWalletAuthenticators` (`POST /public/v1/query/get_wallet_authenticators`), `createWalletAuthenticators`, `deleteWalletAuthenticators`, and `verifyWalletAuthenticator` (plus `stamp*` variants). `v1WalletAuthenticatorParams` accepts an optional `verificationToken`.
+  - Add `createExternalSigner` and `deleteExternalSigner` (plus `stamp*` variants). `createPrivateKeys` accepts an optional `externalSignerWrappingKeyId`.
+  - Add `createFiatRampCredential` and `updateFiatRampCredential` (plus `stamp*` variants).
+  - Fiat quotes and credentials now use the shared ramp types. `v1FiatOnRampAmount` is `v1FiatRampAmount`. On-ramp quote `onrampProvider` is `provider` (`v1FiatRampProvider`, which includes Meld). Quote `fiatCurrencyCode` and `paymentMethod` use `v1FiatRampCurrency` and `v1FiatRampPaymentMethod`. Credential `fiatOnrampCredentialId` is `credentialId`, and `publishableApiKey` / `encryptedSecretApiKey` are `apiKey` / `encryptedSecret`. `projectId` and `encryptedPrivateApiKey` are removed. `FIAT_ON_RAMP_PROVIDER_MELD` is removed from `v1FiatOnRampProvider`.
+  - Generated activity types include `ACTIVITY_TYPE_EXECUTE_SWAP_V4` (`v1ExecuteSwapIntentV4`), `ACTIVITY_TYPE_ENABLE_SMS_FOR_COUNTRIES`, and `ACTIVITY_TYPE_DISABLE_SMS_FOR_COUNTRIES`. `executeSwap` results include optional `outputAmount`, `minOutputAmount`, `feeSponsorship`, and `fixedRate`. `setOrganizationFeature` `value` is optional. `AUTHENTICATOR_TRANSPORT_SMART_CARD` is added.
+  - `@turnkey/core`: add auth proxy `proxySignupV3` (`POST /v1/signup_v3`) and `proxyVerifyWalletAuthenticator` (`POST /v1/verify_wallet_authenticator`).
+
+- [#1598](https://github.com/tkhq/sdk/pull/1598) [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f) Author [@amircheikh](https://github.com/amircheikh) - Replaced the `handleOnRamp()` provider popup with a funding modal, and added `handleOffRamp()`.
+
+  `handleOnRamp()` lets the user fund a wallet with cash or with crypto from a connected external wallet. Cash quotes enabled onramp providers, opens the provider widget in a popup or tab, and polls until the purchase completes. Crypto asks which external wallet account to use on the chain already in play, then sends that transfer.
+
+  `handleOffRamp()` lets the user sell crypto for cash. They pick Card, ACH, or a fiat account, then an amount, token, and quote. The provider widget opens, and after it returns a deposit address the passed wallet sends the crypto.
+
+  `handleOnRamp` parameters have been completely changed since the last version:
+
+  Before:
+  - `walletAccount`, `network`, `cryptoCurrencyCode`, `fiatCurrencyCode`, `fiatCurrencyAmount`, `onrampProvider`, `paymentMethod`, `countryCode`, `countrySubdivisionCode`, `sandboxMode`, `urlForSignature`, `organizationId`, `userId`, `stampWith`, `successPageDuration`, `openInNewTab`
+
+  After:
+  - `walletAccount`, `lockedCaip2`, `lockedCaip19`, `fiatCurrencyCode`, `defaultFiatCurrencyAmount`, `countryCode`, `countrySubdivisionCode`, `sandboxMode`, `organizationId`, `stampWith`, `successPageDuration`, `openInNewTab`, `rpcUrl`
+
+### Patch Changes
+
+- Updated dependencies [[`0ff574a`](https://github.com/tkhq/sdk/commit/0ff574a37b8ba83f140daa7abc042b6e09206de5), [`19191df`](https://github.com/tkhq/sdk/commit/19191df238abbb71f83803eb9855785f6ea76a1c), [`d03117c`](https://github.com/tkhq/sdk/commit/d03117c190960aa80dedca55f34bef978d33e297), [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f), [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f)]:
+  - @turnkey/core@2.14.0
+  - @turnkey/sdk-types@1.12.0
+
 ## 2.7.1
 
 ### Patch Changes
