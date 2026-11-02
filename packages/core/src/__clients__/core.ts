@@ -3373,7 +3373,7 @@ export class TurnkeyClient {
    *
    * Terminal states:
    * - **COMPLETED** or **INCLUDED** → resolves with chain-specific transaction details
-   * - **FAILED** rejects with an error
+   * - **FAILED**, or **INCLUDED** with an error (the transaction reverted on-chain) → rejects with an error
    *
    * Behavior:
    *
@@ -3429,13 +3429,19 @@ export class TurnkeyClient {
 
             if (!txStatus) return;
 
-            if (txStatus === "FAILED" || txStatus === "CANCELLED") {
+            // A transaction that reverted on-chain is INCLUDED with an error.
+            const reverted =
+              txStatus === "INCLUDED" && (resp.error || resp.txError);
+
+            if (txStatus === "FAILED" || txStatus === "CANCELLED" || reverted) {
               // TODO: use API enum in the future
               clearInterval(ref);
               clearTimeout(timeoutRef);
               reject(
                 new TurnkeyError(
-                  resp.error?.message || `Transaction ${resp.txStatus}`,
+                  resp.error?.message ||
+                    resp.txError ||
+                    `Transaction ${resp.txStatus}`,
                   TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
                   resp,
                 ),

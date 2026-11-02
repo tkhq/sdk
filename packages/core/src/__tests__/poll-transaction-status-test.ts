@@ -137,4 +137,54 @@ describe("pollTransactionStatus", () => {
       cause: response,
     });
   });
+
+  it("throws a TurnkeyError for a transaction that was included but reverted", async () => {
+    jest.useFakeTimers();
+
+    const response: TGetSendTransactionStatusResponse = {
+      txStatus: "INCLUDED",
+      eth: { txHash: "0x123" },
+      txError: "Execution reverted on chain",
+      error: { message: "Execution reverted on chain" },
+    };
+
+    const client = createClientWithStatusResponse(response);
+    const promise = client.pollTransactionStatus({
+      organizationId: "org-id",
+      sendTransactionStatusId: "status-id",
+      stampWith: StamperType.Passkey,
+      pollingIntervalMs: 10,
+    });
+    const rejectedError = promise.catch((error) => error);
+
+    await jest.advanceTimersByTimeAsync(10);
+
+    expect(await rejectedError).toMatchObject({
+      name: "TurnkeyError",
+      code: TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
+      message: "Execution reverted on chain",
+      cause: response,
+    });
+  });
+
+  it("resolves for a transaction that was included without an error", async () => {
+    jest.useFakeTimers();
+
+    const response: TGetSendTransactionStatusResponse = {
+      txStatus: "INCLUDED",
+      eth: { txHash: "0x123" },
+    };
+
+    const client = createClientWithStatusResponse(response);
+    const promise = client.pollTransactionStatus({
+      organizationId: "org-id",
+      sendTransactionStatusId: "status-id",
+      stampWith: StamperType.Passkey,
+      pollingIntervalMs: 10,
+    });
+
+    await jest.advanceTimersByTimeAsync(10);
+
+    await expect(promise).resolves.toEqual(response);
+  });
 });
