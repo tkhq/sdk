@@ -735,6 +735,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getIndicativeSwapQuote = async (
+    input: SdkApiTypes.TGetIndicativeSwapQuoteBody,
+  ): Promise<SdkApiTypes.TGetIndicativeSwapQuoteResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/get_indicative_swap_quote", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetIndicativeSwapQuote = async (
+    input: SdkApiTypes.TGetIndicativeSwapQuoteBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_indicative_swap_quote";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getIpAllowlist = async (
     input: SdkApiTypes.TGetIpAllowlistBody,
   ): Promise<SdkApiTypes.TGetIpAllowlistResponse> => {
@@ -2325,6 +2367,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getFiatOffRampQuotes = async (
+    input: SdkApiTypes.TGetFiatOffRampQuotesBody,
+  ): Promise<SdkApiTypes.TGetFiatOffRampQuotesResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/list_fiat_off_ramp_quotes", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetFiatOffRampQuotes = async (
+    input: SdkApiTypes.TGetFiatOffRampQuotesBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_fiat_off_ramp_quotes";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   listFiatOnRampCredentials = async (
     input: SdkApiTypes.TListFiatOnRampCredentialsBody,
   ): Promise<SdkApiTypes.TListFiatOnRampCredentialsResponse> => {
@@ -2350,6 +2434,48 @@ export class TurnkeySDKClientBase {
     const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getFiatOnRampQuotes = async (
+    input: SdkApiTypes.TGetFiatOnRampQuotesBody,
+  ): Promise<SdkApiTypes.TGetFiatOnRampQuotesResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/list_fiat_on_ramp_quotes", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetFiatOnRampQuotes = async (
+    input: SdkApiTypes.TGetFiatOnRampQuotesBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_quotes";
     const body = {
       ...input,
       organizationId:
@@ -3548,6 +3674,58 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  createFiatOffRampSession = async (
+    input: SdkApiTypes.TCreateFiatOffRampSessionBody,
+  ): Promise<SdkApiTypes.TCreateFiatOffRampSessionResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_fiat_off_ramp_session",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION",
+      },
+      "createFiatOffRampSessionResult",
+    );
+  };
+
+  stampCreateFiatOffRampSession = async (
+    input: SdkApiTypes.TCreateFiatOffRampSessionBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_fiat_off_ramp_session";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   createFiatOnRampCredential = async (
     input: SdkApiTypes.TCreateFiatOnRampCredentialBody,
   ): Promise<SdkApiTypes.TCreateFiatOnRampCredentialResponse> => {
@@ -3590,6 +3768,58 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createFiatOnRampSession = async (
+    input: SdkApiTypes.TCreateFiatOnRampSessionBody,
+  ): Promise<SdkApiTypes.TCreateFiatOnRampSessionResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_fiat_on_ramp_session",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION",
+      },
+      "createFiatOnRampSessionResult",
+    );
+  };
+
+  stampCreateFiatOnRampSession = async (
+    input: SdkApiTypes.TCreateFiatOnRampSessionBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_fiat_on_ramp_session";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -7321,6 +7551,57 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  mintJwt = async (
+    input: SdkApiTypes.TMintJwtBody,
+  ): Promise<SdkApiTypes.TMintJwtResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/mint_jwt",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_MINT_JWT",
+      },
+      "mintJwtResult",
+    );
+  };
+
+  stampMintJwt = async (
+    input: SdkApiTypes.TMintJwtBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/mint_jwt";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_MINT_JWT",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

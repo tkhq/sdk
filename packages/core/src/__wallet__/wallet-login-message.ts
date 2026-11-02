@@ -1,11 +1,11 @@
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { bs58, uint8ArrayToHexString } from "@turnkey/encoding";
+import { publicKeyNonce } from "@turnkey/crypto";
 import {
   getAddress,
   hashMessage,
   recoverAddress,
   recoverPublicKey,
-  sha256,
   type Hex,
 } from "viem";
 import type { WalletProvider } from "../__types__";
@@ -119,7 +119,7 @@ export function buildWalletLoginMessage(
   const ephemeralPublicKey = assertEphemeralPublicKey(
     params.ephemeralPublicKey,
   );
-  const nonce = nonceFromEphemeralPublicKey(ephemeralPublicKey);
+  const nonce = publicKeyNonce(ephemeralPublicKey);
   const chainId = assertChainId(params.chainId);
 
   const now = Date.now();
@@ -364,11 +364,6 @@ function assertEphemeralPublicKey(ephemeralPublicKey: string): string {
     );
   }
   return normalized;
-}
-
-/** Hex SHA-256 of the compressed P-256 ephemeral public key (UTF-8 hex string). */
-function nonceFromEphemeralPublicKey(ephemeralPublicKey: string): string {
-  return sha256(new TextEncoder().encode(ephemeralPublicKey)).slice(2);
 }
 
 function assertChainId(chainId: string): string {

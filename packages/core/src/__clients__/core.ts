@@ -143,16 +143,14 @@ import {
   mapAccountsToWallet,
   getActiveSessionOrThrowIfRequired,
   fetchAllWalletAccountsWithCursor,
-  decodeAuthVerificationToken,
   decodeWalletAuthVerificationToken,
-  getVerificationEphemeralPublicKey,
   walletApiKeyPublicKeyFromAuthToken,
   walletAuthenticatorParamsFromClaims,
   walletPublicKeyHexFromAuthToken,
   getClientSignatureMessageForSignup,
   ERC20_TRANSFER_ABI,
 } from "../utils";
-import { encryptOtpCodeToBundle } from "@turnkey/crypto";
+import { encryptOtpCodeToBundle, VerificationToken } from "@turnkey/crypto";
 import {
   buildWalletLoginMessage,
   defaultSiwxDomain,
@@ -1183,6 +1181,10 @@ export class TurnkeyClient {
     );
   };
 
+  /** 
+   * Both legacy and new wallet authenticators are supported so account lookups must be supported for both.
+   * This function is used to lookup either the legacy or new wallet auth account using the SIWX verification token.
+   */
   private lookupWalletLoginAccount = async (
     verificationToken: string,
   ): Promise<WalletLoginAccount> => {
@@ -1271,9 +1273,7 @@ export class TurnkeyClient {
     const ephemeralPublicKey =
       params.publicKey ??
       (providedVerificationToken
-        ? getVerificationEphemeralPublicKey(
-            decodeWalletAuthVerificationToken(providedVerificationToken),
-          )
+        ? VerificationToken.parse(providedVerificationToken).ephemeralPublicKey
         : await this.createApiKeyPair());
 
     if (!ephemeralPublicKey) {
@@ -1288,7 +1288,8 @@ export class TurnkeyClient {
       subOrganizationId?: string,
     ): Promise<WalletAuthResult> => {
       const decoded = decodeWalletAuthVerificationToken(verificationToken);
-      const verificationPublicKey = getVerificationEphemeralPublicKey(decoded);
+      const verificationPublicKey =
+        VerificationToken.parse(verificationToken).ephemeralPublicKey;
 
       await this.overrideAttestedStamper({
         walletAuthVerificationToken: verificationToken,
@@ -1691,7 +1692,7 @@ export class TurnkeyClient {
           publicKey,
         );
 
-        const verifyOtpRes = await this.httpClient.proxyVerifyOtpV2({
+        const verifyOtpRes = await this.httpClient.proxyVerifyOtpV3({
           otpId: otpId,
           encryptedOtpBundle: encryptedOtpBundle,
         });
@@ -1910,9 +1911,8 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const verificationPublicKey = getVerificationEphemeralPublicKey(
-          decodeAuthVerificationToken(verificationToken),
-        );
+        const verificationPublicKey =
+          VerificationToken.parse(verificationToken).ephemeralPublicKey;
 
         // We override the attested stamper with the verification token so the stampLogin request can be stamped with it.
         await this.overrideAttestedStamper({

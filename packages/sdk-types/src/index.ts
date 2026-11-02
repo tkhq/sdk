@@ -281,15 +281,6 @@ export enum OAuthProviders {
   X = "x",
 }
 
-export type VerificationToken = {
-  id: string;
-  exp: number | string;
-  contact?: string;
-  public_key?: string;
-  verification_type?: string;
-  organization_id?: string;
-};
-
 export enum ActivityStatus {
   CREATED = "ACTIVITY_STATUS_CREATED",
   PENDING = "ACTIVITY_STATUS_PENDING",

@@ -121,7 +121,23 @@ export type v1ClientSignature = {
   signature: string;
 };
 
+export type v1ClientSignatureEntry = {
+  /** Hex-encoded raw ECDSA signature, r || s, 64 bytes. */
+  signature: string;
+  /** Compressed P-256 public key, hex. The nonce is hex(sha256(publicKey)). */
+  publicKey: string;
+  /** Signature scheme. API_P256 is the only accepted scheme. */
+  scheme: v1ClientSignatureScheme;
+};
+
 export type v1ClientSignatureScheme = "CLIENT_SIGNATURE_SCHEME_API_P256";
+
+export type v1ClientSignatureV2 = {
+  /** JSON TokenUsage signed by every entry. Signup uses signupV3. */
+  message: string;
+  /** One P-256 signature per ephemeral key bound to a verification token or OIDC nonce. */
+  signatures: v1ClientSignatureEntry[];
+};
 
 export type v1Curve = "CURVE_SECP256K1" | "CURVE_ED25519" | "CURVE_P256";
 
@@ -374,8 +390,8 @@ export type v1SignupV3Request = {
   oauthProviders: v1OauthProviderParamsV2[];
   /** The wallet to create for the sub-organization */
   wallet?: v1WalletParams;
-  /** Optional signature proving authorization for this signup. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
-  clientSignature?: v1ClientSignature;
+  /** Signatures over one signup payload, one per verification token nonce. Required when the request carries a generic OTP token, a wallet verification token, or an OIDC token. */
+  clientSignature?: v1ClientSignatureV2;
   /** A list of wallet authenticators. This field, if not needed, should be an empty array in your request body. */
   walletAuthenticators: v1WalletAuthenticatorParams[];
 };
@@ -391,12 +407,12 @@ export type v1SignupV3Response = {
 };
 
 export type v1VerifyOtpRequest = {
-  type: "ACTIVITY_TYPE_VERIFY_OTP_V2";
+  type: "ACTIVITY_TYPE_VERIFY_OTP_V3";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1VerifyOtpIntentV2;
+  parameters: v1VerifyOtpIntentV3;
   generateAppProofs?: boolean;
 };
 
@@ -414,6 +430,18 @@ export type v1VerifyOtpV2Request = {
 
 export type v1VerifyOtpV2Response = {
   /** Verification Token containing a unique id, expiry, verification type, contact signed by Turnkey's enclaves. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
+  verificationToken: string;
+};
+
+export type v1VerifyOtpV3Request = {
+  /** ID representing the result of an init OTP activity. */
+  otpId: string;
+  /** Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a verification token. Encrypted using the target encryption key provided in the INIT_OTP activity result. */
+  encryptedOtpBundle: string;
+};
+
+export type v1VerifyOtpV3Response = {
+  /** Enclave-signed verification token for the verified email or phone number. */
   verificationToken: string;
 };
 
@@ -873,8 +901,8 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE"
   | "ACTIVITY_TYPE_IMPORT_SECRETS"
   | "ACTIVITY_TYPE_EXPORT_SECRETS"
-  | "ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL"
-  | "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROLS"
+  | "ACTIVITY_TYPE_CREATE_USAGE_CONTROL"
+  | "ACTIVITY_TYPE_DELETE_USAGE_CONTROLS"
   | "ACTIVITY_TYPE_UPDATE_PAYMENT_METHOD"
   | "ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2"
   | "ACTIVITY_TYPE_EXECUTE_SWAP_V3"
@@ -895,7 +923,9 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_FIAT_RAMP_CREDENTIAL"
   | "ACTIVITY_TYPE_UPDATE_FIAT_RAMP_CREDENTIAL"
   | "ACTIVITY_TYPE_CREATE_EXTERNAL_SIGNER_V1"
-  | "ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1";
+  | "ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1"
+  | "ACTIVITY_TYPE_MINT_JWT"
+  | "ACTIVITY_TYPE_VERIFY_OTP_V3";
 
 export type v1ApiKey = {
   /** A User credential that can be used to authenticate to Turnkey. */
@@ -1214,6 +1244,16 @@ export type v1CreateFiatOffRampSessionIntent = {
   redirectUrl?: string;
 };
 
+export type v1CreateFiatOffRampSessionRequest = {
+  type: "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateFiatOffRampSessionIntent;
+  generateAppProofs?: boolean;
+};
+
 export type v1CreateFiatOffRampSessionResult = {
   /** URL of the fiat off-ramp session for the saved quote. */
   offRampUrl: string;
@@ -1258,6 +1298,16 @@ export type v1CreateFiatOnRampSessionIntent = {
   walletAddress: string;
 };
 
+export type v1CreateFiatOnRampSessionRequest = {
+  type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateFiatOnRampSessionIntent;
+  generateAppProofs?: boolean;
+};
+
 export type v1CreateFiatOnRampSessionResult = {
   /** URL of the fiat on-ramp session for the saved quote. */
   onRampUrl: string;
@@ -1267,7 +1317,7 @@ export type v1CreateFiatOnRampSessionResult = {
 
 export type v1CreateFiatRampCredentialIntent = {
   /** The fiat ramp provider */
-  provider: v1FiatOnRampProvider;
+  provider: v1FiatRampProvider;
   /** Non-secret half of the provider credential. MoonPay: publishable key (pk_test_ or pk_live_). Coinbase: CDP API key ID */
   apiKey: string;
   /** Secret half of the provider credential, encrypted to our on-ramp encryption public key. MoonPay: secret key (sk_test_ or sk_live_). Coinbase: Ed25519 private key */
@@ -1830,10 +1880,10 @@ export type v1CreateSubOrganizationIntentV9 = {
   disableSmsAuth?: boolean;
   /** Disable OTP email auth for the sub-organization */
   disableOtpEmailAuth?: boolean;
-  /** Signed JWT containing a unique id, expiry, verification type, contact */
+  /** Signed JWT containing a unique id, expiry, verification type, contact. Only tokens issued by VerifyOtpV3 are accepted. */
   verificationToken?: string;
-  /** Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
-  clientSignature?: v1ClientSignature;
+  /** Signatures over one signup payload, one per verification token nonce. Required when the request carries any verified authentication token. */
+  clientSignature?: v1ClientSignatureV2;
 };
 
 export type v1CreateSubOrganizationRequest = {
@@ -1935,7 +1985,7 @@ export type v1CreateSwapQuoteIntentV3 = {
   slippageBps?: string;
   /** Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported. */
   destinationAddress?: string;
-  /** When true, Turnkey pays the provider fees for this swap and invoices them to the billing parent organization. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
+  /** When true, Turnkey pays the execution costs for this swap and invoices them to the billing parent organization as Swap Execution. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
   feeSponsorship?: boolean;
   /** When true, requests a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false. */
   fixedRate?: boolean;
@@ -2138,6 +2188,21 @@ export type v1CreateTvcQuorumKeyResult = {
   shareIds: string[];
 };
 
+export type v1CreateUsageControlIntent = {
+  /** Human-readable name for the Usage Control. */
+  name: string;
+  /** Data source for the Usage Control. */
+  dataSource: v1UsageControlDataSource;
+  /** Aggregation expression that the Usage Control evaluates. */
+  aggregation: v1UsageControlAggregation;
+  /** Identifier for the Usage Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
+  identifier: string;
+};
+
+export type v1CreateUsageControlResult = {
+  usageControlId: string;
+};
+
 export type v1CreateUserTagIntent = {
   /** Human-readable name for a User Tag. */
   userTagName: string;
@@ -2195,21 +2260,6 @@ export type v1CreateUsersRequest = {
 export type v1CreateUsersResult = {
   /** A list of User IDs. */
   userIds: string[];
-};
-
-export type v1CreateVelocityControlIntent = {
-  /** Human-readable name for the Velocity Control. */
-  name: string;
-  /** Data source for the Velocity Control. */
-  dataSource: v1VelocityControlDataSource;
-  /** Aggregation expression that the Velocity Control evaluates. */
-  aggregation: v1VelocityControlAggregation;
-  /** Identifier for the Velocity Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
-  identifier: string;
-};
-
-export type v1CreateVelocityControlResult = {
-  velocityControlId: string;
 };
 
 export type v1CreateWalletAccountsIntent = {
@@ -2692,6 +2742,16 @@ export type v1DeleteTvcDeploymentResult = {
   deploymentId: string;
 };
 
+export type v1DeleteUsageControlsIntent = {
+  /** List of 1 to 32 unique identifiers for Usage Controls within an Organization. */
+  usageControlIds: string[];
+};
+
+export type v1DeleteUsageControlsResult = {
+  /** A list of unique identifiers for the deleted Usage Controls. */
+  usageControlIds: string[];
+};
+
 export type v1DeleteUserTagsIntent = {
   /** A list of User Tag IDs. */
   userTagIds: string[];
@@ -2732,16 +2792,6 @@ export type v1DeleteUsersRequest = {
 export type v1DeleteUsersResult = {
   /** A list of User IDs. */
   userIds: string[];
-};
-
-export type v1DeleteVelocityControlsIntent = {
-  /** List of 1 to 32 unique identifiers for Velocity Controls within an Organization. */
-  velocityControlIds: string[];
-};
-
-export type v1DeleteVelocityControlsResult = {
-  /** A list of unique identifiers for the deleted Velocity Controls. */
-  velocityControlIds: string[];
 };
 
 export type v1DeleteWalletAccountsIntent = {
@@ -3711,19 +3761,19 @@ export type v1ExecuteSwapMarketTerms = {
   slippageBps?: string;
   /** Optional price floor in base units of the output asset. When set, the swap fails unless the provider's minimum output after slippage is at least this amount. */
   minOutputAmount?: string;
-  /** When true, Turnkey pays the provider fees for this swap and invoices them to the billing parent organization. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
+  /** When true, Turnkey pays the execution costs for this swap and invoices them to the billing parent organization as Swap Execution. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
   feeSponsorship?: boolean;
   /** When true, requests a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false. */
   fixedRate?: boolean;
 };
 
 export type v1ExecuteSwapRequest = {
-  type: "ACTIVITY_TYPE_EXECUTE_SWAP_V3";
+  type: "ACTIVITY_TYPE_EXECUTE_SWAP_V4";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1ExecuteSwapIntentV3;
+  parameters: v1ExecuteSwapIntentV4;
   generateAppProofs?: boolean;
 };
 
@@ -3738,10 +3788,12 @@ export type v1ExecuteSwapResult = {
   outputAmount?: string;
   /** Minimum base-unit amount of the output asset after slippage. Set by execute_swap V4. */
   minOutputAmount?: string;
-  /** Whether Turnkey paid the provider fees for this swap. Set by execute_swap V4. */
+  /** Whether Turnkey paid the execution costs for this swap. Set by execute_swap V4. */
   feeSponsorship?: boolean;
   /** Whether this swap used a 1:1 fixed rate. Set by execute_swap V4. */
   fixedRate?: boolean;
+  /** Estimated charges this swap adds to your invoice, one field per swap line item, from the executed quote. Present when fee_sponsorship or fixed_rate is true. Informational; the final amounts are settled after execution and reported by get_swap_status. Set by execute_swap V4. */
+  estimatedCharges?: v1SwapCharges;
 };
 
 export type v1ExportPrivateKeyIntent = {
@@ -3868,6 +3920,41 @@ export type v1FeatureName =
   | "FEATURE_NAME_SWAP_FEE_SPONSORSHIP"
   | "FEATURE_NAME_SWAP_FIXED_RATE";
 
+export type v1FiatOffRampQuote = {
+  /** Identifier for this saved quote. */
+  quoteId: string;
+  /** Provider that produced this quote. */
+  provider: v1FiatRampProvider;
+  /** Underlying provider when provider aggregates several. */
+  serviceProvider?: string;
+  /** Fiat the user receives, in atomic units of fiat_currency_code. For USD, 100 dollars is "10000". */
+  fiatAmount: v1FiatRampAmount;
+  /** Fiat currency of fiat_amount and total_fee. */
+  fiatCurrencyCode: v1FiatRampCurrency;
+  /** Cryptocurrency the user would sell, in atomic units. Not locked in the session. */
+  cryptoAmount: v1FiatRampAmount;
+  /** CAIP-19 asset of crypto_amount. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** Payout method this quote was priced for. */
+  paymentMethod: v1FiatRampPaymentMethod;
+  /** Total fee in atomic units of fiat_currency_code. */
+  totalFee: v1FiatRampAmount;
+  /** Quote expiration as a millisecond epoch string. Empty when the provider does not send one. */
+  expiresAt?: string;
+};
+
 export type v1FiatOnRampBlockchainNetwork =
   | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM"
   | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA"
@@ -3879,7 +3966,7 @@ export type v1FiatOnRampCredential = {
   /** Unique identifier for an Organization. */
   organizationId: string;
   /** The fiat ramp provider. */
-  provider: v1FiatOnRampProvider;
+  provider: v1FiatRampProvider;
   /** Non-secret half of the provider credential. MoonPay: publishable key (pk_test_ or pk_live_). Coinbase: CDP API key ID. */
   apiKey: string;
   /** Secret half of the provider credential, encrypted to our on-ramp encryption public key. MoonPay: secret key (sk_test_ or sk_live_). Coinbase: Ed25519 private key. */
@@ -3949,8 +4036,101 @@ export type v1FiatOnRampPaymentMethod =
 
 export type v1FiatOnRampProvider =
   | "FIAT_ON_RAMP_PROVIDER_COINBASE"
-  | "FIAT_ON_RAMP_PROVIDER_MOONPAY"
-  | "FIAT_ON_RAMP_PROVIDER_MELD";
+  | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
+
+export type v1FiatOnRampQuote = {
+  /** Identifier for this saved quote. Pass this to the create on ramp session activity. */
+  quoteId: string;
+  /** Provider that produced this quote. */
+  provider: v1FiatRampProvider;
+  /** Underlying provider when provider aggregates several. */
+  serviceProvider?: string;
+  /** Fiat the user pays, in atomic units of fiat_currency_code. For USD, 100 dollars is "10000". */
+  fiatAmount: v1FiatRampAmount;
+  /** Fiat currency of fiat_amount and total_fee. */
+  fiatCurrencyCode: v1FiatRampCurrency;
+  /** Cryptocurrency the user would receive, in atomic units. Not locked in the session. */
+  cryptoAmount: v1FiatRampAmount;
+  /** CAIP-19 asset of crypto_amount. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** Payment method this quote was priced for. Bank transfers are not included. */
+  paymentMethod: v1FiatRampPaymentMethod;
+  /** Total fee in atomic units of fiat_currency_code. */
+  totalFee: v1FiatRampAmount;
+  /** Quote expiration as a millisecond epoch string. Empty when the provider does not send one. */
+  expiresAt?: string;
+};
+
+export type v1FiatRampAmount = {
+  /** Amount in atomic units. Use this to compare quotes. Do not use display. */
+  amount: string;
+  /** Decimal places for this amount. Asset decimals for cryptocurrency, atomic-unit decimals for fiat (2 for USD). */
+  decimals: number;
+  /** Decimal representation in standard currency units. */
+  display: string;
+};
+
+export type v1FiatRampCurrency =
+  | "FIAT_RAMP_CURRENCY_AUD"
+  | "FIAT_RAMP_CURRENCY_BGN"
+  | "FIAT_RAMP_CURRENCY_BRL"
+  | "FIAT_RAMP_CURRENCY_CAD"
+  | "FIAT_RAMP_CURRENCY_CHF"
+  | "FIAT_RAMP_CURRENCY_COP"
+  | "FIAT_RAMP_CURRENCY_CZK"
+  | "FIAT_RAMP_CURRENCY_DKK"
+  | "FIAT_RAMP_CURRENCY_DOP"
+  | "FIAT_RAMP_CURRENCY_EGP"
+  | "FIAT_RAMP_CURRENCY_EUR"
+  | "FIAT_RAMP_CURRENCY_GBP"
+  | "FIAT_RAMP_CURRENCY_HKD"
+  | "FIAT_RAMP_CURRENCY_IDR"
+  | "FIAT_RAMP_CURRENCY_ILS"
+  | "FIAT_RAMP_CURRENCY_JOD"
+  | "FIAT_RAMP_CURRENCY_KES"
+  | "FIAT_RAMP_CURRENCY_KWD"
+  | "FIAT_RAMP_CURRENCY_LKR"
+  | "FIAT_RAMP_CURRENCY_MXN"
+  | "FIAT_RAMP_CURRENCY_NGN"
+  | "FIAT_RAMP_CURRENCY_NOK"
+  | "FIAT_RAMP_CURRENCY_NZD"
+  | "FIAT_RAMP_CURRENCY_OMR"
+  | "FIAT_RAMP_CURRENCY_PEN"
+  | "FIAT_RAMP_CURRENCY_PLN"
+  | "FIAT_RAMP_CURRENCY_RON"
+  | "FIAT_RAMP_CURRENCY_SEK"
+  | "FIAT_RAMP_CURRENCY_THB"
+  | "FIAT_RAMP_CURRENCY_TRY"
+  | "FIAT_RAMP_CURRENCY_TWD"
+  | "FIAT_RAMP_CURRENCY_USD"
+  | "FIAT_RAMP_CURRENCY_VND"
+  | "FIAT_RAMP_CURRENCY_ZAR";
+
+export type v1FiatRampPaymentMethod =
+  | "FIAT_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD"
+  | "FIAT_RAMP_PAYMENT_METHOD_APPLE_PAY"
+  | "FIAT_RAMP_PAYMENT_METHOD_GOOGLE_PAY"
+  | "FIAT_RAMP_PAYMENT_METHOD_PAYPAL"
+  | "FIAT_RAMP_PAYMENT_METHOD_MOONPAY_BALANCE"
+  | "FIAT_RAMP_PAYMENT_METHOD_FIAT_WALLET"
+  | "FIAT_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT";
+
+export type v1FiatRampProvider =
+  | "FIAT_RAMP_PROVIDER_COINBASE"
+  | "FIAT_RAMP_PROVIDER_MOONPAY"
+  | "FIAT_RAMP_PROVIDER_MELD";
 
 export type v1GetActivePoliciesRequest = {
   /** Unique identifier for a given Organization. */
@@ -4145,6 +4325,74 @@ export type v1GetEarnWithdrawStatusResponse = {
   error?: string;
 };
 
+export type v1GetFiatOffRampQuotesRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Crypto amount the user wants to sell, in major units of the caip19 asset. For example, "0.05" for 0.05 ETH. The wallet address is not part of this query. */
+  cryptoAmount: string;
+  /** Fiat currency the user receives, for example USD. */
+  fiatCurrencyCode: v1FiatRampCurrency;
+  /** CAIP-19 asset to sell. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** ISO 3166-1 alpha-2 country code of the selling user, for example US. When omitted, the country is taken from the location of the request. */
+  countryCode?: string;
+  /** ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request. */
+  countrySubdivisionCode?: string;
+  /** Quote sandbox credentials when true. Defaults to false. */
+  sandboxMode?: boolean;
+};
+
+export type v1GetFiatOffRampQuotesResponse = {
+  /** One quote per provider and payment method that can serve this route. Empty when none can. */
+  quotes: v1FiatOffRampQuote[];
+};
+
+export type v1GetFiatOnRampQuotesRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Fiat amount the user wants to spend, in major units of fiat_currency_code. For example, "100" for 100 USD. */
+  fiatAmount: string;
+  /** Fiat currency for fiat_amount, for example USD. */
+  fiatCurrencyCode: v1FiatRampCurrency;
+  /** CAIP-19 asset to buy. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** ISO 3166-1 alpha-2 country code of the purchasing user, for example US. When omitted, the country is taken from the location of the request. */
+  countryCode?: string;
+  /** ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request. */
+  countrySubdivisionCode?: string;
+  /** Quote sandbox credentials when true. Defaults to false. */
+  sandboxMode?: boolean;
+};
+
+export type v1GetFiatOnRampQuotesResponse = {
+  /** One quote per provider and payment method that can serve this route. Empty when none can. */
+  quotes: v1FiatOnRampQuote[];
+};
+
 export type v1GetGasUsageRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
@@ -4157,6 +4405,50 @@ export type v1GetGasUsageResponse = {
   windowLimitUsd: string;
   /** The total gas usage (in USD) of all sponsored transactions processed over the last `window_duration_minutes` */
   usageUsd: string;
+};
+
+export type v1GetIndicativeSwapQuoteRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Wallet account address that would send the input asset. It must belong to the organization. */
+  signWith: string;
+  /** CAIP-19 asset ID for the input asset. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Exact base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Maximum allowed slippage in basis points, at most 5000. When omitted, the provider chooses the slippage. */
+  slippageBps?: string;
+  /** Raw public address that would receive the output asset. Required for cross-protocol swaps and rejected otherwise. */
+  destinationAddress?: string;
+  /** Preview the price with Turnkey paying the provider fees. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
+  feeSponsorship?: boolean;
+  /** Preview a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false. */
+  fixedRate?: boolean;
+};
+
+export type v1GetIndicativeSwapQuoteResponse = {
+  /** Swap provider that produced this quote. */
+  provider: string;
+  /** Estimated base-unit amount of the output asset. */
+  outputAmount: string;
+  /** Minimum base-unit amount of the output asset after slippage. */
+  minOutputAmount: string;
+  /** Slippage tolerance in basis points the provider applied. */
+  slippageBps?: string;
+  /** Client app fee in basis points included in this quote. "0" when no client fee applies. */
+  clientFeeBps: string;
+  /** Provider's estimated time to complete the swap, in seconds. */
+  estimatedTimeSeconds?: string;
+  /** Whether this quote has Turnkey paying the execution costs. */
+  feeSponsorship: boolean;
+  /** Whether this quote uses a 1:1 fixed rate. */
+  fixedRate: boolean;
+  /** Deprecated: use estimated_charges.fixed_rate_adjustment_usd. Estimated fixed-rate adjustment in USD from the customer's side: positive is a cost, negative an earning. Present only for fixed-rate quotes the provider priced. */
+  estimatedFixedRateAdjustmentUsd?: string;
+  /** Estimated charges this swap would add to your invoice, one field per swap line item. Present when fee_sponsorship or fixed_rate is true. */
+  estimatedCharges?: v1SwapCharges;
 };
 
 export type v1GetIpAllowlistRequest = {
@@ -4483,6 +4775,8 @@ export type v1GetSwapStatusResponse = {
   error?: v1SwapError;
   /** Address that receives the output asset. */
   destinationAddress?: string;
+  /** Final charges this swap added to your invoice, one field per swap line item. Present once a fee-sponsored or fixed-rate swap's costs are settled; a swap that failed or was refunded settles at zero. */
+  charges?: v1SwapCharges;
 };
 
 export type v1GetTvcAppDeploymentsRequest = {
@@ -4774,6 +5068,27 @@ export type v1HashFunction =
   | "HASH_FUNCTION_SHA256"
   | "HASH_FUNCTION_KECCAK256"
   | "HASH_FUNCTION_NOT_APPLICABLE";
+
+export type v1HttpAuthzV1Inputs = {
+  /** HTTP method of the bound request. One of `GET`, `HEAD`, `POST`, `PUT`, `PATCH`, or `DELETE`. */
+  method: string;
+  /** Path of the bound request, starting with `/`. */
+  path: string;
+  /** Query of the bound request without the leading `?`, or empty for no query. */
+  query?: string;
+  /** Lowercase names of the bound request headers, in order. At most 32 unique names of at most 64 characters each. Cannot include `authorization` or hop-by-hop headers (`proxy-authorization`, `connection`, `keep-alive`, `proxy-connection`, `te`, `transfer-encoding`, `upgrade`). */
+  headerNames?: string[];
+  /** SHA-256 digest of each bound header value, as `sha-256=:<base64>:`. One entry per entry in `header_names`. */
+  headerDigest?: string[];
+  /** SHA-256 digest of the bound request body, as `sha-256=:<base64>:`. For a request with no body, the digest of empty content. */
+  bodyDigest: string;
+  /** ID of a user in the organization, as a lowercase UUID. Becomes the `sub` claim. */
+  subject: string;
+  /** Lifetime of the JWT in seconds, from 1 to 300. `exp` is `issued_at + time_to_live_seconds`. */
+  timeToLiveSeconds: string;
+  /** Unix time in seconds. Becomes the `iat` claim. */
+  issuedAt: string;
+};
 
 export type v1ImportPrivateKeyIntent = {
   /** The ID of the User importing a Private Key. */
@@ -5362,8 +5677,8 @@ export type v1Intent = {
   createSwapQuoteIntent?: v1CreateSwapQuoteIntent;
   importSecretsIntent?: v1ImportSecretsIntent;
   exportSecretsIntent?: v1ExportSecretsIntent;
-  createVelocityControlIntent?: v1CreateVelocityControlIntent;
-  deleteVelocityControlsIntent?: v1DeleteVelocityControlsIntent;
+  createUsageControlIntent?: v1CreateUsageControlIntent;
+  deleteUsageControlsIntent?: v1DeleteUsageControlsIntent;
   updatePaymentMethodIntent?: billingUpdatePaymentMethodIntent;
   createSwapQuoteIntentV2?: v1CreateSwapQuoteIntentV2;
   executeSwapIntentV3?: v1ExecuteSwapIntentV3;
@@ -5385,6 +5700,8 @@ export type v1Intent = {
   updateFiatRampCredentialIntent?: v1UpdateFiatRampCredentialIntent;
   createExternalSignerIntentV1?: v1CreateExternalSignerIntentV1;
   deleteExternalSignerIntentV1?: v1DeleteExternalSignerIntentV1;
+  mintJwtIntent?: v1MintJwtIntent;
+  verifyOtpIntentV3?: v1VerifyOtpIntentV3;
 };
 
 export type v1InvitationParams = {
@@ -5439,6 +5756,8 @@ export type v1JsonWebKey = {
   /** Base64url-encoded Y coordinate. */
   y: string;
 };
+
+export type v1JwtProfile = "JWT_PROFILE_HTTP_AUTHZ_V1";
 
 export type v1KeyValue = {
   key?: string;
@@ -5708,6 +6027,31 @@ export type v1MfaStatus = {
   satisfiedMethods: v1AuthenticationMethod[];
   /** An ordered list of authentication requirements needed to satisfy this MFA policy. */
   requiredMethods: v1RequiredAuthenticationMethod[];
+};
+
+export type v1MintJwtIntent = {
+  /** Profile that defines which claims the JWT binds. Must match the set `profile_inputs` case. */
+  profile: v1JwtProfile;
+  /** Origin of the receiving service, as `https://<lowercase host>[:port]` with no default port, path, query, or fragment. At most 256 characters. Becomes the `aud` claim. */
+  audience: string;
+  /** Inputs for the `turnkey.io/http-authz/v1` profile. */
+  httpAuthzV1?: v1HttpAuthzV1Inputs;
+};
+
+export type v1MintJwtRequest = {
+  type: "ACTIVITY_TYPE_MINT_JWT";
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1MintJwtIntent;
+};
+
+export type v1MintJwtResult = {
+  /** Signed JWT in JWS compact serialization. */
+  jwt: string;
+  /** Public JWK of the key that signed the JWT. Verifiers should pin this key or fetch it from the issuer's JWKS, not trust it from this response. */
+  signingKeyJwk: string;
 };
 
 export type v1MnemonicLanguage =
@@ -6345,8 +6689,8 @@ export type v1Result = {
   createSwapQuoteResult?: v1CreateSwapQuoteResult;
   importSecretsResult?: v1ImportSecretsResult;
   exportSecretsResult?: v1ExportSecretsResult;
-  createVelocityControlResult?: v1CreateVelocityControlResult;
-  deleteVelocityControlsResult?: v1DeleteVelocityControlsResult;
+  createUsageControlResult?: v1CreateUsageControlResult;
+  deleteUsageControlsResult?: v1DeleteUsageControlsResult;
   updatePaymentMethodResult?: billingUpdatePaymentMethodResult;
   deleteSecretsResult?: v1DeleteSecretsResult;
   earnClaimRewardsResult?: v1EarnClaimRewardsResult;
@@ -6365,6 +6709,7 @@ export type v1Result = {
   updateFiatRampCredentialResult?: v1UpdateFiatRampCredentialResult;
   createExternalSignerResultV1?: v1CreateExternalSignerResultV1;
   deleteExternalSignerResultV1?: v1DeleteExternalSignerResultV1;
+  mintJwtResult?: v1MintJwtResult;
 };
 
 export type v1RevertChainEntry = {
@@ -7074,6 +7419,15 @@ export type v1SubjectIdentifier = {
   domain?: string;
 };
 
+export type v1SwapCharges = {
+  /** Swap Execution: the provider's execution costs Turnkey pays, including DEX fees and price impact, the provider's fixed cost, destination gas, and provider fees. Present when fee_sponsorship is true. */
+  executionUsd?: string;
+  /** Swap Turnkey Fee: Turnkey's fee for a fee-sponsored swap. Present when fee_sponsorship is true. */
+  turnkeyFeeUsd?: string;
+  /** Swap Fixed Rate: the difference between the 1:1 rate and the market rate. Positive is a cost billed to you; negative is an earning credited against your transaction management charges at the end of the billing period. Present when fixed_rate is true. */
+  fixedRateAdjustmentUsd?: string;
+};
+
 export type v1SwapError = {
   /** Stable machine-readable failure reason. One of ORIGIN_TRANSACTION_FAILED or PROVIDER_FILL_FAILED. */
   reason: string;
@@ -7121,12 +7475,14 @@ export type v1SwapQuoteV2 = {
   clientFeeBps: string;
   /** Provider-estimated completion time in seconds, when available. */
   estimatedTimeSeconds?: string;
-  /** Whether Turnkey pays the provider fees for this quote. */
+  /** Whether Turnkey pays the execution costs for this quote. */
   feeSponsorship: boolean;
   /** Whether this quote uses a 1:1 fixed rate. */
   fixedRate: boolean;
-  /** Estimated USD adjustment for the fixed rate. Present only for fixed-rate quotes. Positive is a cost billed to you; negative is an earning credited against your transaction management charges at the end of the billing period. Informational; the final amount is settled after execution. */
+  /** Deprecated: use estimated_charges.fixed_rate_adjustment_usd. Estimated USD adjustment for the fixed rate. Present only for fixed-rate quotes. Positive is a cost billed to you; negative is an earning credited against your transaction management charges at the end of the billing period. Informational; the final amount is settled after execution. */
   estimatedFixedRateAdjustmentUsd?: string;
+  /** Estimated charges this swap adds to your invoice, one field per swap line item. Present when fee_sponsorship or fixed_rate is true. Informational; the final amounts are settled after execution and reported by get_swap_status. */
+  estimatedCharges?: v1SwapCharges;
 };
 
 export type v1SwapRefund = {
@@ -7515,7 +7871,7 @@ export type v1UpdateFiatRampCredentialIntent = {
   /** The ID of the fiat ramp credential to update */
   credentialId: string;
   /** The fiat ramp provider */
-  provider: v1FiatOnRampProvider;
+  provider: v1FiatRampProvider;
   /** Non-secret half of the provider credential. MoonPay: publishable key (pk_test_ or pk_live_). Coinbase: CDP API key ID */
   apiKey: string;
   /** Secret half of the provider credential, encrypted to our on-ramp encryption public key. MoonPay: secret key (sk_test_ or sk_live_). Coinbase: Ed25519 private key */
@@ -8007,6 +8363,107 @@ export type v1UpsertSwapFixedRateLimitConfigResult = {
   organizationId: string;
 };
 
+export type v1UsageControlAggregation = {
+  /** Method that aggregates matching data points. */
+  method: v1UsageControlAggregationMethod;
+  /** Comparison between the aggregate and the threshold. */
+  operator: v1UsageControlAggregationOperator;
+  /** Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits. */
+  threshold: string;
+  /** Time window for the aggregation. */
+  window: v1UsageControlAggregationWindow;
+  /** Scope that partitions matching data before aggregation. */
+  groupBy: v1UsageControlAggregationGroupBy;
+};
+
+export type v1UsageControlAggregationGroupBy = {
+  /** Uses one shared bucket for the Organization. */
+  organization?: v1UsageControlAggregationGroupByOrganization;
+  /** Uses one bucket for each User. */
+  user?: v1UsageControlAggregationGroupByUser;
+  /** Uses one bucket for each Wallet. */
+  wallet?: v1UsageControlAggregationGroupByWallet;
+};
+
+export type v1UsageControlAggregationGroupByOrganization = {};
+export type v1UsageControlAggregationGroupByUser = {};
+export type v1UsageControlAggregationGroupByWallet = {};
+export type v1UsageControlAggregationMethod =
+  | "USAGE_CONTROL_AGGREGATION_METHOD_SUM"
+  | "USAGE_CONTROL_AGGREGATION_METHOD_COUNT";
+
+export type v1UsageControlAggregationOperator =
+  | "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN"
+  | "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL"
+  | "USAGE_CONTROL_AGGREGATION_OPERATOR_EQUAL"
+  | "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL"
+  | "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN";
+
+export type v1UsageControlAggregationWindow = {
+  /** Uses a rolling time window. */
+  rolling?: v1UsageControlAggregationWindowRolling;
+  /** Uses all matching data without a time limit. */
+  infinite?: v1UsageControlAggregationWindowInfinite;
+};
+
+export type v1UsageControlAggregationWindowInfinite = {};
+export type v1UsageControlAggregationWindowRolling = {
+  /** Duration of the rolling window, in seconds. */
+  duration: number;
+};
+
+export type v1UsageControlDataSource = {
+  /** Uses transfers of the listed on-chain assets as input data. */
+  chainAssetTransfer?: v1UsageControlDataSourceChainAssetTransfer;
+  /** Uses executed Turnkey activities as input data. */
+  activityExecution?: v1UsageControlDataSourceActivityExecution;
+};
+
+export type v1UsageControlDataSourceActivityExecution = {
+  /** Filters activity executions by type. */
+  filter?: v1UsageControlDataSourceActivityExecutionFilter;
+};
+
+export type v1UsageControlDataSourceActivityExecutionFilter = {
+  /** Activity types whose executions are included. */
+  activity?: v1UsageControlDataSourceFilterActivity[];
+};
+
+export type v1UsageControlDataSourceChainAssetTransfer = {
+  /** Assets whose transfers are included in the data source. */
+  definition: v1UsageControlDataSourceChainAssetTransferDefinition[];
+  /** Filters asset transfers by activity type. */
+  filter?: v1UsageControlDataSourceChainAssetTransferFilter;
+  /** Selects when to measure an asset transfer. */
+  phase?: v1UsageControlDataSourcePhase;
+};
+
+export type v1UsageControlDataSourceChainAssetTransferDefinition = {
+  /** CAIP-19 identifier for the asset. */
+  caip19: string;
+  /** Integer between 0 and 32 (inclusive) that specifies the number of decimal places for the asset. */
+  decimals: number;
+};
+
+export type v1UsageControlDataSourceChainAssetTransferFilter = {
+  /** Activity types whose asset transfers are included. */
+  activity?: v1UsageControlDataSourceFilterActivity[];
+};
+
+export type v1UsageControlDataSourceFilterActivity = {
+  /** Name of an activity type to include, such as `ACTIVITY_TYPE_SOL_SEND_TRANSACTION`. */
+  activityType: string;
+};
+
+export type v1UsageControlDataSourcePhase = {
+  /** Measures the transfer when Turnkey signs the transaction and returns it to the user. */
+  signature?: v1UsageControlDataSourcePhaseSignature;
+  /** Reserved for future use. Measures the transfer after the transaction lands on chain. */
+  submission?: v1UsageControlDataSourcePhaseSubmission;
+};
+
+export type v1UsageControlDataSourcePhaseSignature = {};
+export type v1UsageControlDataSourcePhaseSubmission = {};
 export type v1UsageType = "USAGE_TYPE_SIGNUP" | "USAGE_TYPE_LOGIN";
 
 export type v1User = {
@@ -8109,107 +8566,6 @@ export type v1ValidateTvcImageResponse = {
   resolvedImageDigest?: string;
 };
 
-export type v1VelocityControlAggregation = {
-  /** Method that aggregates matching data points. */
-  method: v1VelocityControlAggregationMethod;
-  /** Comparison between the aggregate and the threshold. */
-  operator: v1VelocityControlAggregationOperator;
-  /** Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits. */
-  threshold: string;
-  /** Time window for the aggregation. */
-  window: v1VelocityControlAggregationWindow;
-  /** Scope that partitions matching data before aggregation. */
-  groupBy: v1VelocityControlAggregationGroupBy;
-};
-
-export type v1VelocityControlAggregationGroupBy = {
-  /** Uses one shared bucket for the Organization. */
-  organization?: v1VelocityControlAggregationGroupByOrganization;
-  /** Uses one bucket for each User. */
-  user?: v1VelocityControlAggregationGroupByUser;
-  /** Uses one bucket for each Wallet. */
-  wallet?: v1VelocityControlAggregationGroupByWallet;
-};
-
-export type v1VelocityControlAggregationGroupByOrganization = {};
-export type v1VelocityControlAggregationGroupByUser = {};
-export type v1VelocityControlAggregationGroupByWallet = {};
-export type v1VelocityControlAggregationMethod =
-  | "VELOCITY_CONTROL_AGGREGATION_METHOD_SUM"
-  | "VELOCITY_CONTROL_AGGREGATION_METHOD_COUNT";
-
-export type v1VelocityControlAggregationOperator =
-  | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_LESS_THAN"
-  | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL"
-  | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_EQUAL"
-  | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL"
-  | "VELOCITY_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN";
-
-export type v1VelocityControlAggregationWindow = {
-  /** Uses a rolling time window. */
-  rolling?: v1VelocityControlAggregationWindowRolling;
-  /** Uses all matching data without a time limit. */
-  infinite?: v1VelocityControlAggregationWindowInfinite;
-};
-
-export type v1VelocityControlAggregationWindowInfinite = {};
-export type v1VelocityControlAggregationWindowRolling = {
-  /** Duration of the rolling window, in seconds. */
-  duration: number;
-};
-
-export type v1VelocityControlDataSource = {
-  /** Uses transfers of the listed on-chain assets as input data. */
-  chainAssetTransfer?: v1VelocityControlDataSourceChainAssetTransfer;
-  /** Uses executed Turnkey activities as input data. */
-  activityExecution?: v1VelocityControlDataSourceActivityExecution;
-};
-
-export type v1VelocityControlDataSourceActivityExecution = {
-  /** Filters activity executions by type. */
-  filter?: v1VelocityControlDataSourceActivityExecutionFilter;
-};
-
-export type v1VelocityControlDataSourceActivityExecutionFilter = {
-  /** Activity types whose executions are included. */
-  activity?: v1VelocityControlDataSourceFilterActivity[];
-};
-
-export type v1VelocityControlDataSourceChainAssetTransfer = {
-  /** Assets whose transfers are included in the data source. */
-  definition: v1VelocityControlDataSourceChainAssetTransferDefinition[];
-  /** Filters asset transfers by activity type. */
-  filter?: v1VelocityControlDataSourceChainAssetTransferFilter;
-  /** Selects when to measure an asset transfer. */
-  phase?: v1VelocityControlDataSourcePhase;
-};
-
-export type v1VelocityControlDataSourceChainAssetTransferDefinition = {
-  /** CAIP-19 identifier for the asset. */
-  caip19: string;
-  /** Integer between 0 and 32 (inclusive) that specifies the number of decimal places for the asset. */
-  decimals: number;
-};
-
-export type v1VelocityControlDataSourceChainAssetTransferFilter = {
-  /** Activity types whose asset transfers are included. */
-  activity?: v1VelocityControlDataSourceFilterActivity[];
-};
-
-export type v1VelocityControlDataSourceFilterActivity = {
-  /** Name of an activity type to include, such as `ACTIVITY_TYPE_SOL_SEND_TRANSACTION`. */
-  activityType: string;
-};
-
-export type v1VelocityControlDataSourcePhase = {
-  /** Measures the transfer when Turnkey signs the transaction and returns it to the user. */
-  signature?: v1VelocityControlDataSourcePhaseSignature;
-  /** Reserved for future use. Measures the transfer after the transaction lands on chain. */
-  submission?: v1VelocityControlDataSourcePhaseSubmission;
-};
-
-export type v1VelocityControlDataSourcePhaseSignature = {};
-export type v1VelocityControlDataSourcePhaseSubmission = {};
 export type v1VerificationClaims = {
   /** Unique identifier for this verification. */
   jti: string;
@@ -8248,6 +8604,15 @@ export type v1VerifyOtpIntentV2 = {
   /** UUID representing an OTP flow. A new UUID is created for each init OTP activity. */
   otpId: string;
   /** Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result. */
+  encryptedOtpBundle: string;
+  /** Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours) */
+  expirationSeconds?: string;
+};
+
+export type v1VerifyOtpIntentV3 = {
+  /** UUID representing an OTP flow. A new UUID is created for each init OTP activity. */
+  otpId: string;
+  /** Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a verification token. Encrypted using the target encryption key provided in the INIT_OTP activity result. */
   encryptedOtpBundle: string;
   /** Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours) */
   expirationSeconds?: string;
@@ -8600,6 +8965,53 @@ export type TGetGasUsageBody = {
 
 export type TGetGasUsageInput = { body: TGetGasUsageBody };
 
+export type TGetIndicativeSwapQuoteResponse = {
+  /** Swap provider that produced this quote. */
+  provider: string;
+  /** Estimated base-unit amount of the output asset. */
+  outputAmount: string;
+  /** Minimum base-unit amount of the output asset after slippage. */
+  minOutputAmount: string;
+  /** Slippage tolerance in basis points the provider applied. */
+  slippageBps?: string;
+  /** Client app fee in basis points included in this quote. "0" when no client fee applies. */
+  clientFeeBps: string;
+  /** Provider's estimated time to complete the swap, in seconds. */
+  estimatedTimeSeconds?: string;
+  /** Whether this quote has Turnkey paying the execution costs. */
+  feeSponsorship: boolean;
+  /** Whether this quote uses a 1:1 fixed rate. */
+  fixedRate: boolean;
+  /** Deprecated: use estimated_charges.fixed_rate_adjustment_usd. Estimated fixed-rate adjustment in USD from the customer's side: positive is a cost, negative an earning. Present only for fixed-rate quotes the provider priced. */
+  estimatedFixedRateAdjustmentUsd?: string;
+  /** Estimated charges this swap would add to your invoice, one field per swap line item. Present when fee_sponsorship or fixed_rate is true. */
+  estimatedCharges?: v1SwapCharges;
+};
+
+export type TGetIndicativeSwapQuoteBody = {
+  organizationId?: string;
+  /** Wallet account address that would send the input asset. It must belong to the organization. */
+  signWith: string;
+  /** CAIP-19 asset ID for the input asset. */
+  inputToken: string;
+  /** CAIP-19 asset ID for the output asset. */
+  outputToken: string;
+  /** Exact base-unit amount of the input asset. */
+  inputAmount: string;
+  /** Maximum allowed slippage in basis points, at most 5000. When omitted, the provider chooses the slippage. */
+  slippageBps?: string;
+  /** Raw public address that would receive the output asset. Required for cross-protocol swaps and rejected otherwise. */
+  destinationAddress?: string;
+  /** Preview the price with Turnkey paying the provider fees. Requires the FEATURE_NAME_SWAP_FEE_SPONSORSHIP organization feature. Defaults to false. */
+  feeSponsorship?: boolean;
+  /** Preview a 1:1 conversion before fees between supported stablecoins. Requires the FEATURE_NAME_SWAP_FIXED_RATE organization feature. Defaults to false. */
+  fixedRate?: boolean;
+};
+
+export type TGetIndicativeSwapQuoteInput = {
+  body: TGetIndicativeSwapQuoteBody;
+};
+
 export type TGetIpAllowlistResponse = {
   allowlist: v1IpAllowlist;
 };
@@ -8903,6 +9315,8 @@ export type TGetSwapStatusResponse = {
   error?: v1SwapError;
   /** Address that receives the output asset. */
   destinationAddress?: string;
+  /** Final charges this swap added to your invoice, one field per swap line item. Present once a fee-sponsored or fixed-rate swap's costs are settled; a swap that failed or was refunded settles at zero. */
+  charges?: v1SwapCharges;
 };
 
 export type TGetSwapStatusBody = {
@@ -9255,6 +9669,41 @@ export type TListEthTransactionHistoryInput = {
   body: TListEthTransactionHistoryBody;
 };
 
+export type TGetFiatOffRampQuotesResponse = {
+  /** One quote per provider and payment method that can serve this route. Empty when none can. */
+  quotes: v1FiatOffRampQuote[];
+};
+
+export type TGetFiatOffRampQuotesBody = {
+  organizationId?: string;
+  /** Crypto amount the user wants to sell, in major units of the caip19 asset. For example, "0.05" for 0.05 ETH. The wallet address is not part of this query. */
+  cryptoAmount: string;
+  /** Fiat currency the user receives, for example USD. */
+  fiatCurrencyCode: v1FiatRampCurrency;
+  /** CAIP-19 asset to sell. Each value is supported for both Coinbase and MoonPay sell, the same set as on-ramp. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** ISO 3166-1 alpha-2 country code of the selling user, for example US. When omitted, the country is taken from the location of the request. */
+  countryCode?: string;
+  /** ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request. */
+  countrySubdivisionCode?: string;
+  /** Quote sandbox credentials when true. Defaults to false. */
+  sandboxMode?: boolean;
+};
+
+export type TGetFiatOffRampQuotesInput = { body: TGetFiatOffRampQuotesBody };
+
 export type TListFiatOnRampCredentialsResponse = {
   fiatOnRampCredentials: v1FiatOnRampCredential[];
 };
@@ -9266,6 +9715,41 @@ export type TListFiatOnRampCredentialsBody = {
 export type TListFiatOnRampCredentialsInput = {
   body: TListFiatOnRampCredentialsBody;
 };
+
+export type TGetFiatOnRampQuotesResponse = {
+  /** One quote per provider and payment method that can serve this route. Empty when none can. */
+  quotes: v1FiatOnRampQuote[];
+};
+
+export type TGetFiatOnRampQuotesBody = {
+  organizationId?: string;
+  /** Fiat amount the user wants to spend, in major units of fiat_currency_code. For example, "100" for 100 USD. */
+  fiatAmount: string;
+  /** Fiat currency for fiat_amount, for example USD. */
+  fiatCurrencyCode: v1FiatRampCurrency;
+  /** CAIP-19 asset to buy. */
+  caip19:
+    | "eip155:1/slip44:60"
+    | "eip155:10/slip44:60"
+    | "eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+    | "eip155:8453/slip44:60"
+    | "eip155:42161/slip44:60"
+    | "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    | "eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85"
+    | "eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    | "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    | "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  /** ISO 3166-1 alpha-2 country code of the purchasing user, for example US. When omitted, the country is taken from the location of the request. */
+  countryCode?: string;
+  /** ISO 3166-2 subdivision code, for example NY. When omitted for a US visitor, the subdivision is taken from the location of the request. */
+  countrySubdivisionCode?: string;
+  /** Quote sandbox credentials when true. Defaults to false. */
+  sandboxMode?: boolean;
+};
+
+export type TGetFiatOnRampQuotesInput = { body: TGetFiatOnRampQuotesBody };
 
 export type TListOauth2CredentialsResponse = {
   oauth2Credentials: v1Oauth2Credential[];
@@ -9664,6 +10148,30 @@ export type TCreateExternalSignerBody = {
 
 export type TCreateExternalSignerInput = { body: TCreateExternalSignerBody };
 
+export type TCreateFiatOffRampSessionResponse = {
+  activity: v1Activity;
+  /** URL of the fiat off-ramp session for the saved quote. */
+  offRampUrl: string;
+  /** Unique identifier used to retrieve transaction statuses for a given fiat off-ramp flow. */
+  offRampTransactionId: string;
+};
+
+export type TCreateFiatOffRampSessionBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Identifier of a saved fiat off-ramp quote. Returned by GetFiatOffRampQuotes. */
+  quoteId: string;
+  /** Wallet address for this sale. Coinbase uses it as the source address. MoonPay uses it as the refund address; the user deposits the crypto to MoonPay separately. */
+  walletAddress: string;
+  /** URL the provider redirects to after the user submits the sell. Required when the saved quote is from Coinbase. When set for MoonPay, it is included in the signed sell URL so MoonPay can append the deposit address. */
+  redirectUrl?: string;
+  generateAppProofs?: boolean;
+};
+
+export type TCreateFiatOffRampSessionInput = {
+  body: TCreateFiatOffRampSessionBody;
+};
+
 export type TCreateFiatOnRampCredentialResponse = {
   activity: v1Activity;
   /** Unique identifier of the Fiat On-Ramp credential that was created */
@@ -9692,6 +10200,28 @@ export type TCreateFiatOnRampCredentialInput = {
   body: TCreateFiatOnRampCredentialBody;
 };
 
+export type TCreateFiatOnRampSessionResponse = {
+  activity: v1Activity;
+  /** URL of the fiat on-ramp session for the saved quote. */
+  onRampUrl: string;
+  /** Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
+  onRampTransactionId: string;
+};
+
+export type TCreateFiatOnRampSessionBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Identifier of a saved fiat on-ramp quote. Returned by GetFiatOnRampQuotes. */
+  quoteId: string;
+  /** Destination wallet address for the buy transaction. */
+  walletAddress: string;
+  generateAppProofs?: boolean;
+};
+
+export type TCreateFiatOnRampSessionInput = {
+  body: TCreateFiatOnRampSessionBody;
+};
+
 export type TCreateFiatRampCredentialResponse = {
   activity: v1Activity;
   /** Unique identifier of the fiat ramp credential that was created */
@@ -9702,7 +10232,7 @@ export type TCreateFiatRampCredentialBody = {
   timestampMs?: string;
   organizationId?: string;
   /** The fiat ramp provider */
-  provider: v1FiatOnRampProvider;
+  provider: v1FiatRampProvider;
   /** Non-secret half of the provider credential. MoonPay: publishable key (pk_test_ or pk_live_). Coinbase: CDP API key ID */
   apiKey: string;
   /** Secret half of the provider credential, encrypted to our on-ramp encryption public key. MoonPay: secret key (sk_test_ or sk_live_). Coinbase: Ed25519 private key */
@@ -10954,10 +11484,12 @@ export type TExecuteSwapResponse = {
   outputAmount?: string;
   /** Minimum base-unit amount of the output asset after slippage. Set by execute_swap V4. */
   minOutputAmount?: string;
-  /** Whether Turnkey paid the provider fees for this swap. Set by execute_swap V4. */
+  /** Whether Turnkey paid the execution costs for this swap. Set by execute_swap V4. */
   feeSponsorship?: boolean;
   /** Whether this swap used a 1:1 fixed rate. Set by execute_swap V4. */
   fixedRate?: boolean;
+  /** Estimated charges this swap adds to your invoice, one field per swap line item, from the executed quote. Present when fee_sponsorship or fixed_rate is true. Informational; the final amounts are settled after execution and reported by get_swap_status. Set by execute_swap V4. */
+  estimatedCharges?: v1SwapCharges;
 };
 
 export type TExecuteSwapBody = {
@@ -11326,6 +11858,27 @@ export type TInitUserEmailRecoveryBody = {
 };
 
 export type TInitUserEmailRecoveryInput = { body: TInitUserEmailRecoveryBody };
+
+export type TMintJwtResponse = {
+  activity: v1Activity;
+  /** Signed JWT in JWS compact serialization. */
+  jwt: string;
+  /** Public JWK of the key that signed the JWT. Verifiers should pin this key or fetch it from the issuer's JWKS, not trust it from this response. */
+  signingKeyJwk: string;
+};
+
+export type TMintJwtBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Profile that defines which claims the JWT binds. Must match the set `profile_inputs` case. */
+  profile: v1JwtProfile;
+  /** Origin of the receiving service, as `https://<lowercase host>[:port]` with no default port, path, query, or fragment. At most 256 characters. Becomes the `aud` claim. */
+  audience: string;
+  /** Inputs for the `turnkey.io/http-authz/v1` profile. */
+  httpAuthzV1?: v1HttpAuthzV1Inputs;
+};
+
+export type TMintJwtInput = { body: TMintJwtBody };
 
 export type TOauthResponse = {
   activity: v1Activity;
@@ -11855,7 +12408,7 @@ export type TUpdateFiatRampCredentialBody = {
   /** The ID of the fiat ramp credential to update */
   credentialId: string;
   /** The fiat ramp provider */
-  provider: v1FiatOnRampProvider;
+  provider: v1FiatRampProvider;
   /** Non-secret half of the provider credential. MoonPay: publishable key (pk_test_ or pk_live_). Coinbase: CDP API key ID */
   apiKey: string;
   /** Secret half of the provider credential, encrypted to our on-ramp encryption public key. MoonPay: secret key (sk_test_ or sk_live_). Coinbase: Ed25519 private key */
@@ -12602,6 +13155,20 @@ export type ProxyTVerifyOtpV2Body = {
 
 export type ProxyTVerifyOtpV2Input = { body: ProxyTVerifyOtpV2Body };
 
+export type ProxyTVerifyOtpV3Response = {
+  /** Enclave-signed verification token for the verified email or phone number. */
+  verificationToken: string;
+};
+
+export type ProxyTVerifyOtpV3Body = {
+  /** ID representing the result of an init OTP activity. */
+  otpId: string;
+  /** Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a verification token. Encrypted using the target encryption key provided in the INIT_OTP activity result. */
+  encryptedOtpBundle: string;
+};
+
+export type ProxyTVerifyOtpV3Input = { body: ProxyTVerifyOtpV3Body };
+
 export type ProxyTSignupResponse = {
   organizationId: string;
   /** Wallet created for the sub-organization, if provided in the request */
@@ -12689,8 +13256,8 @@ export type ProxyTSignupV3Body = {
   oauthProviders: v1OauthProviderParamsV2[];
   /** The wallet to create for the sub-organization */
   wallet?: v1WalletParams;
-  /** Optional signature proving authorization for this signup. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
-  clientSignature?: v1ClientSignature;
+  /** Signatures over one signup payload, one per verification token nonce. Required when the request carries a generic OTP token, a wallet verification token, or an OIDC token. */
+  clientSignature?: v1ClientSignatureV2;
   /** A list of wallet authenticators. This field, if not needed, should be an empty array in your request body. */
   walletAuthenticators: v1WalletAuthenticatorParams[];
 };

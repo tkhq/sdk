@@ -300,6 +300,38 @@
         "tags": ["Auth"]
       }
     },
+    "/v1/otp_verify_v3": {
+      "post": {
+        "summary": "Verify OTP v3",
+        "description": "Verify the OTP code previously sent to the user's contact and return a generic verification token.",
+        "operationId": "AuthProxyService_VerifyOtpV3",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1VerifyOtpV3Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1VerifyOtpV3Request"
+            }
+          }
+        ],
+        "tags": ["Auth"]
+      }
+    },
     "/v1/signup": {
       "post": {
         "summary": "Signup",
@@ -702,9 +734,45 @@
       },
       "required": ["publicKey", "scheme", "message", "signature"]
     },
+    "v1ClientSignatureEntry": {
+      "type": "object",
+      "properties": {
+        "signature": {
+          "type": "string",
+          "description": "Hex-encoded raw ECDSA signature, r || s, 64 bytes."
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Compressed P-256 public key, hex. The nonce is hex(sha256(publicKey))."
+        },
+        "scheme": {
+          "$ref": "#/definitions/v1ClientSignatureScheme",
+          "description": "Signature scheme. API_P256 is the only accepted scheme."
+        }
+      },
+      "required": ["signature", "publicKey", "scheme"]
+    },
     "v1ClientSignatureScheme": {
       "type": "string",
       "enum": ["CLIENT_SIGNATURE_SCHEME_API_P256"]
+    },
+    "v1ClientSignatureV2": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "JSON TokenUsage signed by every entry. Signup uses signupV3."
+        },
+        "signatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ClientSignatureEntry"
+          },
+          "description": "One P-256 signature per ephemeral key bound to a verification token or OIDC nonce."
+        }
+      },
+      "required": ["message", "signatures"]
     },
     "v1Curve": {
       "type": "string",
@@ -1305,8 +1373,8 @@
           "description": "The wallet to create for the sub-organization"
         },
         "clientSignature": {
-          "$ref": "#/definitions/v1ClientSignature",
-          "description": "Optional signature proving authorization for this signup. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step."
+          "$ref": "#/definitions/v1ClientSignatureV2",
+          "description": "Signatures over one signup payload, one per verification token nonce. Required when the request carries a generic OTP token, a wallet verification token, or an OIDC token."
         },
         "walletAuthenticators": {
           "type": "array",
@@ -1399,6 +1467,30 @@
         "verificationToken": {
           "type": "string",
           "description": "Verification Token containing a unique id, expiry, verification type, contact signed by Turnkey's enclaves. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)"
+        }
+      },
+      "required": ["verificationToken"]
+    },
+    "v1VerifyOtpV3Request": {
+      "type": "object",
+      "properties": {
+        "otpId": {
+          "type": "string",
+          "description": "ID representing the result of an init OTP activity."
+        },
+        "encryptedOtpBundle": {
+          "type": "string",
+          "description": "Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a verification token. Encrypted using the target encryption key provided in the INIT_OTP activity result."
+        }
+      },
+      "required": ["otpId", "encryptedOtpBundle"]
+    },
+    "v1VerifyOtpV3Response": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string",
+          "description": "Enclave-signed verification token for the verified email or phone number."
         }
       },
       "required": ["verificationToken"]

@@ -2080,6 +2080,52 @@ export const signGetTvcQosVersions = (
   });
 
 /**
+ * `POST /public/v1/query/get_usage_control`
+ */
+export type TGetUsageControlResponse =
+  operations["PublicApiService_GetUsageControl"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_usage_control`
+ */
+export type TGetUsageControlInput = { body: TGetUsageControlBody };
+
+/**
+ * `POST /public/v1/query/get_usage_control`
+ */
+export type TGetUsageControlBody =
+  operations["PublicApiService_GetUsageControl"]["parameters"]["body"]["body"];
+
+/**
+ * Get usage control
+ *
+ * Get details about a usage control.
+ *
+ * `POST /public/v1/query/get_usage_control`
+ */
+export const getUsageControl = (input: TGetUsageControlInput) =>
+  request<TGetUsageControlResponse, TGetUsageControlBody, never, never, never>({
+    uri: "/public/v1/query/get_usage_control",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetUsageControl` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetUsageControl}
+ */
+export const signGetUsageControl = (
+  input: TGetUsageControlInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetUsageControlBody, never, never>({
+    uri: "/public/v1/query/get_usage_control",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_user`
  */
 export type TGetUserResponse =
@@ -2121,58 +2167,6 @@ export const signGetUser = (
 ) =>
   signedRequest<TGetUserBody, never, never>({
     uri: "/public/v1/query/get_user",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/query/get_velocity_control`
- */
-export type TGetVelocityControlResponse =
-  operations["PublicApiService_GetVelocityControl"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/get_velocity_control`
- */
-export type TGetVelocityControlInput = { body: TGetVelocityControlBody };
-
-/**
- * `POST /public/v1/query/get_velocity_control`
- */
-export type TGetVelocityControlBody =
-  operations["PublicApiService_GetVelocityControl"]["parameters"]["body"]["body"];
-
-/**
- * Get velocity control
- *
- * Get details about a velocity control.
- *
- * `POST /public/v1/query/get_velocity_control`
- */
-export const getVelocityControl = (input: TGetVelocityControlInput) =>
-  request<
-    TGetVelocityControlResponse,
-    TGetVelocityControlBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/query/get_velocity_control",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetVelocityControl` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetVelocityControl}
- */
-export const signGetVelocityControl = (
-  input: TGetVelocityControlInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetVelocityControlBody, never, never>({
-    uri: "/public/v1/query/get_velocity_control",
     body: input.body,
     options,
   });
@@ -3584,6 +3578,58 @@ export const signGetTvcQuorumKeys = (
   });
 
 /**
+ * `POST /public/v1/query/list_usage_controls`
+ */
+export type TListUsageControlsResponse =
+  operations["PublicApiService_ListUsageControls"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_usage_controls`
+ */
+export type TListUsageControlsInput = { body: TListUsageControlsBody };
+
+/**
+ * `POST /public/v1/query/list_usage_controls`
+ */
+export type TListUsageControlsBody =
+  operations["PublicApiService_ListUsageControls"]["parameters"]["body"]["body"];
+
+/**
+ * List usage controls
+ *
+ * List all usage controls within an organization.
+ *
+ * `POST /public/v1/query/list_usage_controls`
+ */
+export const listUsageControls = (input: TListUsageControlsInput) =>
+  request<
+    TListUsageControlsResponse,
+    TListUsageControlsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_usage_controls",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListUsageControls` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListUsageControls}
+ */
+export const signListUsageControls = (
+  input: TListUsageControlsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListUsageControlsBody, never, never>({
+    uri: "/public/v1/query/list_usage_controls",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_user_tags`
  */
 export type TListUserTagsResponse =
@@ -3671,58 +3717,6 @@ export const signGetUsers = (
 ) =>
   signedRequest<TGetUsersBody, never, never>({
     uri: "/public/v1/query/list_users",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/query/list_velocity_controls`
- */
-export type TListVelocityControlsResponse =
-  operations["PublicApiService_ListVelocityControls"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/list_velocity_controls`
- */
-export type TListVelocityControlsInput = { body: TListVelocityControlsBody };
-
-/**
- * `POST /public/v1/query/list_velocity_controls`
- */
-export type TListVelocityControlsBody =
-  operations["PublicApiService_ListVelocityControls"]["parameters"]["body"]["body"];
-
-/**
- * List velocity controls
- *
- * List all velocity controls within an organization.
- *
- * `POST /public/v1/query/list_velocity_controls`
- */
-export const listVelocityControls = (input: TListVelocityControlsInput) =>
-  request<
-    TListVelocityControlsResponse,
-    TListVelocityControlsBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/query/list_velocity_controls",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `ListVelocityControls` request, ready to be POSTed to Turnkey.
- *
- * See {@link ListVelocityControls}
- */
-export const signListVelocityControls = (
-  input: TListVelocityControlsInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TListVelocityControlsBody, never, never>({
-    uri: "/public/v1/query/list_velocity_controls",
     body: input.body,
     options,
   });
@@ -4425,12 +4419,16 @@ export const signCreateFiatOffRampSession = (
 
 /**
  * `POST /public/v1/submit/create_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TCreateFiatOnRampCredentialResponse =
   operations["PublicApiService_CreateFiatOnRampCredential"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TCreateFiatOnRampCredentialInput = {
   body: TCreateFiatOnRampCredentialBody;
@@ -4438,6 +4436,8 @@ export type TCreateFiatOnRampCredentialInput = {
 
 /**
  * `POST /public/v1/submit/create_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TCreateFiatOnRampCredentialBody =
   operations["PublicApiService_CreateFiatOnRampCredential"]["parameters"]["body"]["body"];
@@ -4445,9 +4445,11 @@ export type TCreateFiatOnRampCredentialBody =
 /**
  * Create a Fiat On Ramp credential
  *
- * Create a fiat on ramp provider credential.
+ * Deprecated: use CreateFiatRampCredential.
  *
  * `POST /public/v1/submit/create_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export const createFiatOnRampCredential = (
   input: TCreateFiatOnRampCredentialInput,
@@ -4468,6 +4470,8 @@ export const createFiatOnRampCredential = (
  * Request a WebAuthn assertion and return a signed `CreateFiatOnRampCredential` request, ready to be POSTed to Turnkey.
  *
  * See {@link CreateFiatOnRampCredential}
+ *
+ * @deprecated
  */
 export const signCreateFiatOnRampCredential = (
   input: TCreateFiatOnRampCredentialInput,
@@ -5560,6 +5564,58 @@ export const signCreateTvcQuorumKey = (
   });
 
 /**
+ * `POST /public/v1/submit/create_usage_control`
+ */
+export type TCreateUsageControlResponse =
+  operations["PublicApiService_CreateUsageControl"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_usage_control`
+ */
+export type TCreateUsageControlInput = { body: TCreateUsageControlBody };
+
+/**
+ * `POST /public/v1/submit/create_usage_control`
+ */
+export type TCreateUsageControlBody =
+  operations["PublicApiService_CreateUsageControl"]["parameters"]["body"]["body"];
+
+/**
+ * Create usage control
+ *
+ * Create a new usage control.
+ *
+ * `POST /public/v1/submit/create_usage_control`
+ */
+export const createUsageControl = (input: TCreateUsageControlInput) =>
+  request<
+    TCreateUsageControlResponse,
+    TCreateUsageControlBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_usage_control",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateUsageControl` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateUsageControl}
+ */
+export const signCreateUsageControl = (
+  input: TCreateUsageControlInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateUsageControlBody, never, never>({
+    uri: "/public/v1/submit/create_usage_control",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/create_user_tag`
  */
 export type TCreateUserTagResponse =
@@ -5647,58 +5703,6 @@ export const signCreateUsers = (
 ) =>
   signedRequest<TCreateUsersBody, never, never>({
     uri: "/public/v1/submit/create_users",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/submit/create_velocity_control`
- */
-export type TCreateVelocityControlResponse =
-  operations["PublicApiService_CreateVelocityControl"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/create_velocity_control`
- */
-export type TCreateVelocityControlInput = { body: TCreateVelocityControlBody };
-
-/**
- * `POST /public/v1/submit/create_velocity_control`
- */
-export type TCreateVelocityControlBody =
-  operations["PublicApiService_CreateVelocityControl"]["parameters"]["body"]["body"];
-
-/**
- * Create velocity control
- *
- * Create a new velocity control.
- *
- * `POST /public/v1/submit/create_velocity_control`
- */
-export const createVelocityControl = (input: TCreateVelocityControlInput) =>
-  request<
-    TCreateVelocityControlResponse,
-    TCreateVelocityControlBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/create_velocity_control",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `CreateVelocityControl` request, ready to be POSTed to Turnkey.
- *
- * See {@link CreateVelocityControl}
- */
-export const signCreateVelocityControl = (
-  input: TCreateVelocityControlInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TCreateVelocityControlBody, never, never>({
-    uri: "/public/v1/submit/create_velocity_control",
     body: input.body,
     options,
   });
@@ -6778,6 +6782,58 @@ export const signDeleteTvcDeployment = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_usage_controls`
+ */
+export type TDeleteUsageControlsResponse =
+  operations["PublicApiService_DeleteUsageControls"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_usage_controls`
+ */
+export type TDeleteUsageControlsInput = { body: TDeleteUsageControlsBody };
+
+/**
+ * `POST /public/v1/submit/delete_usage_controls`
+ */
+export type TDeleteUsageControlsBody =
+  operations["PublicApiService_DeleteUsageControls"]["parameters"]["body"]["body"];
+
+/**
+ * Delete usage controls
+ *
+ * Delete existing usage controls.
+ *
+ * `POST /public/v1/submit/delete_usage_controls`
+ */
+export const deleteUsageControls = (input: TDeleteUsageControlsInput) =>
+  request<
+    TDeleteUsageControlsResponse,
+    TDeleteUsageControlsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_usage_controls",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteUsageControls` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteUsageControls}
+ */
+export const signDeleteUsageControls = (
+  input: TDeleteUsageControlsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteUsageControlsBody, never, never>({
+    uri: "/public/v1/submit/delete_usage_controls",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/delete_user_tags`
  */
 export type TDeleteUserTagsResponse =
@@ -6865,60 +6921,6 @@ export const signDeleteUsers = (
 ) =>
   signedRequest<TDeleteUsersBody, never, never>({
     uri: "/public/v1/submit/delete_users",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/submit/delete_velocity_controls`
- */
-export type TDeleteVelocityControlsResponse =
-  operations["PublicApiService_DeleteVelocityControls"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/delete_velocity_controls`
- */
-export type TDeleteVelocityControlsInput = {
-  body: TDeleteVelocityControlsBody;
-};
-
-/**
- * `POST /public/v1/submit/delete_velocity_controls`
- */
-export type TDeleteVelocityControlsBody =
-  operations["PublicApiService_DeleteVelocityControls"]["parameters"]["body"]["body"];
-
-/**
- * Delete velocity controls
- *
- * Delete existing velocity controls.
- *
- * `POST /public/v1/submit/delete_velocity_controls`
- */
-export const deleteVelocityControls = (input: TDeleteVelocityControlsInput) =>
-  request<
-    TDeleteVelocityControlsResponse,
-    TDeleteVelocityControlsBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/delete_velocity_controls",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `DeleteVelocityControls` request, ready to be POSTed to Turnkey.
- *
- * See {@link DeleteVelocityControls}
- */
-export const signDeleteVelocityControls = (
-  input: TDeleteVelocityControlsInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TDeleteVelocityControlsBody, never, never>({
-    uri: "/public/v1/submit/delete_velocity_controls",
     body: input.body,
     options,
   });
@@ -7599,7 +7601,7 @@ export type TExecuteSwapBody =
 /**
  * Execute Swap
  *
- * Execute the exact provider quote identified by quote_id through the activity pipeline and Turnkey broadcasting. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V3.
+ * Execute a swap through the activity pipeline and Turnkey broadcasting. With bound_quote, execution is bound to the quote create_swap_quote returned. With market, the swap executes at the provider's price when the activity is approved, within slippage_bps and min_output_amount; use get_indicative_swap_quote to preview that price. Requests must use ACTIVITY_TYPE_EXECUTE_SWAP_V4.
  *
  * `POST /public/v1/submit/execute_swap`
  */
@@ -7967,17 +7969,23 @@ export const signImportWallet = (
 
 /**
  * `POST /public/v1/submit/init_fiat_on_ramp`
+ *
+ * @deprecated
  */
 export type TInitFiatOnRampResponse =
   operations["PublicApiService_InitFiatOnRamp"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/init_fiat_on_ramp`
+ *
+ * @deprecated
  */
 export type TInitFiatOnRampInput = { body: TInitFiatOnRampBody };
 
 /**
  * `POST /public/v1/submit/init_fiat_on_ramp`
+ *
+ * @deprecated
  */
 export type TInitFiatOnRampBody =
   operations["PublicApiService_InitFiatOnRamp"]["parameters"]["body"]["body"];
@@ -7985,9 +7993,11 @@ export type TInitFiatOnRampBody =
 /**
  * Init Fiat On Ramp
  *
- * Initiate a fiat on ramp flow.
+ * Deprecated: use CreateFiatOnRampSession with a quote from GetFiatOnRampQuotes.
  *
  * `POST /public/v1/submit/init_fiat_on_ramp`
+ *
+ * @deprecated
  */
 export const initFiatOnRamp = (input: TInitFiatOnRampInput) =>
   request<TInitFiatOnRampResponse, TInitFiatOnRampBody, never, never, never>({
@@ -8000,6 +8010,8 @@ export const initFiatOnRamp = (input: TInitFiatOnRampInput) =>
  * Request a WebAuthn assertion and return a signed `InitFiatOnRamp` request, ready to be POSTed to Turnkey.
  *
  * See {@link InitFiatOnRamp}
+ *
+ * @deprecated
  */
 export const signInitFiatOnRamp = (
   input: TInitFiatOnRampInput,
@@ -8307,6 +8319,52 @@ export const signInitUserEmailRecovery = (
 ) =>
   signedRequest<TInitUserEmailRecoveryBody, never, never>({
     uri: "/public/v1/submit/init_user_email_recovery",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/mint_jwt`
+ */
+export type TMintJwtResponse =
+  operations["PublicApiService_MintJwt"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/mint_jwt`
+ */
+export type TMintJwtInput = { body: TMintJwtBody };
+
+/**
+ * `POST /public/v1/submit/mint_jwt`
+ */
+export type TMintJwtBody =
+  operations["PublicApiService_MintJwt"]["parameters"]["body"]["body"];
+
+/**
+ * Mint JWT
+ *
+ * Mint a Turnkey-signed JWT with a given profile. JWT semantics switch on profile.
+ *
+ * `POST /public/v1/submit/mint_jwt`
+ */
+export const mintJwt = (input: TMintJwtInput) =>
+  request<TMintJwtResponse, TMintJwtBody, never, never, never>({
+    uri: "/public/v1/submit/mint_jwt",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `MintJwt` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link MintJwt}
+ */
+export const signMintJwt = (
+  input: TMintJwtInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TMintJwtBody, never, never>({
+    uri: "/public/v1/submit/mint_jwt",
     body: input.body,
     options,
   });
@@ -9507,12 +9565,16 @@ export const signStampLogin = (
 
 /**
  * `POST /public/v1/submit/update_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TUpdateFiatOnRampCredentialResponse =
   operations["PublicApiService_UpdateFiatOnRampCredential"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/update_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TUpdateFiatOnRampCredentialInput = {
   body: TUpdateFiatOnRampCredentialBody;
@@ -9520,6 +9582,8 @@ export type TUpdateFiatOnRampCredentialInput = {
 
 /**
  * `POST /public/v1/submit/update_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export type TUpdateFiatOnRampCredentialBody =
   operations["PublicApiService_UpdateFiatOnRampCredential"]["parameters"]["body"]["body"];
@@ -9527,9 +9591,11 @@ export type TUpdateFiatOnRampCredentialBody =
 /**
  * Update a Fiat On Ramp credential
  *
- * Update a fiat on ramp provider credential.
+ * Deprecated: use UpdateFiatRampCredential.
  *
  * `POST /public/v1/submit/update_fiat_on_ramp_credential`
+ *
+ * @deprecated
  */
 export const updateFiatOnRampCredential = (
   input: TUpdateFiatOnRampCredentialInput,
@@ -9550,6 +9616,8 @@ export const updateFiatOnRampCredential = (
  * Request a WebAuthn assertion and return a signed `UpdateFiatOnRampCredential` request, ready to be POSTed to Turnkey.
  *
  * See {@link UpdateFiatOnRampCredential}
+ *
+ * @deprecated
  */
 export const signUpdateFiatOnRampCredential = (
   input: TUpdateFiatOnRampCredentialInput,

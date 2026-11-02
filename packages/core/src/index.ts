@@ -33,7 +33,6 @@ export {
   isSolanaProvider,
   getAuthProxyConfig,
   getClientParams,
-  decodeVerificationToken,
   decodeWalletAuthVerificationToken,
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,
@@ -58,5 +57,14 @@ export {
   type BuildWalletLoginMessageParams,
   type RecoverWalletPublicKeyParams,
 } from "./__wallet__/wallet-login-message";
+
+export {
+  AUTH_METHOD_EMAIL_OTP,
+  AUTH_METHOD_SMS_OTP,
+  AUTH_METHOD_WALLET,
+  VerificationToken,
+  publicKeyNonce,
+} from "@turnkey/crypto";
+export type { VerifyVerificationTokenOptions } from "@turnkey/crypto";
 
 export * from "@turnkey/sdk-types";

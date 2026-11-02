@@ -15,6 +15,8 @@ export {
   normalizeSiwxDomain,
   normalizeWalletSignature,
   recoverWalletPublicKey,
+  VerificationToken,
+  publicKeyNonce,
   type WalletLoginChain,
   type BuildWalletLoginMessageParams,
   type RecoverWalletPublicKeyParams,

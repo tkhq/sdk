@@ -80,9 +80,23 @@ jest.mock("@turnkey/crypto", () => {
       uint8ArrayFromHexString("04" + "aa".repeat(64)),
     ),
     compressRawPublicKey: actual.compressRawPublicKey,
+    fromDerSignature: actual.fromDerSignature,
+    generateP256KeyPair: actual.generateP256KeyPair,
+    VerificationToken: actual.VerificationToken,
+    publicKeyNonce: actual.publicKeyNonce,
+    AUTH_METHOD_WALLET: actual.AUTH_METHOD_WALLET,
+    NIL_SESSION_PROFILE_SCOPE: actual.NIL_SESSION_PROFILE_SCOPE,
+    VERIFICATION_TOKEN_TYPE_V1: actual.VERIFICATION_TOKEN_TYPE_V1,
   };
 });
-import { uncompressRawPublicKey } from "@turnkey/crypto";
+import {
+  AUTH_METHOD_WALLET,
+  NIL_SESSION_PROFILE_SCOPE,
+  VERIFICATION_TOKEN_TYPE_V1,
+  generateP256KeyPair,
+  publicKeyNonce,
+  uncompressRawPublicKey,
+} from "@turnkey/crypto";
 import { TurnkeyRequestError } from "@turnkey/http";
 
 describe("address format helpers", () => {
@@ -1255,14 +1269,23 @@ describe("mapAccountsToWallet", () => {
 });
 
 describe("wallet authenticator signup helpers", () => {
-  const xHex = "aa".repeat(32);
-  const yHex = "aa".repeat(32);
-  const ephemeralPublicKey = "02" + xHex;
+  const ephemeral = generateP256KeyPair();
+  const ephemeralPublicKey = ephemeral.publicKey.toLowerCase();
+  const uncompressed = ephemeral.publicKeyUncompressed;
+  const xHex = uncompressed.slice(2, 66);
+  const yHex = uncompressed.slice(66);
+  const jti = "11111111-1111-4111-8111-111111111111";
   const verificationToken = [
-    "eyJhbGciOiJFUzI1NiJ9",
     Buffer.from(
       JSON.stringify({
-        jti: "verification-event-id",
+        alg: "ES256",
+        typ: VERIFICATION_TOKEN_TYPE_V1,
+        kid: "test-kid",
+      }),
+    ).toString("base64url"),
+    Buffer.from(
+      JSON.stringify({
+        jti,
         iss: "https://id.turnkey.com/t/parent-org",
         aud: "urn:turnkey:org:parent-org",
         cnf: {
@@ -1273,20 +1296,20 @@ describe("wallet authenticator signup helpers", () => {
             y: hexStringToBase64url(yHex),
           },
         },
-        nonce: "bb".repeat(32),
-        auth_method: "wallet",
+        nonce: publicKeyNonce(ephemeralPublicKey),
+        auth_method: AUTH_METHOD_WALLET,
         sub_id: {
           format: "wallet",
           type: "WALLET_AUTHENTICATOR_TYPE_ETHEREUM",
           address: "0xabc0000000000000000000000000000000000000",
           domain: "app.example.com",
         },
-        scope: "session_profile:00000000-0000-0000-0000-000000000000",
-        iat: "0",
-        exp: "9999999999",
+        scope: NIL_SESSION_PROFILE_SCOPE,
+        iat: 0,
+        exp: 9999999999,
       }),
-    ).toString("base64"),
-    "sig",
+    ).toString("base64url"),
+    Buffer.alloc(64).toString("base64url"),
   ].join(".");
 
   it("always includes walletAuthenticators on the v3 signup body", () => {
@@ -1336,7 +1359,7 @@ describe("wallet authenticator signup helpers", () => {
     expect(publicKey).toBe(ephemeralPublicKey);
     expect(JSON.parse(message)).toEqual({
       type: "USAGE_TYPE_SIGNUP",
-      tokenId: "verification-event-id",
+      tokenId: jti,
       signupV3: { walletAuthenticators },
     });
   });

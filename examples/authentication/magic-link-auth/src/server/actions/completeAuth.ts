@@ -1,5 +1,6 @@
 "use server";
 
+import { VerificationToken } from "@turnkey/crypto";
 import { Turnkey, TurnkeyApiClient } from "@turnkey/sdk-server";
 import type { v1ClientSignature } from "@turnkey/sdk-types";
 
@@ -56,12 +57,10 @@ export async function completeAuth(params: {
 
 function extractEmailFromVerificationToken(token: string): string {
   try {
-    const [, payloadBase64] = token.split(".");
-    const payloadJson = Buffer.from(payloadBase64!, "base64url").toString();
-    const payload = JSON.parse(payloadJson);
-    const email = payload.contact;
-    if (!email)
+    const email = VerificationToken.parse(token).subId.email;
+    if (!email) {
       throw new Error("Email not found in verification token payload.");
+    }
     return email;
   } catch (error) {
     console.error("Failed to decode verification token:", error);

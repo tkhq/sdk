@@ -28,7 +28,14 @@ import {
   TurnkeyError,
   TurnkeyErrorCodes,
 } from "@turnkey/sdk-types";
-import { generateP256KeyPair, uncompressRawPublicKey } from "@turnkey/crypto";
+import {
+  AUTH_METHOD_WALLET,
+  NIL_SESSION_PROFILE_SCOPE,
+  VERIFICATION_TOKEN_TYPE_V1,
+  generateP256KeyPair,
+  publicKeyNonce,
+  uncompressRawPublicKey,
+} from "@turnkey/crypto";
 import {
   hexStringToBase64url,
   uint8ArrayFromHexString,
@@ -59,8 +66,16 @@ function p256JwkFromCompressedHex(compressedHex: string) {
 }
 
 function encodeVerificationToken(payload: Record<string, unknown>): string {
-  const payloadB64 = Buffer.from(JSON.stringify(payload)).toString("base64");
-  return `eyJhbGciOiJFUzI1NiJ9.${payloadB64}.sig`;
+  const headerB64 = Buffer.from(
+    JSON.stringify({
+      alg: "ES256",
+      typ: VERIFICATION_TOKEN_TYPE_V1,
+      kid: "test-kid",
+    }),
+  ).toString("base64url");
+  const payloadB64 = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const signatureB64 = Buffer.alloc(64).toString("base64url");
+  return `${headerB64}.${payloadB64}.${signatureB64}`;
 }
 
 function hexToJwkCoord(hex: string): string {
@@ -69,12 +84,12 @@ function hexToJwkCoord(hex: string): string {
 
 function ethereumToken(overrides?: Record<string, unknown>): string {
   return encodeVerificationToken({
-    jti: "verification-event-id",
+    jti: "11111111-1111-4111-8111-111111111111",
     iss: "https://id.turnkey.com/t/parent-org",
     aud: "urn:turnkey:org:parent-org",
     cnf: { jwk: p256JwkFromCompressedHex(EPHEMERAL_PUBLIC_KEY) },
-    nonce: "aa".repeat(32),
-    auth_method: "wallet",
+    nonce: publicKeyNonce(EPHEMERAL_PUBLIC_KEY),
+    auth_method: AUTH_METHOD_WALLET,
     sub_id: {
       format: "wallet",
       type: "WALLET_AUTHENTICATOR_TYPE_ETHEREUM",
@@ -87,7 +102,7 @@ function ethereumToken(overrides?: Record<string, unknown>): string {
         y: hexToJwkCoord("ab".repeat(32)),
       },
     },
-    scope: "session_profile:00000000-0000-0000-0000-000000000000",
+    scope: NIL_SESSION_PROFILE_SCOPE,
     iat: "0",
     exp: "9999999999",
     ...overrides,
@@ -96,12 +111,12 @@ function ethereumToken(overrides?: Record<string, unknown>): string {
 
 function solanaToken(): string {
   return encodeVerificationToken({
-    jti: "verification-event-id",
+    jti: "11111111-1111-4111-8111-111111111111",
     iss: "https://id.turnkey.com/t/parent-org",
     aud: "urn:turnkey:org:parent-org",
     cnf: { jwk: p256JwkFromCompressedHex(EPHEMERAL_PUBLIC_KEY) },
-    nonce: "aa".repeat(32),
-    auth_method: "wallet",
+    nonce: publicKeyNonce(EPHEMERAL_PUBLIC_KEY),
+    auth_method: AUTH_METHOD_WALLET,
     sub_id: {
       format: "wallet",
       type: "WALLET_AUTHENTICATOR_TYPE_SOLANA",
@@ -114,7 +129,7 @@ function solanaToken(): string {
         y: "",
       },
     },
-    scope: "session_profile:00000000-0000-0000-0000-000000000000",
+    scope: NIL_SESSION_PROFILE_SCOPE,
     iat: "0",
     exp: "9999999999",
   });
