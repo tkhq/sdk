@@ -54,6 +54,17 @@ export function getOAuthAddProviderMetadata(): OAuthAddProviderMetadata | null {
 }
 
 /**
+ * Retrieves and removes the OAuth add provider metadata, so it is used by
+ * exactly the one flow that completes with it, the way the PKCE verifier and
+ * captcha token are consumed.
+ */
+export function consumeOAuthAddProviderMetadata(): OAuthAddProviderMetadata | null {
+  const metadata = getOAuthAddProviderMetadata();
+  localStorage.removeItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
+  return metadata;
+}
+
+/**
  * Gets the verifier key name for a PKCE provider
  */
 export function getPKCEVerifierKey(provider: PKCEProvider): string {
@@ -118,11 +129,33 @@ export function consumeOAuthCaptchaToken(): string | null {
 }
 
 /**
+ * Builds the storage key for a single OAuth attempt.
+ *
+ * The state string is unique per attempt, so using it in the key keeps
+ * concurrent flows — a second tab, or a second attempt started before the
+ * first finished — from overwriting each other's state.
+ */
+function getOAuthStateKey(state: string): string {
+  return `${OAUTH_STATE_KEY}:${state}`;
+}
+
+/**
  * Stores the OAuth state string in local storage for later validation
  * @param state - The OAuth state string to store
  */
 export function storeOAuthState(state: string) {
-  localStorage.setItem(OAUTH_STATE_KEY, state);
+  localStorage.setItem(getOAuthStateKey(state), state);
+}
+
+/** Clears the stored state for one OAuth attempt without affecting others. */
+export function clearOAuthState(state: string): void {
+  localStorage.removeItem(getOAuthStateKey(state));
+
+  // Also clean up this attempt if it was stored by a version that used the
+  // legacy, unscoped key. Preserve it when it belongs to another attempt.
+  if (localStorage.getItem(OAUTH_STATE_KEY) === state) {
+    localStorage.removeItem(OAUTH_STATE_KEY);
+  }
 }
 
 /**
@@ -130,8 +163,12 @@ export function storeOAuthState(state: string) {
  * @param returnedState - The OAuth state string returned from the provider
  */
 export function consumeOAuthState(returnedState: string) {
+  const key = getOAuthStateKey(returnedState);
   try {
-    const stored = localStorage.getItem(OAUTH_STATE_KEY);
+    // The legacy unscoped key is still read so a redirect that was already in
+    // flight when this version shipped can still complete.
+    const stored =
+      localStorage.getItem(key) ?? localStorage.getItem(OAUTH_STATE_KEY);
 
     if (!stored) {
       throw new TurnkeyError(
@@ -147,6 +184,7 @@ export function consumeOAuthState(returnedState: string) {
       );
     }
   } finally {
+    localStorage.removeItem(key);
     localStorage.removeItem(OAUTH_STATE_KEY);
   }
 }
@@ -157,6 +195,12 @@ export function consumeOAuthState(returnedState: string) {
 export function clearAllOAuthData(): void {
   localStorage.removeItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
   localStorage.removeItem(OAUTH_STATE_KEY);
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const key = localStorage.key(i);
+    if (key?.startsWith(`${OAUTH_STATE_KEY}:`)) {
+      localStorage.removeItem(key);
+    }
+  }
   localStorage.removeItem(OAUTH_CAPTCHA_TOKEN_KEY);
   const pkceProviders: PKCEProvider[] = [
     OAuthProviders.FACEBOOK,
