@@ -1,9 +1,5 @@
 # Example: `with-earn`
 
-> [!NOTE]
-> Turnkey Earn is in **early access**. The APIs are gated and may change; reach
-> out to Turnkey to have it enabled for your organization.
-
 Turnkey Earn end to end with `@turnkey/sdk-server`: deploy a fee wrapper for a
 Morpho vault (one-time, from the parent org), then deposit, poll status, read
 positions, and withdraw (partial or full) from the end-user wallet.
