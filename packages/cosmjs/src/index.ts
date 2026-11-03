@@ -166,6 +166,9 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
 
   // Largely based off `Secp256k1.createSignature(...)`
   // https://github.com/cosmos/cosmjs/blob/e8e65aa0c145616ccb58625c32bffe08b46ff574/packages/crypto/src/secp256k1.ts#L67
+  //
+  // `message` is already the SHA-256 digest of the sign bytes, so it is sent
+  // with `HASH_FUNCTION_NO_OP` and must not be hashed again.
   private async _signImpl(
     message: Uint8Array,
   ): Promise<ExtendedSecp256k1Signature> {
@@ -181,7 +184,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
           signWith: this.signWith,
           payload: messageHex,
           encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-          hashFunction: "HASH_FUNCTION_SHA256",
+          hashFunction: "HASH_FUNCTION_NO_OP",
         },
       });
 
