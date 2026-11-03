@@ -12,7 +12,12 @@ import {
   ChainDisconnectedError,
   Hex,
 } from "viem";
-import { getAddress, getHttpRpcClient, hashTypedData } from "viem/utils";
+import {
+  getAddress,
+  getHttpRpcClient,
+  hashMessage,
+  hashTypedData,
+} from "viem/utils";
 
 import EventEmitter from "events";
 import { preprocessTransaction, validateChain } from "./utils";
@@ -149,7 +154,9 @@ export const createEIP1193Provider = async (
 
           const signedMessage = await signMessage({
             organizationId,
-            message,
+            // `personal_sign` signs the EIP-191 prefixed hash of the message,
+            // never the raw message itself.
+            message: hashMessage({ raw: message }),
             signWith: getAddress(signWith),
             client: turnkeyClient,
           });
@@ -161,7 +168,7 @@ export const createEIP1193Provider = async (
 
           const signedMessage = await signMessage({
             organizationId,
-            message,
+            message: hashMessage({ raw: message }),
             signWith: getAddress(signWith),
             client: turnkeyClient,
           });
