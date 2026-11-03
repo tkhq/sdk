@@ -7,11 +7,20 @@ interface ToggleSwitchProps {
   disabled?: boolean;
   size?: "sm" | "md";
   label?: string;
+  subLabel?: string;
   tooltip?: string;
 }
 
 export function ToggleSwitch(props: ToggleSwitchProps) {
-  const { checked, onChange, size = "md", disabled, label, tooltip } = props;
+  const {
+    checked,
+    onChange,
+    size = "md",
+    disabled,
+    label,
+    subLabel,
+    tooltip,
+  } = props;
   const height = size === "sm" ? "h-4.5" : "h-5.5";
   const width = size === "sm" ? "w-8" : "w-10";
   const knobSize = size === "sm" ? "h-3 w-3" : "h-4 w-4";
@@ -29,7 +38,16 @@ export function ToggleSwitch(props: ToggleSwitchProps) {
         disabled && "opacity-50 cursor-not-allowed",
       )}
     >
-      {label && <span className="text-sm">{label}</span>}
+      {(label || subLabel) && (
+        <div className="flex min-w-0 flex-col pr-3">
+          {label && <span className="text-sm">{label}</span>}
+          {subLabel && (
+            <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
+              {subLabel}
+            </span>
+          )}
+        </div>
+      )}
       <Switch
         checked={checked}
         disabled={disabled ?? false}
