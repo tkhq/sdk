@@ -9,15 +9,15 @@ Fresh user on the final policy code: sub-org
 `b3fac5c5-23a8-459b-a6e2-befcf93996ce`, deposit address
 `0xbe32e9e48d08f2f12e8e9000069dc0dd92b1d7aa`.
 
-| Check                                  | Result                                                                                                                                     |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Enable from the user's session         | Works. The dashboard shows all four checks                                                                                                 |
-| Sub-org shape, read through the API    | One root user (threshold 1), one non-root delegated user, two policies, one interface                                                      |
-| USDC deposit swept with no manual step | 1 USDC: deposit `0x11d4abfc…a9a3ce`, sweep `0x32827dc3…1b7214`. The dashboard shows the hash                                               |
-| ETH deposit swept with no manual step  | 0.0001 ETH: deposit `0x0d041339…4d05e7`, sweep `0xeca3d63b…639541`                                                                         |
-| Sponsorship                            | The deposit address held 0 ETH throughout. Sweeps used `sponsor: true`                                                                     |
-| `pnpm validate`                        | Send to destination allowed; send elsewhere, raw payload and USDC to the wrong recipient denied; USDC to the destination (control) allowed |
-| Withdraw panel                         | **Not yet run.** See Open                                                                                                                  |
+| Check                                  | Result                                                                                                                                                           |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Enable from the user's session         | Works. The dashboard shows all four checks                                                                                                                       |
+| Sub-org shape, read through the API    | One root user (threshold 1), one non-root delegated user, two policies, one interface                                                                            |
+| USDC deposit swept with no manual step | 1 USDC: deposit `0x11d4abfc…a9a3ce`, sweep `0x32827dc3…1b7214`. The dashboard shows the hash                                                                     |
+| ETH deposit swept with no manual step  | 0.0001 ETH: deposit `0x0d041339…4d05e7`, sweep `0xeca3d63b…639541`                                                                                               |
+| Sponsorship                            | The deposit address held 0 ETH throughout. Sweeps used `sponsor: true`                                                                                           |
+| `pnpm validate`                        | Send to destination allowed; send elsewhere, raw payload and USDC to the wrong recipient denied; USDC to the destination (control) allowed                       |
+| Withdraw panel                         | 1 USDC left in place with `SWEEP_ENABLED=false`, then sent to the destination through the panel, signed by the user's session and sponsored: `0xa0b75a01…5e3528` |
 
 ## Scope changes
 
@@ -100,11 +100,10 @@ All are fixed. The mock checks caught none of them.
 
 ## Open
 
-- **Withdraw panel.** Not run yet. It needs a deposit left in place with
-  `SWEEP_ENABLED=false`, and a live session.
-- **`Failed to refresh session`.** The SDK's automatic refresh fails near the end of
-  the 15-minute session, and the user lands on the login page. The message hides the
-  cause. It happens inside the SDK, and this example's part in it was not ruled out.
+- **`Failed to refresh session`.** The SDK's automatic refresh failed in earlier sessions,
+  and the user landed on the login page. It is intermittent: the final session stayed
+  live for about 39 minutes, past the 15-minute default. The message hides the cause.
+  It happens inside the SDK, and this example's part in it was not ruled out.
 - **Passkey re-login.** `Unable to log in with the provided passkey` appeared when a
   test user tried to log back in, and that user had to create a new account. The
   cause is not known. Email login worked.
