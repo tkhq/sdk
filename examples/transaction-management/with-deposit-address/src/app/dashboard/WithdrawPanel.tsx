@@ -5,6 +5,7 @@ import { useTurnkey } from "@turnkey/react-wallet-kit";
 import {
   encodeFunctionData,
   erc20Abi,
+  getAddress,
   formatUnits,
   parseUnits,
   type Address,
@@ -103,7 +104,8 @@ export function WithdrawPanel({
       const sendTransactionStatusId = await ethSendTransaction({
         organizationId: subOrgId,
         transaction: {
-          from: address,
+          // Turnkey matches a signing address case-sensitively.
+          from: getAddress(address),
           caip2: BASE_SEPOLIA_CAIP2,
           sponsor: true,
           calls: [call],
