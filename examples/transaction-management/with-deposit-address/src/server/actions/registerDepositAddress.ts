@@ -1,7 +1,7 @@
 "use server";
 
 import {
-  findSweepPolicies,
+  findSweepDestinations,
   parseAddress,
   parseDestination,
 } from "@/lib/deposit";
@@ -15,7 +15,7 @@ export type RegisterResult = { ok: true } | { ok: false; error: string };
 // so the server checks them with the delegated key before saving: the key must
 // belong to a user in that sub-org, that user must not be root, and the address
 // must be one of the sub-org's wallet accounts. The destination is never taken
-// from the browser. It is read from the one policy the user approved.
+// from the browser. It is read from the two policies the user approved.
 export async function registerDepositAddress(
   subOrgId: string,
   address: string,
@@ -51,18 +51,14 @@ export async function registerDepositAddress(
     }
 
     const { policies } = await client.getPolicies({ organizationId: subOrgId });
-    const sweepPolicies = findSweepPolicies(policies, userId);
-    const [sweepPolicy] = sweepPolicies;
-    if (!sweepPolicy || sweepPolicies.length > 1) {
+    const destinations = findSweepDestinations(policies, userId);
+    if (destinations.length !== 1) {
       return {
         ok: false,
-        error: `Expected one sweep policy, found ${sweepPolicies.length}.`,
+        error: `Expected one sweep destination, found ${destinations.length}.`,
       };
     }
-    const destination = parseDestination(
-      sweepPolicy.destination,
-      depositAddress,
-    );
+    const destination = parseDestination(destinations[0], depositAddress);
     if (!destination.ok) {
       return { ok: false, error: destination.error };
     }

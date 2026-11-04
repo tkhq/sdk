@@ -13,8 +13,8 @@ import {
 import {
   USDC_ADDRESS,
   USDC_INTERFACE,
-  buildSweepPolicy,
-  findSweepPolicies,
+  buildSweepPolicies,
+  findSweepDestinations,
   parseAddress,
   parseDestination,
 } from "@/lib/deposit";
@@ -139,13 +139,13 @@ export default function Dashboard() {
     [org],
   );
 
-  const sweepPolicy = useMemo(() => {
+  const sweepDestination = useMemo(() => {
     if (!delegatedUser || !org) return null;
-    return findSweepPolicies(org.policies, delegatedUser.userId)[0] ?? null;
+    return findSweepDestinations(org.policies, delegatedUser.userId)[0] ?? null;
   }, [delegatedUser, org]);
 
   const enabled = Boolean(
-    delegatedUser && sweepPolicy && org?.hasUsdcInterface,
+    delegatedUser && sweepDestination && org?.hasUsdcInterface,
   );
 
   // Tell the server which sub-org owns the address so the webhook can route
@@ -176,17 +176,16 @@ export default function Dashboard() {
       if (!httpClient || !org) {
         throw new Error("The sub-organization has not loaded yet.");
       }
-      // A policy from an interrupted attempt keeps its destination. Taking a
-      // new one here would leave two policies in the sub-org.
+      // Policies from an interrupted attempt keep their destination. Taking a
+      // new one here would leave extra policies in the sub-org.
       const destination = parseDestination(
-        sweepPolicy?.destination ?? destinationInput,
+        sweepDestination ?? destinationInput,
         depositAddress,
       );
       if (!destination.ok) throw new Error(destination.error);
 
       // Every call is stamped by the user's session, and each is idempotent.
-      // The ABI goes first, so the USDC clause works as soon as the policy
-      // exists.
+      // The ABI goes first, so the USDC policy works as soon as it exists.
       if (!org.hasUsdcInterface) {
         await httpClient.createSmartContractInterface({
           organizationId: subOrgId,
@@ -204,7 +203,7 @@ export default function Dashboard() {
         },
       });
       await fetchOrCreatePolicies({
-        policies: [buildSweepPolicy(daUser.userId, destination.address)],
+        policies: buildSweepPolicies(daUser.userId, destination.address),
       });
 
       await loadOrg();
@@ -253,7 +252,7 @@ export default function Dashboard() {
                 <div className="flex flex-col gap-3">
                   <p className="text-xs sm:text-sm text-gray-600">
                     Enabling adds a non-root API key user to your
-                    sub-organization and one policy that lets it send ETH and
+                    sub-organization and two policies that let it send ETH and
                     USDC only to the destination below. You approve it from your
                     own session and stay the only root user.
                   </p>
@@ -261,9 +260,9 @@ export default function Dashboard() {
                     Destination for your deposits
                     <input
                       type="text"
-                      value={sweepPolicy?.destination ?? destinationInput}
+                      value={sweepDestination ?? destinationInput}
                       onChange={(e) => setDestinationInput(e.target.value)}
-                      disabled={!!sweepPolicy}
+                      disabled={!!sweepDestination}
                       placeholder="0x…"
                       spellCheck={false}
                       className="w-full p-2 border rounded font-mono text-xs font-normal disabled:opacity-60"
@@ -288,7 +287,7 @@ export default function Dashboard() {
                     Send ETH or USDC on <strong>Base Sepolia</strong> to this
                     address. Deposits are swept automatically to{" "}
                     <span className="font-mono break-all">
-                      {sweepPolicy?.destination}
+                      {sweepDestination}
                     </span>
                     .
                   </p>
@@ -382,11 +381,13 @@ export default function Dashboard() {
                     <Check ok={delegatedIsNonRoot}>
                       Delegated user exists and is not root
                     </Check>
-                    <Check ok={org.policies.length === 1 && !!sweepPolicy}>
-                      Exactly one policy, scoped to your destination
+                    <Check ok={org.policies.length === 2 && !!sweepDestination}>
+                      Exactly two policies, ETH and USDC, scoped to your
+                      destination
                     </Check>
                     <Check ok={org.hasUsdcInterface}>
-                      USDC ABI uploaded, so the policy can read the recipient
+                      USDC ABI uploaded, so the USDC policy can read the
+                      recipient
                     </Check>
                   </ul>
 
