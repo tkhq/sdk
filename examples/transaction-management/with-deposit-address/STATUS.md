@@ -1,185 +1,128 @@
 # Status
 
+The live acceptance run was done on Base Sepolia on 2026-11-04, against
+production Turnkey. Results are below, followed by what is still open.
+
+## Results
+
+Fresh user on the final policy code: sub-org
+`b3fac5c5-23a8-459b-a6e2-befcf93996ce`, deposit address
+`0xbe32e9e48d08f2f12e8e9000069dc0dd92b1d7aa`.
+
+| Check                                  | Result                                                                                                                                     |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Enable from the user's session         | Works. The dashboard shows all four checks                                                                                                 |
+| Sub-org shape, read through the API    | One root user (threshold 1), one non-root delegated user, two policies, one interface                                                      |
+| USDC deposit swept with no manual step | 1 USDC: deposit `0x11d4abfc…a9a3ce`, sweep `0x32827dc3…1b7214`. The dashboard shows the hash                                               |
+| ETH deposit swept with no manual step  | 0.0001 ETH: deposit `0x0d041339…4d05e7`, sweep `0xeca3d63b…639541`                                                                         |
+| Sponsorship                            | The deposit address held 0 ETH throughout. Sweeps used `sponsor: true`                                                                     |
+| `pnpm validate`                        | Send to destination allowed; send elsewhere, raw payload and USDC to the wrong recipient denied; USDC to the destination (control) allowed |
+| Withdraw panel                         | **Not yet run.** See Open                                                                                                                  |
+
+## Scope changes
+
+**Two policies instead of one.** The scope asked for one policy. The live run
+showed that cannot work: the engine does not short-circuit a condition
+(`/features/policies/language#evaluation-errors-and-short-circuiting`), so a
+single `eth.tx.to == '<destination>' || (USDC clause)` errors on
+`eth.tx.function_name` for a plain ETH send, and the send is denied with
+`OUTCOME_ERROR`. We chose two policies, one for ETH and one for USDC, over the raw
+calldata check, which would have dropped the decoded-recipient check. Done criterion
+2 therefore reads two policies.
+
+**Walkthrough recording: cut.** None was made. The run was split across several
+users while bugs were fixed, so there is no single take of the whole flow. It can be
+recorded from a fresh login now that the flow works.
+
 ## Decisions from section 4 of the scope
 
 **1. Where does the delegated key live?** In a server-side env var,
 `TURNKEY_DA_PRIVATE_KEY`, as in `with-delegated/client-side`. Only API routes
 and the scripts read it. The public half is `NEXT_PUBLIC_DA_PUBLIC_KEY`,
 because the browser needs it to create the delegated user from the user's
-session. The base example kept the public key in two variables; this one uses
-one, since a public key is not secret.
+session.
 
-**2. ERC-20 policy condition.** Changed by the scope update below. The policy
-now reads the decoded recipient, using the ERC-20 ABI uploaded as a smart contract
-interface (`/features/policies/smart-contract-interfaces`,
-`/features/policies/language`):
+**2. ERC-20 policy condition.** The USDC policy reads the decoded recipient, using
+an ABI uploaded as a smart contract interface:
 
 ```
-eth.tx.to == '<destination>' ||
-(eth.tx.to == '<usdc>' && eth.tx.function_name == 'transfer' &&
- (eth.tx.contract_call_args['recipient'] == '<destination, lowercase>' ||
-  eth.tx.contract_call_args['recipient'] == '<destination, checksummed>'))
+eth.tx.to == '<usdc, lowercase>' && eth.tx.function_name == 'transfer' &&
+eth.tx.contract_call_args['recipient'] == '<destination, checksummed>'
 ```
 
-`recipient` is the argument name in viem's `erc20Abi`, which is the ABI uploaded.
-A parent-org upload does not count, as `with-scoped-deposit-session` records, so
-Enable uploads it into each sub-org, stamped by the user's session.
+The ETH policy is `eth.tx.to == '<destination, lowercase>'`. The run settled the
+casing: `eth.tx.to` matches lowercase, and the decoded argument matches the
+checksummed spelling, on both signing and sponsored V2 sends. The raw calldata
+fallback was not needed.
 
-The docs do not say how a decoded address is cased, and their one literal example
-is mixed-case, so the clause accepts both spellings of the same address. Both name
-one address, so this widens nothing. The live run should show which is needed;
-the other can then be removed.
+Only `transfer` is uploaded, because Turnkey rejects viem's full `erc20Abi` with
+`provided ABI is invalid`. The run did not show which part it objects to. A
+parent-org upload does not count, so Enable uploads the ABI into each sub-org,
+stamped by the user's session.
 
-**Fallback, not used so far:** the raw calldata check
-(`eth.tx.data[0..10] == '0xa9059cbb' && eth.tx.data[34..74] == '<destination
-without 0x>'`). It replaces the ABI clause if the live run shows the ABI path does
-not work, and that switch will be recorded here.
+The policies do not pin the chain, because the docs do not say
+`eth.tx.chain_id` is populated for sponsored V2 sends. The key can only ever pay
+the user's destination, on any chain.
 
-Addresses in `eth.tx.to` are lowercase, following `with-agent-wallet`. The
-policy does not pin the chain (`eth.tx.chain_id`), because the docs do not say
-it is populated for sponsored `ETH_SEND_TRANSACTION_V2` activities. The key can
-only ever pay the user's destination, on any chain.
+**3. Gas sponsorship on Base Sepolia.** Works. The sweep always sends with
+`sponsor: true` and fails closed: an error is logged, the UI shows `failed`, and
+nothing is retried.
 
-**3. Gas sponsorship on Base Sepolia.** Base Sepolia (`eip155:84532`) is on the
-sponsored-chain list in `/features/transaction-management/broadcasting`.
-Whether a given org has Gas Sponsorship turned on is a dashboard setting the
-docs cannot answer. **Fallback chosen:** the sweep always sends with
-`sponsor: true` and fails closed. If sponsorship is off, the send fails, the
-server logs the error, the UI shows the sweep as failed, and nothing is
-retried. The README lists this under common failures.
+**4. Webhook signature verification.** Keys come from the public JWKS, matched on
+`kid`. `verifyTurnkeyWebhookSignature` from `@turnkey/crypto` does the check and
+returns the event id used for de-duplication. Real deliveries verified, and unsigned
+posts got a 401.
 
-**4. Webhook signature verification.** Answered by
-`/features/webhooks/verify-signatures`. Keys come from the public JWKS at
-`https://api.turnkey.com/public/v1/discovery/webhooks/jwks`, matched on `kid`
-against `X-Turnkey-Signature-Key-Id`. The signed input is
-`v1.ed25519.<key_id>.<timestamp_ms>.<event_id>.<raw_body>`, and the headers
-are `X-Turnkey-Timestamp`, `X-Turnkey-Event-Id`,
-`X-Turnkey-Signature-Algorithm`, `X-Turnkey-Signature-Version` and
-`X-Turnkey-Signature`. `verifyTurnkeyWebhookSignature` from `@turnkey/crypto`
-does the check and returns the verified event id, which is the de-duplication
-key (`X-Turnkey-Event-Id` is stable across retries).
+## Bugs the live run found
 
-## Scope update: what changed after Mesh's questions
+All are fixed. The mock checks caught none of them.
 
-| #   | Change                                                                                                | Code | Checked live |
-| --- | ----------------------------------------------------------------------------------------------------- | ---- | ------------ |
-| 1   | Per-user destination, entered at Enable, approved in the user's session, with an optional env default | Done | No           |
-| 2   | ERC-20 ABI uploaded at Enable; the USDC clause checks the decoded recipient                           | Done | No           |
-| 3   | Fourth `pnpm validate` check: USDC `transfer` to the wrong recipient is denied                        | Done | No           |
-| 4   | README section, "What the policy can and can't see"                                                   | Done | n/a          |
-| 5   | README note on login for a platform with no login of its own                                          | Done | n/a          |
+| Bug                                                  | Effect                                    | Fix                                                         |
+| ---------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------- |
+| Full `erc20Abi` rejected                             | Enable failed at its first step           | Upload only `transfer`                                      |
+| Lowercase address passed to `signWith` and `from`    | Every sweep and withdrawal would fail     | Sign with the checksummed address                           |
+| `pnpm validate` counted any error as denied          | The first run's denials were false passes | Only `PolicyEnginePermissionError` counts as denied         |
+| One policy with `\|\|`                               | ETH sweeps denied                         | Two policies                                                |
+| Dashboard redirected before the session was restored | Any reload landed on the login page       | Wait for `ClientState.Ready`; home redirects when logged in |
+| Lockfile pointed at a `viem` entry removed on `main` | CI failed at `pnpm install`               | Merged `main` and repointed the entry                       |
 
-Three additions the update did not ask for:
+## Assumptions from the earlier draft
 
-- **Refused destinations.** The zero address, the deposit address and the USDC
-  contract are rejected. A destination is now user input, and the policy allows
-  any call to it, so naming the USDC contract would give the key `approve`, and
-  `transfer` to anyone. Naming the deposit address would sweep deposits into a
-  loop that spends gas sponsorship. The server repeats this check on the policy.
-- **A control beside the four checks.** `pnpm validate` also expects USDC to the
-  right recipient to be allowed. Without it, a missing ABI would deny every USDC
-  call and check 4 would pass for the wrong reason.
-- **Light theme only.** The dark-mode color rule is removed. Every panel is a
-  white card, so inherited light text, including the deposit address and typed
-  input, could not be read. It also made the login text unreadable.
+| Assumption                                                | Result                                   |
+| --------------------------------------------------------- | ---------------------------------------- |
+| Lowercase `eth.tx.to` matches on sponsored V2 sends       | Confirmed                                |
+| Webhook `organizationId` is the owning sub-org            | Confirmed                                |
+| ETH CAIP-19 is `eip155:84532/slip44:60`                   | Confirmed by the ETH sweep               |
+| Stored policies are returned verbatim                     | Confirmed. The dashboard recognizes them |
+| Decoded recipient matches, on signing and on sponsored V2 | Confirmed, checksummed spelling only     |
+| A user session can upload an interface                    | Confirmed                                |
+| The delegated key can read policies and interfaces        | Confirmed                                |
 
-The server reads each destination from the user's policy, not from the browser,
-so a forged request cannot point a registration at another address.
+## Open
 
-## Progress
+- **Withdraw panel.** Not run yet. It needs a deposit left in place with
+  `SWEEP_ENABLED=false`, and a live session.
+- **`Failed to refresh session`.** The SDK's automatic refresh fails near the end of
+  the 15-minute session, and the user lands on the login page. The message hides the
+  cause. It happens inside the SDK, and this example's part in it was not ruled out.
+- **Passkey re-login.** `Unable to log in with the provided passkey` appeared when a
+  test user tried to log back in, and that user had to create a new account. The
+  cause is not known. Email login worked.
+- **A live duplicate delivery was never seen.** De-duplication has only been checked
+  offline. Each sweep is followed by a second delivery that returns 200 with
+  `not a confirmed deposit`, probably the outgoing balance change.
 
-| Day | Slice                                        | Code | Checked live |
-| --- | -------------------------------------------- | ---- | ------------ |
-| 1   | Copy base, enable button, policy, QR code    | Done | No           |
-| 2   | Webhook registration, verified webhook route | Done | No           |
-| 3   | Sponsored sweep, de-duplication              | Done | No           |
-| 4   | User-signed withdraw, `pnpm validate`        | Done | No           |
-| 5   | README, PR                                   | Done | n/a          |
+## How this was checked
 
-`pnpm typecheck`, prettier and `next build` are clean. Nothing has been run
-against live Turnkey or Base Sepolia yet; see Blocked. The "Checked offline" notes
-below are mock runs: they test this code, not the real policy engine.
-
-## What is built, and how it was checked
-
-- **Enable.** "Enable deposit address" takes the user's destination, uploads the
-  USDC ABI, and creates the delegated user (`fetchOrCreateP256ApiKeyUser`) and its
-  one policy (`fetchOrCreatePolicies`), all stamped by the user's session. `createUsers` never touches the root
-  quorum (read in `packages/core/src/__clients__/core.ts`). The dashboard
-  shows the address and a QR code and checks live that the user is the sole
-  root, the delegated user is not root, there is exactly one policy, and the ABI
-  is uploaded. _Checked: typecheck and build only._ Destination rules and policy
-  recognition _checked offline_.
-- **Registration.** Before recording an address, the server confirms with the
-  delegated key that the key's user is in the sub-org, is not root, and owns
-  the address, then reads the destination from the one sweep policy. _Checked
-  offline_ against a mock API: no policy, two policies, and a policy naming USDC
-  are all refused.
-- **Webhook.** `pnpm register-webhook` subscribes the parent org's
-  `BALANCE_CONFIRMED_UPDATES`, reusing an existing subscription. The route
-  verifies the signature against the JWKS, drops repeated event ids, and maps
-  the address to its sub-org. _Checked offline_ with a local JWKS and
-  Ed25519-signed deliveries: valid (200, logged with sub-org), repeated event
-  id (ignored), tampered body (401), stale timestamp (401), unsigned (401),
-  unknown address (ignored), sub-org mismatch (ignored, not swept).
-- **Sweep.** Reads the balance, then sends all of it to the user's destination from the
-  deposit address with `sponsor: true`, signed by the delegated key. Sweeps
-  per address run in order; failures are logged and never retried. _Checked
-  offline_ against a mock Turnkey API: the request is
-  `ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2` with `sponsor: true` on
-  `eip155:84532`, the USDC call decodes to `transfer` with the user's destination
-  as recipient (rerun after the scope update), a repeated event id sends nothing, and both denial shapes (HTTP 403, and an activity that
-  ends `REJECTED`) record `failed` after one attempt with no retry.
-- **Withdraw.** The user's own session calls `ethSendTransaction` (sponsored)
-  and `pollTransactionStatus`. _Checked: typecheck only._
-- **Validate.** `pnpm validate` checks that the key authenticates and is not
-  root, and the sub-org holds the USDC ABI, then signs (never broadcasts): ETH to the
-  destination, ETH elsewhere, a raw payload, USDC to the wrong recipient, and USDC
-  to the destination as a control. The first four are the required allowed,
-  denied, denied, denied. _Checked offline_ against a mock that decodes each
-  transaction the way the policy should. This tests the script, not the engine.
-
-## Blocked
-
-**The live acceptance run.** It needs things this session does not have:
-
-- an org with Auth Proxy and Gas Sponsorship on, its config ID, and a parent
-  API key;
-- a browser login as a fresh user (passkey or email OTP);
-- a public `https` tunnel (neither `ngrok` nor `cloudflared` is installed);
-- 1 USDC on Base Sepolia from the Circle faucet.
-
-Until that run, these assumptions are unverified. Each fails closed if wrong:
-
-1. The policy engine matches lowercase addresses in `eth.tx.to` for sponsored V2
-   sends (taken from `with-agent-wallet`). If wrong, `pnpm validate` shows the
-   send to the destination as denied.
-2. The webhook payload's `organizationId` is the sub-org that owns the address,
-   as the webhooks doc states. If wrong, every sweep logs a sub-org mismatch.
-3. Native ETH on Base Sepolia has CAIP-19 `eip155:84532/slip44:60`. If wrong,
-   ETH deposits log `not swept` (USDC is matched on its contract address).
-4. Turnkey returns a stored policy's `condition` and `consensus` exactly as
-   submitted, so the dashboard recognizes it. If not, the dashboard keeps
-   showing the Enable button; clicking it is harmless.
-
-5. `eth.tx.contract_call_args['recipient']` equals one of the two spellings in
-   the policy, for both signing and sponsored V2 sends. `function_name` on V2
-   sends was checked live in `atomic-batch-with-aave`; decoded address arguments
-   were not. If wrong, the USDC control shows as denied and USDC sweeps fail; the
-   raw calldata fallback applies.
-6. A user's session can upload an interface into their own sub-org. If not,
-   Enable shows the error and creates nothing further.
-7. The delegated key can read policies and interfaces in the sub-org. If not,
-   registration and `pnpm validate` fail with that error, and nothing is swept.
+The live results are above. The mock harness (13 checks against a mock API,
+including refusing a sub-org with no policies, one of the pair, an altered policy,
+two destinations or a policy naming USDC) passes on the two-policy code. It tests
+this code, not the real policy engine. It is not part of this PR.
 
 ## Reproduce
 
+See "Getting started" in the README, then:
+
 ```bash
-cd examples/transaction-management/with-deposit-address
-cp .env.local.example .env.local   # fill in every value; see README
-pnpm dev                           # terminal 1
-ngrok http 3000                    # terminal 2; set WEBHOOK_URL from it
-pnpm register-webhook              # once
-# browser: log in, enter a destination, Enable, send 1 USDC on Base Sepolia to the address
-pnpm validate                      # expect allowed, denied, denied, denied (+ control)
+pnpm validate    # allowed, denied, denied, denied, plus an allowed control
 ```
