@@ -160,20 +160,25 @@ async function main() {
         }),
     },
     {
-      label: "USDC transfer to destination",
-      expect: "allowed",
-      run: sign(unsignedTx(USDC_ADDRESS, usdcTransfer(destination))),
-    },
-    {
-      label: "USDC transfer elsewhere",
+      label: `USDC transfer to wrong recipient ${elsewhere}`,
       expect: "denied",
       run: sign(unsignedTx(USDC_ADDRESS, usdcTransfer(elsewhere))),
+    },
+    {
+      label: `USDC transfer to destination ${destination}`,
+      expect: "allowed",
+      run: sign(unsignedTx(USDC_ADDRESS, usdcTransfer(destination))),
     },
   ];
 
   let failures = 0;
   for (const [i, check] of checks.entries()) {
-    if (i === 3) console.log("\nUSDC branch of the same policy:");
+    if (i === 4) {
+      console.log(
+        "\nControl: the same USDC call to the right recipient must pass, or the",
+      );
+      console.log("denial above says nothing about the recipient check.");
+    }
     const { outcome, reason } = await attempt(check.run);
     const ok = outcome === check.expect;
     if (!ok) failures += 1;
