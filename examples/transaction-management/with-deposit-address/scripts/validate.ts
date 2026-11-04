@@ -1,0 +1,212 @@
+import * as path from "path";
+import * as dotenv from "dotenv";
+import {
+  encodeFunctionData,
+  erc20Abi,
+  getAddress,
+  parseGwei,
+  serializeTransaction,
+  type Address,
+} from "viem";
+import {
+  BASE_SEPOLIA_CHAIN_ID,
+  USDC_ADDRESS,
+  parseAddress,
+} from "@/lib/deposit";
+import {
+  findDepositAddress,
+  listDepositAddresses,
+  type DepositAddressEntry,
+} from "@/server/registry";
+import { delegatedClient, type DelegatedClient } from "@/server/turnkey";
+
+// The server modules read env lazily, so loading it here is early enough.
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+
+// Asks Turnkey to sign with the delegated key and reports what the policy
+// engine allows. Nothing is broadcast: transactions are only signed.
+//
+//   pnpm validate             uses the most recently enabled deposit address
+//   pnpm validate 0xabc...    uses that deposit address
+
+const DEAD_ADDRESS: Address = "0x000000000000000000000000000000000000dead";
+const BEEF_ADDRESS: Address = "0x000000000000000000000000000000000000beef";
+
+type Outcome = "allowed" | "denied" | "error";
+type Activity = { activity: { status: string; id: string } };
+type Check = { label: string; expect: Outcome; run: () => Promise<Activity> };
+
+function unsignedTx(to: Address, data?: `0x${string}`) {
+  return serializeTransaction({
+    type: "eip1559",
+    chainId: BASE_SEPOLIA_CHAIN_ID,
+    nonce: 0,
+    to,
+    value: data ? BigInt(0) : BigInt(1),
+    data,
+    gas: BigInt(100_000),
+    maxFeePerGas: parseGwei("1"),
+    maxPriorityFeePerGas: parseGwei("1"),
+  });
+}
+
+function usdcTransfer(to: Address) {
+  return encodeFunctionData({
+    abi: erc20Abi,
+    functionName: "transfer",
+    args: [to, BigInt(1)],
+  });
+}
+
+async function attempt(
+  run: () => Promise<Activity>,
+): Promise<{ outcome: Outcome; reason: string }> {
+  try {
+    const { activity } = await run();
+    return activity.status === "ACTIVITY_STATUS_COMPLETED"
+      ? { outcome: "allowed", reason: "" }
+      : { outcome: "denied", reason: `activity ${activity.status}` };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    // Only the policy engine's own error counts as a denial. Anything else,
+    // such as an unknown signing address, never reached the policy, and calling
+    // it "denied" would pass the check for the wrong reason.
+    if (!message.includes("PolicyEnginePermissionError")) {
+      return { outcome: "error", reason: message };
+    }
+    const engine = message.match(/"outcome":"(\w+)"/)?.[1];
+    return { outcome: "denied", reason: `policy engine: ${engine ?? message}` };
+  }
+}
+
+async function target(arg: string | undefined): Promise<DepositAddressEntry> {
+  if (arg) {
+    const entry = await findDepositAddress(arg);
+    if (!entry) throw new Error(`${arg} is not in data/deposit-addresses.json`);
+    return entry;
+  }
+  const [latest] = await listDepositAddresses();
+  if (!latest) {
+    throw new Error(
+      "No enabled deposit address yet. Log in, click Enable, then rerun.",
+    );
+  }
+  return latest;
+}
+
+// Without this, a wrong key or sub-org id would look like "denied" and the
+// run would pass for the wrong reason.
+async function preflight(client: DelegatedClient, entry: DepositAddressEntry) {
+  const { userId } = await client.getWhoami({
+    organizationId: entry.subOrgId,
+  });
+  const { configs } = await client.getOrganizationConfigs({
+    organizationId: entry.subOrgId,
+  });
+  if (configs.quorum?.userIds.includes(userId)) {
+    throw new Error(`Delegated user ${userId} is root. Stop and fix this.`);
+  }
+  // Without the ABI every USDC call is denied, including the one to the wrong
+  // recipient, which would prove nothing about the recipient check.
+  const { smartContractInterfaces } = await client.getSmartContractInterfaces({
+    organizationId: entry.subOrgId,
+  });
+  if (
+    !smartContractInterfaces.some(
+      (i) => parseAddress(i.smartContractAddress) === USDC_ADDRESS,
+    )
+  ) {
+    throw new Error("The USDC ABI is not in this sub-org. Click Enable again.");
+  }
+  return userId;
+}
+
+async function main() {
+  const entry = await target(process.argv[2]);
+  const destination = entry.destination;
+  const elsewhere: Address =
+    destination === DEAD_ADDRESS ? BEEF_ADDRESS : DEAD_ADDRESS;
+  const client = delegatedClient(entry.subOrgId);
+
+  console.log(`Deposit address: ${entry.address}`);
+  console.log(`Sub-org:         ${entry.subOrgId}`);
+  console.log(`Destination:     ${destination}`);
+  const userId = await preflight(client, entry);
+  console.log(`Delegated user:  ${userId} (authenticated, not root)\n`);
+
+  // The registry keeps addresses lowercase for lookups, but Turnkey matches a
+  // signing address case-sensitively.
+  const signWith = getAddress(entry.address);
+  const sign = (unsignedTransaction: string) => () =>
+    client.signTransaction({
+      organizationId: entry.subOrgId,
+      signWith,
+      type: "TRANSACTION_TYPE_ETHEREUM",
+      unsignedTransaction,
+    });
+
+  const checks: Check[] = [
+    {
+      label: `Send to destination ${destination}`,
+      expect: "allowed",
+      run: sign(unsignedTx(destination)),
+    },
+    {
+      label: `Send elsewhere ${elsewhere}`,
+      expect: "denied",
+      run: sign(unsignedTx(elsewhere)),
+    },
+    {
+      label: "Sign a raw payload",
+      expect: "denied",
+      run: () =>
+        client.signRawPayload({
+          organizationId: entry.subOrgId,
+          signWith,
+          payload: "deposit address validate",
+          encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+          hashFunction: "HASH_FUNCTION_KECCAK256",
+        }),
+    },
+    {
+      label: `USDC transfer to wrong recipient ${elsewhere}`,
+      expect: "denied",
+      run: sign(unsignedTx(USDC_ADDRESS, usdcTransfer(elsewhere))),
+    },
+    {
+      label: `USDC transfer to destination ${destination}`,
+      expect: "allowed",
+      run: sign(unsignedTx(USDC_ADDRESS, usdcTransfer(destination))),
+    },
+  ];
+
+  let failures = 0;
+  for (const [i, check] of checks.entries()) {
+    if (i === 4) {
+      console.log(
+        "\nControl: the same USDC call to the right recipient must pass, or the",
+      );
+      console.log("denial above says nothing about the recipient check.");
+    }
+    const { outcome, reason } = await attempt(check.run);
+    const ok = outcome === check.expect;
+    if (!ok) failures += 1;
+    console.log(
+      `${ok ? "✓" : "✗"} ${check.label}: ${outcome}` +
+        (ok ? "" : ` (expected ${check.expect})`),
+    );
+    if (reason) console.log(`    ${reason}`);
+  }
+
+  console.log(
+    failures === 0
+      ? "\nAll checks match the policy."
+      : `\n${failures} check(s) did not match.`,
+  );
+  process.exit(failures === 0 ? 0 : 1);
+}
+
+main().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : error);
+  process.exit(1);
+});
