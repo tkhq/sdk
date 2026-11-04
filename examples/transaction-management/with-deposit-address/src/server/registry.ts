@@ -3,8 +3,8 @@ import * as path from "path";
 import type { Address } from "viem";
 import { parseAddress } from "@/lib/deposit";
 
-// Maps each enabled deposit address to its sub-organization. A JSON file is
-// enough for the demo; use a database in production.
+// Maps each enabled deposit address to its sub-organization and destination.
+// A JSON file is enough for the demo; use a database in production.
 const REGISTRY_PATH = path.resolve(
   process.cwd(),
   "data/deposit-addresses.json",
@@ -13,6 +13,7 @@ const REGISTRY_PATH = path.resolve(
 export type DepositAddressEntry = {
   address: Address;
   subOrgId: string;
+  destination: Address;
   delegatedUserId: string;
   registeredAt: string;
 };
@@ -28,6 +29,9 @@ function isEntry(v: unknown): v is DepositAddressEntry {
     parseAddress(v.address) === v.address &&
     "subOrgId" in v &&
     typeof v.subOrgId === "string" &&
+    "destination" in v &&
+    typeof v.destination === "string" &&
+    parseAddress(v.destination) === v.destination &&
     "delegatedUserId" in v &&
     typeof v.delegatedUserId === "string" &&
     "registeredAt" in v &&

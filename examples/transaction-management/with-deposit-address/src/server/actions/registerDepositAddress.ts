@@ -1,16 +1,21 @@
 "use server";
 
-import { parseAddress } from "@/lib/deposit";
+import {
+  findSweepPolicies,
+  parseAddress,
+  parseDestination,
+} from "@/lib/deposit";
 import { saveDepositAddress } from "@/server/registry";
 import { delegatedClient } from "@/server/turnkey";
 
 export type RegisterResult = { ok: true } | { ok: false; error: string };
 
-// Records which sub-organization owns a deposit address, so the webhook can
-// find it. The browser supplies both values, so the server checks them with
-// the delegated key before saving: the key must belong to a user in that
-// sub-org, that user must not be root, and the address must be one of the
-// sub-org's wallet accounts.
+// Records which sub-organization owns a deposit address and where its sweeps
+// go, so the webhook can act on it. The browser supplies the first two values,
+// so the server checks them with the delegated key before saving: the key must
+// belong to a user in that sub-org, that user must not be root, and the address
+// must be one of the sub-org's wallet accounts. The destination is never taken
+// from the browser. It is read from the one policy the user approved.
 export async function registerDepositAddress(
   subOrgId: string,
   address: string,
@@ -45,13 +50,33 @@ export async function registerDepositAddress(
       return { ok: false, error: "Address is not in this sub-organization." };
     }
 
+    const { policies } = await client.getPolicies({ organizationId: subOrgId });
+    const sweepPolicies = findSweepPolicies(policies, userId);
+    const [sweepPolicy] = sweepPolicies;
+    if (!sweepPolicy || sweepPolicies.length > 1) {
+      return {
+        ok: false,
+        error: `Expected one sweep policy, found ${sweepPolicies.length}.`,
+      };
+    }
+    const destination = parseDestination(
+      sweepPolicy.destination,
+      depositAddress,
+    );
+    if (!destination.ok) {
+      return { ok: false, error: destination.error };
+    }
+
     await saveDepositAddress({
       address: depositAddress,
       subOrgId,
+      destination: destination.address,
       delegatedUserId: userId,
       registeredAt: new Date().toISOString(),
     });
-    console.log(`[register] ${depositAddress} -> sub-org ${subOrgId}`);
+    console.log(
+      `[register] ${depositAddress} -> sub-org ${subOrgId}, sweeps to ${destination.address}`,
+    );
     return { ok: true };
   } catch (e) {
     const error = e instanceof Error ? e.message : "Registration failed.";

@@ -1,6 +1,3 @@
-import type { Address } from "viem";
-import { parseAddress } from "@/lib/deposit";
-
 // Server-side configuration. Each getter throws with the variable name, so a
 // missing value shows up in the server log instead of as a vague API error.
 
@@ -26,13 +23,6 @@ export const serverEnv = {
   },
   get daPrivateKey() {
     return requireEnv("TURNKEY_DA_PRIVATE_KEY");
-  },
-  get treasury(): Address {
-    const treasury = parseAddress(requireEnv("NEXT_PUBLIC_TREASURY_ADDRESS"));
-    if (!treasury) {
-      throw new Error("NEXT_PUBLIC_TREASURY_ADDRESS is not a valid address.");
-    }
-    return treasury;
   },
   get sweepEnabled() {
     return process.env.SWEEP_ENABLED?.trim() !== "false";

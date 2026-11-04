@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { useTurnkey, AuthState, WalletSource } from "@turnkey/react-wallet-kit";
 
-import { buildSweepPolicy, parseAddress } from "@/lib/deposit";
+import {
+  buildSweepPolicy,
+  findSweepPolicies,
+  parseAddress,
+  parseDestination,
+} from "@/lib/deposit";
 import { SweepHistory } from "./SweepHistory";
 import { WithdrawPanel } from "./WithdrawPanel";
 import {
@@ -14,7 +19,9 @@ import {
 } from "@/server/actions/registerDepositAddress";
 
 const DA_PUBLIC_KEY = process.env.NEXT_PUBLIC_DA_PUBLIC_KEY?.trim() ?? "";
-const TREASURY = parseAddress(process.env.NEXT_PUBLIC_TREASURY_ADDRESS);
+// Optional. Only pre-fills the destination field, to make testing easier.
+const DEFAULT_DESTINATION =
+  process.env.NEXT_PUBLIC_DEFAULT_DESTINATION_ADDRESS?.trim() ?? "";
 
 // The fields of the sub-organization this page reads.
 type OrgUser = {
@@ -56,6 +63,7 @@ export default function Dashboard() {
   const [orgError, setOrgError] = useState<string | null>(null);
   const [enabling, setEnabling] = useState(false);
   const [enableError, setEnableError] = useState<string | null>(null);
+  const [destinationInput, setDestinationInput] = useState(DEFAULT_DESTINATION);
 
   useEffect(() => {
     if (authState === AuthState.Unauthenticated) {
@@ -113,15 +121,8 @@ export default function Dashboard() {
   );
 
   const sweepPolicy = useMemo(() => {
-    if (!delegatedUser || !TREASURY || !org) return null;
-    const expected = buildSweepPolicy(delegatedUser.userId, TREASURY);
-    return (
-      org.policies.find(
-        (p) =>
-          p.condition === expected.condition &&
-          p.consensus === expected.consensus,
-      ) ?? null
-    );
+    if (!delegatedUser || !org) return null;
+    return findSweepPolicies(org.policies, delegatedUser.userId)[0] ?? null;
   }, [delegatedUser, org]);
 
   const enabled = Boolean(delegatedUser && sweepPolicy);
@@ -148,12 +149,16 @@ export default function Dashboard() {
       if (!DA_PUBLIC_KEY) {
         throw new Error("NEXT_PUBLIC_DA_PUBLIC_KEY is not set.");
       }
-      if (!TREASURY) {
-        throw new Error("NEXT_PUBLIC_TREASURY_ADDRESS is missing or invalid.");
-      }
-      if (!depositAddress) {
+      if (!depositAddress || !subOrgId) {
         throw new Error("No embedded Ethereum account found for this user.");
       }
+      // A policy from an interrupted attempt keeps its destination. Taking a
+      // new one here would leave two policies in the sub-org.
+      const destination = parseDestination(
+        sweepPolicy?.destination ?? destinationInput,
+        depositAddress,
+      );
+      if (!destination.ok) throw new Error(destination.error);
 
       // Both calls are stamped by the user's session, and both are idempotent.
       // `createUsers` never adds a user to the root quorum, so the delegated
@@ -166,7 +171,7 @@ export default function Dashboard() {
         },
       });
       await fetchOrCreatePolicies({
-        policies: [buildSweepPolicy(daUser.userId, TREASURY)],
+        policies: [buildSweepPolicy(daUser.userId, destination.address)],
       });
 
       await loadOrg();
@@ -216,10 +221,21 @@ export default function Dashboard() {
                   <p className="text-xs sm:text-sm text-gray-600">
                     Enabling adds a non-root API key user to your
                     sub-organization and one policy that lets it send ETH and
-                    USDC only to the treasury{" "}
-                    <span className="font-mono break-all">{TREASURY}</span>. You
-                    stay the only root user.
+                    USDC only to the destination below. You approve it from your
+                    own session and stay the only root user.
                   </p>
+                  <label className="flex flex-col gap-1 text-xs font-medium text-gray-700">
+                    Destination for your deposits
+                    <input
+                      type="text"
+                      value={sweepPolicy?.destination ?? destinationInput}
+                      onChange={(e) => setDestinationInput(e.target.value)}
+                      disabled={!!sweepPolicy}
+                      placeholder="0x…"
+                      spellCheck={false}
+                      className="w-full p-2 border rounded font-mono text-xs font-normal disabled:opacity-60"
+                    />
+                  </label>
                   <div>
                     <button
                       type="button"
@@ -237,7 +253,11 @@ export default function Dashboard() {
                 <div className="flex flex-col items-start gap-3">
                   <p className="text-xs sm:text-sm text-gray-600">
                     Send ETH or USDC on <strong>Base Sepolia</strong> to this
-                    address. Deposits are swept to the treasury automatically.
+                    address. Deposits are swept automatically to{" "}
+                    <span className="font-mono break-all">
+                      {sweepPolicy?.destination}
+                    </span>
+                    .
                   </p>
                   <div className="rounded border border-gray-200 bg-white p-3">
                     <QRCodeSVG value={depositAddress} size={168} />
@@ -271,7 +291,7 @@ export default function Dashboard() {
             {enabled && depositAddress && (
               <section className="rounded-xl border border-gray-200 bg-white p-4 lg:p-5 shadow-sm">
                 <h2 className="text-sm lg:text-base font-semibold text-gray-700 mb-3">
-                  Sweeps to treasury
+                  Sweeps to your destination
                 </h2>
                 <SweepHistory address={depositAddress} />
               </section>
@@ -330,7 +350,7 @@ export default function Dashboard() {
                       Delegated user exists and is not root
                     </Check>
                     <Check ok={org.policies.length === 1 && !!sweepPolicy}>
-                      Exactly one policy, scoped to the treasury
+                      Exactly one policy, scoped to your destination
                     </Check>
                   </ul>
 

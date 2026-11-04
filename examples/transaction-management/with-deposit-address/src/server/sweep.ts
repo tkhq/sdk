@@ -5,7 +5,6 @@ import {
   sweepAssetOf,
   type SweepAsset,
 } from "@/lib/deposit";
-import { serverEnv } from "@/server/env";
 import type { DepositAddressEntry } from "@/server/registry";
 import { delegatedClient, type DelegatedClient } from "@/server/turnkey";
 
@@ -90,7 +89,7 @@ async function runSweep(record: SweepRecord, entry: DepositAddressEntry) {
   const tag = `[sweep] ${record.eventId} ${record.asset} ${entry.address}`;
   try {
     const client = delegatedClient(entry.subOrgId);
-    const treasury = serverEnv.treasury;
+    const destination = entry.destination;
 
     const amount = await readBalance(client, entry, record.asset);
     if (amount <= BigInt(0)) {
@@ -102,18 +101,18 @@ async function runSweep(record: SweepRecord, entry: DepositAddressEntry) {
     // The only two calls the delegated policy allows.
     const call =
       record.asset === "ETH"
-        ? { to: treasury, value: amount.toString() }
+        ? { to: destination, value: amount.toString() }
         : {
             to: USDC_ADDRESS,
             value: "0",
             data: encodeFunctionData({
               abi: erc20Abi,
               functionName: "transfer",
-              args: [treasury, amount],
+              args: [destination, amount],
             }),
           };
 
-    console.log(`${tag} sending ${amount} to ${treasury} (sponsored)`);
+    console.log(`${tag} sending ${amount} to ${destination} (sponsored)`);
     const res = await client.ethSendTransaction({
       organizationId: entry.subOrgId,
       from: entry.address,

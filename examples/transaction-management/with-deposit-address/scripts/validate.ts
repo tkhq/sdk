@@ -7,12 +7,7 @@ import {
   serializeTransaction,
   type Address,
 } from "viem";
-import {
-  BASE_SEPOLIA_CHAIN_ID,
-  USDC_ADDRESS,
-  parseAddress,
-} from "@/lib/deposit";
-import { serverEnv } from "@/server/env";
+import { BASE_SEPOLIA_CHAIN_ID, USDC_ADDRESS } from "@/lib/deposit";
 import {
   findDepositAddress,
   listDepositAddresses,
@@ -28,6 +23,9 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 //
 //   pnpm validate             uses the most recently enabled deposit address
 //   pnpm validate 0xabc...    uses that deposit address
+
+const DEAD_ADDRESS: Address = "0x000000000000000000000000000000000000dead";
+const BEEF_ADDRESS: Address = "0x000000000000000000000000000000000000beef";
 
 type Outcome = "allowed" | "denied";
 type Activity = { activity: { status: string; id: string } };
@@ -103,13 +101,14 @@ async function preflight(client: DelegatedClient, entry: DepositAddressEntry) {
 
 async function main() {
   const entry = await target(process.argv[2]);
-  const treasury = serverEnv.treasury;
-  const elsewhere =
-    parseAddress("0x000000000000000000000000000000000000dEaD") ?? treasury;
+  const destination = entry.destination;
+  const elsewhere: Address =
+    destination === DEAD_ADDRESS ? BEEF_ADDRESS : DEAD_ADDRESS;
   const client = delegatedClient(entry.subOrgId);
 
   console.log(`Deposit address: ${entry.address}`);
   console.log(`Sub-org:         ${entry.subOrgId}`);
+  console.log(`Destination:     ${destination}`);
   const userId = await preflight(client, entry);
   console.log(`Delegated user:  ${userId} (authenticated, not root)\n`);
 
@@ -123,9 +122,9 @@ async function main() {
 
   const checks: Check[] = [
     {
-      label: `Send to treasury ${treasury}`,
+      label: `Send to destination ${destination}`,
       expect: "allowed",
-      run: sign(unsignedTx(treasury)),
+      run: sign(unsignedTx(destination)),
     },
     {
       label: `Send elsewhere ${elsewhere}`,
@@ -145,9 +144,9 @@ async function main() {
         }),
     },
     {
-      label: "USDC transfer to treasury",
+      label: "USDC transfer to destination",
       expect: "allowed",
-      run: sign(unsignedTx(USDC_ADDRESS, usdcTransfer(treasury))),
+      run: sign(unsignedTx(USDC_ADDRESS, usdcTransfer(destination))),
     },
     {
       label: "USDC transfer elsewhere",
