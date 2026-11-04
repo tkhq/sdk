@@ -1,9 +1,9 @@
 # Example: `with-deposit-address`
 
 A Next.js app that gives each user a deposit address on **Base Sepolia**. ETH or
-USDC sent to it is swept to a fixed treasury address by a platform key that a
-policy limits to exactly that. The user stays the only root of their wallet and
-can withdraw with their own login at any time.
+USDC sent to it is swept to a destination the user chose, by a platform key that
+a policy the user approved limits to exactly that. The user stays the only root
+of their wallet and can withdraw with their own login at any time.
 
 It builds on [`with-delegated/client-side`](../../access-control/with-delegated/client-side)
 and uses only existing Turnkey packages.
@@ -13,27 +13,31 @@ and uses only existing Turnkey packages.
 1. **Login.** The user signs in through [Auth Proxy](https://docs.turnkey.com/sdks/react/getting-started)
    with `@turnkey/react-wallet-kit`. This creates their sub-organization and an
    Ethereum wallet. The user is the only root user.
-2. **Enable deposit address.** One button. Stamped by the user's session, it
-   calls:
+2. **Enable deposit address.** The user enters the address their funds should
+   go to and clicks one button. Stamped by the user's session, it:
+   - uploads the ERC-20 ABI to the sub-org as a
+     [smart contract interface](https://docs.turnkey.com/features/policies/smart-contract-interfaces),
+     so the policy can read a transfer's recipient, then calls
    - [`fetchOrCreateP256ApiKeyUser`](https://docs.turnkey.com/generated-docs/formatted/react-wallet-kit/client-context-type-fetch-or-create-p256-api-key-user)
      to add the platform's delegated user (non-root) with the platform's public key, and
    - [`fetchOrCreatePolicies`](https://docs.turnkey.com/generated-docs/formatted/react-wallet-kit/client-context-type-fetch-or-create-policies)
-     to add one policy: that user may send ETH, or USDC through `transfer`, to the
-     treasury and nowhere else.
+     to add one policy: that user may send ETH, or USDC through `transfer`, to
+     that destination and nowhere else.
 
-   The page then shows the address as text and a QR code, and the server records
-   which sub-org owns it in `data/deposit-addresses.json`.
+   The page then shows the address as text and a QR code. The server records
+   which sub-org owns it in `data/deposit-addresses.json`, and reads the
+   destination from the policy rather than from the browser.
 
 3. **Deposit and sweep.** A `BALANCE_CONFIRMED_UPDATES` webhook on the parent
    org posts to `/api/webhooks/balances`. The route verifies the signature,
    drops repeated event ids, finds the sub-org, and sends the full balance to
-   the treasury with the delegated key and `sponsor: true`, so the address
+   the user's destination with the delegated key and `sponsor: true`, so the address
    needs no gas. The dashboard shows the sweep transaction hash.
 4. **Withdraw.** The user enters an address and amount. The send is signed with
    their own session, not the platform key.
 5. **Validate.** `pnpm validate` signs with the delegated key and shows what
-   the policy allows: send to treasury allowed, send elsewhere denied, raw
-   payload signing denied.
+   the policy allows: send to the destination allowed, send elsewhere denied, raw
+   payload signing denied, and USDC `transfer` to the wrong recipient denied.
 
 ## Custody model
 
@@ -41,13 +45,18 @@ and uses only existing Turnkey packages.
 | ------------- | --------------------------------------- | -------------------------------------------------------------------------------------------- |
 | Root          | Yes, the only member of the root quorum | No, never. `createUsers` adds users outside the root quorum                                  |
 | Credential    | Their login (passkey, email, OAuth)     | A P-256 API key. The private half is `TURNKEY_DA_PRIVATE_KEY`, on the platform's server only |
-| Can send to   | Anywhere                                | The treasury only (ETH sends, and USDC `transfer` with the treasury as recipient)            |
+| Can send to   | Anywhere                                | The user's destination only (ETH sends, and USDC `transfer` with it as recipient)            |
 | Cannot        | Nothing is restricted                   | Send anywhere else, sign raw payloads or messages, change users, policies or wallets         |
 | Who set it up | The user, by clicking Enable            | Nothing. The platform cannot create its own access                                           |
 
 The policy is the final check. The server code only ever builds sends to the
-treasury, but if it were changed or the key leaked, the policy engine would
-still reject any other destination.
+user's destination, but if it were changed or the key leaked, the policy engine
+would still reject any other recipient.
+
+The form refuses three destinations: the zero address, the deposit address
+itself, and the USDC contract. The policy allows any call to the destination, so
+naming the USDC contract would let the key call `approve`, or `transfer` to
+anyone.
 
 The server also checks, before it records an address, that the delegated user
 is in that sub-org, is not root, and that the address belongs to the sub-org.
@@ -61,11 +70,48 @@ This example has no revoke button.
 
 The policy is created with `fetchOrCreatePolicies`, which reuses a policy only
 when every field matches. To let the platform sweep somewhere new, such as a
-second treasury or a payout address, build the new policy at the next login and
+second account or a new payout address, build the new policy at the next login and
 pass it to `fetchOrCreatePolicies` from the user's session, then delete the old
 policy with `deletePolicies` so there is still one. The condition can list
 destinations with `||` (`eth.tx.to == '<a>' || eth.tx.to == '<b>'`). Each change
 needs the user's session, so the platform cannot widen its own access.
+
+## What the policy can and can't see
+
+The policy engine can enforce a recipient only when the recipient is visible in
+the transaction. That means a direct send (`eth.tx.to`), or a parsed contract
+call whose ABI has been uploaded (`eth.tx.contract_call_args`). `pnpm validate`
+tests this: the delegated key calls the allowed USDC contract with `transfer` to
+the wrong recipient and is denied.
+
+For a routing or bridge contract, the policy can limit which contract and
+function the key calls, but it can't verify where that contract sends the funds
+next.
+
+Sending funds through an intermediate address the platform controls makes the
+platform custodial at that hop. This example never does that: each sweep goes
+straight from the user's deposit address to the user's destination.
+
+If routes change too often for an allow-list, the next step is a routing app
+hosted in an enclave ([Turnkey Verifiable Cloud](https://docs.turnkey.com)). The
+delegated key would then accept only routes that the enclave's code has checked,
+so the rule lives in verifiable code rather than in a policy condition. This
+example does not build it.
+
+## Logging in without a platform login
+
+This example uses Auth Proxy, so the user logs in to the app directly. A platform
+embedded in an iframe, with no login of its own, has two non-custodial options:
+
+- **Wallet login.** Reuse the wallet the user already connected in the host app.
+- **Bring your own auth over OIDC.** The host issues a token tied to a key
+  generated on the user's device. See
+  [Bring your own auth](https://docs.turnkey.com/features/authentication/bring-your-own-auth).
+
+An OIDC issuer can impersonate its users, because it can issue a token for a key
+it generated itself. If you use this option, policy changes should require a
+passkey or MFA, a factor the issuer can't produce. Without that, the issuer could
+change where a user's funds go.
 
 ## Getting started
 
@@ -101,18 +147,18 @@ node -e 'const k=require("@turnkey/crypto").generateP256KeyPair(); console.log("
 cp .env.local.example .env.local
 ```
 
-| Variable                           | Where used         | Value                                                                       |
-| ---------------------------------- | ------------------ | --------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_ORGANIZATION_ID`      | browser, server    | Parent organization ID                                                      |
-| `NEXT_PUBLIC_AUTH_PROXY_CONFIG_ID` | browser            | Auth Proxy Config ID                                                        |
-| `NEXT_PUBLIC_TREASURY_ADDRESS`     | browser, server    | The one address sweeps go to                                                |
-| `NEXT_PUBLIC_DA_PUBLIC_KEY`        | browser, server    | Delegated public key (66 hex chars, no `0x`). Not secret                    |
-| `TURNKEY_DA_PRIVATE_KEY`           | server, `validate` | Delegated private key. **Never** prefix it with `NEXT_PUBLIC_` or commit it |
-| `TURNKEY_API_PUBLIC_KEY`           | `register-webhook` | Parent-org API public key                                                   |
-| `TURNKEY_API_PRIVATE_KEY`          | `register-webhook` | Parent-org API private key                                                  |
-| `WEBHOOK_URL`                      | `register-webhook` | Public `https` URL of `/api/webhooks/balances`                              |
-| `SWEEP_ENABLED`                    | server             | Optional. `false` leaves deposits in place so you can try a withdrawal      |
-| `TURNKEY_API_BASE_URL`             | server, scripts    | Optional. Defaults to `https://api.turnkey.com`                             |
+| Variable                                  | Where used         | Value                                                                                                |
+| ----------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_ORGANIZATION_ID`             | browser, server    | Parent organization ID                                                                               |
+| `NEXT_PUBLIC_AUTH_PROXY_CONFIG_ID`        | browser            | Auth Proxy Config ID                                                                                 |
+| `NEXT_PUBLIC_DEFAULT_DESTINATION_ADDRESS` | browser            | Optional. Pre-fills the destination field to make testing easier. Each user still approves their own |
+| `NEXT_PUBLIC_DA_PUBLIC_KEY`               | browser, server    | Delegated public key (66 hex chars, no `0x`). Not secret                                             |
+| `TURNKEY_DA_PRIVATE_KEY`                  | server, `validate` | Delegated private key. **Never** prefix it with `NEXT_PUBLIC_` or commit it                          |
+| `TURNKEY_API_PUBLIC_KEY`                  | `register-webhook` | Parent-org API public key                                                                            |
+| `TURNKEY_API_PRIVATE_KEY`                 | `register-webhook` | Parent-org API private key                                                                           |
+| `WEBHOOK_URL`                             | `register-webhook` | Public `https` URL of `/api/webhooks/balances`                                                       |
+| `SWEEP_ENABLED`                           | server             | Optional. `false` leaves deposits in place so you can try a withdrawal                               |
+| `TURNKEY_API_BASE_URL`                    | server, scripts    | Optional. Defaults to `https://api.turnkey.com`                                                      |
 
 `NEXT_PUBLIC_*` values are built into the browser bundle, so restart `pnpm dev`
 after changing them.
@@ -131,12 +177,13 @@ pnpm register-webhook        # once; reuses the subscription if it exists
 
 Then:
 
-1. Open <http://localhost:3000>, log in, and click **Enable deposit address**.
-   The right panel should show three checks: you are the sole root, the
-   delegated user is not root, and there is exactly one policy.
+1. Open <http://localhost:3000>, log in, enter a destination, and click **Enable
+   deposit address**. The right panel should show four checks: you are the sole
+   root, the delegated user is not root, there is exactly one policy, and the
+   USDC ABI is uploaded.
 2. Send 1 USDC on Base Sepolia (from the [Circle faucet](https://faucet.circle.com))
    or a little Base Sepolia ETH to the address.
-3. Within a few seconds of the deposit confirming, **Sweeps to treasury**
+3. Within a few seconds of the deposit confirming, **Sweeps to your destination**
    shows the sweep and its transaction hash.
 4. Check the policy from the command line:
 
@@ -146,44 +193,45 @@ pnpm validate 0xYourAddress  # a specific one
 ```
 
 ```text
-✓ Send to treasury 0x…: allowed
+✓ Send to destination 0x…: allowed
 ✓ Send elsewhere 0x…dead: denied
 ✓ Sign a raw payload: denied
+✓ USDC transfer to wrong recipient 0x…dead: denied
 
-USDC branch of the same policy:
-✓ USDC transfer to treasury: allowed
-✓ USDC transfer elsewhere: denied
+Control: the same USDC call to the right recipient must pass, or the
+denial above says nothing about the recipient check.
+✓ USDC transfer to destination 0x…: allowed
 ```
 
 Nothing is broadcast; the script only asks Turnkey to sign. It first checks
-that the key authenticates and is not root, so a wrong key fails loudly
-instead of showing up as "denied".
+that the key authenticates, is not root, and that the sub-org holds the USDC ABI,
+so a wrong setup fails loudly instead of showing up as "denied".
 
 To try a withdrawal, restart with `SWEEP_ENABLED=false`, deposit again, and use
 the **Withdraw** panel.
 
 ## Common failures
 
-| Symptom                                                                   | Cause                                                               | Fix                                                                                                                                                     |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sweep shows `failed` with a sponsorship or gas error                      | Gas Sponsorship is off for the org, or its spend limit is reached   | Turn on Gas Sponsorship in the dashboard and check the limits. The sweep is not retried; deposit again after fixing                                     |
-| Deposit never shows up; log says `on eip155:… ignored`, or nothing at all | Sent on the wrong chain (Base mainnet, Ethereum Sepolia)            | Send on Base Sepolia (`eip155:84532`) only. Funds sent elsewhere stay in the user's wallet under the user's control                                     |
-| `Missing NEXT_PUBLIC_… / TURNKEY_…. Add it to .env.local.`                | Missing env var                                                     | Fill it in `.env.local`, then restart `pnpm dev`                                                                                                        |
-| Sweep shows `failed … not retrying` with a policy or activity error       | Policy denied the send                                              | Usually `NEXT_PUBLIC_TREASURY_ADDRESS` changed after the user enabled, so the policy names the old treasury. Run `pnpm validate` to see what is allowed |
-| "Not watching this address" on the dashboard                              | `TURNKEY_DA_PRIVATE_KEY` does not match `NEXT_PUBLIC_DA_PUBLIC_KEY` | Use the two halves of the same key pair                                                                                                                 |
-| No webhook arrives                                                        | Tunnel URL changed, or the endpoint was never registered            | Update `WEBHOOK_URL`, rerun `pnpm register-webhook`, and remove the stale endpoint in the dashboard                                                     |
-| Server log `[webhook] rejected: invalid_signature`                        | A proxy changed the body, or clock skew over 5 minutes              | Forward the body unchanged and sync the server clock                                                                                                    |
+| Symptom                                                                   | Cause                                                                             | Fix                                                                                                                 |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Sweep shows `failed` with a sponsorship or gas error                      | Gas Sponsorship is off for the org, or its spend limit is reached                 | Turn on Gas Sponsorship in the dashboard and check the limits. The sweep is not retried; deposit again after fixing |
+| Deposit never shows up; log says `on eip155:… ignored`, or nothing at all | Sent on the wrong chain (Base mainnet, Ethereum Sepolia)                          | Send on Base Sepolia (`eip155:84532`) only. Funds sent elsewhere stay in the user's wallet under the user's control |
+| `Missing NEXT_PUBLIC_… / TURNKEY_…. Add it to .env.local.`                | Missing env var                                                                   | Fill it in `.env.local`, then restart `pnpm dev`                                                                    |
+| Sweep shows `failed … not retrying` with a policy or activity error       | Policy denied the send                                                            | Run `pnpm validate` to see what is allowed. Nothing is retried, and no other address is tried                       |
+| ETH sweeps work but USDC sweeps are denied                                | The USDC ABI is missing from the sub-org, so the policy cannot read the recipient | Click **Enable deposit address** again; it uploads the ABI if it is missing                                         |
+| "Not watching this address" on the dashboard                              | `TURNKEY_DA_PRIVATE_KEY` does not match `NEXT_PUBLIC_DA_PUBLIC_KEY`               | Use the two halves of the same key pair                                                                             |
+| No webhook arrives                                                        | Tunnel URL changed, or the endpoint was never registered                          | Update `WEBHOOK_URL`, rerun `pnpm register-webhook`, and remove the stale endpoint in the dashboard                 |
+| Server log `[webhook] rejected: invalid_signature`                        | A proxy changed the body, or clock skew over 5 minutes                            | Forward the body unchanged and sync the server clock                                                                |
 
 ## Limits of this example
 
 - **Demo storage.** The address map is a JSON file and webhook de-duplication is
   in memory. Use a database and a durable queue in production. A restart while a
   sweep is in flight loses that sweep's status, not the funds.
-- **One chain, two assets, one treasury.** No other chains, tokens, swaps or
-  bridges.
-- **Raw calldata check for USDC.** The policy checks the `transfer` selector and
-  recipient bytes, because named arguments (`eth.tx.contract_call_args`) need
-  the USDC ABI uploaded as a [smart contract interface](https://docs.turnkey.com/features/policies/smart-contract-interfaces)
-  in every sub-org.
-- **Chain not pinned in the policy.** The delegated key can pay only the
-  treasury, but on any chain.
+- **One chain, two assets, one destination per user.** No other chains, tokens,
+  swaps or bridges. This example has no form for changing a destination later.
+- **One ABI upload per sub-org.** Turnkey reads smart contract interfaces only
+  from the sub-org sending the transaction, so each user's Enable uploads its own
+  copy.
+- **Chain not pinned in the policy.** The delegated key can pay only the user's
+  destination, but on any chain.
