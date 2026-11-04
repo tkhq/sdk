@@ -39,7 +39,7 @@ and uses only existing Turnkey packages.
    the policy allows: send to the destination allowed, send elsewhere denied, raw
    payload signing denied, and USDC `transfer` to the wrong recipient denied.
 
-## Custody model
+## Who controls what
 
 |               | User                                    | Platform (delegated user)                                                                    |
 | ------------- | --------------------------------------- | -------------------------------------------------------------------------------------------- |
@@ -96,9 +96,8 @@ For a routing or bridge contract, the policy can limit which contract and
 function the key calls, but it can't verify where that contract sends the funds
 next.
 
-Sending funds through an intermediate address the platform controls makes the
-platform custodial at that hop. This example never does that: each sweep goes
-straight from the user's deposit address to the user's destination.
+Each sweep goes straight from the user's deposit address to the user's
+destination, with no intermediate address.
 
 If routes change too often for an allow-list, the next step is a routing app
 hosted in an enclave ([Turnkey Verifiable Cloud](https://docs.turnkey.com)). The
@@ -109,7 +108,7 @@ example does not build it.
 ## Logging in without a platform login
 
 This example uses Auth Proxy, so the user logs in to the app directly. A platform
-embedded in an iframe, with no login of its own, has two non-custodial options:
+embedded in an iframe, with no login of its own, has two options:
 
 - **Wallet login.** Reuse the wallet the user already connected in the host app.
 - **Bring your own auth over OIDC.** The host issues a token tied to a key
