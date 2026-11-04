@@ -2,7 +2,7 @@
 
 A Next.js app that gives each user a deposit address on **Base Sepolia**. ETH or
 USDC sent to it is swept to a destination the user chose, by a platform key that
-a policy the user approved limits to exactly that. The user stays the only root
+policies the user approved limit to exactly that. The user stays the only root
 of their wallet and can withdraw with their own login at any time.
 
 It builds on [`with-delegated/client-side`](../../access-control/with-delegated/client-side)
@@ -21,12 +21,12 @@ and uses only existing Turnkey packages.
    - [`fetchOrCreateP256ApiKeyUser`](https://docs.turnkey.com/generated-docs/formatted/react-wallet-kit/client-context-type-fetch-or-create-p256-api-key-user)
      to add the platform's delegated user (non-root) with the platform's public key, and
    - [`fetchOrCreatePolicies`](https://docs.turnkey.com/generated-docs/formatted/react-wallet-kit/client-context-type-fetch-or-create-policies)
-     to add one policy: that user may send ETH, or USDC through `transfer`, to
+     to add two policies: that user may send ETH, or USDC through `transfer`, to
      that destination and nowhere else.
 
    The page then shows the address as text and a QR code. The server records
    which sub-org owns it in `data/deposit-addresses.json`, and reads the
-   destination from the policy rather than from the browser.
+   destination from the policies rather than from the browser.
 
 3. **Deposit and sweep.** A `BALANCE_CONFIRMED_UPDATES` webhook on the parent
    org posts to `/api/webhooks/balances`. The route verifies the signature,
@@ -49,12 +49,19 @@ and uses only existing Turnkey packages.
 | Cannot        | Nothing is restricted                   | Send anywhere else, sign raw payloads or messages, change users, policies or wallets         |
 | Who set it up | The user, by clicking Enable            | Nothing. The platform cannot create its own access                                           |
 
-The policy is the final check. The server code only ever builds sends to the
+The policies are the final check. The server code only ever builds sends to the
 user's destination, but if it were changed or the key leaked, the policy engine
 would still reject any other recipient.
 
+**Why two policies.** The engine evaluates every part of a condition, even when
+an earlier part already settles the result
+([docs](https://docs.turnkey.com/features/policies/language#evaluation-errors-and-short-circuiting)).
+A plain ETH send has no decoded call, so a single condition joining the ETH and
+USDC rules with `||` errors on `eth.tx.function_name` and denies the send. Each
+rule therefore has its own policy.
+
 The form refuses three destinations: the zero address, the deposit address
-itself, and the USDC contract. The policy allows any call to the destination, so
+itself, and the USDC contract. The ETH policy allows any call to the destination, so
 naming the USDC contract would let the key call `approve`, or `transfer` to
 anyone.
 
@@ -62,19 +69,20 @@ The server also checks, before it records an address, that the delegated user
 is in that sub-org, is not root, and that the address belongs to the sub-org.
 
 **Revoking.** The user can remove the platform's access at any time from their
-own session: delete the policy (`deletePolicies`) and the delegated user can
+own session: delete the policies (`deletePolicies`) and the delegated user can
 sign nothing, or delete the delegated user (`deleteUsers`) to remove it fully.
 This example has no revoke button.
 
 ## Adding destinations later
 
-The policy is created with `fetchOrCreatePolicies`, which reuses a policy only
+The policies are created with `fetchOrCreatePolicies`, which reuses a policy only
 when every field matches. To let the platform sweep somewhere new, such as a
-second account or a new payout address, build the new policy at the next login and
+second account or a new payout address, build the new pair at the next login and
 pass it to `fetchOrCreatePolicies` from the user's session, then delete the old
-policy with `deletePolicies` so there is still one. The condition can list
-destinations with `||` (`eth.tx.to == '<a>' || eth.tx.to == '<b>'`). Each change
-needs the user's session, so the platform cannot widen its own access.
+pair with `deletePolicies`. A condition can list destinations with `||`
+(`eth.tx.to == '<a>' || eth.tx.to == '<b>'`), because both sides can be evaluated
+for the same kind of send. Each change needs the user's session, so the platform
+cannot widen its own access.
 
 ## What the policy can and can't see
 
@@ -166,21 +174,24 @@ after changing them.
 ### 4. Run
 
 Turnkey only delivers webhooks to a public `https` URL, so expose the app with
-a tunnel such as [ngrok](https://ngrok.com):
+a tunnel. [localhost.run](https://localhost.run) needs no account or install, but
+its URL can change when it reconnects. [ngrok](https://ngrok.com) also works.
 
 ```bash
 pnpm dev                     # terminal 1, http://localhost:3000
-ngrok http 3000              # terminal 2, then set WEBHOOK_URL to
-                             # https://<id>.ngrok-free.app/api/webhooks/balances
-pnpm register-webhook        # once; reuses the subscription if it exists
+
+# terminal 2, then set WEBHOOK_URL to https://<id>.lhr.life/api/webhooks/balances
+ssh -o ServerAliveInterval=30 -R 80:localhost:3000 nokey@localhost.run
+
+pnpm register-webhook        # after setting WEBHOOK_URL; reuses a matching subscription
 ```
 
 Then:
 
 1. Open <http://localhost:3000>, log in, enter a destination, and click **Enable
-   deposit address**. The right panel should show four checks: you are the sole
-   root, the delegated user is not root, there is exactly one policy, and the
-   USDC ABI is uploaded.
+   deposit address**. **Who controls this wallet** should show four checks: you are
+   the only root user, the delegated user is not root, there are exactly two
+   policies, and the USDC ABI is uploaded.
 2. Send 1 USDC on Base Sepolia (from the [Circle faucet](https://faucet.circle.com))
    or a little Base Sepolia ETH to the address.
 3. Within a few seconds of the deposit confirming, **Sweeps to your destination**
@@ -195,8 +206,11 @@ pnpm validate 0xYourAddress  # a specific one
 ```text
 ✓ Send to destination 0x…: allowed
 ✓ Send elsewhere 0x…dead: denied
+    policy engine: OUTCOME_DENY_IMPLICIT
 ✓ Sign a raw payload: denied
+    policy engine: OUTCOME_ERROR
 ✓ USDC transfer to wrong recipient 0x…dead: denied
+    policy engine: OUTCOME_DENY_IMPLICIT
 
 Control: the same USDC call to the right recipient must pass, or the
 denial above says nothing about the recipient check.
@@ -204,30 +218,38 @@ denial above says nothing about the recipient check.
 ```
 
 Nothing is broadcast; the script only asks Turnkey to sign. It first checks
-that the key authenticates, is not root, and that the sub-org holds the USDC ABI,
-so a wrong setup fails loudly instead of showing up as "denied".
+that the key authenticates, is not root, and that the sub-org holds the USDC ABI.
+Only the policy engine's own error counts as denied. Any other error, such as an
+unknown signing address, fails the check, so a wrong setup cannot pass by accident.
+The raw payload shows `OUTCOME_ERROR` because it has no `eth.tx` for the policies to
+read, so neither one can allow it.
 
 To try a withdrawal, restart with `SWEEP_ENABLED=false`, deposit again, and use
 the **Withdraw** panel.
 
 ## Common failures
 
-| Symptom                                                                   | Cause                                                                             | Fix                                                                                                                 |
-| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Sweep shows `failed` with a sponsorship or gas error                      | Gas Sponsorship is off for the org, or its spend limit is reached                 | Turn on Gas Sponsorship in the dashboard and check the limits. The sweep is not retried; deposit again after fixing |
-| Deposit never shows up; log says `on eip155:… ignored`, or nothing at all | Sent on the wrong chain (Base mainnet, Ethereum Sepolia)                          | Send on Base Sepolia (`eip155:84532`) only. Funds sent elsewhere stay in the user's wallet under the user's control |
-| `Missing NEXT_PUBLIC_… / TURNKEY_…. Add it to .env.local.`                | Missing env var                                                                   | Fill it in `.env.local`, then restart `pnpm dev`                                                                    |
-| Sweep shows `failed … not retrying` with a policy or activity error       | Policy denied the send                                                            | Run `pnpm validate` to see what is allowed. Nothing is retried, and no other address is tried                       |
-| ETH sweeps work but USDC sweeps are denied                                | The USDC ABI is missing from the sub-org, so the policy cannot read the recipient | Click **Enable deposit address** again; it uploads the ABI if it is missing                                         |
-| "Not watching this address" on the dashboard                              | `TURNKEY_DA_PRIVATE_KEY` does not match `NEXT_PUBLIC_DA_PUBLIC_KEY`               | Use the two halves of the same key pair                                                                             |
-| No webhook arrives                                                        | Tunnel URL changed, or the endpoint was never registered                          | Update `WEBHOOK_URL`, rerun `pnpm register-webhook`, and remove the stale endpoint in the dashboard                 |
-| Server log `[webhook] rejected: invalid_signature`                        | A proxy changed the body, or clock skew over 5 minutes                            | Forward the body unchanged and sync the server clock                                                                |
+| Symptom                                                                   | Cause                                                                             | Fix                                                                                                                                                                 |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sweep shows `failed` with a sponsorship or gas error                      | Gas Sponsorship is off for the org, or its spend limit is reached                 | Turn on Gas Sponsorship in the dashboard and check the limits. The sweep is not retried; deposit again after fixing                                                 |
+| Deposit never shows up; log says `on eip155:… ignored`, or nothing at all | Sent on the wrong chain (Base mainnet, Ethereum Sepolia)                          | Send on Base Sepolia (`eip155:84532`) only. Funds sent elsewhere stay in the user's wallet under the user's control                                                 |
+| `Missing NEXT_PUBLIC_… / TURNKEY_…. Add it to .env.local.`                | Missing env var                                                                   | Fill it in `.env.local`, then restart `pnpm dev`                                                                                                                    |
+| Sweep shows `failed … not retrying` with a policy or activity error       | Policy denied the send                                                            | Run `pnpm validate` to see what is allowed. Nothing is retried, and no other address is tried                                                                       |
+| ETH sweeps work but USDC sweeps are denied                                | The USDC ABI is missing from the sub-org, so the policy cannot read the recipient | Click **Enable deposit address** again; it uploads the ABI if it is missing                                                                                         |
+| Sent back to the login page about 15 minutes after logging in             | The session ended. Console: `Failed to refresh session`                           | Log in again the same way. A different email or a new passkey creates a new sub-org with its own address                                                            |
+| "Not watching this address" on the dashboard                              | `TURNKEY_DA_PRIVATE_KEY` does not match `NEXT_PUBLIC_DA_PUBLIC_KEY`               | Use the two halves of the same key pair                                                                                                                             |
+| No webhook arrives                                                        | Tunnel URL changed or dropped, or the endpoint was never registered               | Update `WEBHOOK_URL`, rerun `pnpm register-webhook`, and remove the stale endpoint. The next deposit sweeps the full balance, including any deposit that was missed |
+| Server log `[webhook] rejected: invalid_signature`                        | A proxy changed the body, or clock skew over 5 minutes                            | Forward the body unchanged and sync the server clock                                                                                                                |
 
 ## Limits of this example
 
-- **Demo storage.** The address map is a JSON file and webhook de-duplication is
-  in memory. Use a database and a durable queue in production. A restart while a
-  sweep is in flight loses that sweep's status, not the funds.
+- **Demo storage.** The address map is a JSON file, and webhook de-duplication and
+  sweep history are in memory, so a restart clears the history. Use a database and
+  a durable queue in production. A restart while a sweep is in flight loses that
+  sweep's status, not the funds.
+- **Sweeps follow webhooks.** Nothing polls for balances, so a deposit made before
+  Enable, or whose webhook was missed, stays put until the next deposit sweeps the
+  whole balance. The user can withdraw it at any time.
 - **One chain, two assets, one destination per user.** No other chains, tokens,
   swaps or bridges. This example has no form for changing a destination later.
 - **One ABI upload per sub-org.** Turnkey reads smart contract interfaces only
