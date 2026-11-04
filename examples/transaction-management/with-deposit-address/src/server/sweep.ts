@@ -1,4 +1,4 @@
-import { encodeFunctionData, erc20Abi, type Address } from "viem";
+import { encodeFunctionData, erc20Abi, getAddress, type Address } from "viem";
 import {
   BASE_SEPOLIA_CAIP2,
   USDC_ADDRESS,
@@ -115,7 +115,8 @@ async function runSweep(record: SweepRecord, entry: DepositAddressEntry) {
     console.log(`${tag} sending ${amount} to ${destination} (sponsored)`);
     const res = await client.ethSendTransaction({
       organizationId: entry.subOrgId,
-      from: entry.address,
+      // Turnkey matches a signing address case-sensitively.
+      from: getAddress(entry.address),
       caip2: BASE_SEPOLIA_CAIP2,
       sponsor: true,
       calls: [call],
