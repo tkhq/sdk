@@ -3,7 +3,12 @@ import type { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
-import { type Session, SessionType, SignatureFormat } from "@turnkey/sdk-types";
+import {
+  type Session,
+  SessionType,
+  SignatureFormat,
+  type v1Attestation,
+} from "@turnkey/sdk-types";
 
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import { TurnkeyBaseClient } from "../__clients__/base-client";
@@ -45,18 +50,7 @@ export interface ApiKey {
 export interface Authenticator {
   authenticatorName: string;
   challenge: string;
-  attestation: {
-    credentialId: string;
-    clientDataJson: string;
-    attestationObject: string;
-    transports: (
-      | "AUTHENTICATOR_TRANSPORT_BLE"
-      | "AUTHENTICATOR_TRANSPORT_INTERNAL"
-      | "AUTHENTICATOR_TRANSPORT_NFC"
-      | "AUTHENTICATOR_TRANSPORT_USB"
-      | "AUTHENTICATOR_TRANSPORT_HYBRID"
-    )[];
-  };
+  attestation: v1Attestation;
 }
 interface UpdateUserAuthParams {
   userId: string;

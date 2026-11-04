@@ -9,6 +9,7 @@ import { isEthereumProvider, isSolanaProvider } from "@turnkey/core";
 import { useModal } from "../../../providers/modal/Hook";
 import { useTurnkey } from "../../../providers/client/Hook";
 import { ConnectedIndicator } from "../../design/ConnectedIndicator";
+import { truncateAddress } from "../../../utils/utils";
 import { canDisconnect } from "./utils";
 
 interface ExternalWalletChainSelectorProps {
@@ -125,8 +126,7 @@ export function ExternalWalletChainSelector(
                       `?`}
                 {canDisconnect(p, shouldShowDisconnect) && (
                   <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
-                    Connected: {p.connectedAddresses[0]?.slice(0, 4)}...
-                    {p.connectedAddresses[0]?.slice(-3)}
+                    Connected: {truncateAddress(p.connectedAddresses[0], 4, 3)}
                   </span>
                 )}
               </div>

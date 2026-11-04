@@ -1,6 +1,7 @@
 import { useModal } from "../../providers/modal/Hook";
 import clsx from "clsx";
 import { ActionPage } from "../auth/Action";
+import { ActionButton } from "../design/Buttons";
 import { SuccessPage } from "../design/Success";
 import { useState } from "react";
 import { getExplorerUrl } from "./helpers";
@@ -42,14 +43,19 @@ export function SendTransactionPage({
         />
 
         {storedTxHash && (
-          <a
-            href={getExplorerUrl(storedTxHash, caip2)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary-light dark:text-primary-dark underline text-sm mt-2"
+          <ActionButton
+            name="send-transaction-view-explorer"
+            onClick={() => {
+              window.open(
+                getExplorerUrl(storedTxHash, caip2),
+                "_blank",
+                "noopener,noreferrer",
+              );
+            }}
+            className="mt-2 bg-primary-light text-primary-text-light dark:bg-primary-dark dark:text-primary-text-dark"
           >
-            View on Explorer
-          </a>
+            View on block explorer
+          </ActionButton>
         )}
       </div>
     );

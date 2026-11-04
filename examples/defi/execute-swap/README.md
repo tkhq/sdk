@@ -2,15 +2,15 @@
 
 > **Closed beta:** Turnkey Swap is currently in closed beta. Your organization must be allowlisted (with the relevant swap feature flags enabled) before this example will work.
 
-This example uses the typed swap methods from `@turnkey/sdk-server`. It submits create-swap-quote V2 and execute-swap V3 activities.
+This example uses the typed swap methods from `@turnkey/sdk-server`. It submits create-swap-quote V3 and execute-swap V4 activities.
 
 By default it is configured for Solana mainnet SOL → USDC. Token pair and amount are driven by env vars (`FROM_TOKEN` / `TO_TOKEN` as CAIP-19 asset IDs, `AMOUNT` in base units), so you can point it at other supported pairs without code changes.
 
 The script will:
 
-1. Call `createSwapQuote` (V2) with the tokens, amount, slippage, and optional destination address
+1. Call `createSwapQuote` (V3) with the tokens, amount, slippage, and optional destination address
 2. Prompt whether to use Turnkey gas sponsorship
-3. Call `executeSwap` (V3) with the selected quote and the same destination address
+3. Call `executeSwap` (V4, bound mode) with the selected quote and the same destination address
 4. Poll `getSwapStatus` with the returned `swapRequestId` until `COMPLETED` or a terminal failure
 
 ---

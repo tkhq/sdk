@@ -8,7 +8,7 @@ import LottiePlayerWrapper from "./Lottie/Wrapper";
 interface SuccessPageProps {
   text?: string | undefined;
   duration?: number | undefined;
-  onComplete: () => void;
+  onComplete?: (() => void) | undefined;
 }
 
 export function SuccessPage(props: SuccessPageProps) {
@@ -22,9 +22,11 @@ export function SuccessPage(props: SuccessPageProps) {
     const pulseTimer = setTimeout(() => {
       setPulsing(true);
     }, 300);
-    const totalTimer = setTimeout(() => {
-      onComplete();
-    }, duration);
+    const totalTimer = onComplete
+      ? setTimeout(() => {
+          onComplete();
+        }, duration)
+      : undefined;
     return () => {
       clearTimeout(totalTimer);
       clearTimeout(pulseTimer);

@@ -5,13 +5,14 @@ import clsx from "clsx";
 
 interface ActionPageProps {
   title: string;
+  subtitle?: string;
   icon: React.ReactNode;
   closeOnComplete?: boolean;
   action?: () => Promise<void>;
 }
 
 export function ActionPage(props: ActionPageProps) {
-  const { title, icon, closeOnComplete = true, action } = props;
+  const { title, subtitle, icon, closeOnComplete = true, action } = props;
   const { popPage, closeModal, isMobile } = useModal();
   const hasRun = useRef(false);
   const iconRef = useRef<HTMLDivElement>(null);
@@ -65,7 +66,14 @@ export function ActionPage(props: ActionPageProps) {
             strokeWidth={1}
           />
         </div>
-        <span className="text-lg font-semibold">{title}</span>
+        <div className="flex flex-col items-center gap-2 px-4 text-center">
+          <span className="text-lg font-semibold">{title}</span>
+          {subtitle && (
+            <span className="text-sm text-icon-text-light dark:text-icon-text-dark">
+              {subtitle}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

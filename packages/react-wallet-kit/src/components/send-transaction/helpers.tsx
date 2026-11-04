@@ -18,6 +18,10 @@ export function getExplorerUrl(txHash: string, caip2: string): string {
       return `https://sepolia.etherscan.io/tx/${txHash}`;
     case "eip155:137":
       return `https://polygonscan.com/tx/${txHash}`;
+    case "eip155:10":
+      return `https://optimistic.etherscan.io/tx/${txHash}`;
+    case "eip155:42161":
+      return `https://arbiscan.io/tx/${txHash}`;
     default:
       return caip2.startsWith("solana:")
         ? `https://solscan.io/tx/${txHash}`
