@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import {
   encodeFunctionData,
   erc20Abi,
+  getAddress,
   parseGwei,
   serializeTransaction,
   type Address,
@@ -31,7 +32,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 const DEAD_ADDRESS: Address = "0x000000000000000000000000000000000000dead";
 const BEEF_ADDRESS: Address = "0x000000000000000000000000000000000000beef";
 
-type Outcome = "allowed" | "denied";
+type Outcome = "allowed" | "denied" | "error";
 type Activity = { activity: { status: string; id: string } };
 type Check = { label: string; expect: Outcome; run: () => Promise<Activity> };
 
@@ -66,10 +67,15 @@ async function attempt(
       ? { outcome: "allowed", reason: "" }
       : { outcome: "denied", reason: `activity ${activity.status}` };
   } catch (e) {
-    return {
-      outcome: "denied",
-      reason: e instanceof Error ? e.message : String(e),
-    };
+    const message = e instanceof Error ? e.message : String(e);
+    // Only the policy engine's own error counts as a denial. Anything else,
+    // such as an unknown signing address, never reached the policy, and calling
+    // it "denied" would pass the check for the wrong reason.
+    if (!message.includes("PolicyEnginePermissionError")) {
+      return { outcome: "error", reason: message };
+    }
+    const engine = message.match(/"outcome":"(\w+)"/)?.[1];
+    return { outcome: "denied", reason: `policy engine: ${engine ?? message}` };
   }
 }
 
@@ -128,10 +134,13 @@ async function main() {
   const userId = await preflight(client, entry);
   console.log(`Delegated user:  ${userId} (authenticated, not root)\n`);
 
+  // The registry keeps addresses lowercase for lookups, but Turnkey matches a
+  // signing address case-sensitively.
+  const signWith = getAddress(entry.address);
   const sign = (unsignedTransaction: string) => () =>
     client.signTransaction({
       organizationId: entry.subOrgId,
-      signWith: entry.address,
+      signWith,
       type: "TRANSACTION_TYPE_ETHEREUM",
       unsignedTransaction,
     });
@@ -153,7 +162,7 @@ async function main() {
       run: () =>
         client.signRawPayload({
           organizationId: entry.subOrgId,
-          signWith: entry.address,
+          signWith,
           payload: "deposit address validate",
           encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
           hashFunction: "HASH_FUNCTION_KECCAK256",
