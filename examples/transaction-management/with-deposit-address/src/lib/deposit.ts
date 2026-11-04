@@ -1,5 +1,11 @@
 // Shared by the browser, the API routes and the scripts. No secrets here.
-import { isAddress, zeroAddress, type Address } from "viem";
+import {
+  erc20Abi,
+  getAddress,
+  isAddress,
+  zeroAddress,
+  type Address,
+} from "viem";
 
 export const BASE_SEPOLIA_CAIP2 = "eip155:84532" as const;
 export const BASE_SEPOLIA_CHAIN_ID = 84532;
@@ -28,8 +34,21 @@ export function sweepAssetOf(caip19: string): SweepAsset | null {
   return null;
 }
 
-// keccak256("transfer(address,uint256)")[0..4]
-const ERC20_TRANSFER_SELECTOR = "0xa9059cbb";
+// Uploaded into each sub-organization when the user enables the address. The
+// policy engine decodes USDC calls with this ABI, which is what fills in
+// `eth.tx.function_name` and `eth.tx.contract_call_args`. A parent-org upload
+// does not count: only the sub-org sending the transaction is consulted.
+export const USDC_INTERFACE = {
+  label: "USDC (Base Sepolia)",
+  notes: "ERC-20 ABI, so the sweep policy can read the transfer recipient.",
+  type: "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM" as const,
+  smartContractAddress: USDC_ADDRESS,
+  smartContractInterface: JSON.stringify(erc20Abi),
+};
+
+// The name viem's `erc20Abi` gives the first argument of `transfer`. The
+// uploaded ABI decides this key, not the deployed contract.
+const TRANSFER_RECIPIENT_ARG = "recipient";
 
 export type DestinationCheck =
   | { ok: true; address: Address }
@@ -69,18 +88,19 @@ const POLICY_NAME_PREFIX = "Deposit sweep to ";
 // user approves it from their own session, for a destination they chose. It
 // allows exactly two shapes of Ethereum transaction:
 //   1. anything sent to the destination (native ETH sends)
-//   2. a USDC `transfer` whose recipient argument is the destination
+//   2. a USDC `transfer` whose decoded recipient argument is the destination
 // Everything else, including raw payload signing, has no matching ALLOW and is
 // denied by the policy engine.
 //
-// Calldata layout: "0x" (2 chars) + selector (8) + recipient padded to 32 bytes
-// (64), so the 20-byte recipient is characters 34..74.
+// The docs do not say how a decoded address argument is cased, and their one
+// literal example is mixed-case, so the recipient clause accepts the lowercase
+// and the checksummed spelling of the same address.
 export function buildSweepPolicy(
   delegatedUserId: string,
   destination: Address,
 ) {
   const to = destination.toLowerCase();
-  const recipientWord = to.slice(2);
+  const recipient = `eth.tx.contract_call_args['${TRANSFER_RECIPIENT_ARG}']`;
 
   return {
     policyName: `${POLICY_NAME_PREFIX}${to}`,
@@ -89,8 +109,9 @@ export function buildSweepPolicy(
     condition:
       `eth.tx.to == '${to}' || ` +
       `(eth.tx.to == '${USDC_ADDRESS}' && ` +
-      `eth.tx.data[0..10] == '${ERC20_TRANSFER_SELECTOR}' && ` +
-      `eth.tx.data[34..74] == '${recipientWord}')`,
+      `eth.tx.function_name == 'transfer' && ` +
+      `(${recipient} == '${to}' || ` +
+      `${recipient} == '${getAddress(to)}'))`,
     notes:
       "Lets the platform's delegated key sweep ETH and USDC on Base Sepolia to the destination the user chose, and nothing else.",
   };

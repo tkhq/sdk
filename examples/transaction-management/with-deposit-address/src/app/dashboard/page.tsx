@@ -6,6 +6,8 @@ import { QRCodeSVG } from "qrcode.react";
 import { useTurnkey, AuthState, WalletSource } from "@turnkey/react-wallet-kit";
 
 import {
+  USDC_ADDRESS,
+  USDC_INTERFACE,
   buildSweepPolicy,
   findSweepPolicies,
   parseAddress,
@@ -40,6 +42,7 @@ type OrgState = {
   users: OrgUser[];
   rootUserIds: string[];
   policies: OrgPolicy[];
+  hasUsdcInterface: boolean;
 };
 
 function errorMessage(e: unknown, fallback: string) {
@@ -91,15 +94,20 @@ export default function Dashboard() {
     if (!httpClient || !subOrgId) return;
     try {
       setOrgError(null);
-      const [usersRes, policiesRes, configsRes] = await Promise.all([
-        httpClient.getUsers({ organizationId: subOrgId }),
-        httpClient.getPolicies({ organizationId: subOrgId }),
-        httpClient.getOrganizationConfigs({ organizationId: subOrgId }),
-      ]);
+      const [usersRes, policiesRes, configsRes, interfacesRes] =
+        await Promise.all([
+          httpClient.getUsers({ organizationId: subOrgId }),
+          httpClient.getPolicies({ organizationId: subOrgId }),
+          httpClient.getOrganizationConfigs({ organizationId: subOrgId }),
+          httpClient.getSmartContractInterfaces({ organizationId: subOrgId }),
+        ]);
       setOrg({
         users: usersRes.users,
         rootUserIds: configsRes.configs.quorum?.userIds ?? [],
         policies: policiesRes.policies,
+        hasUsdcInterface: interfacesRes.smartContractInterfaces.some(
+          (i) => parseAddress(i.smartContractAddress) === USDC_ADDRESS,
+        ),
       });
     } catch (e) {
       setOrgError(errorMessage(e, "Failed to load sub-organization."));
@@ -125,7 +133,9 @@ export default function Dashboard() {
     return findSweepPolicies(org.policies, delegatedUser.userId)[0] ?? null;
   }, [delegatedUser, org]);
 
-  const enabled = Boolean(delegatedUser && sweepPolicy);
+  const enabled = Boolean(
+    delegatedUser && sweepPolicy && org?.hasUsdcInterface,
+  );
 
   // Tell the server which sub-org owns the address so the webhook can route
   // deposits. Runs whenever the sub-org shows the address as enabled, which
@@ -152,6 +162,9 @@ export default function Dashboard() {
       if (!depositAddress || !subOrgId) {
         throw new Error("No embedded Ethereum account found for this user.");
       }
+      if (!httpClient || !org) {
+        throw new Error("The sub-organization has not loaded yet.");
+      }
       // A policy from an interrupted attempt keeps its destination. Taking a
       // new one here would leave two policies in the sub-org.
       const destination = parseDestination(
@@ -160,7 +173,16 @@ export default function Dashboard() {
       );
       if (!destination.ok) throw new Error(destination.error);
 
-      // Both calls are stamped by the user's session, and both are idempotent.
+      // Every call is stamped by the user's session, and each is idempotent.
+      // The ABI goes first, so the USDC clause works as soon as the policy
+      // exists.
+      if (!org.hasUsdcInterface) {
+        await httpClient.createSmartContractInterface({
+          organizationId: subOrgId,
+          ...USDC_INTERFACE,
+        });
+      }
+
       // `createUsers` never adds a user to the root quorum, so the delegated
       // user is non-root from the moment it exists.
       const daUser = await fetchOrCreateP256ApiKeyUser({
@@ -351,6 +373,9 @@ export default function Dashboard() {
                     </Check>
                     <Check ok={org.policies.length === 1 && !!sweepPolicy}>
                       Exactly one policy, scoped to your destination
+                    </Check>
+                    <Check ok={org.hasUsdcInterface}>
+                      USDC ABI uploaded, so the policy can read the recipient
                     </Check>
                   </ul>
 

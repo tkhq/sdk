@@ -7,7 +7,11 @@ import {
   serializeTransaction,
   type Address,
 } from "viem";
-import { BASE_SEPOLIA_CHAIN_ID, USDC_ADDRESS } from "@/lib/deposit";
+import {
+  BASE_SEPOLIA_CHAIN_ID,
+  USDC_ADDRESS,
+  parseAddress,
+} from "@/lib/deposit";
 import {
   findDepositAddress,
   listDepositAddresses,
@@ -95,6 +99,18 @@ async function preflight(client: DelegatedClient, entry: DepositAddressEntry) {
   });
   if (configs.quorum?.userIds.includes(userId)) {
     throw new Error(`Delegated user ${userId} is root. Stop and fix this.`);
+  }
+  // Without the ABI every USDC call is denied, including the one to the wrong
+  // recipient, which would prove nothing about the recipient check.
+  const { smartContractInterfaces } = await client.getSmartContractInterfaces({
+    organizationId: entry.subOrgId,
+  });
+  if (
+    !smartContractInterfaces.some(
+      (i) => parseAddress(i.smartContractAddress) === USDC_ADDRESS,
+    )
+  ) {
+    throw new Error("The USDC ABI is not in this sub-org. Click Enable again.");
   }
   return userId;
 }
