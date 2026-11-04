@@ -3,31 +3,19 @@
 import { useEffect, useState } from "react";
 import { formatUnits, type Address } from "viem";
 
-import { BASE_SEPOLIA_EXPLORER, USDC_DECIMALS } from "@/lib/deposit";
+import { USDC_DECIMALS } from "@/lib/deposit";
 import type { SweepRecord } from "@/server/sweep";
+import { TxLink } from "./ui";
 
 const POLL_MS = 3000;
 
 const STATUS_STYLE: Record<SweepRecord["status"], string> = {
-  pending: "text-gray-600",
-  submitted: "text-blue-700",
-  swept: "text-emerald-700",
-  skipped: "text-gray-500",
-  failed: "text-red-700",
+  pending: "bg-slate-100 text-slate-600",
+  submitted: "bg-blue-50 text-blue-700",
+  swept: "bg-emerald-50 text-emerald-700",
+  skipped: "bg-slate-100 text-slate-500",
+  failed: "bg-red-50 text-red-700",
 };
-
-function TxLink({ hash }: { hash: string }) {
-  return (
-    <a
-      href={`${BASE_SEPOLIA_EXPLORER}/tx/${hash}`}
-      target="_blank"
-      rel="noreferrer"
-      className="font-mono text-blue-700 hover:underline break-all"
-    >
-      {hash}
-    </a>
-  );
-}
 
 // Polls the server for sweeps of this address. The webhook drives the sweep;
 // this panel only shows what happened.
@@ -58,22 +46,19 @@ export function SweepHistory({ address }: { address: Address }) {
 
   if (sweeps.length === 0) {
     return (
-      <p className="text-xs text-gray-500">
-        No deposits yet. Sweeps appear here within a few seconds of the deposit
-        confirming.
+      <p className="text-xs text-slate-500">
+        Nothing yet. A sweep appears here a few seconds after a deposit
+        confirms.
       </p>
     );
   }
 
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="divide-y divide-slate-100">
       {sweeps.map((s) => (
-        <li
-          key={s.eventId}
-          className="p-3 border rounded bg-gray-50 text-xs space-y-1"
-        >
-          <div className="flex justify-between">
-            <span className="font-medium">
+        <li key={s.eventId} className="space-y-1.5 py-3 first:pt-0 last:pb-0">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm font-medium">
               {s.amount
                 ? formatUnits(
                     BigInt(s.amount),
@@ -82,19 +67,25 @@ export function SweepHistory({ address }: { address: Address }) {
                 : ""}{" "}
               {s.asset}
             </span>
-            <span className={`font-semibold ${STATUS_STYLE[s.status]}`}>
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[s.status]}`}
+            >
               {s.status}
             </span>
           </div>
-          <div>
-            Deposit: <TxLink hash={s.depositTxHash} />
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+            <span>
+              Deposit <TxLink hash={s.depositTxHash} />
+            </span>
+            {s.txHash && (
+              <span>
+                Sweep <TxLink hash={s.txHash} />
+              </span>
+            )}
           </div>
-          {s.txHash && (
-            <div>
-              Sweep: <TxLink hash={s.txHash} />
-            </div>
+          {s.detail && (
+            <p className="text-xs break-words text-slate-600">{s.detail}</p>
           )}
-          {s.detail && <div className="text-gray-600">{s.detail}</div>}
         </li>
       ))}
     </ul>

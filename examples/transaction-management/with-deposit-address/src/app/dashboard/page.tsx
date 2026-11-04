@@ -19,6 +19,14 @@ import {
   parseDestination,
 } from "@/lib/deposit";
 import { SweepHistory } from "./SweepHistory";
+import {
+  Card,
+  CopyButton,
+  ErrorNotice,
+  INPUT_CLASS,
+  PRIMARY_BUTTON_CLASS,
+  TEXT_BUTTON_CLASS,
+} from "./ui";
 import { WithdrawPanel } from "./WithdrawPanel";
 import {
   registerDepositAddress,
@@ -215,7 +223,7 @@ export default function Dashboard() {
   };
 
   if (authState !== AuthState.Authenticated) {
-    return <p className="p-6 text-sm text-gray-500">Loading…</p>;
+    return <p className="p-6 text-center text-sm text-slate-500">Loading…</p>;
   }
 
   const rootIsUserOnly =
@@ -227,180 +235,181 @@ export default function Dashboard() {
     !!delegatedUser && !org?.rootUserIds.includes(delegatedUser.userId);
 
   return (
-    <main className="relative min-h-screen p-4 sm:p-6">
-      <button
-        type="button"
-        onClick={async () => {
-          await logout();
-          router.push("/");
-        }}
-        className="absolute top-3 right-3 sm:top-4 sm:right-4 rounded bg-red-600 px-3 py-1.5 sm:px-4 sm:py-2 text-white text-xs sm:text-sm hover:bg-red-700"
-      >
-        Log out
-      </button>
+    <main className="mx-auto max-w-5xl px-4 py-6 sm:py-8">
+      <header className="mb-6 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <h1 className="text-base font-semibold">Deposit address</h1>
+          <span className="rounded-full bg-slate-200/70 px-2.5 py-0.5 text-xs text-slate-600">
+            Base Sepolia testnet
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={async () => {
+            await logout();
+            router.push("/");
+          }}
+          className={TEXT_BUTTON_CLASS}
+        >
+          Log out
+        </button>
+      </header>
 
-      <div className="mt-12 mx-auto max-w-screen-xl px-2 sm:px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-          {/* LEFT: deposit address */}
-          <div className="lg:col-span-5 space-y-4 lg:space-y-5">
-            <section className="rounded-xl border border-gray-200 bg-white p-4 lg:p-5 shadow-sm">
-              <h2 className="text-sm lg:text-base font-semibold text-gray-700 mb-3">
-                Deposit address
-              </h2>
-
-              {!enabled && (
-                <div className="flex flex-col gap-3">
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    Enabling adds a non-root API key user to your
-                    sub-organization and two policies that let it send ETH and
-                    USDC only to the destination below. You approve it from your
-                    own session and stay the only root user.
-                  </p>
-                  <label className="flex flex-col gap-1 text-xs font-medium text-gray-700">
-                    Destination for your deposits
-                    <input
-                      type="text"
-                      value={sweepDestination ?? destinationInput}
-                      onChange={(e) => setDestinationInput(e.target.value)}
-                      disabled={!!sweepDestination}
-                      placeholder="0x…"
-                      spellCheck={false}
-                      className="w-full p-2 border rounded font-mono text-xs font-normal disabled:opacity-60"
-                    />
-                  </label>
-                  <div>
-                    <button
-                      type="button"
-                      onClick={handleEnable}
-                      disabled={enabling}
-                      className="rounded bg-blue-600 px-4 py-2 text-white text-sm hover:bg-blue-700 disabled:opacity-50"
-                    >
-                      {enabling ? "Enabling…" : "Enable deposit address"}
-                    </button>
-                  </div>
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-5">
+        <div className="space-y-5 lg:col-span-3">
+          <Card
+            title={
+              enabled ? "Your deposit address" : "Enable a deposit address"
+            }
+            action={
+              enabled && depositAddress ? (
+                <CopyButton value={depositAddress} />
+              ) : undefined
+            }
+          >
+            {!enabled && (
+              <div className="flex flex-col gap-3">
+                <p className="text-sm text-slate-600">
+                  This adds a non-root API key user to your sub-organization and
+                  two policies that let it send ETH and USDC only to the
+                  destination below. You approve it from your own session and
+                  stay the only root user.
+                </p>
+                <label className="flex flex-col gap-1.5 text-xs font-medium text-slate-700">
+                  Destination for your deposits
+                  <input
+                    type="text"
+                    value={sweepDestination ?? destinationInput}
+                    onChange={(e) => setDestinationInput(e.target.value)}
+                    disabled={!!sweepDestination}
+                    placeholder="0x…"
+                    spellCheck={false}
+                    className={`${INPUT_CLASS} font-normal`}
+                  />
+                </label>
+                <div>
+                  <button
+                    type="button"
+                    onClick={handleEnable}
+                    disabled={enabling}
+                    className={PRIMARY_BUTTON_CLASS}
+                  >
+                    {enabling ? "Enabling…" : "Enable deposit address"}
+                  </button>
                 </div>
-              )}
-
-              {enabled && depositAddress && (
-                <div className="flex flex-col items-start gap-3">
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    Send ETH or USDC on <strong>Base Sepolia</strong> to this
-                    address. Deposits are swept automatically to{" "}
-                    <span className="font-mono break-all">
-                      {sweepDestination}
-                    </span>
-                    .
-                  </p>
-                  <div className="rounded border border-gray-200 bg-white p-3">
-                    <QRCodeSVG value={depositAddress} size={168} />
-                  </div>
-                  <code className="font-mono text-xs break-all">
-                    {depositAddress}
-                  </code>
-                  <p className="text-xs text-gray-500">
-                    {registration === null
-                      ? "Registering with the server…"
-                      : registration.ok
-                        ? "Watching for deposits."
-                        : ""}
-                  </p>
-                </div>
-              )}
-
-              {registration && !registration.ok && (
-                <div className="mt-3 p-3 border border-red-300 bg-red-50 rounded text-red-700 text-xs">
-                  Not watching this address: {registration.error}
-                </div>
-              )}
-
-              {enableError && (
-                <div className="mt-3 p-3 border border-red-300 bg-red-50 rounded text-red-700 text-xs">
-                  {enableError}
-                </div>
-              )}
-            </section>
+              </div>
+            )}
 
             {enabled && depositAddress && (
-              <section className="rounded-xl border border-gray-200 bg-white p-4 lg:p-5 shadow-sm">
-                <h2 className="text-sm lg:text-base font-semibold text-gray-700 mb-3">
-                  Sweeps to your destination
-                </h2>
-                <SweepHistory address={depositAddress} />
-              </section>
-            )}
-
-            {depositAddress && subOrgId && (
-              <section className="rounded-xl border border-gray-200 bg-white p-4 lg:p-5 shadow-sm">
-                <h2 className="text-sm lg:text-base font-semibold text-gray-700 mb-1">
-                  Withdraw
-                </h2>
-                <p className="text-xs text-gray-600 mb-3">
-                  Signed with your own login. The platform&apos;s key is not
-                  involved and cannot stop it.
-                </p>
-                <WithdrawPanel subOrgId={subOrgId} address={depositAddress} />
-              </section>
-            )}
-          </div>
-
-          {/* RIGHT: live sub-org state */}
-          <div className="lg:col-span-7 space-y-4 lg:space-y-5">
-            <section className="rounded-xl border border-gray-200 bg-gray-50/60 p-4 lg:p-5 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm lg:text-base font-semibold text-gray-700">
-                  Live sub-org state
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => void loadOrg()}
-                  className="text-xs text-blue-700 hover:underline"
-                >
-                  Refresh
-                </button>
-              </div>
-
-              <div className="mb-3 text-xs text-gray-700 space-y-0.5">
-                <div>
-                  <span className="font-medium">Signed in as:</span>{" "}
-                  {user?.userName}
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                <div className="self-start rounded-lg border border-slate-200 bg-white p-2.5">
+                  <QRCodeSVG value={depositAddress} size={132} />
                 </div>
-                <div>
-                  <span className="font-medium">Sub-organization:</span>{" "}
-                  <span className="font-mono">{subOrgId ?? "Not found"}</span>
+                <div className="min-w-0 space-y-3">
+                  <code className="block font-mono text-sm break-all">
+                    {depositAddress}
+                  </code>
+                  <div className="text-sm text-slate-600">
+                    Send ETH or USDC on Base Sepolia. Each deposit is swept to:
+                    <code className="mt-1 block font-mono text-xs break-all text-slate-900">
+                      {sweepDestination}
+                    </code>
+                  </div>
+                  {registration?.ok && (
+                    <p className="flex items-center gap-1.5 text-xs text-emerald-700">
+                      <span className="size-1.5 rounded-full bg-emerald-500" />
+                      Watching for deposits
+                    </p>
+                  )}
+                  {registration === null && (
+                    <p className="text-xs text-slate-500">
+                      Registering with the server…
+                    </p>
+                  )}
                 </div>
               </div>
+            )}
 
-              {orgError && (
-                <div className="mb-3 text-xs text-red-600">{orgError}</div>
-              )}
+            {registration && !registration.ok && (
+              <ErrorNotice>
+                Not watching this address: {registration.error}
+              </ErrorNotice>
+            )}
+            {enableError && <ErrorNotice>{enableError}</ErrorNotice>}
+          </Card>
 
-              {org && (
-                <>
-                  <ul className="mb-4 text-xs space-y-1">
-                    <Check ok={rootIsUserOnly}>Root quorum is you alone</Check>
-                    <Check ok={delegatedIsNonRoot}>
-                      Delegated user exists and is not root
-                    </Check>
-                    <Check ok={org.policies.length === 2 && !!sweepDestination}>
-                      Exactly two policies, ETH and USDC, scoped to your
-                      destination
-                    </Check>
-                    <Check ok={org.hasUsdcInterface}>
-                      USDC ABI uploaded, so the USDC policy can read the
-                      recipient
-                    </Check>
-                  </ul>
+          {enabled && depositAddress && (
+            <Card title="Sweeps to your destination">
+              <SweepHistory address={depositAddress} />
+            </Card>
+          )}
+        </div>
 
+        <div className="space-y-5 lg:col-span-2">
+          <Card
+            title="Who controls this wallet"
+            action={
+              <button
+                type="button"
+                onClick={() => void loadOrg()}
+                className={TEXT_BUTTON_CLASS}
+              >
+                Refresh
+              </button>
+            }
+          >
+            {orgError && <ErrorNotice>{orgError}</ErrorNotice>}
+
+            {org && (
+              <>
+                <ul className="space-y-2 text-xs">
+                  <Check ok={rootIsUserOnly}>You are the only root user</Check>
+                  <Check ok={delegatedIsNonRoot}>
+                    The platform&apos;s delegated user is not root
+                  </Check>
+                  <Check ok={org.policies.length === 2 && !!sweepDestination}>
+                    Exactly two policies, ETH and USDC, limit it to your
+                    destination
+                  </Check>
+                  <Check ok={org.hasUsdcInterface}>
+                    USDC ABI uploaded, so the USDC policy can read the recipient
+                  </Check>
+                </ul>
+
+                <details className="mt-4 border-t border-slate-100 pt-3 text-xs">
+                  <summary className="cursor-pointer text-slate-500 hover:text-slate-900">
+                    Details
+                  </summary>
+                  <dl className="mt-3 space-y-1 text-slate-600">
+                    <div>
+                      <dt className="inline font-medium">Signed in as </dt>
+                      <dd className="inline">{user?.userName}</dd>
+                    </div>
+                    <div>
+                      <dt className="inline font-medium">Sub-organization </dt>
+                      <dd className="inline font-mono break-all">{subOrgId}</dd>
+                    </div>
+                  </dl>
                   <RawJson title="Users" value={org.users} />
                   <RawJson
                     title="Root quorum user IDs"
                     value={org.rootUserIds}
                   />
                   <RawJson title="Policies" value={org.policies} />
-                </>
-              )}
-            </section>
-          </div>
+                </details>
+              </>
+            )}
+          </Card>
+
+          {depositAddress && subOrgId && (
+            <Card title="Withdraw">
+              <p className="mb-3 text-xs text-slate-600">
+                Signed with your own login. The platform&apos;s key is not
+                involved and cannot stop it.
+              </p>
+              <WithdrawPanel subOrgId={subOrgId} address={depositAddress} />
+            </Card>
+          )}
         </div>
       </div>
     </main>
@@ -409,21 +418,22 @@ export default function Dashboard() {
 
 function Check({ ok, children }: { ok: boolean; children: React.ReactNode }) {
   return (
-    <li className={ok ? "text-emerald-700" : "text-gray-500"}>
-      {ok ? "✓" : "○"} {children}
+    <li className={`flex gap-2 ${ok ? "text-slate-800" : "text-slate-400"}`}>
+      <span className={ok ? "text-emerald-600" : "text-slate-300"}>
+        {ok ? "✓" : "○"}
+      </span>
+      <span>{children}</span>
     </li>
   );
 }
 
 function RawJson({ title, value }: { title: string; value: unknown }) {
   return (
-    <details className="mb-2">
-      <summary className="cursor-pointer text-sm font-semibold text-gray-900">
-        {title}
-      </summary>
-      <pre className="mt-2 p-3 border rounded bg-white border-gray-200 overflow-x-auto font-mono text-[11px] leading-snug">
+    <div className="mt-3">
+      <p className="mb-1 font-medium text-slate-600">{title}</p>
+      <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-2.5 font-mono text-[11px] leading-snug">
         {JSON.stringify(value, null, 2)}
       </pre>
-    </details>
+    </div>
   );
 }

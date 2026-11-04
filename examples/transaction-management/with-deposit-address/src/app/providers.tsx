@@ -51,8 +51,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <TurnkeyProvider
       config={turnkeyConfig}
       callbacks={{
-        onAuthenticationSuccess: ({ session }) => {
-          console.log("Authenticated:", session);
+        onAuthenticationSuccess: () => {
           router.push("/dashboard");
         },
         onError: (error) => {

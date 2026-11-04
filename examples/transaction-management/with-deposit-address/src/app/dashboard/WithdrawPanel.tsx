@@ -5,21 +5,27 @@ import { useTurnkey } from "@turnkey/react-wallet-kit";
 import {
   encodeFunctionData,
   erc20Abi,
-  getAddress,
   formatUnits,
+  getAddress,
   parseUnits,
   type Address,
 } from "viem";
 
 import {
   BASE_SEPOLIA_CAIP2,
-  BASE_SEPOLIA_EXPLORER,
   USDC_ADDRESS,
   USDC_DECIMALS,
   parseAddress,
   sweepAssetOf,
   type SweepAsset,
 } from "@/lib/deposit";
+import {
+  ErrorNotice,
+  INPUT_CLASS,
+  PRIMARY_BUTTON_CLASS,
+  TEXT_BUTTON_CLASS,
+  TxLink,
+} from "./ui";
 
 const DECIMALS: Record<SweepAsset, number> = { ETH: 18, USDC: USDC_DECIMALS };
 
@@ -126,82 +132,79 @@ export function WithdrawPanel({
   };
 
   return (
-    <div className="flex flex-col gap-3 text-xs sm:text-sm">
-      <div className="flex items-center gap-4">
+    <div className="flex flex-col gap-3">
+      <div className="flex items-baseline gap-4 text-sm">
         <span>
-          ETH: <strong>{formatUnits(balances.ETH, 18)}</strong>
+          <strong className="font-medium">
+            {formatUnits(balances.USDC, USDC_DECIMALS)}
+          </strong>{" "}
+          <span className="text-slate-500">USDC</span>
         </span>
         <span>
-          USDC: <strong>{formatUnits(balances.USDC, USDC_DECIMALS)}</strong>
+          <strong className="font-medium">
+            {formatUnits(balances.ETH, 18)}
+          </strong>{" "}
+          <span className="text-slate-500">ETH</span>
         </span>
         <button
           type="button"
           onClick={() => void loadBalances().catch(() => undefined)}
-          className="text-xs text-blue-700 hover:underline"
+          className={`ml-auto ${TEXT_BUTTON_CLASS}`}
         >
           Refresh
         </button>
       </div>
-      <p className="text-xs text-gray-500">
-        Deposits are swept as they arrive, so the balance is usually zero. Run
-        the server with <code>SWEEP_ENABLED=false</code> to keep a deposit here
-        and try a withdrawal.
-      </p>
 
       <div className="flex gap-2">
+        <input
+          type="text"
+          inputMode="decimal"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="Amount"
+          aria-label="Amount"
+          className={INPUT_CLASS}
+        />
         <select
           value={asset}
           onChange={(e) => setAsset(e.target.value === "ETH" ? "ETH" : "USDC")}
-          className="p-2 border rounded"
+          aria-label="Asset"
+          className="rounded-md border border-slate-300 bg-white px-2 py-2 text-xs"
         >
           <option value="USDC">USDC</option>
           <option value="ETH">ETH</option>
         </select>
-        <input
-          type="text"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="Amount"
-          className="w-32 p-2 border rounded font-mono text-xs"
-        />
       </div>
       <input
         type="text"
         value={to}
         onChange={(e) => setTo(e.target.value)}
         placeholder="Recipient 0x…"
+        aria-label="Recipient"
         spellCheck={false}
-        className="w-full p-2 border rounded font-mono text-xs"
+        className={INPUT_CLASS}
       />
-      <div>
-        <button
-          type="button"
-          onClick={handleWithdraw}
-          disabled={sending}
-          className="rounded bg-slate-700 px-4 py-2 text-white text-sm hover:bg-slate-800 disabled:opacity-50"
-        >
-          {sending ? "Sending…" : "Withdraw"}
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={handleWithdraw}
+        disabled={sending}
+        className={PRIMARY_BUTTON_CLASS}
+      >
+        {sending ? "Sending…" : "Withdraw"}
+      </button>
 
       {txHash && (
-        <div className="text-emerald-700">
-          Sent:{" "}
-          <a
-            href={`${BASE_SEPOLIA_EXPLORER}/tx/${txHash}`}
-            target="_blank"
-            rel="noreferrer"
-            className="font-mono hover:underline break-all"
-          >
-            {txHash}
-          </a>
-        </div>
+        <p className="text-xs text-emerald-700">
+          Sent <TxLink hash={txHash} />
+        </p>
       )}
-      {error && (
-        <div className="p-3 border border-red-300 bg-red-50 rounded text-red-700 text-xs">
-          {error}
-        </div>
-      )}
+      {error && <ErrorNotice>{error}</ErrorNotice>}
+
+      <p className="text-xs text-slate-500">
+        Deposits are swept as they arrive, so this is usually zero. To try a
+        withdrawal, run the server with{" "}
+        <code className="font-mono">SWEEP_ENABLED=false</code>.
+      </p>
     </div>
   );
 }
