@@ -1,11 +1,5 @@
 // Shared by the browser, the API routes and the scripts. No secrets here.
-import {
-  erc20Abi,
-  getAddress,
-  isAddress,
-  zeroAddress,
-  type Address,
-} from "viem";
+import { getAddress, isAddress, zeroAddress, type Address } from "viem";
 
 export const BASE_SEPOLIA_CAIP2 = "eip155:84532" as const;
 export const BASE_SEPOLIA_CHAIN_ID = 84532;
@@ -38,15 +32,31 @@ export function sweepAssetOf(caip19: string): SweepAsset | null {
 // policy engine decodes USDC calls with this ABI, which is what fills in
 // `eth.tx.function_name` and `eth.tx.contract_call_args`. A parent-org upload
 // does not count: only the sub-org sending the transaction is consulted.
+//
+// Only `transfer` is uploaded, because that is all the policy reads. Turnkey
+// rejects viem's full `erc20Abi` as invalid.
+const USDC_TRANSFER_ABI = [
+  {
+    type: "function",
+    name: "transfer",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "recipient", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "bool" }],
+  },
+];
+
 export const USDC_INTERFACE = {
   label: "USDC (Base Sepolia)",
-  notes: "ERC-20 ABI, so the sweep policy can read the transfer recipient.",
+  notes: "ERC-20 transfer, so the sweep policy can read the recipient.",
   type: "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM" as const,
   smartContractAddress: USDC_ADDRESS,
-  smartContractInterface: JSON.stringify(erc20Abi),
+  smartContractInterface: JSON.stringify(USDC_TRANSFER_ABI),
 };
 
-// The name viem's `erc20Abi` gives the first argument of `transfer`. The
+// The name `USDC_TRANSFER_ABI` gives the first argument of `transfer`. The
 // uploaded ABI decides this key, not the deployed contract.
 const TRANSFER_RECIPIENT_ARG = "recipient";
 
