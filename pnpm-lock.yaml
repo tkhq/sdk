@@ -2661,25 +2661,6 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/defi/execute-swap:
-    dependencies:
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.6.1
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.9
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-
   examples/defi/solana-usdc-swap:
     dependencies:
       '@solana/spl-token':
@@ -3129,6 +3110,25 @@ importers:
         specifier: ^2.24.2
         version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.6.7)
     devDependencies:
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
+  examples/defi/with-swap:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.6.1
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.9
       typescript:
         specifier: 5.4.3
         version: 5.4.3
@@ -4540,22 +4540,7 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/transaction-management/with-nonce-manager:
-    dependencies:
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../../packages/ethers
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-
-  examples/transaction-management/with-paymaster:
+  examples/transaction-management/with-evm-paymaster:
     dependencies:
       '@turnkey/sdk-server':
         specifier: workspace:*
@@ -4576,6 +4561,21 @@ importers:
       typescript:
         specifier: 5.4.3
         version: 5.4.3
+
+  examples/transaction-management/with-nonce-manager:
+    dependencies:
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../../packages/ethers
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
 
   examples/transaction-management/with-solana-paymaster:
     dependencies:
@@ -4624,7 +4624,7 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/transaction-management/with-tx-webhooks:
+  examples/transaction-management/with-transaction-webhooks:
     dependencies:
       '@solana/spl-token':
         specifier: ^0.4.14

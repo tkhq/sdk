@@ -1,8 +1,6 @@
-# Example: `execute-swap`
+# Example: `with-swap`
 
-> **Closed beta:** Turnkey Swap is currently in closed beta. Your organization must be allowlisted (with the relevant swap feature flags enabled) before this example will work.
-
-This example uses the typed swap methods from `@turnkey/sdk-server`. It submits create-swap-quote V3 and execute-swap V4 activities.
+This example uses the typed swap methods from `@turnkey/sdk-server`.
 
 By default it is configured for Solana mainnet SOL → USDC. Token pair and amount are driven by env vars (`FROM_TOKEN` / `TO_TOKEN` as CAIP-19 asset IDs, `AMOUNT` in base units), so you can point it at other supported pairs without code changes.
 
@@ -27,7 +25,7 @@ $ cd sdk/
 $ corepack enable
 $ pnpm install -r
 $ pnpm run build-all
-$ cd examples/defi/execute-swap/
+$ cd examples/defi/with-swap/
 ```
 
 ---

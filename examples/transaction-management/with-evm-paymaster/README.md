@@ -1,4 +1,4 @@
-# Example: `with-paymaster`
+# Example: `with-evm-paymaster`
 
 This example shows how to send an erc-20 token on evm networks using Turnkey's paymaster (gas sponsorship).
 
@@ -19,7 +19,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/transaction-management/with-paymaster/
+$ cd examples/transaction-management/with-evm-paymaster/
 ```
 
 ### 2/ Setting up Turnkey
