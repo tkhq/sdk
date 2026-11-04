@@ -1,8 +1,15 @@
 "use client";
-import { useTurnkey } from "@turnkey/react-wallet-kit";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useTurnkey, AuthState } from "@turnkey/react-wallet-kit";
 
 function LoginButton() {
-  const { handleLogin } = useTurnkey();
+  const { handleLogin, authState } = useTurnkey();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (authState === AuthState.Authenticated) router.replace("/dashboard");
+  }, [authState, router]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">

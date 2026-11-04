@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
-import { useTurnkey, AuthState, WalletSource } from "@turnkey/react-wallet-kit";
+import {
+  useTurnkey,
+  AuthState,
+  ClientState,
+  WalletSource,
+} from "@turnkey/react-wallet-kit";
 
 import {
   USDC_ADDRESS,
@@ -52,6 +57,7 @@ function errorMessage(e: unknown, fallback: string) {
 export default function Dashboard() {
   const {
     authState,
+    clientState,
     user,
     session,
     logout,
@@ -68,11 +74,16 @@ export default function Dashboard() {
   const [enableError, setEnableError] = useState<string | null>(null);
   const [destinationInput, setDestinationInput] = useState(DEFAULT_DESTINATION);
 
+  // `authState` reads Unauthenticated until the stored session is restored, so
+  // wait for the client. Otherwise every reload lands on the login page.
   useEffect(() => {
-    if (authState === AuthState.Unauthenticated) {
+    if (
+      clientState === ClientState.Ready &&
+      authState === AuthState.Unauthenticated
+    ) {
       router.replace("/");
     }
-  }, [authState, router]);
+  }, [authState, clientState, router]);
 
   // The deposit address is the first Ethereum account of the embedded wallet
   // created at sign-up.
