@@ -117,8 +117,6 @@ export default function DemoPanel() {
         walletAccount: selectedWalletAccount!,
         sandboxMode,
         defaultFiatCurrencyAmount: "40",
-        countryCode: "US",
-        countrySubdivisionCode: "OR",
       });
     } catch (error) {
       handleError(error);
@@ -131,8 +129,6 @@ export default function DemoPanel() {
         walletAccount: selectedWalletAccount!,
         sandboxMode,
         defaultCryptoAmount: "0.05",
-        countryCode: "US",
-        countrySubdivisionCode: "OR",
       });
     } catch (error) {
       handleError(error);
