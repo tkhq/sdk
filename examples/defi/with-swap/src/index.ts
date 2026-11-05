@@ -40,7 +40,7 @@ export async function main() {
     initial: true,
   });
 
-  console.log("Fetching swap quotes via CREATE_SWAP_QUOTE_V2...");
+  console.log("Fetching swap quotes...");
   const quoteResponse = await apiClient.createSwapQuote({
     organizationId,
     signWith,
@@ -69,9 +69,7 @@ export async function main() {
       "Selected quote missing minOutputAmount; cannot execute with price protection",
     );
   }
-  console.log(
-    `\nExecuting quote ${selectedQuote.quoteId} via EXECUTE_SWAP_V4...\n`,
-  );
+  console.log(`\nExecuting quote ${selectedQuote.quoteId}...\n`);
 
   const executeResponse = await apiClient.executeSwap({
     organizationId,

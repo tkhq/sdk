@@ -1,5 +1,7 @@
 # Example: `with-ethers`
 
+> **Note:** This example broadcasts through your own RPC provider, so the wallet pays its own gas. To have Turnkey broadcast and sponsor gas instead (available on every paid plan, within [spend limits](https://docs.turnkey.com/features/transaction-management#spend-limits)), see [`with-evm-paymaster`](../../transaction-management/with-evm-paymaster/).
+
 This example shows how to construct and broadcast a transaction using [`Ethers`](https://docs.ethers.org/v6/api/providers/#Signer) with Turnkey.
 
 If you want to see a demo with passkeys, head to the example [`with-ethers-and-passkeys`](../with-ethers-and-passkeys/) to see a NextJS app using passkeys.

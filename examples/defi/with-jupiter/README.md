@@ -1,5 +1,7 @@
 # with-jupiter
 
+> **Note:** This example integrates with Jupiter directly. [Turnkey Swap](https://docs.turnkey.com/features/transaction-management/swap) quotes, signs, and broadcasts swaps for you, including same-chain and cross-chain EVM routes, Solana swaps, and EVM ↔ Solana routes. See [`with-swap`](../with-swap/).
+
 An example app that integrates [Turnkey](https://turnkey.com) with [Jupiter’s Ultra Swap](https://station.jup.ag/docs/apis/ultra-api) to demonstrate Solana token swaps directly from a Turnkey-managed wallet.
 
 This project shows how to:
