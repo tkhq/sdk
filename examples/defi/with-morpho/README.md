@@ -1,5 +1,7 @@
 # Example: `with-morpho`
 
+> **Note:** This example integrates with Morpho directly. To offer yield in your product, [Turnkey Earn](https://docs.turnkey.com/features/transaction-management/earn) supports Morpho vaults and Aave v3 reserves, with deposits, withdrawals, and position tracking handled by Turnkey. See [`with-earn`](../with-earn/).
+
 [Morpho Vaults](https://docs.morpho.org/build/earn/getting-started?) are smart contracts that allow users to deposit assets into yield-generating vaults built on top of Morpho's lending protocol.
 This examples shows how to sign transactions to Morpho's Steakhouse USDC Vault on Base Mainnet using Turnkey. It provides the following scripts:
 

@@ -1,14 +1,14 @@
 # Example: `with-swap`
 
-This example uses the typed swap methods from `@turnkey/sdk-server`.
+This example uses the typed swap methods from `@turnkey/sdk-server` to quote, execute, and track a swap with [Turnkey Swap](https://docs.turnkey.com/features/transaction-management/swap). Swap supports same-chain and cross-chain EVM routes, Solana swaps, and EVM ↔ Solana routes.
 
 By default it is configured for Solana mainnet SOL → USDC. Token pair and amount are driven by env vars (`FROM_TOKEN` / `TO_TOKEN` as CAIP-19 asset IDs, `AMOUNT` in base units), so you can point it at other supported pairs without code changes.
 
 The script will:
 
-1. Call `createSwapQuote` (V3) with the tokens, amount, slippage, and optional destination address
+1. Call `createSwapQuote` with the tokens, amount, slippage, and optional destination address
 2. Prompt whether to use Turnkey gas sponsorship
-3. Call `executeSwap` (V4, bound mode) with the selected quote and the same destination address
+3. Call `executeSwap` with the selected quote and the same destination address
 4. Poll `getSwapStatus` with the returned `swapRequestId` until `COMPLETED` or a terminal failure
 
 ---
