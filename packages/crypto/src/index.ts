@@ -2,6 +2,7 @@ export * from "./crypto";
 export * from "./turnkey";
 export * from "./proof";
 export * from "./verification-token";
+export * from "./client-signature";
 export {
   TurnkeyWebhookVerificationFailureReasons,
   verifyTurnkeyWebhookSignature,

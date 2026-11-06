@@ -11,11 +11,8 @@ import {
   type v1Authenticator,
   type v1WalletAccountParams,
   type v1WalletAccount,
-  type v1LoginUsage,
-  type v1TokenUsage,
   type v1OauthProviderParamsV2,
-  type v1SignupUsageV3,
-  type v1WalletAuthenticatorParams,
+  type v1OtpParams,
   type v1SignRawPayloadResult,
   type v1TransactionType,
   type ProxyTGetWalletKitConfigResponse,
@@ -791,29 +788,24 @@ export function buildSignUpBody(params: {
       }));
   }
 
+  const otpAuthenticators: v1OtpParams[] =
+    createSubOrgParams?.otpAuthenticators ?? [];
+
   return {
     userName:
       createSubOrgParams?.userName ||
-      createSubOrgParams?.userEmail ||
+      otpAuthenticators[0]?.contact ||
       `user-${Date.now()}`,
-    ...(createSubOrgParams?.userEmail && {
-      userEmail: createSubOrgParams?.userEmail,
-    }),
     ...(createSubOrgParams?.authenticators?.length
       ? {
           authenticators,
         }
       : { authenticators: [] }),
-    ...(createSubOrgParams?.userPhoneNumber && {
-      userPhoneNumber: createSubOrgParams.userPhoneNumber,
-    }),
     ...(createSubOrgParams?.userTag && {
       userTag: createSubOrgParams?.userTag,
     }),
     organizationName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
-    ...(createSubOrgParams?.verificationToken && {
-      verificationToken: createSubOrgParams?.verificationToken,
-    }),
+    otpAuthenticators,
     ...(createSubOrgParams?.apiKeys?.length
       ? {
           apiKeys,
@@ -1470,87 +1462,6 @@ export function walletApiKeyPublicKeyFromAuthToken(publicKey: string): string {
     );
   }
   return hex;
-}
-
-export function getClientSignatureMessageForLogin({
-  verificationToken,
-  sessionPublicKey = undefined,
-}: {
-  verificationToken: string;
-  sessionPublicKey?: string;
-}) {
-  try {
-    const token = VerificationToken.parse(verificationToken);
-    const verificationPublicKey = token.ephemeralPublicKey;
-
-    // if a session public key is provided, we use it instead
-    const resolvedSessionPublicKey = sessionPublicKey || verificationPublicKey;
-
-    const usage: v1LoginUsage = { publicKey: resolvedSessionPublicKey };
-    const payload: v1TokenUsage = {
-      login: usage,
-      tokenId: token.jti,
-      type: "USAGE_TYPE_LOGIN",
-    };
-
-    const json = JSON.stringify(payload);
-
-    return { message: json, publicKey: verificationPublicKey };
-  } catch (error) {
-    throw new TurnkeyError(
-      "Failed to create client signature bundle for login",
-      TurnkeyErrorCodes.UNKNOWN,
-      error,
-    );
-  }
-}
-
-export function getClientSignatureMessageForSignup({
-  verificationToken,
-  email,
-  phoneNumber,
-  apiKeys,
-  authenticators,
-  oauthProviders,
-  walletAuthenticators,
-}: {
-  verificationToken: string;
-  email?: string;
-  phoneNumber?: string;
-  apiKeys?: v1ApiKeyParamsV2[];
-  authenticators?: v1AuthenticatorParamsV2[];
-  oauthProviders?: v1OauthProviderParamsV2[];
-  walletAuthenticators?: v1WalletAuthenticatorParams[];
-}) {
-  try {
-    const token = VerificationToken.parse(verificationToken);
-    const verificationPublicKey = token.ephemeralPublicKey;
-
-    const usage: v1SignupUsageV3 = {
-      ...(apiKeys ? { apiKeys } : {}),
-      ...(authenticators ? { authenticators } : {}),
-      ...(oauthProviders ? { oauthProviders } : {}),
-      ...(walletAuthenticators ? { walletAuthenticators } : {}),
-      ...(email ? { email } : {}),
-      ...(phoneNumber ? { phoneNumber } : {}),
-    };
-
-    const payload: v1TokenUsage = {
-      signupV3: usage,
-      tokenId: token.jti,
-      type: "USAGE_TYPE_SIGNUP",
-    };
-
-    const json = JSON.stringify(payload);
-
-    return { message: json, publicKey: verificationPublicKey };
-  } catch (error) {
-    throw new TurnkeyError(
-      "Failed to create client signature bundle for signup",
-      TurnkeyErrorCodes.UNKNOWN,
-      error,
-    );
-  }
 }
 
 /**

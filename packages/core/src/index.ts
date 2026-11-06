@@ -34,8 +34,6 @@ export {
   getAuthProxyConfig,
   getClientParams,
   decodeWalletAuthVerificationToken,
-  getClientSignatureMessageForLogin,
-  getClientSignatureMessageForSignup,
   buildSecondaryOidcClaims,
   buildSecondaryOauthProviders,
   fetchWalletConnectApps,
@@ -64,7 +62,19 @@ export {
   AUTH_METHOD_WALLET,
   VerificationToken,
   publicKeyNonce,
+  ClientSignature,
+  buildClientSignatureV2,
+  buildSignupClientSignatureMessage,
+  collectClientSignaturePublicKeys,
+  getClientSignatureMessageForLogin,
+  getClientSignatureMessageForSignup,
 } from "@turnkey/crypto";
-export type { VerifyVerificationTokenOptions } from "@turnkey/crypto";
+export type {
+  VerifyVerificationTokenOptions,
+  BuildClientSignatureMessageParams,
+  ClientSignatureKeySource,
+  ClientSignatureListPublicKeys,
+  ClientSignatureSigner,
+} from "@turnkey/crypto";
 
 export * from "@turnkey/sdk-types";

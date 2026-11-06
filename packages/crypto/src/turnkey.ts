@@ -662,8 +662,8 @@ export const encryptToEnclave = async (
 /**
  * Encrypts an OTP code and a client public key to the target encryption key
  * provided by the enclave during initOtp. The resulting encrypted bundle is
- * sent to verifyOtpV2 or verifyOtpV3 so the enclave can decrypt it, verify 
- * the OTP code, and issue a verification token bound to the client's public 
+ * sent to verifyOtpV2 or verifyOtpV3 so the enclave can decrypt it, verify
+ * the OTP code, and issue a verification token bound to the client's public
  * key.
  *
  * Verifies the enclave signature on the target bundle before encrypting.

@@ -2310,8 +2310,6 @@ export type definitions = {
     disableSmsAuth?: boolean;
     /** @description Disable OTP email auth for the sub-organization */
     disableOtpEmailAuth?: boolean;
-    /** @description Signed JWT containing a unique id, expiry, verification type, contact. Only tokens issued by VerifyOtpV3 are accepted. */
-    verificationToken?: string;
     /** @description Signatures over one signup payload, one per verification token nonce. Required when the request carries any verified authentication token. */
     clientSignature?: definitions["v1ClientSignatureV2"];
   };
@@ -2630,7 +2628,7 @@ export type definitions = {
     /** @description Data source for the Usage Control. */
     dataSource: definitions["v1UsageControlDataSource"];
     /** @description Aggregation expression that the Usage Control evaluates. */
-    aggregation: definitions["v1UsageControlAggregation"];
+    budget: definitions["v1UsageControlBudget"];
     /** @description Identifier for the Usage Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
     identifier: string;
   };
@@ -3416,13 +3414,13 @@ export type definitions = {
     provider?: definitions["v1EarnProvider"];
     /** @description CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
     caip19?: string;
-    /** @description Gross annual percentage yield, expressed as a decimal fraction (before fees). */
+    /** @description Gross annual percentage yield including protocol rewards, expressed as a decimal fraction (before fees). */
     apyPct?: string;
     /** @description Total deposited through this wrapper (wrapper TVL), in raw on-chain units of the underlying asset. */
     totalDeposited?: string;
     /** @description Normalized total-deposited values for display only (usd + crypto). Do not do arithmetic with these; use total_deposited instead. */
     display?: definitions["v1EarnValueDisplay"];
-    /** @description Annual percentage yield net of fees, expressed as a decimal fraction. */
+    /** @description Annual percentage yield net of fees, expressed as a decimal fraction. Fees apply to the non-reward portion only; rewards_apy_pct passes through untouched. */
     netApyPct?: string;
     /** @description Client fee taken on yield, in basis points. */
     clientFeeBps?: string;
@@ -3454,6 +3452,8 @@ export type definitions = {
     deployRequestId?: string;
     /** @description Failure detail when deploy_status is FAILED. */
     deployError?: string;
+    /** @description The protocol-reward portion of apy_pct (e.g. Merkl campaigns), expressed as a decimal fraction. */
+    rewardsApyPct?: string;
   };
   v1EarnPosition: {
     /** @description Address of the underlying yield vault. */
@@ -3566,7 +3566,7 @@ export type definitions = {
     caip19?: string;
     /** @description Total value locked in the vault, in raw on-chain units of the underlying asset. The catalog is sorted by the USD value of this. */
     tvl?: string;
-    /** @description Current annual percentage yield, expressed as a decimal fraction (e.g., '0.0812' for 8.12%). */
+    /** @description Gross annual percentage yield including protocol rewards, expressed as a decimal fraction (e.g., '0.0812' for 8.12%). */
     apyPct?: string;
     /** @description Whether the organization has enabled this vault. */
     enabled?: boolean;
@@ -3584,6 +3584,8 @@ export type definitions = {
     forceDeallocatableLiquidity?: string;
     /** @description Normalized force-deallocatable liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use force_deallocatable_liquidity instead. */
     forceDeallocatableLiquidityDisplay?: definitions["v1EarnValueDisplay"];
+    /** @description The protocol-reward portion of apy_pct (e.g. Merkl campaigns), expressed as a decimal fraction. */
+    rewardsApyPct?: string;
   };
   v1EarnVaultExposure: {
     /** @description Provider-specific identifier for the market (the Morpho Blue market id). */
@@ -3973,6 +3975,19 @@ export type definitions = {
   v1EthSendTransactionStatus: {
     /** @description The Ethereum transaction hash, if available. */
     txHash?: string;
+    /** @description Fee the landed transaction paid, including when it reverted, when available. */
+    fee?: definitions["v1EthTransactionFee"];
+  };
+  v1EthTransactionFee: {
+    /**
+     * Format: uint64
+     * @description Gas units consumed by the landed transaction (receipt.gasUsed).
+     */
+    gasUsed?: string;
+    /** @description Effective gas price paid per gas unit, in wei (decimal string). On OP Stack chains, gasUsed multiplied by this price excludes the L1 data and operator fees. */
+    effectiveGasPrice?: string;
+    /** @description Sponsored cost recorded for this transaction, in USD, at the token price used for billing. Unset for non-sponsored and testnet transactions, and until the cost is recorded. */
+    totalCostUsd?: string;
   };
   v1EthTransactionHistoryItem: {
     /** @description EVM transaction hash. */
@@ -6645,6 +6660,14 @@ export type definitions = {
     /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
     session: string;
   };
+  v1OtpParams: {
+    /** @description Email address or phone number for this OTP authenticator. */
+    contact: string;
+    /** @description Whether this contact is SMS, email, or WhatsApp. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL, OTP_TYPE_WHATSAPP */
+    otpType: string;
+    /** @description Verification token for this contact. Omit to attach the contact unverified. Only tokens issued by VerifyOtpV3 are accepted. */
+    verificationToken?: string;
+  };
   /** @enum {string} */
   v1Outcome:
     | "OUTCOME_ALLOW"
@@ -7137,10 +7160,8 @@ export type definitions = {
   v1RootUserParamsV6: {
     /** @description Human-readable name for a User. */
     userName: string;
-    /** @description The user's email address. */
-    userEmail?: string;
-    /** @description The user's phone number in E.164 format e.g. +13214567890 */
-    userPhoneNumber?: string;
+    /** @description OTP contacts for this root user. At most one OTP_TYPE_EMAIL and one OTP_TYPE_SMS. Each entry can carry its own verification token. If not needed, this should be an empty array. */
+    otpAuthenticators: definitions["v1OtpParams"][];
     /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
     apiKeys: definitions["v1ApiKeyParamsV2"][];
     /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
@@ -7337,8 +7358,7 @@ export type definitions = {
     oauthProviders?: definitions["v1OauthProviderParamsV2"][];
   };
   v1SignupUsageV3: {
-    email?: string;
-    phoneNumber?: string;
+    otpAuthenticators?: definitions["v1OtpParams"][];
     apiKeys?: definitions["v1ApiKeyParamsV2"][];
     authenticators?: definitions["v1AuthenticatorParamsV2"][];
     oauthProviders?: definitions["v1OauthProviderParamsV2"][];
@@ -7482,6 +7502,26 @@ export type definitions = {
   v1SolanaSendTransactionStatus: {
     /** @description The Solana transaction signature, if available. */
     signature?: string;
+    /** @description Fee the landed transaction paid, including when it failed on chain, when available. */
+    fee?: definitions["v1SolanaTransactionFee"];
+  };
+  v1SolanaTransactionFee: {
+    /**
+     * Format: uint64
+     * @description Total fee the landed transaction paid, in lamports (meta.fee). Excludes rent.
+     */
+    feeLamports?: string;
+    /**
+     * Format: uint64
+     * @description Rent the paymaster covered for accounts this transaction created, in lamports, net of any rent swept back in the same transaction. Unset when none was sponsored. Not reduced if an account is later closed.
+     */
+    sponsoredRentLamports?: string;
+    /** @description Sponsored cost recorded for this transaction, in USD, at the token price used for billing: fee_cost_usd plus rent_cost_usd. Unset for non-sponsored and testnet transactions, and until the cost is recorded. */
+    totalCostUsd?: string;
+    /** @description The transaction fee portion of total_cost_usd, in USD. */
+    feeCostUsd?: string;
+    /** @description The sponsored rent portion of total_cost_usd, in USD. Unset when no rent was sponsored. */
+    rentCostUsd?: string;
   };
   v1SparkClaimLeaf: {
     /** @description Leaf identifier (UUID). */
@@ -8685,8 +8725,8 @@ export type definitions = {
     name: string;
     /** @description Data source for the Usage Control. */
     dataSource: definitions["v1UsageControlDataSource"];
-    /** @description Aggregation expression that the Usage Control evaluates. */
-    aggregation: definitions["v1UsageControlAggregation"];
+    /** @description Describes the budget for the Usage Control - the limit, aggregation function and the window. */
+    budget: definitions["v1UsageControlBudget"];
     /** @description Scope of the usage control. Defines the boundaries within which the Usage Control operates. */
     appliesTo?: definitions["v1UsageControlScope"];
     /** @description Time when the Usage Control was created. */
@@ -8696,40 +8736,10 @@ export type definitions = {
     /** @description Identifier for the Usage Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
     identifier: string;
   };
-  v1UsageControlAggregation: {
-    /** @description Method that aggregates matching data points. */
-    method: definitions["v1UsageControlAggregationMethod"];
-    /** @description Comparison between the aggregate and the threshold. */
-    operator: definitions["v1UsageControlAggregationOperator"];
-    /** @description Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits. */
-    threshold: string;
-    /** @description Time window for the aggregation. */
-    window: definitions["v1UsageControlAggregationWindow"];
-    /** @description Scope that partitions matching data before aggregation. */
-    groupBy: definitions["v1UsageControlAggregationGroupBy"];
-  };
-  v1UsageControlAggregationGroupBy: {
-    /** @description Uses one shared bucket for the Organization. */
-    organization?: definitions["v1UsageControlAggregationGroupByOrganization"];
-    /** @description Uses one bucket for each User. */
-    user?: definitions["v1UsageControlAggregationGroupByUser"];
-    /** @description Uses one bucket for each Wallet. */
-    wallet?: definitions["v1UsageControlAggregationGroupByWallet"];
-  };
-  v1UsageControlAggregationGroupByOrganization: { [key: string]: unknown };
-  v1UsageControlAggregationGroupByUser: { [key: string]: unknown };
-  v1UsageControlAggregationGroupByWallet: { [key: string]: unknown };
   /** @enum {string} */
   v1UsageControlAggregationMethod:
     | "USAGE_CONTROL_AGGREGATION_METHOD_SUM"
     | "USAGE_CONTROL_AGGREGATION_METHOD_COUNT";
-  /** @enum {string} */
-  v1UsageControlAggregationOperator:
-    | "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN"
-    | "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL"
-    | "USAGE_CONTROL_AGGREGATION_OPERATOR_EQUAL"
-    | "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL"
-    | "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN";
   v1UsageControlAggregationWindow: {
     /** @description Uses a rolling time window. */
     rolling?: definitions["v1UsageControlAggregationWindowRolling"];
@@ -8744,27 +8754,24 @@ export type definitions = {
      */
     duration: number;
   };
+  v1UsageControlBudget: {
+    /** @description Method that aggregates matching data points. */
+    method: definitions["v1UsageControlAggregationMethod"];
+    /** @description Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits. */
+    limit: string;
+    /** @description Time window for the aggregation. */
+    window: definitions["v1UsageControlAggregationWindow"];
+  };
   v1UsageControlDataSource: {
     /** @description Uses transfers of the listed on-chain assets as input data. */
     chainAssetTransfer?: definitions["v1UsageControlDataSourceChainAssetTransfer"];
     /** @description Uses executed Turnkey activities as input data. */
     activityExecution?: definitions["v1UsageControlDataSourceActivityExecution"];
   };
-  v1UsageControlDataSourceActivityExecution: {
-    /** @description Filters activity executions by type. */
-    filter?: definitions["v1UsageControlDataSourceActivityExecutionFilter"];
-  };
-  v1UsageControlDataSourceActivityExecutionFilter: {
-    /** @description Activity types whose executions are included. */
-    activity?: definitions["v1UsageControlDataSourceFilterActivity"][];
-  };
+  v1UsageControlDataSourceActivityExecution: { [key: string]: unknown };
   v1UsageControlDataSourceChainAssetTransfer: {
     /** @description Assets whose transfers are included in the data source. */
     definition: definitions["v1UsageControlDataSourceChainAssetTransferDefinition"][];
-    /** @description Filters asset transfers by activity type. */
-    filter?: definitions["v1UsageControlDataSourceChainAssetTransferFilter"];
-    /** @description Selects when to measure an asset transfer. */
-    phase?: definitions["v1UsageControlDataSourcePhase"];
   };
   v1UsageControlDataSourceChainAssetTransferDefinition: {
     /** @description CAIP-19 identifier for the asset. */
@@ -8775,22 +8782,6 @@ export type definitions = {
      */
     decimals: number;
   };
-  v1UsageControlDataSourceChainAssetTransferFilter: {
-    /** @description Activity types whose asset transfers are included. */
-    activity?: definitions["v1UsageControlDataSourceFilterActivity"][];
-  };
-  v1UsageControlDataSourceFilterActivity: {
-    /** @description Name of an activity type to include, such as `ACTIVITY_TYPE_SOL_SEND_TRANSACTION`. */
-    activityType: string;
-  };
-  v1UsageControlDataSourcePhase: {
-    /** @description Measures the transfer when Turnkey signs the transaction and returns it to the user. */
-    signature?: definitions["v1UsageControlDataSourcePhaseSignature"];
-    /** @description Reserved for future use. Measures the transfer after the transaction lands on chain. */
-    submission?: definitions["v1UsageControlDataSourcePhaseSubmission"];
-  };
-  v1UsageControlDataSourcePhaseSignature: { [key: string]: unknown };
-  v1UsageControlDataSourcePhaseSubmission: { [key: string]: unknown };
   v1UsageControlScope: {
     /** @description Limits the scope of the usage control to particular Users. */
     user?: definitions["v1UsageControlScopeUser"];
@@ -8798,18 +8789,24 @@ export type definitions = {
     wallet?: definitions["v1UsageControlScopeWallet"];
     /** @description Limits the scope of the usage control to particular Wallet Accounts. */
     walletAccount?: definitions["v1UsageControlScopeWalletAccount"];
+    /** @description Limits the scope of the usage control to particular Activity Types. */
+    activity?: definitions["v1UsageControlScopeActivity"];
+  };
+  v1UsageControlScopeActivity: {
+    /** @description List of Activity Types for which the control will capture the usage. If empty, the control will apply to all supported Activity Types. */
+    types: string[];
   };
   v1UsageControlScopeUser: {
-    /** @description IDs of the users for which the usage control will capture the usage. */
-    userIds: string[];
+    /** @description List of User IDs for which the control will capture the usage. If empty, the control will apply to all Users. */
+    ids: string[];
   };
   v1UsageControlScopeWallet: {
-    /** @description IDs of the wallets for which the usage control will capture the usage. */
-    walletIds: string[];
+    /** @description List of Wallet IDs for which the control will capture the usage. If empty, the control will apply to all Wallets. */
+    ids: string[];
   };
   v1UsageControlScopeWalletAccount: {
-    /** @description IDs of the wallet accounts for which the usage control will capture the usage. */
-    walletAccountIds: string[];
+    /** @description List of Wallet Account addresses for which the control will capture the usage. If empty, the control will apply to all Wallet Accounts. */
+    addresses: string[];
   };
   /** @enum {string} */
   v1UsageType: "USAGE_TYPE_SIGNUP" | "USAGE_TYPE_LOGIN";

@@ -141,15 +141,15 @@ const subtle = {
 };
 
 // Attach global `crypto` with subtle + getRandomValues.
-// Use Object.defineProperty since crypto.subtle is read-only (and thus can't be modified in place)
-Object.defineProperty(globalThis.crypto, "subtle", {
-  value: subtle,
-  writable: true,
-  configurable: true,
-});
-
-Object.defineProperty(globalThis.crypto, "getRandomValues", {
-  value: (arr: Uint8Array) => fillRandom(arr),
+Object.defineProperty(globalThis, "crypto", {
+  value: {
+    subtle,
+    getRandomValues: (arr: Uint8Array) => fillRandom(arr),
+    randomUUID: () => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      return require("crypto").randomUUID() as string;
+    },
+  },
   writable: true,
   configurable: true,
 });

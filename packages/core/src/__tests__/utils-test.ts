@@ -1,4 +1,11 @@
-import { describe, expect, jest, afterEach, it } from "@jest/globals";
+import {
+  describe,
+  expect,
+  jest,
+  afterEach,
+  beforeEach,
+  it,
+} from "@jest/globals";
 import {
   externaldatav1Timestamp,
   TurnkeyError,
@@ -28,14 +35,10 @@ import {
   isValidPasskeyName,
   mapAccountsToWallet,
   buildSignUpBody,
-  getClientSignatureMessageForSignup,
   walletApiKeyPublicKeyFromAuthToken,
 } from "../utils";
 import * as utils from "../utils";
-import {
-  hexStringToBase64url,
-  stringToBase64urlString,
-} from "@turnkey/encoding";
+import { bs58, stringToBase64urlString } from "@turnkey/encoding";
 import {
   Chain,
   EmbeddedWallet,
@@ -45,12 +48,6 @@ import {
   WalletProvider,
   WalletSource,
 } from "../__types__";
-
-// mock the bs58 library
-jest.mock("bs58", () => ({
-  encode: jest.fn(() => "base58-encoded"),
-}));
-import { bs58 } from "@turnkey/encoding";
 
 // For deterministic ETH behavior, mock the heavy crypto/EC parts.
 
@@ -87,17 +84,20 @@ jest.mock("@turnkey/crypto", () => {
     AUTH_METHOD_WALLET: actual.AUTH_METHOD_WALLET,
     NIL_SESSION_PROFILE_SCOPE: actual.NIL_SESSION_PROFILE_SCOPE,
     VERIFICATION_TOKEN_TYPE_V1: actual.VERIFICATION_TOKEN_TYPE_V1,
+    getClientSignatureMessageForSignup:
+      actual.getClientSignatureMessageForSignup,
+    buildClientSignatureV2: actual.buildClientSignatureV2,
+    ClientSignature: actual.ClientSignature,
   };
 });
 import {
   AUTH_METHOD_WALLET,
-  NIL_SESSION_PROFILE_SCOPE,
-  VERIFICATION_TOKEN_TYPE_V1,
+  ClientSignature,
   generateP256KeyPair,
-  publicKeyNonce,
   uncompressRawPublicKey,
 } from "@turnkey/crypto";
 import { TurnkeyRequestError } from "@turnkey/http";
+import { encodeTestVerificationToken } from "./shared";
 
 describe("address format helpers", () => {
   const ETH: v1AddressFormat = "ADDRESS_FORMAT_ETHEREUM";
@@ -402,6 +402,10 @@ describe("findWalletProviderFromAddress", () => {
 });
 
 describe("addressFromPublicKey", () => {
+  beforeEach(() => {
+    jest.spyOn(bs58, "encode").mockReturnValue("base58-encoded");
+  });
+
   it("Ethereum: strips 0x04 after uncompress, keccak, last 20 bytes", () => {
     const addr = addressFromPublicKey(Chain.Ethereum, "03deadbeef"); // input value irrelevant due to mocks
     expect(addr).toBe("0x1234567890abcdef1234567890abcdef12345678");
@@ -423,6 +427,10 @@ describe("addressFromPublicKey", () => {
 });
 
 describe("getAuthenticatorAddresses", () => {
+  beforeEach(() => {
+    jest.spyOn(bs58, "encode").mockReturnValue("base58-encoded");
+  });
+
   it("routes SECP256K1 -> ethereum and ED25519 -> solana", () => {
     // ✅ Valid hex inputs so we don't need to mock addressFromPublicKey itself
     const secpCompressed = "02" + "ab".repeat(32); // 33 bytes, starts with 02/03
@@ -1269,98 +1277,86 @@ describe("mapAccountsToWallet", () => {
 });
 
 describe("wallet authenticator signup helpers", () => {
-  const ephemeral = generateP256KeyPair();
-  const ephemeralPublicKey = ephemeral.publicKey.toLowerCase();
-  const uncompressed = ephemeral.publicKeyUncompressed;
-  const xHex = uncompressed.slice(2, 66);
-  const yHex = uncompressed.slice(66);
-  const jti = "11111111-1111-4111-8111-111111111111";
-  const verificationToken = [
-    Buffer.from(
-      JSON.stringify({
-        alg: "ES256",
-        typ: VERIFICATION_TOKEN_TYPE_V1,
-        kid: "test-kid",
-      }),
-    ).toString("base64url"),
-    Buffer.from(
-      JSON.stringify({
-        jti,
-        iss: "https://id.turnkey.com/t/parent-org",
-        aud: "urn:turnkey:org:parent-org",
-        cnf: {
-          jwk: {
-            kty: "EC",
-            crv: "P-256",
-            x: hexStringToBase64url(xHex),
-            y: hexStringToBase64url(yHex),
-          },
-        },
-        nonce: publicKeyNonce(ephemeralPublicKey),
-        auth_method: AUTH_METHOD_WALLET,
-        sub_id: {
-          format: "wallet",
-          type: "WALLET_AUTHENTICATOR_TYPE_ETHEREUM",
-          address: "0xabc0000000000000000000000000000000000000",
-          domain: "app.example.com",
-        },
-        scope: NIL_SESSION_PROFILE_SCOPE,
-        iat: 0,
-        exp: 9999999999,
-      }),
-    ).toString("base64url"),
-    Buffer.alloc(64).toString("base64url"),
-  ].join(".");
+  const ephemeralPublicKey = generateP256KeyPair().publicKey.toLowerCase();
+  const verificationToken = encodeTestVerificationToken(ephemeralPublicKey, {
+    auth_method: AUTH_METHOD_WALLET,
+    sub_id: {
+      format: "wallet",
+      type: "WALLET_AUTHENTICATOR_TYPE_ETHEREUM",
+      address: "0xabc0000000000000000000000000000000000000",
+      domain: "app.example.com",
+    },
+  });
 
-  it("always includes walletAuthenticators on the v3 signup body", () => {
+  it("always includes walletAuthenticators and otpAuthenticators on the v3 signup body", () => {
     const body = buildSignUpBody({ createSubOrgParams: undefined });
     expect(body.walletAuthenticators).toEqual([]);
+    expect(body.otpAuthenticators).toEqual([]);
   });
 
   it("includes walletAuthenticators on the signup body", () => {
-    const body = buildSignUpBody({
-      createSubOrgParams: {
-        verificationToken,
-        walletAuthenticators: [
-          {
-            type: "WALLET_AUTHENTICATOR_TYPE_ETHEREUM",
-            address: "0xabc0000000000000000000000000000000000000",
-            domain: "app.example.com",
-          },
-        ],
-      },
-    });
-
-    expect(body.verificationToken).toBe(verificationToken);
-    expect(body.walletAuthenticators).toEqual([
-      {
-        type: "WALLET_AUTHENTICATOR_TYPE_ETHEREUM",
-        address: "0xabc0000000000000000000000000000000000000",
-        domain: "app.example.com",
-      },
-    ]);
-    expect(body.apiKeys).toEqual([]);
-  });
-
-  it("builds a signupV3 client signature when wallet authenticators are present", () => {
     const walletAuthenticators = [
       {
         type: "WALLET_AUTHENTICATOR_TYPE_ETHEREUM" as const,
         address: "0xabc0000000000000000000000000000000000000",
         domain: "app.example.com",
+        verificationToken,
       },
     ];
-
-    const { message, publicKey } = getClientSignatureMessageForSignup({
-      verificationToken,
-      walletAuthenticators,
+    const body = buildSignUpBody({
+      createSubOrgParams: {
+        walletAuthenticators,
+      },
     });
 
-    expect(publicKey).toBe(ephemeralPublicKey);
-    expect(JSON.parse(message)).toEqual({
-      type: "USAGE_TYPE_SIGNUP",
-      tokenId: jti,
-      signupV3: { walletAuthenticators },
+    expect(body.otpAuthenticators).toEqual([]);
+    expect(body.walletAuthenticators).toEqual(walletAuthenticators);
+    expect(body.apiKeys).toEqual([]);
+  });
+
+  it("attaches a ClientSignatureV2 when an OTP authenticator has a verification token", async () => {
+    const otpAuthenticators = [
+      {
+        contact: "user@example.com",
+        otpType: "OTP_TYPE_EMAIL",
+        verificationToken,
+      },
+    ];
+    const body = buildSignUpBody({
+      createSubOrgParams: {
+        otpAuthenticators,
+      },
     });
+    const signed = await new ClientSignature.ProxyTSignupV3Body(body).sign(
+      async () => "11".repeat(64),
+      async () => [ephemeralPublicKey],
+    );
+
+    expect(signed.clientSignature?.signatures).toEqual([
+      {
+        publicKey: ephemeralPublicKey,
+        signature: "11".repeat(64),
+        scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
+      },
+    ]);
+    expect(JSON.parse(signed.clientSignature!.message)).toEqual(
+      expect.objectContaining({
+        type: "USAGE_TYPE_SIGNUP",
+        tokenId: expect.stringMatching(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+        ),
+        signupV3: expect.objectContaining({ otpAuthenticators }),
+      }),
+    );
+  });
+
+  it("omits clientSignature when the signup has no verification tokens", async () => {
+    const body = buildSignUpBody({ createSubOrgParams: undefined });
+    const signed = await new ClientSignature.ProxyTSignupV3Body(body).sign(
+      async () => {
+        throw new Error("should not sign");
+      },
+    );
+    expect(signed.clientSignature).toBeUndefined();
   });
 });

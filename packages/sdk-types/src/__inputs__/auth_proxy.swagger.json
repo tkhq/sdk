@@ -1144,6 +1144,24 @@
       },
       "required": ["session"]
     },
+    "v1OtpParams": {
+      "type": "object",
+      "properties": {
+        "contact": {
+          "type": "string",
+          "description": "Email address or phone number for this OTP authenticator."
+        },
+        "otpType": {
+          "type": "string",
+          "description": "Whether this contact is SMS, email, or WhatsApp. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL, OTP_TYPE_WHATSAPP"
+        },
+        "verificationToken": {
+          "type": "string",
+          "description": "Verification token for this contact. Omit to attach the contact unverified. Only tokens issued by VerifyOtpV3 are accepted."
+        }
+      },
+      "required": ["contact", "otpType"]
+    },
     "v1PathFormat": {
       "type": "string",
       "enum": ["PATH_FORMAT_BIP32"]
@@ -1326,12 +1344,6 @@
     "v1SignupV3Request": {
       "type": "object",
       "properties": {
-        "userEmail": {
-          "type": "string"
-        },
-        "userPhoneNumber": {
-          "type": "string"
-        },
         "userTag": {
           "type": "string"
         },
@@ -1341,8 +1353,13 @@
         "organizationName": {
           "type": "string"
         },
-        "verificationToken": {
-          "type": "string"
+        "otpAuthenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OtpParams"
+          },
+          "description": "OTP contacts for the root user. At most one OTP_TYPE_EMAIL and one OTP_TYPE_SMS. Each caller-supplied entry must include a verification token. If not needed, this should be an empty array."
         },
         "apiKeys": {
           "type": "array",
@@ -1386,6 +1403,7 @@
         }
       },
       "required": [
+        "otpAuthenticators",
         "apiKeys",
         "authenticators",
         "oauthProviders",

@@ -194,6 +194,7 @@ export type SignUpWithOtpParams = {
   verificationToken: string;
   contact: string;
   otpType: OtpType;
+  publicKey?: string;
   createSubOrgParams?: CreateSubOrgParams;
   invalidateExisting?: boolean;
   sessionKey?: string;

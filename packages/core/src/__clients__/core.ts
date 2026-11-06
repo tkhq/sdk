@@ -18,7 +18,6 @@ import {
   type ProxyTSignupV3Response,
   type TGetWalletsResponse,
   type TGetUserResponse,
-  type v1ClientSignature,
   type v1OauthProviderParamsV2,
   TurnkeyError,
   TurnkeyErrorCodes,
@@ -28,7 +27,6 @@ import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   SignIntent,
   StamperType,
-  OtpType,
   OtpTypeToFilterTypeMap,
   Chain,
   FilterType,
@@ -147,10 +145,13 @@ import {
   walletApiKeyPublicKeyFromAuthToken,
   walletAuthenticatorParamsFromClaims,
   walletPublicKeyHexFromAuthToken,
-  getClientSignatureMessageForSignup,
   ERC20_TRANSFER_ABI,
 } from "../utils";
-import { encryptOtpCodeToBundle, VerificationToken } from "@turnkey/crypto";
+import {
+  ClientSignature,
+  encryptOtpCodeToBundle,
+  VerificationToken,
+} from "@turnkey/crypto";
 import {
   buildWalletLoginMessage,
   defaultSiwxDomain,
@@ -825,8 +826,18 @@ export class TurnkeyClient {
           },
         });
 
+        if (!this.apiKeyStamper) {
+          throw new TurnkeyError(
+            "API key stamper is not initialized",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+          );
+        }
+
         const res = await this.httpClient.proxySignupV3(
-          signUpBody,
+          await new ClientSignature.ProxyTSignupV3Body(signUpBody).sign(
+            (message, publicKey) => this.signWithApiKey({ message, publicKey }),
+            this.apiKeyStamper.listKeyPairs(),
+          ),
           captchaToken,
         );
 
@@ -1181,7 +1192,7 @@ export class TurnkeyClient {
     );
   };
 
-  /** 
+  /**
    * Both legacy and new wallet authenticators are supported so account lookups must be supported for both.
    * This function is used to lookup either the legacy or new wallet auth account using the SIWX verification token.
    */
@@ -1418,8 +1429,18 @@ export class TurnkeyClient {
           },
         });
 
+        if (!this.apiKeyStamper) {
+          throw new TurnkeyError(
+            "API key stamper is not initialized",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+          );
+        }
+
         const res = await this.httpClient.proxySignupV3(
-          signUpBody,
+          await new ClientSignature.ProxyTSignupV3Body(signUpBody).sign(
+            (message, publicKey) => this.signWithApiKey({ message, publicKey }),
+            this.apiKeyStamper.listKeyPairs(),
+          ),
           captchaToken,
         );
 
@@ -1542,8 +1563,19 @@ export class TurnkeyClient {
             },
           });
 
+          if (!this.apiKeyStamper) {
+            throw new TurnkeyError(
+              "API key stamper is not initialized",
+              TurnkeyErrorCodes.INTERNAL_ERROR,
+            );
+          }
+
           signupRes = await this.httpClient.proxySignupV3(
-            signUpBody,
+            await new ClientSignature.ProxyTSignupV3Body(signUpBody).sign(
+              (message, publicKey) =>
+                this.signWithApiKey({ message, publicKey }),
+              this.apiKeyStamper.listKeyPairs(),
+            ),
             captchaToken,
           );
 
@@ -1996,57 +2028,35 @@ export class TurnkeyClient {
       captchaToken,
     } = params;
 
-    // build sign up body without client signature first
     const signUpBody = buildSignUpBody({
       createSubOrgParams: {
         ...createSubOrgParams,
-        ...(otpType === OtpType.Email
-          ? { userEmail: contact }
-          : { userPhoneNumber: contact }),
-        verificationToken,
+        userName: createSubOrgParams?.userName || contact,
+        otpAuthenticators: [
+          {
+            contact,
+            otpType,
+            verificationToken,
+          },
+          ...(createSubOrgParams?.otpAuthenticators ?? []),
+        ],
       },
     });
 
     return withTurnkeyErrorHandling(
       async () => {
-        const { message, publicKey: verificationPublicKey } =
-          getClientSignatureMessageForSignup({
-            verificationToken,
-            ...(signUpBody.userEmail && { email: signUpBody.userEmail }),
-            ...(signUpBody.userPhoneNumber && {
-              phoneNumber: signUpBody.userPhoneNumber,
-            }),
-            apiKeys: signUpBody.apiKeys,
-            authenticators: signUpBody.authenticators,
-            oauthProviders: signUpBody.oauthProviders,
-          });
-
-        // we sign with the verification token key. This is the key bound during
-        // verifyOtp() and is what Turnkey expects to sign the client signature for signup
-        const signature = await this.signWithApiKey({
-          message,
-          publicKey: verificationPublicKey,
-        });
-
-        if (!signature) {
+        if (!this.apiKeyStamper) {
           throw new TurnkeyError(
-            `Failed to sign client signature for OTP sign up`,
+            "API key stamper is not initialized",
             TurnkeyErrorCodes.INTERNAL_ERROR,
           );
         }
 
-        const clientSignature: v1ClientSignature = {
-          message: message,
-          publicKey: verificationPublicKey,
-          scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
-          signature: signature,
-        };
-
         const signupRes = await this.httpClient.proxySignupV3(
-          {
-            ...signUpBody,
-            clientSignature,
-          },
+          await new ClientSignature.ProxyTSignupV3Body(signUpBody).sign(
+            (message, publicKey) => this.signWithApiKey({ message, publicKey }),
+            this.apiKeyStamper.listKeyPairs(),
+          ),
           captchaToken,
         );
 
@@ -2174,6 +2184,7 @@ export class TurnkeyClient {
             verificationToken,
             contact,
             otpType,
+            publicKey,
             ...(createSubOrgParams && { createSubOrgParams }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
@@ -2468,8 +2479,18 @@ export class TurnkeyClient {
           },
         });
 
+        if (!this.apiKeyStamper) {
+          throw new TurnkeyError(
+            "API key stamper is not initialized",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+          );
+        }
+
         const signupRes = await this.httpClient.proxySignupV3(
-          signUpBody,
+          await new ClientSignature.ProxyTSignupV3Body(signUpBody).sign(
+            (message, publicKey) => this.signWithApiKey({ message, publicKey }),
+            this.apiKeyStamper.listKeyPairs(),
+          ),
           captchaToken,
         );
 

@@ -5,7 +5,7 @@ import type {
   v1Attestation,
   v1OauthProviderParamsV2,
   v1WalletAccountParams,
-  v1WalletAuthenticatorParams,
+  v1WalletAuthenticatorType,
 } from "@turnkey/sdk-types";
 
 /** @internal */
@@ -64,8 +64,6 @@ export type CreateSubOrgParams = {
   userName?: string | undefined;
   /** name of the sub-organization */
   subOrgName?: string | undefined;
-  /** email of the user */
-  userEmail?: string | undefined;
   /** tag of the user */
   userTag?: string | undefined;
   /** list of authenticators */
@@ -77,10 +75,15 @@ export type CreateSubOrgParams = {
     /** attestation object returned from the passkey creation process */
     attestation: v1Attestation;
   }[];
-  /** phone number of the user */
-  userPhoneNumber?: string | undefined;
-  /** verification token if email or phone number is provided */
-  verificationToken?: string | undefined;
+  /** OTP contacts for the root user. Each entry can carry its own verification token. */
+  otpAuthenticators?: {
+    /** Email address or phone number for this OTP authenticator. */
+    contact: string;
+    /** Whether this contact is SMS, email, or WhatsApp. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL, OTP_TYPE_WHATSAPP */
+    otpType: string;
+    /** Verification token for this contact. Only tokens issued by VerifyOtpV3 are accepted. */
+    verificationToken: string;
+  }[];
   /** list of api keys */
   apiKeys?: {
     /* name of the api key */
@@ -97,7 +100,16 @@ export type CreateSubOrgParams = {
   /** list of oauth providers */
   oauthProviders?: v1OauthProviderParamsV2[] | undefined;
   /** list of wallet authenticators (EOA SIWE / SIWS bindings) */
-  walletAuthenticators?: v1WalletAuthenticatorParams[] | undefined;
+  walletAuthenticators?: {
+    /** Network this authenticator belongs to. */
+    type: v1WalletAuthenticatorType;
+    /** Account address. Ethereum addresses are stored lowercase with a 0x prefix. Solana addresses are canonical base58. */
+    address: string;
+    /** SIWE/SIWS domain this authenticator is bound to. Host only, lowercased. */
+    domain: string;
+    /** Wallet verification JWT for this claim. */
+    verificationToken: string;
+  }[];
 };
 
 /** @expand */

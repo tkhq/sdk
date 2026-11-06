@@ -310,6 +310,15 @@ export type v1OtpLoginV2Response = {
   session: string;
 };
 
+export type v1OtpParams = {
+  /** Email address or phone number for this OTP authenticator. */
+  contact: string;
+  /** Whether this contact is SMS, email, or WhatsApp. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL, OTP_TYPE_WHATSAPP */
+  otpType: string;
+  /** Verification token for this contact. Omit to attach the contact unverified. Only tokens issued by VerifyOtpV3 are accepted. */
+  verificationToken?: string;
+};
+
 export type v1PathFormat = "PATH_FORMAT_BIP32";
 
 export type v1ProxyEmailCustomizationParams = {
@@ -376,12 +385,11 @@ export type v1SignupV2Response = {
 };
 
 export type v1SignupV3Request = {
-  userEmail?: string;
-  userPhoneNumber?: string;
   userTag?: string;
   userName?: string;
   organizationName?: string;
-  verificationToken?: string;
+  /** OTP contacts for the root user. At most one OTP_TYPE_EMAIL and one OTP_TYPE_SMS. Each caller-supplied entry must include a verification token. If not needed, this should be an empty array. */
+  otpAuthenticators: v1OtpParams[];
   /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
   apiKeys: v1ApiKeyParamsV2[];
   /** A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
@@ -1880,8 +1888,6 @@ export type v1CreateSubOrganizationIntentV9 = {
   disableSmsAuth?: boolean;
   /** Disable OTP email auth for the sub-organization */
   disableOtpEmailAuth?: boolean;
-  /** Signed JWT containing a unique id, expiry, verification type, contact. Only tokens issued by VerifyOtpV3 are accepted. */
-  verificationToken?: string;
   /** Signatures over one signup payload, one per verification token nonce. Required when the request carries any verified authentication token. */
   clientSignature?: v1ClientSignatureV2;
 };
@@ -2194,7 +2200,7 @@ export type v1CreateUsageControlIntent = {
   /** Data source for the Usage Control. */
   dataSource: v1UsageControlDataSource;
   /** Aggregation expression that the Usage Control evaluates. */
-  aggregation: v1UsageControlAggregation;
+  budget: v1UsageControlBudget;
   /** Identifier for the Usage Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization. */
   identifier: string;
 };
@@ -3022,13 +3028,13 @@ export type v1EarnEnabledVault = {
   provider?: v1EarnProvider;
   /** CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is encoded in the identifier. */
   caip19?: string;
-  /** Gross annual percentage yield, expressed as a decimal fraction (before fees). */
+  /** Gross annual percentage yield including protocol rewards, expressed as a decimal fraction (before fees). */
   apyPct?: string;
   /** Total deposited through this wrapper (wrapper TVL), in raw on-chain units of the underlying asset. */
   totalDeposited?: string;
   /** Normalized total-deposited values for display only (usd + crypto). Do not do arithmetic with these; use total_deposited instead. */
   display?: v1EarnValueDisplay;
-  /** Annual percentage yield net of fees, expressed as a decimal fraction. */
+  /** Annual percentage yield net of fees, expressed as a decimal fraction. Fees apply to the non-reward portion only; rewards_apy_pct passes through untouched. */
   netApyPct?: string;
   /** Client fee taken on yield, in basis points. */
   clientFeeBps?: string;
@@ -3060,6 +3066,8 @@ export type v1EarnEnabledVault = {
   deployRequestId?: string;
   /** Failure detail when deploy_status is FAILED. */
   deployError?: string;
+  /** The protocol-reward portion of apy_pct (e.g. Merkl campaigns), expressed as a decimal fraction. */
+  rewardsApyPct?: string;
 };
 
 export type v1EarnPosition = {
@@ -3177,7 +3185,7 @@ export type v1EarnVault = {
   caip19?: string;
   /** Total value locked in the vault, in raw on-chain units of the underlying asset. The catalog is sorted by the USD value of this. */
   tvl?: string;
-  /** Current annual percentage yield, expressed as a decimal fraction (e.g., '0.0812' for 8.12%). */
+  /** Gross annual percentage yield including protocol rewards, expressed as a decimal fraction (e.g., '0.0812' for 8.12%). */
   apyPct?: string;
   /** Whether the organization has enabled this vault. */
   enabled?: boolean;
@@ -3195,6 +3203,8 @@ export type v1EarnVault = {
   forceDeallocatableLiquidity?: string;
   /** Normalized force-deallocatable liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use force_deallocatable_liquidity instead. */
   forceDeallocatableLiquidityDisplay?: v1EarnValueDisplay;
+  /** The protocol-reward portion of apy_pct (e.g. Merkl campaigns), expressed as a decimal fraction. */
+  rewardsApyPct?: string;
 };
 
 export type v1EarnVaultExposure = {
@@ -3582,6 +3592,17 @@ export type v1EthSendTransactionResultV2 = {
 export type v1EthSendTransactionStatus = {
   /** The Ethereum transaction hash, if available. */
   txHash?: string;
+  /** Fee the landed transaction paid, including when it reverted, when available. */
+  fee?: v1EthTransactionFee;
+};
+
+export type v1EthTransactionFee = {
+  /** Gas units consumed by the landed transaction (receipt.gasUsed). */
+  gasUsed?: string;
+  /** Effective gas price paid per gas unit, in wei (decimal string). On OP Stack chains, gasUsed multiplied by this price excludes the L1 data and operator fees. */
+  effectiveGasPrice?: string;
+  /** Sponsored cost recorded for this transaction, in USD, at the token price used for billing. Unset for non-sponsored and testnet transactions, and until the cost is recorded. */
+  totalCostUsd?: string;
 };
 
 export type v1EthTransactionHistoryItem = {
@@ -6797,10 +6818,8 @@ export type v1RootUserParamsV5 = {
 export type v1RootUserParamsV6 = {
   /** Human-readable name for a User. */
   userName: string;
-  /** The user's email address. */
-  userEmail?: string;
-  /** The user's phone number in E.164 format e.g. +13214567890 */
-  userPhoneNumber?: string;
+  /** OTP contacts for this root user. At most one OTP_TYPE_EMAIL and one OTP_TYPE_SMS. Each entry can carry its own verification token. If not needed, this should be an empty array. */
+  otpAuthenticators: v1OtpParams[];
   /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
   apiKeys: v1ApiKeyParamsV2[];
   /** A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
@@ -7012,8 +7031,7 @@ export type v1SignupUsageV2 = {
 };
 
 export type v1SignupUsageV3 = {
-  email?: string;
-  phoneNumber?: string;
+  otpAuthenticators?: v1OtpParams[];
   apiKeys?: v1ApiKeyParamsV2[];
   authenticators?: v1AuthenticatorParamsV2[];
   oauthProviders?: v1OauthProviderParamsV2[];
@@ -7148,6 +7166,21 @@ export type v1SolanaFailureDetails = {
 export type v1SolanaSendTransactionStatus = {
   /** The Solana transaction signature, if available. */
   signature?: string;
+  /** Fee the landed transaction paid, including when it failed on chain, when available. */
+  fee?: v1SolanaTransactionFee;
+};
+
+export type v1SolanaTransactionFee = {
+  /** Total fee the landed transaction paid, in lamports (meta.fee). Excludes rent. */
+  feeLamports?: string;
+  /** Rent the paymaster covered for accounts this transaction created, in lamports, net of any rent swept back in the same transaction. Unset when none was sponsored. Not reduced if an account is later closed. */
+  sponsoredRentLamports?: string;
+  /** Sponsored cost recorded for this transaction, in USD, at the token price used for billing: fee_cost_usd plus rent_cost_usd. Unset for non-sponsored and testnet transactions, and until the cost is recorded. */
+  totalCostUsd?: string;
+  /** The transaction fee portion of total_cost_usd, in USD. */
+  feeCostUsd?: string;
+  /** The sponsored rent portion of total_cost_usd, in USD. Unset when no rent was sponsored. */
+  rentCostUsd?: string;
 };
 
 export type v1SparkClaimLeaf = {
@@ -8363,41 +8396,9 @@ export type v1UpsertSwapFixedRateLimitConfigResult = {
   organizationId: string;
 };
 
-export type v1UsageControlAggregation = {
-  /** Method that aggregates matching data points. */
-  method: v1UsageControlAggregationMethod;
-  /** Comparison between the aggregate and the threshold. */
-  operator: v1UsageControlAggregationOperator;
-  /** Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits. */
-  threshold: string;
-  /** Time window for the aggregation. */
-  window: v1UsageControlAggregationWindow;
-  /** Scope that partitions matching data before aggregation. */
-  groupBy: v1UsageControlAggregationGroupBy;
-};
-
-export type v1UsageControlAggregationGroupBy = {
-  /** Uses one shared bucket for the Organization. */
-  organization?: v1UsageControlAggregationGroupByOrganization;
-  /** Uses one bucket for each User. */
-  user?: v1UsageControlAggregationGroupByUser;
-  /** Uses one bucket for each Wallet. */
-  wallet?: v1UsageControlAggregationGroupByWallet;
-};
-
-export type v1UsageControlAggregationGroupByOrganization = {};
-export type v1UsageControlAggregationGroupByUser = {};
-export type v1UsageControlAggregationGroupByWallet = {};
 export type v1UsageControlAggregationMethod =
   | "USAGE_CONTROL_AGGREGATION_METHOD_SUM"
   | "USAGE_CONTROL_AGGREGATION_METHOD_COUNT";
-
-export type v1UsageControlAggregationOperator =
-  | "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN"
-  | "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL"
-  | "USAGE_CONTROL_AGGREGATION_OPERATOR_EQUAL"
-  | "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL"
-  | "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN";
 
 export type v1UsageControlAggregationWindow = {
   /** Uses a rolling time window. */
@@ -8412,6 +8413,15 @@ export type v1UsageControlAggregationWindowRolling = {
   duration: number;
 };
 
+export type v1UsageControlBudget = {
+  /** Method that aggregates matching data points. */
+  method: v1UsageControlAggregationMethod;
+  /** Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits. */
+  limit: string;
+  /** Time window for the aggregation. */
+  window: v1UsageControlAggregationWindow;
+};
+
 export type v1UsageControlDataSource = {
   /** Uses transfers of the listed on-chain assets as input data. */
   chainAssetTransfer?: v1UsageControlDataSourceChainAssetTransfer;
@@ -8419,23 +8429,10 @@ export type v1UsageControlDataSource = {
   activityExecution?: v1UsageControlDataSourceActivityExecution;
 };
 
-export type v1UsageControlDataSourceActivityExecution = {
-  /** Filters activity executions by type. */
-  filter?: v1UsageControlDataSourceActivityExecutionFilter;
-};
-
-export type v1UsageControlDataSourceActivityExecutionFilter = {
-  /** Activity types whose executions are included. */
-  activity?: v1UsageControlDataSourceFilterActivity[];
-};
-
+export type v1UsageControlDataSourceActivityExecution = {};
 export type v1UsageControlDataSourceChainAssetTransfer = {
   /** Assets whose transfers are included in the data source. */
   definition: v1UsageControlDataSourceChainAssetTransferDefinition[];
-  /** Filters asset transfers by activity type. */
-  filter?: v1UsageControlDataSourceChainAssetTransferFilter;
-  /** Selects when to measure an asset transfer. */
-  phase?: v1UsageControlDataSourcePhase;
 };
 
 export type v1UsageControlDataSourceChainAssetTransferDefinition = {
@@ -8445,25 +8442,6 @@ export type v1UsageControlDataSourceChainAssetTransferDefinition = {
   decimals: number;
 };
 
-export type v1UsageControlDataSourceChainAssetTransferFilter = {
-  /** Activity types whose asset transfers are included. */
-  activity?: v1UsageControlDataSourceFilterActivity[];
-};
-
-export type v1UsageControlDataSourceFilterActivity = {
-  /** Name of an activity type to include, such as `ACTIVITY_TYPE_SOL_SEND_TRANSACTION`. */
-  activityType: string;
-};
-
-export type v1UsageControlDataSourcePhase = {
-  /** Measures the transfer when Turnkey signs the transaction and returns it to the user. */
-  signature?: v1UsageControlDataSourcePhaseSignature;
-  /** Reserved for future use. Measures the transfer after the transaction lands on chain. */
-  submission?: v1UsageControlDataSourcePhaseSubmission;
-};
-
-export type v1UsageControlDataSourcePhaseSignature = {};
-export type v1UsageControlDataSourcePhaseSubmission = {};
 export type v1UsageType = "USAGE_TYPE_SIGNUP" | "USAGE_TYPE_LOGIN";
 
 export type v1User = {
@@ -13242,12 +13220,11 @@ export type ProxyTSignupV3Response = {
 };
 
 export type ProxyTSignupV3Body = {
-  userEmail?: string;
-  userPhoneNumber?: string;
   userTag?: string;
   userName?: string;
   organizationName?: string;
-  verificationToken?: string;
+  /** OTP contacts for the root user. At most one OTP_TYPE_EMAIL and one OTP_TYPE_SMS. Each caller-supplied entry must include a verification token. If not needed, this should be an empty array. */
+  otpAuthenticators: v1OtpParams[];
   /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
   apiKeys: v1ApiKeyParamsV2[];
   /** A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */

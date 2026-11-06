@@ -28,23 +28,13 @@ import {
   TurnkeyError,
   TurnkeyErrorCodes,
 } from "@turnkey/sdk-types";
-import {
-  AUTH_METHOD_WALLET,
-  NIL_SESSION_PROFILE_SCOPE,
-  VERIFICATION_TOKEN_TYPE_V1,
-  generateP256KeyPair,
-  publicKeyNonce,
-  uncompressRawPublicKey,
-} from "@turnkey/crypto";
-import {
-  hexStringToBase64url,
-  uint8ArrayFromHexString,
-  uint8ArrayToHexString,
-} from "@turnkey/encoding";
+import { AUTH_METHOD_WALLET, generateP256KeyPair } from "@turnkey/crypto";
+import { hexStringToBase64url } from "@turnkey/encoding";
 import { TurnkeyClient } from "../__clients__/core";
 import { Chain, FilterType, WalletInterfaceType } from "../__types__";
 import type { WalletProvider } from "../__types__";
 import { walletApiKeyPublicKeyFromAuthToken } from "../utils";
+import { encodeTestVerificationToken } from "./shared";
 
 const EPHEMERAL_PUBLIC_KEY = generateP256KeyPair().publicKey.toLowerCase();
 const ETH_ADDRESS = "0xabc0000000000000000000000000000000000000";
@@ -53,42 +43,8 @@ const SESSION_TOKEN = "session-jwt";
 const ETH_WALLET_PUBLIC_KEY = "04" + "ab".repeat(64);
 const SOL_WALLET_PUBLIC_KEY = "cd".repeat(32);
 
-function p256JwkFromCompressedHex(compressedHex: string) {
-  const uncompressed = uncompressRawPublicKey(
-    uint8ArrayFromHexString(compressedHex),
-  );
-  return {
-    kty: "EC",
-    crv: "P-256",
-    x: hexStringToBase64url(uint8ArrayToHexString(uncompressed.slice(1, 33))),
-    y: hexStringToBase64url(uint8ArrayToHexString(uncompressed.slice(33, 65))),
-  };
-}
-
-function encodeVerificationToken(payload: Record<string, unknown>): string {
-  const headerB64 = Buffer.from(
-    JSON.stringify({
-      alg: "ES256",
-      typ: VERIFICATION_TOKEN_TYPE_V1,
-      kid: "test-kid",
-    }),
-  ).toString("base64url");
-  const payloadB64 = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const signatureB64 = Buffer.alloc(64).toString("base64url");
-  return `${headerB64}.${payloadB64}.${signatureB64}`;
-}
-
-function hexToJwkCoord(hex: string): string {
-  return hexStringToBase64url(hex);
-}
-
 function ethereumToken(overrides?: Record<string, unknown>): string {
-  return encodeVerificationToken({
-    jti: "11111111-1111-4111-8111-111111111111",
-    iss: "https://id.turnkey.com/t/parent-org",
-    aud: "urn:turnkey:org:parent-org",
-    cnf: { jwk: p256JwkFromCompressedHex(EPHEMERAL_PUBLIC_KEY) },
-    nonce: publicKeyNonce(EPHEMERAL_PUBLIC_KEY),
+  return encodeTestVerificationToken(EPHEMERAL_PUBLIC_KEY, {
     auth_method: AUTH_METHOD_WALLET,
     sub_id: {
       format: "wallet",
@@ -98,24 +54,16 @@ function ethereumToken(overrides?: Record<string, unknown>): string {
       jwk: {
         kty: "EC",
         crv: "secp256k1",
-        x: hexToJwkCoord("ab".repeat(32)),
-        y: hexToJwkCoord("ab".repeat(32)),
+        x: hexStringToBase64url("ab".repeat(32)),
+        y: hexStringToBase64url("ab".repeat(32)),
       },
     },
-    scope: NIL_SESSION_PROFILE_SCOPE,
-    iat: "0",
-    exp: "9999999999",
     ...overrides,
   });
 }
 
 function solanaToken(): string {
-  return encodeVerificationToken({
-    jti: "11111111-1111-4111-8111-111111111111",
-    iss: "https://id.turnkey.com/t/parent-org",
-    aud: "urn:turnkey:org:parent-org",
-    cnf: { jwk: p256JwkFromCompressedHex(EPHEMERAL_PUBLIC_KEY) },
-    nonce: publicKeyNonce(EPHEMERAL_PUBLIC_KEY),
+  return encodeTestVerificationToken(EPHEMERAL_PUBLIC_KEY, {
     auth_method: AUTH_METHOD_WALLET,
     sub_id: {
       format: "wallet",
@@ -125,13 +73,10 @@ function solanaToken(): string {
       jwk: {
         kty: "OKP",
         crv: "Ed25519",
-        x: hexToJwkCoord(SOL_WALLET_PUBLIC_KEY),
+        x: hexStringToBase64url(SOL_WALLET_PUBLIC_KEY),
         y: "",
       },
     },
-    scope: NIL_SESSION_PROFILE_SCOPE,
-    iat: "0",
-    exp: "9999999999",
   });
 }
 
@@ -175,6 +120,9 @@ function createClient() {
   (client as any).httpClient = {
     proxyGetAccount,
     proxySignupV3,
+  };
+  (client as any).apiKeyStamper = {
+    listKeyPairs: async () => [EPHEMERAL_PUBLIC_KEY],
   };
 
   return { client, proxyGetAccount, proxySignupV3 };
@@ -248,6 +196,9 @@ describe("TurnkeyClient.loginOrSignupWithWallet", () => {
       verificationToken,
       publicKey: EPHEMERAL_PUBLIC_KEY,
     });
+    const sign = jest
+      .spyOn(client, "signWithApiKey")
+      .mockResolvedValue("11".repeat(64));
     const login = jest
       .spyOn(client, "loginWithWallet")
       .mockResolvedValue({ sessionToken: SESSION_TOKEN, address: ETH_ADDRESS });
@@ -257,6 +208,10 @@ describe("TurnkeyClient.loginOrSignupWithWallet", () => {
     });
 
     expect(proxySignupV3).toHaveBeenCalledTimes(1);
+    expect(sign).toHaveBeenCalledWith({
+      message: expect.any(String),
+      publicKey: EPHEMERAL_PUBLIC_KEY,
+    });
     expect(proxyGetAccount).toHaveBeenNthCalledWith(1, {
       filterType: FilterType.WalletAuthToken,
       filterValue: verificationToken,
@@ -278,6 +233,27 @@ describe("TurnkeyClient.loginOrSignupWithWallet", () => {
       },
     ]);
     expect(signupBody.apiKeys).toEqual([]);
+    expect(signupBody.clientSignature).toEqual({
+      message: expect.any(String),
+      signatures: [
+        {
+          publicKey: EPHEMERAL_PUBLIC_KEY,
+          signature: "11".repeat(64),
+          scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
+        },
+      ],
+    });
+    expect(JSON.parse(signupBody.clientSignature.message)).toEqual(
+      expect.objectContaining({
+        type: "USAGE_TYPE_SIGNUP",
+        tokenId: expect.stringMatching(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+        ),
+        signupV3: expect.objectContaining({
+          walletAuthenticators: signupBody.walletAuthenticators,
+        }),
+      }),
+    );
     expect(login).toHaveBeenCalledWith(
       expect.objectContaining({
         walletProvider: expect.any(Object),
@@ -306,6 +282,7 @@ describe("TurnkeyClient.loginOrSignupWithWallet", () => {
       verificationToken,
       publicKey: EPHEMERAL_PUBLIC_KEY,
     });
+    jest.spyOn(client, "signWithApiKey").mockResolvedValue("11".repeat(64));
     jest
       .spyOn(client, "loginWithWallet")
       .mockResolvedValue({ sessionToken: SESSION_TOKEN, address: SOL_ADDRESS });
