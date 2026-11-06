@@ -292,12 +292,12 @@ export function ModalRoot(props: ModalRootProps) {
                       >
                         <div
                           style={{ borderRadius: getBorderRadius() }}
-                          className="absolute left-0 top-0 z-40 bg-black/20 w-full h-full transition-all"
+                          className="absolute left-0 top-0 z-40 bg-black/30 backdrop-blur-sm w-full h-full transition-all"
                           onClick={(e) => {
                             e.stopPropagation();
                             closeSheet();
                           }}
-                        ></div>
+                        />
                       </TransitionChild>
                       <TransitionChild
                         as={Fragment}
@@ -311,11 +311,10 @@ export function ModalRoot(props: ModalRootProps) {
                         <div
                           style={{
                             borderRadius: getBorderRadius(),
-                            width: isMobile ? maxMobileScreenWidth : width,
                           }}
-                          className="absolute transition-all duration-100 self-start bottom-0 left-0 right-0 bg-modal-background-light dark:bg-modal-background-dark border-t border-icon-background-light dark:border-icon-background-dark p-4 z-50"
+                          className="absolute bottom-0 left-0 z-50 box-border! flex w-full max-h-[90%] flex-col overflow-hidden bg-modal-background-light p-4 transition-all duration-100 dark:bg-modal-background-dark border-t border-icon-background-light dark:border-icon-background-dark"
                         >
-                          <div className="flex justify-between mb-3">
+                          <div className="mb-3 flex shrink-0 justify-between">
                             <div className="w-6.5 h-6.5"></div>
                             <h1 className="text-base font-medium text-center !my-0 !mx-4">
                               {sheetCurrent?.key}
@@ -326,17 +325,19 @@ export function ModalRoot(props: ModalRootProps) {
                               onClick={closeSheet}
                             />
                           </div>
-                          <TransitionChild
-                            as={Fragment}
-                            enter="ease-out duration-200"
-                            enterFrom="translate-y-full opacity-0"
-                            enterTo="translate-y-0 opacity-100"
-                            leave="ease-out duration-150"
-                            leaveFrom="translate-y-0 opacity-100"
-                            leaveTo="translate-y-full opacity-0"
-                          >
-                            {sheetCurrent?.content}
-                          </TransitionChild>
+                          <div className="tk-overlay-scroll min-h-0 p-1">
+                            <TransitionChild
+                              as={Fragment}
+                              enter="ease-out duration-200"
+                              enterFrom="translate-y-full opacity-0"
+                              enterTo="translate-y-0 opacity-100"
+                              leave="ease-out duration-150"
+                              leaveFrom="translate-y-0 opacity-100"
+                              leaveTo="translate-y-full opacity-0"
+                            >
+                              {sheetCurrent?.content}
+                            </TransitionChild>
+                          </div>
                         </div>
                       </TransitionChild>
                     </div>

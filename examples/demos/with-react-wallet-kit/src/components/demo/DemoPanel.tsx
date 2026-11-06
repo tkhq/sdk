@@ -12,6 +12,7 @@ import {
   Button,
   Transition,
 } from "@headlessui/react";
+import { ToggleSwitch } from "@/components/Switch";
 import {
   ConnectedWallet,
   useModal,
@@ -51,6 +52,7 @@ export default function DemoPanel() {
     handleConnectExternalWallet,
     fetchWalletProviders,
     handleOnRamp,
+    handleOffRamp,
   } = useTurnkey();
 
   const { pushPage } = useModal();
@@ -66,6 +68,7 @@ export default function DemoPanel() {
   const [connectedWalletIcons, setConnectedWalletIcons] = useState<string[]>(
     [],
   ); // Initialize with an empty array
+  const [sandboxMode, setSandboxMode] = useState(true);
 
   useEffect(() => {
     const getConnectedWalletIcons = async (): Promise<string[]> => {
@@ -108,12 +111,24 @@ export default function DemoPanel() {
     }
   }, [wallets]);
 
-  const handleAddFunds = async () => {
+  const handleDepositFunds = async () => {
     try {
       await handleOnRamp({
-        onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
         walletAccount: selectedWalletAccount!,
-        sandboxMode: true,
+        sandboxMode,
+        defaultFiatCurrencyAmount: "40",
+      });
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const handleWithdrawFunds = async () => {
+    try {
+      await handleOffRamp({
+        walletAccount: selectedWalletAccount!,
+        sandboxMode,
+        defaultCryptoAmount: "0.05",
       });
     } catch (error) {
       handleError(error);
@@ -396,12 +411,26 @@ export default function DemoPanel() {
             Sign Message
           </Button>
 
-          <Button
-            className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
-            onClick={handleAddFunds}
-          >
-            Add Funds
-          </Button>
+          <div className="flex flex-col gap-2">
+            <FundingModeToggle
+              sandboxMode={sandboxMode}
+              onChange={setSandboxMode}
+            />
+            <div className="flex items-center gap-4">
+              <Button
+                className="flex w-full items-center justify-center bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
+                onClick={handleDepositFunds}
+              >
+                Deposit Funds
+              </Button>
+              <Button
+                className="flex w-full items-center justify-center bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
+                onClick={handleWithdrawFunds}
+              >
+                Withdraw Funds
+              </Button>
+            </div>
+          </div>
           {selectedWallet?.source === WalletSource.Embedded && (
             <>
               <hr className="border-draggable-background-light dark:border-draggable-background-dark" />
@@ -453,6 +482,30 @@ export default function DemoPanel() {
     </Transition>
   );
 }
+
+const FundingModeToggle = ({
+  sandboxMode,
+  onChange,
+}: {
+  sandboxMode: boolean;
+  onChange: (sandboxMode: boolean) => void;
+}) => {
+  return (
+    <div className="rounded-lg bg-background-light px-3 py-2 dark:bg-background-dark">
+      <ToggleSwitch
+        label={sandboxMode ? "Sandbox" : "Live"}
+        subLabel={
+          sandboxMode
+            ? "Use test funds for deposit and withdraw"
+            : "Use real funds for deposit and withdraw"
+        }
+        tooltip="Toggle between sandbox and live mode"
+        checked={sandboxMode}
+        onChange={onChange}
+      />
+    </div>
+  );
+};
 
 const StackedImg = ({
   connectedWalletIcons,

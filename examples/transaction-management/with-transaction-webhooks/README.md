@@ -1,4 +1,4 @@
-# Example: `with-tx-webhooks`
+# Example: `with-transaction-webhooks`
 
 This example demonstrates Turnkey webhook subscriptions for three event types:
 
@@ -38,7 +38,7 @@ pnpm install
 From this example directory:
 
 ```bash
-cd examples/transaction-management/with-tx-webhooks
+cd examples/transaction-management/with-transaction-webhooks
 cp .env.example .env
 ```
 

@@ -1,18 +1,15 @@
 # Example: `with-earn`
 
-> [!NOTE]
-> Turnkey Earn is in **early access**. The APIs are gated and may change; reach
-> out to Turnkey to have it enabled for your organization.
-
 Turnkey Earn end to end with `@turnkey/sdk-server`: deploy a fee wrapper for a
 Morpho vault (one-time, from the parent org), then deposit, poll status, read
 positions, and withdraw (partial or full) from the end-user wallet.
 
 ## Prerequisites
 
-- Earn enabled for the parent org (early access — reach out to Turnkey; sub-orgs
-  inherit via the parent).
-- The parent org on a Pay-As-You-Go plan or higher (Pro+ for `SPONSOR="true"`).
+- Earn enabled for the parent org (reach out to Turnkey; sub-orgs inherit via the parent).
+- For `SPONSOR="true"`, gas sponsorship enabled for the parent org. It is
+  available on every paid plan, within the plan's
+  [spend limits](https://docs.turnkey.com/features/transaction-management#spend-limits).
 
 ## Setup
 

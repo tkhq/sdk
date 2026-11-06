@@ -1,5 +1,7 @@
 # Example: `with-aave`
 
+> **Note:** This example integrates with Aave v3 directly. To offer yield in your product, [Turnkey Earn](https://docs.turnkey.com/features/transaction-management/earn) supports Morpho vaults and Aave v3 reserves, with deposits, withdrawals, and position tracking handled by Turnkey. See [`with-earn`](../with-earn/).
+
 This example shows how to use a Turnkey wallet to interact with Aave v3 on Base mainnet, supplying and withdrawing USDC. It provides the following scripts:
 
 - `deposit.ts` approves the Aave Pool contract to spend USDC and deposits USDC into Aave

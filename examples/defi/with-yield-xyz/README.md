@@ -1,5 +1,7 @@
 # Example: `with-yield-xyz`
 
+> **Note:** This example integrates with Yield.xyz directly. To offer yield in your product, [Turnkey Earn](https://docs.turnkey.com/features/transaction-management/earn) supports Morpho vaults and Aave v3 reserves, with deposits, withdrawals, and position tracking handled by Turnkey. See [`with-earn`](../with-earn/).
+
 [Yield.xyz](https://yield.xyz/) is the ultimate yield infrastructure for Web3, providing one unified API for every yield across 75+ networks.
 This example shows how to sign transactions to Yield.xyz vaults on Base Mainnet using Turnkey. It provides the following scripts:
 
