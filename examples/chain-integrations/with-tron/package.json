@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "createTronWallet": "tsx src/createTronWallet.ts",
+    "configureDelegatedSigner": "tsx src/configureDelegatedSigner.ts",
     "signRawPayload": "tsx src/signRawPayload.ts",
+    "signTransaction": "tsx src/signTransaction.ts",
+    "signTransactionWithDelegatedSigner": "tsx src/signTransactionWithDelegatedSigner.ts",
     "transferTRXPolicy": "tsx src/transferTRXPolicy.ts",
     "transferTRC20Policy": "tsx src/transferTRC20Policy.ts",
     "clean": "rimraf ./dist ./.cache"

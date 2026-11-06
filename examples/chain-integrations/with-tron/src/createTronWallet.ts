@@ -8,14 +8,14 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 async function main() {
   // Initialize Turnkey client
   const turnkeyClient = new Turnkey({
-    apiBaseUrl: "https://api.turnkey.com",
+    apiBaseUrl: process.env.BASE_URL!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
   });
 
   const createTronWalletResult = await turnkeyClient.apiClient().createWallet({
-    walletName: "Tron wallet",
+    walletName: process.env.TRON_WALLET_NAME ?? "Tron wallet",
     accounts: [
       {
         curve: "CURVE_SECP256K1",
