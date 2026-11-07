@@ -15,6 +15,7 @@ import type {
 } from "@turnkey/sdk-types";
 import type {
   TurnkeyProviderConfig,
+  TurnkeyCallbacks,
   AuthState,
   ClientState,
 } from "../../types/base";
@@ -77,6 +78,8 @@ export interface ClientContextType
   authState: AuthState;
   /** @internal */
   config?: TurnkeyProviderConfig | undefined;
+  /** @internal */
+  callbacks?: TurnkeyCallbacks | undefined;
   /** @internal */
   user: v1User | undefined;
   /** @internal */
