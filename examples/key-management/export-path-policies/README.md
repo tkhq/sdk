@@ -9,8 +9,8 @@ wallet with accounts on three derivation paths. It then verifies:
 
 1. with no policy in place, the tester user is denied (baseline);
 2. an ALLOW policy scoped to `m/8797555'/*'/3'/*'` (via `path_indexes` /
-   `path_hardened`) permits only the in-subtree account, whose export bundle
-   is decrypted locally;
+   `path_hardened`) of one wallet (via `wallet.id`) permits only the
+   in-subtree account, whose export bundle is decrypted locally;
 3. accounts outside the subtree are denied;
 4. an explicit DENY written against `path_indexes` wins over a broad ALLOW;
 5. a policy that references an unsupported field (`wallet_account.path`) is
