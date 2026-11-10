@@ -43,10 +43,11 @@ async function main() {
   });
 
   await pollEarnStatus("withdraw", async () => {
-    const { status, withdrawTxHash, error } = await client.earnWithdrawStatus({
-      organizationId,
-      withdrawRequestId,
-    });
+    const { status, withdrawTxHash, error } =
+      await client.getEarnWithdrawStatus({
+        organizationId,
+        withdrawRequestId,
+      });
     return { status, txHash: withdrawTxHash, error };
   });
 }
