@@ -22,7 +22,7 @@ async function main() {
 
   header("Enable a vault (deploy fee wrapper)", PARENT_TAG);
 
-  const { vaults = [] } = await client.earnVaults({
+  const { vaults = [] } = await client.listEarnVaults({
     organizationId,
     caip19: ASSET_CAIP19,
     provider: "EARN_PROVIDER_MORPHO",
@@ -77,7 +77,7 @@ async function main() {
   // earnDeployWrapper resolves at broadcast-enqueue time; wait for the deploy
   // tx to actually land on-chain.
   await pollEarnStatus("wrapper deploy", async () => {
-    const { status, deployTxHash, error } = await client.earnDeployStatus({
+    const { status, deployTxHash, error } = await client.getEarnDeployStatus({
       organizationId,
       deployRequestId,
     });

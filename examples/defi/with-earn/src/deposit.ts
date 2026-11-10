@@ -38,7 +38,7 @@ async function main() {
   });
 
   await pollEarnStatus("deposit", async () => {
-    const { status, depositTxHash, error } = await client.earnDepositStatus({
+    const { status, depositTxHash, error } = await client.getEarnDepositStatus({
       organizationId,
       depositRequestId,
     });

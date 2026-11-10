@@ -46,9 +46,9 @@ pnpm transfer <to-address> <eth-amount>
 
 Notes:
 
-- Vaults must come from the `earn_vaults` catalog (Morpho VaultV2); v1
+- Vaults must come from the `list_earn_vaults` catalog (Morpho VaultV2); v1
   MetaMorpho vaults are not wrappable.
-- Activities complete at broadcast-enqueue time; the `earn_*_status` endpoints
+- Activities complete at broadcast-enqueue time; the `get_earn_*_status` endpoints
   are what confirm a transaction actually landed on-chain.
 - Position `currentValue` is a live ERC-4626 conversion rounded in the vault's
   favor, so it can read a unit or two under the ledger fields right after a
