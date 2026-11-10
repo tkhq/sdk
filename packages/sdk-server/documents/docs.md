@@ -98,38 +98,3 @@ const walletsResponse = await apiClient.getWallets();
 
 // this will sign the request with the configured api credentials
 ```
-
-## Creating API Proxies
-
-There are certain actions that are initiated by users, but require the activity to be signed by the root organization itself. Examples of this include the initial creation of the user `subOrganization` or sending an email to a user with a login credential as part of an `emailAuth` flow.
-
-These can be implemented in your backend by creating an `apiClient` and handling requests from your browser application at different routes, but we have also provided a convenience method for doing this by having allowing a single `apiProxy` to handle requests at a single route and automatically sign specific user actions with the root organization's credentials.
-
-#### expressProxyHandler()
-
-The `expressProxyHandler()` method creates a proxy handler designed as a middleware for Express applications. It provides an API endpoint that forwards requests to the Turnkey API server.
-
-```js
-const turnkeyProxyHandler = turnkey.expressProxyHandler({
-  allowedMethods: ["createSubOrganization", "emailAuth", "getSubOrgIds"],
-});
-
-app.post("/apiProxy", turnkeyProxyHandler);
-
-// this will sign requests made with the client-side `serverSign` function with the root organization's API key for the allowedMethods in the config
-```
-
-#### 2. nextProxyHandler()
-
-The `nextProxyHandler()` method creates a proxy handler designed as a middleware for Next.js applications. It provides an API endpoint that forwards requests to the Turnkey API server.
-
-```js
-// Configure the Next.js handler with allowed methods
-const turnkeyProxyHandler = turnkey.nextProxyHandler({
-  allowedMethods: ["createSubOrganization", "emailAuth", "getSubOrgIds"],
-});
-
-export default turnkeyProxyHandler;
-
-// this will sign requests made with the client-side `serverSign` function with the root organization's API key for the allowedMethods in the config
-```

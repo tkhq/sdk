@@ -18,22 +18,14 @@ const { Turnkey } = require("@turnkey/sdk-server");
 // This config contains parameters including base URLs, API credentials, and org ID
 const turnkeyConfig = JSON.parse(fs.readFileSync("./turnkey.json", "utf8"));
 
-// Use the config to instantiate a Turnkey Client
-const turnkeyServerClient = new Turnkey(turnkeyConfig);
-
-// You're all set to create a server!
-const turnkeyProxyHandler = turnkeyServerClient.expressProxyHandler({});
-
-app.post("/apiProxy", turnkeyProxyHandler);
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const turnkey = new Turnkey(turnkeyConfig);
+const whoami = await turnkey.apiClient().getWhoami();
+console.log(whoami);
 ```
 
 ## Helpers
 
-`@turnkey/sdk-server` provides `Turnkey`, which offers wrappers around commonly used Turnkey API setups. This enables you to easily stand up a minimal backend to proxy end-users' requests to Turnkey. You can also use this to call on the Turnkey API directly from a server setting.
+`@turnkey/sdk-server` provides `Turnkey`, which offers wrappers around commonly used Turnkey API setups. Use it to call the Turnkey API from a server.
 
 // TODO:
 // - typescript-ify example
