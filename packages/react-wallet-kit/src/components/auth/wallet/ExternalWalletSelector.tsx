@@ -12,7 +12,7 @@ import { isWalletConnect } from "../../../utils/utils";
 import { WalletButton } from "./WalletButton";
 import { ExternalWalletChainSelector } from "./ExternalWalletChainSelector";
 import { WalletConnectFlow } from "./WalletConnectFlow";
-import { canDisconnect } from "./utils";
+import { canDisconnect, useWalletAuthAction } from "./utils";
 import { ActionPage } from "../Action";
 import { SuccessPage } from "../../design/Success";
 import { DisconnectWalletScreen } from "./DisconnectWalletScreen";
@@ -44,7 +44,6 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
   const {
     walletProviders,
     wallets,
-    loginOrSignupWithWallet,
     connectWalletAccount,
     disconnectWalletAccount,
   } = useTurnkey();
@@ -57,6 +56,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     ? props.successPageDuration
     : undefined;
   const onSuccess = isConnectMode ? props.onSuccess : undefined;
+  const walletAuthAction = useWalletAuthAction(sessionKey);
 
   // Auth mode: show ActionPage and call loginOrSignupWithWallet
   const handleAuthSelect = async (provider: WalletProvider) => {
@@ -65,12 +65,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
       content: (
         <ActionPage
           title={`Authenticating with ${provider.info.name}...`}
-          action={async () => {
-            await loginOrSignupWithWallet({
-              walletProvider: provider,
-              ...(sessionKey && { sessionKey }),
-            });
-          }}
+          action={() => walletAuthAction(provider)}
           icon={
             <img
               className="size-11 rounded-full"
