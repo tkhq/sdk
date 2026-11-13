@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Turnkey × KYA-OS</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <a href="/">TURNKEY <span>× KYA-OS</span></a
+      ><span id="mode" class="badge">Connecting</span>
+    </header>
+    <main>
+      <p class="eyebrow">AGENT IDENTITY / DELEGATION / PROOF</p>
+      <h1>An agent acts<br />with permission.</h1>
+      <p class="intro">
+        Approve one scope. Verify the result. Revoke access.<br />Every
+        signature runs through the Turnkey SDK signer.
+      </p>
+      <div class="layout">
+        <section class="panel actions" aria-labelledby="flow-heading">
+          <h2 id="flow-heading">Run the consent flow</h2>
+          <p>
+            The agent requests <code>get_report</code>. You decide whether it
+            can act.
+          </p>
+          <button data-action="call">
+            <span>01</span> Call the protected tool <b>↗</b>
+          </button>
+          <button data-action="approve" id="approve">
+            <span>02</span> Approve reports:read <b>↗</b>
+          </button>
+          <button data-action="call">
+            <span>03</span> Retry with delegation <b>↗</b>
+          </button>
+          <button data-action="verify" id="verify">
+            <span>04</span> Verify the response proof <b>↗</b>
+          </button>
+          <button data-action="revoke" id="revoke">
+            <span>05</span> Revoke delegation <b>↗</b>
+          </button>
+          <button data-action="call">
+            <span>06</span> Retry after revocation <b>↗</b>
+          </button>
+          <div class="checks">
+            <button data-action="scope">Test another scope</button
+            ><button data-action="replay">Replay last request</button>
+          </div>
+          <p class="small">
+            This tool returns a synthetic report. It does not access a real
+            system. Restart the app to reset the demo.
+          </p>
+        </section>
+        <section class="panel" aria-labelledby="result-heading">
+          <div class="section-title">
+            <h2 id="result-heading">What happened</h2>
+            <span id="grant" class="badge">No delegation</span>
+          </div>
+          <div
+            id="activity"
+            role="status"
+            aria-live="polite"
+            aria-atomic="false"
+          >
+            <p class="empty">Call the tool to start.</p>
+          </div>
+          <dl class="metrics">
+            <div>
+              <dt>Tool executions</dt>
+              <dd id="executions">0</dd>
+            </div>
+            <div>
+              <dt>Signing activities</dt>
+              <dd id="signatures">0</dd>
+            </div>
+          </dl>
+          <details>
+            <summary>Inspect the signed response</summary>
+            <pre id="proof">No response yet.</pre>
+            <a href="/api/receipt" id="download" download="kya-os-receipt.json"
+              >Download public receipt ↗</a
+            >
+          </details>
+        </section>
+      </div>
+      <section class="identities" aria-labelledby="identity-heading">
+        <h2 id="identity-heading">Three identities. Separate signing keys.</h2>
+        <div id="identities"></div>
+      </section>
+      <p class="footnote" id="backend-note">
+        Local mode uses disposable, non-extractable keys in this process. No
+        credentials are required.
+      </p>
+    </main>
+    <footer>
+      KYA-OS checks authority and binds proofs to the request and result.
+      Turnkey provides signing.
+    </footer>
+  </body>
+</html>
