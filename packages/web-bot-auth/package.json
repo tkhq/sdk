@@ -1,0 +1,67 @@
+{
+  "name": "@turnkey/web-bot-auth",
+  "version": "0.0.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "license": "Apache-2.0",
+  "description": "Web Bot Auth HTTP request signatures backed by Turnkey-held keys or an external signer",
+  "keywords": [
+    "Turnkey",
+    "Web Bot Auth",
+    "HTTP Message Signatures",
+    "Ed25519",
+    "agents",
+    "MPP"
+  ],
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com/"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkhq/sdk.git",
+    "directory": "packages/web-bot-auth"
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "prepack": "pnpm run build",
+    "build": "rollup -c",
+    "clean": "rimraf ./dist ./.cache",
+    "test": "jest --runInBand && pnpm run test:interop",
+    "test:interop": "pnpm run build && node --test test/mppx-interop.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "structured-headers": "2.1.1"
+  },
+  "devDependencies": {
+    "mppx": "0.18.1",
+    "viem": "2.57.19"
+  }
+}

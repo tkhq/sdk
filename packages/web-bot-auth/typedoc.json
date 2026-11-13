@@ -1,0 +1,14 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "name": "web-bot-auth",
+  "exclude": ["**/__tests__/**", "**/node_modules/**"],
+  "excludeInternal": true,
+  "includeVersion": true,
+  "alwaysCreateEntryPointModule": true,
+  "gitRevision": "main",
+  "router": "structure-dir",
+  "projectDocuments": ["README.md", "CHANGELOG.md"],
+  "outputs": [
+    { "name": "json", "path": "./generated-docs/sdks", "fileExtension": "json" }
+  ]
+}

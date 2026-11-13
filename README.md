@@ -56,6 +56,11 @@ For those with more specialized use cases, Turnkey exposes it's lower level-libr
 
 ### Request Stamping
 
+Outbound agent request signing is available in
+[`@turnkey/web-bot-auth`](/packages/web-bot-auth). It accepts an authenticated
+Turnkey client or an external signing callback and integrates with MPP identity
+provers. See the package README for its supported profile and trust boundaries.
+
 | Package                                                                                 | NPM                                                                                                                                                                   | Description                                                                                             | Changelog                                                          | Docs                                                                                  |
 | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
 | [`@turnkey/http`](/packages/http)                                                       | [![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/http)                                                     | Lower-level, fully typed HTTP client for interacting with Turnkey API                                   | [CHANGELOG](/packages/http/CHANGELOG.md)                           | [Docs](https://docs.turnkey.com/sdks/advanced/turnkey-client)                         |
