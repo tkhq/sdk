@@ -1,5 +1,11 @@
 # @turnkey/core
 
+## 2.14.1
+
+### Patch Changes
+
+- [#1638](https://github.com/tkhq/sdk/pull/1638) [`1c71b59`](https://github.com/tkhq/sdk/commit/1c71b59eb87464e8eee2a5b3059a0a8d88f3c40e) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - `pollTransactionStatus` now rejects when a transaction is `INCLUDED` with an error. A transaction that reverts on-chain is in a block, so it reports `INCLUDED` and carries its error; it previously resolved as if it had succeeded.
+
 ## 2.14.0
 
 ### Minor Changes
