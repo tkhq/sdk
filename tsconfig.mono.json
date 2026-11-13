@@ -5,6 +5,7 @@
     { "path": "./packages/eip-1193-provider" },
     { "path": "./packages/ethers" },
     { "path": "./packages/http" },
+    { "path": "./packages/mpp-identity" },
     { "path": "./packages/webauthn-stamper" },
     { "path": "./packages/api-key-stamper" },
     { "path": "./packages/iframe-stamper" },
