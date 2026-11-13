@@ -5,7 +5,12 @@ import {
   serializeItem,
 } from "structured-headers";
 import type { BareItem, Dictionary, InnerList } from "structured-headers";
+import {
+  uint8ArrayFromHexString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
 
+/** Public Ed25519 signing key in JWK form. Private members are rejected. */
 export type Ed25519PublicJwk = {
   kty: "OKP";
   crv: "Ed25519";
@@ -34,9 +39,13 @@ export type WebBotAuthProver = {
   prove(request: Request, context?: ProveContext): Promise<Request>;
 };
 
-export type WebBotAuthConfig = {
+/** Signs the exact RFC 9421 signature-base bytes and returns a 64-byte Ed25519 signature. */
+export type BotSigner = (bytes: Uint8Array) => Promise<Uint8Array>;
+
+/** Configuration for {@link createWebBotAuthProver}. */
+export type WebBotAuthProverConfig = {
   /** Signs the exact RFC 9421 signature-base bytes. The private key stays remote. */
-  sign: (bytes: Uint8Array) => Promise<Uint8Array>;
+  sign: BotSigner;
   publicKeyJwk: Ed25519PublicJwk;
   /** HTTPS origin hosting this bot's public key directory. */
   signatureAgent: string;
@@ -74,28 +83,33 @@ export async function jwkThumbprint(jwk: Ed25519PublicJwk): Promise<string> {
  * operation.
  */
 export async function createWebBotAuthProver(
-  config: WebBotAuthConfig,
+  config: WebBotAuthProverConfig,
 ): Promise<WebBotAuthProver> {
   const jwk = validatePublicJwk(config.publicKeyJwk);
   const keyId = await jwkThumbprint(jwk);
-  if (jwk.kid !== undefined && jwk.kid !== keyId)
+  if (jwk.kid !== undefined && jwk.kid !== keyId) {
     throw new TypeError("Bot JWK kid must equal its RFC 7638 thumbprint.");
+  }
   const publicKey = await crypto.subtle.importKey("jwk", jwk, "Ed25519", true, [
     "verify",
   ]);
   const signatureAgent = origin(config.signatureAgent, false);
-  if (!Array.isArray(config.scope))
+  if (!Array.isArray(config.scope)) {
     throw new TypeError(
       "The bot signing scope must be a list of explicit origins; '*' is not accepted.",
     );
+  }
   const scope = Object.freeze(config.scope.map((value) => origin(value, true)));
-  if (scope.length === 0)
+  if (scope.length === 0) {
     throw new TypeError("At least one signing origin is required.");
+  }
   const expiresIn = config.expiresIn ?? 60;
-  if (typeof expiresIn !== "number" || !Number.isInteger(expiresIn))
+  if (typeof expiresIn !== "number" || !Number.isInteger(expiresIn)) {
     throw new TypeError("Bot signature lifetime must be an integer.");
-  if (expiresIn < 1 || expiresIn > 60)
+  }
+  if (expiresIn < 1 || expiresIn > 60) {
     throw new RangeError("Bot signatures must live from 1 through 60 seconds.");
+  }
   const label = config.label ?? defaultLabel;
   const signatureAgentKey = config.signatureAgentKey ?? label;
   if (
@@ -103,10 +117,11 @@ export async function createWebBotAuthProver(
     typeof signatureAgentKey !== "string" ||
     !dictionaryKey.test(label) ||
     !dictionaryKey.test(signatureAgentKey)
-  )
+  ) {
     throw new TypeError(
       "Signature label and Signature-Agent key must be structured-field dictionary keys.",
     );
+  }
 
   return {
     scope,
@@ -116,17 +131,21 @@ export async function createWebBotAuthProver(
         nonce: base64url(crypto.getRandomValues(new Uint8Array(32))),
       };
       const url = new URL(request.url);
-      if (url.username || url.password || !scope.includes(url.origin))
+      if (url.username || url.password || !scope.includes(url.origin)) {
         throw new Error("The request origin is outside the bot signing scope.");
-      if (!Number.isSafeInteger(context.created))
+      }
+      if (!Number.isSafeInteger(context.created)) {
         throw new TypeError("The signing timestamp is invalid.");
-      if (context.created < 0)
+      }
+      if (context.created < 0) {
         throw new RangeError("The signing timestamp is invalid.");
+      }
       if (
         typeof context.nonce !== "string" ||
         !/^[A-Za-z0-9_-]{8,128}$/.test(context.nonce)
-      )
+      ) {
         throw new TypeError("The signing nonce is invalid.");
+      }
 
       const headers = new Headers(request.headers);
       const signatures = dictionary(headers.get("Signature"));
@@ -135,14 +154,17 @@ export async function createWebBotAuthProver(
       if (
         inputs.size !== signatures.size ||
         [...inputs.keys()].some((key) => !signatures.has(key))
-      )
+      ) {
         throw new Error("Existing signature headers have different labels.");
-      if (inputs.has(label) || signatures.has(label))
+      }
+      if (inputs.has(label) || signatures.has(label)) {
         throw new Error(`The "${label}" signature label already exists.`);
-      if (agents.has(signatureAgentKey))
+      }
+      if (agents.has(signatureAgentKey)) {
         throw new Error(
           `The "${signatureAgentKey}" Signature-Agent member already exists.`,
         );
+      }
 
       const agentEntry: [string, Map<string, BareItem>] = [
         signatureAgent,
@@ -171,21 +193,22 @@ export async function createWebBotAuthProver(
           `"@signature-params": ${serializedInput}`,
       );
       const signature = await config.sign(bytes);
-      if (signature.length !== 64)
+      if (signature.length !== 64) {
         throw new Error(
           "The bot signer returned an invalid Ed25519 signature length.",
         );
-      if (
-        !(await crypto.subtle.verify(
-          "Ed25519",
-          publicKey,
-          arrayBuffer(signature),
-          arrayBuffer(bytes),
-        ))
-      )
+      }
+      const valid = await crypto.subtle.verify(
+        "Ed25519",
+        publicKey,
+        arrayBuffer(signature),
+        arrayBuffer(bytes),
+      );
+      if (!valid) {
         throw new Error(
           "The bot signature does not match the configured public key.",
         );
+      }
 
       inputs.set(label, input);
       signatures.set(label, [arrayBuffer(signature), empty()]);
@@ -197,7 +220,8 @@ export async function createWebBotAuthProver(
   };
 }
 
-type RawSignInput = {
+/** The `signRawPayload` request {@link createTurnkeyBotSigner} submits. */
+export type SignRawPayloadInput = {
   organizationId: string;
   signWith: string;
   payload: string;
@@ -205,54 +229,66 @@ type RawSignInput = {
   hashFunction: "HASH_FUNCTION_NOT_APPLICABLE";
 };
 
+/** The `signRawPayload` fields {@link createTurnkeyBotSigner} reads. */
+export type SignRawPayloadResult = {
+  r: string;
+  s: string;
+  activity?: { id?: string; status?: string };
+};
+
+/** The subset of an authenticated Turnkey SDK client the bot signer uses. */
 export type TurnkeyRawSigner = {
-  signRawPayload(input: RawSignInput): Promise<{
-    r: string;
-    s: string;
-    activity?: { id?: string; status?: string };
-  }>;
+  signRawPayload(input: SignRawPayloadInput): Promise<SignRawPayloadResult>;
+};
+
+/** Configuration for {@link createTurnkeyBotSigner}. */
+export type TurnkeyBotSignerConfig = {
+  /** An authenticated Turnkey client. */
+  client: TurnkeyRawSigner;
+  organizationId: string;
+  /** The Ed25519 bot key: a private key ID, address, or wallet account. */
+  signWith: string;
+  /** Called with the activity ID of each completed signing activity. */
+  onActivity?: (id: string) => void;
 };
 
 /** Adapts the SDK's raw-signing API without exporting the bot's private key. */
-export function createTurnkeyBotSigner(config: {
-  client: TurnkeyRawSigner;
-  organizationId: string;
-  signWith: string;
-  onActivity?: (id: string) => void;
-}): (bytes: Uint8Array) => Promise<Uint8Array> {
-  if (!config.organizationId || !config.signWith)
-    throw new Error(
+export function createTurnkeyBotSigner(
+  config: TurnkeyBotSignerConfig,
+): BotSigner {
+  if (!config.organizationId || !config.signWith) {
+    throw new TypeError(
       "A Turnkey organization and bot key reference are required.",
     );
+  }
   return async (bytes) => {
-    let result: Awaited<ReturnType<TurnkeyRawSigner["signRawPayload"]>>;
+    let result: SignRawPayloadResult;
     try {
       result = await config.client.signRawPayload({
         organizationId: config.organizationId,
         signWith: config.signWith,
-        payload: Array.from(bytes, (byte) =>
-          byte.toString(16).padStart(2, "0"),
-        ).join(""),
+        payload: uint8ArrayToHexString(bytes),
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
-    } catch {
-      throw new Error("Turnkey did not complete the bot signing activity.");
+    } catch (cause) {
+      throw new Error("Turnkey did not complete the bot signing activity.", {
+        cause,
+      });
     }
     if (
       result.activity?.status !== undefined &&
       result.activity.status !== "ACTIVITY_STATUS_COMPLETED"
-    )
+    ) {
       throw new Error("Turnkey did not complete the bot signing activity.");
+    }
     if (
       !/^[a-fA-F0-9]{64}$/.test(result.r) ||
       !/^[a-fA-F0-9]{64}$/.test(result.s)
-    )
+    ) {
       throw new Error("Turnkey returned an invalid Ed25519 signature.");
-    const hex = result.r + result.s;
-    const signature = Uint8Array.from(hex.match(/../g)!, (byte) =>
-      Number.parseInt(byte, 16),
-    );
+    }
+    const signature = uint8ArrayFromHexString(result.r + result.s);
     if (result.activity?.id) config.onActivity?.(result.activity.id);
     return signature;
   };
@@ -268,8 +304,9 @@ function validatePublicJwk(jwk: Ed25519PublicJwk): Ed25519PublicJwk {
     !/^[A-Za-z0-9_-]{43}$/.test(jwk.x) ||
     (jwk.alg !== undefined && jwk.alg !== "EdDSA" && jwk.alg !== "Ed25519") ||
     (jwk.use !== undefined && jwk.use !== "sig")
-  )
+  ) {
     throw new TypeError("A public Ed25519 signing JWK is required.");
+  }
   return {
     kty: "OKP",
     crv: "Ed25519",
@@ -297,10 +334,11 @@ function origin(value: string, allowLoopback: boolean): string {
     url.hash ||
     (url.protocol !== "https:" &&
       !(allowLoopback && loopback && url.protocol === "http:"))
-  )
+  ) {
     throw new TypeError(
       "An HTTPS origin is required; local request scopes may use loopback HTTP.",
     );
+  }
   return url.origin;
 }
 

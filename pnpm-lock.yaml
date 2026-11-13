@@ -5037,6 +5037,9 @@ importers:
 
   packages/mpp-web-bot-auth:
     dependencies:
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
       structured-headers:
         specifier: 2.1.1
         version: 2.1.1

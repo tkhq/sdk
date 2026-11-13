@@ -82,11 +82,9 @@ test("refuses private JWKs, wrong-key signatures, invalid lifetimes and label co
     signatureAgent: "https://bot.example",
     scope: ["https://api.example"],
   };
+  const privateJwk = { ...publicKeyJwk, d: "private" };
   await expect(
-    createWebBotAuthProver({
-      ...config,
-      publicKeyJwk: { ...publicKeyJwk, d: "private" } as Ed25519PublicJwk,
-    }),
+    createWebBotAuthProver({ ...config, publicKeyJwk: privateJwk }),
   ).rejects.toThrow("public");
   await expect(
     createWebBotAuthProver({ ...config, expiresIn: 61 }),
@@ -158,6 +156,23 @@ test("denied and pending activities fail closed without exposing client errors",
     await expect(sign(new Uint8Array([1]))).rejects.toThrow(/Turnkey/);
     await expect(sign(new Uint8Array([1]))).rejects.not.toThrow("sensitive");
   }
+});
+
+test("keeps the client error as the cause of a failed signing activity", async () => {
+  const upstream = new Error("sensitive upstream request");
+  const sign = createTurnkeyBotSigner({
+    client: {
+      signRawPayload: async () => {
+        throw upstream;
+      },
+    },
+    organizationId: "org",
+    signWith: "key",
+  });
+  const error: unknown = await sign(new Uint8Array([1])).catch((e) => e);
+  expect(error).toBeInstanceOf(Error);
+  expect((error as Error).message).not.toContain("sensitive");
+  expect((error as Error).cause).toBe(upstream);
 });
 
 test("uses a configured label and Signature-Agent key and exposes no sensitive headers", async () => {
