@@ -5624,7 +5624,7 @@ importers:
         specifier: ^2.21.35
         version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.6.7)
 
-  packages/web-bot-auth:
+  packages/mpp-web-bot-auth:
     dependencies:
       structured-headers:
         specifier: 2.1.1

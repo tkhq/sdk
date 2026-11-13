@@ -56,10 +56,11 @@ For those with more specialized use cases, Turnkey exposes it's lower level-libr
 
 ### Request Stamping
 
-Outbound agent request signing is available in
-[`@turnkey/web-bot-auth`](/packages/web-bot-auth). It accepts an authenticated
-Turnkey client or an external signing callback and integrates with MPP identity
-provers. See the package README for its supported profile and trust boundaries.
+Outbound agent request signing for MPP is available in
+[`@turnkey/mpp-web-bot-auth`](/packages/mpp-web-bot-auth). It covers one narrow
+profile: the MPP HTTPS-directory Web Bot Auth profile, which signs `@authority`
+and `Signature-Agent` only. It accepts an authenticated Turnkey client or an
+external signing callback. See the package README for its trust boundaries.
 
 | Package                                                                                 | NPM                                                                                                                                                                   | Description                                                                                             | Changelog                                                          | Docs                                                                                  |
 | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |

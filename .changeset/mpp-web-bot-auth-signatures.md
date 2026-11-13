@@ -1,5 +1,5 @@
 ---
-"@turnkey/web-bot-auth": minor
+"@turnkey/mpp-web-bot-auth": minor
 ---
 
 Add Web Bot Auth HTTP request signing with dedicated Ed25519 keys. Applications

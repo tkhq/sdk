@@ -55,8 +55,10 @@ export async function jwkThumbprint(jwk: Ed25519PublicJwk): Promise<string> {
 }
 
 /**
- * Implements the mppx 0.18.1 HTTPS-directory profile with an external signer.
- * It signs bot identity and authority; it does not authorize an HTTP operation.
+ * Creates a prover for one narrow profile: the MPP HTTPS-directory Web Bot Auth
+ * profile. It signs `@authority` and `Signature-Agent` only, with an external
+ * signer. It signs bot identity and authority; it does not authorize an HTTP
+ * operation.
  */
 export async function createWebBotAuthProver(
   config: WebBotAuthConfig,

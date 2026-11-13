@@ -1,9 +1,15 @@
-# @turnkey/web-bot-auth
+# @turnkey/mpp-web-bot-auth
 
-Sign outbound HTTP requests with a dedicated Ed25519 bot key held in Turnkey,
-or with an injected byte-signing callback. The private bot key stays with the
-signer. The package does not accept API private keys, read environment variables,
-or choose how your application authenticates to Turnkey.
+Sign outbound HTTP requests for MPP (`mppx`) identity with a dedicated Ed25519
+bot key held in Turnkey, or with an injected byte-signing callback.
+
+This package covers one narrow profile: the MPP HTTPS-directory Web Bot Auth
+profile. It signs `@authority` and `Signature-Agent` only. It is not a general
+RFC 9421 or Web Bot Auth library.
+
+The private bot key stays with the signer. The package does not accept API
+private keys, read environment variables, or choose how your application
+authenticates to Turnkey.
 
 The first planned npm release is **0.1.0**. This package follows the SDK's
 Changesets release flow and produces CommonJS, ESM, and TypeScript declarations.
@@ -18,7 +24,7 @@ clients do. Authentication and session lifetime remain application decisions.
 import {
   createTurnkeyBotSigner,
   createWebBotAuthProver,
-} from "@turnkey/web-bot-auth";
+} from "@turnkey/mpp-web-bot-auth";
 
 const sign = createTurnkeyBotSigner({
   client: authenticatedTurnkeyClient,
@@ -93,10 +99,10 @@ Turnkey policies. Use dedicated bot keys rather than issuer or payment keys.
 From the SDK root:
 
 ```sh
-pnpm --filter @turnkey/web-bot-auth typecheck
-pnpm --filter @turnkey/web-bot-auth test
-pnpm --filter @turnkey/web-bot-auth build
-pnpm --filter @turnkey/web-bot-auth pack --pack-destination /tmp
+pnpm --filter @turnkey/mpp-web-bot-auth typecheck
+pnpm --filter @turnkey/mpp-web-bot-auth test
+pnpm --filter @turnkey/mpp-web-bot-auth build
+pnpm --filter @turnkey/mpp-web-bot-auth pack --pack-destination /tmp
 ```
 
 The tests generate software keys in memory and inject a test client. They prove

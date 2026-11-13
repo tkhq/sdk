@@ -11,7 +11,7 @@
     { "path": "./packages/react-native-passkey-stamper" },
     { "path": "./packages/solana" },
     { "path": "./packages/viem" },
-    { "path": "./packages/web-bot-auth" }
+    { "path": "./packages/mpp-web-bot-auth" }
   ],
   "files": []
 }

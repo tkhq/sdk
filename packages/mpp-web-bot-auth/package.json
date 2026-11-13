@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/web-bot-auth",
+  "name": "@turnkey/mpp-web-bot-auth",
   "version": "0.0.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -13,7 +13,7 @@
   },
   "types": "./dist/index.d.ts",
   "license": "Apache-2.0",
-  "description": "Web Bot Auth HTTP request signatures backed by Turnkey-held keys or an external signer",
+  "description": "MPP HTTPS-directory Web Bot Auth request signatures backed by Turnkey-held keys or an external signer",
   "keywords": [
     "Turnkey",
     "Web Bot Auth",
@@ -33,7 +33,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tkhq/sdk.git",
-    "directory": "packages/web-bot-auth"
+    "directory": "packages/mpp-web-bot-auth"
   },
   "files": [
     "dist/",

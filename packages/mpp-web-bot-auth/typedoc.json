@@ -1,6 +1,6 @@
 {
   "entryPoints": ["src/index.ts"],
-  "name": "web-bot-auth",
+  "name": "mpp-web-bot-auth",
   "exclude": ["**/__tests__/**", "**/node_modules/**"],
   "excludeInternal": true,
   "includeVersion": true,
