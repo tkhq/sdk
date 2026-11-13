@@ -73,8 +73,8 @@ MPP supplies a fresh attempt context for each request and paid retry. Standalone
 ## Protocol and trust boundaries
 
 This is the narrow HTTPS-directory Web Bot Auth profile interoperable with
-`mppx` **0.17.1**, based on RFC 9421. It signs `@authority` and the `webbot`
-dictionary member of `Signature-Agent`, with `created`, `expires`, `keyid`,
+`mppx` **0.17.1**, based on RFC 9421. It signs `@authority` and one dictionary
+member of `Signature-Agent` (`webbot` by default), with `created`, `expires`, `keyid`,
 `alg`, `nonce`, and `tag` parameters. The key ID is the public JWK's RFC 7638
 SHA-256 thumbprint. Tests exercise the built package against the stock MPP
 verifier, including replay and tampering failures.
@@ -84,10 +84,31 @@ The relying service decides which directories and keys it trusts. This package
 does not host a directory, enroll bots, verify human identity, establish a
 payment mandate, or prove that the agent runs in a TEE.
 
-Signatures last at most 60 seconds. Destination scopes are explicit HTTPS
-origins; loopback HTTP is accepted only for local request targets. The bot
-directory itself must use HTTPS. Signed requests reject redirects, and existing
-signature labels are preserved or rejected on collision.
+Signed requests reject redirects, and existing signature labels are preserved
+or rejected on collision.
+
+### Differences from `WebBotAuth.Client.prover`
+
+The configuration mirrors upstream's `prover`: `scope`, `signatureAgent`,
+`expiresIn`, `label` (default `webbot`) and `signatureAgentKey` (default: the
+label). `prove` takes the same `ProveContext` (`created`, `nonce`, optional
+`challenge`). Invalid configuration and input types throw `TypeError`, and
+out-of-range numbers throw `RangeError`, as upstream does. The prover adds a
+remote `sign` callback in place of a `CryptoKey`.
+
+These checks are deliberately stricter than upstream:
+
+- `scope` must list explicit origins. Upstream's `'*'` (any origin) is rejected.
+- Destination origins must use HTTPS. Loopback HTTP (`localhost`, `127.0.0.1`,
+  `[::1]`) is accepted only for local request targets. The bot directory itself
+  must always use HTTPS.
+- `expiresIn` must be from 1 through 60 seconds. Upstream accepts any positive
+  integer.
+- Ed25519 only. Each signature is verified against the configured public key
+  before the request is returned.
+- The prover does not declare a `headers` list. In mppx that field names
+  sensitive headers (such as bearer tokens) to strip on a cross-origin redirect,
+  and signature headers are not secrets.
 
 The supported profile identifies the bot and authority. It does not bind the
 method, path, query, or body. Applications must enforce operation authorization

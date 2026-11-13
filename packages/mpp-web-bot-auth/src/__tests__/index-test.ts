@@ -159,3 +159,73 @@ test("denied and pending activities fail closed without exposing client errors",
     await expect(sign(new Uint8Array([1]))).rejects.not.toThrow("sensitive");
   }
 });
+
+test("uses a configured label and Signature-Agent key and exposes no sensitive headers", async () => {
+  const { keys, publicKeyJwk } = await fixture();
+  const prover = await createWebBotAuthProver({
+    publicKeyJwk,
+    sign: async (bytes) =>
+      new Uint8Array(
+        await crypto.subtle.sign(
+          "Ed25519",
+          keys.privateKey,
+          Uint8Array.from(bytes),
+        ),
+      ),
+    signatureAgent: "https://bot.example",
+    scope: ["https://api.example"],
+    label: "bot1",
+    signatureAgentKey: "agent1",
+  });
+  expect("headers" in prover).toBe(false);
+  const signed = await prover.prove(new Request("https://api.example"), {
+    created: 1_700_000_000,
+    nonce: "AAAAAAAAAAAAAAAAAAAAAA",
+  });
+  expect(signed.headers.get("Signature-Agent")).toBe(
+    'agent1="https://bot.example"',
+  );
+  expect(signed.headers.get("Signature-Input")).toMatch(
+    /^bot1=\("@authority" "signature-agent";key="agent1"\);created=1700000000;expires=1700000060;/,
+  );
+  expect(signed.headers.get("Signature")).toMatch(/^bot1=:/);
+});
+
+test("throws TypeError for invalid config and inputs and RangeError for out-of-range numbers", async () => {
+  const { publicKeyJwk, prover } = await fixture();
+  const config = {
+    publicKeyJwk,
+    sign: async () => new Uint8Array(64),
+    signatureAgent: "https://bot.example",
+    scope: ["https://api.example"],
+  };
+  for (const bad of [
+    { scope: "*" as unknown as string[] },
+    { scope: [] },
+    { scope: ["http://api.example"] },
+    { signatureAgent: "http://localhost" },
+    { signatureAgent: "not a url" },
+    { expiresIn: 1.5 },
+    { label: "Bad Label" },
+    { signatureAgentKey: "" },
+  ]) {
+    await expect(
+      createWebBotAuthProver({ ...config, ...bad }),
+    ).rejects.toBeInstanceOf(TypeError);
+  }
+  for (const expiresIn of [0, 61]) {
+    await expect(
+      createWebBotAuthProver({ ...config, expiresIn }),
+    ).rejects.toBeInstanceOf(RangeError);
+  }
+  const request = new Request("https://api.example");
+  await expect(
+    prover.prove(request, { created: 1.5, nonce: "AAAAAAAAAAAA" }),
+  ).rejects.toBeInstanceOf(TypeError);
+  await expect(
+    prover.prove(request, { created: -1, nonce: "AAAAAAAAAAAA" }),
+  ).rejects.toBeInstanceOf(RangeError);
+  await expect(
+    prover.prove(request, { created: 1, nonce: "short" }),
+  ).rejects.toBeInstanceOf(TypeError);
+});

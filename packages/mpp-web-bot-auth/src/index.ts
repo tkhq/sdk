@@ -15,17 +15,23 @@ export type Ed25519PublicJwk = {
   use?: "sig";
 };
 
-/** Context for one HTTP attempt. A new attempt needs a new random nonce. */
-export type SigningContext = {
-  created: number;
-  nonce: string;
+/**
+ * Values shared by every prover contributing to one HTTP attempt. Matches
+ * mppx's `Identity.ProveContext`. A new attempt needs a new random nonce.
+ */
+export type ProveContext = {
+  /** Unix timestamp, in seconds, at which the attempt was created (RFC 9421 `created`). */
+  readonly created: number;
+  /** Base64url-encoded random value identifying the attempt (RFC 9421 `nonce`). */
+  readonly nonce: string;
+  /** On a paid attempt, the MPP Challenge being answered. This profile does not sign it. */
+  readonly challenge?: unknown;
 };
 
 /** Structurally compatible with MPP's Identity.Prover, without a runtime MPP dependency. */
 export type WebBotAuthProver = {
-  scope: readonly string[];
-  headers: readonly string[];
-  prove(request: Request, context?: SigningContext): Promise<Request>;
+  readonly scope: readonly string[];
+  prove(request: Request, context?: ProveContext): Promise<Request>;
 };
 
 export type WebBotAuthConfig = {
@@ -34,13 +40,20 @@ export type WebBotAuthConfig = {
   publicKeyJwk: Ed25519PublicJwk;
   /** HTTPS origin hosting this bot's public key directory. */
   signatureAgent: string;
-  /** Explicit origins allowed to receive bot signatures. */
+  /** Explicit origins allowed to receive bot signatures. `'*'` is not accepted. */
   scope: readonly string[];
+  /** Signature lifetime in seconds, from 1 through 60. @default 60 */
   expiresIn?: number;
+  /** RFC 9421 dictionary label. @default 'webbot' */
+  label?: string;
+  /** Dictionary member name used for `Signature-Agent`. @default label */
+  signatureAgentKey?: string;
 };
 
 const encoder = new TextEncoder();
-const label = "webbot";
+const defaultLabel = "webbot";
+// RFC 8941 dictionary member key.
+const dictionaryKey = /^[a-z*][a-z0-9_\-.*]*$/;
 const empty = () => new Map<string, BareItem>();
 
 /** RFC 7638 thumbprint of a public Ed25519 JWK. */
@@ -66,21 +79,37 @@ export async function createWebBotAuthProver(
   const jwk = validatePublicJwk(config.publicKeyJwk);
   const keyId = await jwkThumbprint(jwk);
   if (jwk.kid !== undefined && jwk.kid !== keyId)
-    throw new Error("Bot JWK kid must equal its RFC 7638 thumbprint.");
+    throw new TypeError("Bot JWK kid must equal its RFC 7638 thumbprint.");
   const publicKey = await crypto.subtle.importKey("jwk", jwk, "Ed25519", true, [
     "verify",
   ]);
   const signatureAgent = origin(config.signatureAgent, false);
+  if (!Array.isArray(config.scope))
+    throw new TypeError(
+      "The bot signing scope must be a list of explicit origins; '*' is not accepted.",
+    );
   const scope = Object.freeze(config.scope.map((value) => origin(value, true)));
   if (scope.length === 0)
-    throw new Error("At least one signing origin is required.");
+    throw new TypeError("At least one signing origin is required.");
   const expiresIn = config.expiresIn ?? 60;
-  if (!Number.isInteger(expiresIn) || expiresIn < 1 || expiresIn > 60)
-    throw new Error("Bot signatures must live from 1 through 60 seconds.");
+  if (typeof expiresIn !== "number" || !Number.isInteger(expiresIn))
+    throw new TypeError("Bot signature lifetime must be an integer.");
+  if (expiresIn < 1 || expiresIn > 60)
+    throw new RangeError("Bot signatures must live from 1 through 60 seconds.");
+  const label = config.label ?? defaultLabel;
+  const signatureAgentKey = config.signatureAgentKey ?? label;
+  if (
+    typeof label !== "string" ||
+    typeof signatureAgentKey !== "string" ||
+    !dictionaryKey.test(label) ||
+    !dictionaryKey.test(signatureAgentKey)
+  )
+    throw new TypeError(
+      "Signature label and Signature-Agent key must be structured-field dictionary keys.",
+    );
 
   return {
     scope,
-    headers: ["Signature", "Signature-Input", "Signature-Agent"],
     async prove(request, suppliedContext) {
       const context = suppliedContext ?? {
         created: Math.floor(Date.now() / 1000),
@@ -89,10 +118,15 @@ export async function createWebBotAuthProver(
       const url = new URL(request.url);
       if (url.username || url.password || !scope.includes(url.origin))
         throw new Error("The request origin is outside the bot signing scope.");
-      if (!Number.isSafeInteger(context.created) || context.created < 0)
-        throw new Error("The signing timestamp is invalid.");
-      if (!/^[A-Za-z0-9_-]{8,128}$/.test(context.nonce))
-        throw new Error("The signing nonce is invalid.");
+      if (!Number.isSafeInteger(context.created))
+        throw new TypeError("The signing timestamp is invalid.");
+      if (context.created < 0)
+        throw new RangeError("The signing timestamp is invalid.");
+      if (
+        typeof context.nonce !== "string" ||
+        !/^[A-Za-z0-9_-]{8,128}$/.test(context.nonce)
+      )
+        throw new TypeError("The signing nonce is invalid.");
 
       const headers = new Headers(request.headers);
       const signatures = dictionary(headers.get("Signature"));
@@ -103,14 +137,18 @@ export async function createWebBotAuthProver(
         [...inputs.keys()].some((key) => !signatures.has(key))
       )
         throw new Error("Existing signature headers have different labels.");
-      if (inputs.has(label) || signatures.has(label) || agents.has(label))
-        throw new Error("The webbot signature label already exists.");
+      if (inputs.has(label) || signatures.has(label))
+        throw new Error(`The "${label}" signature label already exists.`);
+      if (agents.has(signatureAgentKey))
+        throw new Error(
+          `The "${signatureAgentKey}" Signature-Agent member already exists.`,
+        );
 
       const agentEntry: [string, Map<string, BareItem>] = [
         signatureAgent,
         empty(),
       ];
-      agents.set(label, agentEntry);
+      agents.set(signatureAgentKey, agentEntry);
       const parameters = new Map<string, BareItem>([
         ["created", context.created],
         ["expires", context.created + expiresIn],
@@ -122,14 +160,14 @@ export async function createWebBotAuthProver(
       const input: InnerList = [
         [
           ["@authority", empty()],
-          ["signature-agent", new Map([["key", label]])],
+          ["signature-agent", new Map([["key", signatureAgentKey]])],
         ],
         parameters,
       ];
       const serializedInput = serializeInnerList(input);
       const bytes = encoder.encode(
         `"@authority": ${url.host}\n` +
-          `"signature-agent";key="${label}": ${serializeItem(agentEntry)}\n` +
+          `"signature-agent";key="${signatureAgentKey}": ${serializeItem(agentEntry)}\n` +
           `"@signature-params": ${serializedInput}`,
       );
       const signature = await config.sign(bytes);
@@ -231,7 +269,7 @@ function validatePublicJwk(jwk: Ed25519PublicJwk): Ed25519PublicJwk {
     (jwk.alg !== undefined && jwk.alg !== "EdDSA" && jwk.alg !== "Ed25519") ||
     (jwk.use !== undefined && jwk.use !== "sig")
   )
-    throw new Error("A public Ed25519 signing JWK is required.");
+    throw new TypeError("A public Ed25519 signing JWK is required.");
   return {
     kty: "OKP",
     crv: "Ed25519",
@@ -241,7 +279,12 @@ function validatePublicJwk(jwk: Ed25519PublicJwk): Ed25519PublicJwk {
 }
 
 function origin(value: string, allowLoopback: boolean): string {
-  const url = new URL(value);
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new TypeError(`Invalid origin: ${String(value)}`);
+  }
   const loopback =
     url.hostname === "localhost" ||
     url.hostname === "127.0.0.1" ||
@@ -255,7 +298,7 @@ function origin(value: string, allowLoopback: boolean): string {
     (url.protocol !== "https:" &&
       !(allowLoopback && loopback && url.protocol === "http:"))
   )
-    throw new Error(
+    throw new TypeError(
       "An HTTPS origin is required; local request scopes may use loopback HTTP.",
     );
   return url.origin;
