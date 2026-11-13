@@ -2,11 +2,11 @@ import type { TurnkeyApiClient } from "@turnkey/sdk-server";
 
 import {
   C,
+  apyText,
   chainName,
   DELEGATED_TAG,
   header,
   isSolana,
-  pct,
   pollEarnStatus,
   printPositions,
   sleep,
@@ -37,7 +37,7 @@ import {
 
 // The automated step, signed by the platform's delegated key. It polls the Earn
 // wallet; for each stablecoin balance it finds, it picks the enabled vault with
-// the highest net APY, swaps into that vault's asset if needed (cross-chain, or
+// the highest APY (excluding rewards it doesn't claim), swaps into that vault's asset if needed (cross-chain, or
 // Solana → EVM), and deposits. The policies allow nothing else.
 //
 // Usage: pnpm watch [--once] [--chain <caip2>]
@@ -93,7 +93,7 @@ async function main() {
           // Rates move, so read them now rather than trusting the snapshot
           // from when the watcher started.
           const current = await refreshTargets(client, subOrgId, lists.targets);
-          printVaults(current, "\n📈 Current net APY:", onlyChain);
+          printVaults(current, "\n📈 Current vault APYs:", onlyChain);
           const target = bestVault(current, onlyChain);
           if (!target) {
             console.log(
@@ -132,7 +132,7 @@ async function invest(
     `\n💰 ${h.asset.symbol} on ${chainName(h.asset.caip2)}: ${usd(h.usd)} in the Earn wallet`,
   );
   console.log(
-    `   best vault: ${target.name} (${target.symbol} on ${chainName(target.caip2)}), net APY ${pct(target.netApyPct)}`,
+    `   best vault: ${target.name} (${target.symbol} on ${chainName(target.caip2)}), APY ${apyText(target)}`,
   );
 
   let depositAmount = amount;

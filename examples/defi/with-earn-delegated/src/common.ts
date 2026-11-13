@@ -195,9 +195,35 @@ export function usd(value: number | undefined): string {
 }
 
 // pct renders an APY decimal fraction (e.g. "0.0432") as "4.32%".
-export function pct(fraction: string | undefined): string {
-  if (!fraction) return "?%";
+export function pct(fraction: string | number | undefined): string {
+  if (fraction === undefined || fraction === "") return "?%";
   return `${(Number(fraction) * 100).toFixed(2)}%`;
+}
+
+// The API returns rewardsApyPct on enabled vaults; the SDK types don't declare
+// it yet.
+export type EnabledVault = v1EarnEnabledVault & { rewardsApyPct?: string };
+
+type VaultRates = {
+  netApyPct?: string | undefined;
+  rewardsApyPct?: string | undefined;
+};
+
+// A vault's netApyPct includes Merkl rewards, paid in separate tokens that
+// reach the wallet only when someone claims them. This example doesn't claim
+// them, so it ranks vaults by the yield it actually collects.
+export function collectedApy(v: VaultRates): number | undefined {
+  if (!v.netApyPct) return undefined;
+  return Number(v.netApyPct) - Number(v.rewardsApyPct ?? 0);
+}
+
+// apyText shows the collected yield, plus any unclaimed reward rate beside it.
+export function apyText(v: VaultRates): string {
+  const rewards = Number(v.rewardsApyPct ?? 0);
+  return (
+    pct(collectedApy(v)) +
+    (rewards > 0 ? ` (+${pct(rewards)} rewards, not claimed)` : "")
+  );
 }
 
 // printPositions fetches and prints the wallet's Earn positions (in USD),
@@ -213,7 +239,7 @@ export async function printPositions(
     client.listEarnEnabledVaults({ organizationId }),
   ]);
 
-  const vaultFor = (p: v1EarnPosition) =>
+  const vaultFor = (p: v1EarnPosition): EnabledVault | undefined =>
     enabledVaults.find(
       (v: v1EarnEnabledVault) =>
         v.wrapperAddress?.toLowerCase() === p.wrapperAddress?.toLowerCase(),
@@ -227,7 +253,7 @@ export async function printPositions(
     const v = vaultFor(p);
     const name = v?.name ?? `${p.provider} vault`;
     console.log(
-      `   ${C.bold}${name}${C.reset} on ${chainName(p.caip19)}, net APY ${pct(v?.netApyPct)}`,
+      `   ${C.bold}${name}${C.reset} on ${chainName(p.caip19)}, APY ${v ? apyText(v) : "?%"}`,
     );
     console.log(
       `     current value:    ${p.display?.currentValueUsd ? usd(Number(p.display.currentValueUsd)) : p.currentValue}`,

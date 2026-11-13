@@ -1,16 +1,14 @@
-import type {
-  TurnkeyApiClient,
-  v1AssetBalance,
-  v1EarnEnabledVault,
-} from "@turnkey/sdk-server";
+import type { TurnkeyApiClient, v1AssetBalance } from "@turnkey/sdk-server";
 import { encodeFunctionData, erc20Abi } from "viem";
 
 import {
+  apyText,
   caip2Of,
   chainName,
+  collectedApy,
+  type EnabledVault,
   isSolana,
   newClient,
-  pct,
   requireEnv,
   sleep,
   txLink,
@@ -18,6 +16,8 @@ import {
 } from "./common";
 import {
   EXCLUDED_SYMBOLS,
+  FEE_SPONSORSHIP,
+  FIXED_RATE,
   INPUT_CHAINS,
   MAX_SLIPPAGE_BPS,
   RETURN_ASSET,
@@ -172,6 +172,7 @@ export type Asset = {
 export type Target = Asset & {
   wrapperAddress: string;
   netApyPct: string;
+  rewardsApyPct: string | undefined;
   liquidity: string | undefined;
   name: string;
 };
@@ -195,6 +196,11 @@ export async function supportedAssets(
   client: TurnkeyApiClient,
   organizationId: string,
 ): Promise<AssetLists> {
+  if (isSolana(RETURN_ASSET.caip2)) {
+    throw new Error(
+      `RETURN_ASSET must be an EVM asset; the return transfer and its policy are EVM only (see config.ts)`,
+    );
+  }
   const excluded = EXCLUDED_SYMBOLS.map((s) => s.toUpperCase());
 
   const perChain = await Promise.all(
@@ -225,7 +231,7 @@ export async function supportedAssets(
     organizationId,
   });
   const targets: Target[] = [];
-  for (const v of enabledVaults as v1EarnEnabledVault[]) {
+  for (const v of enabledVaults as EnabledVault[]) {
     if (!v.wrapperAddress || !v.caip19 || v.depositsDisabled) continue;
     if (v.deployStatus && !/COMPLETED/i.test(v.deployStatus)) continue;
     const asset = inputs.find((a) => sameAsset(a.caip19, v.caip19!));
@@ -234,6 +240,7 @@ export async function supportedAssets(
       ...asset,
       wrapperAddress: v.wrapperAddress,
       netApyPct: v.netApyPct ?? "0",
+      rewardsApyPct: v.rewardsApyPct,
       liquidity: v.liquidity,
       name: v.name ?? `${v.provider} vault`,
     });
@@ -271,7 +278,7 @@ export function printAssetLists(lists: AssetLists) {
   );
 }
 
-// printVaults lists vaults best net APY first, optionally limited to one chain.
+// printVaults lists vaults best APY first, optionally limited to one chain.
 export function printVaults(
   targets: Target[],
   title: string,
@@ -280,13 +287,13 @@ export function printVaults(
   console.log(title);
   for (const t of rankVaults(targets, onlyChain)) {
     console.log(
-      `   ${pct(t.netApyPct).padStart(6)}  ${t.name} (${t.symbol} on ${chainName(t.caip2)})`,
+      `   ${t.name} (${t.symbol} on ${chainName(t.caip2)}): ${apyText(t)}`,
     );
   }
 }
 
 // refreshTargets re-reads the enabled vaults and returns the given targets with
-// their current net APY, liquidity and deposit state. It only ever returns
+// their current APY, liquidity and deposit state. It only ever returns
 // wrappers that were already targets, because those are the ones the policies
 // allow; a vault enabled since onboarding needs `pnpm onboard-customer` first.
 export async function refreshTargets(
@@ -299,24 +306,26 @@ export async function refreshTargets(
   });
   const fresh: Target[] = [];
   for (const t of targets) {
-    const v = (enabledVaults as v1EarnEnabledVault[]).find(
+    const v = (enabledVaults as EnabledVault[]).find(
       (e) => e.wrapperAddress?.toLowerCase() === t.wrapperAddress.toLowerCase(),
     );
     if (!v || v.depositsDisabled) continue;
     fresh.push({
       ...t,
       netApyPct: v.netApyPct ?? t.netApyPct,
+      rewardsApyPct: v.rewardsApyPct,
       liquidity: v.liquidity,
     });
   }
   return fresh;
 }
 
-// rankVaults sorts targets by net APY, best first, optionally on one chain.
+// rankVaults sorts targets by the yield this example collects (rewards
+// excluded, since it doesn't claim them), best first, optionally on one chain.
 const rankVaults = (targets: Target[], onlyChain?: string) =>
   targets
     .filter((t) => !onlyChain || t.caip2 === onlyChain)
-    .sort((a, b) => Number(b.netApyPct) - Number(a.netApyPct));
+    .sort((a, b) => (collectedApy(b) ?? 0) - (collectedApy(a) ?? 0));
 
 export const bestVault = (targets: Target[], onlyChain?: string) =>
   rankVaults(targets, onlyChain)[0];
@@ -381,13 +390,18 @@ export function buildPolicies(
   const outputsIn = `activity.params.output_token in ${list(outputs)}`;
   const slippage = `activity.params.slippage_bps <= ${MAX_SLIPPAGE_BPS}`;
   const toEarnEvm = `activity.params.destination_address in ${list([customer.earnEvm])}`;
+  // EVM swaps never name a destination: the output lands at the same address
+  // on the output chain. A swap into a Solana token would have to name one, so
+  // this keeps the EVM swaps from sending output anywhere else.
+  const noDestination = `activity.params.destination_address == ''`;
   const wrappersIn = `activity.params.wrapper_address in ${list(wrappers)}`;
   const executeNote = "Lets the platform execute those quotes.";
 
   return [
     p(
       "return to deposit wallet",
-      `Lets the platform send ${lists.returnAsset.symbol} on ${chainName(lists.returnAsset.caip2)} back to the customer's deposit wallet, and nowhere else.`,
+      `Lets the platform send ${lists.returnAsset.symbol} on ${chainName(lists.returnAsset.caip2)} from the Earn wallet back to the customer's deposit wallet, and nowhere else.`,
+      `eth.tx.from in ${list([customer.earnEvm])}`,
       `eth.tx.to == '${returnToken.toLowerCase()}'`,
       `eth.tx.data[0..10] == '0xa9059cbb'`,
       `eth.tx.data[34..74] == '${evmAddrNoPrefix(customer.depositEvm)}'`,
@@ -399,10 +413,18 @@ export function buildPolicies(
       quote,
       inputsIn(evmInputs),
       outputsIn,
+      noDestination,
       slippage,
       signedBy(customer.earnEvm),
     ),
-    p("EVM swap execute", executeNote, execute, inputsIn(evmInputs), outputsIn),
+    p(
+      "EVM swap execute",
+      executeNote,
+      execute,
+      inputsIn(evmInputs),
+      outputsIn,
+      noDestination,
+    ),
     // Solana inputs are allowed only by policies that pin the destination to
     // the customer's own Earn EVM address. If the EVM swap policies accepted
     // Solana inputs, a Solana swap could send its output to any EVM address.
@@ -659,8 +681,16 @@ type SwapResult =
   | { kind: "failed"; reason: string }
   | { kind: "pending" };
 
+type SwapFeatures = { fixedRate?: boolean; feeSponsorship?: boolean };
+
+// Errors meaning this swap can't use fixed rate or fee sponsorship right now.
+const SWAP_FEATURE_ERROR =
+  /SWAP_(FEATURE_NOT_ENABLED|FIXED_RATE_[A-Z_]+|SPENDING_LIMIT_EXCEEDED|SPONSORSHIP_BALANCE_INSUFFICIENT|FEE_SPONSORSHIP_UNAVAILABLE)/;
+
 // swap quotes and executes one swap from the Earn wallet with gas sponsorship.
-// Solana inputs send their output to the Earn wallet's EVM address.
+// Solana inputs send their output to the Earn wallet's EVM address. With
+// FIXED_RATE or FEE_SPONSORSHIP on, a swap that can't use them is quoted again
+// at the market rate without either.
 export async function swap(
   client: TurnkeyApiClient,
   customer: Customer,
@@ -668,6 +698,41 @@ export async function swap(
   to: Asset,
   amount: bigint,
   slippageBps: string,
+): Promise<SwapResult> {
+  const features: SwapFeatures = {
+    ...(FIXED_RATE ? { fixedRate: true } : {}),
+    ...(FEE_SPONSORSHIP ? { feeSponsorship: true } : {}),
+  };
+  if (Object.keys(features).length > 0) {
+    try {
+      return await quoteAndExecute(
+        client,
+        customer,
+        from,
+        to,
+        amount,
+        slippageBps,
+        features,
+      );
+    } catch (error) {
+      const code = errorMessage(error).match(SWAP_FEATURE_ERROR)?.[0];
+      if (!code) throw error;
+      console.log(
+        `   ${code}: quoting again at the market rate, without fixed rate or fee sponsorship`,
+      );
+    }
+  }
+  return quoteAndExecute(client, customer, from, to, amount, slippageBps, {});
+}
+
+async function quoteAndExecute(
+  client: TurnkeyApiClient,
+  customer: Customer,
+  from: Asset,
+  to: Asset,
+  amount: bigint,
+  slippageBps: string,
+  features: SwapFeatures,
 ): Promise<SwapResult> {
   const organizationId = customer.subOrgId;
   const fromSolana = isSolana(from.caip19);
@@ -684,11 +749,16 @@ export async function swap(
     inputAmount: amount.toString(),
     slippageBps,
     ...destination,
+    ...features,
   });
   const quote = quotes[0];
   if (!quote) return { kind: "failed", reason: "no swap quote returned" };
+  const terms = [
+    quote.fixedRate && "fixed rate",
+    quote.feeSponsorship && "fees sponsored",
+  ].filter(Boolean);
   console.log(
-    `   quote ${quote.provider}: ${units(amount, from.decimals)} ${from.symbol} on ${chainName(from.caip2)} → ~${units(quote.outputAmount, to.decimals)} ${to.symbol} on ${chainName(to.caip2)} (min ${units(quote.minOutputAmount, to.decimals)})`,
+    `   quote ${quote.provider}: ${units(amount, from.decimals)} ${from.symbol} on ${chainName(from.caip2)} → ~${units(quote.outputAmount, to.decimals)} ${to.symbol} on ${chainName(to.caip2)} (min ${units(quote.minOutputAmount, to.decimals)}${terms.length ? `, ${terms.join(", ")}` : ""})`,
   );
 
   const { swapRequestId } = await client.executeSwap({

@@ -51,7 +51,8 @@ export const EXCLUDED_SYMBOLS = ["EURC"];
 // trigger sponsored swaps that cost more than they earn.
 export const MIN_INVEST_USD = 1;
 
-// `redeem` always returns this asset to the deposit wallet.
+// `redeem` always returns this asset to the deposit wallet. It must be an EVM
+// asset: the return transfer and its policy are EVM only.
 export const RETURN_ASSET = { symbol: "USDC", caip2: "eip155:8453" as Caip2 };
 
 // Watcher and swap tuning.
@@ -59,6 +60,13 @@ export const POLL_SECONDS = 20;
 export const SLIPPAGE_BPS = "50"; // requested on each quote
 export const MAX_SLIPPAGE_BPS = 100; // policy cap; must be >= SLIPPAGE_BPS
 export const SWAP_WAIT_MINUTES = 10; // cross-chain swaps can take minutes to settle
+
+// Enterprise swap features, billed to the parent org within its spend limits.
+// Turn them on for the parent org first. If a swap can't use them (a route
+// without fixed-rate coverage, a spend limit reached), it's quoted again at the
+// market rate without either.
+export const FIXED_RATE = false; // 1:1 between stablecoins, before fees
+export const FEE_SPONSORSHIP = false; // the parent org pays the swap fees
 
 export const INPUT_CHAINS: Caip2[] = CHAINS.map((c) => c.caip2).filter(
   (c) => !EXCLUDED_CHAINS.includes(c),

@@ -1,11 +1,12 @@
 import type { TurnkeyApiClient, v1EarnPosition } from "@turnkey/sdk-server";
 
 import {
+  apyText,
   ask,
   chainName,
+  collectedApy,
   DELEGATED_TAG,
   header,
-  pct,
   pollEarnStatus,
   printPositions,
   sleep,
@@ -48,7 +49,8 @@ async function main() {
   let remaining = isMax ? Number.POSITIVE_INFINITY : Number(arg);
   if (!isMax && !(remaining > 0)) throw new Error(`invalid amount "${arg}"`);
 
-  // Positions joined with their vault's net APY and liquidity, lowest APY first.
+  // Positions joined with their vault's APY and liquidity, lowest APY first
+  // (rewards excluded, since this example doesn't claim them).
   const { positions = [] } = await client.listEarnPositions({
     organizationId: subOrgId,
     walletAddress: c.earnEvm,
@@ -65,7 +67,9 @@ async function main() {
       (x): x is { position: v1EarnPosition; vault: Target } =>
         !!x.vault && BigInt(x.position.currentValue ?? "0") > 0n,
     )
-    .sort((a, b) => Number(a.vault.netApyPct) - Number(b.vault.netApyPct));
+    .sort(
+      (a, b) => (collectedApy(a.vault) ?? 0) - (collectedApy(b.vault) ?? 0),
+    );
 
   if (ranked.length === 0) {
     console.log("No positions to redeem.");
@@ -102,7 +106,7 @@ async function main() {
     }
 
     console.log(
-      `\n🏧 Withdrawing ${amountValue === "MAX" ? "all" : usd(units(BigInt(amountValue), vault.decimals))} from ${vault.name} on ${chainName(vault.caip2)} (net APY ${pct(vault.netApyPct)})`,
+      `\n🏧 Withdrawing ${amountValue === "MAX" ? "all" : usd(units(BigInt(amountValue), vault.decimals))} from ${vault.name} on ${chainName(vault.caip2)} (APY ${apyText(vault)})`,
     );
 
     const before = await balanceOf(client, subOrgId, c.earnEvm, vault);

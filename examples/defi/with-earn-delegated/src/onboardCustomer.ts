@@ -190,7 +190,7 @@ async function main() {
   }
 
   console.log(
-    `\n✅ Customer onboarded. Fund the deposit wallet, then run \`pnpm watch\` and \`pnpm customer-send\`.`,
+    `\n✅ Customer onboarded. Run \`pnpm watch\`, then send stablecoins to the Earn wallet (or fund the deposit wallet and move them with \`pnpm customer-send\`).`,
   );
   console.log(
     `${C.dim}Earn chains with enabled vaults: ${[...new Set(lists.targets.map((t) => chainName(t.caip2)))].join(", ")}${C.reset}`,

@@ -1,11 +1,12 @@
 # Example: `with-earn-delegated`
 
-A customer gets a permanent deposit address on EVM chains and Solana. Stablecoins
-that reach their Earn wallet are invested automatically by the platform: a watcher
-picks the enabled Earn vault with the highest net APY, swaps into that vault's
-asset with Turnkey Swap (cross-chain if needed), and deposits. When the customer
-wants their money back, the platform withdraws and returns USDC on Base to the
-deposit wallet.
+Stablecoins sent to a customer's **Earn wallet**, on any supported EVM chain or
+Solana, are invested automatically by the platform. A watcher picks the enabled
+Earn vault with the highest yield, swaps into that vault's asset with Turnkey
+Swap (cross-chain if needed), and deposits. When the customer wants their money
+back, the platform withdraws and returns USDC on Base to the customer's
+**deposit wallet**, a separate wallet the platform can't touch. Funds in the
+deposit wallet aren't invested until the customer moves them to the Earn wallet.
 
 The platform does this with a **non-root delegated user** whose only rights are
 the policies the customer approved. It can't send funds anywhere except into the
@@ -19,21 +20,21 @@ enabled vaults and back to the customer's own deposit wallet. Builds on
 
 Each customer gets a sub-organization:
 
-|                | What it is                                                                                                         |
-| -------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Root user      | The customer, and only the customer. Here a mock API key (`CUSTOMER_API_*`) stands in for the customer's own login |
-| Deposit wallet | Where the customer receives funds. One EVM account (the same address on every EVM chain) and one Solana account    |
-| Earn wallet    | Where the platform works. The same two account types                                                               |
-| Delegated user | The platform's API key (`DELEGATED_API_*`), **not** in the root quorum. Its policies are its only rights           |
+|                | What it is                                                                                                                                                                                           |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Root user      | The customer, and only the customer. Here a mock API key (`CUSTOMER_API_*`) stands in for the customer's own login                                                                                   |
+| Deposit wallet | The customer's own wallet. The platform can't sign from it, and funds here aren't invested. Redeemed funds return here. One EVM account (the same address on every EVM chain) and one Solana account |
+| Earn wallet    | Where stablecoins are sent to be invested automatically. The platform can swap, deposit and withdraw here, within its policies. The same two account types                                           |
+| Delegated user | The platform's API key (`DELEGATED_API_*`), **not** in the root quorum. Its policies are its only rights                                                                                             |
 
 The flow:
 
 1. **`onboard-customer`** creates the sub-org (signed by the parent org). Signed
    by the customer's root key, it then creates the Earn wallet, the delegated
    user, and the delegated user's policies.
-2. The customer moves stablecoins from the deposit wallet into the Earn wallet,
-   for example with **`customer-send`**. Any transfer into the Earn wallet works
-   the same way; the platform can't do this step.
+2. Stablecoins arrive in the Earn wallet, either sent from anywhere or moved
+   there by the customer from the deposit wallet with **`customer-send`**. The
+   platform can't move funds into the Earn wallet itself.
 3. **`watch`** (the platform, automated) sees the balance, re-reads the vault
    rates, picks the best vault, swaps, and deposits.
 4. **`redeem`** (the platform) withdraws from the lowest-APY positions first,
@@ -44,24 +45,29 @@ The flow:
 Every policy is limited to the delegated user and signed from the Earn wallet.
 There is deliberately no policy on the deposit wallet.
 
-| Action                                | Limited to                                                                                                        |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Swap quote and execute (EVM)          | From any supported stablecoin into an enabled vault's asset, or USDC on Base. Slippage at most `MAX_SLIPPAGE_BPS` |
-| Swap quote and execute (Solana → EVM) | The same assets, and the output must go to the Earn wallet's own EVM address                                      |
-| Earn deposit and withdraw             | The enabled wrappers only                                                                                         |
-| Transfer                              | USDC on Base, to the customer's deposit wallet only                                                               |
+| Action                                | Limited to                                                                                                                                                                          |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Swap quote and execute (EVM)          | From any supported stablecoin into an enabled vault's asset, or USDC on Base. No destination, so the output stays at the Earn wallet's address. Slippage at most `MAX_SLIPPAGE_BPS` |
+| Swap quote and execute (Solana → EVM) | The same assets, and the output must go to the Earn wallet's own EVM address                                                                                                        |
+| Earn deposit and withdraw             | The enabled wrappers only                                                                                                                                                           |
+| Transfer                              | USDC on Base, from the Earn wallet to the customer's deposit wallet only                                                                                                            |
 
 The Solana swap policies are separate on purpose. A swap from Solana to EVM has
 to name a destination; if the EVM policies accepted Solana inputs, a Solana swap
-could send its output to any EVM address. A swap execute doesn't repeat the
-signer check because it's bound to a quote, and the quote policies already pin
-the signer to the Earn wallet.
+could send its output to any EVM address. For the same reason, the EVM swap
+policies require that no destination is named: an EVM → EVM swap delivers to
+the same address on the output chain, and a swap into a Solana token, which
+would have to name one, is denied. A swap execute doesn't repeat the signer
+check because it's bound to a quote, and the quote policies already pin the
+signer to the Earn wallet.
 
 `pnpm validate-policies` shows the limits. It tries requests the policies must
-deny (sending from the deposit wallet, swapping into a non-stablecoin, going over
-the slippage cap, signing a swap or Earn deposit from the deposit wallet, sending
-Solana swap output elsewhere, and sending Earn-wallet funds anywhere but the
-deposit wallet), plus requests they must allow, on EVM and Solana.
+deny (sending from the deposit wallet, even to itself; swapping into a
+non-stablecoin; going over the slippage cap; swapping from EVM into a Solana
+token at another address; signing a swap or Earn deposit from the deposit
+wallet; sending Solana swap output elsewhere; and sending Earn-wallet funds
+anywhere but the deposit wallet), plus requests they must allow, on EVM and
+Solana.
 
 ### Supported assets
 
@@ -73,17 +79,49 @@ run time and printed by `onboard-customer` and `watch`:
   `EXCLUDED_SYMBOLS`. A stablecoin doesn't need its own vault, because it gets
   swapped.
 - **Targets** (swapped into and invested in): the assets of the enabled Earn
-  wrappers that are also inputs, plus USDC on Base for `redeem`.
+  wrappers that are also inputs, plus USDC on Base for `redeem`. Only stablecoin
+  vaults count: a vault for another asset (WETH, for example) is skipped, and so
+  is a vault whose wrapper deployment hasn't reached `COMPLETED`.
 
 Everything you might tune is in [`src/config.ts`](src/config.ts): the chains, the
 exclusions (non-dollar stablecoins such as EURC, and Ethereum mainnet for gas
-cost), the minimum balance worth investing, slippage, the polling interval, and
-how long to wait for a cross-chain swap.
+cost), the minimum balance worth investing, slippage, the polling interval, how
+long to wait for a cross-chain swap, and the swap features below.
 
-The policies are a snapshot of these lists. After you enable another vault or
-change the config, re-run `pnpm onboard-customer` to update them, then restart
-the watcher. It re-reads vault rates before every investment, but picks its
-candidate vaults when it starts.
+The policies are a snapshot of these lists. After you enable another vault, or
+once a wrapper that was still deploying at onboarding reaches `COMPLETED`, or
+after you change the config, re-run `pnpm onboard-customer` to update them, then
+restart the watcher. It re-reads vault rates before every investment, but picks
+its candidate vaults when it starts.
+
+### Vault ranking and rewards
+
+Some vaults pay extra [Merkl](https://merkl.xyz) rewards in campaign tokens such
+as MORPHO. A vault's `netApyPct` includes them, but rewards reach a wallet only
+when someone claims them, and this example doesn't. So the watcher ranks vaults
+by `netApyPct - rewardsApyPct`, the yield it actually collects, and `redeem`
+withdraws from the lowest of those first. Any reward rate is shown beside it,
+marked as not claimed.
+
+To add claiming, the platform would need a policy for `EARN_CLAIM_REWARDS`
+signed by the Earn wallet, and a decision on what happens to the claimed tokens
+(swap, hold or pass on), with its own policies. Rewards only reach depositors
+once a wrapper's total rewards clear Merkl's per-token minimum; below that, they
+go to the wrapper owner, so a small deployment can show a reward rate but never
+have anything to claim. See
+[Claim Merkl rewards](https://docs.turnkey.com/features/transaction-management/earn/rewards).
+
+### Fixed rate and fee sponsorship
+
+On Enterprise plans, set `FIXED_RATE` and `FEE_SPONSORSHIP` in `config.ts` to
+request [fixed-rate swaps](https://docs.turnkey.com/features/transaction-management/swap/fixed-rate)
+(1:1 between stablecoins, before fees) and
+[swap fee sponsorship](https://docs.turnkey.com/features/transaction-management/swap/fee-sponsorship).
+Both are off by default, and both must first be enabled on the parent org, which
+is billed for them within its spend limits. Not every route has fixed-rate
+coverage. When a swap can't use either feature (no coverage, a limit reached,
+the feature not enabled), the watcher logs why and quotes it again at the
+market rate, so swaps keep going. The policies are the same either way.
 
 ## Prerequisites
 
@@ -92,8 +130,16 @@ candidate vaults when it starts.
   [spend limits](https://docs.turnkey.com/features/transaction-management#spend-limits).
   Every send, swap, and Earn request here is sponsored, so neither wallet ever
   needs ETH or SOL.
-- At least one stablecoin vault enabled in the Turnkey dashboard. To show a
-  cross-chain swap, enable vaults on two chains (for example Base and Arbitrum).
+- At least one stablecoin vault enabled from the
+  [vault catalog](https://docs.turnkey.com/features/transaction-management/earn/vault-catalog),
+  in the dashboard or through the API. Enabling a vault
+  [deploys a fee wrapper](https://docs.turnkey.com/features/transaction-management/earn/deploy-wrapper)
+  on the parent org, and every customer sub-org deposits through the parent's
+  wrappers. A wrapper's fee split (`clientFeeBps`, `clientFeeWallet`) is fixed:
+  a new fee means a new wrapper at a new address. To show a cross-chain swap,
+  enable vaults on two chains (for example Base and Arbitrum).
+- Optional: fixed-rate swaps and swap fee sponsorship enabled on the parent org
+  (Enterprise), if you turn them on in `config.ts`.
 
 ## Setup
 
@@ -137,9 +183,10 @@ in `.env.local`.
 ```bash
 pnpm keygen customer              # 0. once: the mock customer's key pair
 pnpm onboard-customer             # 1. sub-org, Earn wallet, delegated user, policies (safe to re-run)
-#                                 #    then fund the deposit wallet it prints
 pnpm watch                        # 2. leave running: invests whatever reaches the Earn wallet
-pnpm customer-send 5 USDC-base    # 3. in another terminal: deposit wallet → Earn wallet
+#                                 # 3. in another terminal: send stablecoins to the Earn wallet,
+#                                 #    or fund the deposit wallet and move them with customer-send:
+pnpm customer-send 5 USDC-base    #    deposit wallet → Earn wallet
 pnpm customer-send 2 USDC-solana  #    Solana funds are swapped to the best EVM vault
 #                                 # 4. stop the watcher (Ctrl-C)
 pnpm redeem MAX                   # 5. withdraw, swap to USDC on Base, return to the deposit wallet
@@ -175,6 +222,14 @@ They don't remove these risks:
   cross-chain swap that fails refunds to the origin chain, which can take time.
 - **The platform chooses the vault.** The customer approves the list of vaults
   up front; the platform picks among them.
+- **What the platform key can still do.** It can't move funds out of the
+  customer's wallets. Within its policies it can swap between stablecoins and
+  move funds between vaults, and each swap costs fees and up to
+  `MAX_SLIPPAGE_BPS` of slippage. If fee sponsorship or fixed rate is enabled on
+  the parent org, those costs are billed to the parent within its spend limits:
+  one total cap, and one cap that applies to every sub-org. In production, keep
+  the key in a KMS or HSM, monitor its activity, and set the spend limits to
+  match expected volume.
 
 ## Key custody and cleanup
 

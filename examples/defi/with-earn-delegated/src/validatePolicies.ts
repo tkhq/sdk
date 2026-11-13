@@ -70,6 +70,12 @@ async function main() {
       run: () => sendEvm(client, subOrgId, c.depositEvm, ret, c.earnEvm, 1n),
     },
     {
+      label:
+        "Send from the deposit wallet to itself (returns must come from the Earn wallet)",
+      expect: "denied",
+      run: () => sendEvm(client, subOrgId, c.depositEvm, ret, c.depositEvm, 1n),
+    },
+    {
       label: "Swap into a non-stablecoin (USDC → WETH on Base)",
       expect: "denied",
       run: quote(c.earnEvm, ret, WETH_BASE),
@@ -78,6 +84,13 @@ async function main() {
       label: `Swap above the slippage cap (${other.symbol} → ${ret.symbol}, ${tooMuchSlippage} bps)`,
       expect: "denied",
       run: quote(c.earnEvm, other, ret, { slippageBps: tooMuchSlippage }),
+    },
+    // An EVM → EVM swap can't name a destination (the API rejects it), so the
+    // case to deny is an EVM swap into a Solana token, which must name one.
+    sol && {
+      label: `EVM → Solana swap naming a destination (${ret.symbol} on ${chainName(ret.caip2)} → ${sol.symbol} on Solana)`,
+      expect: "denied",
+      run: quote(c.earnEvm, ret, sol, { destinationAddress: c.depositSol }),
     },
     other && {
       label: `Swap quote signed from the deposit wallet (${other.symbol} → ${ret.symbol})`,
@@ -110,7 +123,9 @@ async function main() {
       run: () => sendEvm(client, subOrgId, c.earnEvm, ret, ELSEWHERE, 1n),
     },
     // Controls: requests the policies must allow. Without them, a denial above
-    // could just mean a policy reads a field that doesn't exist.
+    // could just mean a policy reads a field that doesn't exist. The EVM one
+    // names no destination, so it also shows that an omitted destination
+    // matches the EVM policies' `destination_address == ''`.
     other && {
       label: `Control: swap quote ${other.symbol} → ${ret.symbol} on ${chainName(ret.caip2)}, from the Earn wallet`,
       expect: "allowed",
