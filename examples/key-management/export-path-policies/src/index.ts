@@ -115,13 +115,16 @@ async function main() {
   await expectExportDenied(subtreeAddress);
 
   // 3/ Allow the tester to export only accounts in the fully hardened subtree
-  // m/8797555'/*'/3'/*'.
+  // m/8797555'/*'/3'/*' of this wallet. Without the wallet.id clause, the
+  // policy would match accounts on the same path in every wallet of the
+  // organization.
   const { policyId } = await root.createPolicy({
     policyName: "Allow exports from the hardened subtree",
     effect: "EFFECT_ALLOW",
     consensus: `approvers.any(u, u.id == '${userId}')`,
     condition:
       `activity.kind == 'EXPORT_WALLET_ACCOUNT'` +
+      ` && wallet.id == '${walletId}'` +
       ` && wallet_account.path_indexes.count() == 4` +
       ` && wallet_account.path_indexes[0] == 8797555` +
       ` && wallet_account.path_indexes[2] == 3` +
