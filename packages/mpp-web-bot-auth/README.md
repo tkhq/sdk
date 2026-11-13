@@ -73,7 +73,7 @@ MPP supplies a fresh attempt context for each request and paid retry. Standalone
 ## Protocol and trust boundaries
 
 This is the narrow HTTPS-directory Web Bot Auth profile interoperable with
-`mppx` **0.18.1**, based on RFC 9421. It signs `@authority` and the `webbot`
+`mppx` **0.17.1**, based on RFC 9421. It signs `@authority` and the `webbot`
 dictionary member of `Signature-Agent`, with `created`, `expires`, `keyid`,
 `alg`, `nonce`, and `tag` parameters. The key ID is the public JWK's RFC 7638
 SHA-256 thumbprint. Tests exercise the built package against the stock MPP

@@ -32,7 +32,7 @@ async function fixture() {
   return { keys, publicKeyJwk, prover, verifier };
 }
 
-test("built ESM package interoperates with stock mppx 0.18.1 and rejects replay", async () => {
+test("built ESM package interoperates with stock mppx 0.17.1 and rejects replay", async () => {
   const { prover, verifier } = await fixture();
   const request = new Request("https://api.example/resource");
   const initial = await prover.prove(request);

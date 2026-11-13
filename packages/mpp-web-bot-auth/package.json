@@ -61,7 +61,7 @@
     "structured-headers": "2.1.1"
   },
   "devDependencies": {
-    "mppx": "0.18.1",
-    "viem": "2.57.19"
+    "mppx": "0.17.1",
+    "viem": "2.57.10"
   }
 }

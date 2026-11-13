@@ -5035,6 +5035,19 @@ importers:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@24.13.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@24.13.1)(typescript@5.6.3))
 
+  packages/mpp-web-bot-auth:
+    dependencies:
+      structured-headers:
+        specifier: 2.1.1
+        version: 2.1.1
+    devDependencies:
+      mppx:
+        specifier: 0.17.1
+        version: 0.17.1(hono@4.13.13)(typescript@5.6.3)(viem@2.57.10(bufferutil@4.0.9)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@4.6.7))
+      viem:
+        specifier: 2.57.10
+        version: 2.57.10(bufferutil@4.0.9)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@4.6.7)
+
   packages/react-native-passkey-stamper:
     dependencies:
       '@turnkey/encoding':
@@ -5623,19 +5636,6 @@ importers:
       viem:
         specifier: ^2.21.35
         version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.6.7)
-
-  packages/mpp-web-bot-auth:
-    dependencies:
-      structured-headers:
-        specifier: 2.1.1
-        version: 2.1.1
-    devDependencies:
-      mppx:
-        specifier: 0.18.1
-        version: 0.18.1(hono@4.13.13)(typescript@5.6.3)(viem@2.57.19)
-      viem:
-        specifier: 2.57.19
-        version: 2.57.19(bufferutil@4.0.9)(mppx@0.18.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@4.6.7)
 
   packages/webauthn-stamper:
     dependencies:
@@ -10999,6 +10999,10 @@ packages:
     resolution: {integrity: sha512-8+GHcZLp+mdin8gSjcgfb/Lb6sSMYRX6Nf/0LcSJxvjLQR0XHpjGzOiRbYb2jSXo51EnA6kAV5j+4Pzh5OUKUg==}
     engines: {node: '>=18.0.0'}
 
+  '@stripe/stripe-js@9.17.0':
+    resolution: {integrity: sha512-uidL4OJum5kivsOAQnVfQmYLJ2zdgirtmT0zWgskASZ4TPXxpXQ0MNrzW4NsXB90uEqmPHpSEtciLFbF1QQvNA==}
+    engines: {node: '>=12.16'}
+
   '@suchipi/femver@1.0.0':
     resolution: {integrity: sha512-bprE8+K5V+DPX7q2e2K57ImqNBdfGHDIWaGI5xHxZoxbKOuQZn4wzPiUxOAHnsUr3w3xHrWXwN7gnG/iIuEMIg==}
 
@@ -14452,6 +14456,10 @@ packages:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
 
+  eventsource-parser@4.1.1:
+    resolution: {integrity: sha512-zaWNqeSLeyzEAAt2Q6aDBRDRk/VnPmsKqvToyGvv6aahvLv71A4Jw7jG93Hckf11zXurbqgsffvpSgKPoeU1Qw==}
+    engines: {node: '>=22.12'}
+
   eventsource@2.0.2:
     resolution: {integrity: sha512-IzUmBGPR3+oUG9dUeXynyNmf91/3zUSJg1lCktzKw47OXuhco54U3r9B7O4XX+Rb1Itm9OZ2b0RkTs10bICOxA==}
     engines: {node: '>=12.0.0'}
@@ -16568,12 +16576,11 @@ packages:
   module-details-from-path@1.0.4:
     resolution: {integrity: sha512-EGWKgxALGMgzvxYF1UyGTy0HXX/2vHLkw6+NvDKW2jypWbHpjQuj4UMcqQWXHERJhVGKikolT06G3bcKe4fi7w==}
 
-  mppx@0.18.1:
-    resolution: {integrity: sha512-NNlYs3iHldqV14n3nkBFyhzf+tc4UZVSYJpSwOmxIVz8KNtz1+HzHjnIluDD7RzmiX8S015YXX9o6odoXbmwjQ==}
+  mppx@0.17.1:
+    resolution: {integrity: sha512-zYljOiWQph8cCry5K8Y/BnmQMszcDlyi36QpwLdeWjl7aaHZGKMY9sfrTWa1vnejzXLqiSOXJPvAF1IqM0lOvA==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
-      '@stripe/agent-identity': '>=0.3.0'
       '@x402/core': '>=2.22.0'
       '@x402/express': '>=2.22.0'
       '@x402/hono': '>=2.22.0'
@@ -16583,11 +16590,9 @@ packages:
       express: '>=5'
       hono: ^4.13.7
       next: '>=16.2.6'
-      viem: '>=2.57.19'
+      viem: '>=2.57.1'
     peerDependenciesMeta:
       '@modelcontextprotocol/sdk':
-        optional: true
-      '@stripe/agent-identity':
         optional: true
       '@x402/core':
         optional: true
@@ -17046,16 +17051,16 @@ packages:
       typescript:
         optional: true
 
-  ox@0.14.57:
-    resolution: {integrity: sha512-CPF6aEFyAuqgL0x7VaFM0vI2/CUd5Qk8+BIL6OnViPw+gF07O/VAhqEPOPw5GYnYPwomIk8mD91gTcQ1RAtupA==}
+  ox@0.14.45:
+    resolution: {integrity: sha512-jpsQ+p0JZh9mKCxxzxz0d5qFHZZg2/O9xW18IpEC/dNXXPVqmDJ0c//9RMz0CILkbSGPA42+cbU0fC/ghwJ03w==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
       typescript:
         optional: true
 
-  ox@0.14.65:
-    resolution: {integrity: sha512-K7oj+jvEP4Gf78ZOYuWAWzKEX/g5z7p6ukj84gdbFnezmFSt6SpprEp9tH5tymXsywSqRdeqk+8JL4+9o0Schw==}
+  ox@0.14.57:
+    resolution: {integrity: sha512-CPF6aEFyAuqgL0x7VaFM0vI2/CUd5Qk8+BIL6OnViPw+gF07O/VAhqEPOPw5GYnYPwomIk8mD91gTcQ1RAtupA==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -19866,17 +19871,6 @@ packages:
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
-      typescript:
-        optional: true
-
-  viem@2.57.19:
-    resolution: {integrity: sha512-ULAHSwef42oL1reV41Os40iR34PF9BFNIX/RBapHLAJL1X6VmrgQikS4q4ulZ7/8GqlFLqrRI5GoNms3hcxsHw==}
-    peerDependencies:
-      mppx: '>=0.17.0'
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      mppx:
-        optional: true
       typescript:
         optional: true
 
@@ -32089,6 +32083,8 @@ snapshots:
       - debug
       - supports-color
 
+  '@stripe/stripe-js@9.17.0': {}
+
   '@suchipi/femver@1.0.0': {}
 
   '@svgr/babel-plugin-add-jsx-attribute@8.0.0(@babel/core@7.29.6)':
@@ -40153,6 +40149,8 @@ snapshots:
 
   events@3.3.0: {}
 
+  eventsource-parser@4.1.1: {}
+
   eventsource@2.0.2: {}
 
   evp_bytestokey@1.0.3:
@@ -43677,11 +43675,13 @@ snapshots:
 
   module-details-from-path@1.0.4: {}
 
-  mppx@0.18.1(hono@4.13.13)(typescript@5.6.3)(viem@2.57.19):
+  mppx@0.17.1(hono@4.13.13)(typescript@5.6.3)(viem@2.57.10(bufferutil@4.0.9)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@4.6.7)):
     dependencies:
-      ox: 0.14.65(typescript@5.6.3)(zod@4.6.7)
+      '@stripe/stripe-js': 9.17.0
+      eventsource-parser: 4.1.1
+      ox: 0.14.45(typescript@5.6.3)(zod@4.6.7)
       structured-headers: 2.1.0
-      viem: 2.57.19(bufferutil@4.0.9)(mppx@0.18.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@4.6.7)
+      viem: 2.57.10(bufferutil@4.0.9)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@4.6.7)
       zod: 4.6.7
     optionalDependencies:
       hono: 4.13.13
@@ -44186,6 +44186,21 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
+  ox@0.14.45(typescript@5.6.3)(zod@4.6.7):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.2.3(typescript@5.6.3)(zod@4.6.7)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.6.3
+    transitivePeerDependencies:
+      - zod
+
   ox@0.14.57(typescript@5.4.3)(zod@3.22.4):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
@@ -44246,7 +44261,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.65(typescript@5.6.3)(zod@4.6.7):
+  ox@0.14.57(typescript@5.6.3)(zod@4.6.7):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -48746,7 +48761,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.57.19(bufferutil@4.0.9)(mppx@0.18.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@4.6.7):
+  viem@2.57.10(bufferutil@4.0.9)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@4.6.7):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -48754,10 +48769,9 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.6.3)(zod@4.6.7)
       isows: 1.0.7(ws@8.22.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
-      ox: 0.14.65(typescript@5.6.3)(zod@4.6.7)
+      ox: 0.14.57(typescript@5.6.3)(zod@4.6.7)
       ws: 8.22.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     optionalDependencies:
-      mppx: 0.18.1(hono@4.13.13)(typescript@5.6.3)(viem@2.57.19)
       typescript: 5.6.3
     transitivePeerDependencies:
       - bufferutil

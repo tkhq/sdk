@@ -6,13 +6,6 @@ packages:
 
 minimumReleaseAge: 10080
 
-# Exact source-reviewed dev-only pins for Web Bot Auth interoperability tests.
-# Keep the normal seven-day release-age policy for every other dependency.
-minimumReleaseAgeExclude:
-  - mppx@0.18.1
-  - viem@2.57.19
-  - ox@0.14.65
-
 overrides:
   "@openzeppelin/contracts@<4.9.0": "4.9.6"
   "@openzeppelin/contracts@3.4.1-solc-0.7-2": "4.9.6"
