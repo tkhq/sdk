@@ -2,8 +2,8 @@ import "dotenv/config";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import { createDemo } from "./scenario.js";
-import { verifyReceipt } from "./verification.js";
+import { createDemo } from "./scenario";
+import { verifyReceipt } from "./verification";
 
 async function main() {
   const demo = await createDemo();

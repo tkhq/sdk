@@ -1,6 +1,10 @@
 # KYA-OS with Turnkey signing
 
-A local app that connects a real MCP client and server through KYA-OS. A human
+A Next.js App Router demo with React and Tailwind, following the compact card
+and control styles in `with-mfa-and-scoped-sessions`. It uses the same Turnkey
+logo, favicon, and local Inter fonts as the other web demos.
+
+The app connects a real MCP client and server through KYA-OS. A human
 issues a ten-minute delegation for `reports:read`. The agent proves possession
 of its key on each call. The server checks the delegation, runs the tool, and
 signs the response. Revocation blocks the next call without changing the
@@ -26,7 +30,7 @@ repository root:
 ```sh
 pnpm install --frozen-lockfile
 pnpm --filter @turnkey/sdk-server... build
-pnpm --filter @turnkey/example-with-kya-os start
+pnpm --filter @turnkey/example-with-kya-os dev
 ```
 
 Open http://127.0.0.1:3017 and follow the six steps. The tool returns a synthetic
@@ -37,6 +41,11 @@ Local mode requires no credentials and makes no Turnkey API calls. It uses
 disposable, non-extractable Web Crypto keys behind a local signing client.
 The SDK adapter still checks every returned signature. Restart the app to
 reset its keys, delegation, and revocation state.
+
+For a production build, run `pnpm --filter @turnkey/example-with-kya-os build`,
+then `pnpm --filter @turnkey/example-with-kya-os start`. Both web commands bind
+to `127.0.0.1:3017`. The Node.js route handlers keep signing and protocol state
+on the server; the React client receives only public demo state and results.
 
 ## Use Turnkey test keys
 

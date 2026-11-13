@@ -6,7 +6,7 @@ import {
   generateDidKeyFromBase64,
   generateRequestProof,
 } from "@kya-os/mcp";
-import { createPublicVerifier } from "../src/verification.js";
+import { createPublicVerifier } from "../src/verification";
 
 async function fixture() {
   const pair = (await webcrypto.subtle.generateKey("Ed25519", false, [

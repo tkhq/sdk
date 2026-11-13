@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createDemo } from "../src/scenario.js";
-import { verifyReceipt } from "../src/verification.js";
-import { startWebServer } from "../src/server.js";
+import { createDemo } from "../src/scenario";
+import { verifyReceipt } from "../src/verification";
+import { createDemoApi } from "../src/api";
 import { extractProofFromMeta } from "@kya-os/mcp";
 
 test("real MCP calls require consent, enforce holder/scope binding, and reject revocation", async () => {
-  const demo = await createDemo({ DEMO_MODE: "local" });
+  const demo = await createDemo({ DEMO_MODE: "local", NODE_ENV: "test" });
   try {
     const initial = await demo.call();
     assert.notEqual(initial.outcome, "allowed");
@@ -68,7 +68,7 @@ test("real MCP calls require consent, enforce holder/scope binding, and reject r
 });
 
 test("a public verifier detects altered results and the wrong expected server", async () => {
-  const demo = await createDemo({ DEMO_MODE: "local" });
+  const demo = await createDemo({ DEMO_MODE: "local", NODE_ENV: "test" });
   try {
     await demo.approve();
     const { receipt } = await demo.call();
@@ -91,32 +91,48 @@ test("a public verifier detects altered results and the wrong expected server", 
   }
 });
 
-test("the local HTTP app rejects cross-origin actions before signing", async () => {
-  const demo = await createDemo({ DEMO_MODE: "local" });
-  const web = await startWebServer(demo, 0);
-  try {
-    const blocked = await fetch(`${web.url}/api/action`, {
+test("the Next.js API rejects foreign origins and oversized bodies before signing", async () => {
+  const demo = await createDemo({ DEMO_MODE: "local", NODE_ENV: "test" });
+  const api = createDemoApi(async () => demo);
+  const url = "http://127.0.0.1:3017/api/action";
+  const request = (body: unknown, origin = "http://127.0.0.1:3017") =>
+    new Request(url, {
       method: "POST",
       headers: {
+        Host: "127.0.0.1:3017",
         "Content-Type": "application/json",
-        Origin: "https://untrusted.example",
+        Origin: origin,
       },
-      body: JSON.stringify({ action: "approve" }),
+      body: JSON.stringify(body),
     });
+  try {
+    const blocked = await api.action(
+      request({ action: "approve" }, "https://untrusted.example"),
+    );
     assert.equal(blocked.status, 403);
     assert.equal(demo.state().delegation, null);
     assert.equal(demo.state().signing.length, 0);
-    const page = await fetch(web.url);
-    assert.equal(page.status, 200);
-    assert.match(await page.text(), /Turnkey × KYA-OS/);
-    const approved = await fetch(`${web.url}/api/action`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Origin: web.url },
-      body: JSON.stringify({ action: "approve" }),
-    });
+    const oversized = await api.action(
+      request({ action: "approve", padding: "x".repeat(1024) }),
+    );
+    assert.equal(oversized.status, 400);
+    assert.equal(demo.state().signing.length, 0);
+    const rebinding = await api.state(
+      new Request("http://untrusted.example:3017/api/state", {
+        headers: { Host: "untrusted.example:3017" },
+      }),
+    );
+    assert.equal(rebinding.status, 403);
+    const normalized = await api.state(
+      new Request("http://localhost:3017/api/state", {
+        headers: { Host: "127.0.0.1:3017" },
+      }),
+    );
+    assert.equal(normalized.status, 200);
+    const approved = await api.action(request({ action: "approve" }));
     assert.equal(approved.status, 200);
     assert.ok(demo.state().delegation);
   } finally {
-    await web.close();
+    await demo.close();
   }
 });

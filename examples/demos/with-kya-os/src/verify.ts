@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { verifyReceipt, type Receipt } from "./verification.js";
+import { verifyReceipt, type Receipt } from "./verification";
 
 async function main() {
   const [path, expectedServerDid] = process.argv.slice(2);

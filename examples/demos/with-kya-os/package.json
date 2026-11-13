@@ -7,9 +7,9 @@
     "node": ">=22"
   },
   "scripts": {
-    "start": "tsx src/server.ts",
-    "dev": "tsx src/server.ts",
-    "build": "tsc",
+    "dev": "next dev --hostname 127.0.0.1 --port 3017",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1 --port 3017",
     "typecheck": "tsc --noEmit",
     "demo": "tsx src/demo.ts",
     "verify": "tsx src/verify.ts",
@@ -19,6 +19,17 @@
     "@kya-os/mcp": "1.21.2",
     "@modelcontextprotocol/sdk": "1.30.0",
     "@turnkey/sdk-server": "workspace:*",
-    "dotenv": "16.6.1"
+    "dotenv": "16.6.1",
+    "next": "15.5.18",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "server-only": "0.0.1",
+    "tailwindcss": "4.1.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.1.13",
+    "@types/node": "20.3.1",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6"
   }
 }

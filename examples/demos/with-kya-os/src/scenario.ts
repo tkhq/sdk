@@ -19,12 +19,12 @@ import {
   type DelegationCredential,
   type VCSigningFunction,
 } from "@kya-os/mcp";
-import { createKeys, roles, type Role, type SigningEvent } from "./keys.js";
+import { createKeys, roles, type Role, type SigningEvent } from "./keys";
 import {
   createPublicVerifier,
   verifyReceipt,
   type Receipt,
-} from "./verification.js";
+} from "./verification";
 
 export async function createDemo(env: NodeJS.ProcessEnv = process.env) {
   const signing: SigningEvent[] = [];
