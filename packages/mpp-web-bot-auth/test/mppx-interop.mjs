@@ -6,6 +6,7 @@ import { Store } from "mppx/server";
 import {
   createWebBotAuthProver,
   createTurnkeyBotSigner,
+  jwkThumbprint,
 } from "../dist/index.mjs";
 
 async function fixture() {
@@ -44,6 +45,60 @@ test("built ESM package interoperates with stock mppx 0.17.1 and rejects replay"
     initial.headers.get("Signature"),
   );
   assert.equal((await verifier.verify(retry)).status, "valid");
+});
+
+test("headers are byte-identical to upstream WebBotAuth.Client.prover for the same key and context", async () => {
+  const { keys, publicKeyJwk, prover } = await fixture();
+  const upstream = WebBotAuth.Client.prover({
+    key: keys.privateKey,
+    keyId: await jwkThumbprint(publicKeyJwk),
+    scope: ["https://api.example"],
+    signatureAgent: "https://bot.example",
+  });
+  const context = { created: 1_900_000_000, nonce: "pinned-nonce-AAAAAAAAAA" };
+  const ours = await prover.prove(
+    new Request("https://api.example/resource"),
+    context,
+  );
+  const theirs = await upstream.prove(
+    new Request("https://api.example/resource"),
+    context,
+  );
+  for (const name of ["Signature", "Signature-Input", "Signature-Agent"]) {
+    assert.ok(ours.headers.get(name), `${name} is set`);
+    assert.equal(ours.headers.get(name), theirs.headers.get(name), name);
+  }
+
+  // The same holds with a non-default label, Signature-Agent key and port.
+  const custom = { label: "bot1", signatureAgentKey: "agent1" };
+  const customOurs = await createWebBotAuthProver({
+    publicKeyJwk,
+    sign: async (bytes) =>
+      new Uint8Array(
+        await crypto.subtle.sign("Ed25519", keys.privateKey, bytes),
+      ),
+    signatureAgent: "https://bot.example",
+    scope: ["https://api.example:8443"],
+    ...custom,
+  });
+  const customTheirs = WebBotAuth.Client.prover({
+    key: keys.privateKey,
+    keyId: await jwkThumbprint(publicKeyJwk),
+    scope: ["https://api.example:8443"],
+    signatureAgent: "https://bot.example",
+    ...custom,
+  });
+  const a = await customOurs.prove(
+    new Request("https://api.example:8443/x"),
+    context,
+  );
+  const b = await customTheirs.prove(
+    new Request("https://api.example:8443/x"),
+    context,
+  );
+  for (const name of ["Signature", "Signature-Input", "Signature-Agent"]) {
+    assert.equal(a.headers.get(name), b.headers.get(name), name);
+  }
 });
 
 test("mppx rejects tampered authority and directory identity", async () => {
