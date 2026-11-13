@@ -1,0 +1,2 @@
+# Unified diff context and mail trailers contain whitespace by design.
+mppx-remote-signers.patch -whitespace
