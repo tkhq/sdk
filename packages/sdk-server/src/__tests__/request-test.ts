@@ -1,10 +1,13 @@
-import { test, expect, jest } from "@jest/globals";
+import { test, expect, jest, beforeEach, afterEach } from "@jest/globals";
 
 import { readFixture } from "../__fixtures__/shared";
 import { Turnkey } from "../index";
-import { fetch } from "../universal";
-
-jest.mock("cross-fetch");
+beforeEach(() => {
+  jest.spyOn(globalThis, "fetch").mockImplementation(jest.fn<typeof fetch>());
+});
+afterEach(() => {
+  jest.restoreAllMocks();
+});
 
 test("requests are stamped after client creation", async () => {
   const { privateKey, publicKey } = await readFixture();
