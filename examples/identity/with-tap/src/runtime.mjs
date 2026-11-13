@@ -1,3 +1,2 @@
-// Only explicit TAP commands load the prepared upstream build.
-export * as Tap from "../../../../.build-artifacts/tap-mppx/dist/extensions/identity/tap/index.js";
-export * as Identity from "../../../../.build-artifacts/tap-mppx/dist/identity/index.js";
+export * as Tap from "mppx/extensions/identity/tap";
+export * as Identity from "mppx/identity";

@@ -1,6 +1,6 @@
 import { createTurnkeyBotSigner } from "@turnkey/sdk-server";
 import type { TurnkeyBotSigningClient } from "@turnkey/sdk-server";
-import * as Tap from "../../../../.build-artifacts/tap-mppx/dist/extensions/identity/tap/index.js";
+import * as Tap from "mppx/extensions/identity/tap";
 
 declare const client: TurnkeyBotSigningClient;
 declare const publicKey: CryptoKey;

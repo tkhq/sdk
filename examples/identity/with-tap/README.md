@@ -5,46 +5,34 @@ Protocol (TAP) prover. Mppx owns HTTP signatures, intent tags, signing contexts,
 origin scopes, and verification. This example adds no protocol implementation
 or reusable SDK wrapper.
 
-## Run the offline example
+## Status
 
-From the SDK root, use the Node version in `.nvmrc` and the pinned pnpm version:
+This example needs mppx remote-signer support, which is not released yet.
+Published mppx 0.18.1 accepts only a `CryptoKey`. The upstream change is
+proposed in https://github.com/wevm/mppx/issues/1283. When mppx releases it,
+add `mppx` to `dependencies` and run:
 
 ```sh
-pnpm install --frozen-lockfile
 pnpm --filter @turnkey/sdk-server... build
-pnpm --filter @turnkey/example-tap prepare:mppx
 pnpm --filter @turnkey/example-tap demo
 pnpm --filter @turnkey/example-tap test:tap
 pnpm --filter @turnkey/example-tap typecheck:tap
 ```
 
-The demo uses a disposable software key and a test client that implements the
-Turnkey raw-signing response shape. The agent and merchant run in one process;
-requests use an in-memory transport. No Turnkey API request, payment, or network
-service is involved. Output reports recognized `browse` and `payment` intents
-without printing signatures or request credentials.
-
-Published mppx **0.18.1 does not yet accept remote signing keys**. The explicit
-`prepare:mppx` command checks out public upstream commit
-`f253219dd2ee4702c7917e288845bd3b1d70cb25`, applies the reviewed source patch in
-`patches/mppx-remote-signers.patch`, and checks its SHA-256 plus the resulting
-source diff. The patch comes from locally tested upstream commit
-`0ac640fa28081d2656ecf62016fcc233f4b51932`; it has not been published upstream.
-Setup downloads the exact pnpm 12.16.1 tool distribution, verifies its
-published SHA-512, and uses upstream's frozen lockfile and unchanged dependency
-policy. Git, tar, and network access are required for preparation. Generated
-source and tool files stay under the SDK's ignored `.build-artifacts` directory.
-Normal SDK builds do not run this external setup. Replace the patch setup with a
-pinned release after upstream publishes the API.
+The demo uses a disposable software key and a test client that returns the
+Turnkey raw-signing response shape. The agent and merchant run in one process
+over an in-memory transport. It makes no Turnkey API request, payment, or
+network call.
 
 ## Use a real Turnkey client
 
 Pass an already authenticated client rather than loading a private API key in
-this example. Import `Tap` and `Identity` from the prepared runtime for now:
+this example:
 
 ```ts
 import { createTurnkeyBotSigner } from "@turnkey/sdk-server";
-import { Tap, Identity } from "./src/runtime.mjs";
+import * as Tap from "mppx/extensions/identity/tap";
+import * as Identity from "mppx/identity";
 
 const key = createTurnkeyBotSigner({
   client: authenticatedTurnkeyClient,
