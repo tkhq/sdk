@@ -6536,6 +6536,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         wallets,
         walletProviders,
         config: masterConfig,
+        callbacks,
         httpClient: client?.httpClient,
         createHttpClient,
         overrideApiKeyStamper,

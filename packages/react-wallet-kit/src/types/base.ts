@@ -1,7 +1,10 @@
 import type {
   CreateSubOrgParams,
+  OtpType,
   StamperType,
   TurnkeySDKClientConfig,
+  WalletAccount,
+  WalletProvider,
 } from "@turnkey/core";
 import type {
   AuthAction,
@@ -32,6 +35,48 @@ export interface TurnkeyCallbacks {
     publicKey: string;
     sessionKey?: string;
   }) => void;
+  /**
+   * Called from the auth modal once the auth proxy has verified an email or SMS OTP code,
+   * instead of the SDK finishing the login itself (account lookup, then `loginWithOtp` or `signUpWithOtp`).
+   *
+   * - Use this to finish the OTP login through your own backend, like `onOauthRedirect` does for OAuth.
+   * - The SDK generates the API key pair, verifies the code, and hands over the `verificationToken` bound to the key pair's `publicKey`.
+   * - Finish the login yourself (for example through your own backend) and store the session you obtain with `storeSession`.
+   * - When the returned promise resolves, the modal closes. When it rejects, the modal shows the error and the generated key pair is deleted.
+   * - Only the auth modal consults this callback. Calling `completeOtp` directly still completes the login in the SDK.
+   *
+   * @param params.verificationToken - The verification token returned by the auth proxy for the verified code.
+   * @param params.publicKey - The public key of the generated API key pair that the token is bound to.
+   * @param params.contact - The email address or phone number the code was sent to.
+   * @param params.otpType - Whether the code was sent by email or SMS.
+   * @param params.sessionKey - The session key the login was started with, if any.
+   */
+  onOtpVerified?: (params: {
+    verificationToken: string;
+    publicKey: string;
+    contact: string;
+    otpType: OtpType;
+    sessionKey?: string;
+  }) => Promise<void>;
+  /**
+   * Called from the auth modal once the external wallet the user picked is connected,
+   * instead of the SDK finishing the login itself (`loginOrSignupWithWallet`).
+   *
+   * - Use this to finish the wallet login through your own backend, like `onOauthRedirect` does for OAuth.
+   * - The SDK connects the wallet and hands over the wallet provider and the connected account, which can sign messages.
+   * - Finish the login yourself (for example through your own backend) and store the session you obtain with `storeSession`.
+   * - When the returned promise resolves, the modal closes. When it rejects, the modal stays open, as it does when the wallet login fails.
+   * - Only the auth modal consults this callback. Calling `loginOrSignupWithWallet` directly still completes the login in the SDK.
+   *
+   * @param params.walletProvider - The wallet provider the user picked.
+   * @param params.account - The connected wallet account.
+   * @param params.sessionKey - The session key the login was started with, if any.
+   */
+  onWalletConnected?: (params: {
+    walletProvider: WalletProvider;
+    account: WalletAccount;
+    sessionKey?: string;
+  }) => Promise<void>;
   beforeSessionExpiry?: (params: { sessionKey: string }) => void;
   onSessionExpired?: (params: { sessionKey: string }) => void;
   onAuthenticationSuccess?: (params: {
