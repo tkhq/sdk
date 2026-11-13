@@ -1,3 +1,3 @@
 import rollup from "../../rollup.config.base.mjs";
 
-export default (options) => rollup();
+export default rollup;

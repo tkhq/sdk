@@ -1,5 +1,6 @@
 import {
   hexStringToBase64url,
+  stringToBase64urlString,
   uint8ArrayFromHexString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
@@ -7,12 +8,12 @@ import {
 /**
  * A remote signer for mppx RFC 9421 identity provers.
  *
- * Structurally identical to `Signer` in `mppx/extensions/identity`, so this
- * package does not depend on mppx. Pass it as `key` to
- * `WebBotAuth.Client.prover` or `Tap.Client.prover`.
+ * Assignable to `Signer` in `mppx/extensions/identity`, so this package does
+ * not depend on mppx. Pass it as `key` to `WebBotAuth.Client.prover` or
+ * `Tap.Client.prover`.
  */
 export type Signer = {
-  readonly algorithm: "ed25519" | "rsa-pss-sha512";
+  readonly algorithm: "ed25519";
   readonly sign: (data: Uint8Array) => Promise<Uint8Array>;
 };
 
@@ -65,7 +66,7 @@ export type Ed25519PublicJwk = {
 };
 
 const ED25519_KEY_HEX = /^[0-9a-fA-F]{64}$/;
-const BASE64URL_32_BYTES = /^[A-Za-z0-9_-]{43}$/;
+const BASE64URL_32_BYTES = /^[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/;
 
 /**
  * Creates an Ed25519 `Signer` backed by a Turnkey key. The private key never
@@ -85,17 +86,19 @@ export function createTurnkeySigner(config: TurnkeySignerConfig): Signer {
   if (!signWith) {
     throw new TypeError("signWith is required.");
   }
-  const publicKeyBytes = parseEd25519PublicKey(config.publicKey);
+  const publicKeyBytes = uint8ArrayFromHexString(
+    parseEd25519PublicKey(config.publicKey),
+  );
   let verifyKey: Promise<CryptoKey> | undefined;
 
   const sign = async (data: Uint8Array): Promise<Uint8Array> => {
-    verifyKey ??= crypto.subtle.importKey(
+    const key = await (verifyKey ??= crypto.subtle.importKey(
       "raw",
-      toArrayBuffer(publicKeyBytes),
+      publicKeyBytes,
       "Ed25519",
       false,
       ["verify"],
-    );
+    ));
 
     let result: SignRawPayloadResult;
     try {
@@ -119,12 +122,7 @@ export function createTurnkeySigner(config: TurnkeySignerConfig): Signer {
     }
 
     const signature = uint8ArrayFromHexString(result.r + result.s);
-    const valid = await crypto.subtle.verify(
-      "Ed25519",
-      await verifyKey,
-      toArrayBuffer(signature),
-      toArrayBuffer(data),
-    );
+    const valid = await crypto.subtle.verify("Ed25519", key, signature, data);
     if (!valid) {
       throw new Error(
         "Turnkey signature does not verify against the configured public key.",
@@ -148,11 +146,10 @@ export function createTurnkeySigner(config: TurnkeySignerConfig): Signer {
  * @throws {TypeError} If the key is not 32 bytes of hex.
  */
 export function ed25519PublicKeyToJwk(hex: string): Ed25519PublicJwk {
-  const bytes = parseEd25519PublicKey(hex);
   return {
     kty: "OKP",
     crv: "Ed25519",
-    x: hexStringToBase64url(uint8ArrayToHexString(bytes), 32),
+    x: hexStringToBase64url(parseEd25519PublicKey(hex)),
   };
 }
 
@@ -180,20 +177,17 @@ export async function jwkThumbprint(jwk: Ed25519PublicJwk): Promise<string> {
     "SHA-256",
     new TextEncoder().encode(canonical),
   );
-  return hexStringToBase64url(uint8ArrayToHexString(new Uint8Array(digest)));
+  return stringToBase64urlString(
+    String.fromCharCode(...new Uint8Array(digest)),
+  );
 }
 
-function parseEd25519PublicKey(hex: string): Uint8Array {
-  const stripped =
-    typeof hex === "string" && hex.startsWith("0x") ? hex.slice(2) : hex;
-  if (typeof stripped !== "string" || !ED25519_KEY_HEX.test(stripped)) {
+function parseEd25519PublicKey(hex: string): string {
+  const stripped = typeof hex === "string" ? hex.replace(/^0x/, "") : "";
+  if (!ED25519_KEY_HEX.test(stripped)) {
     throw new TypeError(
       "publicKey must be a 32-byte Ed25519 public key in hex.",
     );
   }
-  return uint8ArrayFromHexString(stripped);
-}
-
-function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  return Uint8Array.from(bytes).buffer;
+  return stripped;
 }

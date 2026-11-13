@@ -18,16 +18,11 @@ const RFC8037_THUMBPRINT = "kPrK_qmxVWaYVA9wwBF6Iuo3vVzz7TxHCTwXBygrS4k";
 const ORGANIZATION_ID = "org-id";
 const SIGN_WITH = "private-key-id";
 
-type KeyPair = { privateKey: CryptoKey; publicKey: CryptoKey };
-
-async function generateKeyPair(): Promise<{
-  keyPair: KeyPair;
-  publicKeyHex: string;
-}> {
-  const keyPair = (await crypto.subtle.generateKey("Ed25519", true, [
+async function generateKeyPair() {
+  const keyPair = await crypto.subtle.generateKey("Ed25519", true, [
     "sign",
     "verify",
-  ])) as KeyPair;
+  ]);
   const raw = await crypto.subtle.exportKey("raw", keyPair.publicKey);
   return { keyPair, publicKeyHex: uint8ArrayToHexString(new Uint8Array(raw)) };
 }
@@ -40,41 +35,51 @@ function mockClient(
   return { client, signRawPayload };
 }
 
-function signingClient(
-  privateKey: CryptoKey,
-  activity: SignRawPayloadResult["activity"] = {
-    id: "activity-id",
-    status: "ACTIVITY_STATUS_COMPLETED",
-  },
-) {
-  return mockClient(async ({ payload }) => {
-    const bytes = Uint8Array.from(Buffer.from(payload, "hex"));
-    const signature = uint8ArrayToHexString(
-      new Uint8Array(await crypto.subtle.sign("Ed25519", privateKey, bytes)),
-    );
-    return {
-      r: signature.slice(0, 64),
-      s: signature.slice(64),
-      ...(activity ? { activity } : {}),
-    };
+async function setup({
+  activity = { id: "activity-id", status: "ACTIVITY_STATUS_COMPLETED" },
+  respond,
+  onActivity,
+  publicKey = (hex) => hex,
+}: {
+  activity?: SignRawPayloadResult["activity"] | null;
+  respond?: (input: SignRawPayloadInput) => Promise<SignRawPayloadResult>;
+  onActivity?: (activityId: string) => void;
+  publicKey?: (publicKeyHex: string) => string;
+} = {}) {
+  const { keyPair, publicKeyHex } = await generateKeyPair();
+  const { client, signRawPayload } = mockClient(
+    respond ??
+      (async ({ payload }) => {
+        const bytes = Uint8Array.from(Buffer.from(payload, "hex"));
+        const signature = uint8ArrayToHexString(
+          new Uint8Array(
+            await crypto.subtle.sign("Ed25519", keyPair.privateKey, bytes),
+          ),
+        );
+        return {
+          r: signature.slice(0, 64),
+          s: signature.slice(64),
+          ...(activity ? { activity } : {}),
+        };
+      }),
+  );
+  const signer = createTurnkeySigner({
+    client,
+    organizationId: ORGANIZATION_ID,
+    signWith: SIGN_WITH,
+    publicKey: publicKey(publicKeyHex),
+    ...(onActivity ? { onActivity } : {}),
   });
+  return { signer, keyPair, signRawPayload };
 }
 
 describe("createTurnkeySigner", () => {
   it("sends the exact bytes with hex encoding and no hashing", async () => {
-    const { keyPair, publicKeyHex } = await generateKeyPair();
-    const { client, signRawPayload } = signingClient(keyPair.privateKey);
-    const signer = createTurnkeySigner({
-      client,
-      organizationId: ORGANIZATION_ID,
-      signWith: SIGN_WITH,
-      publicKey: publicKeyHex,
-    });
+    const { signer, signRawPayload } = await setup();
 
     const data = new Uint8Array([0x00, 0x01, 0xfe, 0xff, 0x40]);
     await signer.sign(data);
 
-    expect(signer.algorithm).toBe("ed25519");
     expect(signRawPayload).toHaveBeenCalledTimes(1);
     expect(signRawPayload).toHaveBeenCalledWith({
       organizationId: ORGANIZATION_ID,
@@ -86,15 +91,10 @@ describe("createTurnkeySigner", () => {
   });
 
   it("returns a 64-byte signature that verifies and reports the activity", async () => {
-    const { keyPair, publicKeyHex } = await generateKeyPair();
-    const { client } = signingClient(keyPair.privateKey);
     const onActivity = jest.fn();
-    const signer = createTurnkeySigner({
-      client,
-      organizationId: ORGANIZATION_ID,
-      signWith: SIGN_WITH,
-      publicKey: `0x${publicKeyHex}`,
+    const { signer, keyPair } = await setup({
       onActivity,
+      publicKey: (hex) => `0x${hex}`,
     });
 
     const data = new TextEncoder().encode('"@authority": api.example');
@@ -108,29 +108,17 @@ describe("createTurnkeySigner", () => {
   });
 
   it("accepts a result without activity metadata", async () => {
-    const { keyPair, publicKeyHex } = await generateKeyPair();
-    const { client } = signingClient(keyPair.privateKey, undefined);
-    const signer = createTurnkeySigner({
-      client,
-      organizationId: ORGANIZATION_ID,
-      signWith: SIGN_WITH,
-      publicKey: publicKeyHex,
-    });
+    const { signer } = await setup({ activity: null });
 
     await expect(signer.sign(new Uint8Array([1]))).resolves.toHaveLength(64);
   });
 
   it("rejects a signature from a different key", async () => {
     const configured = await generateKeyPair();
-    const other = await generateKeyPair();
-    const { client } = signingClient(other.keyPair.privateKey);
     const onActivity = jest.fn();
-    const signer = createTurnkeySigner({
-      client,
-      organizationId: ORGANIZATION_ID,
-      signWith: SIGN_WITH,
-      publicKey: configured.publicKeyHex,
+    const { signer } = await setup({
       onActivity,
+      publicKey: () => configured.publicKeyHex,
     });
 
     await expect(signer.sign(new Uint8Array([1, 2, 3]))).rejects.toThrow(
@@ -142,16 +130,8 @@ describe("createTurnkeySigner", () => {
   it.each(["ACTIVITY_STATUS_PENDING", "ACTIVITY_STATUS_FAILED"])(
     "rejects activity status %s",
     async (status) => {
-      const { keyPair, publicKeyHex } = await generateKeyPair();
-      const { client } = signingClient(keyPair.privateKey, {
-        id: "activity-id",
-        status,
-      });
-      const signer = createTurnkeySigner({
-        client,
-        organizationId: ORGANIZATION_ID,
-        signWith: SIGN_WITH,
-        publicKey: publicKeyHex,
+      const { signer } = await setup({
+        activity: { id: "activity-id", status },
       });
 
       await expect(signer.sign(new Uint8Array([1]))).rejects.toThrow(status);
@@ -159,16 +139,11 @@ describe("createTurnkeySigner", () => {
   );
 
   it("keeps the client error as cause behind a generic message", async () => {
-    const { publicKeyHex } = await generateKeyPair();
     const failure = new Error("secret upstream detail");
-    const { client } = mockClient(async () => {
-      throw failure;
-    });
-    const signer = createTurnkeySigner({
-      client,
-      organizationId: ORGANIZATION_ID,
-      signWith: SIGN_WITH,
-      publicKey: publicKeyHex,
+    const { signer } = await setup({
+      respond: async () => {
+        throw failure;
+      },
     });
 
     const error = await signer.sign(new Uint8Array([1])).catch((e) => e);
@@ -185,14 +160,7 @@ describe("createTurnkeySigner", () => {
     { r: "zz".repeat(32), s: "cd".repeat(32) },
     { r: `0x${"ab".repeat(31)}`, s: "cd".repeat(32) },
   ])("rejects malformed r/s %#", async (result) => {
-    const { publicKeyHex } = await generateKeyPair();
-    const { client } = mockClient(async () => result);
-    const signer = createTurnkeySigner({
-      client,
-      organizationId: ORGANIZATION_ID,
-      signWith: SIGN_WITH,
-      publicKey: publicKeyHex,
-    });
+    const { signer } = await setup({ respond: async () => result });
 
     await expect(signer.sign(new Uint8Array([1]))).rejects.toThrow(
       "malformed Ed25519 signature",
