@@ -3,9 +3,10 @@ import { beforeAll, expect, test } from "@jest/globals";
 import {
   createTurnkeyBotSigner,
   createWebBotAuthProver,
+  ed25519PublicKeyToJwk,
   jwkThumbprint,
 } from "../index";
-import type { Ed25519PublicJwk, TurnkeyRawSigner } from "../index";
+import type { TurnkeyRawSigner } from "../index";
 
 beforeAll(() => {
   Object.defineProperty(globalThis, "crypto", {
@@ -19,10 +20,11 @@ async function fixture() {
     "sign",
     "verify",
   ]);
-  const publicKeyJwk = (await crypto.subtle.exportKey(
-    "jwk",
-    keys.publicKey,
-  )) as Ed25519PublicJwk;
+  const publicKeyJwk = ed25519PublicKeyToJwk(
+    Buffer.from(await crypto.subtle.exportKey("raw", keys.publicKey)).toString(
+      "hex",
+    ),
+  );
   const prover = await createWebBotAuthProver({
     publicKeyJwk,
     sign: async (bytes) =>
@@ -243,4 +245,55 @@ test("throws TypeError for invalid config and inputs and RangeError for out-of-r
   await expect(
     prover.prove(request, { created: 1, nonce: "short" }),
   ).rejects.toBeInstanceOf(TypeError);
+});
+
+test("converts Turnkey's hex Ed25519 public keys to the WebCrypto JWK", async () => {
+  const keys = await crypto.subtle.generateKey("Ed25519", true, [
+    "sign",
+    "verify",
+  ]);
+  const hex = Buffer.from(
+    await crypto.subtle.exportKey("raw", keys.publicKey),
+  ).toString("hex");
+  const exported = await crypto.subtle.exportKey("jwk", keys.publicKey);
+  const expected = { kty: "OKP", crv: "Ed25519", x: exported.x };
+  expect(ed25519PublicKeyToJwk(hex)).toEqual(expected);
+  expect(ed25519PublicKeyToJwk(`0x${hex}`)).toEqual(expected);
+  expect(ed25519PublicKeyToJwk(hex.toUpperCase())).toEqual(expected);
+
+  const imported = await crypto.subtle.importKey(
+    "jwk",
+    ed25519PublicKeyToJwk(hex),
+    "Ed25519",
+    true,
+    ["verify"],
+  );
+  expect(
+    Buffer.from(await crypto.subtle.exportKey("raw", imported)).toString("hex"),
+  ).toBe(hex);
+
+  for (const bad of [
+    hex.slice(2),
+    `${hex}00`,
+    `0x${hex.slice(2)}`,
+    `0X${hex}`,
+    `${hex.slice(1)}g`,
+    "",
+  ]) {
+    expect(() => ed25519PublicKeyToJwk(bad)).toThrow(TypeError);
+  }
+});
+
+test("signing a POST keeps the body readable on the returned request", async () => {
+  const { prover } = await fixture();
+  const request = new Request("https://api.example/orders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ item: "report" }),
+  });
+  const signed = await prover.prove(request);
+  expect(request.bodyUsed).toBe(true);
+  expect(signed.method).toBe("POST");
+  expect(signed.headers.get("Content-Type")).toBe("application/json");
+  expect(await signed.json()).toEqual({ item: "report" });
 });

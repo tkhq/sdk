@@ -77,6 +77,25 @@ export async function jwkThumbprint(jwk: Ed25519PublicJwk): Promise<string> {
 }
 
 /**
+ * Converts a raw Ed25519 public key, as Turnkey reports it (32 bytes of hex,
+ * with or without a `0x` prefix), to a public JWK.
+ */
+export function ed25519PublicKeyToJwk(hex: string): Ed25519PublicJwk {
+  if (typeof hex !== "string") {
+    throw new TypeError("An Ed25519 public key must be a hex string.");
+  }
+  const digits = hex.startsWith("0x") ? hex.slice(2) : hex;
+  if (!/^[0-9a-fA-F]{64}$/.test(digits)) {
+    throw new TypeError("An Ed25519 public key must be 32 bytes of hex.");
+  }
+  return {
+    kty: "OKP",
+    crv: "Ed25519",
+    x: base64url(uint8ArrayFromHexString(digits)),
+  };
+}
+
+/**
  * Creates a prover for one narrow profile: the MPP HTTPS-directory Web Bot Auth
  * profile. It signs `@authority` and `Signature-Agent` only, with an external
  * signer. It signs bot identity and authority; it does not authorize an HTTP

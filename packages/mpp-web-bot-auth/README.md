@@ -11,9 +11,6 @@ The private bot key stays with the signer. The package does not accept API
 private keys, read environment variables, or choose how your application
 authenticates to Turnkey.
 
-The first planned npm release is **0.1.0**. This package follows the SDK's
-Changesets release flow and produces CommonJS, ESM, and TypeScript declarations.
-
 ## Use an authenticated Turnkey client
 
 Pass an existing authenticated SDK client. Its `signRawPayload` method must
@@ -24,6 +21,7 @@ clients do. Authentication and session lifetime remain application decisions.
 import {
   createTurnkeyBotSigner,
   createWebBotAuthProver,
+  ed25519PublicKeyToJwk,
 } from "@turnkey/mpp-web-bot-auth";
 
 const sign = createTurnkeyBotSigner({
@@ -34,7 +32,8 @@ const sign = createTurnkeyBotSigner({
 
 const bot = await createWebBotAuthProver({
   sign,
-  publicKeyJwk: botPublicJwk,
+  // Turnkey reports Ed25519 public keys as 32 bytes of hex.
+  publicKeyJwk: ed25519PublicKeyToJwk(botPublicKeyHex),
   signatureAgent: "https://bot.example",
   scope: ["https://api.example"],
 });
@@ -50,6 +49,20 @@ The prover verifies each returned signature against the configured public JWK.
 
 For another signer, pass `sign: async (bytes) => signatureBytes` directly.
 The callback must return a 64-byte Ed25519 signature over those exact bytes.
+
+`ed25519PublicKeyToJwk` accepts 32 bytes of hex with or without a `0x` prefix
+and throws `TypeError` for any other input.
+
+### Request bodies and redirects
+
+`prove` returns a new `Request` built from the original. This consumes the
+original request's body: read the body from the returned request, and call
+`prove` once per request. To sign a retry, build a new request.
+
+The returned request uses `redirect: "error"`, which matches mppx's own identity
+client, so a signature never follows a redirect to another URL. workerd
+(Cloudflare Workers) does not support that mode. If you send the returned
+request with `fetch` on its own in a Worker, the runtime rejects it.
 
 ## Use with MPP
 
@@ -115,21 +128,16 @@ method, path, query, or body. Applications must enforce operation authorization
 and payment separately. Client-side origin scopes are not enclave-enforced
 Turnkey policies. Use dedicated bot keys rather than issuer or payment keys.
 
-## Develop and release
+## Develop
 
 From the SDK root:
 
 ```sh
 pnpm --filter @turnkey/mpp-web-bot-auth typecheck
-pnpm --filter @turnkey/mpp-web-bot-auth test
 pnpm --filter @turnkey/mpp-web-bot-auth build
-pnpm --filter @turnkey/mpp-web-bot-auth pack --pack-destination /tmp
+pnpm --filter @turnkey/mpp-web-bot-auth test
 ```
 
 The tests generate software keys in memory and inject a test client. They prove
 format compatibility and failure handling, not live Turnkey authorization or
-testnet settlement. Before npm publication, a demo can consume the built `.tgz`
-artifact. Keep that artifact outside git and record its SHA-256 in demo evidence.
-
-Release through the normal SDK release PR and npm workflow. Adding the package
-does not itself publish it or provision any bot keys or credentials.
+testnet settlement.

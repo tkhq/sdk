@@ -114,4 +114,5 @@ test("built CommonJS entrypoint exposes the same public API", () => {
   assert.equal(typeof api.createWebBotAuthProver, "function");
   assert.equal(typeof api.createTurnkeyBotSigner, "function");
   assert.equal(typeof api.jwkThumbprint, "function");
+  assert.equal(typeof api.ed25519PublicKeyToJwk, "function");
 });
