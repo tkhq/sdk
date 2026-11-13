@@ -1,5 +1,13 @@
 # @turnkey/viem
 
+## 0.14.50
+
+### Patch Changes
+
+- Updated dependencies [[`1c71b59`](https://github.com/tkhq/sdk/commit/1c71b59eb87464e8eee2a5b3059a0a8d88f3c40e)]:
+  - @turnkey/core@2.14.1
+  - @turnkey/sdk-server@8.9.1
+
 ## 0.14.49
 
 ### Patch Changes
