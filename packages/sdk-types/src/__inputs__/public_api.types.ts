@@ -7877,7 +7877,9 @@ export type definitions = {
     | "TRANSACTION_TYPE_BITCOIN"
     | "TRANSACTION_TYPE_TEMPO";
   /** @enum {string} */
-  v1TransportEncryptionSuite: "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1";
+  v1TransportEncryptionSuite:
+    | "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1"
+    | "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2";
   v1TvcApp: {
     /** @description Unique Identifier for this TVC App. */
     id: string;

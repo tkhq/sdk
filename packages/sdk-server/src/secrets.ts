@@ -15,6 +15,9 @@ import type {
 export const TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1 =
   "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1" satisfies v1TransportEncryptionSuite;
 
+export const TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2 =
+  "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2" satisfies v1TransportEncryptionSuite;
+
 export type ImportSecretParams = {
   /** Secret material to import. */
   plaintext: string;
