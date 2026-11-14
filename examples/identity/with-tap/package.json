@@ -1,0 +1,15 @@
+{
+  "name": "@turnkey/example-tap",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node --check src/demo.mjs",
+    "demo": "node src/demo.mjs",
+    "test:tap": "node --test test/*.test.mjs",
+    "typecheck:tap": "tsc --project tsconfig.tap.json"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "workspace:*"
+  }
+}
