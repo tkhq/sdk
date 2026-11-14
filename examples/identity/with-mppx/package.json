@@ -1,0 +1,14 @@
+{
+  "name": "@turnkey/example-with-mppx",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.ts",
+    "test:mppx": "node --test test/*.test.ts",
+    "typecheck:mppx": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "workspace:*"
+  }
+}
