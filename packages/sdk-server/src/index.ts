@@ -84,6 +84,24 @@ export * from "@turnkey/sdk-types";
 // Secrets API convenience types (see ./secrets)
 export * from "./secrets";
 
+export {
+  createTurnkeyBotSigner,
+  createTurnkeyEs256Signer,
+  ed25519PublicKeyToJwk,
+  p256PublicKeyToJwk,
+  jwkThumbprint,
+  TurnkeySigningError,
+} from "./bot-signer";
+export type {
+  Ed25519PublicJwk,
+  P256PublicJwk,
+  TurnkeyBotSigner,
+  TurnkeyBotSigningClient,
+  TurnkeyEs256Signer,
+  TurnkeyEs256SigningClient,
+  TurnkeySigningErrorCode,
+} from "./bot-signer";
+
 // Functions
 export {
   fetch,

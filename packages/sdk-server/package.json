@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-server",
-  "version": "8.9.0",
+  "version": "8.9.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -43,6 +43,7 @@
     "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit",
+    "test": "jest --runInBand",
     "prepublishOnly": "pnpm run clean && pnpm run build",
     "codegen": "node scripts/codegen.js"
   },
