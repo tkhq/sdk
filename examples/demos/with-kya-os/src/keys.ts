@@ -26,7 +26,7 @@ export class DemoCryptoProvider extends NodeCryptoProvider {
   override async sign(data: Uint8Array, handle: string): Promise<Uint8Array> {
     const role = roles.find((name) => handle === `turnkey:${name}`);
     if (!role) throw new Error("Unknown demo signing handle.");
-    return this.parties[role].signer.sign(data);
+    return this.parties[role].signer.sign({ payload: data });
   }
 
   override async generateKeyPair(): Promise<{
@@ -152,8 +152,12 @@ export async function createKeys(
           did,
           kid: `${did}#${did.slice("did:key:".length)}`,
           publicKey: publicKeyBase64,
-          // The pinned KYA-OS proof hook accepts the checked SDK signer directly.
-          privateKey: signer,
+          // The pinned KYA-OS proof hook takes sign(bytes). The SDK signer
+          // follows mppx's sign({ payload }) shape, so adapt it here.
+          privateKey: {
+            algorithm: "ed25519",
+            sign: (data: Uint8Array) => signer.sign({ payload: data }),
+          },
           signer,
         },
       ];
