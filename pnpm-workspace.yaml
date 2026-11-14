@@ -6,6 +6,9 @@ packages:
 
 minimumReleaseAge: 10080
 
+patchedDependencies:
+  "@kya-os/mcp@1.21.2": patches/kya-os-mcp-1.21.2.patch
+
 overrides:
   "@openzeppelin/contracts@<4.9.0": "4.9.6"
   "@openzeppelin/contracts@3.4.1-solc-0.7-2": "4.9.6"

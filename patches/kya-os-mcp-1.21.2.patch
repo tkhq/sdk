@@ -1,0 +1,65 @@
+diff --git a/dist/proof/generator.js b/dist/proof/generator.js
+--- a/dist/proof/generator.js
++++ b/dist/proof/generator.js
+@@ -290,6 +290,22 @@
+             // This ensures signature verification succeeds regardless of JSON key ordering.
+             const canonicalPayload = canonicalizeJson(payload);
+             const payloadBytes = new TextEncoder().encode(canonicalPayload);
++            // A remote key signs the same protected-header and canonical-payload bytes.
++            // It never exports private material or changes the proof claims.
++            if (privateKey && typeof privateKey === 'object' && 'sign' in privateKey) {
++                if (privateKey.algorithm !== 'ed25519' || typeof privateKey.sign !== 'function')
++                    throw new TypeError('Expected an Ed25519 remote proof signer');
++                const header = base64urlEncodeFromBytes(new TextEncoder().encode(JSON.stringify({
++                    alg: 'EdDSA',
++                    kid: this.identity.kid,
++                })));
++                const payload = base64urlEncodeFromBytes(payloadBytes);
++                const signingInput = header + '.' + payload;
++                const signature = await privateKey.sign(new TextEncoder().encode(signingInput));
++                if (!(signature instanceof Uint8Array) || signature.length !== 64)
++                    throw new TypeError('Invalid remote Ed25519 proof signature');
++                return signingInput + '.' + base64urlEncodeFromBytes(signature);
++            }
+             const jws = await new CompactSign(payloadBytes)
+                 .setProtectedHeader({
+                 alg: 'EdDSA',
+diff --git a/dist/proof/generator.d.ts b/dist/proof/generator.d.ts
+--- a/dist/proof/generator.d.ts
++++ b/dist/proof/generator.d.ts
+@@ -42,6 +42,14 @@
+  * for the whole 1.x line (see `emitLegacyProofKey`) and removed at 2.0. SPEC §7.6.
+  */
+ export declare const LEGACY_PROOF_META_KEY = "proof";
++/**
++ * A remote Ed25519 key. Receives the exact compact-JWS signing input, not a hash.
++ * The caller must bind the signer to the configured DID's public key.
++ */
++export interface RemoteProofSigner {
++    readonly algorithm: 'ed25519';
++    sign(data: Uint8Array): Promise<Uint8Array>;
++}
+ export interface ProofAgentIdentity {
+     did: string;
+     kid: string;
+@@ -54,7 +62,7 @@
+      * hold agent secret keys … are non-conformant") and the KMS/HSM signer-hook
+      * guidance. Either form produces an equally valid, verifier-accepted proof.
+      */
+-    privateKey: string | CryptoKey;
++    privateKey: string | CryptoKey | RemoteProofSigner;
+     publicKey: string;
+ }
+ /**
+diff --git a/dist/middleware/with-kya-os.config-types.d.ts b/dist/middleware/with-kya-os.config-types.d.ts
+--- a/dist/middleware/with-kya-os.config-types.d.ts
++++ b/dist/middleware/with-kya-os.config-types.d.ts
+@@ -33,7 +33,7 @@
+      * handle lets a deployment keep secret key material inside its trust boundary
+      * end-to-end, per SPEC §4.5. See {@link ProofAgentIdentity.privateKey}.
+      */
+-    privateKey: string | CryptoKey;
++    privateKey: string | CryptoKey | import('../proof/generator.js').RemoteProofSigner;
+     publicKey: string;
+     agentName?: string;
+ }
