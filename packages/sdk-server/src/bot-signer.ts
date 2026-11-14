@@ -1,4 +1,3 @@
-import type { webcrypto } from "node:crypto";
 import { uncompressRawPublicKey } from "@turnkey/crypto";
 
 type HashFunction = "HASH_FUNCTION_NOT_APPLICABLE" | "HASH_FUNCTION_SHA256";
@@ -20,7 +19,7 @@ type SignerOptions<Client> = {
   client: Client;
   organizationId: string;
   signWith: string;
-  publicKey: webcrypto.CryptoKey;
+  publicKey: CryptoKey;
   /** Called with the activity ID after a checked, successful signature. Failed
    * requests report the activity ID on the thrown `TurnkeySigningError`. */
   onActivity?: (id: string) => void;
@@ -86,7 +85,7 @@ type SignFunction = (parameters: {
  * issuers. Assignable to mppx's identity `Signer`. */
 export type TurnkeyBotSigner = {
   algorithm: "ed25519";
-  publicKey: webcrypto.CryptoKey;
+  publicKey: CryptoKey;
   sign: SignFunction;
 };
 
@@ -94,7 +93,7 @@ export type TurnkeyBotSigner = {
  * Signatures are 64-byte IEEE P1363 r || s, also used by JOSE ES256. */
 export type TurnkeyEs256Signer = {
   algorithm: "ecdsa-p256-sha256";
-  publicKey: webcrypto.CryptoKey;
+  publicKey: CryptoKey;
   sign: SignFunction;
 };
 
@@ -143,7 +142,7 @@ function createCheckedSigner<
   hashFunction: Hash,
 ): {
   algorithm: Algorithm;
-  publicKey: webcrypto.CryptoKey;
+  publicKey: CryptoKey;
   sign: SignFunction;
 } {
   if (!organizationId || !signWith)
