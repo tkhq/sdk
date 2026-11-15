@@ -87,6 +87,44 @@ The following code examples have been loaded into Stackblitz web environments so
 | [`with-solana`](/examples/chain-integrations/with-solana/)                       | Create a new Solana address, then sign and broadcast a transaction on Solana's devnet                                                   | [Test it out on Stackblitz!](https://stackblitz.com/edit/stackblitz-starters-xeb93i) |
 | [`with-solana-passkeys`](/examples/authentication/with-solana-passkeys/)         | A NextJS app powering users to create suborgs, sign messages, and create transactions sponsored by the parent org using @turnkey/solana | [Test it out on Stackblitz!](https://stackblitz.com/edit/stackblitz-starters-h5pmnu) |
 
+### Transaction management, Swap, and Earn
+
+Examples built on Turnkey's own transaction products: Turnkey signs, broadcasts, and (optionally) sponsors gas.
+
+| Example                                                                                    | Description                                                                                                                                   |
+| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`with-evm-paymaster`](/examples/transaction-management/with-evm-paymaster/)               | Send an ERC-20 token on EVM networks with Turnkey gas sponsorship                                                                             |
+| [`with-solana-paymaster`](/examples/transaction-management/with-solana-paymaster/)         | Send an SPL token on Solana with Turnkey fee sponsorship                                                                                      |
+| [`with-swap`](/examples/defi/with-swap/)                                                   | Quote, execute, and track a swap with Turnkey Swap: same-chain and cross-chain EVM, Solana, and EVM ↔ Solana routes                          |
+| [`with-earn`](/examples/defi/with-earn/)                                                   | Deploy a Turnkey Earn vault wrapper, then deposit, track positions, and withdraw                                                              |
+| [`atomic-batch-with-aave`](/examples/defi/atomic-batch-with-aave/)                         | Open and unwind a leveraged Aave v3 position in single atomic, sponsored, policy-checked transactions                                         |
+| [`eth-usdc-swap`](/examples/defi/eth-usdc-swap/)                                           | Swap ETH for USDC on Base through Uniswap's Universal Router, with optional Turnkey gas sponsorship                                           |
+| [`solana-usdc-swap`](/examples/defi/solana-usdc-swap/)                                     | Swap SOL to USDC through Jupiter using Turnkey Solana sponsorship with rent-safe token account handling                                       |
+| [`sweeper`](/examples/transaction-management/sweeper/)                                     | Sweep funds from one address to a different address                                                                                           |
+| [`solana-cctp-bridge`](/examples/transaction-management/solana-cctp-bridge/)               | Bridge USDC from Solana to Base through Circle CCTP using three Turnkey-managed Solana signers (owner, MessageSent event account, rent payer) |
+| [`with-transaction-webhooks`](/examples/transaction-management/with-transaction-webhooks/) | A NextJS app that receives transaction status and balance updates through Turnkey webhooks                                                    |
+| [`with-nonce-manager`](/examples/transaction-management/with-nonce-manager/)               | Create a new Ethereum address, then sign and broadcast multiple transactions in a sequential or optimistic manner                             |
+| [`tk-gas-station`](/examples/transaction-management/tk-gas-station/)                       | Gasless EIP-7702 transactions with `@turnkey/gas-station`, paid for by your own paymaster                                                     |
+
+### Third-party DeFi integrations
+
+Direct integrations with external protocols and routers. For swaps and yield, [`with-swap`](/examples/defi/with-swap/) and [`with-earn`](/examples/defi/with-earn/) are the Turnkey-native paths.
+
+| Example                                                            | Description                                                                                                                 |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| [`with-0x`](/examples/defi/with-0x/)                               | EVM swaps between ETH and USDC using 0x                                                                                     |
+| [`with-lifi`](/examples/defi/with-lifi/)                           | EVM and Solana bridging between ETH and SOL using Li.Fi                                                                     |
+| [`with-jupiter`](/examples/defi/with-jupiter/)                     | Solana token swaps using Jupiter Ultra Swap                                                                                 |
+| [`with-uniswap`](/examples/defi/with-uniswap/)                     | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                                   |
+| [`trading-runner`](/examples/defi/trading-runner/)                 | A sample application demonstrating a trading operation, using various private keys, users, and policies, powered by Uniswap |
+| [`with-aave`](/examples/defi/with-aave/)                           | Supply and withdraw USDC on Aave v3, with a policy scoping a non-root user to the Aave contracts                            |
+| [`with-morpho`](/examples/defi/with-morpho/)                       | Deposit into and withdraw from a Morpho USDC vault                                                                          |
+| [`with-breeze`](/examples/defi/with-breeze/)                       | Solana USDC staking and yield through Breeze                                                                                |
+| [`with-vaultsfyi`](/examples/defi/with-vaultsfyi/)                 | Discover, deposit into, and withdraw from yield vaults across protocols with the vaults.fyi SDK                             |
+| [`with-yield-xyz`](/examples/defi/with-yield-xyz/)                 | Discover yields, deposit USDC, and check balances in Yield.xyz vaults on Base                                               |
+| [`with-walletconnect-pay`](/examples/defi/with-walletconnect-pay/) | A React Native app making gasless USDC payments with WalletConnect Pay                                                      |
+| [`with-x402`](/examples/defi/with-x402/)                           | Pay for HTTP requests with Coinbase's x402 protocol from a Turnkey embedded wallet                                          |
+
 ### Other Code Examples
 
 The below examples will require a local installation of `node.js`. Follow the specific instructions in the respective README's of each examples to run them!
@@ -105,9 +143,6 @@ The below examples will require a local installation of `node.js`. Follow the sp
 | [`import-export-with-rwk`](/examples/key-management/import-export-with-rwk/)                       | A NextJS app demonstrating wallet and private key import and export using React Wallet Kit                                                                                               |
 | [`wallet-export-sign`](/examples/key-management/wallet-export-sign/)                               | A NextJS app demonstrating wallet and wallet account export, and signing with the exported key                                                                                           |
 | [`rebalancer`](/examples/transaction-management/rebalancer/)                                       | A demo application which showcases an example of how to use Turnkey for managing multiple types of keys & users                                                                          |
-| [`solana-cctp-bridge`](/examples/transaction-management/solana-cctp-bridge/)                       | Bridge USDC from Solana to Base through Circle CCTP using three Turnkey-managed Solana signers (owner, MessageSent event account, rent payer)                                            |
-| [`sweeper`](/examples/transaction-management/sweeper/)                                             | Sweep funds from one address to a different address                                                                                                                                      |
-| [`trading-runner`](/examples/defi/trading-runner/)                                                 | A sample application demonstrating a trading operation, using various private keys, users, and policies, powered by Uniswap                                                              |
 | [`with-ethers`](/examples/chain-integrations/with-ethers/)                                         | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura                                                                                 |
 | [`with-viem`](/examples/chain-integrations/with-viem/)                                             | Sign and broadcast a transaction using the Turnkey Custom Account and Infura                                                                                                             |
 | [`with-cosmjs`](/examples/chain-integrations/with-cosmjs/)                                         | Create a new Cosmos address, then sign and broadcast a transaction on Celestia testnet using the CosmJS signer                                                                           |
@@ -115,9 +150,6 @@ The below examples will require a local installation of `node.js`. Follow the sp
 | [`with-biconomy-aa`](/examples/account-abstraction/with-biconomy-aa/)                              | Create a new wallet, connect a Turnkey wallet client to Biconomy Nexus, and create, sign, and broadcast an EIP-1559 transaction                                                          |
 | [`with-zerodev-aa`](/examples/account-abstraction/with-zerodev-aa/)                                | Create a new wallet, instantiate a Turnkey signer, create a ZeroDev kernel account and client, and broadcast a UserOp                                                                    |
 | [`with-gnosis`](/examples/account-abstraction/with-gnosis/)                                        | Create new Ethereum addresses, configure a 3/3 Gnosis safe, and create + execute a transaction from it                                                                                   |
-| [`with-uniswap`](/examples/defi/with-uniswap/)                                                     | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                                                                                                |
-| [`solana-usdc-swap`](/examples/defi/solana-usdc-swap/)                                             | Swap SOL to USDC through Jupiter using Turnkey Solana sponsorship with rent-safe token account handling                                                                                  |
-| [`with-nonce-manager`](/examples/transaction-management/with-nonce-manager/)                       | Create a new Ethereum address, then sign and broadcast multiple transactions in a sequential or optimistic manner                                                                        |
 | [`with-offline`](/examples/advanced/with-offline/)                                                 | Sign a Turnkey request in offline context                                                                                                                                                |
 | [`with-federated-passkeys`](/examples/authentication/with-federated-passkeys/)                     | A NextJS app that demonstrates how to use Turnkey to build a federated, webauthn powered authentication flow                                                                             |
 | [`with-eip-1193-provider`](/examples/chain-integrations/with-eip-1193-provider/)                   | A NextJS app that demonstrates how to use Turnkey the `@turnkey/eip-1193-provider` in your app                                                                                           |

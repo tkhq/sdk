@@ -33,8 +33,6 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
         fiatCurrencyCode: FiatOnRampCurrency.USD,
         fiatCurrencyAmount: "10",
         paymentMethod: FiatOnRampPaymentMethod.CREDIT_DEBIT_CARD,
-        countryCode: "US",
-        countrySubdivisionCode: "ME",
         sandboxMode: true,
       });
 
@@ -56,13 +54,15 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
 
       const response = await indexedDbClient?.initFiatOnRamp({
         organizationId: session?.organizationId!,
-        onrampProvider: FiatOnRampProvider.MOONPAY,
+        onrampProvider: FiatOnRampProvider.COINBASE,
         walletAddress: ethAddress,
         network: FiatOnRampBlockchainNetwork.ETHEREUM,
         cryptoCurrencyCode: FiatOnRampCryptoCurrency.ETHEREUM,
         fiatCurrencyCode: FiatOnRampCurrency.USD,
         fiatCurrencyAmount: "10",
         paymentMethod: FiatOnRampPaymentMethod.CREDIT_DEBIT_CARD,
+        countryCode: "US",
+        countrySubdivisionCode: "ME",
         sandboxMode: true,
       });
 
