@@ -2,6 +2,7 @@ import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import {
   type TDeleteSubOrganizationResponse,
   type Session,
+  type TStampLoginBody,
   type TStampLoginResponse,
   type v1Attestation,
   type v1SignRawPayloadResult,
@@ -164,7 +165,11 @@ import { toUtf8Bytes } from "ethers";
 import { verify } from "@turnkey/crypto";
 import { SignatureFormat } from "@turnkey/api-key-stamper";
 import { encodeFunctionData } from "viem";
-import { AttestedScheme, AttestedStamper } from "../__stampers__/attested/base";
+import {
+  type AttestedConfig,
+  AttestedScheme,
+  AttestedStamper,
+} from "../__stampers__/attested/base";
 
 /**
  * @internal
@@ -1595,6 +1600,28 @@ export class TurnkeyClient {
     );
   };
 
+  // Per-login stamper, so concurrent logins cannot change this login's identity.
+  private stampLoginWithAttestedConfig = async (
+    attestedConfig: AttestedConfig,
+    input: TStampLoginBody,
+  ): Promise<TStampLoginResponse> => {
+    if (!this.apiKeyStamper) {
+      throw new TurnkeyError(
+        "API key stamper is not initialized",
+        TurnkeyErrorCodes.INTERNAL_ERROR,
+      );
+    }
+
+    const attestedStamper = new AttestedStamper(this.apiKeyStamper);
+    attestedStamper.configure(attestedConfig);
+
+    // Copies httpClient.config when the login starts, so onMfaRequired is read once per login.
+    return new TurnkeySDKClientBase({
+      ...this.httpClient.config,
+      attestedStamper,
+    }).stampLogin(input, StamperType.Attested);
+  };
+
   /**
    * Logs in a user using an OTP verification token.
    *
@@ -1636,14 +1663,19 @@ export class TurnkeyClient {
           );
         }
 
-        // We override the attested stamper with the verification token so the stampLogin request can be stamped with it.
+        // We override the shared attested stamper with the verification token, for callers that use it after login.
         await this.overrideAttestedStamper({
           verificationToken,
           publicKey: verificationPublicKey,
         });
 
         // the verification token's public key is also used as the session public key for login
-        const loginRes = await this.httpClient.stampLogin(
+        const loginRes = await this.stampLoginWithAttestedConfig(
+          {
+            attestedIdentity: verificationToken,
+            publicKey: verificationPublicKey,
+            scheme: AttestedScheme.P256_VERIFICATION_TOKEN,
+          },
           {
             publicKey: verificationPublicKey,
             expirationSeconds,
@@ -1651,7 +1683,6 @@ export class TurnkeyClient {
             ...(organizationId && { organizationId }),
             ...(sessionProfileId && { sessionProfileId }),
           },
-          StamperType.Attested,
         );
 
         if (!loginRes) {
@@ -2120,13 +2151,18 @@ export class TurnkeyClient {
           return { sessionToken: proxyRes.session };
         }
 
-        // We override the attested stamper with the oidcToken so the stampLogin request can be stamped with it.
+        // We override the shared attested stamper with the oidcToken, for callers that use it after login.
         await this.overrideAttestedStamper({
           oidcToken,
           publicKey,
         });
 
-        const loginRes = await this.httpClient.stampLogin(
+        const loginRes = await this.stampLoginWithAttestedConfig(
+          {
+            attestedIdentity: oidcToken,
+            publicKey,
+            scheme: AttestedScheme.P256_OIDC,
+          },
           {
             publicKey,
             expirationSeconds,
@@ -2134,7 +2170,6 @@ export class TurnkeyClient {
             ...(organizationId && { organizationId }),
             ...(sessionProfileId && { sessionProfileId }),
           },
-          StamperType.Attested,
         );
 
         if (!loginRes) {
@@ -3338,7 +3373,7 @@ export class TurnkeyClient {
    *
    * Terminal states:
    * - **COMPLETED** or **INCLUDED** → resolves with chain-specific transaction details
-   * - **FAILED** rejects with an error
+   * - **FAILED**, or **INCLUDED** with an error (the transaction reverted on-chain) → rejects with an error
    *
    * Behavior:
    *
@@ -3394,13 +3429,19 @@ export class TurnkeyClient {
 
             if (!txStatus) return;
 
-            if (txStatus === "FAILED" || txStatus === "CANCELLED") {
+            // A transaction that reverted on-chain is INCLUDED with an error.
+            const reverted =
+              txStatus === "INCLUDED" && (resp.error || resp.txError);
+
+            if (txStatus === "FAILED" || txStatus === "CANCELLED" || reverted) {
               // TODO: use API enum in the future
               clearInterval(ref);
               clearTimeout(timeoutRef);
               reject(
                 new TurnkeyError(
-                  resp.error?.message || `Transaction ${resp.txStatus}`,
+                  resp.error?.message ||
+                    resp.txError ||
+                    `Transaction ${resp.txStatus}`,
                   TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
                   resp,
                 ),
