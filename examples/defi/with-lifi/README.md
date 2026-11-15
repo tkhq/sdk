@@ -1,5 +1,7 @@
 # Example: `with-lifi`
 
+> **Note:** This example integrates with Li.Fi directly. [Turnkey Swap](https://docs.turnkey.com/features/transaction-management/swap) quotes, signs, and broadcasts swaps for you, including same-chain and cross-chain EVM routes, Solana swaps, and EVM ↔ Solana routes. See [`with-swap`](../with-swap/).
+
 This demo application demonstrates EVM and SVM bridging with Turnkey and Li.Fi between ETH and SOL.
 
 This example contains uses `@turnkey/react-wallet-kit`, `@turnkey/viem`, and `@turnkey/solana` to handle authentication and signing with Turnkey wallets. To streamline authentication this example uses the Turnkey [Auth Proxy](https://docs.turnkey.com/reference/auth-proxy) to serve as the backend for authentication purposes. To obtain prices/quotes for the swap as well as building the swap transaction the server queries `LiFi`. This example also uses `viem`, `wagmi`, and `@solana/web3.js` to obtain wallet balances, and broadcast transactions.

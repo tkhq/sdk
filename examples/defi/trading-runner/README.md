@@ -1,5 +1,7 @@
 # Example: `trading-runner`
 
+> **Note:** This example builds and broadcasts Uniswap transactions itself. [Turnkey Swap](https://docs.turnkey.com/features/transaction-management/swap) quotes, signs, and broadcasts swaps for you; see [`with-swap`](../with-swap/).
+
 A sample application demonstrating a trading operation, using various private keys, users, and policies, powered by Uniswap.
 
 **Note:** This example runs on Goerli, as Uniswap is not yet available on Sepolia.
