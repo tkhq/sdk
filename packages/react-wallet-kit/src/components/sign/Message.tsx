@@ -19,6 +19,7 @@ import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { SuccessPage } from "../design/Success";
 import clsx from "clsx";
+import { truncateAddress } from "../../utils/utils";
 
 interface SignMessageModalProps {
   message: string;
@@ -127,9 +128,7 @@ export function SignMessageModal(props: SignMessageModalProps) {
           <FontAwesomeIcon icon={faWallet} />
         </div>
 
-        {walletAccount.address?.length > 8
-          ? `${walletAccount.address.slice(0, 4)}...${walletAccount.address.slice(-4)}`
-          : walletAccount.address}
+        {truncateAddress(walletAccount.address)}
         {walletAccount.source === WalletSource.Connected && (
           <div className="rounded-full py-1 px-2 flex border border-primary-light/50 dark:border-primary-dark/50 text-primary-light dark:text-primary-dark text-xs font-medium">
             External
