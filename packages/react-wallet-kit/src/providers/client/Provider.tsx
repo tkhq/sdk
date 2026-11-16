@@ -154,8 +154,6 @@ import {
   type PasskeyAuthResult,
   type v1BootProof,
   type v1AppProof,
-  FiatOnRampCryptoCurrency,
-  FiatOnRampBlockchainNetwork,
   TGetSendTransactionStatusResponse,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
@@ -202,6 +200,7 @@ import type {
   HandleImportPrivateKeyParams,
   HandleImportWalletParams,
   HandleLoginParams,
+  HandleOffRampParams,
   HandleOnRampParams,
   HandleRemoveOauthProviderParams,
   HandleRemovePasskeyParams,
@@ -219,8 +218,8 @@ import type {
   RefreshWalletsParams,
 } from "../../types/method-types";
 import { VerifyPage } from "../../components/verify/Verify";
-import { OnRampPage } from "../../components/onramp/OnRamp";
-import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
+import { OffRampPage } from "../../components/funding/OffRamp";
+import { OnRampPage, OnRampProviders } from "../../components/funding/OnRamp";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
 import { getChainLogo } from "../../components/send-transaction/helpers";
 import { Turnstile } from "../../components/auth/Turnstile";
@@ -6136,20 +6135,21 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     async (params: HandleOnRampParams): Promise<void> => {
       const {
         walletAccount,
-        fiatCurrencyAmount,
+        lockedCaip2,
+        lockedCaip19,
         fiatCurrencyCode,
-        paymentMethod,
-        countrySubdivisionCode,
-        urlForSignature,
+        defaultFiatCurrencyAmount,
         countryCode,
-        onrampProvider = "FIAT_ON_RAMP_PROVIDER_MOONPAY",
+        countrySubdivisionCode,
         sandboxMode = true,
-        successPageDuration = 2000,
-        openInNewTab = false,
+        stampWith,
+        successPageDuration,
+        openInNewTab,
+        rpcUrl,
       } = params;
 
       const s = await getSession();
-      const organizationId = params?.organizationId || s?.organizationId;
+      const organizationId = params.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
@@ -6157,185 +6157,44 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      let cryptoCurrencyCode;
-      let network;
-
-      switch (true) {
-        case walletAccount.addressFormat === "ADDRESS_FORMAT_ETHEREUM":
-          cryptoCurrencyCode = FiatOnRampCryptoCurrency.ETHEREUM;
-          network = FiatOnRampBlockchainNetwork.ETHEREUM;
-          break;
-
-        case walletAccount.addressFormat?.includes("ADDRESS_FORMAT_BITCOIN"):
-          throw new TurnkeyError(
-            "Fiat on-ramp does not support Bitcoin wallet accounts.",
-            TurnkeyErrorCodes.INVALID_REQUEST,
-          );
-
-        case walletAccount.addressFormat === "ADDRESS_FORMAT_SOLANA":
-          cryptoCurrencyCode = FiatOnRampCryptoCurrency.SOLANA;
-          network = FiatOnRampBlockchainNetwork.SOLANA;
-          break;
-
-        default:
-          cryptoCurrencyCode = FiatOnRampCryptoCurrency.ETHEREUM;
-          network = FiatOnRampBlockchainNetwork.ETHEREUM;
-          break;
-      }
-      const openNewTab = openInNewTab || isMobile;
-      cryptoCurrencyCode = params.cryptoCurrencyCode || cryptoCurrencyCode;
-      network = params.network || network;
-
       return new Promise((resolve, reject) => {
-        const OnRampContainer = () => {
-          const [completed, setCompleted] = useState(false);
-          const pollingRef = useRef<NodeJS.Timeout | null>(null);
-
-          const cleanup = () => {
-            if (pollingRef.current) {
-              clearInterval(pollingRef.current);
-              pollingRef.current = null;
-            }
-          };
-          useEffect(() => {
-            return () => {
-              cleanup();
-            };
-          }, []);
-          const action = async () => {
-            try {
-              let onRampWindow: Window | null = null;
-              if (openNewTab) {
-                onRampWindow = window.open("", "_blank");
-                if (!onRampWindow)
-                  throw new Error("Failed to open On Ramp tab.");
-              }
-
-              const result = await client?.httpClient?.initFiatOnRamp({
-                onrampProvider,
-                walletAddress: walletAccount.address,
-                network,
-                cryptoCurrencyCode,
-                sandboxMode,
-                organizationId,
-                ...(fiatCurrencyCode ? { fiatCurrencyCode } : {}),
-                ...(fiatCurrencyAmount ? { fiatCurrencyAmount } : {}),
-                ...(paymentMethod ? { paymentMethod } : {}),
-                ...(countryCode ? { countryCode } : {}),
-                ...(countrySubdivisionCode ? { countrySubdivisionCode } : {}),
-                ...(sandboxMode !== undefined ? { sandboxMode } : {}),
-                ...(urlForSignature ? { urlForSignature } : {}),
-              });
-
-              if (!result?.onRampUrl) throw new Error("Missing onRampUrl");
-
-              if (openNewTab && onRampWindow) {
-                onRampWindow.location.href = result.onRampUrl.toString();
-              } else {
-                const popupWidth = 500;
-                const popupHeight = 600;
-                const left =
-                  window.screenX + (window.innerWidth - popupWidth) / 2;
-                const top =
-                  window.screenY + (window.innerHeight - popupHeight) / 2;
-                onRampWindow = window.open(
-                  result.onRampUrl.toString(),
-                  "_blank",
-                  `width=${popupWidth},height=${popupHeight},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-                );
-                if (!onRampWindow)
-                  throw new Error("Failed to open On Ramp window.");
-              }
-
-              const onRampTransactionId = result.onRampTransactionId;
-              if (!onRampTransactionId)
-                throw new Error("No onRampTransactionId returned");
-
-              return new Promise<void>((resolveAction, rejectAction) => {
-                pollingRef.current = setInterval(async () => {
-                  try {
-                    if (
-                      onrampProvider === "FIAT_ON_RAMP_PROVIDER_COINBASE" &&
-                      onRampWindow?.closed
-                    ) {
-                      cleanup();
-                      rejectAction(new Error("On-ramp popup closed by user"));
-                      return;
-                    }
-
-                    let currentUrl = "";
-                    try {
-                      currentUrl = onRampWindow?.location.href || "";
-                    } catch {}
-
-                    if (
-                      currentUrl &&
-                      currentUrl.startsWith(window.location.origin)
-                    ) {
-                      cleanup();
-                      onRampWindow?.close();
-                      setCompleted(true);
-                      resolveAction();
-                      return;
-                    }
-
-                    const resp =
-                      await client?.httpClient?.getOnRampTransactionStatus({
-                        transactionId: onRampTransactionId,
-                        refresh: true,
-                      });
-
-                    const status = resp?.transactionStatus;
-                    if (
-                      ["COMPLETED", "FAILED", "CANCELLED"].includes(
-                        status ?? "",
-                      )
-                    ) {
-                      cleanup();
-                      try {
-                        onRampWindow?.close();
-                      } catch {}
-                      setCompleted(true);
-                      resolveAction();
-                    }
-                  } catch (error) {
-                    console.warn("Polling error (ignored):", error);
-                  }
-                }, 3000);
-              });
-            } catch (err) {
-              cleanup();
-              throw err;
-            }
-          };
-
-          return (
-            <OnRampPage
-              icon={
-                onrampProvider === "FIAT_ON_RAMP_PROVIDER_COINBASE" ? (
-                  <CoinbaseLogo className="w-12 h-12" />
-                ) : (
-                  <MoonPayLogo className="w-12 h-12" />
-                )
-              }
-              onrampProvider={onrampProvider}
-              action={action}
-              sandboxMode={sandboxMode}
-              completed={completed}
-              successPageDuration={successPageDuration}
-              onSuccess={() => resolve()}
-              onError={(err) => reject(err)}
-            />
-          );
+        let settled = false;
+        const resolveOnce = () => {
+          if (settled) return;
+          settled = true;
+          resolve();
+        };
+        const rejectOnce = (error: unknown) => {
+          if (settled) return;
+          settled = true;
+          reject(error);
         };
 
         pushPage({
-          key: "Fiat OnRamp",
-          content: <OnRampContainer />,
-          showTitle: false,
+          key: "Deposit",
+          content: (
+            <OnRampPage
+              lockedCaip2={lockedCaip2}
+              lockedCaip19={lockedCaip19}
+              walletAccount={walletAccount}
+              sandboxMode={sandboxMode}
+              organizationId={organizationId}
+              stampWith={stampWith}
+              fiatCurrencyCode={fiatCurrencyCode}
+              defaultFiatCurrencyAmount={defaultFiatCurrencyAmount}
+              countryCode={countryCode}
+              countrySubdivisionCode={countrySubdivisionCode}
+              openInNewTab={openInNewTab}
+              successPageDuration={successPageDuration}
+              rpcUrl={rpcUrl}
+              onSuccess={resolveOnce}
+              onError={rejectOnce}
+            />
+          ),
+          contextProvider: OnRampProviders,
           preventBack: true,
           onClose: () =>
-            reject(
+            rejectOnce(
               new TurnkeyError(
                 "User canceled the onramp process.",
                 TurnkeyErrorCodes.USER_CANCELED,
@@ -6344,7 +6203,82 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       });
     },
-    [getSession, client, pushPage],
+    [getSession, pushPage],
+  );
+
+  const handleOffRamp = useCallback(
+    async (params: HandleOffRampParams): Promise<void> => {
+      const {
+        walletAccount,
+        lockedCaip2,
+        lockedCaip19,
+        fiatCurrencyCode,
+        defaultCryptoAmount,
+        countryCode,
+        countrySubdivisionCode,
+        sandboxMode = true,
+        stampWith,
+        successPageDuration,
+        openInNewTab,
+        rpcUrl,
+      } = params;
+
+      const s = await getSession();
+      const organizationId = params.organizationId || s?.organizationId;
+      if (!organizationId) {
+        throw new TurnkeyError(
+          "A session or passed in organization ID is required.",
+          TurnkeyErrorCodes.INVALID_REQUEST,
+        );
+      }
+
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        const resolveOnce = () => {
+          if (settled) return;
+          settled = true;
+          resolve();
+        };
+        const rejectOnce = (error: unknown) => {
+          if (settled) return;
+          settled = true;
+          reject(error);
+        };
+
+        pushPage({
+          key: "Withdraw",
+          content: (
+            <OffRampPage
+              lockedCaip2={lockedCaip2}
+              lockedCaip19={lockedCaip19}
+              walletAccount={walletAccount}
+              sandboxMode={sandboxMode}
+              organizationId={organizationId}
+              stampWith={stampWith}
+              fiatCurrencyCode={fiatCurrencyCode}
+              defaultCryptoAmount={defaultCryptoAmount}
+              countryCode={countryCode}
+              countrySubdivisionCode={countrySubdivisionCode}
+              openInNewTab={openInNewTab}
+              successPageDuration={successPageDuration}
+              rpcUrl={rpcUrl}
+              onSuccess={resolveOnce}
+              onError={rejectOnce}
+            />
+          ),
+          contextProvider: OnRampProviders,
+          preventBack: true,
+          onClose: () =>
+            rejectOnce(
+              new TurnkeyError(
+                "User canceled the offramp process.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
+        });
+      });
+    },
+    [getSession, pushPage],
   );
 
   const handleVerifyAppProofs = useCallback(
@@ -6700,6 +6634,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleRemoveUserPhoneNumber,
         handleVerifyAppProofs,
         handleOnRamp,
+        handleOffRamp,
         handleSendTransaction,
         handleSendErc20Transfer,
         setMfaHandler,

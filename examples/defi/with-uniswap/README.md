@@ -1,5 +1,7 @@
 # Example: `with-uniswap`
 
+> **Note:** This example builds and broadcasts Uniswap transactions itself. [Turnkey Swap](https://docs.turnkey.com/features/transaction-management/swap) quotes, signs, and broadcasts swaps for you; see [`with-swap`](../with-swap/). For a Uniswap swap with Turnkey gas sponsorship, see [`eth-usdc-swap`](../eth-usdc-swap/).
+
 This example shows how to construct and broadcast Uniswap-related transactions, built on top of our [`@turnkey/ethers` signer](https://www.npmjs.com/package/@turnkey/ethers) with Turnkey.
 
 ## Getting started
