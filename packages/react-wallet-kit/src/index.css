@@ -163,6 +163,16 @@
     background-color: var(--color-icon-text-dark);
     border: 2px solid var(--color-icon-background-dark);
   }
+
+  /* No visible scrollbar */
+  .tk-overlay-scroll {
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .tk-overlay-scroll::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .tk-modal * {
