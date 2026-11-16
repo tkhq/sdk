@@ -93,3 +93,23 @@ test.each([
     );
   }
 });
+
+test.each([
+  { impl: signNode, name: "sign (node crypto)" },
+  { impl: signWeb, name: "sign (WebCrypto)" },
+  { impl: signPureJS, name: "sign (PureJS)" },
+  { impl: signUniversal, name: "sign (universal)" },
+])("accepts an uppercase hex public key: $name", async ({ impl: sign }) => {
+  const { privateKey, publicKey, pemPublicKey } = await readFixture();
+
+  const content = crypto.randomBytes(16).toString("hex");
+
+  // Hex is case-insensitive; the same key written in uppercase must work.
+  const signature = await sign({
+    content,
+    privateKey,
+    publicKey: publicKey.toUpperCase(),
+  });
+
+  expect(assertValidSignature({ content, pemPublicKey, signature })).toBe(true);
+});
