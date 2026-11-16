@@ -2914,9 +2914,18 @@ importers:
 
   examples/defi/with-earn:
     dependencies:
+      '@solana/spl-token':
+        specifier: ^0.4.9
+        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../../packages/sdk-server
+      '@turnkey/solana':
+        specifier: workspace:*
+        version: link:../../../packages/solana
       '@turnkey/viem':
         specifier: workspace:*
         version: link:../../../packages/viem
