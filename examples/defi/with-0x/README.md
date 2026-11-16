@@ -1,5 +1,7 @@
 # Example: `with-0x`
 
+> **Note:** This example integrates with 0x directly. [Turnkey Swap](https://docs.turnkey.com/features/transaction-management/swap) quotes, signs, and broadcasts swaps for you, including same-chain and cross-chain EVM routes, Solana swaps, and EVM ↔ Solana routes. See [`with-swap`](../with-swap/).
+
 This demo application demonstrates EVM swapping with Turnkey and 0x between ETH and USDC.
 
 This example contains uses `@turnkey/react-wallet-kit` and `@turnkey/viem`, to handle authentication and signing with Turnkey wallets. To streamline authentication this example uses the Turnkey [Auth Proxy](https://docs.turnkey.com/reference/auth-proxy) to serve as the backend for authentication purposes. To obtain prices/quotes for the swap as well as building the swap transaction the server queries `0x`. This example also uses `viem` and `wagmi` to obtain wallet balances, set approvals on ERC-20 tokens; just USDC in this case, and broadcast transactions.

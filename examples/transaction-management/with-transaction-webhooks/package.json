@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-with-tx-webhooks",
+  "name": "@turnkey/example-with-transaction-webhooks",
   "version": "0.1.0",
   "private": true,
   "scripts": {

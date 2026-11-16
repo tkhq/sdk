@@ -191,10 +191,19 @@ export const decryptExportBundle = async ({
   }
 };
 
+interface StaticProperty {
+  key: string;
+  value: string;
+}
+
 interface EncryptSecretToBundleParams {
   plaintext: string;
   ingressTargetBundle: string;
   organizationId: string;
+  /** The secret's name, as sent in ImportSecretParams.name. */
+  name: string | undefined;
+  /** The secret's static properties, in the order sent in ImportSecretParams.staticProperties. */
+  staticProperties: StaticProperty[];
   dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
 }
 
@@ -206,18 +215,68 @@ interface DecryptSecretBundleParams {
   dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
 }
 
+const IMPORT_SECRETS_PURPOSE = "ENCRYPTED_INGRESS_PURPOSE_IMPORT_SECRETS";
+
+/**
+ * Encodes the AAD suffix that binds an `import_secrets` ciphertext to its name
+ * and static properties, in order. A missing name encodes as the empty string.
+ *
+ * @param {string} name - The secret's name.
+ * @param {StaticProperty[]} staticProperties - The secret's static properties, in order.
+ * @returns {Uint8Array} - The purpose binding.
+ */
+export const importSecretsPurposeBinding = (
+  name: string | undefined,
+  staticProperties: StaticProperty[],
+): Uint8Array => {
+  const textEncoder = new TextEncoder();
+  const purpose = textEncoder.encode(IMPORT_SECRETS_PURPOSE);
+  const encodedName = textEncoder.encode(name ?? "");
+  const properties = staticProperties.flatMap(({ key, value }) => [
+    textEncoder.encode(key),
+    textEncoder.encode(value),
+  ]);
+  const binding = new Uint8Array(
+    properties.reduce(
+      (length, field) => length + 4 + field.length,
+      12 + purpose.length + encodedName.length,
+    ),
+  );
+  const view = new DataView(binding.buffer);
+  let offset = 0;
+  const writeUint32 = (value: number): void => {
+    view.setUint32(offset, value, false);
+    offset += 4;
+  };
+  const writeField = (field: Uint8Array): void => {
+    writeUint32(field.length);
+    binding.set(field, offset);
+    offset += field.length;
+  };
+  writeField(purpose);
+  writeField(encodedName);
+  writeUint32(staticProperties.length);
+  properties.forEach(writeField);
+  return binding;
+};
+
 /**
  * Encrypts a secret to an ingress target bundle returned by the
- * `init_import_secrets` activity.
+ * `init_import_secrets` activity, bound to the secret's name and static
+ * properties.
  *
  * Verifies the signer enclave quorum key signature on the bundle and checks
  * the signed organization ID before trusting the embedded target public key,
- * then HPKE-encrypts the plaintext to that key.
+ * then HPKE-encrypts the plaintext to that key. The `import_secrets` activity
+ * must send the same name and static properties in the same order, with
+ * `TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2`.
  *
  * @param {EncryptSecretToBundleParams} params - An object containing the following properties:
  *   - plaintext {string}: The secret material to encrypt.
  *   - ingressTargetBundle {string}: A JSON-encoded ServerTargetMsg entry from InitImportSecretsResult.enclaveTargetMessages.
  *   - organizationId {string}: The expected organization ID to verify against the signed data.
+ *   - name {string}: The secret's name.
+ *   - staticProperties {StaticProperty[]}: The secret's static properties, in order.
  *   - dangerouslyOverrideSignerPublicKey {string} [Optional]: Override the default signer public key for verification. Testing only.
  * @returns {Promise<{secretPayload: string; targetPublicKey: string}>} - The encryption-suite payload for ImportSecretParams.secretPayload and the verified target public key.
  * @throws {Error} - If signature verification or validation fails.
@@ -226,6 +285,8 @@ export const encryptSecretToBundle = async ({
   plaintext,
   ingressTargetBundle,
   organizationId,
+  name,
+  staticProperties,
   dangerouslyOverrideSignerPublicKey,
 }: EncryptSecretToBundleParams): Promise<{
   secretPayload: string;
@@ -262,7 +323,11 @@ export const encryptSecretToBundle = async ({
 
   const plainTextBuf = new TextEncoder().encode(plaintext);
   const targetKeyBuf = uint8ArrayFromHexString(signedData.targetPublic);
-  const encrypted = hpkeEncrypt({ plainTextBuf, targetKeyBuf });
+  const encrypted = hpkeEncrypt({
+    plainTextBuf,
+    targetKeyBuf,
+    purposeBinding: importSecretsPurposeBinding(name, staticProperties),
+  });
 
   return {
     secretPayload: formatHpkeBuf(encrypted),

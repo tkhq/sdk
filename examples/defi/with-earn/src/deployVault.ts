@@ -4,16 +4,22 @@ import {
   ask,
   ASSET_CAIP19,
   C,
+  CATALOG_AVAILABLE,
   CHAIN_CAIP2,
+  EARN_PROVIDER,
   header,
   newClient,
   PARENT_TAG,
   pollEarnStatus,
   printOrgVaults,
   requireEnv,
+  sameAddress,
 } from "./common";
 
-// Step 2: choose a vault and fee terms, then deploy the org's fee wrapper.
+// Step 2: choose a vault and fee terms, then enable it for the org. On EVM this
+// deploys a fee wrapper in front of the vault; on Solana Turnkey creates a
+// Kamino kVault allocated to the chosen K-Lend reserve. Either way the result's
+// `wrapperAddress` is the deposit target.
 // Usage: pnpm deploy-vault [vault-address] [client-fee-bps] [fee-wallet]
 // Missing values prompt on a terminal, falling back to env/defaults.
 async function main() {
@@ -22,23 +28,31 @@ async function main() {
 
   header("Enable a vault (deploy fee wrapper)", PARENT_TAG);
 
-  const { vaults = [] } = await client.earnVaults({
-    organizationId,
-    caip19: ASSET_CAIP19,
-    provider: "EARN_PROVIDER_MORPHO",
-  });
+  // Kamino's catalog covers mainnet only; on devnet the reserve is pinned in env.
+  const vaults: v1EarnVault[] = CATALOG_AVAILABLE
+    ? ((
+        await client.listEarnVaults({
+          organizationId,
+          caip19: ASSET_CAIP19,
+          provider: EARN_PROVIDER,
+        })
+      ).vaults ?? [])
+    : [];
 
   const defaultVault =
     process.env.VAULT_ADDRESS ||
-    vaults.find((v: v1EarnVault) => v.enabled)?.vaultAddress ||
+    vaults.find((v) => v.enabled)?.vaultAddress ||
     vaults[0]?.vaultAddress;
-  if (!defaultVault) throw new Error("vault catalog is empty");
+  if (!defaultVault) {
+    throw new Error(
+      CATALOG_AVAILABLE
+        ? "vault catalog is empty"
+        : `no catalog on ${CHAIN_CAIP2}; set VAULT_ADDRESS to the reserve to enable`,
+    );
+  }
 
   const vaultAddress = argVault ?? (await ask("Vault to enable", defaultVault));
-  const chosen = vaults.find(
-    (v: v1EarnVault) =>
-      v.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase(),
-  );
+  const chosen = vaults.find((v) => sameAddress(v.vaultAddress, vaultAddress));
 
   if (chosen?.enabled) {
     console.log(
@@ -60,7 +74,7 @@ async function main() {
       requireEnv("CLIENT_FEE_WALLET"),
     ));
 
-  console.log(`\n🚀 Deploying wrapper for ${vaultAddress} on ${CHAIN_CAIP2}…`);
+  console.log(`\n🚀 Enabling ${vaultAddress} on ${CHAIN_CAIP2}…`);
 
   const { wrapperAddress, splitterAddress, deployRequestId } =
     await client.earnDeployWrapper({
@@ -72,12 +86,14 @@ async function main() {
     });
 
   console.log(`   wrapper:  ${wrapperAddress}`);
-  console.log(`   splitter: ${splitterAddress}`);
+  // Kamino vaults have no splitter: fees accrue in the vault and are split at
+  // claim time.
+  if (splitterAddress) console.log(`   splitter: ${splitterAddress}`);
 
   // earnDeployWrapper resolves at broadcast-enqueue time; wait for the deploy
   // tx to actually land on-chain.
   await pollEarnStatus("wrapper deploy", async () => {
-    const { status, deployTxHash, error } = await client.earnDeployStatus({
+    const { status, deployTxHash, error } = await client.getEarnDeployStatus({
       organizationId,
       deployRequestId,
     });
