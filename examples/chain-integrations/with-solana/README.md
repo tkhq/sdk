@@ -6,8 +6,9 @@ This example walks through the following:
 - Monitoring of devnet tokens landing on that address
 - Construction of a transaction sending the funds out with the `@turnkey/solana` signer
 - Creating, minting, and transferring a SPL token using Turnkey
+- Transferring any SPL token you already hold (e.g. USDC) to another address
 
-You can try this example quickly on Stackblitz. Follow the instructions below --> [Stackblitz Instructions](#7-stackblitz-example)
+You can try this example quickly on Stackblitz. Follow the instructions below --> [Stackblitz Instructions](#8-stackblitz-example)
 
 ## Getting started
 
@@ -297,7 +298,31 @@ Transaction broadcast and confirmed! 🎉
 	https://explorer.solana.com/tx/GQa4uqoS2zU9uGsGuzMBAq4UmR4dYPXAWgfS4cHQ5Lmqdwb3pKwXrEc4jGHEaZLCyZmCZWErsaPWecN8udkBXaT?cluster=devnet
 ```
 
-### 7/ Stackblitz Example
+### 7/ Running the SPL token transfer script (send a token you already hold)
+
+This script sends any SPL token your Turnkey Solana address already holds (for example USDC) to an address of your choice. It works with tokens on both the Token and Token-2022 programs, and reads the token's decimals from its mint.
+
+This script uses devnet and devnet USDC by default. These aren't in `.env.local.example`, so add them to your `.env.local` file if you need them:
+
+- `SOLANA_NODE` --> to use another network, e.g. `SOLANA_NODE="https://api.mainnet.solana.com"` for mainnet. Defaults to `https://api.devnet.solana.com`
+- `SPL_MINT` --> to send another token, set its mint address, e.g. `SPL_MINT="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"` for mainnet USDC. Defaults to Circle's devnet USDC (`4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`)
+
+To get a token to send on devnet, you can either use [Circle's faucet](https://faucet.circle.com/) for devnet USDC, or run `pnpm token-transfer` (see section 5), open the explorer link of its token creation transaction, and set `SPL_MINT` to the mint address it created.
+
+```bash
+$ pnpm spl-transfer
+```
+
+The script prompts for the destination address and the amount (in whole tokens, e.g. `1.5`), then asks you to confirm before broadcasting.
+
+A few things to know about SPL token transfers:
+
+- Your Solana address pays the network fee in SOL, so it needs a small SOL balance besides the token
+- Tokens are held in "associated token accounts" (ATAs). If the destination doesn't have one for this token yet, the script creates it in the same transaction, and your address pays its one-time rent deposit (about 0.0015 SOL)
+- The transaction is signed with Turnkey's Sign Transaction endpoint, so Solana policies (e.g. `solana.tx.spl_transfers`) apply to it
+- Most Token-2022 tokens work, but not those using extensions that add transfer requirements (transfer hooks, required memos, confidential transfers, non-transferable). With a transfer fee, the recipient receives the amount minus the fee
+
+### 8/ Stackblitz Example
 
 Example Link: https://stackblitz.com/edit/stackblitz-starters-xeb93i
 

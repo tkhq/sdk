@@ -7,6 +7,7 @@ import { createMint } from "./createMint";
 import { createToken } from "./createToken";
 import { createTokenAccount } from "./createTokenAccount";
 import {
+  constructTokenTransfer,
   createTokenTransferAddSignature,
   createTokenTransferSignTransaction,
 } from "./createTokenTransfer";
@@ -16,6 +17,7 @@ import { handleActivityError } from "./handleActivityError";
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
 export {
+  constructTokenTransfer,
   createMint,
   createNewSolanaWallet,
   createToken,
