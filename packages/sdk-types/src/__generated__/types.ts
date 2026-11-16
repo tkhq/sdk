@@ -7530,7 +7530,8 @@ export type v1TransactionType =
   | "TRANSACTION_TYPE_TEMPO";
 
 export type v1TransportEncryptionSuite =
-  "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1";
+  | "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1"
+  | "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2";
 
 export type v1TvcApp = {
   /** Unique Identifier for this TVC App. */

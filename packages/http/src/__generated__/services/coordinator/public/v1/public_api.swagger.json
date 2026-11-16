@@ -23251,7 +23251,10 @@
     },
     "v1TransportEncryptionSuite": {
       "type": "string",
-      "enum": ["TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1"]
+      "enum": [
+        "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1",
+        "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2"
+      ]
     },
     "v1TvcApp": {
       "type": "object",
