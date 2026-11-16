@@ -584,6 +584,38 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getIndicativeSwapQuote = async (
+    input: SdkApiTypes.TGetIndicativeSwapQuoteBody,
+  ): Promise<SdkApiTypes.TGetIndicativeSwapQuoteResponse> => {
+    return this.request("/public/v1/query/get_indicative_swap_quote", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetIndicativeSwapQuote = async (
+    input: SdkApiTypes.TGetIndicativeSwapQuoteBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_indicative_swap_quote";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getIpAllowlist = async (
     input: SdkApiTypes.TGetIpAllowlistBody,
   ): Promise<SdkApiTypes.TGetIpAllowlistResponse> => {
@@ -1317,6 +1349,39 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getTvcManifestGenerationInfo = async (
+    input: SdkApiTypes.TGetTvcManifestGenerationInfoBody,
+  ): Promise<SdkApiTypes.TGetTvcManifestGenerationInfoResponse> => {
+    return this.request("/public/v1/query/get_tvc_manifest_generation_info", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetTvcManifestGenerationInfo = async (
+    input: SdkApiTypes.TGetTvcManifestGenerationInfoBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/query/get_tvc_manifest_generation_info";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getTvcQosVersions = async (
     input: SdkApiTypes.TGetTvcQosVersionsBody,
   ): Promise<SdkApiTypes.TGetTvcQosVersionsResponse> => {
@@ -1461,6 +1526,38 @@ export class TurnkeySDKClientBase {
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_wallet_address_balances";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getWalletAuthenticators = async (
+    input: SdkApiTypes.TGetWalletAuthenticatorsBody,
+  ): Promise<SdkApiTypes.TGetWalletAuthenticatorsResponse> => {
+    return this.request("/public/v1/query/get_wallet_authenticators", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetWalletAuthenticators = async (
+    input: SdkApiTypes.TGetWalletAuthenticatorsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_wallet_authenticators";
     const body = {
       ...input,
       organizationId: input.organizationId ?? this.config.organizationId,
@@ -1729,6 +1826,38 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getFiatOffRampQuotes = async (
+    input: SdkApiTypes.TGetFiatOffRampQuotesBody,
+  ): Promise<SdkApiTypes.TGetFiatOffRampQuotesResponse> => {
+    return this.request("/public/v1/query/list_fiat_off_ramp_quotes", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetFiatOffRampQuotes = async (
+    input: SdkApiTypes.TGetFiatOffRampQuotesBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_fiat_off_ramp_quotes";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   listFiatOnRampCredentials = async (
     input: SdkApiTypes.TListFiatOnRampCredentialsBody,
   ): Promise<SdkApiTypes.TListFiatOnRampCredentialsResponse> => {
@@ -1747,6 +1876,38 @@ export class TurnkeySDKClientBase {
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getFiatOnRampQuotes = async (
+    input: SdkApiTypes.TGetFiatOnRampQuotesBody,
+  ): Promise<SdkApiTypes.TGetFiatOnRampQuotesResponse> => {
+    return this.request("/public/v1/query/list_fiat_on_ramp_quotes", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetFiatOnRampQuotes = async (
+    input: SdkApiTypes.TGetFiatOnRampQuotesBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_quotes";
     const body = {
       ...input,
       organizationId: input.organizationId ?? this.config.organizationId,
@@ -2632,6 +2793,90 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  createExternalSigner = async (
+    input: SdkApiTypes.TCreateExternalSignerBody,
+  ): Promise<SdkApiTypes.TCreateExternalSignerResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_external_signer",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_EXTERNAL_SIGNER_V1",
+      },
+      "createExternalSignerResultV1",
+    );
+  };
+
+  stampCreateExternalSigner = async (
+    input: SdkApiTypes.TCreateExternalSignerBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_external_signer";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_EXTERNAL_SIGNER_V1",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createFiatOffRampSession = async (
+    input: SdkApiTypes.TCreateFiatOffRampSessionBody,
+  ): Promise<SdkApiTypes.TCreateFiatOffRampSessionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_fiat_off_ramp_session",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION",
+      },
+      "createFiatOffRampSessionResult",
+    );
+  };
+
+  stampCreateFiatOffRampSession = async (
+    input: SdkApiTypes.TCreateFiatOffRampSessionBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_fiat_off_ramp_session";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_FIAT_OFF_RAMP_SESSION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   createFiatOnRampCredential = async (
     input: SdkApiTypes.TCreateFiatOnRampCredentialBody,
   ): Promise<SdkApiTypes.TCreateFiatOnRampCredentialResponse> => {
@@ -2664,6 +2909,90 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createFiatOnRampSession = async (
+    input: SdkApiTypes.TCreateFiatOnRampSessionBody,
+  ): Promise<SdkApiTypes.TCreateFiatOnRampSessionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_fiat_on_ramp_session",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION",
+      },
+      "createFiatOnRampSessionResult",
+    );
+  };
+
+  stampCreateFiatOnRampSession = async (
+    input: SdkApiTypes.TCreateFiatOnRampSessionBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_fiat_on_ramp_session";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_SESSION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createFiatRampCredential = async (
+    input: SdkApiTypes.TCreateFiatRampCredentialBody,
+  ): Promise<SdkApiTypes.TCreateFiatRampCredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_fiat_ramp_credential",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_FIAT_RAMP_CREDENTIAL",
+      },
+      "createFiatRampCredentialResult",
+    );
+  };
+
+  stampCreateFiatRampCredential = async (
+    input: SdkApiTypes.TCreateFiatRampCredentialBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_fiat_ramp_credential";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_FIAT_RAMP_CREDENTIAL",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3191,7 +3520,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
       },
-      "createSubOrganizationResultV8",
+      "createSubOrganizationResultV9",
     );
   };
 
@@ -3639,6 +3968,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  createWalletAuthenticators = async (
+    input: SdkApiTypes.TCreateWalletAuthenticatorsBody,
+  ): Promise<SdkApiTypes.TCreateWalletAuthenticatorsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_wallet_authenticators",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_WALLET_AUTHENTICATORS",
+      },
+      "createWalletAuthenticatorsResult",
+    );
+  };
+
+  stampCreateWalletAuthenticators = async (
+    input: SdkApiTypes.TCreateWalletAuthenticatorsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_wallet_authenticators";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_WALLET_AUTHENTICATORS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   createWebhookEndpoint = async (
     input: SdkApiTypes.TCreateWebhookEndpointBody,
   ): Promise<SdkApiTypes.TCreateWebhookEndpointResponse> => {
@@ -3754,6 +4125,48 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteExternalSigner = async (
+    input: SdkApiTypes.TDeleteExternalSignerBody,
+  ): Promise<SdkApiTypes.TDeleteExternalSignerResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_external_signer",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1",
+      },
+      "deleteExternalSignerResultV1",
+    );
+  };
+
+  stampDeleteExternalSigner = async (
+    input: SdkApiTypes.TDeleteExternalSignerBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_external_signer";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4479,6 +4892,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  deleteWalletAuthenticators = async (
+    input: SdkApiTypes.TDeleteWalletAuthenticatorsBody,
+  ): Promise<SdkApiTypes.TDeleteWalletAuthenticatorsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_wallet_authenticators",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_WALLET_AUTHENTICATORS",
+      },
+      "deleteWalletAuthenticatorsResult",
+    );
+  };
+
+  stampDeleteWalletAuthenticators = async (
+    input: SdkApiTypes.TDeleteWalletAuthenticatorsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_wallet_authenticators";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_WALLET_AUTHENTICATORS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   deleteWallets = async (
     input: SdkApiTypes.TDeleteWalletsBody,
   ): Promise<SdkApiTypes.TDeleteWalletsResponse> => {
@@ -4905,7 +5360,7 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
+        type: "ACTIVITY_TYPE_EXECUTE_SWAP_V4",
       },
       "executeSwapResult",
     );
@@ -4924,7 +5379,7 @@ export class TurnkeySDKClientBase {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EXECUTE_SWAP_V3",
+      type: "ACTIVITY_TYPE_EXECUTE_SWAP_V4",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5507,6 +5962,47 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  mintJwt = async (
+    input: SdkApiTypes.TMintJwtBody,
+  ): Promise<SdkApiTypes.TMintJwtResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/mint_jwt",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_MINT_JWT",
+      },
+      "mintJwtResult",
+    );
+  };
+
+  stampMintJwt = async (
+    input: SdkApiTypes.TMintJwtBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/mint_jwt";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_MINT_JWT",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -6561,6 +7057,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  updateFiatRampCredential = async (
+    input: SdkApiTypes.TUpdateFiatRampCredentialBody,
+  ): Promise<SdkApiTypes.TUpdateFiatRampCredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/update_fiat_ramp_credential",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_FIAT_RAMP_CREDENTIAL",
+      },
+      "updateFiatRampCredentialResult",
+    );
+  };
+
+  stampUpdateFiatRampCredential = async (
+    input: SdkApiTypes.TUpdateFiatRampCredentialBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/update_fiat_ramp_credential";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_FIAT_RAMP_CREDENTIAL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   updateMfaPolicy = async (
     input: SdkApiTypes.TUpdateMfaPolicyBody,
   ): Promise<SdkApiTypes.TUpdateMfaPolicyResponse> => {
@@ -7262,6 +7800,48 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_VERIFY_OTP_V2",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  verifyWalletAuthenticator = async (
+    input: SdkApiTypes.TVerifyWalletAuthenticatorBody,
+  ): Promise<SdkApiTypes.TVerifyWalletAuthenticatorResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/verify_wallet_authenticator",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_VERIFY_WALLET_AUTHENTICATOR",
+      },
+      "verifyWalletAuthenticatorResult",
+    );
+  };
+
+  stampVerifyWalletAuthenticator = async (
+    input: SdkApiTypes.TVerifyWalletAuthenticatorBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/verify_wallet_authenticator";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_VERIFY_WALLET_AUTHENTICATOR",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
