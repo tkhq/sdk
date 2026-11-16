@@ -20,6 +20,7 @@ import { fetch } from "./universal";
 import { VERSION } from "./__generated__/version";
 import {
   TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1,
+  TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2,
   type AwaitExportedSecretsParams,
   type CreateExportSecretsProposalParams,
   type ExportSecretParams,
@@ -199,12 +200,18 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
             return;
           }
 
-          if (txStatus === "FAILED" || txStatus === "CANCELLED") {
+          // A transaction that reverted on-chain is INCLUDED with an error.
+          const reverted =
+            txStatus === "INCLUDED" && (resp.error || resp.txError);
+
+          if (txStatus === "FAILED" || txStatus === "CANCELLED" || reverted) {
             clearInterval(ref);
             clearTimeout(timeoutRef);
             reject(
               new TurnkeyError(
-                resp.error?.message || `Transaction ${resp.txStatus}`,
+                resp.error?.message ||
+                  resp.txError ||
+                  `Transaction ${resp.txStatus}`,
                 TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
                 resp,
               ),
@@ -253,7 +260,7 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
         timestampMs: String(Date.now()),
         organizationId,
         parameters: {
-          encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1,
+          encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2,
           numSecrets: 1,
         },
       },
@@ -268,10 +275,17 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
       );
     }
 
+    const staticProperties = Object.entries(params.staticProperties ?? {}).map(
+      ([key, value]) => ({ key, value }),
+    );
+    const nameField = params.name ? { name: params.name } : {};
+
     const { secretPayload, targetPublicKey } = await encryptSecretToBundle({
       plaintext: params.plaintext,
       ingressTargetBundle,
       organizationId,
+      name: params.name,
+      staticProperties,
       ...(params.dangerouslyOverrideSignerPublicKey
         ? {
             dangerouslyOverrideSignerPublicKey:
@@ -284,13 +298,11 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
       organizationId,
       secrets: [
         {
-          ...(params.name ? { name: params.name } : {}),
+          ...nameField,
           secretPayload,
           targetPublicKey,
-          encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1,
-          staticProperties: Object.entries(params.staticProperties ?? {}).map(
-            ([key, value]) => ({ key, value }),
-          ),
+          encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2,
+          staticProperties,
         },
       ],
     });
