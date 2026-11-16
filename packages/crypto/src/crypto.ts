@@ -31,11 +31,15 @@ interface HpkeDecryptParams {
   ciphertextBuf: Uint8Array;
   encappedKeyBuf: Uint8Array;
   receiverPriv: string;
+  /** Appended to the AAD. Must match the value used to encrypt. */
+  purposeBinding?: Uint8Array;
 }
 
 interface HpkeEncryptParams {
   plainTextBuf: Uint8Array;
   targetKeyBuf: Uint8Array;
+  /** Appended to the AAD. The receiver must decrypt with the same value. */
+  purposeBinding?: Uint8Array;
 }
 
 interface KeyPair {
@@ -90,6 +94,7 @@ export const getPublicKey = (
 export const hpkeEncrypt = ({
   plainTextBuf,
   targetKeyBuf,
+  purposeBinding,
 }: HpkeEncryptParams): Uint8Array => {
   try {
     // Standard HPKE Mode (Ephemeral Key Pair)
@@ -99,7 +104,11 @@ export const hpkeEncrypt = ({
       ephemeralKeyPair.publicKeyUncompressed,
     );
 
-    const aad = buildAdditionalAssociatedData(senderPubBuf, targetKeyBuf);
+    const aad = buildAdditionalAssociatedData(
+      senderPubBuf,
+      targetKeyBuf,
+      purposeBinding,
+    );
 
     // Step 1: Generate Shared Secret
     const ss = deriveSS(targetKeyBuf, uint8ArrayToHexString(senderPrivBuf!));
@@ -240,6 +249,7 @@ export const hpkeDecrypt = ({
   ciphertextBuf,
   encappedKeyBuf,
   receiverPriv,
+  purposeBinding,
 }: HpkeDecryptParams): Uint8Array => {
   try {
     let ikm: Uint8Array;
@@ -248,7 +258,11 @@ export const hpkeDecrypt = ({
       uint8ArrayFromHexString(receiverPriv),
       false,
     );
-    const aad = buildAdditionalAssociatedData(encappedKeyBuf, receiverPubBuf); // Eventually we want users to be able to pass in aad as optional
+    const aad = buildAdditionalAssociatedData(
+      encappedKeyBuf,
+      receiverPubBuf,
+      purposeBinding,
+    );
 
     // Step 1: Generate Shared Secret
     const ss = deriveSS(encappedKeyBuf, receiverPriv);
@@ -304,16 +318,21 @@ export const generateP256KeyPair = (): KeyPair => {
  *
  * @param {Uint8Array} senderPubBuf
  * @param {Uint8Array} receiverPubBuf
- * @return {Uint8Array} - The resulting concatenation of sender and receiver pubkeys.
+ * @param {Uint8Array} purposeBinding - Optional suffix that binds the ciphertext to its purpose.
+ * @return {Uint8Array} - The resulting concatenation of sender and receiver pubkeys and the purpose binding.
  */
 export const buildAdditionalAssociatedData = (
   senderPubBuf: Uint8Array,
   receiverPubBuf: Uint8Array,
+  purposeBinding: Uint8Array = new Uint8Array(),
 ): Uint8Array => {
-  return new Uint8Array([
-    ...Array.from(senderPubBuf),
-    ...Array.from(receiverPubBuf),
-  ]);
+  const aad = new Uint8Array(
+    senderPubBuf.length + receiverPubBuf.length + purposeBinding.length,
+  );
+  aad.set(senderPubBuf, 0);
+  aad.set(receiverPubBuf, senderPubBuf.length);
+  aad.set(purposeBinding, senderPubBuf.length + receiverPubBuf.length);
+  return aad;
 };
 
 /**
