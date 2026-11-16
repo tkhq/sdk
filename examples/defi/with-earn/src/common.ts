@@ -3,23 +3,30 @@ import * as dotenv from "dotenv";
 import {
   Turnkey,
   type TurnkeyApiClient,
-  type v1EarnDepositIntent,
   type v1EarnEnabledVault,
   type v1EarnPosition,
 } from "@turnkey/sdk-server";
 
-// Load environment variables from `.env.local`
+// Load environment variables from `.env.local` before chain.ts reads them.
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-export type ChainCaip2 = v1EarnDepositIntent["caip2"];
+import {
+  CHAIN_CAIP2,
+  explorerLink,
+  IS_SOLANA,
+  RPC_URL,
+  sameAddress,
+} from "./chain";
 
-export const CHAIN_CAIP2 = (process.env.CHAIN_CAIP2 ??
-  "eip155:8453") as ChainCaip2;
-
-// Underlying-asset filter for the vault catalog. Defaults to USDC on Base.
-export const ASSET_CAIP19 =
-  process.env.ASSET_CAIP19 ??
-  "eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+export {
+  ASSET_CAIP19,
+  CATALOG_AVAILABLE,
+  CHAIN_CAIP2,
+  chainName,
+  EARN_PROVIDER,
+  IS_SOLANA,
+  type ChainCaip2,
+} from "./chain";
 
 export function requireEnv(name: string): string {
   const value = process.env[name];
@@ -59,7 +66,8 @@ type EarnRequestStatus = {
 
 // pollEarnStatus polls fetch until the request resolves COMPLETED, throwing on
 // FAILED or timeout. The activity completing only means "signed + enqueued";
-// this is where an on-chain failure would surface.
+// this is where an on-chain failure would surface. On Solana the tx hash is
+// the base58 transaction signature.
 export async function pollEarnStatus(
   label: string,
   fetch: () => Promise<EarnRequestStatus>,
@@ -71,7 +79,7 @@ export async function pollEarnStatus(
     const { status, txHash, error } = await fetch();
 
     if (status === "COMPLETED") {
-      const link = txHash ? `https://basescan.org/tx/${txHash}` : "n/a";
+      const link = txHash ? explorerLink(txHash) : "n/a";
       console.log(`✅ ${label} landed on-chain\n   ${link}`);
       return txHash;
     }
@@ -135,24 +143,6 @@ export function usdcToRaw(amount: string): string {
   return String(Math.round(Number(amount) * 1_000_000));
 }
 
-const CHAIN_NAMES: Record<string, string> = {
-  "eip155:1": "Ethereum",
-  "eip155:8453": "Base",
-  "eip155:42161": "Arbitrum",
-  "eip155:137": "Polygon",
-  "eip155:56": "BNB Chain",
-};
-
-// chainName renders a CAIP-2 id (or the chain part of a CAIP-19 id) as a
-// human-readable chain name, keeping the raw id alongside.
-export function chainName(caip: string | undefined): string {
-  if (!caip) return "unknown chain";
-
-  const caip2 = caip.split("/")[0]!;
-
-  return `${CHAIN_NAMES[caip2] ?? caip2} (${caip2})`;
-}
-
 // usd renders raw on-chain units as a dollar amount. Exact for USDC (6
 // decimals, $1 peg); dev's display fields come back empty so we derive it.
 export function usd(rawUnits: string | undefined, decimals = 6): string {
@@ -174,17 +164,17 @@ export function pct(fraction: string | undefined): string {
 }
 
 // vaultNamesOnChain reads ERC-20 name() for a list of vault addresses in one
-// multicall — the fallback for responses that don't carry name/curator.
+// multicall, the fallback for EVM responses that don't carry name/curator.
+// Kamino vaults are not ERC-20s, so Solana (and chains without a configured
+// RPC) get no names back and callers fall back to a provider label.
 export async function vaultNamesOnChain(
   addresses: (string | undefined)[],
 ): Promise<string[]> {
-  const { createPublicClient, erc20Abi, http } = await import("viem");
-  const { base } = await import("viem/chains");
+  if (IS_SOLANA || !RPC_URL) return [];
 
-  const rpc = createPublicClient({
-    chain: base,
-    transport: http("https://mainnet.base.org"),
-  });
+  const { createPublicClient, erc20Abi, http } = await import("viem");
+
+  const rpc = createPublicClient({ transport: http(RPC_URL) });
   const results = await rpc.multicall({
     contracts: addresses.map((a) => ({
       address: a as `0x${string}`,
@@ -198,20 +188,30 @@ export async function vaultNamesOnChain(
   );
 }
 
-// printOrgVaults renders the parent org's enabled vaults (the platform
-// management view) and returns them.
+// providerLabel is the generic vault label when the API returns no name.
+export function providerLabel(provider: string | undefined): string {
+  switch (provider) {
+    case "EARN_PROVIDER_MORPHO":
+      return "Morpho vault";
+    case "EARN_PROVIDER_AAVE":
+      return "Aave reserve";
+    case "EARN_PROVIDER_KAMINO":
+      return "Kamino vault";
+    default:
+      return "vault";
+  }
+}
+
+// printOrgVaults renders the parent org's enabled vaults on CHAIN_CAIP2 (the
+// platform management view) and returns them.
 export async function printOrgVaults(
   client: TurnkeyApiClient,
   organizationId: string,
 ) {
-  const { enabledVaults = [] } = await client.earnEnabledVaults({
-    organizationId,
-  });
+  const enabledVaults = await listEnabledVaults(client, organizationId);
 
-  const fallbackNames = enabledVaults.some((ev: v1EarnEnabledVault) => !ev.name)
-    ? await vaultNamesOnChain(
-        enabledVaults.map((ev: v1EarnEnabledVault) => ev.vaultAddress),
-      )
+  const fallbackNames = enabledVaults.some((ev) => !ev.name)
+    ? await vaultNamesOnChain(enabledVaults.map((ev) => ev.vaultAddress))
     : [];
 
   console.log(`🏛  Org enabled vaults (org ${organizationId}):`);
@@ -219,42 +219,61 @@ export async function printOrgVaults(
     console.log("   (none)");
   }
   for (const [i, ev] of enabledVaults.entries()) {
-    const label = ev.name ?? fallbackNames[i] ?? `${ev.provider} vault`;
+    const label = ev.name ?? fallbackNames[i] ?? providerLabel(ev.provider);
     const curator = ev.curator ? ` (curated by ${ev.curator})` : "";
     console.log(
       `   ${C.bold}${label}${C.reset}${curator} — ${ev.vaultAddress}`,
     );
     console.log(`     wrapper:          ${ev.wrapperAddress}`);
+    console.log(`     deploy status:    ${ev.deployStatus ?? "?"}`);
     console.log(`     net APY:          ${pct(ev.netApyPct)}`);
     console.log(
       `     client fee:       ${Number(ev.clientFeeBps) / 100}% of yield`,
     );
     console.log(`     total deposited:  ${usd(ev.totalDeposited)} (all users)`);
+    if (ev.claimableClientFee !== undefined) {
+      console.log(`     claimable fee:    ${usd(ev.claimableClientFee)}`);
+    }
   }
 
   return enabledVaults;
 }
 
-// resolveWrapper returns the enabled-vault entry to transact against:
-// VAULT_ADDRESS from env when set, else the org's first enabled vault.
-export async function resolveWrapper(
+// listEnabledVaults returns the org's enabled vaults whose asset lives on
+// CHAIN_CAIP2. The API returns every chain; the demo works on one at a time.
+export async function listEnabledVaults(
   client: TurnkeyApiClient,
   organizationId: string,
-) {
+): Promise<v1EarnEnabledVault[]> {
   const { enabledVaults = [] } = await client.earnEnabledVaults({
     organizationId,
   });
 
+  return enabledVaults.filter(
+    (ev: v1EarnEnabledVault) =>
+      !ev.caip19 || ev.caip19.startsWith(`${CHAIN_CAIP2}/`),
+  );
+}
+
+// resolveWrapper returns the enabled-vault entry to transact against:
+// VAULT_ADDRESS from env when set, else the org's first enabled vault on
+// CHAIN_CAIP2. On Solana, `vaultAddress` is the Kamino reserve and
+// `wrapperAddress` is the kVault Turnkey created for the org.
+export async function resolveWrapper(
+  client: TurnkeyApiClient,
+  organizationId: string,
+) {
+  const enabledVaults = await listEnabledVaults(client, organizationId);
+
   const vaultAddress =
     process.env.VAULT_ADDRESS || enabledVaults[0]?.vaultAddress;
-  const vault = enabledVaults.find(
-    (ev: v1EarnEnabledVault) =>
-      ev.vaultAddress?.toLowerCase() === vaultAddress?.toLowerCase(),
+  const vault = enabledVaults.find((ev) =>
+    sameAddress(ev.vaultAddress, vaultAddress),
   );
 
   if (!vault?.wrapperAddress) {
     throw new Error(
-      `vault ${vaultAddress ?? "(unset)"} is not enabled for this org — run \`pnpm deploy-vault\` from the parent org first`,
+      `vault ${vaultAddress ?? "(unset)"} is not enabled for this org on ${CHAIN_CAIP2} — run \`pnpm deploy-vault\` from the parent org first`,
     );
   }
 
@@ -274,7 +293,7 @@ export async function printPositions(
     walletAddress,
   });
 
-  // EarnPosition doesn't carry the vault name; read it on-chain.
+  // EarnPosition doesn't carry the vault name; read it on-chain where we can.
   const names =
     positions.length > 0
       ? await vaultNamesOnChain(
@@ -291,8 +310,9 @@ export async function printPositions(
     const yieldUnits = BigInt(p.currentValue ?? 0) - net;
 
     console.log(
-      `   ${C.bold}${names[i] ?? `${p.provider} vault`}${C.reset} — ${p.vaultAddress}`,
+      `   ${C.bold}${names[i] ?? providerLabel(p.provider)}${C.reset} — ${p.vaultAddress}`,
     );
+    console.log(`     wrapper:          ${p.wrapperAddress}`);
     console.log(`     current value:    ${usd(p.currentValue)}`);
     console.log(`     total deposited:  ${usd(p.totalDeposited)}`);
     console.log(`     total withdrawn:  ${usd(p.totalWithdrawn)}`);

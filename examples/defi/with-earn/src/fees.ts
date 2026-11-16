@@ -1,79 +1,59 @@
-import { createPublicClient, http, parseAbi } from "viem";
-import { base } from "viem/chains";
 import {
+  C,
   header,
   newClient,
   PARENT_TAG,
-  requireEnv,
+  pollEarnStatus,
   resolveWrapper,
   usd,
 } from "./common";
 
-const wrapperAbi = parseAbi([
-  "function performanceFeeRecipient() view returns (address)",
-  "function convertToAssets(uint256) view returns (uint256)",
-]);
-
-const splitterAbi = parseAbi([
-  "function releasable(address token, address account) view returns (uint256)",
-]);
-
-// Client revenue view: your client performance fee accrues to the fee splitter
-// as wrapper shares. Read the amount claimable by your fee wallet on-chain;
-// payout is a permissionless PaymentSplitter release() call.
+// Client revenue view: your client fee accrues on-chain (to the fee splitter on
+// EVM, inside the Kamino vault on Solana) and `list_earn_enabled_vaults`
+// reports what is claimable right now to the parent org. Pass "claim" to
+// release it to CLIENT_FEE_WALLET with the claim_earn_fees activity.
+// Usage: pnpm fees [claim]
 async function main() {
+  const claim = process.argv[2]?.toLowerCase() === "claim";
   const { client, organizationId } = newClient("PARENT");
 
   header("Fee accrual (client revenue)", PARENT_TAG);
 
   const vault = await resolveWrapper(client, organizationId);
-  const wrapper = vault.wrapperAddress as `0x${string}`;
-  const clientFeeWallet = requireEnv("CLIENT_FEE_WALLET") as `0x${string}`;
 
-  const rpc = createPublicClient({
-    chain: base,
-    transport: http("https://mainnet.base.org"),
-  });
+  console.log(`💸 Wrapper ${vault.wrapperAddress}`);
+  console.log(
+    `   client fee:        ${Number(vault.clientFeeBps) / 100}% of yield`,
+  );
+  console.log(`   client fee wallet: ${vault.clientFeeWallet ?? "?"}`);
+  console.log(`   claimable now:     ${usd(vault.claimableClientFee)}`);
 
-  const splitter = await rpc.readContract({
-    address: wrapper,
-    abi: wrapperAbi,
-    functionName: "performanceFeeRecipient",
-  });
-
-  // Wrapper shares releasable to the client fee wallet (0 until it accrues, or
-  // if the wallet isn't a payee on this splitter).
-  const releasableShares = await rpc.readContract({
-    address: splitter,
-    abi: splitterAbi,
-    functionName: "releasable",
-    args: [wrapper, clientFeeWallet],
-  });
-
-  // convertToAssets reverts on 0; shares ≈ assets for USDC, so fall back to
-  // the raw share count if conversion fails.
-  let claimable = releasableShares;
-  if (releasableShares > 0n) {
-    const [conversion] = await rpc.multicall({
-      allowFailure: true,
-      contracts: [
-        {
-          address: wrapper,
-          abi: wrapperAbi,
-          functionName: "convertToAssets",
-          args: [releasableShares],
-        },
-      ],
-    });
-    if (conversion?.status === "success") {
-      claimable = conversion.result as bigint;
-    }
+  if (!claim) {
+    console.log(`\n${C.dim}Run \`pnpm fees claim\` to release it.${C.reset}`);
+    return;
   }
 
-  console.log(`💸 Wrapper ${wrapper}`);
-  console.log(`   splitter:          ${splitter}`);
-  console.log(`   client fee wallet: ${clientFeeWallet}`);
-  console.log(`   claimable now:     ${usd(claimable.toString())}`);
+  if (!vault.claimableClientFee || BigInt(vault.claimableClientFee) === 0n) {
+    console.log("\nNothing to claim yet.");
+    return;
+  }
+
+  // On Solana the fee wallet must already hold a token account for the vault's
+  // mint; the claim never creates one.
+  console.log(`\n🏦 Claiming ${usd(vault.claimableClientFee)}…`);
+
+  const { claimRequestId } = await client.claimEarnFees({
+    organizationId,
+    wrapperAddress: vault.wrapperAddress!,
+  });
+
+  await pollEarnStatus("fee claim", async () => {
+    const { status, claimTxHash, error } = await client.getClaimEarnFeesStatus({
+      organizationId,
+      claimRequestId,
+    });
+    return { status, txHash: claimTxHash, error };
+  });
 }
 
 main().catch((error) => {
