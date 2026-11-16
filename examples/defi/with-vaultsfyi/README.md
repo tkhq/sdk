@@ -1,5 +1,7 @@
 # Example: `with-vaultsfyi`
 
+> **Note:** This example integrates with vaults.fyi directly. To offer yield in your product, [Turnkey Earn](https://docs.turnkey.com/features/transaction-management/earn) supports Morpho vaults and Aave v3 reserves, with deposits, withdrawals, and position tracking handled by Turnkey. See [`with-earn`](../with-earn/).
+
 [vaults.fyi](https://vaults.fyi) is a DeFi yield aggregator that lets you discover, deposit, and
 withdraw from yield-generating vaults across multiple protocols and networks through a single API.
 This example shows how to use a Turnkey wallet with the vaults.fyi SDK to interact with DeFi vaults.

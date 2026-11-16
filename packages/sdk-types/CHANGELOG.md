@@ -1,5 +1,49 @@
 # @turnkey/sdk-types
 
+## 1.12.0
+
+### Minor Changes
+
+- [#1633](https://github.com/tkhq/sdk/pull/1633) [`d03117c`](https://github.com/tkhq/sdk/commit/d03117c190960aa80dedca55f34bef978d33e297) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Sync with the latest public API. `executeSwap` now uses `ACTIVITY_TYPE_EXECUTE_SWAP_V4`, which adds market swaps, and `getIndicativeSwapQuote` previews a price without creating an activity. Also adds `mintJwt`, adds swap charges to swap quotes, results and status, and renames velocity controls to usage controls.
+
+  **Breaking:** `executeSwap` moves the quote fields into `boundQuote`.
+
+  Before:
+
+  ```ts
+  await client.executeSwap({
+    quoteId,
+    quotedOutputAmount,
+    minOutputAmount,
+    inputToken,
+    inputAmount,
+    outputToken,
+    sponsor,
+  });
+  ```
+
+  After:
+
+  ```ts
+  await client.executeSwap({
+    boundQuote: { quoteId, quotedOutputAmount, minOutputAmount },
+    inputToken,
+    inputAmount,
+    outputToken,
+    sponsor,
+  });
+  ```
+
+  For a market swap, pass `market` instead of `boundQuote`.
+
+- [#1598](https://github.com/tkhq/sdk/pull/1598) [`b000c86`](https://github.com/tkhq/sdk/commit/b000c86ea770d2fbf8c5687fca128677e218c49f) Author [@amircheikh](https://github.com/amircheikh) - Sync generated clients and types with the latest public API.
+  - Add `getWalletAuthenticators` (`POST /public/v1/query/get_wallet_authenticators`), `createWalletAuthenticators`, `deleteWalletAuthenticators`, and `verifyWalletAuthenticator` (plus `stamp*` variants). `v1WalletAuthenticatorParams` accepts an optional `verificationToken`.
+  - Add `createExternalSigner` and `deleteExternalSigner` (plus `stamp*` variants). `createPrivateKeys` accepts an optional `externalSignerWrappingKeyId`.
+  - Add `createFiatRampCredential` and `updateFiatRampCredential` (plus `stamp*` variants).
+  - Fiat quotes and credentials now use the shared ramp types. `v1FiatOnRampAmount` is `v1FiatRampAmount`. On-ramp quote `onrampProvider` is `provider` (`v1FiatRampProvider`, which includes Meld). Quote `fiatCurrencyCode` and `paymentMethod` use `v1FiatRampCurrency` and `v1FiatRampPaymentMethod`. Credential `fiatOnrampCredentialId` is `credentialId`, and `publishableApiKey` / `encryptedSecretApiKey` are `apiKey` / `encryptedSecret`. `projectId` and `encryptedPrivateApiKey` are removed. `FIAT_ON_RAMP_PROVIDER_MELD` is removed from `v1FiatOnRampProvider`.
+  - Generated activity types include `ACTIVITY_TYPE_EXECUTE_SWAP_V4` (`v1ExecuteSwapIntentV4`), `ACTIVITY_TYPE_ENABLE_SMS_FOR_COUNTRIES`, and `ACTIVITY_TYPE_DISABLE_SMS_FOR_COUNTRIES`. `executeSwap` results include optional `outputAmount`, `minOutputAmount`, `feeSponsorship`, and `fixedRate`. `setOrganizationFeature` `value` is optional. `AUTHENTICATOR_TRANSPORT_SMART_CARD` is added.
+  - `@turnkey/core`: add auth proxy `proxySignupV3` (`POST /v1/signup_v3`) and `proxyVerifyWalletAuthenticator` (`POST /v1/verify_wallet_authenticator`).
+
 ## 1.11.0
 
 ### Minor Changes
