@@ -21,6 +21,7 @@ export {
   chainName,
   EARN_PROVIDER,
   IS_SOLANA,
+  sameAddress,
   type ChainCaip2,
 } from "./chain";
 
@@ -172,6 +173,8 @@ export async function vaultNamesOnChain(
 
   const rpc = createPublicClient({ transport: http(RPC_URL) });
   const results = await rpc.multicall({
+    // No chain on the client, so name Multicall3 explicitly (same address everywhere).
+    multicallAddress: "0xcA11bde05977b3631167028862bE2a173976CA11",
     contracts: addresses.map((a) => ({
       address: a as `0x${string}`,
       abi: erc20Abi,

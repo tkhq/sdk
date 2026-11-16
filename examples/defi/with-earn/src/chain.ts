@@ -90,7 +90,7 @@ const CHAINS: Record<string, ChainInfo> = {
 };
 
 export const CHAIN_CAIP2 = normalizeCaip2(
-  process.env.CHAIN_CAIP2 ?? "eip155:8453",
+  process.env.CHAIN_CAIP2 || "eip155:8453",
 ) as ChainCaip2;
 
 export const IS_SOLANA = isSolana(CHAIN_CAIP2);
@@ -110,7 +110,7 @@ export const ASSET_CAIP19: string = (() => {
 
 // Provider to filter the catalog by: EARN_PROVIDER from env, else Kamino on
 // Solana and Morpho on EVM.
-export const EARN_PROVIDER = (process.env.EARN_PROVIDER ??
+export const EARN_PROVIDER = (process.env.EARN_PROVIDER ||
   (IS_SOLANA
     ? "EARN_PROVIDER_KAMINO"
     : "EARN_PROVIDER_MORPHO")) as v1EarnProvider;
@@ -118,7 +118,7 @@ export const EARN_PROVIDER = (process.env.EARN_PROVIDER ??
 // RPC endpoint for the on-chain helpers: SOLANA_RPC_URL / EVM_RPC_URL from env,
 // else the chain's public endpoint.
 export const RPC_URL: string | undefined =
-  (IS_SOLANA ? process.env.SOLANA_RPC_URL : process.env.EVM_RPC_URL) ??
+  (IS_SOLANA ? process.env.SOLANA_RPC_URL : process.env.EVM_RPC_URL) ||
   chain.rpcUrl;
 
 // Kamino's catalog API covers mainnet only; on devnet the reserve must be pinned.

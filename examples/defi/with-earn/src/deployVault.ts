@@ -13,6 +13,7 @@ import {
   pollEarnStatus,
   printOrgVaults,
   requireEnv,
+  sameAddress,
 } from "./common";
 
 // Step 2: choose a vault and fee terms, then enable it for the org. On EVM this
@@ -51,7 +52,7 @@ async function main() {
   }
 
   const vaultAddress = argVault ?? (await ask("Vault to enable", defaultVault));
-  const chosen = vaults.find((v) => v.vaultAddress === vaultAddress);
+  const chosen = vaults.find((v) => sameAddress(v.vaultAddress, vaultAddress));
 
   if (chosen?.enabled) {
     console.log(
