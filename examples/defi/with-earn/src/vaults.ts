@@ -32,7 +32,7 @@ async function main() {
     return;
   }
 
-  const { vaults = [] } = await client.earnVaults({
+  const { vaults = [] } = await client.listEarnVaults({
     organizationId,
     caip19: ASSET_CAIP19,
     provider: EARN_PROVIDER,

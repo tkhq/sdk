@@ -30,7 +30,7 @@ async function main() {
   // Kamino's catalog covers mainnet only; on devnet the reserve is pinned in env.
   const vaults: v1EarnVault[] = CATALOG_AVAILABLE
     ? ((
-        await client.earnVaults({
+        await client.listEarnVaults({
           organizationId,
           caip19: ASSET_CAIP19,
           provider: EARN_PROVIDER,
@@ -92,7 +92,7 @@ async function main() {
   // earnDeployWrapper resolves at broadcast-enqueue time; wait for the deploy
   // tx to actually land on-chain.
   await pollEarnStatus("wrapper deploy", async () => {
-    const { status, deployTxHash, error } = await client.earnDeployStatus({
+    const { status, deployTxHash, error } = await client.getEarnDeployStatus({
       organizationId,
       deployRequestId,
     });

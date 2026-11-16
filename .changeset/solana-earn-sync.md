@@ -16,4 +16,4 @@ Sync generated clients and types with mono `main` (2026-11-16).
 - Usage controls: `UsageControlAggregation` is replaced by `UsageControlBudget` (`method`, `limit`, `window`), and the data source filters are removed.
 - `deleteExternalSigner` accepts `deleteWithoutExport`; `TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2` is added.
 
-The `with-earn` example now runs on Solana as well as EVM: set `CHAIN_CAIP2` to `solana:mainnet` or `solana:devnet` to enable a Kamino vault, deposit, withdraw, and claim fees with the same scripts.
+The `with-earn` example now runs on Solana as well as EVM: set `CHAIN_CAIP2` to `solana:mainnet` or `solana:devnet` to enable a Kamino vault, deposit, withdraw, and claim fees with the same scripts. It also calls the Earn queries by their current client names (`listEarnVaults`, `listEarnEnabledVaults`, `listEarnPositions`, `getEarn*Status`), which the example had fallen behind on.

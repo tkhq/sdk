@@ -245,7 +245,7 @@ export async function listEnabledVaults(
   client: TurnkeyApiClient,
   organizationId: string,
 ): Promise<v1EarnEnabledVault[]> {
-  const { enabledVaults = [] } = await client.earnEnabledVaults({
+  const { enabledVaults = [] } = await client.listEarnEnabledVaults({
     organizationId,
   });
 
@@ -288,7 +288,7 @@ export async function printPositions(
   walletAddress: string,
   label: string,
 ) {
-  const { positions = [] } = await client.earnPositions({
+  const { positions = [] } = await client.listEarnPositions({
     organizationId,
     walletAddress,
   });
