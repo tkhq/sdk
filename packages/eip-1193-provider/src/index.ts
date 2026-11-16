@@ -33,9 +33,12 @@ import { VERSION } from "./version";
 
 export { TurnkeyEIP1193Provider };
 
+type WalletRpcParameters<Method extends WalletRpcSchema[number]["Method"]> =
+  Extract<WalletRpcSchema[number], { Method: Method }>["Parameters"];
+
 export const createEIP1193Provider = async (
   options: TurnkeyEIP1193ProviderOptions,
-) => {
+): Promise<TurnkeyEIP1193Provider> => {
   const { turnkeyClient, organizationId, walletId, chains } = options;
 
   // Used for public RPC requests
@@ -147,7 +150,7 @@ export const createEIP1193Provider = async (
           return [...accounts];
         case "personal_sign": {
           const [message, signWith] =
-            params as WalletRpcSchema[10]["Parameters"];
+            params as WalletRpcParameters<"personal_sign">;
 
           const signedMessage = await signMessage({
             organizationId,
@@ -161,8 +164,7 @@ export const createEIP1193Provider = async (
           return signedMessage;
         }
         case "eth_sign": {
-          const [signWith, message] =
-            params as WalletRpcSchema[6]["Parameters"];
+          const [signWith, message] = params as WalletRpcParameters<"eth_sign">;
 
           const signedMessage = await signMessage({
             organizationId,
@@ -191,7 +193,8 @@ export const createEIP1193Provider = async (
           return signedMessage;
         }
         case "eth_signTransaction": {
-          const [transaction] = params as WalletRpcSchema[7]["Parameters"];
+          const [transaction] =
+            params as WalletRpcParameters<"eth_signTransaction">;
           const unsignedTransaction = preprocessTransaction({ ...transaction });
           const signedTransaction = await signTransaction({
             organizationId,
@@ -249,7 +252,8 @@ export const createEIP1193Provider = async (
         }
         // @ts-expect-error fall through expected
         case "eth_sendTransaction": {
-          const [transaction] = params as WalletRpcSchema[7]["Parameters"];
+          const [transaction] =
+            params as WalletRpcParameters<"eth_sendTransaction">;
           const signedTransaction = await request({
             method: "eth_signTransaction",
             params: [transaction],

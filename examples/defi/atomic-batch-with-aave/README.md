@@ -9,6 +9,8 @@ This example opens a **leveraged Aave v3 position and unwinds it with one button
 - `exit-wrong-order.ts` — proof of atomicity: submits the exit with `withdraw` _before_ `repay`; Turnkey's pre-flight simulation fails the batch as a unit and the position is untouched
 - `createPolicy.ts` (optional) authorizes a non-root user to submit V2 batches from this wallet and nothing else
 
+> **Note:** This example focuses on atomic batching, policy enforcement, and gas sponsorship. To offer yield in your product, use [Turnkey Earn](https://docs.turnkey.com/features/transaction-management/earn); see [`with-earn`](../with-earn/).
+
 ## Why batching is the story
 
 A leveraged position cannot be safely unwound step-by-step. Aave will not release collateral while debt is outstanding, so the sequence must be _repay, then withdraw_. Done as separate transactions, a failure or delay after `repay` leaves the position mid-unwind — debt repaid, collateral still exposed, keys warm while someone watches a screen. As a V2 batch the unwind is **atomic**: fully exited, or exactly as you were.
