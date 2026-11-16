@@ -181,9 +181,13 @@ async function main() {
       message: `Amount of tokens to transfer:`,
       initial: "1",
       validate: function (str) {
-        const amountRegex = new RegExp(`^\\d+(\\.\\d{1,${decimals}})?$`);
+        // Tokens with 0 decimals (e.g. NFTs) only accept whole numbers
+        const amountRegex =
+          decimals > 0 ? new RegExp(`^\\d+(\\.\\d{1,${decimals}})?$`) : /^\d+$/;
         if (!amountRegex.test(str) || parseAmount(str, decimals) === 0n) {
-          return `amount must be a positive number with at most ${decimals} decimals`;
+          return decimals > 0
+            ? `amount must be a positive number with at most ${decimals} decimals`
+            : "amount must be a positive whole number";
         }
         if (parseAmount(str, decimals) > tokenBalance) {
           return `insufficient balance: current balance is ${formatAmount(tokenBalance, decimals)}`;
