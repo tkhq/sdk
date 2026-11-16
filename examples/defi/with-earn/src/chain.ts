@@ -1,4 +1,11 @@
+import * as path from "path";
+import * as dotenv from "dotenv";
 import type { v1EarnDepositIntent, v1EarnProvider } from "@turnkey/sdk-server";
+
+// Load `.env.local` here, in the first module that reads process.env at import
+// time. Imports are hoisted, so a dotenv.config() placed before an import in
+// another module would still run after this file's constants are evaluated.
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 // Chain-specific knowledge for the demo, keyed by the CAIP-2 id in CHAIN_CAIP2.
 // Everything else in the example reads from here so the step scripts stay

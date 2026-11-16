@@ -1,5 +1,3 @@
-import * as path from "path";
-import * as dotenv from "dotenv";
 import {
   Turnkey,
   type TurnkeyApiClient,
@@ -7,9 +5,7 @@ import {
   type v1EarnPosition,
 } from "@turnkey/sdk-server";
 
-// Load environment variables from `.env.local` before chain.ts reads them.
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
-
+// chain.ts loads `.env.local` on import, so every env read below sees it.
 import {
   CHAIN_CAIP2,
   explorerLink,
