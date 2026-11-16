@@ -14,6 +14,7 @@ import { useModal } from "../../../providers/modal/Hook";
 import { useTurnkey } from "../../../providers/client/Hook";
 import {
   findWalletConnectProvider,
+  truncateAddress,
   useDebouncedCallback,
 } from "../../../utils/utils";
 import { QRCodeDisplay } from "./QRCodeDisplay";
@@ -24,6 +25,8 @@ export interface DesktopWalletConnectScreenProps {
   onAction: (provider: WalletProvider) => Promise<void>;
   onDisconnect?: (provider: WalletProvider) => Promise<void>;
   onSelectAllWallets?: (() => Promise<void>) | undefined;
+  selectAllPopCount?: number;
+  closeOnComplete?: boolean;
 }
 
 export function DesktopWalletConnectScreen(
@@ -34,7 +37,9 @@ export function DesktopWalletConnectScreen(
     onAction,
     onDisconnect,
     onSelectAllWallets,
+    selectAllPopCount = 2,
     successPageDuration,
+    closeOnComplete = true,
   } = props;
 
   const { pushPage, popPages, closeModal, isMobile } = useModal();
@@ -89,6 +94,7 @@ export function DesktopWalletConnectScreen(
 
       try {
         await onAction(targetProvider);
+        if (!closeOnComplete) return;
         pushPage({
           key: "Connect Success",
           content: (
@@ -171,10 +177,7 @@ export function DesktopWalletConnectScreen(
                 />
               </div>
 
-              <span>
-                {connectedAccount?.slice(0, 3)}...
-                {connectedAccount?.slice(-3)}
-              </span>
+              <span>{truncateAddress(connectedAccount, 3, 3)}</span>
             </div>
 
             <div
@@ -283,7 +286,7 @@ export function DesktopWalletConnectScreen(
               <span
                 className="text-primary-light dark:text-primary-dark cursor-pointer underline"
                 onClick={() => {
-                  popPages(2);
+                  popPages(selectAllPopCount);
                   onSelectAllWallets();
                 }}
               >

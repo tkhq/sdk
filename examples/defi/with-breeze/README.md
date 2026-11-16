@@ -1,5 +1,7 @@
 # with-breeze
 
+> **Note:** This example integrates with Breeze directly. To offer yield in your product, [Turnkey Earn](https://docs.turnkey.com/features/transaction-management/earn) supports Morpho vaults and Aave v3 reserves, with deposits, withdrawals, and position tracking handled by Turnkey. See [`with-earn`](../with-earn/).
+
 An example app that integrates [Turnkey](https://turnkey.com) with [Breeze](https://breeze.baby) to demonstrate Solana-based USDC staking and yield management directly from a Turnkey-managed wallet.
 
 This project shows how to:
