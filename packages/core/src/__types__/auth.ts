@@ -28,18 +28,7 @@ export interface ApiKeyStamperBase {
 /** @internal */
 export type Passkey = {
   encodedChallenge: string;
-  attestation: {
-    credentialId: string;
-    clientDataJson: string;
-    attestationObject: string;
-    transports: (
-      | "AUTHENTICATOR_TRANSPORT_BLE"
-      | "AUTHENTICATOR_TRANSPORT_INTERNAL"
-      | "AUTHENTICATOR_TRANSPORT_NFC"
-      | "AUTHENTICATOR_TRANSPORT_USB"
-      | "AUTHENTICATOR_TRANSPORT_HYBRID"
-    )[];
-  };
+  attestation: v1Attestation;
 };
 
 /** @internal */
