@@ -118,7 +118,9 @@ request [fixed-rate swaps](https://docs.turnkey.com/features/transaction-managem
 (1:1 between stablecoins, before fees) and
 [swap fee sponsorship](https://docs.turnkey.com/features/transaction-management/swap/fee-sponsorship).
 Both are off by default, and both must first be enabled on the parent org, which
-is billed for them within its spend limits. Not every route has fixed-rate
+is billed for them within its
+[spend limits](https://docs.turnkey.com/features/transaction-management/swap/fee-sponsorship#set-the-spend-limit).
+Not every route has fixed-rate
 coverage. When a swap can't use either feature (no coverage, a limit reached,
 the feature not enabled), the watcher logs why and quotes it again at the
 market rate, so swaps keep going. The policies are the same either way.
@@ -127,7 +129,7 @@ market rate, so swaps keep going. The policies are the same either way.
 
 - Earn enabled for the parent org.
 - Gas sponsorship enabled for the parent org, within your plan's
-  [spend limits](https://docs.turnkey.com/features/transaction-management#spend-limits).
+  [spend limits](https://docs.turnkey.com/features/transaction-management/broadcasting/gas-sponsorship#spend-limits).
   Every send, swap, and Earn request here is sponsored, so neither wallet ever
   needs ETH or SOL.
 - At least one stablecoin vault enabled from the
