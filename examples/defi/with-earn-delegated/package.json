@@ -1,0 +1,26 @@
+{
+  "name": "@turnkey/with-earn-delegated",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "keygen": "NODE_NO_WARNINGS=1 tsx src/keygen.ts",
+    "onboard-customer": "NODE_NO_WARNINGS=1 tsx src/onboardCustomer.ts",
+    "status": "NODE_NO_WARNINGS=1 tsx src/status.ts",
+    "customer-send": "NODE_NO_WARNINGS=1 tsx src/customerSend.ts",
+    "watch": "NODE_NO_WARNINGS=1 tsx src/watch.ts",
+    "redeem": "NODE_NO_WARNINGS=1 tsx src/redeem.ts",
+    "validate-policies": "NODE_NO_WARNINGS=1 tsx src/validatePolicies.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@solana/web3.js": "1.98.4",
+    "@turnkey/crypto": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "dotenv": "^16.0.3",
+    "viem": "^2.24.2"
+  },
+  "devDependencies": {
+    "typescript": "5.4.3"
+  }
+}
