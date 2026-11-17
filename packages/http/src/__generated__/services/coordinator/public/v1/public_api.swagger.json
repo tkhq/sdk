@@ -2067,7 +2067,7 @@
     "/public/v1/query/list_secrets": {
       "post": {
         "summary": "List secrets",
-        "description": "List secret metadata for an organization.",
+        "description": "List secret metadata for an organization. The returned metadata, including static properties, is for display only. For efficiency, the enclave does not authenticate it in this view, so do not use it for security-sensitive decisions.",
         "operationId": "PublicApiService_ListSecrets",
         "responses": {
           "200": {
@@ -10833,8 +10833,8 @@
           "$ref": "#/definitions/v1UsageControlDataSource",
           "description": "Data source for the Usage Control."
         },
-        "aggregation": {
-          "$ref": "#/definitions/v1UsageControlAggregation",
+        "budget": {
+          "$ref": "#/definitions/v1UsageControlBudget",
           "description": "Aggregation expression that the Usage Control evaluates."
         },
         "identifier": {
@@ -10842,7 +10842,7 @@
           "description": "Identifier for the Usage Control. Policies reference it as `controls.\u003cidentifier\u003e`. It must be unique within the Organization."
         }
       },
-      "required": ["name", "dataSource", "aggregation", "identifier"]
+      "required": ["name", "dataSource", "budget", "identifier"]
     },
     "v1CreateUsageControlRequest": {
       "type": "object",
@@ -11421,6 +11421,10 @@
         "publicKey": {
           "type": "string",
           "description": "Hex-encoded public key of the external signer to delete. The external signer must belong to the organization."
+        },
+        "deleteWithoutExport": {
+          "type": "boolean",
+          "description": "Optional parameter for deleting the external signer along with the wrapped keys it generated, including keys owned by other organizations in its family. Turnkey stores a copy of these wrapped keys; the operator must keep its own backup, or the keys are permanently lost."
         }
       },
       "required": ["publicKey"]
@@ -12794,7 +12798,7 @@
         },
         "apyPct": {
           "type": "string",
-          "description": "Gross annual percentage yield, expressed as a decimal fraction (before fees)."
+          "description": "Gross annual percentage yield including protocol rewards, expressed as a decimal fraction (before fees)."
         },
         "totalDeposited": {
           "type": "string",
@@ -12806,7 +12810,7 @@
         },
         "netApyPct": {
           "type": "string",
-          "description": "Annual percentage yield net of fees, expressed as a decimal fraction."
+          "description": "Annual percentage yield net of fees, expressed as a decimal fraction. Fees apply to the non-reward portion only; rewards_apy_pct passes through untouched."
         },
         "clientFeeBps": {
           "type": "string",
@@ -12871,6 +12875,10 @@
         "deployError": {
           "type": "string",
           "description": "Failure detail when deploy_status is FAILED."
+        },
+        "rewardsApyPct": {
+          "type": "string",
+          "description": "The protocol-reward portion of apy_pct (e.g. Merkl campaigns), expressed as a decimal fraction."
         }
       }
     },
@@ -13105,7 +13113,7 @@
         },
         "apyPct": {
           "type": "string",
-          "description": "Current annual percentage yield, expressed as a decimal fraction (e.g., '0.0812' for 8.12%)."
+          "description": "Gross annual percentage yield including protocol rewards, expressed as a decimal fraction (e.g., '0.0812' for 8.12%)."
         },
         "enabled": {
           "type": "boolean",
@@ -13138,6 +13146,10 @@
         "forceDeallocatableLiquidityDisplay": {
           "$ref": "#/definitions/v1EarnValueDisplay",
           "description": "Normalized force-deallocatable liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use force_deallocatable_liquidity instead."
+        },
+        "rewardsApyPct": {
+          "type": "string",
+          "description": "The protocol-reward portion of apy_pct (e.g. Merkl campaigns), expressed as a decimal fraction."
         }
       }
     },
@@ -13904,6 +13916,28 @@
         "txHash": {
           "type": "string",
           "description": "The Ethereum transaction hash, if available."
+        },
+        "fee": {
+          "$ref": "#/definitions/v1EthTransactionFee",
+          "description": "Fee the landed transaction paid, including when it reverted, when available."
+        }
+      }
+    },
+    "v1EthTransactionFee": {
+      "type": "object",
+      "properties": {
+        "gasUsed": {
+          "type": "string",
+          "format": "uint64",
+          "description": "Gas units consumed by the landed transaction (receipt.gasUsed)."
+        },
+        "effectiveGasPrice": {
+          "type": "string",
+          "description": "Effective gas price paid per gas unit, in wei (decimal string). On OP Stack chains, gasUsed multiplied by this price excludes the L1 data and operator fees."
+        },
+        "totalCostUsd": {
+          "type": "string",
+          "description": "Sponsored cost recorded for this transaction, in USD, at the token price used for billing. Unset for non-sponsored and testnet transactions, and until the cost is recorded."
         }
       }
     },
@@ -14419,7 +14453,7 @@
         },
         "targetPublicKey": {
           "type": "string",
-          "description": "Client-side public key generated by the user, to which the exported secret will be encrypted."
+          "description": "Client-side public key generated by the user, to which the exported secret will be encrypted. This must be a fresh ephemeral key used for exactly one exported secret: do not reuse it across secrets in the same batch or across requests. Turnkey does not enforce this, so clients are responsible for generating a unique target key per secret."
         },
         "encryptionSuite": {
           "$ref": "#/definitions/v1TransportEncryptionSuite",
@@ -21451,7 +21485,7 @@
             "type": "object",
             "$ref": "#/definitions/v1KeyValue"
           },
-          "description": "Policy visible static properties bound to the secret at creation time."
+          "description": "Policy visible static properties bound to the secret at creation time. For display only: the enclave does not authenticate them in this view."
         },
         "createdAtUnixMs": {
           "type": "string",
@@ -22253,6 +22287,37 @@
         "signature": {
           "type": "string",
           "description": "The Solana transaction signature, if available."
+        },
+        "fee": {
+          "$ref": "#/definitions/v1SolanaTransactionFee",
+          "description": "Fee the landed transaction paid, including when it failed on chain, when available."
+        }
+      }
+    },
+    "v1SolanaTransactionFee": {
+      "type": "object",
+      "properties": {
+        "feeLamports": {
+          "type": "string",
+          "format": "uint64",
+          "description": "Total fee the landed transaction paid, in lamports (meta.fee). Excludes rent."
+        },
+        "sponsoredRentLamports": {
+          "type": "string",
+          "format": "uint64",
+          "description": "Rent the paymaster covered for accounts this transaction created, in lamports, net of any rent swept back in the same transaction. Unset when none was sponsored. Not reduced if an account is later closed."
+        },
+        "totalCostUsd": {
+          "type": "string",
+          "description": "Sponsored cost recorded for this transaction, in USD, at the token price used for billing: fee_cost_usd plus rent_cost_usd. Unset for non-sponsored and testnet transactions, and until the cost is recorded."
+        },
+        "feeCostUsd": {
+          "type": "string",
+          "description": "The transaction fee portion of total_cost_usd, in USD."
+        },
+        "rentCostUsd": {
+          "type": "string",
+          "description": "The sponsored rent portion of total_cost_usd, in USD. Unset when no rent was sponsored."
         }
       }
     },
@@ -22896,6 +22961,24 @@
       },
       "required": ["reason", "message"]
     },
+    "v1SwapExecutionCall": {
+      "type": "object",
+      "properties": {
+        "to": {
+          "type": "string",
+          "description": "Call target. Empty for a Solana transaction, whose instructions are in data."
+        },
+        "value": {
+          "type": "string",
+          "description": "Native value in atomic units. Zero when the call sends none."
+        },
+        "data": {
+          "type": "string",
+          "description": "EVM calldata, or Solana instruction JSON. Solana execution adds the blockhash, lookup tables, and, when sponsored, the fee payer and rent instructions around this payload."
+        }
+      },
+      "required": ["to", "value", "data"]
+    },
     "v1SwapQuote": {
       "type": "object",
       "properties": {
@@ -22991,6 +23074,14 @@
         "estimatedCharges": {
           "$ref": "#/definitions/v1SwapCharges",
           "description": "Estimated charges this swap adds to your invoice, one field per swap line item. Present when fee_sponsorship or fixed_rate is true. Informational; the final amounts are settled after execution and reported by get_swap_status."
+        },
+        "transactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SwapExecutionCall"
+          },
+          "description": "Calls executed, in order, including approvals. On EVM, execution signs a batch or an EIP-7702 wrapper around these calls. On Solana, data is the instruction payload; execution adds the blockhash and address lookup tables, and when the swap is sponsored it also adds the fee payer and rent instructions."
         }
       },
       "required": [
@@ -23001,7 +23092,8 @@
         "expiresAt",
         "clientFeeBps",
         "feeSponsorship",
-        "fixedRate"
+        "fixedRate",
+        "transactions"
       ]
     },
     "v1SwapRefund": {
@@ -23251,7 +23343,10 @@
     },
     "v1TransportEncryptionSuite": {
       "type": "string",
-      "enum": ["TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1"]
+      "enum": [
+        "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1",
+        "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2"
+      ]
     },
     "v1TvcApp": {
       "type": "object",
@@ -25058,9 +25153,9 @@
           "$ref": "#/definitions/v1UsageControlDataSource",
           "description": "Data source for the Usage Control."
         },
-        "aggregation": {
-          "$ref": "#/definitions/v1UsageControlAggregation",
-          "description": "Aggregation expression that the Usage Control evaluates."
+        "budget": {
+          "$ref": "#/definitions/v1UsageControlBudget",
+          "description": "Describes the budget for the Usage Control - the limit, aggregation function and the window."
         },
         "appliesTo": {
           "$ref": "#/definitions/v1UsageControlScope",
@@ -25084,79 +25179,17 @@
         "organizationId",
         "name",
         "dataSource",
-        "aggregation",
+        "budget",
         "createdAt",
         "updatedAt",
         "identifier"
       ]
-    },
-    "v1UsageControlAggregation": {
-      "type": "object",
-      "properties": {
-        "method": {
-          "$ref": "#/definitions/v1UsageControlAggregationMethod",
-          "description": "Method that aggregates matching data points."
-        },
-        "operator": {
-          "$ref": "#/definitions/v1UsageControlAggregationOperator",
-          "description": "Comparison between the aggregate and the threshold."
-        },
-        "threshold": {
-          "type": "string",
-          "description": "Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits."
-        },
-        "window": {
-          "$ref": "#/definitions/v1UsageControlAggregationWindow",
-          "description": "Time window for the aggregation."
-        },
-        "groupBy": {
-          "$ref": "#/definitions/v1UsageControlAggregationGroupBy",
-          "description": "Scope that partitions matching data before aggregation."
-        }
-      },
-      "required": ["method", "operator", "threshold", "window", "groupBy"]
-    },
-    "v1UsageControlAggregationGroupBy": {
-      "type": "object",
-      "properties": {
-        "organization": {
-          "$ref": "#/definitions/v1UsageControlAggregationGroupByOrganization",
-          "description": "Uses one shared bucket for the Organization."
-        },
-        "user": {
-          "$ref": "#/definitions/v1UsageControlAggregationGroupByUser",
-          "description": "Uses one bucket for each User."
-        },
-        "wallet": {
-          "$ref": "#/definitions/v1UsageControlAggregationGroupByWallet",
-          "description": "Uses one bucket for each Wallet."
-        }
-      }
-    },
-    "v1UsageControlAggregationGroupByOrganization": {
-      "type": "object"
-    },
-    "v1UsageControlAggregationGroupByUser": {
-      "type": "object"
-    },
-    "v1UsageControlAggregationGroupByWallet": {
-      "type": "object"
     },
     "v1UsageControlAggregationMethod": {
       "type": "string",
       "enum": [
         "USAGE_CONTROL_AGGREGATION_METHOD_SUM",
         "USAGE_CONTROL_AGGREGATION_METHOD_COUNT"
-      ]
-    },
-    "v1UsageControlAggregationOperator": {
-      "type": "string",
-      "enum": [
-        "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN",
-        "USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL",
-        "USAGE_CONTROL_AGGREGATION_OPERATOR_EQUAL",
-        "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL",
-        "USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN"
       ]
     },
     "v1UsageControlAggregationWindow": {
@@ -25186,6 +25219,24 @@
       },
       "required": ["duration"]
     },
+    "v1UsageControlBudget": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "$ref": "#/definitions/v1UsageControlAggregationMethod",
+          "description": "Method that aggregates matching data points."
+        },
+        "limit": {
+          "type": "string",
+          "description": "Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits."
+        },
+        "window": {
+          "$ref": "#/definitions/v1UsageControlAggregationWindow",
+          "description": "Time window for the aggregation."
+        }
+      },
+      "required": ["method", "limit", "window"]
+    },
     "v1UsageControlDataSource": {
       "type": "object",
       "properties": {
@@ -25200,26 +25251,7 @@
       }
     },
     "v1UsageControlDataSourceActivityExecution": {
-      "type": "object",
-      "properties": {
-        "filter": {
-          "$ref": "#/definitions/v1UsageControlDataSourceActivityExecutionFilter",
-          "description": "Filters activity executions by type."
-        }
-      }
-    },
-    "v1UsageControlDataSourceActivityExecutionFilter": {
-      "type": "object",
-      "properties": {
-        "activity": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1UsageControlDataSourceFilterActivity"
-          },
-          "description": "Activity types whose executions are included."
-        }
-      }
+      "type": "object"
     },
     "v1UsageControlDataSourceChainAssetTransfer": {
       "type": "object",
@@ -25231,14 +25263,6 @@
             "$ref": "#/definitions/v1UsageControlDataSourceChainAssetTransferDefinition"
           },
           "description": "Assets whose transfers are included in the data source."
-        },
-        "filter": {
-          "$ref": "#/definitions/v1UsageControlDataSourceChainAssetTransferFilter",
-          "description": "Filters asset transfers by activity type."
-        },
-        "phase": {
-          "$ref": "#/definitions/v1UsageControlDataSourcePhase",
-          "description": "Selects when to measure an asset transfer."
         }
       },
       "required": ["definition"]
@@ -25259,48 +25283,6 @@
       },
       "required": ["caip19", "decimals"]
     },
-    "v1UsageControlDataSourceChainAssetTransferFilter": {
-      "type": "object",
-      "properties": {
-        "activity": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1UsageControlDataSourceFilterActivity"
-          },
-          "description": "Activity types whose asset transfers are included."
-        }
-      }
-    },
-    "v1UsageControlDataSourceFilterActivity": {
-      "type": "object",
-      "properties": {
-        "activityType": {
-          "type": "string",
-          "description": "Name of an activity type to include, such as `ACTIVITY_TYPE_SOL_SEND_TRANSACTION`."
-        }
-      },
-      "required": ["activityType"]
-    },
-    "v1UsageControlDataSourcePhase": {
-      "type": "object",
-      "properties": {
-        "signature": {
-          "$ref": "#/definitions/v1UsageControlDataSourcePhaseSignature",
-          "description": "Measures the transfer when Turnkey signs the transaction and returns it to the user."
-        },
-        "submission": {
-          "$ref": "#/definitions/v1UsageControlDataSourcePhaseSubmission",
-          "description": "Reserved for future use. Measures the transfer after the transaction lands on chain."
-        }
-      }
-    },
-    "v1UsageControlDataSourcePhaseSignature": {
-      "type": "object"
-    },
-    "v1UsageControlDataSourcePhaseSubmission": {
-      "type": "object"
-    },
     "v1UsageControlScope": {
       "type": "object",
       "properties": {
@@ -25315,47 +25297,83 @@
         "walletAccount": {
           "$ref": "#/definitions/v1UsageControlScopeWalletAccount",
           "description": "Limits the scope of the usage control to particular Wallet Accounts."
+        },
+        "activity": {
+          "$ref": "#/definitions/v1UsageControlScopeActivity",
+          "description": "Limits the scope of the usage control to particular Activity Types."
         }
       }
+    },
+    "v1UsageControlScopeActivity": {
+      "type": "object",
+      "properties": {
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of Activity Types for which the control will capture the usage. If empty, the control will apply to all supported Activity Types."
+        }
+      },
+      "required": ["types"]
+    },
+    "v1UsageControlScopeAggregation": {
+      "type": "string",
+      "enum": [
+        "USAGE_CONTROL_SCOPE_AGGREGATION_SHARED",
+        "USAGE_CONTROL_SCOPE_AGGREGATION_PER"
+      ]
     },
     "v1UsageControlScopeUser": {
       "type": "object",
       "properties": {
-        "userIds": {
+        "ids": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "IDs of the users for which the usage control will capture the usage."
+          "description": "List of User IDs for which the control will capture the usage. If empty, the control will apply to all Users."
+        },
+        "aggregation": {
+          "$ref": "#/definitions/v1UsageControlScopeAggregation",
+          "description": "Defines how the usage control is aggregated for the specified Users."
         }
       },
-      "required": ["userIds"]
+      "required": ["ids"]
     },
     "v1UsageControlScopeWallet": {
       "type": "object",
       "properties": {
-        "walletIds": {
+        "ids": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "IDs of the wallets for which the usage control will capture the usage."
+          "description": "List of Wallet IDs for which the control will capture the usage. If empty, the control will apply to all Wallets."
+        },
+        "aggregation": {
+          "$ref": "#/definitions/v1UsageControlScopeAggregation",
+          "description": "Defines how the usage control is aggregated for the specified Wallets."
         }
       },
-      "required": ["walletIds"]
+      "required": ["ids"]
     },
     "v1UsageControlScopeWalletAccount": {
       "type": "object",
       "properties": {
-        "walletAccountIds": {
+        "addresses": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "IDs of the wallet accounts for which the usage control will capture the usage."
+          "description": "List of Wallet Account addresses for which the control will capture the usage. If empty, the control will apply to all Wallet Accounts."
+        },
+        "aggregation": {
+          "$ref": "#/definitions/v1UsageControlScopeAggregation",
+          "description": "Defines how the usage control is aggregated for the specified Wallet Accounts."
         }
       },
-      "required": ["walletAccountIds"]
+      "required": ["addresses"]
     },
     "v1UsageType": {
       "type": "string",

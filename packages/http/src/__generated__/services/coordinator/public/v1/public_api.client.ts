@@ -2820,7 +2820,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * List secret metadata for an organization.
+   * List secret metadata for an organization. The returned metadata, including static properties, is for display only. For efficiency, the enclave does not authenticate it in this view, so do not use it for security-sensitive decisions.
    *
    * Sign the provided `TListSecretsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_secrets).
    *
