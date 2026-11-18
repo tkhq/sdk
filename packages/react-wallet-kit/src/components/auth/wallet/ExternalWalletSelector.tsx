@@ -3,7 +3,6 @@ import clsx from "clsx";
 import {
   WalletSource,
   type ConnectedWallet,
-  type WalletAccount,
   type WalletProvider,
 } from "@turnkey/core";
 import { useModal } from "../../../providers/modal/Hook";
@@ -17,6 +16,7 @@ import { ActionPage } from "../Action";
 import { SuccessPage } from "../../design/Success";
 import { DisconnectWalletScreen } from "./DisconnectWalletScreen";
 import { WalletSelectorMode } from "../../../types/base";
+import type { HandleConnectExternalWalletResult } from "../../../types/method-types";
 
 // Re-export for consumers
 export { WalletSelectorMode } from "../../../types/base";
@@ -30,7 +30,7 @@ interface AuthModeProps {
 interface ConnectModeProps {
   mode: WalletSelectorMode.Connect;
   /** Called when a wallet is successfully connected or disconnected */
-  onSuccess: (type: "connect" | "disconnect", account: WalletAccount) => void;
+  onSuccess: (result: HandleConnectExternalWalletResult) => void;
   /** Duration to show success page (ms). If 0 or undefined, closes immediately */
   successPageDuration?: number | undefined;
 }
@@ -99,7 +99,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
           closeOnComplete={false}
           action={async () => {
             const account = await connectWalletAccount(provider);
-            onSuccess?.("connect", account);
+            onSuccess?.({ type: "connect", account });
             if (successPageDuration && successPageDuration > 0) {
               pushPage({
                 key: "Connecting Success",
@@ -142,7 +142,11 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
               .find((a) => a.address === address);
 
             await disconnectWalletAccount(provider);
-            onSuccess?.("disconnect", matchedAccount!);
+            onSuccess?.(
+              matchedAccount
+                ? { type: "disconnect", account: matchedAccount }
+                : { type: "disconnect" },
+            );
 
             if (successPageDuration && successPageDuration > 0) {
               pushPage({
