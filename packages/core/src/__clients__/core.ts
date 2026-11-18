@@ -150,6 +150,7 @@ import {
   decodeVerificationToken,
   getClientSignatureMessageForSignup,
   ERC20_TRANSFER_ABI,
+  parseSession,
 } from "../utils";
 import { encryptOtpCodeToBundle } from "@turnkey/crypto";
 import { createStorageManager } from "../__storage__/base";
@@ -5103,8 +5104,7 @@ export class TurnkeyClient {
    *
    * - This function parses and stores a signed JWT session token in local storage, associating it with the given session key.
    * - If a sessionKey is provided, the session will be stored under that key; otherwise, it will use the default session key.
-   * - If a session already exists for the session key, its associated key pair will be deleted before storing the new session.
-   * - After storing the session, any unused key pairs are automatically cleared from storage.
+   * - After storing the session, deletes the replaced session's key pair if no stored session still references it.
    * - Ensures that session management is consistent and prevents orphaned key pairs.
    *
    * @param params.sessionToken - JWT session token to store.
@@ -5118,16 +5118,47 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
+        const { publicKey } = parseSession(sessionToken);
+        const publicKeys = await this.apiKeyStamper?.listKeyPairs();
+        if (!publicKey || !publicKeys?.includes(publicKey)) {
+          throw new TurnkeyError(
+            `Cannot store session: Key not found for publicKey: ${publicKey}`,
+            TurnkeyErrorCodes.STORE_SESSION_ERROR,
+          );
+        }
+
+        const previousSession =
+          await this.storageManager.getSession(sessionKey);
         await this.storageManager.storeSession(sessionToken, sessionKey);
+
+        const previousPublicKey = previousSession?.publicKey;
+        if (!previousPublicKey || previousPublicKey === publicKey) return;
+
+        try {
+          await this.deleteKeyPairIfUnused(previousPublicKey);
+        } catch {}
       },
       {
         errorMessage: "Failed to store session",
         errorCode: TurnkeyErrorCodes.STORE_SESSION_ERROR,
       },
-      {
-        finallyFn: async () => await this.clearUnusedKeyPairs(),
-      },
     );
+  };
+
+  /**
+   * Deletes the key pair for `publicKey` unless a stored session still references it.
+   */
+  private deleteKeyPairIfUnused = async (
+    publicKey: string | undefined,
+  ): Promise<void> => {
+    if (!publicKey) return;
+    const sessions = await this.getAllSessions();
+    const stillInUse = Object.values(sessions ?? {}).some(
+      (session) => session.publicKey === publicKey,
+    );
+    if (!stillInUse) {
+      await this.deleteApiKeyPair({ publicKey });
+    }
   };
 
   /**
@@ -5135,7 +5166,7 @@ export class TurnkeyClient {
    *
    * - This function deletes the session and its associated key pair from storage.
    * - If a sessionKey is provided, it will clear the session under that key; otherwise, it will clear the default (active) session.
-   * - Removes the session data from local storage and deletes the corresponding API key pair from the key store.
+   * - Removes the session data from local storage and deletes the corresponding API key pair from the key store, unless another stored session still references that key pair.
    * - Throws an error if the session does not exist or if there is an error during the clearing process.
    *
    * @param params.sessionKey - session key to clear the session under (defaults to the default session key).
@@ -5148,10 +5179,8 @@ export class TurnkeyClient {
       async () => {
         const session = await this.storageManager.getSession(sessionKey);
         if (session) {
-          await Promise.all([
-            this.deleteApiKeyPair({ publicKey: session.publicKey! }),
-            this.storageManager.clearSession(sessionKey),
-          ]);
+          await this.storageManager.clearSession(sessionKey);
+          await this.deleteKeyPairIfUnused(session.publicKey);
         } else {
           throw new TurnkeyError(
             `No session found with key: ${sessionKey}`,
@@ -5170,7 +5199,7 @@ export class TurnkeyClient {
    * Clears all sessions and resets the active session state.
    *
    * - This function removes all session data from the client and persistent storage, including all associated key pairs.
-   * - Iterates through all stored session keys, clearing each session and deleting its corresponding API key pair.
+   * - Iterates through and deletes all sessions, then deletes all key pairs.
    * - After clearing, there will be no active session, and all session-related data will be removed from local storage.
    * - Throws an error if no sessions exist or if there is an error during the clearing process.
    *
@@ -5183,8 +5212,9 @@ export class TurnkeyClient {
         const sessionKeys = await this.storageManager.listSessionKeys();
         if (sessionKeys.length === 0) return;
         for (const sessionKey of sessionKeys) {
-          this.clearSession({ sessionKey });
+          await this.clearSession({ sessionKey });
         }
+        await this.clearUnusedKeyPairs();
       },
       {
         errorMessage: "Failed to clear all sessions",
@@ -5416,6 +5446,7 @@ export class TurnkeyClient {
    * - Ensures that only key pairs referenced by existing sessions are retained, preventing orphaned or stale key pairs from accumulating.
    * - Iterates through all stored session keys and builds a map of in-use public keys, then deletes any key pairs not present in this map.
    * - Intended to be called after session changes (e.g., login, logout, session replacement) to keep key storage clean and secure.
+   * - Warning: this also deletes key pairs belonging to login attempts that are still in progress (e.g., waiting on a passkey or wallet prompt), including ones in other tabs that share the same key store, since those keys have no stored session yet. Those logins will then fail. Avoid calling this while a login may be in flight.
    *
    * @returns A promise that resolves when all unused key pairs are successfully cleared.
    * @throws {TurnkeyError} If there is an error listing, checking, or deleting unused key pairs.

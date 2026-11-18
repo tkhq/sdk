@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import clsx from "clsx";
 import {
   WalletSource,
@@ -171,14 +171,18 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
   const onSelect = isConnectMode ? handleConnectSelect : handleAuthSelect;
 
   // Group providers by name
-  const grouped = walletProviders.reduce<Record<string, WalletProvider[]>>(
-    (acc, provider) => {
-      const name = provider.info.name;
-      if (!acc[name]) acc[name] = [];
-      acc[name]!.push(provider);
-      return acc;
-    },
-    {},
+  const grouped = useMemo(
+    () =>
+      walletProviders.reduce<Record<string, WalletProvider[]>>(
+        (acc, provider) => {
+          const name = provider.info.name;
+          if (!acc[name]) acc[name] = [];
+          acc[name]!.push(provider);
+          return acc;
+        },
+        {},
+      ),
+    [walletProviders],
   );
 
   const pushStandardChainSelector = (group: WalletProvider[]) => {
@@ -239,9 +243,12 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
   // Auto-navigation when only one provider group exists
   // ─────────────────────────────────────────────────────────────────────────────
 
+  const didAutoSelect = useRef(false);
+
   useEffect(() => {
     const groupedValues = Object.values(grouped);
-    if (groupedValues.length === 1) {
+    if (!didAutoSelect.current && groupedValues.length === 1) {
+      didAutoSelect.current = true;
       popPage(); // Remove this page to prevent back-button loops
       handleSelectGroup(groupedValues[0]!);
     }
