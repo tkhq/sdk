@@ -220,6 +220,8 @@ export function parseStateParam(stateParam: string | null | undefined): {
  * Result from parsing an OAuth response (both popup and redirect flows)
  */
 export interface OAuthResponseResult {
+  /** Raw state returned by the provider, used for attempt-scoped cleanup. */
+  state?: string | null;
   /** The OIDC token (for non-PKCE providers) */
   idToken?: string | null | undefined;
   /** The authorization code (for PKCE providers) */
@@ -331,6 +333,7 @@ export function parseOAuthResponse(
   }
 
   return {
+    state: stateString,
     idToken,
     authCode,
     provider: provider ?? null,
