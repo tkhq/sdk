@@ -220,7 +220,7 @@ export class TelegramCloudStorageStamper {
           if (err != null) {
             reject(
               new TelegramCloudStorageStamperError(
-                `Failed inserting value: ${value} into Telegram Cloud Storage at key: ${key}${
+                `Failed inserting value into Telegram Cloud Storage at key: ${key}${
                   err && `: ${err}`
                 }`,
               ),
