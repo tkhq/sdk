@@ -1,5 +1,9 @@
 import { test, expect } from "@jest/globals";
-import { TelegramCloudStorageStamper, CloudStorageAPIKey } from "../index";
+import {
+  TelegramCloudStorageStamper,
+  CloudStorageAPIKey,
+  DEFAULT_TURNKEY_CLOUD_STORAGE_KEY,
+} from "../index";
 import { readFixture } from "../__fixtures__/shared";
 import { assertValidSignature } from "./shared";
 import { fail } from "assert";
@@ -74,5 +78,31 @@ test("uses provided signature to make stamp", async function () {
     expect(apiPrivateKey).toEqual(privateKey);
   } catch (e) {
     fail();
+  }
+});
+
+test("storage write error names the key and not the stored value", async function () {
+  const { privateKey, publicKey } = await readFixture();
+
+  const cloudStorage = window.Telegram.WebApp.CloudStorage;
+  const originalSetItem = cloudStorage.setItem;
+  cloudStorage.setItem = async (
+    _key: string,
+    _value: string,
+    callback: (error: any, stored: boolean) => void,
+  ) => callback("write failed", false);
+
+  try {
+    const created = TelegramCloudStorageStamper.create({
+      cloudStorageAPIKey: {
+        apiPublicKey: publicKey,
+        apiPrivateKey: privateKey,
+      },
+    });
+
+    await expect(created).rejects.toThrow(DEFAULT_TURNKEY_CLOUD_STORAGE_KEY);
+    await expect(created).rejects.not.toThrow(privateKey);
+  } finally {
+    cloudStorage.setItem = originalSetItem;
   }
 });
