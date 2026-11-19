@@ -216,6 +216,75 @@ interface DecryptSecretBundleParams {
 }
 
 const IMPORT_SECRETS_PURPOSE = "ENCRYPTED_INGRESS_PURPOSE_IMPORT_SECRETS";
+const OAUTH2_AUTHENTICATE_PURPOSE =
+  "ENCRYPTED_INGRESS_PURPOSE_OAUTH2_AUTHENTICATE";
+
+/** A named request field bound into a ciphertext by {@link encodePurposeBinding}. */
+export interface PurposeBindingField {
+  key: string;
+  value: string;
+}
+
+/**
+ * Accumulates big-endian length prefixes and fields, then concatenates them into one purpose binding.
+ */
+class BindingEncoder {
+  private readonly textEncoder = new TextEncoder();
+  private readonly chunks: Uint8Array[] = [];
+  private length = 0;
+
+  /** Appends `u32be(len(value)) || value`, with `value` encoded as UTF-8. */
+  field(value: string): this {
+    const bytes = this.textEncoder.encode(value);
+    return this.uint32(bytes.length).append(bytes);
+  }
+
+  /** Appends `value` as a big-endian u32. */
+  uint32(value: number): this {
+    if (!Number.isInteger(value) || value < 0 || value > 0xffffffff) {
+      throw new Error("purpose binding field is longer than u32::MAX bytes");
+    }
+    const bytes = new Uint8Array(4);
+    new DataView(bytes.buffer).setUint32(0, value, false);
+    return this.append(bytes);
+  }
+
+  /** Returns the concatenated binding. */
+  finish(): Uint8Array {
+    const binding = new Uint8Array(this.length);
+    let offset = 0;
+    for (const chunk of this.chunks) {
+      binding.set(chunk, offset);
+      offset += chunk.length;
+    }
+    return binding;
+  }
+
+  private append(bytes: Uint8Array): this {
+    this.chunks.push(bytes);
+    this.length += bytes.length;
+    return this;
+  }
+}
+
+/**
+ * Encodes the length-prefixed `purpose`, the field count, and each length-prefixed key and value, in order.
+ *
+ * Matches `turnkey_enclave_encrypt::purpose_binding::encode`. `purpose` is the `EncryptedIngressPurpose`
+ * proto enum string name; ImportSecrets uses {@link importSecretsPurposeBinding} instead.
+ *
+ * @param {string} purpose - The `EncryptedIngressPurpose` proto enum string name.
+ * @param {PurposeBindingField[]} fields - The bound request fields, in order.
+ * @returns {Uint8Array} - The purpose binding.
+ */
+export const encodePurposeBinding = (
+  purpose: string,
+  fields: PurposeBindingField[],
+): Uint8Array => {
+  const encoder = new BindingEncoder().field(purpose).uint32(fields.length);
+  fields.forEach(({ key, value }) => encoder.field(key).field(value));
+  return encoder.finish();
+};
 
 /**
  * Encodes the AAD suffix that binds an `import_secrets` ciphertext to its name
@@ -229,36 +298,27 @@ export const importSecretsPurposeBinding = (
   name: string | undefined,
   staticProperties: StaticProperty[],
 ): Uint8Array => {
-  const textEncoder = new TextEncoder();
-  const purpose = textEncoder.encode(IMPORT_SECRETS_PURPOSE);
-  const encodedName = textEncoder.encode(name ?? "");
-  const properties = staticProperties.flatMap(({ key, value }) => [
-    textEncoder.encode(key),
-    textEncoder.encode(value),
-  ]);
-  const binding = new Uint8Array(
-    properties.reduce(
-      (length, field) => length + 4 + field.length,
-      12 + purpose.length + encodedName.length,
-    ),
-  );
-  const view = new DataView(binding.buffer);
-  let offset = 0;
-  const writeUint32 = (value: number): void => {
-    view.setUint32(offset, value, false);
-    offset += 4;
-  };
-  const writeField = (field: Uint8Array): void => {
-    writeUint32(field.length);
-    binding.set(field, offset);
-    offset += field.length;
-  };
-  writeField(purpose);
-  writeField(encodedName);
-  writeUint32(staticProperties.length);
-  properties.forEach(writeField);
-  return binding;
+  const encoder = new BindingEncoder()
+    .field(IMPORT_SECRETS_PURPOSE)
+    .field(name ?? "")
+    .uint32(staticProperties.length);
+  staticProperties.forEach(({ key, value }) => encoder.field(key).field(value));
+  return encoder.finish();
 };
+
+/**
+ * Encodes the AAD suffix that binds an `oauth2_authenticate` ciphertext to its OAuth 2.0 credential ID,
+ * the canonical lowercase hyphenated UUID sent in the activity.
+ *
+ * @param {string} oauth2CredentialId - The OAuth 2.0 credential ID.
+ * @returns {Uint8Array} - The purpose binding.
+ */
+export const oauth2AuthenticatePurposeBinding = (
+  oauth2CredentialId: string,
+): Uint8Array =>
+  encodePurposeBinding(OAUTH2_AUTHENTICATE_PURPOSE, [
+    { key: "oauth2_credential_id", value: oauth2CredentialId },
+  ]);
 
 /**
  * Encrypts a secret to an ingress target bundle returned by the
