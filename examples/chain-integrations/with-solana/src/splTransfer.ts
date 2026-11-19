@@ -164,12 +164,17 @@ async function main() {
       message: `Destination address:`,
       initial: defaultDestination,
       validate: function (str) {
+        let pubkey: PublicKey;
         try {
-          new PublicKey(str);
-          return true;
+          pubkey = new PublicKey(str);
         } catch {
           return "destination must be a valid Solana address";
         }
+        // Token accounts are off-curve addresses: tokens must be sent to the wallet that owns them
+        if (!PublicKey.isOnCurve(pubkey.toBytes())) {
+          return "enter the wallet address, not a token account";
+        }
+        return true;
       },
     },
   ]);
@@ -221,6 +226,22 @@ async function main() {
     console.log("Destination token account already exists");
   }
 
+  // Confirm before building and signing, so nothing is signed if you cancel
+  // (a transaction's blockhash expires after about a minute, so it's built right before sending)
+  const { confirm } = await prompts([
+    {
+      type: "confirm",
+      name: "confirm",
+      message: `Send ${amount} tokens to ${destination}?`,
+      initial: true,
+    },
+  ]);
+
+  if (!confirm) {
+    console.log("Transfer cancelled.");
+    process.exit(0);
+  }
+
   const transferTransaction = await constructTokenTransfer(
     connection,
     fromTokenAccount,
@@ -266,21 +287,6 @@ async function main() {
   const transferVerified = signedTransferTransaction.verifySignatures();
   if (!transferVerified) {
     throw new Error("unable to verify transfer transaction signatures");
-  }
-
-  // Confirm before broadcasting
-  const { confirm } = await prompts([
-    {
-      type: "confirm",
-      name: "confirm",
-      message: `Send ${amount} tokens to ${destination}?`,
-      initial: true,
-    },
-  ]);
-
-  if (!confirm) {
-    console.log("Broadcast cancelled.");
-    process.exit(0);
   }
 
   // Broadcast the transfer transaction

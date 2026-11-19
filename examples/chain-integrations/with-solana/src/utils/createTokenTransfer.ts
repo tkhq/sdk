@@ -1,6 +1,6 @@
 import { PublicKey, Transaction, Connection } from "@solana/web3.js";
 import {
-  createAssociatedTokenAccountInstruction,
+  createAssociatedTokenAccountIdempotentInstruction,
   createTransferCheckedInstruction,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
@@ -21,7 +21,7 @@ export async function createTokenTransferAddSignature(
   connection: Connection,
   solAddress: string,
   tokenAccountPubkey: PublicKey,
-  mintAuthority: PublicKey,
+  mint: PublicKey,
   ataRecipient: PublicKey,
 ): Promise<any> {
   const fromKey = new PublicKey(solAddress);
@@ -29,7 +29,7 @@ export async function createTokenTransferAddSignature(
   let transferTx = new Transaction().add(
     createTransferCheckedInstruction(
       tokenAccountPubkey, // from (should be a token account)
-      mintAuthority, // mint
+      mint, // mint
       ataRecipient, // to (should be a token account)
       fromKey, // from's owner
       1e4, // amount, if your decimals is 8, send 10^8 for 1 token
@@ -56,14 +56,14 @@ export async function createTokenTransferSignTransaction(
   connection: Connection,
   solAddress: string,
   tokenAccountPubkey: PublicKey,
-  mintAuthority: PublicKey,
+  mint: PublicKey,
   ataRecipient: PublicKey,
   options: TokenTransferOptions = {},
 ): Promise<any> {
   const transferTx = await constructTokenTransfer(
     connection,
     tokenAccountPubkey,
-    mintAuthority,
+    mint,
     ataRecipient,
     solAddress,
     options,
@@ -81,7 +81,7 @@ export async function createTokenTransferSignTransaction(
 export async function constructTokenTransfer(
   connection: Connection,
   tokenAccountPubkey: PublicKey,
-  mintAuthority: PublicKey,
+  mint: PublicKey,
   ataRecipient: PublicKey,
   solAddress: string,
   options: TokenTransferOptions = {},
@@ -98,11 +98,11 @@ export async function constructTokenTransfer(
 
   if (recipientOwner) {
     transferTx.add(
-      createAssociatedTokenAccountInstruction(
+      createAssociatedTokenAccountIdempotentInstruction(
         fromKey, // payer
         ataRecipient, // associated token account
         recipientOwner, // owner
-        mintAuthority, // mint
+        mint, // mint
         programId,
       ),
     );
@@ -111,7 +111,7 @@ export async function constructTokenTransfer(
   transferTx.add(
     createTransferCheckedInstruction(
       tokenAccountPubkey, // from (should be a token account)
-      mintAuthority, // mint
+      mint, // mint
       ataRecipient, // to (should be a token account)
       fromKey, // from's owner
       amount, // amount, if your decimals is 8, send 10^8 for 1 token
