@@ -468,6 +468,32 @@ At the moment, withdrawal requests are leaking test funds into the BTC wallet ${
     },
     TEST_TIMEOUT,
   );
+
+  describe("Signer warnings", () => {
+    let consoleWarnSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+    });
+
+    afterEach(() => {
+      consoleWarnSpy.mockRestore();
+    });
+
+    it("should warn if the signer is not a TurnkeySparkSigner", async () => {
+      await createSparkWallet({} as TurnkeySparkSigner);
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        "Warning: The provided signer is not a TurnkeySparkSigner.",
+      );
+    });
+
+    it("should not warn if the signer is a TurnkeySparkSigner", async () => {
+      await createSparkWallet(senderSigner);
+
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
+  });
 });
 
 /**

@@ -373,6 +373,10 @@ export class TurnkeySparkSigner implements SparkSigner {
     }
   }
 
+  isTurnkeySparkSigner(): boolean {
+    return true;
+  }
+
   // ---------------------------------------------------------------------------
   // Identity key operations (already working)
   // ---------------------------------------------------------------------------
