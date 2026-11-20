@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faPhone } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
 import { useTurnstile } from "./TurnstileWidget";
+import type { TurnkeyCallbacks } from "../../types/base";
 
 interface OtpVerificationProps {
   contact: string;
@@ -31,7 +32,8 @@ export function OtpVerification(props: OtpVerificationProps) {
     sessionKey,
     onContinue = null, // Default to null if not provided
   } = props;
-  const { initOtp, completeOtp } = useTurnkey();
+  const { initOtp, completeOtp, verifyOtp, deleteApiKeyPair, callbacks } =
+    useTurnkey();
   const { closeModal, isMobile } = useModal();
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [resending, setResending] = useState<boolean>(false);
@@ -57,11 +59,41 @@ export function OtpVerification(props: OtpVerificationProps) {
     setTimeout(() => setShaking(false), 250);
   };
 
+  // Hands the verified code over to the host instead of completing the login
+  // in the SDK, the OTP counterpart of `callbacks.onOauthRedirect`. The host gets
+  // the verification token bound to a fresh key pair; if it rejects, the key
+  // pair is deleted again and the error shows in the modal like any other.
+  const handOverVerifiedOtp = async (
+    otpCode: string,
+    onOtpVerified: NonNullable<TurnkeyCallbacks["onOtpVerified"]>,
+  ) => {
+    const { verificationToken, publicKey } = await verifyOtp({
+      otpId,
+      otpCode,
+      otpEncryptionTargetBundle,
+    });
+    try {
+      await onOtpVerified({
+        verificationToken,
+        publicKey,
+        contact,
+        otpType,
+        ...(sessionKey && { sessionKey }),
+      });
+    } catch (error) {
+      await deleteApiKeyPair({ publicKey }).catch(() => {});
+      throw error;
+    }
+  };
+
   const handleContinue = async (otpCode: string) => {
     try {
       setSubmitting(true);
       if (onContinue) {
         await onContinue(otpCode);
+      } else if (callbacks?.onOtpVerified) {
+        await handOverVerifiedOtp(otpCode, callbacks.onOtpVerified);
+        closeModal();
       } else {
         await completeOtp({
           otpId,
