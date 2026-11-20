@@ -43,6 +43,14 @@ After the payload is signed, the [server route](./app/api/verify-payment/route.t
 
 The facilitator acts as a neutral third party that verifies payments without requiring the merchant to run their own verification infrastructure. You can also host your own facilitator.
 
+
+
+## Optional: preflight the seller before signing
+
+This demo pays a seller you control. When your agent pays *third-party* x402 URLs, check the seller first (`ok|caution|avoid`, payTo/price history) and refuse `avoid` before `signTypedData`.
+
+One option is the community [`x402check-client`](https://www.npmjs.com/package/x402check-client) `wrapFetch` helper (opt-in; that check is paid to x402check at $0.01 after one free check per wallet), or a plain `GET https://x402check.dev/preflight?url=...` with a settled payment header. Keep Turnkey spend policies either way.
+
 ## Running The App
 
 To start, ensure you have a [Turnkey organization setup](https://docs.turnkey.com/getting-started/quickstart) with [Auth Proxy enabled.](https://docs.turnkey.com/sdks/react/getting-started#turnkey-organization-setup)
