@@ -1,5 +1,26 @@
 # @turnkey/react-native-wallet-kit
 
+## 2.7.0
+
+### Minor Changes
+
+- [#1660](https://github.com/tkhq/sdk/pull/1660) [`7500289`](https://github.com/tkhq/sdk/commit/75002891b2fe50c758e6e57cde94f5fea9ded395) Author [@ericvelazquez](https://github.com/ericvelazquez) - Sync generated clients and types with mono `main` (2026-11-16).
+  - Earn: `listEarnVaults` and `listEarnEnabledVaults` entries carry `rewardsApyPct`, the protocol-reward portion of `apyPct`. `apyPct` is now documented as gross APY including rewards and `netApyPct` as net of fees on the non-reward portion only.
+  - Send-transaction status responses carry the landed transaction's `fee` (`EthTransactionFee` on EVM, `SolanaTransactionFee` on Solana) with the sponsored cost in USD.
+  - Swap quotes include `transactions`, the calls the swap executes in order.
+  - Usage controls: `UsageControlAggregation` is replaced by `UsageControlBudget` (`method`, `limit`, `window`), and the data source filters are removed.
+  - `deleteExternalSigner` accepts `deleteWithoutExport`; `TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2` is added.
+
+  The `with-earn` example now runs on Solana as well as EVM: set `CHAIN_CAIP2` to `solana:mainnet` or `solana:devnet` to enable a Kamino vault, deposit, withdraw, and claim fees with the same scripts. It also calls the Earn queries by their current client names (`listEarnVaults`, `listEarnEnabledVaults`, `listEarnPositions`, `getEarn*Status`), which the example had fallen behind on.
+
+### Patch Changes
+
+- Updated dependencies [[`171980f`](https://github.com/tkhq/sdk/commit/171980f928641120fd6897d443a942b5b267e435), [`a232e57`](https://github.com/tkhq/sdk/commit/a232e57e18a3ed517bbbacae97dcc44bd9b8557b), [`7500289`](https://github.com/tkhq/sdk/commit/75002891b2fe50c758e6e57cde94f5fea9ded395)]:
+  - @turnkey/core@2.15.0
+  - @turnkey/crypto@2.14.0
+  - @turnkey/sdk-types@1.13.0
+  - @turnkey/react-native-passkey-stamper@1.2.29
+
 ## 2.6.1
 
 ### Patch Changes

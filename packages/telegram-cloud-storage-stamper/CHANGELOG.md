@@ -1,5 +1,14 @@
 # @turnkey/telegram-cloud-storage-stamper
 
+## 2.1.21
+
+### Patch Changes
+
+- [#1663](https://github.com/tkhq/sdk/pull/1663) [`2f65b27`](https://github.com/tkhq/sdk/commit/2f65b278b3dc266a59481f5fbc46d303bc85e003) Author [@arawal](https://github.com/arawal) - Storage write errors no longer include the stored value in the error message.
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.20
+
 ## 2.1.20
 
 ### Patch Changes

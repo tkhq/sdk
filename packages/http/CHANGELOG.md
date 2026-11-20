@@ -1,5 +1,25 @@
 # @turnkey/http
 
+## 6.9.0
+
+### Minor Changes
+
+- [#1660](https://github.com/tkhq/sdk/pull/1660) [`7500289`](https://github.com/tkhq/sdk/commit/75002891b2fe50c758e6e57cde94f5fea9ded395) Author [@ericvelazquez](https://github.com/ericvelazquez) - Sync generated clients and types with mono `main` (2026-11-16).
+  - Earn: `listEarnVaults` and `listEarnEnabledVaults` entries carry `rewardsApyPct`, the protocol-reward portion of `apyPct`. `apyPct` is now documented as gross APY including rewards and `netApyPct` as net of fees on the non-reward portion only.
+  - Send-transaction status responses carry the landed transaction's `fee` (`EthTransactionFee` on EVM, `SolanaTransactionFee` on Solana) with the sponsored cost in USD.
+  - Swap quotes include `transactions`, the calls the swap executes in order.
+  - Usage controls: `UsageControlAggregation` is replaced by `UsageControlBudget` (`method`, `limit`, `window`), and the data source filters are removed.
+  - `deleteExternalSigner` accepts `deleteWithoutExport`; `TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2` is added.
+
+  The `with-earn` example now runs on Solana as well as EVM: set `CHAIN_CAIP2` to `solana:mainnet` or `solana:devnet` to enable a Kamino vault, deposit, withdraw, and claim fees with the same scripts. It also calls the Earn queries by their current client names (`listEarnVaults`, `listEarnEnabledVaults`, `listEarnPositions`, `getEarn*Status`), which the example had fallen behind on.
+
+### Patch Changes
+
+- [#1650](https://github.com/tkhq/sdk/pull/1650) [`a232e57`](https://github.com/tkhq/sdk/commit/a232e57e18a3ed517bbbacae97dcc44bd9b8557b) Author [@emostov](https://github.com/emostov) - `importSecret` now uses `TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2`, which binds the ciphertext to the secret's name and static properties. `encryptSecretToBundle` now requires `name` and `staticProperties`. Adds `importSecretsPurposeBinding` and an optional `purposeBinding` to `hpkeEncrypt` and `hpkeDecrypt`.
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.20
+
 ## 6.8.0
 
 ### Minor Changes

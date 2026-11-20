@@ -1,5 +1,16 @@
 # @turnkey/crypto
 
+## 2.14.0
+
+### Minor Changes
+
+- [#1650](https://github.com/tkhq/sdk/pull/1650) [`a232e57`](https://github.com/tkhq/sdk/commit/a232e57e18a3ed517bbbacae97dcc44bd9b8557b) Author [@emostov](https://github.com/emostov) - `importSecret` now uses `TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2`, which binds the ciphertext to the secret's name and static properties. `encryptSecretToBundle` now requires `name` and `staticProperties`. Adds `importSecretsPurposeBinding` and an optional `purposeBinding` to `hpkeEncrypt` and `hpkeDecrypt`.
+
+### Patch Changes
+
+- Updated dependencies [[`a232e57`](https://github.com/tkhq/sdk/commit/a232e57e18a3ed517bbbacae97dcc44bd9b8557b), [`7500289`](https://github.com/tkhq/sdk/commit/75002891b2fe50c758e6e57cde94f5fea9ded395)]:
+  - @turnkey/sdk-types@1.13.0
+
 ## 2.13.4
 
 ### Patch Changes
