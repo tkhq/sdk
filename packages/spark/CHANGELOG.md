@@ -1,5 +1,14 @@
 # @turnkey/spark
 
+## 0.3.21
+
+### Patch Changes
+
+- [#1666](https://github.com/tkhq/sdk/pull/1666) [`275577f`](https://github.com/tkhq/sdk/commit/275577f94c1bb3d7108a928e9dd2a219373b6bb3) Author [@mssabr01](https://github.com/mssabr01) - updated dependency to resolve known vuln
+
+- Updated dependencies [[`571a3c3`](https://github.com/tkhq/sdk/commit/571a3c320a46c16b0e14c15b92e970d33384bec0)]:
+  - @turnkey/sdk-server@8.11.0
+
 ## 0.3.20
 
 ### Patch Changes
