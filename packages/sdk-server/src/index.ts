@@ -23,7 +23,6 @@ import type { PollTransactionStatusParams } from "./sdk-client";
 import type {
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
-  TurnkeyProxyHandlerConfig,
 } from "./__types__/base";
 
 import { type TSignedRequest, TurnkeyRequestError } from "@turnkey/sdk-types";
@@ -48,7 +47,6 @@ export type {
   TurnkeyApiTypes,
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
-  TurnkeyProxyHandlerConfig,
 };
 
 export * from "@turnkey/sdk-types";
