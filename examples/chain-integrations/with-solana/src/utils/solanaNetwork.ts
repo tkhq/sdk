@@ -54,6 +54,7 @@ export async function dropTokens(
 export async function broadcast(
   connection: Connection,
   signedTransaction: Transaction | VersionedTransaction,
+  network: "devnet" | "mainnet" = "devnet",
 ) {
   let signature: Uint8Array;
 
@@ -81,7 +82,7 @@ export async function broadcast(
   );
   print(
     "Transaction broadcast and confirmed! 🎉",
-    `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`,
+    `https://explorer.solana.com/tx/${transactionHash}${network === "mainnet" ? "" : "?cluster=devnet"}`,
   );
 
   return transactionHash;
