@@ -1,5 +1,12 @@
 # @turnkey/bitcoin
 
+## 0.1.21
+
+### Patch Changes
+
+- Updated dependencies [[`571a3c3`](https://github.com/tkhq/sdk/commit/571a3c320a46c16b0e14c15b92e970d33384bec0)]:
+  - @turnkey/sdk-server@8.11.0
+
 ## 0.1.20
 
 ### Patch Changes

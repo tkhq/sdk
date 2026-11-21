@@ -1,5 +1,13 @@
 # @turnkey/sdk-server
 
+## 8.11.0
+
+### Minor Changes
+
+- [#1668](https://github.com/tkhq/sdk/pull/1668) [`571a3c3`](https://github.com/tkhq/sdk/commit/571a3c320a46c16b0e14c15b92e970d33384bec0) Author [@hadrelandon](https://github.com/hadrelandon) - Security fix: remove the API proxy helpers `expressProxyHandler`, `nextProxyHandler` and `apiProxy`, and the `TurnkeyProxyHandlerConfig` type.
+
+  If you use these helpers, take the proxy route out. For each action your app needs, add a server endpoint that checks who the caller is, builds the request on the server, and calls `turnkey.apiClient()` directly.
+
 ## 8.10.0
 
 ### Minor Changes
