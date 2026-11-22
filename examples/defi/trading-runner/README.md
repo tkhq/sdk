@@ -54,7 +54,17 @@ Now open `.env.local` and add the missing environment variables:
 
 ### 3/ Setup
 
-Create the organizational structure required for this demo:
+First, generate API keys for the demo users (Alice and Bob):
+
+```bash
+pnpm generate-keys
+```
+
+This writes a fresh key pair for each user to `keys.local.json` in this folder. The file is gitignored and holds private keys, so never commit or share it. Running the command again will not overwrite existing keys unless you pass `--force`.
+
+> **Warning:** `pnpm cli setup` adds these users and their API keys to your organization, and they stay there until you delete them. Run this example in a test organization, and remove the users when you're done.
+
+Then create the organizational structure required for this demo:
 
 ```bash
 // setup an organization with users, private keys, and policies
