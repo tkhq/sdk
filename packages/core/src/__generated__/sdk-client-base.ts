@@ -8493,6 +8493,64 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  initOauth2Authenticate = async (
+    input: SdkTypes.TInitOauth2AuthenticateBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TInitOauth2AuthenticateResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+
+    //@ts-ignore - generateAppProofs does not exist on all request types, so we ignore the type error here for those that are missing it
+    const generateAppProofs = input?.generateAppProofs ?? false;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/init_oauth2_authenticate",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        generateAppProofs: generateAppProofs ?? false,
+        type: "ACTIVITY_TYPE_INIT_OAUTH2_AUTHENTICATE",
+      },
+      "initOauth2AuthenticateResult",
+      stampWith,
+    );
+  };
+
+  stampInitOauth2Authenticate = async (
+    input: SdkTypes.TInitOauth2AuthenticateBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/init_oauth2_authenticate";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_OAUTH2_AUTHENTICATE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   initOtp = async (
     input: SdkTypes.TInitOtpBody,
     stampWith?: StamperType,
@@ -8799,7 +8857,7 @@ export class TurnkeySDKClientBase {
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
         generateAppProofs: generateAppProofs ?? false,
-        type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
+        type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE_V2",
       },
       "oauth2AuthenticateResult",
       stampWith,
@@ -8825,7 +8883,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
+      type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -11441,10 +11499,22 @@ export class TurnkeySDKClientBase {
     return this.authProxyRequest("/v1/account", input);
   };
 
+  proxyInitOAuth2AuthenticateV2 = async (
+    input: SdkTypes.ProxyTInitOAuth2AuthenticateV2Body,
+  ): Promise<SdkTypes.ProxyTInitOAuth2AuthenticateV2Response> => {
+    return this.authProxyRequest("/v1/init_oauth2_authenticate_v2", input);
+  };
+
   proxyOAuth2Authenticate = async (
     input: SdkTypes.ProxyTOAuth2AuthenticateBody,
   ): Promise<SdkTypes.ProxyTOAuth2AuthenticateResponse> => {
     return this.authProxyRequest("/v1/oauth2_authenticate", input);
+  };
+
+  proxyOAuth2AuthenticateV2 = async (
+    input: SdkTypes.ProxyTOAuth2AuthenticateV2Body,
+  ): Promise<SdkTypes.ProxyTOAuth2AuthenticateV2Response> => {
+    return this.authProxyRequest("/v1/oauth2_authenticate_v2", input);
   };
 
   proxyOAuthLogin = async (

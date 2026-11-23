@@ -5849,6 +5849,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  initOauth2Authenticate = async (
+    input: SdkApiTypes.TInitOauth2AuthenticateBody,
+  ): Promise<SdkApiTypes.TInitOauth2AuthenticateResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/init_oauth2_authenticate",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_INIT_OAUTH2_AUTHENTICATE",
+      },
+      "initOauth2AuthenticateResult",
+    );
+  };
+
+  stampInitOauth2Authenticate = async (
+    input: SdkApiTypes.TInitOauth2AuthenticateBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/init_oauth2_authenticate";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_OAUTH2_AUTHENTICATE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   initOtp = async (
     input: SdkApiTypes.TInitOtpBody,
   ): Promise<SdkApiTypes.TInitOtpResponse> => {
@@ -6065,7 +6107,7 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
+        type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE_V2",
       },
       "oauth2AuthenticateResult",
     );
@@ -6085,7 +6127,7 @@ export class TurnkeySDKClientBase {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
+      type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

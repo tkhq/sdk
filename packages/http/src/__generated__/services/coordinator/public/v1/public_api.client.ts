@@ -630,6 +630,10 @@ import type {
   TInitImportWalletBody,
   TInitImportWalletResponse,
 } from "./public_api.fetcher";
+import type {
+  TInitOauth2AuthenticateBody,
+  TInitOauth2AuthenticateResponse,
+} from "./public_api.fetcher";
 import type { TInitOtpBody, TInitOtpResponse } from "./public_api.fetcher";
 import type {
   TInitOtpAuthBody,
@@ -5989,6 +5993,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/init_import_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create an encryption target for confidential OAuth 2.0 authentication inputs.
+   *
+   * Sign the provided `TInitOauth2AuthenticateBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_oauth2_authenticate).
+   *
+   * See also {@link stampInitOauth2Authenticate}.
+   */
+  initOauth2Authenticate = async (
+    input: TInitOauth2AuthenticateBody,
+  ): Promise<TInitOauth2AuthenticateResponse> => {
+    return this.request("/public/v1/submit/init_oauth2_authenticate", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TInitOauth2AuthenticateBody` by using the client's `stamp` function.
+   *
+   * See also {@link InitOauth2Authenticate}.
+   */
+  stampInitOauth2Authenticate = async (
+    input: TInitOauth2AuthenticateBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/init_oauth2_authenticate";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

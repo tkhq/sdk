@@ -12,6 +12,7 @@ import {
 import {
   computeActivityFingerprint,
   decryptSecretBundle,
+  encryptOauth2ToBundle,
   encryptSecretToBundle,
   generateP256KeyPair,
 } from "@turnkey/crypto";
@@ -30,6 +31,7 @@ import {
   type SecretMetadata,
   type SubmitExportSecretsResult,
 } from "./secrets";
+import type { ExchangeOauth2CodeParams } from "./oauth2";
 
 import type {
   ApiCredentials,
@@ -315,6 +317,63 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
       );
     }
     return secretId;
+  };
+
+  /**
+   * Exchanges an OAuth 2.0 authorization code for an OIDC token issued by
+   * Turnkey, for providers that do not issue OIDC tokens themselves (X and
+   * Discord).
+   *
+   * Initializes a single-use TLS Fetcher target for the credential, verifies
+   * the TLS Fetcher signature on it, HPKE-encrypts the authentication inputs
+   * to it, and submits `oauth2_authenticate`.
+   *
+   * @returns the OIDC token issued by Turnkey.
+   */
+  exchangeOauth2Code = async (
+    params: ExchangeOauth2CodeParams,
+  ): Promise<string> => {
+    const {
+      oauth2CredentialId,
+      organizationId = this.config.organizationId,
+      dangerouslyOverrideSignerPublicKey,
+      ...inputs
+    } = params;
+
+    const { enclaveTargetMessage } = await this.initOauth2Authenticate({
+      organizationId,
+      oauth2CredentialId,
+      encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2,
+    });
+    if (!enclaveTargetMessage) {
+      throw new TurnkeyError(
+        "No encryption target found in the init OAuth 2.0 authenticate response",
+        TurnkeyErrorCodes.OAUTH2_AUTHENTICATE_ERROR,
+      );
+    }
+
+    const { encryptedMessage, targetPublicKey } = await encryptOauth2ToBundle({
+      bundle: { ...inputs, organizationId, oauth2CredentialId },
+      enclaveTargetMessage,
+      ...(dangerouslyOverrideSignerPublicKey && {
+        dangerouslyOverrideSignerPublicKey,
+      }),
+    });
+
+    const { oidcToken } = await this.oauth2Authenticate({
+      organizationId,
+      oauth2CredentialId,
+      encryptedMessage,
+      targetPublicKey,
+    });
+    if (!oidcToken) {
+      throw new TurnkeyError(
+        "No OIDC token found in the OAuth 2.0 authenticate response",
+        TurnkeyErrorCodes.OAUTH2_AUTHENTICATE_ERROR,
+      );
+    }
+
+    return oidcToken;
   };
 
   /**

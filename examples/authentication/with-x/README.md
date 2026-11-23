@@ -4,7 +4,7 @@ This example shows a complete OAuth 2.0 login flow with X (Twitter) using [`@tur
 
 - A login page that initiates the X OAuth 2.0 flow
 - A backend route (`/auth/x`) that redirects to X's authorization endpoint
-- A backend route (`/auth/turnkey/x`) that exchanges the auth code for a Turnkey session via `oauth2Authenticate`
+- A backend route (`/auth/turnkey/x`) that exchanges the auth code for a Turnkey session via `exchangeOauth2Code`
 - A redirect page (`/auth/x/redirect`) that handles the OAuth callback and stores the session
 - A dashboard page that displays the authenticated user's ID and Solana wallet address
 
@@ -76,7 +76,7 @@ Open `.env.local` and fill in all values:
 
 ### 5/ Uploading X credentials to Turnkey
 
-The backend uses Turnkey's `oauth2Authenticate` to exchange X auth codes for OIDC tokens. To do this, Turnkey needs your X Client Secret uploaded and encrypted. Run the credential-upload script:
+The backend uses `exchangeOauth2Code` from `@turnkey/sdk-server` to exchange X auth codes for OIDC tokens. It encrypts the auth code, PKCE verifier, and redirect URI to Turnkey's TLS Fetcher enclave before sending them. To do this, Turnkey needs your X Client Secret uploaded and encrypted. Run the credential-upload script:
 
 ```bash
 pnpm run credential-upload -- <client_secret>

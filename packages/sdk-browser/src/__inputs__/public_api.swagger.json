@@ -5042,6 +5042,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/submit/init_oauth2_authenticate": {
+      "post": {
+        "summary": "Initialize OAuth 2.0 authentication",
+        "description": "Create an encryption target for confidential OAuth 2.0 authentication inputs.",
+        "operationId": "PublicApiService_InitOauth2Authenticate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1InitOauth2AuthenticateRequest"
+            }
+          }
+        ],
+        "tags": ["User Auth"]
+      }
+    },
     "/public/v1/submit/init_otp": {
       "post": {
         "summary": "Init generic OTP",
@@ -7351,8 +7383,28 @@
         "ACTIVITY_TYPE_UPDATE_FIAT_RAMP_CREDENTIAL",
         "ACTIVITY_TYPE_CREATE_EXTERNAL_SIGNER_V1",
         "ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1",
-        "ACTIVITY_TYPE_MINT_JWT"
+        "ACTIVITY_TYPE_MINT_JWT",
+        "ACTIVITY_TYPE_ADD_NOTIFICATION_DOMAINS",
+        "ACTIVITY_TYPE_DELETE_NOTIFICATION_DOMAINS",
+        "ACTIVITY_TYPE_INIT_OAUTH2_AUTHENTICATE",
+        "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE_V2"
       ]
+    },
+    "v1AddNotificationDomainsIntent": {
+      "type": "object",
+      "properties": {
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Bare domains to allow in notification links, such as example.com. Between 1 and 50."
+        }
+      },
+      "required": ["domains"]
+    },
+    "v1AddNotificationDomainsResult": {
+      "type": "object"
     },
     "v1AddressFormat": {
       "type": "string",
@@ -7890,6 +7942,10 @@
         "qosManifestVersion": {
           "type": "string",
           "description": "QOS manifest schema version."
+        },
+        "quorumKeyAttestationSignatureHex": {
+          "type": "string",
+          "description": "Hex-encoded Signer quorum-key signature over the domain-separated AWS attestation document."
         }
       },
       "required": [
@@ -10122,6 +10178,10 @@
         "region": {
           "type": "string",
           "description": "AWS region in which to place this TVC application. Allowed values: us-east-1, ap-southeast-1. Default if not provided: us-east-1."
+        },
+        "enableStaticEgressIps": {
+          "type": "boolean",
+          "description": "Enables static egress IPs for this TVC app. Requires enableEgress to be true. Set at app creation. Default if not provided: false."
         }
       },
       "required": ["name", "quorumPublicKey"]
@@ -11256,6 +11316,22 @@
         }
       },
       "required": ["mfaPolicyId"]
+    },
+    "v1DeleteNotificationDomainsIntent": {
+      "type": "object",
+      "properties": {
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Bare domains to remove from notification links, such as example.com. Between 1 and 50."
+        }
+      },
+      "required": ["domains"]
+    },
+    "v1DeleteNotificationDomainsResult": {
+      "type": "object"
     },
     "v1DeleteOauth2CredentialIntent": {
       "type": "object",
@@ -13478,6 +13554,10 @@
             "$ref": "#/definitions/v1EthCallParams"
           },
           "description": "Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station."
+        },
+        "externalSignerPubkey": {
+          "type": "string",
+          "description": "The public key of the external signer to use for signing this transaction. Only needed for external signer requests."
         }
       },
       "required": ["from", "caip2", "calls"]
@@ -17121,6 +17201,54 @@
       },
       "required": ["importBundle"]
     },
+    "v1InitOauth2AuthenticateIntent": {
+      "type": "object",
+      "properties": {
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "The OAuth 2.0 credential whose authentication inputs will be encrypted to the target."
+        },
+        "encryptionSuite": {
+          "$ref": "#/definitions/v1TransportEncryptionSuite",
+          "description": "The transport encryption suite for the OAuth 2.0 authentication target."
+        }
+      },
+      "required": ["oauth2CredentialId", "encryptionSuite"]
+    },
+    "v1InitOauth2AuthenticateRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_INIT_OAUTH2_AUTHENTICATE"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1InitOauth2AuthenticateIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1InitOauth2AuthenticateResult": {
+      "type": "object",
+      "properties": {
+        "enclaveTargetMessage": {
+          "type": "string",
+          "description": "The TLS Fetcher-signed encryption target for OAuth 2.0 authentication inputs."
+        }
+      },
+      "required": ["enclaveTargetMessage"]
+    },
     "v1InitOtpAuthIntent": {
       "type": "object",
       "properties": {
@@ -18176,6 +18304,18 @@
         },
         "mintJwtIntent": {
           "$ref": "#/definitions/v1MintJwtIntent"
+        },
+        "addNotificationDomainsIntent": {
+          "$ref": "#/definitions/v1AddNotificationDomainsIntent"
+        },
+        "deleteNotificationDomainsIntent": {
+          "$ref": "#/definitions/v1DeleteNotificationDomainsIntent"
+        },
+        "initOauth2AuthenticateIntent": {
+          "$ref": "#/definitions/v1InitOauth2AuthenticateIntent"
+        },
+        "oauth2AuthenticateIntentV2": {
+          "$ref": "#/definitions/v1Oauth2AuthenticateIntentV2"
         }
       }
     },
@@ -19003,12 +19143,30 @@
         "nonce"
       ]
     },
+    "v1Oauth2AuthenticateIntentV2": {
+      "type": "object",
+      "properties": {
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "The OAuth 2.0 credential selected by the client and repeated inside the encrypted payload."
+        },
+        "encryptedMessage": {
+          "type": "string",
+          "description": "Encryption suite specific ciphertext of a JSON object containing organization_id, oauth2_credential_id, client_id, provider, auth_code, code_verifier, redirect_uri, nonce, and optional bearer_token_target_public_key. For enclave encrypt v1 this is a JSON-encoded ClientSendMsg encrypted to target_public_key."
+        },
+        "targetPublicKey": {
+          "type": "string",
+          "description": "Targeted transport encryption public key, from the enclave target message returned by InitOauth2Authenticate."
+        }
+      },
+      "required": ["oauth2CredentialId", "encryptedMessage", "targetPublicKey"]
+    },
     "v1Oauth2AuthenticateRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"]
+          "enum": ["ACTIVITY_TYPE_OAUTH2_AUTHENTICATE_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -19019,7 +19177,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1Oauth2AuthenticateIntent"
+          "$ref": "#/definitions/v1Oauth2AuthenticateIntentV2"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -20600,6 +20758,15 @@
         },
         "mintJwtResult": {
           "$ref": "#/definitions/v1MintJwtResult"
+        },
+        "addNotificationDomainsResult": {
+          "$ref": "#/definitions/v1AddNotificationDomainsResult"
+        },
+        "deleteNotificationDomainsResult": {
+          "$ref": "#/definitions/v1DeleteNotificationDomainsResult"
+        },
+        "initOauth2AuthenticateResult": {
+          "$ref": "#/definitions/v1InitOauth2AuthenticateResult"
         }
       }
     },
@@ -21504,6 +21671,10 @@
         "recentBlockhash": {
           "type": "string",
           "description": "User-provided blockhash for replay protection / deadline control. If provided, it is used as-is, including for sponsored transactions (the transaction is only broadcastable while the blockhash is current). If omitted and sponsor=true, a fresh blockhash is fetched during execution."
+        },
+        "externalSignerPubkey": {
+          "type": "string",
+          "description": "The public key of the external signer to use for signing this transaction. Only needed for external signer requests."
         }
       },
       "required": ["unsignedTransaction", "signWiths", "caip2"]
@@ -22774,6 +22945,10 @@
         "region": {
           "type": "string",
           "description": "region this TVC App is deployed in, e.g. us-east-1 or ap-southeast-1. Set at app creation."
+        },
+        "enableStaticEgressIps": {
+          "type": "boolean",
+          "description": "Whether this TVC app has static egress IPs enabled. Set at app creation."
         }
       },
       "required": [
@@ -22788,7 +22963,8 @@
         "updatedAt",
         "publicDomain",
         "enableDebugModeDeployments",
-        "region"
+        "region",
+        "enableStaticEgressIps"
       ]
     },
     "v1TvcContainerSpec": {

@@ -13,6 +13,7 @@ import type {
   v1WalletAccountParams,
   v1AppProof,
   v1OidcClaims,
+  v1Oauth2Provider,
   TSignedRequest,
   v1EthSendTransactionIntent,
   v1EthSendTransactionIntentV2,
@@ -192,6 +193,16 @@ export type CompleteOtpParams = {
   createSubOrgParams?: CreateSubOrgParams;
   sessionProfileId?: string;
   captchaToken?: string;
+};
+
+export type ExchangeOauth2CodeParams = {
+  provider: v1Oauth2Provider;
+  clientId: string;
+  authCode: string;
+  codeVerifier: string;
+  redirectUri: string;
+  nonce: string;
+  bearerTokenTargetPublicKey?: string;
 };
 
 export type CompleteOauthParams = {

@@ -396,6 +396,122 @@ export const encryptSecretToBundle = async ({
 };
 
 /**
+ * The confidential `oauth2_authenticate` inputs encrypted to the TLS Fetcher.
+ * `organizationId`, `oauth2CredentialId`, `clientId`, and `provider` must match the
+ * authenticating organization's OAuth 2.0 credential.
+ */
+export interface Oauth2AuthenticationBundle {
+  organizationId: string;
+  oauth2CredentialId: string;
+  clientId: string;
+  /** The OAuth 2.0 provider enum name, such as `OAUTH2_PROVIDER_X`. */
+  provider: string;
+  authCode: string;
+  codeVerifier: string;
+  redirectUri: string;
+  /** The lowercase hex SHA-256 digest bound into the issued OIDC token. */
+  nonce: string;
+  /** Optionally receives the provider bearer token, encrypted to this uncompressed P-256 public key. */
+  bearerTokenTargetPublicKey?: string | undefined;
+}
+
+interface EncryptOAuth2ToBundleParams {
+  bundle: Oauth2AuthenticationBundle;
+  /** The TLS Fetcher-signed target from `init_oauth2_authenticate`. */
+  enclaveTargetMessage: string;
+  dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
+}
+
+/**
+ * Encrypts OAuth 2.0 authentication inputs to the TLS Fetcher target returned by
+ * `init_oauth2_authenticate`, bound to `bundle.oauth2CredentialId`.
+ *
+ * Verifies the TLS Fetcher quorum key signature on the target, checks that it was
+ * signed for `bundle.organizationId` with no user, then HPKE-encrypts the inputs to the
+ * target key. The init request must use `TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2`,
+ * and the `oauth2_authenticate` request must send the same credential ID.
+ *
+ * @param {EncryptOAuth2ToBundleParams} params - An object containing the following properties:
+ *   - bundle {Oauth2AuthenticationBundle}: The OAuth 2.0 authentication inputs.
+ *   - enclaveTargetMessage {string}: The TLS Fetcher-signed target from `init_oauth2_authenticate`.
+ *   - dangerouslyOverrideSignerPublicKey {string} [Optional]: Override the default TLS Fetcher signer public key for verification. Testing only.
+ * @returns {Promise<{encryptedMessage: string; targetPublicKey: string}>} - The `encryptedMessage` and `targetPublicKey` for `oauth2_authenticate`.
+ * @throws {Error} - If signature verification or validation fails.
+ */
+export const encryptOauth2ToBundle = async ({
+  bundle,
+  enclaveTargetMessage,
+  dangerouslyOverrideSignerPublicKey,
+}: EncryptOAuth2ToBundleParams): Promise<{
+  encryptedMessage: string;
+  targetPublicKey: string;
+}> => {
+  const parsedTarget = JSON.parse(enclaveTargetMessage);
+  const verified = await verifyEnclaveSignature(
+    parsedTarget.enclaveQuorumPublic,
+    parsedTarget.dataSignature,
+    parsedTarget.data,
+    dangerouslyOverrideSignerPublicKey ??
+      PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
+  );
+  if (!verified) {
+    throw new Error("failed to verify enclave signature on OAuth 2.0 target");
+  }
+
+  const signedData = JSON.parse(
+    new TextDecoder().decode(uint8ArrayFromHexString(parsedTarget.data)),
+  );
+  if (
+    !signedData.organizationId ||
+    signedData.organizationId !== bundle.organizationId
+  ) {
+    throw new Error(
+      `organization id does not match expected value. Expected: ${bundle.organizationId}. Found: ${signedData.organizationId}.`,
+    );
+  }
+  if (signedData.userId) {
+    throw new Error(
+      `OAuth 2.0 target user id must be empty. Found: ${signedData.userId}.`,
+    );
+  }
+  if (!signedData.targetPublic) {
+    throw new Error('missing "targetPublic" in target signed data');
+  }
+
+  const plainTextBuf = new TextEncoder().encode(
+    JSON.stringify({
+      organization_id: bundle.organizationId,
+      oauth2_credential_id: bundle.oauth2CredentialId,
+      client_id: bundle.clientId,
+      provider: bundle.provider,
+      auth_code: bundle.authCode,
+      code_verifier: bundle.codeVerifier,
+      redirect_uri: bundle.redirectUri,
+      nonce: bundle.nonce,
+      ...(bundle.bearerTokenTargetPublicKey && {
+        bearer_token_target_public_key: bundle.bearerTokenTargetPublicKey,
+      }),
+    }),
+  );
+  try {
+    const encrypted = hpkeEncrypt({
+      plainTextBuf,
+      targetKeyBuf: uint8ArrayFromHexString(signedData.targetPublic),
+      purposeBinding: oauth2AuthenticatePurposeBinding(
+        bundle.oauth2CredentialId,
+      ),
+    });
+
+    return {
+      encryptedMessage: formatHpkeBuf(encrypted),
+      targetPublicKey: signedData.targetPublic,
+    };
+  } finally {
+    plainTextBuf.fill(0);
+  }
+};
+
+/**
  * Decrypts one entry of ExportSecretsResult.secretPayloads (a JSON-encoded
  * ServerSendMsg) with the client-side ephemeral private key.
  *

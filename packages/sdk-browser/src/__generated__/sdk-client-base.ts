@@ -7408,6 +7408,58 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  initOauth2Authenticate = async (
+    input: SdkApiTypes.TInitOauth2AuthenticateBody,
+  ): Promise<SdkApiTypes.TInitOauth2AuthenticateResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/init_oauth2_authenticate",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_INIT_OAUTH2_AUTHENTICATE",
+      },
+      "initOauth2AuthenticateResult",
+    );
+  };
+
+  stampInitOauth2Authenticate = async (
+    input: SdkApiTypes.TInitOauth2AuthenticateBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/init_oauth2_authenticate";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_OAUTH2_AUTHENTICATE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   initOtp = async (
     input: SdkApiTypes.TInitOtpBody,
   ): Promise<SdkApiTypes.TInitOtpResponse> => {
@@ -7680,7 +7732,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
+        type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE_V2",
       },
       "oauth2AuthenticateResult",
     );
@@ -7704,7 +7756,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
+      type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
