@@ -197,6 +197,7 @@ describe("TurnkeySigner", () => {
       testCase(
         "it throws when there's a deny policy on the transaction",
         async () => {
+          expect.assertions(2);
           try {
             await connectedSigner.signTransaction({
               to: bannedToAddress,

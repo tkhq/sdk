@@ -204,6 +204,7 @@ describe("TurnkeyAccount", () => {
       testCase(
         "it throws when there's a deny policy on the transaction",
         async () => {
+          expect.assertions(2);
           try {
             await walletClient.signTransaction({
               account: turnkeyAccount,
