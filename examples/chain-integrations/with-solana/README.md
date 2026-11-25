@@ -313,12 +313,12 @@ To get a token to send on devnet, you can either use [Circle's faucet](https://f
 $ pnpm spl-transfer
 ```
 
-The script prompts for the destination address and the amount (in whole tokens, e.g. `1.5`), then asks you to confirm before broadcasting.
+The script prompts for the destination address and the amount (in whole tokens, e.g. `1.5`), then asks you to confirm before signing and sending.
 
 A few things to know about SPL token transfers:
 
 - Your Solana address pays the network fee in SOL, so it needs a small SOL balance besides the token
-- Tokens are held in "associated token accounts" (ATAs). If the destination doesn't have one for this token yet, the script creates it in the same transaction, and your address pays its one-time rent deposit (about 0.0015 SOL)
+- Tokens are held in "associated token accounts" (ATAs). If the destination doesn't have one for this token yet, the script creates it in the same transaction, and your address pays its one-time rent deposit (about 0.0015 SOL at the time of writing)
 - The transaction is signed with Turnkey's Sign Transaction endpoint, so Solana policies (e.g. `solana.tx.spl_transfers`) apply to it
 - Most Token-2022 tokens work, but not those using extensions that add transfer requirements (transfer hooks, required memos, confidential transfers, non-transferable). With a transfer fee, the recipient receives the amount minus the fee
 

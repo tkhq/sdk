@@ -162,7 +162,8 @@ async function main() {
       name: "destination",
       type: "text",
       message: `Destination address:`,
-      initial: defaultDestination,
+      // No default on mainnet, so real tokens are only sent to an address you type
+      initial: network === "mainnet" ? "" : defaultDestination,
       validate: function (str) {
         let pubkey: PublicKey;
         try {
@@ -171,8 +172,9 @@ async function main() {
           return "destination must be a valid Solana address";
         }
         // Token accounts are off-curve addresses: tokens must be sent to the wallet that owns them
+        // (program-owned wallets, e.g. multisig vaults, are off-curve too and aren't supported here)
         if (!PublicKey.isOnCurve(pubkey.toBytes())) {
-          return "enter the wallet address, not a token account";
+          return "address is off-curve (a token account or program-owned address); enter a wallet address";
         }
         return true;
       },
