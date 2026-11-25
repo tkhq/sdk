@@ -1,14 +1,19 @@
-$url = "https://raw.githubusercontent.com/tkhq/sdk/main/packages/core/src/__clients__/core.ts"
-$code = (Invoke-WebRequest -UseBasicParsing -Uri $url).Content.Replace("`r`n", "`n")
+import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
+import type {
+  EthSendErc20TransferParams,
+  EthSendTransactionParams,
+} from "./__types__";
 
-function Replace-Once([string]$src, [string]$old, [string]$new) {
-  $o = $old.Replace("`r`n", "`n")
-  $n = $new.Replace("`r`n", "`n")
-  if (-not $src.Contains($o)) { throw "Anchor not found:`n$o" }
-  return $src.Replace($o, $n)
+export interface TurnkeyDacsAttestationContext {
+  amount: bigint;
+  kind: "native" | "erc20";
+  organizationId?: string;
+  caip2?: string;
+  tokenAddress?: string;
+  dacsMandate?: string;
+  dacsSessionId?: string;
 }
 
-$helpers = @'
 export interface TurnkeyDacsGuardrail {
   /** Optional DACS mandate identifier. */
   dacsMandate?: string;
@@ -23,18 +28,17 @@ export interface TurnkeyDacsGuardrail {
    * Optional synchronous or async DACS attestation hook invoked before signing and submission.
    * For `ethSendTransaction`, checks inspect aggregate native `value` only (do not decode ABI `data`).
    */
-  onAttest?: (context: {
-    amount: bigint;
-    kind: "native" | "erc20";
-    organizationId?: string;
-    caip2?: string;
-    tokenAddress?: string;
-    dacsMandate?: string;
-    dacsSessionId?: string;
-  }) => void | Promise<void>;
+  onAttest?: (context: TurnkeyDacsAttestationContext) => void | Promise<void>;
 }
 
-function parseDacsMaxAmountBaseUnits(maxAmount: bigint | string): bigint {
+export interface TurnkeyDacsCapableClient {
+  ethSendTransaction: (params: EthSendTransactionParams) => Promise<string>;
+  ethSendErc20Transfer: (params: EthSendErc20TransferParams) => Promise<string>;
+}
+
+export function parseDacsMaxAmountBaseUnits(
+  maxAmount: bigint | string,
+): bigint {
   if (typeof maxAmount === "bigint") {
     if (maxAmount < 0n) {
       throw new TurnkeyError(
@@ -55,7 +59,7 @@ function parseDacsMaxAmountBaseUnits(maxAmount: bigint | string): bigint {
   return BigInt(normalized);
 }
 
-function parseEthNativeValueBaseUnits(value: unknown): bigint {
+export function parseEthNativeValueBaseUnits(value: unknown): bigint {
   if (value === undefined || value === null || value === "") {
     return 0n;
   }
@@ -84,7 +88,11 @@ function parseEthNativeValueBaseUnits(value: unknown): bigint {
   );
 }
 
-function extractEthNativeValue(transaction: unknown): bigint {
+/**
+ * Extracts aggregate native `value` (wei) from v1 single-call or v2 batched (`calls[]`)
+ * Turnkey Ethereum transaction payloads. Does not decode token amounts inside ABI `data`.
+ */
+export function extractEthNativeValue(transaction: unknown): bigint {
   if (!transaction || typeof transaction !== "object") {
     return 0n;
   }
@@ -104,15 +112,13 @@ function extractEthNativeValue(transaction: unknown): bigint {
   );
 }
 
-async function enforceDacsGuardrail(
+/**
+ * Deterministic DACS pre-flight spend guardrail and optional attestation hook.
+ * Enforces `dacsMaxAmount` whenever provided, independent of mandate/session IDs.
+ */
+export async function enforceTurnkeyDacsGuardrail(
   dacsGuardrail: TurnkeyDacsGuardrail | undefined,
-  context: {
-    amount: bigint;
-    kind: "native" | "erc20";
-    organizationId?: string;
-    caip2?: string;
-    tokenAddress?: string;
-  },
+  context: Omit<TurnkeyDacsAttestationContext, "dacsMandate" | "dacsSessionId">,
 ): Promise<void> {
   if (!dacsGuardrail) {
     return;
@@ -151,96 +157,70 @@ async function enforceDacsGuardrail(
   }
 }
 
-export type TurnkeyClientMethods = Omit<
-'@
+/**
+ * Wraps a `TurnkeyClient` with synchronous DACS pre-flight guardrails for
+ * `ethSendTransaction` and `ethSendErc20Transfer` without mutating coordinator payloads.
+ */
+export function withTurnkeyDacsGuardrail<
+  TClient extends TurnkeyDacsCapableClient,
+>(client: TClient, defaultGuardrail?: TurnkeyDacsGuardrail) {
+  return {
+    ethSendTransaction: async (
+      params: EthSendTransactionParams & {
+        dacsGuardrail?: TurnkeyDacsGuardrail;
+      },
+    ): Promise<string> => {
+      const { dacsGuardrail, ...forwardParams } = params;
+      const activeGuardrail = dacsGuardrail ?? defaultGuardrail;
+      const caip2 =
+        "caip2" in forwardParams.transaction &&
+        typeof forwardParams.transaction.caip2 === "string"
+          ? forwardParams.transaction.caip2
+          : undefined;
 
-$code = Replace-Once $code 'export type TurnkeyClientMethods = Omit<' $helpers
+      await enforceTurnkeyDacsGuardrail(activeGuardrail, {
+        amount: extractEthNativeValue(forwardParams.transaction),
+        kind: "native",
+        ...(forwardParams.organizationId !== undefined
+          ? { organizationId: forwardParams.organizationId }
+          : {}),
+        ...(caip2 !== undefined ? { caip2 } : {}),
+      });
 
-$code = Replace-Once $code @'
-  ethSendErc20Transfer = async (
-    params: EthSendErc20TransferParams,
-  ): Promise<string> => {
-    const {
-      organizationId,
-      stampWith = this.config.defaultStamperType,
-      transfer,
-    } = params;
-'@ @'
-  ethSendErc20Transfer = async (
-    params: EthSendErc20TransferParams & {
-      dacsGuardrail?: TurnkeyDacsGuardrail;
+      return client.ethSendTransaction(forwardParams);
     },
-  ): Promise<string> => {
-    const {
-      organizationId,
-      stampWith = this.config.defaultStamperType,
-      transfer,
-      dacsGuardrail,
-    } = params;
-'@
 
-$code = Replace-Once $code @'
-        const data = encodeFunctionData({
-          abi: ERC20_TRANSFER_ABI,
-          functionName: "transfer",
-          args: [to as `0x${string}`, parsedAmount],
-        });
-'@ @'
-        await enforceDacsGuardrail(dacsGuardrail, {
-          amount: parsedAmount,
-          kind: "erc20",
-          ...(organizationId !== undefined ? { organizationId } : {}),
-          ...(caip2 !== undefined ? { caip2 } : {}),
-          tokenAddress,
-        });
+    ethSendErc20Transfer: async (
+      params: EthSendErc20TransferParams & {
+        dacsGuardrail?: TurnkeyDacsGuardrail;
+      },
+    ): Promise<string> => {
+      const { dacsGuardrail, ...forwardParams } = params;
+      const activeGuardrail = dacsGuardrail ?? defaultGuardrail;
 
-        const data = encodeFunctionData({
-          abi: ERC20_TRANSFER_ABI,
-          functionName: "transfer",
-          args: [to as `0x${string}`, parsedAmount],
-        });
-'@
+      let parsedAmount: bigint;
+      try {
+        parsedAmount = BigInt(forwardParams.transfer.amount);
+      } catch {
+        throw new TurnkeyError(
+          "Invalid ERC20 amount. Use a base-unit integer string.",
+          TurnkeyErrorCodes.INVALID_REQUEST,
+        );
+      }
 
-$code = Replace-Once $code @'
-  ethSendTransaction = async (
-    params: EthSendTransactionParams,
-  ): Promise<string> => {
-    const {
-      organizationId: organizationIdFromParams,
-      stampWith = this.config.defaultStamperType,
-      transaction,
-    } = params;
-'@ @'
-  ethSendTransaction = async (
-    params: EthSendTransactionParams & {
-      dacsGuardrail?: TurnkeyDacsGuardrail;
+      await enforceTurnkeyDacsGuardrail(activeGuardrail, {
+        amount: parsedAmount,
+        kind: "erc20",
+        ...(forwardParams.organizationId !== undefined
+          ? { organizationId: forwardParams.organizationId }
+          : {}),
+        ...(forwardParams.transfer.caip2 !== undefined
+          ? { caip2: forwardParams.transfer.caip2 }
+          : {}),
+        tokenAddress: forwardParams.transfer.tokenAddress,
+      });
+
+      return client.ethSendErc20Transfer(forwardParams);
     },
-  ): Promise<string> => {
-    const {
-      organizationId: organizationIdFromParams,
-      stampWith = this.config.defaultStamperType,
-      transaction,
-      dacsGuardrail,
-    } = params;
-'@
-
-$code = Replace-Once $code @'
-        // Conditionally call v2 activity if calls array exists.
-'@ @'
-        const caip2 =
-          "caip2" in transaction && typeof transaction.caip2 === "string"
-            ? transaction.caip2
-            : undefined;
-
-        await enforceDacsGuardrail(dacsGuardrail, {
-          amount: extractEthNativeValue(transaction),
-          kind: "native",
-          organizationId,
-          ...(caip2 !== undefined ? { caip2 } : {}),
-        });
-
-        // Conditionally call v2 activity if calls array exists.
-'@
-
-Set-Clipboard -Value $code
-Write-Host "READY: Full patched core.ts ($($code.Split("`n").Count) lines) copied to clipboard. Go to GitHub -> Ctrl+A -> Ctrl+V." -ForegroundColor Green
+  };
+}
