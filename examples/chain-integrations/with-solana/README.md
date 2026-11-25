@@ -181,7 +181,17 @@ NOTE: A very key piece of understanding to glean from this example is the use of
 
 #### Step 1. Setup
 
-First we will run the setup command
+First, generate an API key for the non-root user that this example creates:
+
+```bash
+$ pnpm generate-keys
+```
+
+This writes a fresh key pair to `keys.local.json` in this folder. The file is gitignored and holds a private key, so never commit or share it. Running the command again will not overwrite an existing key unless you pass `--force`.
+
+> **Warning:** the setup command adds this user and its API key to your organization, and they stay there until you delete them. Run this example in a test organization, and remove the user when you're done.
+
+Next we will run the setup command
 
 ```bash
 $ pnpm token-transfer-policy setup

@@ -13,8 +13,8 @@ export default async function createUser(
 ): Promise<string> {
   let userTags: string[] = new Array();
   try {
-    const { userIds } = await turnkeyClient.createApiOnlyUsers({
-      apiOnlyUsers: [
+    const { userIds } = await turnkeyClient.createUsers({
+      users: [
         {
           userName,
           userTags,
@@ -22,8 +22,11 @@ export default async function createUser(
             {
               apiKeyName,
               publicKey,
+              curveType: "API_KEY_CURVE_P256",
             },
           ],
+          authenticators: [],
+          oauthProviders: [],
         },
       ],
     });

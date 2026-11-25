@@ -13,6 +13,7 @@
     "with-fee-payer": "pnpm tsx src/withFeePayer.ts",
     "add-signature": "pnpm tsx src/addSignature.ts",
     "broadcast": "pnpm tsx src/broadcast.ts",
+    "generate-keys": "pnpm tsx src/generateKeys.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -21,6 +22,7 @@
     "@solana/spl-token": "^0.4.8",
     "@solana/web3.js": "^1.95.8",
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/crypto": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",

@@ -4,11 +4,13 @@
   "private": true,
   "scripts": {
     "build": "tsc --noEmit false",
+    "generate-keys": "tsx src/generateKeys.ts",
     "cli": "tsx src/index.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@turnkey/crypto": "workspace:*",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",

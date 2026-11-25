@@ -22,8 +22,8 @@ async function main() {
   const apiKeyName = "<API key name>";
   const publicKey = "<API public key>";
 
-  const { userIds } = await turnkeyClient.apiClient().createApiOnlyUsers({
-    apiOnlyUsers: [
+  const { userIds } = await turnkeyClient.apiClient().createUsers({
+    users: [
       {
         userName,
         userTags,
@@ -31,8 +31,11 @@ async function main() {
           {
             apiKeyName,
             publicKey,
+            curveType: "API_KEY_CURVE_P256",
           },
         ],
+        authenticators: [],
+        oauthProviders: [],
       },
     ],
   });

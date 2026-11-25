@@ -1,13 +1,19 @@
-// NOTE: All of these keys should be considered compromised!!!!
-// NOTE: Only used for demo purposes
+import * as fs from "fs";
+import * as path from "path";
 
-const keys: { [key: string]: { [key: string]: string } } = {
-  nonRootUser: {
-    publicKey:
-      "03178b1cb727bd1ab23c3c5725d633f9ad3c7c0502efda2371e4e4bd88aea8a94d",
-    privateKey:
-      "26e53957146d5d5b5612f09518b8bb40deddcf28d378270101227cb0a231969e",
-  },
-};
+// API keys for the demo users this example creates in your organization.
+// They are generated locally by `pnpm generate-keys` and stored in
+// `keys.local.json`, which is gitignored. Never commit that file.
+const KEYS_FILE = path.resolve(process.cwd(), "keys.local.json");
+
+if (!fs.existsSync(KEYS_FILE)) {
+  throw new Error(
+    `Missing ${KEYS_FILE}. Run \`pnpm generate-keys\` to create the demo API keys first.`,
+  );
+}
+
+const keys: { [key: string]: { [key: string]: string } } = JSON.parse(
+  fs.readFileSync(KEYS_FILE, "utf8"),
+);
 
 export default keys;

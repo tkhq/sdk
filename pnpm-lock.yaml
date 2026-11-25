@@ -2215,6 +2215,9 @@ importers:
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../../../packages/api-key-stamper
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
       '@turnkey/encoding':
         specifier: workspace:*
         version: link:../../../packages/encoding
@@ -2613,6 +2616,9 @@ importers:
 
   examples/defi/trading-runner:
     dependencies:
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../../packages/ethers
@@ -4204,6 +4210,9 @@ importers:
 
   examples/transaction-management/rebalancer:
     dependencies:
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../../packages/ethers

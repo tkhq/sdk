@@ -24,11 +24,11 @@ async function main() {
   const apiKeyName = "<API key name>";
   const publicKey = "<API public key>";
 
-  const { activity } = await turnkeyClient.createApiOnlyUsers({
-    type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
+  const { activity } = await turnkeyClient.createUsers({
+    type: "ACTIVITY_TYPE_CREATE_USERS_V4",
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {
-      apiOnlyUsers: [
+      users: [
         {
           userName,
           userTags,
@@ -36,17 +36,18 @@ async function main() {
             {
               apiKeyName,
               publicKey,
+              curveType: "API_KEY_CURVE_P256",
             },
           ],
+          authenticators: [],
+          oauthProviders: [],
         },
       ],
     },
     timestampMs: String(Date.now()), // millisecond timestamp
   });
 
-  const userId = refineNonNull(
-    activity.result.createApiOnlyUsersResult?.userIds?.[0],
-  );
+  const userId = refineNonNull(activity.result.createUsersResult?.userIds?.[0]);
 
   // Success!
   console.log(
