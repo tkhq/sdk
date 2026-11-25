@@ -1,5 +1,56 @@
 # @turnkey/sdk-server
 
+## 8.11.0
+
+### Minor Changes
+
+- [#1668](https://github.com/tkhq/sdk/pull/1668) [`571a3c3`](https://github.com/tkhq/sdk/commit/571a3c320a46c16b0e14c15b92e970d33384bec0) Author [@hadrelandon](https://github.com/hadrelandon) - Security fix: remove the API proxy helpers `expressProxyHandler`, `nextProxyHandler` and `apiProxy`, and the `TurnkeyProxyHandlerConfig` type.
+
+  If you use these helpers, take the proxy route out. For each action your app needs, add a server endpoint that checks who the caller is, builds the request on the server, and calls `turnkey.apiClient()` directly.
+
+## 8.10.0
+
+### Minor Changes
+
+- [#1665](https://github.com/tkhq/sdk/pull/1665) [`c6251db`](https://github.com/tkhq/sdk/commit/c6251db9035ae2812788f077bb065d2f4846589a) Author [@hadrelandon](https://github.com/hadrelandon) - Remove the Next.js server actions from the server SDK. `server` is no longer exported. Call `apiClient()` from your own server code.
+
+- [#1651](https://github.com/tkhq/sdk/pull/1651) [`b0b707d`](https://github.com/tkhq/sdk/commit/b0b707ddab783b5859b604ccbddec3aee5d03df1) Author [@figitaki](https://github.com/figitaki) - Add `createTurnkeyBotSigner`, an Ed25519 remote signer for HTTP message signature
+  provers. It uses an authenticated Turnkey client and verifies each returned
+  signature against the configured public key. Request serialization and prover
+  behavior remain with the consuming library.
+
+  Add `createTurnkeyEs256Signer` for P-256/SHA-256 signing. It sends the original
+  message bytes for SHA-256 hashing in Turnkey and returns a checked, fixed-width
+  64-byte ECDSA signature suitable for JOSE ES256 and HTTP message signing.
+
+  Also add `ed25519PublicKeyToJwk`, `p256PublicKeyToJwk` and `jwkThumbprint` for
+  public Ed25519 and P-256 keys. P-256 conversion accepts compressed or uncompressed
+  SEC1 points, and thumbprints follow RFC 7638 using only required public members.
+
+  Failed signing requests throw `TurnkeySigningError`, with a `code`, and the
+  `activityId` and `activityStatus` when Turnkey reports them. The adapters
+  return a signature only when the activity status is `ACTIVITY_STATUS_COMPLETED`.
+
+- [#1650](https://github.com/tkhq/sdk/pull/1650) [`a232e57`](https://github.com/tkhq/sdk/commit/a232e57e18a3ed517bbbacae97dcc44bd9b8557b) Author [@emostov](https://github.com/emostov) - `importSecret` now uses `TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2`, which binds the ciphertext to the secret's name and static properties. `encryptSecretToBundle` now requires `name` and `staticProperties`. Adds `importSecretsPurposeBinding` and an optional `purposeBinding` to `hpkeEncrypt` and `hpkeDecrypt`.
+
+- [#1660](https://github.com/tkhq/sdk/pull/1660) [`7500289`](https://github.com/tkhq/sdk/commit/75002891b2fe50c758e6e57cde94f5fea9ded395) Author [@ericvelazquez](https://github.com/ericvelazquez) - Sync generated clients and types with mono `main` (2026-11-16).
+  - Earn: `listEarnVaults` and `listEarnEnabledVaults` entries carry `rewardsApyPct`, the protocol-reward portion of `apyPct`. `apyPct` is now documented as gross APY including rewards and `netApyPct` as net of fees on the non-reward portion only.
+  - Send-transaction status responses carry the landed transaction's `fee` (`EthTransactionFee` on EVM, `SolanaTransactionFee` on Solana) with the sponsored cost in USD.
+  - Swap quotes include `transactions`, the calls the swap executes in order.
+  - Usage controls: `UsageControlAggregation` is replaced by `UsageControlBudget` (`method`, `limit`, `window`), and the data source filters are removed.
+  - `deleteExternalSigner` accepts `deleteWithoutExport`; `TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2` is added.
+
+  The `with-earn` example now runs on Solana as well as EVM: set `CHAIN_CAIP2` to `solana:mainnet` or `solana:devnet` to enable a Kamino vault, deposit, withdraw, and claim fees with the same scripts. It also calls the Earn queries by their current client names (`listEarnVaults`, `listEarnEnabledVaults`, `listEarnPositions`, `getEarn*Status`), which the example had fallen behind on.
+
+### Patch Changes
+
+- Updated dependencies [[`a232e57`](https://github.com/tkhq/sdk/commit/a232e57e18a3ed517bbbacae97dcc44bd9b8557b), [`7500289`](https://github.com/tkhq/sdk/commit/75002891b2fe50c758e6e57cde94f5fea9ded395)]:
+  - @turnkey/crypto@2.14.0
+  - @turnkey/sdk-types@1.13.0
+  - @turnkey/http@6.9.0
+  - @turnkey/api-key-stamper@0.6.20
+  - @turnkey/wallet-stamper@1.1.32
+
 ## 8.9.1
 
 ### Patch Changes

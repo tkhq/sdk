@@ -23,25 +23,11 @@ import type { PollTransactionStatusParams } from "./sdk-client";
 import type {
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
-  TurnkeyProxyHandlerConfig,
 } from "./__types__/base";
 
 import { type TSignedRequest, TurnkeyRequestError } from "@turnkey/sdk-types";
 
 import { fetch } from "./universal";
-import {
-  createSuborg,
-  getSuborgs,
-  getVerifiedSuborgs,
-  sendOtp,
-  verifyOtp,
-  oauthLogin,
-  otpLogin,
-  getOrCreateSuborg,
-  sendCredential,
-  getUsers,
-  createOauthProviders,
-} from "./actions";
 
 // Classes
 export {
@@ -53,21 +39,6 @@ export {
   TurnkeyRequestError,
 };
 
-// Server Actions
-export const server = {
-  verifyOtp,
-  sendOtp,
-  oauthLogin,
-  otpLogin,
-  getUsers,
-  getSuborgs,
-  getVerifiedSuborgs,
-  createSuborg,
-  getOrCreateSuborg,
-  createOauthProviders,
-  sendCredential,
-};
-
 // Types
 export type {
   TApiKeyStamperConfig,
@@ -76,7 +47,6 @@ export type {
   TurnkeyApiTypes,
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
-  TurnkeyProxyHandlerConfig,
 };
 
 export * from "@turnkey/sdk-types";

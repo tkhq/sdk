@@ -20,6 +20,7 @@ import { fetch } from "./universal";
 import { VERSION } from "./__generated__/version";
 import {
   TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1,
+  TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2,
   type AwaitExportedSecretsParams,
   type CreateExportSecretsProposalParams,
   type ExportSecretParams,
@@ -34,25 +35,9 @@ import type {
   ApiCredentials,
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
-  TurnkeyProxyHandlerConfig,
 } from "./__types__/base";
 
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
-
-import type { Request, Response, RequestHandler } from "express";
-import type {
-  NextApiRequest,
-  NextApiResponse,
-  NextApiHandler,
-} from "./__types__/base";
-
-const DEFAULT_API_PROXY_ALLOWED_METHODS = [
-  "oauth",
-  "createReadWriteSession",
-  "createSubOrganization",
-  "emailAuth",
-  "initUserEmailRecovery",
-];
 
 export type PollTransactionStatusParams = {
   organizationId?: string;
@@ -83,79 +68,6 @@ export class TurnkeyServerSDK {
       organizationId: this.config.defaultOrganizationId,
       activityPoller: this.config.activityPoller,
     });
-  };
-
-  apiProxy = async (methodName: string, params: any[]): Promise<any> => {
-    const apiClient = this.apiClient();
-    const method = apiClient[methodName];
-    if (typeof method === "function") {
-      return await method(...params);
-    } else {
-      throw new Error(
-        `Method: ${methodName} does not exist on TurnkeySDKClient`,
-      );
-    }
-  };
-
-  expressProxyHandler = (config: TurnkeyProxyHandlerConfig): RequestHandler => {
-    const allowedMethods =
-      config.allowedMethods ?? DEFAULT_API_PROXY_ALLOWED_METHODS;
-
-    return async (request: Request, response: Response): Promise<void> => {
-      const { methodName, params } = request.body;
-      if (!methodName || !params) {
-        response.status(400).send("methodName and params are required.");
-      }
-
-      try {
-        if (allowedMethods.includes(methodName)) {
-          const result = await this.apiProxy(methodName, params);
-          response.json(result);
-        } else {
-          response.status(401).send("Unauthorized proxy method");
-        }
-        return;
-      } catch (error) {
-        if (error instanceof Error) {
-          response.status(500).send(error.message);
-        } else {
-          response.status(500).send("An unexpected error occurred");
-        }
-        return;
-      }
-    };
-  };
-
-  nextProxyHandler = (config: TurnkeyProxyHandlerConfig): NextApiHandler => {
-    const allowedMethods =
-      config.allowedMethods ?? DEFAULT_API_PROXY_ALLOWED_METHODS;
-
-    return async (
-      request: NextApiRequest,
-      response: NextApiResponse,
-    ): Promise<void> => {
-      const { methodName, params } = request.body;
-      if (!methodName || !params) {
-        response.status(400).send("methodName and params are required.");
-      }
-
-      try {
-        if (allowedMethods.includes(methodName)) {
-          const result = await this.apiProxy(methodName, params);
-          response.json(result);
-        } else {
-          response.status(401).send("Unauthorized proxy method");
-        }
-        return;
-      } catch (error) {
-        if (error instanceof Error) {
-          response.status(500).send(error.message);
-        } else {
-          response.status(500).send("An unexpected error occurred");
-        }
-        return;
-      }
-    };
   };
 }
 
@@ -259,7 +171,7 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
         timestampMs: String(Date.now()),
         organizationId,
         parameters: {
-          encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1,
+          encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2,
           numSecrets: 1,
         },
       },
@@ -274,10 +186,17 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
       );
     }
 
+    const staticProperties = Object.entries(params.staticProperties ?? {}).map(
+      ([key, value]) => ({ key, value }),
+    );
+    const nameField = params.name ? { name: params.name } : {};
+
     const { secretPayload, targetPublicKey } = await encryptSecretToBundle({
       plaintext: params.plaintext,
       ingressTargetBundle,
       organizationId,
+      name: params.name,
+      staticProperties,
       ...(params.dangerouslyOverrideSignerPublicKey
         ? {
             dangerouslyOverrideSignerPublicKey:
@@ -290,13 +209,11 @@ export class TurnkeyApiClient extends TurnkeyServerClient {
       organizationId,
       secrets: [
         {
-          ...(params.name ? { name: params.name } : {}),
+          ...nameField,
           secretPayload,
           targetPublicKey,
-          encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1,
-          staticProperties: Object.entries(params.staticProperties ?? {}).map(
-            ([key, value]) => ({ key, value }),
-          ),
+          encryptionSuite: TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2,
+          staticProperties,
         },
       ],
     });

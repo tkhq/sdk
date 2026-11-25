@@ -3145,7 +3145,7 @@ export type TListSecretsBody =
 /**
  * List secrets
  *
- * List secret metadata for an organization.
+ * List secret metadata for an organization. The returned metadata, including static properties, is for display only. For efficiency, the enclave does not authenticate it in this view, so do not use it for security-sensitive decisions.
  *
  * `POST /public/v1/query/list_secrets`
  */
