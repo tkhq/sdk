@@ -28,7 +28,7 @@ describe("TurnkeySigner", () => {
 
   const organizationId = "4456e4c2-e8b5-4b93-a0cf-1dfae265c12c";
   const apiPublicKey =
-    "025d374c674fc389c761462f3c59c0acabdcb3a17c599d9e62e5fe78fe984cfbeb";
+    "02874cc7c5ddeee9c738058ee5c2dec20a9ae6c91d65954695bc107fcc731cc41f";
   const turnkeySolAddress = "D8P541wwnertZTgDT14kYJPoFT2eHUFqjTgPxMK5qatM";
 
   const turnkeyBaseClient = new TurnkeyClient(
