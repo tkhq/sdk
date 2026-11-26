@@ -63,6 +63,7 @@
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/core": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
     "cross-fetch": "^4.0.0"
   },
   "devDependencies": {
