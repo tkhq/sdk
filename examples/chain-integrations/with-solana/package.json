@@ -13,6 +13,7 @@
     "with-fee-payer": "pnpm tsx src/withFeePayer.ts",
     "add-signature": "pnpm tsx src/addSignature.ts",
     "broadcast": "pnpm tsx src/broadcast.ts",
+    "spl-transfer": "pnpm tsx src/splTransfer.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
