@@ -69,10 +69,11 @@ For those with more specialized use cases, Turnkey exposes it's lower level-libr
 
 ### Utilities
 
-| Package                                   | NPM                                                                                                                       | Description                                                       | Changelog                                    |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------- |
-| [`@turnkey/encoding`](/packages/encoding) | [![npm](https://img.shields.io/npm/v/@turnkey/encoding?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/encoding) | Encoding and decoding utilities, primarily for internal usage     | [CHANGELOG](/packages/encoding/CHANGELOG.md) |
-| [`@turnkey/crypto`](/packages/crypto)     | [![npm](https://img.shields.io/npm/v/@turnkey/crypto?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/crypto)     | Cryptographic utilities for P256 keys, encryption, and decryption | [CHANGELOG](/packages/crypto/CHANGELOG.md)   |
+| Package                                                 | NPM                                                                                                                                     | Description                                                                                | Changelog                                           |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| [`@turnkey/encoding`](/packages/encoding)               | [![npm](https://img.shields.io/npm/v/@turnkey/encoding?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/encoding)               | Encoding and decoding utilities, primarily for internal usage                              | [CHANGELOG](/packages/encoding/CHANGELOG.md)        |
+| [`@turnkey/crypto`](/packages/crypto)                   | [![npm](https://img.shields.io/npm/v/@turnkey/crypto?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/crypto)                   | Cryptographic utilities for P256 keys, encryption, and decryption                          | [CHANGELOG](/packages/crypto/CHANGELOG.md)          |
+| [`@turnkey/browser-secrets`](/packages/browser-secrets) | [![npm](https://img.shields.io/npm/v/@turnkey/browser-secrets?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/browser-secrets) | Destination binding and output redaction for browser agents that fill secrets by reference | [CHANGELOG](/packages/browser-secrets/CHANGELOG.md) |
 
 ## Code Examples
 
