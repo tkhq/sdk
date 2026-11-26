@@ -20,6 +20,8 @@ export class TurnkeySparkWallet extends SparkWallet {
   constructor(options?: ConfigOptions, signerArg?: SparkSigner) {
     super(options, signerArg);
 
+    warnIfNotTurnkeySigner(signerArg);
+
     this.transferService = new TurnkeyTransferService(
       this.config,
       this.connectionManager,
@@ -127,3 +129,9 @@ export class TurnkeySparkWallet extends SparkWallet {
     return (this as any).logging as LoggingService | undefined;
   }
 }
+
+const warnIfNotTurnkeySigner = (signer: SparkSigner | undefined) => {
+  if (!(signer as TurnkeySparkSigner)?.isTurnkeySparkSigner?.()) {
+    console.warn("Warning: The provided signer is not a TurnkeySparkSigner.");
+  }
+};
