@@ -8,6 +8,7 @@ import { DisconnectWalletScreen } from "./DisconnectWalletScreen";
 import { MobileWalletConnectScreen } from "./MobileWalletConnectScreen";
 import { ShowAllWalletsScreen } from "./ShowAllWalletsScreen";
 import { WalletSelectorMode } from "../../../types/base";
+import { useWalletAuthAction } from "./utils";
 
 interface WalletConnectFlowProps {
   /** The WalletConnect provider group (one per chain) */
@@ -30,11 +31,8 @@ export function WalletConnectFlow(props: WalletConnectFlowProps) {
   const { providers, mode, sessionKey, onDisconnect } = props;
 
   const { pushPage, popPage, isMobile } = useModal();
-  const {
-    connectWalletAccount,
-    disconnectWalletAccount,
-    loginOrSignupWithWallet,
-  } = useTurnkey();
+  const { connectWalletAccount, disconnectWalletAccount } = useTurnkey();
+  const walletAuthAction = useWalletAuthAction(sessionKey);
 
   const isConnectMode = mode === WalletSelectorMode.Connect;
 
@@ -49,10 +47,7 @@ export function WalletConnectFlow(props: WalletConnectFlowProps) {
   const handleAction = async (provider: WalletProvider) => {
     if (mode === WalletSelectorMode.Auth) {
       // Auth flow: loginOrSignupWithWallet handles connect + sign
-      await loginOrSignupWithWallet({
-        walletProvider: provider,
-        ...(sessionKey && { sessionKey }),
-      });
+      await walletAuthAction(provider);
     } else {
       // Connect-only flow
       await connectWalletAccount(provider);
@@ -133,14 +128,7 @@ export function WalletConnectFlow(props: WalletConnectFlowProps) {
             await connectWalletAccount(p);
           }}
           onSign={
-            mode === WalletSelectorMode.Auth
-              ? async (p) => {
-                  await loginOrSignupWithWallet({
-                    walletProvider: p,
-                    ...(sessionKey && { sessionKey }),
-                  });
-                }
-              : undefined
+            mode === WalletSelectorMode.Auth ? walletAuthAction : undefined
           }
           onSelectQRCode={async (chain) => {
             // Fallback to QR code if deep link doesn't work
