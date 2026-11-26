@@ -84,6 +84,7 @@ import {
   type UpdateUserNameParams,
   type UpdateUserPhoneNumberParams,
   type VerifyOtpParams,
+  type ExchangeOauth2CodeParams,
   type Wallet,
   type WalletAccount,
   type VerifyOtpResult,
@@ -1035,6 +1036,24 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         publicKey: res.publicKey,
       });
       return res;
+    },
+    [client, callbacks],
+  );
+
+  const exchangeOauth2Code = useCallback(
+    async (params: ExchangeOauth2CodeParams): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        () => client.exchangeOauth2Code(params),
+        () => logout(),
+        callbacks,
+        "Failed to exchange OAuth 2.0 authorization code",
+      );
     },
     [client, callbacks],
   );
@@ -3139,7 +3158,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             });
           },
           exchangeCodeForToken: async (codeVerifier) => {
-            const resp = await client?.httpClient?.proxyOAuth2Authenticate({
+            if (!client) {
+              throw new TurnkeyError(
+                "Client is not initialized.",
+                TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+              );
+            }
+            const oidcToken = await client.exchangeOauth2Code({
               provider: "OAUTH2_PROVIDER_DISCORD",
               authCode: parsed.authCode!,
               redirectUri,
@@ -3147,15 +3172,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
               clientId,
               nonce,
             });
-            const oidcToken = resp?.oidcToken as string;
-            if (!oidcToken) {
-              throw new TurnkeyError(
-                "Missing oidcToken from OAuth exchange",
-                TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-              );
-            }
             // Set the attested stamper with the oidcToken
-            await client?.overrideAttestedStamper({ oidcToken, publicKey });
+            await client.overrideAttestedStamper({ oidcToken, publicKey });
             return oidcToken;
           },
         });
@@ -3295,7 +3313,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             });
           },
           exchangeCodeForToken: async (codeVerifier) => {
-            const resp = await client?.httpClient?.proxyOAuth2Authenticate({
+            if (!client) {
+              throw new TurnkeyError(
+                "Client is not initialized.",
+                TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+              );
+            }
+            const oidcToken = await client.exchangeOauth2Code({
               provider: "OAUTH2_PROVIDER_X",
               authCode: parsed.authCode!,
               redirectUri,
@@ -3303,17 +3327,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
               clientId,
               nonce,
             });
-            const oidcToken = resp?.oidcToken as string;
-            if (!oidcToken) {
-              throw new TurnkeyError(
-                "Missing oidcToken from OAuth exchange",
-                TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-              );
-            }
             // Set the attested stamper with the oidcToken before any
             // completion callback runs, so custom callbacks also use the
             // OIDC attested scheme
-            await client?.overrideAttestedStamper({ oidcToken, publicKey });
+            await client.overrideAttestedStamper({ oidcToken, publicKey });
             return oidcToken;
           },
         });
@@ -4181,6 +4198,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         signUpWithPasskey,
         initOtp,
         verifyOtp,
+        exchangeOauth2Code,
         loginWithOtp,
         signUpWithOtp,
         completeOtp,

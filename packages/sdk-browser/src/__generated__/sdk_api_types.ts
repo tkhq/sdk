@@ -1694,6 +1694,18 @@ export type TInitImportWalletBody =
   operations["PublicApiService_InitImportWallet"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TInitOauth2AuthenticateResponse =
+  operations["PublicApiService_InitOauth2Authenticate"]["responses"]["200"]["schema"]["activity"]["result"]["initOauth2AuthenticateResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TInitOauth2AuthenticateInput = {
+  body: TInitOauth2AuthenticateBody;
+};
+
+export type TInitOauth2AuthenticateBody =
+  operations["PublicApiService_InitOauth2Authenticate"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TInitOtpResponse =
   operations["PublicApiService_InitOtp"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpResultV2"] &
     definitions["v1ActivityResponse"];

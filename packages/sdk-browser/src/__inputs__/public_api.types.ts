@@ -652,6 +652,10 @@ export type paths = {
     /** Initialize a new wallet import. */
     post: operations["PublicApiService_InitImportWallet"];
   };
+  "/public/v1/submit/init_oauth2_authenticate": {
+    /** Create an encryption target for confidential OAuth 2.0 authentication inputs. */
+    post: operations["PublicApiService_InitOauth2Authenticate"];
+  };
   "/public/v1/submit/init_otp": {
     /** Initiate a generic OTP activity. */
     post: operations["PublicApiService_InitOtp"];
@@ -1267,7 +1271,16 @@ export type definitions = {
     | "ACTIVITY_TYPE_UPDATE_FIAT_RAMP_CREDENTIAL"
     | "ACTIVITY_TYPE_CREATE_EXTERNAL_SIGNER_V1"
     | "ACTIVITY_TYPE_DELETE_EXTERNAL_SIGNER_V1"
-    | "ACTIVITY_TYPE_MINT_JWT";
+    | "ACTIVITY_TYPE_MINT_JWT"
+    | "ACTIVITY_TYPE_ADD_NOTIFICATION_DOMAINS"
+    | "ACTIVITY_TYPE_DELETE_NOTIFICATION_DOMAINS"
+    | "ACTIVITY_TYPE_INIT_OAUTH2_AUTHENTICATE"
+    | "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE_V2";
+  v1AddNotificationDomainsIntent: {
+    /** @description Bare domains to allow in notification links, such as example.com. Between 1 and 50. */
+    domains: string[];
+  };
+  v1AddNotificationDomainsResult: { [key: string]: unknown };
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1524,6 +1537,8 @@ export type definitions = {
     createdAt: definitions["externaldatav1Timestamp"];
     /** @description QOS manifest schema version. */
     qosManifestVersion?: string;
+    /** @description Hex-encoded Signer quorum-key signature over the domain-separated AWS attestation document. */
+    quorumKeyAttestationSignatureHex?: string;
   };
   v1BootProofResponse: {
     bootProof: definitions["v1BootProof"];
@@ -2427,6 +2442,8 @@ export type definitions = {
     enableDebugModeDeployments?: boolean;
     /** @description AWS region in which to place this TVC application. Allowed values: us-east-1, ap-southeast-1. Default if not provided: us-east-1. */
     region?: string;
+    /** @description Enables static egress IPs for this TVC app. Requires enableEgress to be true. Set at app creation. Default if not provided: false. */
+    enableStaticEgressIps?: boolean;
   };
   v1CreateTvcAppRequest: {
     /** @enum {string} */
@@ -2910,6 +2927,11 @@ export type definitions = {
     /** @description Unique identifier for a given MFA Policy. */
     mfaPolicyId: string;
   };
+  v1DeleteNotificationDomainsIntent: {
+    /** @description Bare domains to remove from notification links, such as example.com. Between 1 and 50. */
+    domains: string[];
+  };
+  v1DeleteNotificationDomainsResult: { [key: string]: unknown };
   v1DeleteOauth2CredentialIntent: {
     /** @description The ID of the OAuth 2.0 credential to delete */
     oauth2CredentialId: string;
@@ -3938,6 +3960,8 @@ export type definitions = {
     gasStationNonce?: string;
     /** @description Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station. */
     calls: definitions["v1EthCallParams"][];
+    /** @description The public key of the external signer to use for signing this transaction. Only needed for external signer requests. */
+    externalSignerPubkey?: string;
   };
   v1EthSendTransactionRequest: {
     /** @enum {string} */
@@ -5599,6 +5623,26 @@ export type definitions = {
     /** @description Import bundle containing a public key and signature to use for importing client data. */
     importBundle: string;
   };
+  v1InitOauth2AuthenticateIntent: {
+    /** @description The OAuth 2.0 credential whose authentication inputs will be encrypted to the target. */
+    oauth2CredentialId: string;
+    /** @description The transport encryption suite for the OAuth 2.0 authentication target. */
+    encryptionSuite: definitions["v1TransportEncryptionSuite"];
+  };
+  v1InitOauth2AuthenticateRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_INIT_OAUTH2_AUTHENTICATE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1InitOauth2AuthenticateIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1InitOauth2AuthenticateResult: {
+    /** @description The TLS Fetcher-signed encryption target for OAuth 2.0 authentication inputs. */
+    enclaveTargetMessage: string;
+  };
   v1InitOtpAuthIntent: {
     /** @description Enum to specify whether to send OTP via SMS, email, or WhatsApp */
     otpType: string;
@@ -6027,6 +6071,10 @@ export type definitions = {
     createExternalSignerIntentV1?: definitions["v1CreateExternalSignerIntentV1"];
     deleteExternalSignerIntentV1?: definitions["v1DeleteExternalSignerIntentV1"];
     mintJwtIntent?: definitions["v1MintJwtIntent"];
+    addNotificationDomainsIntent?: definitions["v1AddNotificationDomainsIntent"];
+    deleteNotificationDomainsIntent?: definitions["v1DeleteNotificationDomainsIntent"];
+    initOauth2AuthenticateIntent?: definitions["v1InitOauth2AuthenticateIntent"];
+    oauth2AuthenticateIntentV2?: definitions["v1Oauth2AuthenticateIntentV2"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -6411,14 +6459,22 @@ export type definitions = {
     /** @description An optional P256 public key to which, if provided, the bearer token will be encrypted and returned via the `encrypted_bearer_token` claim of the OIDC Token */
     bearerTokenTargetPublicKey?: string;
   };
+  v1Oauth2AuthenticateIntentV2: {
+    /** @description The OAuth 2.0 credential selected by the client and repeated inside the encrypted payload. */
+    oauth2CredentialId: string;
+    /** @description Encryption suite specific ciphertext of a JSON object containing organization_id, oauth2_credential_id, client_id, provider, auth_code, code_verifier, redirect_uri, nonce, and optional bearer_token_target_public_key. For enclave encrypt v1 this is a JSON-encoded ClientSendMsg encrypted to target_public_key. */
+    encryptedMessage: string;
+    /** @description Targeted transport encryption public key, from the enclave target message returned by InitOauth2Authenticate. */
+    targetPublicKey: string;
+  };
   v1Oauth2AuthenticateRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE";
+    type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1Oauth2AuthenticateIntent"];
+    parameters: definitions["v1Oauth2AuthenticateIntentV2"];
     generateAppProofs?: boolean;
   };
   v1Oauth2AuthenticateResult: {
@@ -7045,6 +7101,9 @@ export type definitions = {
     createExternalSignerResultV1?: definitions["v1CreateExternalSignerResultV1"];
     deleteExternalSignerResultV1?: definitions["v1DeleteExternalSignerResultV1"];
     mintJwtResult?: definitions["v1MintJwtResult"];
+    addNotificationDomainsResult?: definitions["v1AddNotificationDomainsResult"];
+    deleteNotificationDomainsResult?: definitions["v1DeleteNotificationDomainsResult"];
+    initOauth2AuthenticateResult?: definitions["v1InitOauth2AuthenticateResult"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -7391,6 +7450,8 @@ export type definitions = {
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
     /** @description User-provided blockhash for replay protection / deadline control. If provided, it is used as-is, including for sponsored transactions (the transaction is only broadcastable while the blockhash is current). If omitted and sponsor=true, a fresh blockhash is fetched during execution. */
     recentBlockhash?: string;
+    /** @description The public key of the external signer to use for signing this transaction. Only needed for external signer requests. */
+    externalSignerPubkey?: string;
   };
   v1SolSendTransactionRequest: {
     /** @enum {string} */
@@ -7954,6 +8015,8 @@ export type definitions = {
     enableDebugModeDeployments: boolean;
     /** @description region this TVC App is deployed in, e.g. us-east-1 or ap-southeast-1. Set at app creation. */
     region: string;
+    /** @description Whether this TVC app has static egress IPs enabled. Set at app creation. */
+    enableStaticEgressIps: boolean;
   };
   v1TvcContainerSpec: {
     /** @description The URL for this container image. */
@@ -12002,6 +12065,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1InitImportWalletRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create an encryption target for confidential OAuth 2.0 authentication inputs. */
+  PublicApiService_InitOauth2Authenticate: {
+    parameters: {
+      body: {
+        body: definitions["v1InitOauth2AuthenticateRequest"];
       };
     };
     responses: {

@@ -44,10 +44,42 @@
         "tags": ["Accounts"]
       }
     },
+    "/v1/init_oauth2_authenticate_v2": {
+      "post": {
+        "summary": "Init OAuth 2.0 Authenticate V2",
+        "description": "Initialize an encryption target for OAuth 2.0 authentication.",
+        "operationId": "AuthProxyService_InitOAuth2AuthenticateV2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1InitOAuth2AuthenticateV2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1InitOAuth2AuthenticateV2Request"
+            }
+          }
+        ],
+        "tags": ["Auth"]
+      }
+    },
     "/v1/oauth2_authenticate": {
       "post": {
         "summary": "OAuth 2.0 Authenticate",
-        "description": "Authenticate with an OAuth 2.0 provider and receive an OIDC token issued by Turnkey in response.",
+        "description": "Deprecated: use InitOAuth2AuthenticateV2 and OAuth2AuthenticateV2.",
         "operationId": "AuthProxyService_OAuth2Authenticate",
         "responses": {
           "200": {
@@ -70,6 +102,39 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1OAuth2AuthenticateRequest"
+            }
+          }
+        ],
+        "tags": ["Auth"],
+        "deprecated": true
+      }
+    },
+    "/v1/oauth2_authenticate_v2": {
+      "post": {
+        "summary": "OAuth 2.0 Authenticate V2",
+        "description": "Authenticate with an OAuth 2.0 provider using encrypted client inputs and receive a Turnkey OIDC token.",
+        "operationId": "AuthProxyService_OAuth2AuthenticateV2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OAuth2AuthenticateV2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1OAuth2AuthenticateV2Request"
             }
           }
         ],
@@ -811,6 +876,34 @@
         "organizationId"
       ]
     },
+    "v1InitOAuth2AuthenticateV2Request": {
+      "type": "object",
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "description": "The client ID registered with the OAuth 2.0 provider."
+        },
+        "encryptionSuite": {
+          "$ref": "#/definitions/v1TransportEncryptionSuite",
+          "description": "The transport encryption suite to use for the authentication inputs."
+        }
+      },
+      "required": ["clientId", "encryptionSuite"]
+    },
+    "v1InitOAuth2AuthenticateV2Response": {
+      "type": "object",
+      "properties": {
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "The credential ID to include in the encrypted payload and subsequent authentication request."
+        },
+        "enclaveTargetMessage": {
+          "type": "string",
+          "description": "The enclave target message used to encrypt the OAuth authentication payload."
+        }
+      },
+      "required": ["oauth2CredentialId", "enclaveTargetMessage"]
+    },
     "v1InitOtpRequest": {
       "type": "object",
       "properties": {
@@ -914,6 +1007,34 @@
         "oidcToken": {
           "type": "string",
           "description": "A Turnkey issued OIDC token to be used with the LoginWithOAuth activity"
+        }
+      },
+      "required": ["oidcToken"]
+    },
+    "v1OAuth2AuthenticateV2Request": {
+      "type": "object",
+      "properties": {
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "The OAuth credential ID returned by InitOAuth2AuthenticateV2."
+        },
+        "encryptedMessage": {
+          "type": "string",
+          "description": "Encryption suite specific ciphertext of a JSON object containing organization_id, oauth2_credential_id, client_id, provider, auth_code, code_verifier, redirect_uri, nonce, and optional bearer_token_target_public_key. For enclave encrypt v1 this is a JSON-encoded ClientSendMsg encrypted to target_public_key. Use the expected organization, client ID, and provider from the client configuration."
+        },
+        "targetPublicKey": {
+          "type": "string",
+          "description": "Targeted transport encryption public key, from the enclave target message returned by InitOAuth2AuthenticateV2."
+        }
+      },
+      "required": ["oauth2CredentialId", "encryptedMessage", "targetPublicKey"]
+    },
+    "v1OAuth2AuthenticateV2Response": {
+      "type": "object",
+      "properties": {
+        "oidcToken": {
+          "type": "string",
+          "description": "A Turnkey OIDC token bound to the nonce in the encrypted authentication payload."
         }
       },
       "required": ["oidcToken"]
@@ -1350,6 +1471,13 @@
         }
       },
       "required": ["organizationId", "userId"]
+    },
+    "v1TransportEncryptionSuite": {
+      "type": "string",
+      "enum": [
+        "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V1",
+        "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2"
+      ]
     },
     "v1VerifyOtpRequest": {
       "type": "object",

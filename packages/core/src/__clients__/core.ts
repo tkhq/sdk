@@ -66,6 +66,7 @@ import {
   type LoginWithOtpParams,
   type SignUpWithOtpParams,
   type CompleteOtpParams,
+  type ExchangeOauth2CodeParams,
   type CompleteOauthParams,
   type LoginWithOauthParams,
   type SignUpWithOauthParams,
@@ -152,7 +153,7 @@ import {
   ERC20_TRANSFER_ABI,
   parseSession,
 } from "../utils";
-import { encryptOtpCodeToBundle } from "@turnkey/crypto";
+import { encryptOauth2ToBundle, encryptOtpCodeToBundle } from "@turnkey/crypto";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
 import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
@@ -1979,6 +1980,74 @@ export class TurnkeyClient {
             }
           }
         },
+      },
+    );
+  };
+
+  /**
+   * Exchanges an OAuth 2.0 authorization code for an OIDC token issued by Turnkey, for providers that do not issue OIDC tokens themselves (X and Discord).
+   *
+   * - Requests an encryption target from the auth proxy for the configured client ID, then verifies its TLS Fetcher signature and the parent organization ID.
+   * - Encrypts the authorization code, PKCE verifier, redirect URI, and nonce to that target, so the auth proxy and coordinator never see them in plaintext.
+   * - The OAuth 2.0 credential for `clientId` must exist in the parent organization (`organizationId` in the client config).
+   *
+   * @param params.provider - OAuth 2.0 provider (`OAUTH2_PROVIDER_X` or `OAUTH2_PROVIDER_DISCORD`).
+   * @param params.clientId - client ID registered with the provider.
+   * @param params.authCode - authorization code returned by the provider.
+   * @param params.codeVerifier - PKCE code verifier used in the authorization request.
+   * @param params.redirectUri - redirect URI used in the authorization request.
+   * @param params.nonce - nonce to bind into the OIDC token, normally `sha256(publicKey)` as lowercase hex.
+   * @param params.bearerTokenTargetPublicKey - optional uncompressed P-256 public key that receives the provider bearer token, encrypted, in the OIDC token.
+   * @returns A promise that resolves to the OIDC token issued by Turnkey.
+   * @throws {TurnkeyError} If the target cannot be verified or the exchange fails.
+   */
+  exchangeOauth2Code = async (
+    params: ExchangeOauth2CodeParams,
+  ): Promise<string> => {
+    const { provider, clientId, ...inputs } = params;
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        const target = await this.httpClient.proxyInitOAuth2AuthenticateV2({
+          clientId,
+          encryptionSuite: "TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2",
+        });
+        if (!target?.oauth2CredentialId || !target.enclaveTargetMessage) {
+          throw new TurnkeyError(
+            "Failed to initialize OAuth 2.0 authentication: oauth2CredentialId or enclaveTargetMessage is missing",
+            TurnkeyErrorCodes.OAUTH2_AUTHENTICATE_ERROR,
+          );
+        }
+
+        const { encryptedMessage, targetPublicKey } =
+          await encryptOauth2ToBundle({
+            bundle: {
+              ...inputs,
+              organizationId: this.config.organizationId,
+              oauth2CredentialId: target.oauth2CredentialId,
+              clientId,
+              provider,
+            },
+            enclaveTargetMessage: target.enclaveTargetMessage,
+          });
+
+        const res = await this.httpClient.proxyOAuth2AuthenticateV2({
+          oauth2CredentialId: target.oauth2CredentialId,
+          encryptedMessage,
+          targetPublicKey,
+        });
+        if (!res?.oidcToken) {
+          throw new TurnkeyError(
+            "No OIDC token found in the OAuth 2.0 authentication response",
+            TurnkeyErrorCodes.OAUTH2_AUTHENTICATE_ERROR,
+          );
+        }
+
+        return res.oidcToken;
+      },
+      {
+        errorMessage: "Failed to exchange OAuth 2.0 authorization code",
+        errorCode: TurnkeyErrorCodes.OAUTH2_AUTHENTICATE_ERROR,
       },
     );
   };

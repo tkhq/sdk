@@ -69,23 +69,24 @@ export async function POST(req: Request) {
       defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    // perform an Oauth2Authenticate activity with the parameters passed by the client that will respond with an OIDC token issued by Turnkey to be used with a future LoginWithOAuth or CreateSubOrganization activity
+    // exchange the auth code for an OIDC token issued by Turnkey, to be used with a future LoginWithOAuth or CreateSubOrganization activity
+    // the auth code, PKCE verifier, redirect URI, and nonce are encrypted to Turnkey's TLS Fetcher enclave before they are sent
     // NOTE: P256 keypair is only required if you would like the encrypted bearer token to be returned in the response
     const keypair = generateP256KeyPair();
 
-    const oauth2AuthenticateResponse = await turnkeyClient
-      .apiClient()
-      .oauth2Authenticate({
-        oauth2CredentialId: process.env.OAUTH2_CREDENTIAL_ID!,
-        authCode: body.auth_code,
-        redirectUri: process.env.X_REDIRECT_URI!,
-        codeVerifier,
-        bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
-        nonce: bytesToHex(sha256(sessionPublicKey)),
-      });
+    const oidcToken = await turnkeyClient.apiClient().exchangeOauth2Code({
+      oauth2CredentialId: process.env.OAUTH2_CREDENTIAL_ID!,
+      provider: "OAUTH2_PROVIDER_X",
+      clientId: process.env.X_CLIENT_ID!,
+      authCode: body.auth_code,
+      redirectUri: process.env.X_REDIRECT_URI!,
+      codeVerifier,
+      bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
+      nonce: bytesToHex(sha256(sessionPublicKey)),
+    });
 
     // you can now decrypt and store the bearer token as shown below (code commented out for security reasons)
-    // const encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(oauth2AuthenticateResponse.oidcToken);
+    // const encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(oidcToken);
     // if (encryptedBearerToken !== undefined) {
     //   const decryptedBearerToken = await decryptCredentialBundle(
     //     encryptedBearerToken,
@@ -97,7 +98,7 @@ export async function POST(req: Request) {
     const getSubOrgIdsResponse = await turnkeyClient.apiClient().getSubOrgIds({
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       filterType: "OIDC_TOKEN",
-      filterValue: oauth2AuthenticateResponse.oidcToken,
+      filterValue: oidcToken,
     });
 
     let subOrgId: string;
@@ -118,7 +119,7 @@ export async function POST(req: Request) {
               oauthProviders: [
                 {
                   providerName: "X",
-                  oidcToken: oauth2AuthenticateResponse.oidcToken,
+                  oidcToken,
                 },
               ],
             },
@@ -145,7 +146,7 @@ export async function POST(req: Request) {
     // a user was found with that OIDC token, try logging them in
     const loginWithOAuthResponse = await turnkeyClient.apiClient().oauthLogin({
       organizationId: subOrgId,
-      oidcToken: oauth2AuthenticateResponse.oidcToken,
+      oidcToken,
       publicKey: sessionPublicKey,
     });
 

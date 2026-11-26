@@ -8180,6 +8180,60 @@ export const signInitImportWallet = (
   });
 
 /**
+ * `POST /public/v1/submit/init_oauth2_authenticate`
+ */
+export type TInitOauth2AuthenticateResponse =
+  operations["PublicApiService_InitOauth2Authenticate"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_oauth2_authenticate`
+ */
+export type TInitOauth2AuthenticateInput = {
+  body: TInitOauth2AuthenticateBody;
+};
+
+/**
+ * `POST /public/v1/submit/init_oauth2_authenticate`
+ */
+export type TInitOauth2AuthenticateBody =
+  operations["PublicApiService_InitOauth2Authenticate"]["parameters"]["body"]["body"];
+
+/**
+ * Initialize OAuth 2.0 authentication
+ *
+ * Create an encryption target for confidential OAuth 2.0 authentication inputs.
+ *
+ * `POST /public/v1/submit/init_oauth2_authenticate`
+ */
+export const initOauth2Authenticate = (input: TInitOauth2AuthenticateInput) =>
+  request<
+    TInitOauth2AuthenticateResponse,
+    TInitOauth2AuthenticateBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/init_oauth2_authenticate",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitOauth2Authenticate` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitOauth2Authenticate}
+ */
+export const signInitOauth2Authenticate = (
+  input: TInitOauth2AuthenticateInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TInitOauth2AuthenticateBody, never, never>({
+    uri: "/public/v1/submit/init_oauth2_authenticate",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/init_otp`
  */
 export type TInitOtpResponse =

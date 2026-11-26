@@ -221,7 +221,7 @@ export interface CompletePKCEFlowParams {
   /**
    * Function to exchange the authorization code for an OIDC token.
    * This is provider-specific:
-   * - Discord/Twitter: uses proxyOAuth2Authenticate
+   * - Discord/Twitter: uses exchangeOauth2Code
    * - Facebook: uses exchangeCodeForToken
    */
   exchangeCodeForToken: (verifier: string) => Promise<string>;

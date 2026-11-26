@@ -216,6 +216,75 @@ interface DecryptSecretBundleParams {
 }
 
 const IMPORT_SECRETS_PURPOSE = "ENCRYPTED_INGRESS_PURPOSE_IMPORT_SECRETS";
+const OAUTH2_AUTHENTICATE_PURPOSE =
+  "ENCRYPTED_INGRESS_PURPOSE_OAUTH2_AUTHENTICATE";
+
+/** A named request field bound into a ciphertext by {@link encodePurposeBinding}. */
+export interface PurposeBindingField {
+  key: string;
+  value: string;
+}
+
+/**
+ * Accumulates big-endian length prefixes and fields, then concatenates them into one purpose binding.
+ */
+class BindingEncoder {
+  private readonly textEncoder = new TextEncoder();
+  private readonly chunks: Uint8Array[] = [];
+  private length = 0;
+
+  /** Appends `u32be(len(value)) || value`, with `value` encoded as UTF-8. */
+  field(value: string): this {
+    const bytes = this.textEncoder.encode(value);
+    return this.uint32(bytes.length).append(bytes);
+  }
+
+  /** Appends `value` as a big-endian u32. */
+  uint32(value: number): this {
+    if (!Number.isInteger(value) || value < 0 || value > 0xffffffff) {
+      throw new Error("purpose binding field is longer than u32::MAX bytes");
+    }
+    const bytes = new Uint8Array(4);
+    new DataView(bytes.buffer).setUint32(0, value, false);
+    return this.append(bytes);
+  }
+
+  /** Returns the concatenated binding. */
+  finish(): Uint8Array {
+    const binding = new Uint8Array(this.length);
+    let offset = 0;
+    for (const chunk of this.chunks) {
+      binding.set(chunk, offset);
+      offset += chunk.length;
+    }
+    return binding;
+  }
+
+  private append(bytes: Uint8Array): this {
+    this.chunks.push(bytes);
+    this.length += bytes.length;
+    return this;
+  }
+}
+
+/**
+ * Encodes the length-prefixed `purpose`, the field count, and each length-prefixed key and value, in order.
+ *
+ * Matches `turnkey_enclave_encrypt::purpose_binding::encode`. `purpose` is the `EncryptedIngressPurpose`
+ * proto enum string name; ImportSecrets uses {@link importSecretsPurposeBinding} instead.
+ *
+ * @param {string} purpose - The `EncryptedIngressPurpose` proto enum string name.
+ * @param {PurposeBindingField[]} fields - The bound request fields, in order.
+ * @returns {Uint8Array} - The purpose binding.
+ */
+export const encodePurposeBinding = (
+  purpose: string,
+  fields: PurposeBindingField[],
+): Uint8Array => {
+  const encoder = new BindingEncoder().field(purpose).uint32(fields.length);
+  fields.forEach(({ key, value }) => encoder.field(key).field(value));
+  return encoder.finish();
+};
 
 /**
  * Encodes the AAD suffix that binds an `import_secrets` ciphertext to its name
@@ -229,36 +298,27 @@ export const importSecretsPurposeBinding = (
   name: string | undefined,
   staticProperties: StaticProperty[],
 ): Uint8Array => {
-  const textEncoder = new TextEncoder();
-  const purpose = textEncoder.encode(IMPORT_SECRETS_PURPOSE);
-  const encodedName = textEncoder.encode(name ?? "");
-  const properties = staticProperties.flatMap(({ key, value }) => [
-    textEncoder.encode(key),
-    textEncoder.encode(value),
-  ]);
-  const binding = new Uint8Array(
-    properties.reduce(
-      (length, field) => length + 4 + field.length,
-      12 + purpose.length + encodedName.length,
-    ),
-  );
-  const view = new DataView(binding.buffer);
-  let offset = 0;
-  const writeUint32 = (value: number): void => {
-    view.setUint32(offset, value, false);
-    offset += 4;
-  };
-  const writeField = (field: Uint8Array): void => {
-    writeUint32(field.length);
-    binding.set(field, offset);
-    offset += field.length;
-  };
-  writeField(purpose);
-  writeField(encodedName);
-  writeUint32(staticProperties.length);
-  properties.forEach(writeField);
-  return binding;
+  const encoder = new BindingEncoder()
+    .field(IMPORT_SECRETS_PURPOSE)
+    .field(name ?? "")
+    .uint32(staticProperties.length);
+  staticProperties.forEach(({ key, value }) => encoder.field(key).field(value));
+  return encoder.finish();
 };
+
+/**
+ * Encodes the AAD suffix that binds an `oauth2_authenticate` ciphertext to its OAuth 2.0 credential ID,
+ * the canonical lowercase hyphenated UUID sent in the activity.
+ *
+ * @param {string} oauth2CredentialId - The OAuth 2.0 credential ID.
+ * @returns {Uint8Array} - The purpose binding.
+ */
+export const oauth2AuthenticatePurposeBinding = (
+  oauth2CredentialId: string,
+): Uint8Array =>
+  encodePurposeBinding(OAUTH2_AUTHENTICATE_PURPOSE, [
+    { key: "oauth2_credential_id", value: oauth2CredentialId },
+  ]);
 
 /**
  * Encrypts a secret to an ingress target bundle returned by the
@@ -333,6 +393,122 @@ export const encryptSecretToBundle = async ({
     secretPayload: formatHpkeBuf(encrypted),
     targetPublicKey: signedData.targetPublic,
   };
+};
+
+/**
+ * The confidential `oauth2_authenticate` inputs encrypted to the TLS Fetcher.
+ * `organizationId`, `oauth2CredentialId`, `clientId`, and `provider` must match the
+ * authenticating organization's OAuth 2.0 credential.
+ */
+export interface Oauth2AuthenticationBundle {
+  organizationId: string;
+  oauth2CredentialId: string;
+  clientId: string;
+  /** The OAuth 2.0 provider enum name, such as `OAUTH2_PROVIDER_X`. */
+  provider: string;
+  authCode: string;
+  codeVerifier: string;
+  redirectUri: string;
+  /** The lowercase hex SHA-256 digest bound into the issued OIDC token. */
+  nonce: string;
+  /** Optionally receives the provider bearer token, encrypted to this uncompressed P-256 public key. */
+  bearerTokenTargetPublicKey?: string | undefined;
+}
+
+interface EncryptOAuth2ToBundleParams {
+  bundle: Oauth2AuthenticationBundle;
+  /** The TLS Fetcher-signed target from `init_oauth2_authenticate`. */
+  enclaveTargetMessage: string;
+  dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
+}
+
+/**
+ * Encrypts OAuth 2.0 authentication inputs to the TLS Fetcher target returned by
+ * `init_oauth2_authenticate`, bound to `bundle.oauth2CredentialId`.
+ *
+ * Verifies the TLS Fetcher quorum key signature on the target, checks that it was
+ * signed for `bundle.organizationId` with no user, then HPKE-encrypts the inputs to the
+ * target key. The init request must use `TRANSPORT_ENCRYPTION_SUITE_ENCLAVE_ENCRYPT_V2`,
+ * and the `oauth2_authenticate` request must send the same credential ID.
+ *
+ * @param {EncryptOAuth2ToBundleParams} params - An object containing the following properties:
+ *   - bundle {Oauth2AuthenticationBundle}: The OAuth 2.0 authentication inputs.
+ *   - enclaveTargetMessage {string}: The TLS Fetcher-signed target from `init_oauth2_authenticate`.
+ *   - dangerouslyOverrideSignerPublicKey {string} [Optional]: Override the default TLS Fetcher signer public key for verification. Testing only.
+ * @returns {Promise<{encryptedMessage: string; targetPublicKey: string}>} - The `encryptedMessage` and `targetPublicKey` for `oauth2_authenticate`.
+ * @throws {Error} - If signature verification or validation fails.
+ */
+export const encryptOauth2ToBundle = async ({
+  bundle,
+  enclaveTargetMessage,
+  dangerouslyOverrideSignerPublicKey,
+}: EncryptOAuth2ToBundleParams): Promise<{
+  encryptedMessage: string;
+  targetPublicKey: string;
+}> => {
+  const parsedTarget = JSON.parse(enclaveTargetMessage);
+  const verified = await verifyEnclaveSignature(
+    parsedTarget.enclaveQuorumPublic,
+    parsedTarget.dataSignature,
+    parsedTarget.data,
+    dangerouslyOverrideSignerPublicKey ??
+      PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
+  );
+  if (!verified) {
+    throw new Error("failed to verify enclave signature on OAuth 2.0 target");
+  }
+
+  const signedData = JSON.parse(
+    new TextDecoder().decode(uint8ArrayFromHexString(parsedTarget.data)),
+  );
+  if (
+    !signedData.organizationId ||
+    signedData.organizationId !== bundle.organizationId
+  ) {
+    throw new Error(
+      `organization id does not match expected value. Expected: ${bundle.organizationId}. Found: ${signedData.organizationId}.`,
+    );
+  }
+  if (signedData.userId) {
+    throw new Error(
+      `OAuth 2.0 target user id must be empty. Found: ${signedData.userId}.`,
+    );
+  }
+  if (!signedData.targetPublic) {
+    throw new Error('missing "targetPublic" in target signed data');
+  }
+
+  const plainTextBuf = new TextEncoder().encode(
+    JSON.stringify({
+      organization_id: bundle.organizationId,
+      oauth2_credential_id: bundle.oauth2CredentialId,
+      client_id: bundle.clientId,
+      provider: bundle.provider,
+      auth_code: bundle.authCode,
+      code_verifier: bundle.codeVerifier,
+      redirect_uri: bundle.redirectUri,
+      nonce: bundle.nonce,
+      ...(bundle.bearerTokenTargetPublicKey && {
+        bearer_token_target_public_key: bundle.bearerTokenTargetPublicKey,
+      }),
+    }),
+  );
+  try {
+    const encrypted = hpkeEncrypt({
+      plainTextBuf,
+      targetKeyBuf: uint8ArrayFromHexString(signedData.targetPublic),
+      purposeBinding: oauth2AuthenticatePurposeBinding(
+        bundle.oauth2CredentialId,
+      ),
+    });
+
+    return {
+      encryptedMessage: formatHpkeBuf(encrypted),
+      targetPublicKey: signedData.targetPublic,
+    };
+  } finally {
+    plainTextBuf.fill(0);
+  }
 };
 
 /**
