@@ -131,7 +131,7 @@ export class CrossPlatformPasskeyStamper implements TStamper {
       publicKey: {
         rp: {
           id: config.publicKey?.rp?.id ?? this.config.rpId,
-          name: config.publicKey?.rp?.name ?? "",
+          name: config.publicKey?.rp?.name ?? this.config.rpName ?? "",
         },
         challenge: config.publicKey?.challenge ?? challenge,
         pubKeyCredParams: config.publicKey?.pubKeyCredParams ?? [
