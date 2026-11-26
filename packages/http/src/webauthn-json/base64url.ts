@@ -12,12 +12,11 @@ export function base64urlToBuffer(
   const str = atob(base64String);
 
   // Binary string to buffer
-  const buffer = new ArrayBuffer(str.length);
-  const byteView = new Uint8Array(buffer);
+  const byteView = new Uint8Array(str.length);
   for (let i = 0; i < str.length; i++) {
     byteView[i] = str.charCodeAt(i);
   }
-  return byteView;
+  return byteView.buffer;
 }
 
 export function bufferToBase64url(buffer: ArrayBuffer): Base64urlString {
