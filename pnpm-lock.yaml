@@ -5465,6 +5465,28 @@ importers:
         specifier: ^0.10.7
         version: 0.10.7
 
+  packages/x402:
+    dependencies:
+      '@x402/core':
+        specifier: 2.31.0
+        version: 2.31.0
+      '@x402/evm':
+        specifier: 2.31.0
+        version: 2.31.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      viem:
+        specifier: 2.57.10
+        version: 2.57.10(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.6.7)
+    devDependencies:
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../viem
+      '@x402/fetch':
+        specifier: 2.31.0
+        version: 2.31.0
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
 packages:
 
   '@0no-co/graphql.web@1.2.0':
@@ -12219,6 +12241,15 @@ packages:
 
   '@webgpu/types@0.1.64':
     resolution: {integrity: sha512-84kRIAGV46LJTlJZWxShiOrNL30A+9KokD7RB3dRCIqODFjodS5tCD5yyiZ8kIReGVZSDfA3XkkwyyOIF6K62A==}
+
+  '@x402/core@2.31.0':
+    resolution: {integrity: sha512-7ToCOwHfftfFEERW5Mp6Fc5U1+JrtCLTkbQnEVsBl13IutltP9lWIBYi/J+zy8vQWaLUmACq8A2qywzdt/RRIQ==}
+
+  '@x402/evm@2.31.0':
+    resolution: {integrity: sha512-CCOqou/7f0/5kKQXlcVvWbiVnFmk/CqaSCs8YkJ2GPzxDYoQD13iKAjo0Uv7y/dVlkkOH0p/eJVxgcrO6aagbw==}
+
+  '@x402/fetch@2.31.0':
+    resolution: {integrity: sha512-Td+Nxhy0TIwKMZ4G7q+lv+oD5SsRI1T0peGE34lSZaaZwXvqQbeR/TQDzex6tQpljq12+D7Mjwp1wX0Maa2Zeg==}
 
   '@xmldom/xmldom@0.8.15':
     resolution: {integrity: sha512-/5NV/vDALVFDXgLmfsy9TRCBlKwO2LNBFzpzvb9iIj+jR+eSc6DLYYvVOdivT/jm7MtU6TebYuRmzEOI7w40UA==}
@@ -36009,6 +36040,24 @@ snapshots:
       tslib: 1.14.1
 
   '@webgpu/types@0.1.64': {}
+
+  '@x402/core@2.31.0':
+    dependencies:
+      zod: 4.6.7
+
+  '@x402/evm@2.31.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)':
+    dependencies:
+      '@x402/core': 2.31.0
+      viem: 2.57.10(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.6.7)
+      zod: 4.6.7
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+
+  '@x402/fetch@2.31.0':
+    dependencies:
+      '@x402/core': 2.31.0
 
   '@xmldom/xmldom@0.8.15': {}
 
