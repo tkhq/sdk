@@ -33,6 +33,7 @@ type AuthComponentProps = {
   logo?: string | undefined;
   logoClassName?: string | undefined;
   title?: string | undefined;
+  hidePasskeySignup?: boolean | undefined;
 };
 
 export function AuthComponent({
@@ -40,6 +41,7 @@ export function AuthComponent({
   logo,
   logoClassName,
   title,
+  hidePasskeySignup,
 }: AuthComponentProps) {
   const {
     config,
@@ -405,6 +407,7 @@ export function AuthComponent({
         onLogin={handlePasskeyLogin}
         onSignUp={handlePasskeySignUp}
         disabled={!authEnabled}
+        hideSignUp={hidePasskeySignup}
       />
     ) : null,
     wallet: methods.walletAuthEnabled ? (
